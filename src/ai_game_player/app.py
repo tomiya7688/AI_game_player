@@ -6,6 +6,8 @@ from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.config import ConfigStore, AppConfig
+from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.metrics import MetricsCalculator
 
 class MemorySource:
     def __init__(self,observation:ScreenObservation,candidates:list[ActionCandidate]): self.observation=observation; self.candidates=candidates
@@ -21,14 +23,14 @@ class Application:
         self.obs=tk.Text(frame,height=10); self.obs.pack(fill=tk.BOTH,expand=True); self.obs.insert("1.0",json.dumps({"screen_id":"title","width":1280,"height":720,"ocr_text":["NEW GAME","OPTION"]},ensure_ascii=False,indent=2))
         ttk.Label(frame,text="Automation候補JSON").pack(anchor=tk.W,pady=(8,0))
         self.actions=tk.Text(frame,height=10); self.actions.pack(fill=tk.BOTH,expand=True); self.actions.insert("1.0",json.dumps([{"action_id":"new-game","kind":"click","label":"NEW GAME","x":640,"y":360,"confidence":.95},{"action_id":"option","kind":"click","label":"OPTION","x":640,"y":500,"confidence":.8}],ensure_ascii=False,indent=2))
-        ttk.Button(frame,text="1ステップ判断（操作は実行しない）",command=self.run).pack(anchor=tk.W,pady=8); self.result=ttk.Label(frame,text="待機中"); self.result.pack(anchor=tk.W)
+        ttk.Button(frame,text="1ステップ判断（操作は実行しない）",command=self.run).pack(anchor=tk.W,pady=8); self.result=ttk.Label(frame,text="待機中"); self.result.pack(anchor=tk.W); self.metrics=ttk.Label(frame,text="指標: 0件"); self.metrics.pack(anchor=tk.W)
     def run(self)->None:
         try:
             self.config_store.save(AppConfig(self.provider.get(),self.model.get(),self.endpoint.get(),"好奇心旺盛","画面の役割を理解する"))
             observation=ScreenObservation(**json.loads(self.obs.get("1.0",tk.END))); candidates=[ActionCandidate.from_dict(x) for x in json.loads(self.actions.get("1.0",tk.END))]
             provider=OllamaProvider(self.model.get(),self.endpoint.get()) if self.provider.get()=="Ollama" else RuleProvider()
             pipeline=DecisionPipeline(MemorySource(observation,candidates),Path("data/games/sandbox"),provider); decision=pipeline.run(purpose="画面の役割を理解する",personality="好奇心旺盛")
-            self.result.config(text=f"選択: {decision.action_id} / {decision.reason}")
+            self.result.config(text=f"選択: {decision.action_id} / {decision.reason}"); m=MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load()); self.metrics.config(text=f"指標: total={m.total}, dry-run={m.dry_run}, executed={m.executed}, failed={m.failed}")
         except Exception as exc: messagebox.showerror("判断エラー",str(exc))
 
 def main()->None:
