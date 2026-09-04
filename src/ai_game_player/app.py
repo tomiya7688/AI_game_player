@@ -4,7 +4,8 @@ from pathlib import Path
 from tkinter import messagebox, ttk
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
-from ai_game_player.provider import OllamaProvider, RuleProvider`nfrom ai_game_player.config import ConfigStore, AppConfig
+from ai_game_player.provider import OllamaProvider, RuleProvider
+from ai_game_player.config import ConfigStore, AppConfig
 
 class MemorySource:
     def __init__(self,observation:ScreenObservation,candidates:list[ActionCandidate]): self.observation=observation; self.candidates=candidates
@@ -23,7 +24,8 @@ class Application:
         ttk.Button(frame,text="1ステップ判断（操作は実行しない）",command=self.run).pack(anchor=tk.W,pady=8); self.result=ttk.Label(frame,text="待機中"); self.result.pack(anchor=tk.W)
     def run(self)->None:
         try:
-            self.config_store.save(AppConfig(self.provider.get(),self.model.get(),self.endpoint.get(),"好奇心旺盛","画面の役割を理解する"))`n            observation=ScreenObservation(**json.loads(self.obs.get("1.0",tk.END))); candidates=[ActionCandidate.from_dict(x) for x in json.loads(self.actions.get("1.0",tk.END))]
+            self.config_store.save(AppConfig(self.provider.get(),self.model.get(),self.endpoint.get(),"好奇心旺盛","画面の役割を理解する"))
+            observation=ScreenObservation(**json.loads(self.obs.get("1.0",tk.END))); candidates=[ActionCandidate.from_dict(x) for x in json.loads(self.actions.get("1.0",tk.END))]
             provider=OllamaProvider(self.model.get(),self.endpoint.get()) if self.provider.get()=="Ollama" else RuleProvider()
             pipeline=DecisionPipeline(MemorySource(observation,candidates),Path("data/games/sandbox"),provider); decision=pipeline.run(purpose="画面の役割を理解する",personality="好奇心旺盛")
             self.result.config(text=f"選択: {decision.action_id} / {decision.reason}")
