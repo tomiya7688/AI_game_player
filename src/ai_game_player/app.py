@@ -85,7 +85,7 @@ class Application:
         self.actions.insert("1.0", json.dumps([{"action_id": "new-game", "kind": "click", "label": "NEW GAME", "x": 640, "y": 360, "confidence": .95}, {"action_id": "option", "kind": "click", "label": "OPTION", "x": 640, "y": 500, "confidence": .8}], ensure_ascii=False, indent=2))
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
-        ttk.Label(frame, text="停止方法: ■ 停止ボタン または Esc キー").pack(anchor=tk.W)
+        ttk.Label(frame, text="停止方法: ■ 停止ボタン / Esc / F12").pack(anchor=tk.W)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         ttk.Button(controls, text="判断＋実行（dry-run）", command=self.run_and_execute).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="連続dry-run開始", command=self.start_loop).pack(side=tk.LEFT)
@@ -100,6 +100,11 @@ class Application:
         self.evaluation.pack(fill=tk.X)
         if os.name == "nt":
             self.refresh_windows()
+
+    def _poll_global_stop(self) -> None:
+        if os.name == "nt" and ctypes.windll.user32.GetAsyncKeyState(0x7B) & 1:
+            self.stop()
+        self.root.after(100, self._poll_global_stop)
 
     def refresh_windows(self) -> None:
         try:
