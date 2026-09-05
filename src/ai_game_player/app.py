@@ -102,6 +102,8 @@ class Application:
         ttk.Label(frame, text="評価結果JSON").pack(anchor=tk.W)
         self.evaluation = tk.Text(frame, height=5)
         self.evaluation.pack(fill=tk.X)
+        if config.provider == "Ollama":
+            self.root.after(0, self.refresh_models)
         if os.name == "nt":
             self.refresh_windows()
             self._poll_global_stop()
