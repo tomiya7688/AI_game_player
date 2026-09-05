@@ -19,7 +19,11 @@ class ConfigStore:
         value=json.loads(self.path.read_text(encoding="utf-8"))
         if not isinstance(value,dict): raise ValueError("config.json must contain an object")
         defaults=asdict(AppConfig()); defaults.update({key:value[key] for key in defaults if key in value})
-        defaults["live_execution"] = bool(defaults["live_execution"])
+        raw_live = defaults["live_execution"]
+        if isinstance(raw_live, str):
+            defaults["live_execution"] = raw_live.strip().lower() in {"1", "true", "yes", "on"}
+        else:
+            defaults["live_execution"] = bool(raw_live)
         if defaults["input_mode"] not in {"window_message", "mouse"}: defaults["input_mode"] = "window_message"
         return AppConfig(**defaults)
     def save(self,config:AppConfig)->None:
