@@ -57,7 +57,9 @@ class Application:
         ttk.Label(settings, text="Provider").pack(side=tk.LEFT)
         ttk.Combobox(settings, textvariable=self.provider, values=("ローカル規則", "Ollama"), state="readonly", width=12).pack(side=tk.LEFT, padx=5)
         ttk.Label(settings, text="モデル").pack(side=tk.LEFT)
-        ttk.Entry(settings, textvariable=self.model, width=16).pack(side=tk.LEFT, padx=5)
+        self.model_combo = ttk.Combobox(settings, textvariable=self.model, width=16)
+        self.model_combo.pack(side=tk.LEFT, padx=5)
+        ttk.Button(settings, text="モデル取得", command=self.refresh_models).pack(side=tk.LEFT)
         ttk.Label(settings, text="Endpoint").pack(side=tk.LEFT)
         ttk.Entry(settings, textvariable=self.endpoint, width=28).pack(side=tk.LEFT, padx=5)
         prompt_settings = ttk.Frame(frame)
@@ -120,6 +122,16 @@ class Application:
             self.runtime_log.write("run_control", "stopped_by_manual_mouse_move")
             self.stop()
         self.root.after(100, self._poll_global_stop)
+
+    def refresh_models(self) -> None:
+        try:
+            models = OllamaProvider.list_models(self.endpoint.get())
+            self.model_combo["values"] = models
+            if models and self.model.get() not in models:
+                self.model.set(models[0])
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "model_list"})
+            self.result.config(text="Ollamaモデル一覧を取得できません")
 
     def refresh_windows(self) -> None:
         try:

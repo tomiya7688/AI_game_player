@@ -6,6 +6,18 @@ class RuleProvider:
         if not candidates: raise ValueError("許可された操作候補がありません")
         c=max(candidates,key=lambda x:x.confidence); return ActionDecision(c.action_id,"信頼度が最も高い安全な候補","local_rule")
 class OllamaProvider:
+    @staticmethod
+    def list_models(endpoint: str = "http://127.0.0.1:11434", timeout: int = 5) -> list[str]:
+        request = Request(endpoint.rstrip("/") + "/api/tags", method="GET")
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            models = payload.get("models", [])
+            if not isinstance(models, list): raise ValueError("Ollama models must be an array")
+            return [str(item["name"]) for item in models if isinstance(item, dict) and item.get("name")]
+        except Exception as exc:
+            raise RuntimeError(f"Ollamaモデル一覧を取得できません: {exc}") from exc
+
     def __init__(self,model:str,endpoint:str="http://127.0.0.1:11434",timeout:int=120): self.model=model; self.endpoint=endpoint.rstrip('/'); self.timeout=timeout
     def choose(self,candidates:list[ActionCandidate],observation:ScreenObservation|None=None,purpose:str="",personality:str="")->ActionDecision:
         if not candidates: raise ValueError("許可された操作候補がありません")
