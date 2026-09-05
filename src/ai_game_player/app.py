@@ -13,6 +13,7 @@ from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import RunController
+from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.screen_capture import WindowsScreenCapture
 
 
@@ -32,6 +33,8 @@ class Application:
         self.root = root
         self.runtime_log = RuntimeLog()
         self.controller = RunController()
+        self.windows: list = []
+        self.window_handles: dict[str, int] = {}
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         frame = ttk.Frame(root, padding=10)
@@ -56,6 +59,13 @@ class Application:
         ttk.Entry(prompt_settings, textvariable=self.personality, width=20).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="目的").pack(side=tk.LEFT)
         ttk.Entry(prompt_settings, textvariable=self.purpose, width=34).pack(side=tk.LEFT, padx=5)
+        window_settings = ttk.Frame(frame)
+        window_settings.pack(fill=tk.X, pady=(6, 0))
+        ttk.Label(window_settings, text="対象ウィンドウ").pack(side=tk.LEFT)
+        self.window_choice = tk.StringVar()
+        self.window_combo = ttk.Combobox(window_settings, textvariable=self.window_choice, state="readonly", width=42)
+        self.window_combo.pack(side=tk.LEFT, padx=5)
+        ttk.Button(window_settings, text="一覧更新", command=self.refresh_windows).pack(side=tk.LEFT)
         ttk.Label(frame, text="画面観測JSON").pack(anchor=tk.W)
         ttk.Button(frame, text="画面取得（Windows）", command=self.capture_screen).pack(anchor=tk.W)
         self.obs = tk.Text(frame, height=10)
@@ -75,10 +85,22 @@ class Application:
         self.metrics = ttk.Label(frame, text="指標: 0件")
         self.metrics.pack(anchor=tk.W)
 
+    def refresh_windows(self) -> None:
+        try:
+            self.windows = WindowsWindowSelector().list_windows()
+            self.window_handles = {window.title: window.handle for window in self.windows}
+            self.window_combo["values"] = list(self.window_handles)
+            if self.window_handles and not self.window_choice.get():
+                self.window_choice.set(next(iter(self.window_handles)))
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "window_list"})
+            messagebox.showerror("ウィンドウ一覧エラー", str(exc))
+
     def capture_screen(self) -> None:
         try:
             from ai_game_player.frame_analyzer import FrameAnalyzer
-            observation = FrameAnalyzer().analyze(WindowsScreenCapture().capture(), "live")
+            selected_handle = self.window_handles.get(self.window_choice.get())
+            observation = FrameAnalyzer().analyze(WindowsScreenCapture().capture(selected_handle), "live")
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
