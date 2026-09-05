@@ -1,0 +1,3 @@
+# キャプチャ観測Source
+
+`CapturedObservationSource` はFrameCaptureとFrameAnalyzerを接続し、実画面のBGRAフレームを `ScreenObservation` へ変換する。操作候補は別のAutomation/OCR検出層から追加するため、観測Source自身は候補を生成しない。
