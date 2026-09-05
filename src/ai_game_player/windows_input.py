@@ -38,8 +38,14 @@ class WindowsInputExecutor:
             key_code = user32.VkKeyScanW(ord(candidate.label[0])) if candidate.label else -1
             if key_code < 0:
                 raise ValueError("key action requires a supported key label")
-            user32.keybd_event(key_code & 0xFF, 0, 0, 0)
-            user32.keybd_event(key_code & 0xFF, 0, 2, 0)
+            virtual_key = key_code & 0xFF
+            if self.input_mode == "window_message":
+                if self.window_handle is None: raise RuntimeError("window_message requires a selected window")
+                user32.PostMessageW(self.window_handle, 0x0100, virtual_key, 0)
+                user32.PostMessageW(self.window_handle, 0x0101, virtual_key, 0)
+            else:
+                user32.keybd_event(virtual_key, 0, 0, 0)
+                user32.keybd_event(virtual_key, 0, 2, 0)
             return ExecutionResult(candidate.action_id, True, "live", "Windows key input sent")
         if candidate.kind == "wait":
             time.sleep(float(candidate.label or "0.5"))
