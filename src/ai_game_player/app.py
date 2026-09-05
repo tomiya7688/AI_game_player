@@ -97,6 +97,8 @@ class Application:
         ttk.Label(frame, text="評価結果JSON").pack(anchor=tk.W)
         self.evaluation = tk.Text(frame, height=5)
         self.evaluation.pack(fill=tk.X)
+        if os.name == "nt":
+            self.refresh_windows()
 
     def refresh_windows(self) -> None:
         try:
