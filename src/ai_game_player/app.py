@@ -159,6 +159,7 @@ class Application:
         if os.name == "nt":
             self.capture_screen()
         self.run_and_execute()
+        self._last_cursor_position = self._cursor_position()
         if self.controller.is_running:
             self.loop_job = self.root.after(1000, self._loop_step)
 
