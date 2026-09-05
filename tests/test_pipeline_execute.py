@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
 
@@ -22,7 +22,7 @@ class PipelineExecuteTest(unittest.TestCase):
     def test_run_and_execute_can_execute_ocr_merged_candidate(self):
         class Provider(RuleProvider):
             def choose(self, candidates, observation, purpose="", personality=""):
-                return type("Decision", (), {"action_id": "ocr-0", "reason": "ocr", "provider": "test"})()
+                return ActionDecision("ocr-0", "ocr", "test")
         with tempfile.TemporaryDirectory() as directory:
             result = DecisionPipeline(Source(), Path(directory), Provider()).run_and_execute([{"text": "OCR START", "x": 10, "y": 10, "width": 20, "height": 10}])
             self.assertEqual(result.action_id, "ocr-0")
