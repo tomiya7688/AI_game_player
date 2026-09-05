@@ -1,4 +1,5 @@
 import os
+import ctypes
 import json
 import tkinter as tk
 from pathlib import Path
@@ -113,6 +114,10 @@ class Application:
     def _poll_global_stop(self) -> None:
         if os.name == "nt" and ctypes.windll.user32.GetAsyncKeyState(0x7B) & 1:
             self.stop()
+        current = self._cursor_position()
+        if self.loop_job is not None and self._last_cursor_position is not None and current != self._last_cursor_position:
+            self.runtime_log.write("run_control", "stopped_by_manual_mouse_move")
+            self.stop()
         self.root.after(100, self._poll_global_stop)
 
     def refresh_windows(self) -> None:
@@ -141,6 +146,7 @@ class Application:
     def start_loop(self) -> None:
         self.controller.start()
         if self.loop_job is None:
+            self._last_cursor_position = self._cursor_position()
             self.runtime_log.write("run_control", "loop_started")
             self.loop_job = self.root.after(1000, self._loop_step)
             self.result.config(text="連続dry-run中")
