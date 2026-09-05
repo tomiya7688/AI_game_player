@@ -35,6 +35,7 @@ class Application:
         self.controller = RunController()
         self.windows: list = []
         self.window_handles: dict[str, int] = {}
+        self.loop_job: str | None = None
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         frame = ttk.Frame(root, padding=10)
@@ -79,6 +80,7 @@ class Application:
         controls.pack(anchor=tk.W, pady=8)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         ttk.Button(controls, text="判断＋実行（dry-run）", command=self.run_and_execute).pack(side=tk.LEFT, padx=6)
+        ttk.Button(controls, text="連続dry-run開始", command=self.start_loop).pack(side=tk.LEFT)
         ttk.Button(controls, text="停止", command=self.stop).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
         self.result = ttk.Label(frame, text="待機中")
@@ -109,6 +111,21 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
             messagebox.showerror("画面取得エラー", str(exc))
 
+    def start_loop(self) -> None:
+        self.controller.start()
+        if self.loop_job is None:
+            self.runtime_log.write("run_control", "loop_started")
+            self.loop_job = self.root.after(1000, self._loop_step)
+            self.result.config(text="連続dry-run中")
+
+    def _loop_step(self) -> None:
+        self.loop_job = None
+        if not self.controller.is_running:
+            return
+        self.run_and_execute()
+        if self.controller.is_running:
+            self.loop_job = self.root.after(1000, self._loop_step)
+
     def start(self) -> None:
         self.controller.start()
         self.runtime_log.write("run_control", "started")
@@ -116,6 +133,9 @@ class Application:
 
     def stop(self) -> None:
         self.controller.stop()
+        if self.loop_job is not None:
+            self.root.after_cancel(self.loop_job)
+            self.loop_job = None
         self.runtime_log.write("run_control", "stopped")
         self.result.config(text="停止中")
 
