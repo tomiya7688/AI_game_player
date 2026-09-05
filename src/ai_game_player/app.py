@@ -45,6 +45,7 @@ class Application:
         self.endpoint = tk.StringVar(value=config.endpoint)
         self.personality = tk.StringVar(value=config.personality)
         self.purpose = tk.StringVar(value=config.purpose)
+        self.live_execution = tk.BooleanVar(value=config.live_execution)
         self.config_store = config_store
         settings = ttk.Frame(frame)
         settings.pack(fill=tk.X)
@@ -60,6 +61,7 @@ class Application:
         ttk.Entry(prompt_settings, textvariable=self.personality, width=20).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="目的").pack(side=tk.LEFT)
         ttk.Entry(prompt_settings, textvariable=self.purpose, width=34).pack(side=tk.LEFT, padx=5)
+        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution).pack(side=tk.LEFT, padx=5)
         window_settings = ttk.Frame(frame)
         window_settings.pack(fill=tk.X, pady=(6, 0))
         ttk.Label(window_settings, text="対象ウィンドウ").pack(side=tk.LEFT)
@@ -144,14 +146,14 @@ class Application:
 
     def run_and_execute(self) -> None:
         try:
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get()))
+            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
             evaluation = ActionEvaluator().explain(observation, candidates)
             self.evaluation.delete("1.0", tk.END)
             self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller)
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get())
             result = pipeline.run_and_execute(purpose=self.purpose.get(), personality=self.personality.get())
             self.result.config(text=f"実行: {result.action_id} / {result.mode} / {result.detail}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
@@ -162,11 +164,11 @@ class Application:
             messagebox.showerror("実行エラー", str(exc))
     def run(self) -> None:
         try:
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get()))
+            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller)
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get())
             decision = pipeline.run(purpose=self.purpose.get(), personality=self.personality.get())
             self.result.config(text=f"選択: {decision.action_id} / {decision.reason}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
