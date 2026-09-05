@@ -18,8 +18,9 @@ class Application:
     def __init__(self,root:tk.Tk)->None:
         config=ConfigStore(Path("data/config.json")).load(); self.root=root; root.title("AI Game Player - Decision Sandbox"); root.geometry("900x650")
         frame=ttk.Frame(root,padding=10); frame.pack(fill=tk.BOTH,expand=True)
-        self.provider=tk.StringVar(value=config.provider); self.model=tk.StringVar(value=config.model); self.endpoint=tk.StringVar(value=config.endpoint); self.config_store=ConfigStore(Path("data/config.json"))
+        self.provider=tk.StringVar(value=config.provider); self.model=tk.StringVar(value=config.model); self.endpoint=tk.StringVar(value=config.endpoint); self.personality=tk.StringVar(value=config.personality); self.purpose=tk.StringVar(value=config.purpose); self.config_store=ConfigStore(Path("data/config.json"))
         settings=ttk.Frame(frame); settings.pack(fill=tk.X); ttk.Label(settings,text="Provider").pack(side=tk.LEFT); ttk.Combobox(settings,textvariable=self.provider,values=("ローカル規則","Ollama"),state="readonly",width=12).pack(side=tk.LEFT,padx=5); ttk.Label(settings,text="モデル").pack(side=tk.LEFT); ttk.Entry(settings,textvariable=self.model,width=16).pack(side=tk.LEFT,padx=5); ttk.Label(settings,text="Endpoint").pack(side=tk.LEFT); ttk.Entry(settings,textvariable=self.endpoint,width=28).pack(side=tk.LEFT,padx=5)
+        prompt_settings=ttk.Frame(frame); prompt_settings.pack(fill=tk.X,pady=(6,0)); ttk.Label(prompt_settings,text="人格").pack(side=tk.LEFT); ttk.Entry(prompt_settings,textvariable=self.personality,width=20).pack(side=tk.LEFT,padx=5); ttk.Label(prompt_settings,text="目的").pack(side=tk.LEFT); ttk.Entry(prompt_settings,textvariable=self.purpose,width=34).pack(side=tk.LEFT,padx=5)
         ttk.Label(frame,text="画面観測JSON").pack(anchor=tk.W)
         ttk.Button(frame,text="画面取得（Windows）",command=self.capture_screen).pack(anchor=tk.W)
         self.obs=tk.Text(frame,height=10); self.obs.pack(fill=tk.BOTH,expand=True); self.obs.insert("1.0",json.dumps({"screen_id":"title","width":1280,"height":720,"ocr_text":["NEW GAME","OPTION"]},ensure_ascii=False,indent=2))
@@ -34,13 +35,14 @@ class Application:
         except Exception as exc: messagebox.showerror("画面取得エラー",str(exc))
     def run(self)->None:
         try:
-            self.config_store.save(AppConfig(self.provider.get(),self.model.get(),self.endpoint.get(),"好奇心旺盛","画面の役割を理解する"))
+            self.config_store.save(AppConfig(self.provider.get(),self.model.get(),self.endpoint.get(),self.personality.get(),self.purpose.get()))
             observation=ScreenObservation(**json.loads(self.obs.get("1.0",tk.END))); candidates=[ActionCandidate.from_dict(x) for x in json.loads(self.actions.get("1.0",tk.END))]
             provider=OllamaProvider(self.model.get(),self.endpoint.get()) if self.provider.get()=="Ollama" else RuleProvider()
-            pipeline=DecisionPipeline(MemorySource(observation,candidates),Path("data/games/sandbox"),provider); decision=pipeline.run(purpose="画面の役割を理解する",personality="好奇心旺盛")
+            pipeline=DecisionPipeline(MemorySource(observation,candidates),Path("data/games/sandbox"),provider); decision=pipeline.run(purpose=self.purpose.get(),personality=self.personality.get())
             self.result.config(text=f"選択: {decision.action_id} / {decision.reason}"); m=MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load()); self.metrics.config(text=f"指標: total={m.total}, dry-run={m.dry_run}, executed={m.executed}, failed={m.failed}")
         except Exception as exc: messagebox.showerror("判断エラー",str(exc))
 
 def main()->None:
     root=tk.Tk(); Application(root); root.mainloop()
 if __name__ == "__main__": main()
+
