@@ -8,6 +8,9 @@ from ai_game_player.models import ActionCandidate
 class WindowsInputExecutor:
     """Sends click and key input only when explicitly selected."""
 
+    def __init__(self, window_handle: int | None = None) -> None:
+        self.window_handle = window_handle
+
     def execute(self, candidate: ActionCandidate):
         from ai_game_player.action_executor import ExecutionResult
         if os.name != "nt":
@@ -16,7 +19,13 @@ class WindowsInputExecutor:
         if candidate.kind in {"click", "double_click"}:
             if candidate.x is None or candidate.y is None:
                 raise ValueError("click action requires coordinates")
-            user32.SetCursorPos(candidate.x, candidate.y)
+            x, y = candidate.x, candidate.y
+            if self.window_handle is not None:
+                rect = (ctypes.c_long * 4)()
+                if not user32.GetWindowRect(self.window_handle, ctypes.byref(rect)):
+                    raise RuntimeError("GetWindowRect failed")
+                x, y = x + rect[0], y + rect[1]
+            user32.SetCursorPos(x, y)
             user32.mouse_event(0x0002, 0, 0, 0, 0)
             user32.mouse_event(0x0004, 0, 0, 0, 0)
             if candidate.kind == "double_click":

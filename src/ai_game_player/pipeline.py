@@ -10,12 +10,12 @@ from ai_game_player.run_control import RunController
 
 
 class DecisionPipeline:
-    def __init__(self, source: ObservationSource, game_directory: Path, provider=None, controller: RunController | None = None, dry_run: bool = True) -> None:
+    def __init__(self, source: ObservationSource, game_directory: Path, provider=None, controller: RunController | None = None, dry_run: bool = True, window_handle: int | None = None) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
         self.merger = CandidateMerger()
         self.engine = GamePlayerEngine(game_directory, provider)
-        self.executor = ActionExecutor(dry_run)
+        self.executor = ActionExecutor(dry_run, window_handle=window_handle)
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.controller = controller or RunController()
 

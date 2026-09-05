@@ -11,9 +11,10 @@ class ExecutionResult:
 
 
 class ActionExecutor:
-    def __init__(self, dry_run: bool = True, live_executor=None) -> None:
+    def __init__(self, dry_run: bool = True, live_executor=None, window_handle: int | None = None) -> None:
         self.dry_run = dry_run
         self.live_executor = live_executor
+        self.window_handle = window_handle
 
     def execute(self, candidate: ActionCandidate) -> ExecutionResult:
         if self.dry_run:
@@ -23,5 +24,5 @@ class ActionExecutor:
         executor = self.live_executor
         if executor is None:
             from ai_game_player.windows_input import WindowsInputExecutor
-            executor = WindowsInputExecutor()
+            executor = WindowsInputExecutor(self.window_handle)
         return executor.execute(candidate)
