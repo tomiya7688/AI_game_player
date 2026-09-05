@@ -11,6 +11,8 @@ py -3.10 -m ai_game_player
 
 GUIでは画面観測JSONとAutomation候補JSONを入力し、ローカル規則またはOllamaで1ステップ判断できます。実行Executorの既定値はdry-runで、OSへのマウス・キーボード入力は行いません。
 
+Windowsでは `run_ai_game_player.bat` でも起動できます。`data/` に設定と履歴が保存されます。`r
+`r
 ## テスト
 
 ```powershell

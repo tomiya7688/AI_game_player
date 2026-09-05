@@ -1,0 +1,1 @@
+@echo off`r`nset "PYTHONPATH=%~dp0src"`r`npy -3.10 -m ai_game_player`r`n
