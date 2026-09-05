@@ -8,8 +8,9 @@ from ai_game_player.models import ActionCandidate
 class WindowsInputExecutor:
     """Sends click and key input only when explicitly selected."""
 
-    def __init__(self, window_handle: int | None = None) -> None:
+    def __init__(self, window_handle: int | None = None, input_mode: str = "mouse") -> None:
         self.window_handle = window_handle
+        self.input_mode = input_mode
 
     def execute(self, candidate: ActionCandidate):
         from ai_game_player.action_executor import ExecutionResult

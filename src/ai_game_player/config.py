@@ -10,6 +10,7 @@ class AppConfig:
     personality: str = "好奇心旺盛"
     purpose: str = "画面の役割を理解する"
     live_execution: bool = False
+    input_mode: str = "window_message"
 
 class ConfigStore:
     def __init__(self,path:Path): self.path=path
@@ -19,6 +20,7 @@ class ConfigStore:
         if not isinstance(value,dict): raise ValueError("config.json must contain an object")
         defaults=asdict(AppConfig()); defaults.update({key:value[key] for key in defaults if key in value})
         defaults["live_execution"] = bool(defaults["live_execution"])
+        if defaults["input_mode"] not in {"window_message", "mouse"}: defaults["input_mode"] = "window_message"
         return AppConfig(**defaults)
     def save(self,config:AppConfig)->None:
         self.path.parent.mkdir(parents=True,exist_ok=True); self.path.write_text(json.dumps(asdict(config),ensure_ascii=False,indent=2),encoding="utf-8")
