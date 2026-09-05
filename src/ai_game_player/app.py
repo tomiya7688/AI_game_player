@@ -78,6 +78,7 @@ class Application:
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
+        ttk.Button(controls, text="判断＋実行（dry-run）", command=self.run_and_execute).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="停止", command=self.stop).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
         self.result = ttk.Label(frame, text="待機中")
@@ -118,6 +119,24 @@ class Application:
         self.runtime_log.write("run_control", "stopped")
         self.result.config(text="停止中")
 
+    def run_and_execute(self) -> None:
+        try:
+            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get()))
+            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
+            evaluation = ActionEvaluator().explain(observation, candidates)
+            self.evaluation.delete("1.0", tk.END)
+            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
+            provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller)
+            result = pipeline.run_and_execute(purpose=self.purpose.get(), personality=self.personality.get())
+            self.result.config(text=f"実行: {result.action_id} / {result.mode} / {result.detail}")
+            metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
+            self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
+            self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "execution"})
+            messagebox.showerror("実行エラー", str(exc))
     def run(self) -> None:
         try:
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get()))
