@@ -11,6 +11,7 @@ from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.runtime_log import RuntimeLog
+from ai_game_player.run_control import RunController
 from ai_game_player.screen_capture import WindowsScreenCapture
 
 
@@ -29,6 +30,7 @@ class Application:
         config = config_store.load()
         self.root = root
         self.runtime_log = RuntimeLog()
+        self.controller = RunController()
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         frame = ttk.Frame(root, padding=10)
@@ -62,7 +64,11 @@ class Application:
         self.actions = tk.Text(frame, height=10)
         self.actions.pack(fill=tk.BOTH, expand=True)
         self.actions.insert("1.0", json.dumps([{"action_id": "new-game", "kind": "click", "label": "NEW GAME", "x": 640, "y": 360, "confidence": .95}, {"action_id": "option", "kind": "click", "label": "OPTION", "x": 640, "y": 500, "confidence": .8}], ensure_ascii=False, indent=2))
-        ttk.Button(frame, text="1ステップ判断（操作は実行しない）", command=self.run).pack(anchor=tk.W, pady=8)
+        controls = ttk.Frame(frame)
+        controls.pack(anchor=tk.W, pady=8)
+        ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
+        ttk.Button(controls, text="停止", command=self.stop).pack(side=tk.LEFT, padx=6)
+        ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
         self.result = ttk.Label(frame, text="待機中")
         self.result.pack(anchor=tk.W)
         self.metrics = ttk.Label(frame, text="指標: 0件")
@@ -79,13 +85,23 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
             messagebox.showerror("画面取得エラー", str(exc))
 
+    def start(self) -> None:
+        self.controller.start()
+        self.runtime_log.write("run_control", "started")
+        self.result.config(text="実行可能")
+
+    def stop(self) -> None:
+        self.controller.stop()
+        self.runtime_log.write("run_control", "stopped")
+        self.result.config(text="停止中")
+
     def run(self) -> None:
         try:
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider)
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller)
             decision = pipeline.run(purpose=self.purpose.get(), personality=self.personality.get())
             self.result.config(text=f"選択: {decision.action_id} / {decision.reason}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
