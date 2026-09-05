@@ -149,6 +149,8 @@ class Application:
         self.loop_job = None
         if not self.controller.is_running:
             return
+        if os.name == "nt":
+            self.capture_screen()
         self.run_and_execute()
         if self.controller.is_running:
             self.loop_job = self.root.after(1000, self._loop_step)
