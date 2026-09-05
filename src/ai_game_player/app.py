@@ -37,6 +37,7 @@ class Application:
         self.windows: list = []
         self.window_handles: dict[str, int] = {}
         self.loop_job: str | None = None
+        self._last_cursor_position: tuple[int, int] | None = None
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         root.bind("<Escape>", lambda _event: self.stop())
@@ -85,7 +86,7 @@ class Application:
         self.actions.insert("1.0", json.dumps([{"action_id": "new-game", "kind": "click", "label": "NEW GAME", "x": 640, "y": 360, "confidence": .95}, {"action_id": "option", "kind": "click", "label": "OPTION", "x": 640, "y": 500, "confidence": .8}], ensure_ascii=False, indent=2))
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
-        ttk.Label(frame, text="停止方法: ■ 停止ボタン / Esc / F12").pack(anchor=tk.W)
+        ttk.Label(frame, text="停止方法: ■ 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         ttk.Button(controls, text="判断＋実行（dry-run）", command=self.run_and_execute).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="連続dry-run開始", command=self.start_loop).pack(side=tk.LEFT)
@@ -100,6 +101,14 @@ class Application:
         self.evaluation.pack(fill=tk.X)
         if os.name == "nt":
             self.refresh_windows()
+
+    def _cursor_position(self) -> tuple[int, int] | None:
+        if os.name != "nt":
+            return None
+        point = (ctypes.c_long * 2)()
+        if not ctypes.windll.user32.GetCursorPos(ctypes.byref(point)):
+            return None
+        return int(point[0]), int(point[1])
 
     def _poll_global_stop(self) -> None:
         if os.name == "nt" and ctypes.windll.user32.GetAsyncKeyState(0x7B) & 1:
