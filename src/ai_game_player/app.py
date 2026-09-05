@@ -10,6 +10,7 @@ from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
+from ai_game_player.outcome import OutcomeEvaluator
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
@@ -39,6 +40,7 @@ class Application:
         self.window_handles: dict[str, int] = {}
         self.loop_job: str | None = None
         self._last_cursor_position: tuple[int, int] | None = None
+        self.outcome_evaluator = OutcomeEvaluator()
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         root.bind("<Escape>", lambda _event: self.stop())
@@ -101,6 +103,8 @@ class Application:
         self.result.pack(anchor=tk.W)
         self.metrics = ttk.Label(frame, text="指標: 0件")
         self.metrics.pack(anchor=tk.W)
+        self.outcome = ttk.Label(frame, text="状態: 未評価")
+        self.outcome.pack(anchor=tk.W)
         ttk.Label(frame, text="評価結果JSON").pack(anchor=tk.W)
         self.evaluation = tk.Text(frame, height=5)
         self.evaluation.pack(fill=tk.X)
@@ -155,6 +159,8 @@ class Application:
             observation = FrameAnalyzer().analyze(WindowsScreenCapture().capture(selected_handle), "live")
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
+            assessment = self.outcome_evaluator.assess(observation)
+            self.outcome.config(text=f"状態: {assessment.status} ({assessment.confidence:.0%})")
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
