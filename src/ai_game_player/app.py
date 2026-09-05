@@ -42,6 +42,7 @@ class Application:
         self._last_cursor_position: tuple[int, int] | None = None
         self.outcome_evaluator = OutcomeEvaluator()
         self.previous_observation: ScreenObservation | None = None
+        self.current_assessment = None
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         root.bind("<Escape>", lambda _event: self.stop())
@@ -163,6 +164,7 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": "outcome_assessment"})
             assessment = self.outcome_evaluator.assess(observation)
         self.previous_observation = observation
+        self.current_assessment = assessment
         return assessment
 
     def capture_screen(self) -> None:
@@ -194,7 +196,7 @@ class Application:
         if os.name == "nt":
             self.capture_screen()
         current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-        assessment = self._assess_observation(current_observation)
+        assessment = self.current_assessment or self._assess_observation(current_observation)
         if assessment.status in {"success", "failure"}:
             self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
             self.stop()
