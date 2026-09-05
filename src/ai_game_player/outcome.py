@@ -10,7 +10,7 @@ class OutcomeAssessment:
 
 
 class OutcomeEvaluator:
-    def __init__(self, success_terms: tuple[str, ...] = ("SUCCESS", "CLEAR", "VICTORY", "COMPLETE"), failure_terms: tuple[str, ...] = ("GAME OVER", "FAILED", "DEFEAT", "失敗")) -> None:
+    def __init__(self, success_terms: tuple[str, ...] = ("SUCCESS", "CLEAR", "VICTORY", "COMPLETE", "成功", "クリア", "勝利"), failure_terms: tuple[str, ...] = ("GAME OVER", "FAILED", "DEFEAT", "失敗", "敗北", "ゲームオーバー")) -> None:
         self.success_terms = success_terms
         self.failure_terms = failure_terms
 
