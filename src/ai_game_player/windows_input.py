@@ -5,6 +5,8 @@ import time
 from ai_game_player.models import ActionCandidate
 
 
+SPECIAL_KEYS = {"ENTER": 0x0D, "SPACE": 0x20, "ESC": 0x1B, "ESCAPE": 0x1B, "TAB": 0x09, "BACKSPACE": 0x08, "LEFT": 0x25, "UP": 0x26, "RIGHT": 0x27, "DOWN": 0x28, "SHIFT": 0x10, "CTRL": 0x11, "ALT": 0x12}
+
 class WindowsInputExecutor:
     """Sends click and key input only when explicitly selected."""
 
@@ -35,7 +37,8 @@ class WindowsInputExecutor:
                 user32.mouse_event(0x0004, 0, 0, 0, 0)
             return ExecutionResult(candidate.action_id, True, "live", "Windows mouse input sent")
         if candidate.kind == "key":
-            key_code = user32.VkKeyScanW(ord(candidate.label[0])) if candidate.label else -1
+            key_name = candidate.label.strip().upper()
+            key_code = SPECIAL_KEYS.get(key_name, user32.VkKeyScanW(ord(candidate.label[0])) if candidate.label else -1)
             if key_code < 0:
                 raise ValueError("key action requires a supported key label")
             virtual_key = key_code & 0xFF

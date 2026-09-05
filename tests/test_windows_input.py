@@ -3,6 +3,7 @@ import unittest
 
 from ai_game_player.action_executor import ActionExecutor
 from ai_game_player.models import ActionCandidate
+from ai_game_player.windows_input import SPECIAL_KEYS
 
 
 class WindowsInputTest(unittest.TestCase):
@@ -18,3 +19,7 @@ class WindowsInputTest(unittest.TestCase):
         result = ActionExecutor(False, Fake()).execute(ActionCandidate("a", "click", "A", 1, 1))
         self.assertTrue(result.executed)
         self.assertEqual(result.mode, "fake")
+
+    def test_special_key_names_are_defined(self):
+        self.assertEqual(SPECIAL_KEYS["ENTER"], 0x0D)
+        self.assertEqual(SPECIAL_KEYS["SPACE"], 0x20)
