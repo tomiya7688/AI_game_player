@@ -41,6 +41,7 @@ class Application:
         self.loop_job: str | None = None
         self._last_cursor_position: tuple[int, int] | None = None
         self.outcome_evaluator = OutcomeEvaluator()
+        self.previous_observation: ScreenObservation | None = None
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         root.bind("<Escape>", lambda _event: self.stop())
@@ -152,6 +153,18 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": "window_list"})
             messagebox.showerror("ウィンドウ一覧エラー", str(exc))
 
+    def _assess_observation(self, observation: ScreenObservation):
+        try:
+            if self.provider.get() == "Ollama":
+                assessment = OllamaProvider(self.model.get(), self.endpoint.get()).assess_outcome(observation, self.previous_observation)
+            else:
+                assessment = self.outcome_evaluator.assess(observation)
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "outcome_assessment"})
+            assessment = self.outcome_evaluator.assess(observation)
+        self.previous_observation = observation
+        return assessment
+
     def capture_screen(self) -> None:
         try:
             from ai_game_player.frame_analyzer import FrameAnalyzer
@@ -159,7 +172,7 @@ class Application:
             observation = FrameAnalyzer().analyze(WindowsScreenCapture().capture(selected_handle), "live")
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
-            assessment = self.outcome_evaluator.assess(observation)
+            assessment = self._assess_observation(observation)
             self.outcome.config(text=f"状態: {assessment.status} ({assessment.confidence:.0%})")
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
         except Exception as exc:
@@ -181,7 +194,7 @@ class Application:
         if os.name == "nt":
             self.capture_screen()
         current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-        assessment = self.outcome_evaluator.assess(current_observation)
+        assessment = self._assess_observation(current_observation)
         if assessment.status in {"success", "failure"}:
             self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
             self.stop()
