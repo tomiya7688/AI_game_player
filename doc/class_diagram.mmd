@@ -1,0 +1,133 @@
+classDiagram
+    class ExecutionResult {
+    }
+    class ActionExecutor {
+        +__init__()
+        +execute()
+    }
+    class MemorySource {
+        +__init__()
+        +read()
+    }
+    class Application {
+        +__init__()
+        +refresh_windows()
+        +capture_screen()
+        +start_loop()
+        +_loop_step()
+        +start()
+        +stop()
+        +run_and_execute()
+        +run()
+    }
+    class CandidateMerger {
+        +__init__()
+        +merge()
+        +_same()
+    }
+    Protocol <|-- FrameCapture
+    class FrameCapture {
+        +capture()
+    }
+    class CapturedObservationSource {
+        +__init__()
+        +read()
+    }
+    class AppConfig {
+    }
+    class ConfigStore {
+        +__init__()
+        +load()
+        +save()
+    }
+    class GamePlayerEngine {
+        +__init__()
+        +step()
+    }
+    class ActionEvaluator {
+        +explain()
+        +evaluate()
+        +_rejection_reason()
+    }
+    class ExecutionHistory {
+        +__init__()
+        +load()
+        +append()
+    }
+    class FrameAnalyzer {
+        +analyze()
+    }
+    class HistoryStore {
+        +__init__()
+        +append()
+    }
+    class KnowledgeStore {
+        +__init__()
+        +add()
+        +search()
+        +_read()
+        +_write()
+    }
+    class ExecutionMetrics {
+    }
+    class MetricsCalculator {
+        +calculate()
+    }
+    class ScreenObservation {
+        +to_dict()
+    }
+    class ActionCandidate {
+        +from_dict()
+        +to_dict()
+    }
+    class ActionDecision {
+        +to_dict()
+    }
+    Protocol <|-- ObservationSource
+    class ObservationSource {
+        +read()
+    }
+    class JsonObservationSource {
+        +__init__()
+        +read()
+    }
+    class OcrTextCandidateDetector {
+        +detect()
+    }
+    class DecisionPipeline {
+        +__init__()
+        +run()
+        +run_and_execute()
+    }
+    class RuleProvider {
+        +choose()
+    }
+    class OllamaProvider {
+        +__init__()
+        +choose()
+    }
+    class ConfiguredRegionDetector {
+        +__init__()
+        +detect()
+    }
+    class RunController {
+        +__init__()
+        +is_running()
+        +start()
+        +stop()
+        +ensure_running()
+    }
+    class RuntimeLog {
+        +__init__()
+        +write()
+    }
+    class ScreenFrame {
+    }
+    class WindowsScreenCapture {
+        +capture()
+    }
+    class WindowInfo {
+    }
+    class WindowsWindowSelector {
+        +list_windows()
+    }
