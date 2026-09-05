@@ -5,3 +5,6 @@ requires-python = ">=3.10"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[project.scripts]
+ai-game-player = "ai_game_player.app:main"

@@ -1,0 +1,1 @@
+from ai_game_player.app import main`n`nif __name__ == "__main__": main()`n
