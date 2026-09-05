@@ -6,6 +6,7 @@ from tkinter import messagebox, ttk
 from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
