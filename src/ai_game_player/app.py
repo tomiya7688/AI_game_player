@@ -102,6 +102,7 @@ class Application:
         self.evaluation.pack(fill=tk.X)
         if os.name == "nt":
             self.refresh_windows()
+            self._poll_global_stop()
 
     def _cursor_position(self) -> tuple[int, int] | None:
         if os.name != "nt":
