@@ -87,6 +87,9 @@ class Application:
         self.result.pack(anchor=tk.W)
         self.metrics = ttk.Label(frame, text="指標: 0件")
         self.metrics.pack(anchor=tk.W)
+        ttk.Label(frame, text="評価結果JSON").pack(anchor=tk.W)
+        self.evaluation = tk.Text(frame, height=5)
+        self.evaluation.pack(fill=tk.X)
 
     def refresh_windows(self) -> None:
         try:
