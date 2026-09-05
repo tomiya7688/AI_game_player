@@ -8,6 +8,7 @@ from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.config import ConfigStore, AppConfig
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.metrics import MetricsCalculator
+from ai_game_player.screen_capture import WindowsScreenCapture
 
 class MemorySource:
     def __init__(self,observation:ScreenObservation,candidates:list[ActionCandidate]): self.observation=observation; self.candidates=candidates
@@ -19,11 +20,18 @@ class Application:
         frame=ttk.Frame(root,padding=10); frame.pack(fill=tk.BOTH,expand=True)
         self.provider=tk.StringVar(value=config.provider); self.model=tk.StringVar(value=config.model); self.endpoint=tk.StringVar(value=config.endpoint); self.config_store=ConfigStore(Path("data/config.json"))
         settings=ttk.Frame(frame); settings.pack(fill=tk.X); ttk.Label(settings,text="Provider").pack(side=tk.LEFT); ttk.Combobox(settings,textvariable=self.provider,values=("ローカル規則","Ollama"),state="readonly",width=12).pack(side=tk.LEFT,padx=5); ttk.Label(settings,text="モデル").pack(side=tk.LEFT); ttk.Entry(settings,textvariable=self.model,width=16).pack(side=tk.LEFT,padx=5); ttk.Label(settings,text="Endpoint").pack(side=tk.LEFT); ttk.Entry(settings,textvariable=self.endpoint,width=28).pack(side=tk.LEFT,padx=5)
-        ttk.Label(frame,text="画面観測JSON（現段階では手入力）").pack(anchor=tk.W)
+        ttk.Label(frame,text="画面観測JSON").pack(anchor=tk.W)
+        ttk.Button(frame,text="画面取得（Windows）",command=self.capture_screen).pack(anchor=tk.W)
         self.obs=tk.Text(frame,height=10); self.obs.pack(fill=tk.BOTH,expand=True); self.obs.insert("1.0",json.dumps({"screen_id":"title","width":1280,"height":720,"ocr_text":["NEW GAME","OPTION"]},ensure_ascii=False,indent=2))
         ttk.Label(frame,text="Automation候補JSON").pack(anchor=tk.W,pady=(8,0))
         self.actions=tk.Text(frame,height=10); self.actions.pack(fill=tk.BOTH,expand=True); self.actions.insert("1.0",json.dumps([{"action_id":"new-game","kind":"click","label":"NEW GAME","x":640,"y":360,"confidence":.95},{"action_id":"option","kind":"click","label":"OPTION","x":640,"y":500,"confidence":.8}],ensure_ascii=False,indent=2))
         ttk.Button(frame,text="1ステップ判断（操作は実行しない）",command=self.run).pack(anchor=tk.W,pady=8); self.result=ttk.Label(frame,text="待機中"); self.result.pack(anchor=tk.W); self.metrics=ttk.Label(frame,text="指標: 0件"); self.metrics.pack(anchor=tk.W)
+    def capture_screen(self)->None:
+        try:
+            from ai_game_player.frame_analyzer import FrameAnalyzer
+            observation=FrameAnalyzer().analyze(WindowsScreenCapture().capture(),"live")
+            self.obs.delete("1.0",tk.END); self.obs.insert("1.0",json.dumps(observation.to_dict(),ensure_ascii=False,indent=2))
+        except Exception as exc: messagebox.showerror("画面取得エラー",str(exc))
     def run(self)->None:
         try:
             self.config_store.save(AppConfig(self.provider.get(),self.model.get(),self.endpoint.get(),"好奇心旺盛","画面の役割を理解する"))
