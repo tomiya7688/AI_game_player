@@ -180,6 +180,12 @@ class Application:
             return
         if os.name == "nt":
             self.capture_screen()
+        current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+        assessment = self.outcome_evaluator.assess(current_observation)
+        if assessment.status in {"success", "failure"}:
+            self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
+            self.stop()
+            return
         self.run_and_execute()
         self._last_cursor_position = self._cursor_position()
         if self.controller.is_running:
