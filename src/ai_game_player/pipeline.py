@@ -19,20 +19,23 @@ class DecisionPipeline:
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.controller = controller or RunController()
 
-    def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
-        self.controller.ensure_running()
+    def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[object, list[ActionCandidate]]:
         observation, configured = self.source.read()
         detected = self.ocr.detect(observation, ocr_texts or [])
-        candidates = self.merger.merge(configured, detected)
+        return observation, self.merger.merge(configured, detected)
+
+    def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
+        self.controller.ensure_running()
+        observation, candidates = self._read_candidates(ocr_texts)
         return self.engine.step(observation, candidates, purpose, personality)
 
     def run_and_execute(self, ocr_texts=None, purpose: str = "", personality: str = "") -> ExecutionResult:
         self.controller.ensure_running()
         decision = self.run(ocr_texts, purpose, personality)
-        _, candidates = self.source.read()
-        selected = next((c for c in candidates if c.action_id == decision.action_id), None)
+        _, candidates = self._read_candidates(ocr_texts)
+        selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
         if selected is None:
-            raise RuntimeError("決定された候補が入力Sourceにありません")
+            raise RuntimeError("決定された候補が統合済み候補にありません")
         result = self.executor.execute(selected)
         self.execution_history.append(result)
         return result
