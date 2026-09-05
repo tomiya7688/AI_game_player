@@ -1,0 +1,8 @@
+sequenceDiagram
+    participant caller as Caller
+    participant target as DecisionPipeline
+    caller->>target: DecisionPipeline.controller.ensure_running()
+    caller->>target: DecisionPipeline.source.read()
+    caller->>target: DecisionPipeline.ocr.detect()
+    caller->>target: DecisionPipeline.merger.merge()
+    caller->>target: DecisionPipeline.engine.step()
