@@ -175,6 +175,7 @@ class Application:
             assessment = self.outcome_evaluator.assess(observation)
         self.previous_observation = observation
         self.current_assessment = assessment
+        self.runtime_log.write("outcome", assessment.reason, {"status": assessment.status, "confidence": assessment.confidence, "provider": self.provider.get()})
         return assessment
 
     def capture_screen(self) -> None:
