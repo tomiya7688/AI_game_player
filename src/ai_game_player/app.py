@@ -68,6 +68,7 @@ class Application:
         ttk.Button(settings, text="モデル取得", command=self.refresh_models).pack(side=tk.LEFT)
         ttk.Label(settings, text="Endpoint").pack(side=tk.LEFT)
         ttk.Entry(settings, textvariable=self.endpoint, width=28).pack(side=tk.LEFT, padx=5)
+        ttk.Button(settings, text="接続確認", command=self.check_ollama).pack(side=tk.LEFT)
         prompt_settings = ttk.Frame(frame)
         prompt_settings.pack(fill=tk.X, pady=(6, 0))
         ttk.Label(prompt_settings, text="人格").pack(side=tk.LEFT)
@@ -132,6 +133,15 @@ class Application:
             self.runtime_log.write("run_control", "stopped_by_manual_mouse_move")
             self.stop()
         self.root.after(100, self._poll_global_stop)
+
+    def check_ollama(self) -> None:
+        try:
+            models = OllamaProvider.list_models(self.endpoint.get())
+            self.model_combo["values"] = models
+            self.result.config(text=f"Ollama接続OK: {len(models)}モデル")
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "ollama_connection"})
+            self.result.config(text="Ollama接続エラー")
 
     def refresh_models(self) -> None:
         try:
