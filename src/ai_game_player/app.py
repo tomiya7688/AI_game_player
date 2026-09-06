@@ -10,6 +10,7 @@ from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
+from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.outcome import OutcomeEvaluator
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
@@ -43,6 +44,7 @@ class Application:
         self.outcome_evaluator = OutcomeEvaluator()
         self.previous_observation: ScreenObservation | None = None
         self.current_assessment = None
+        self.loop_guard = LoopGuard()
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("900x650")
         root.bind("<Escape>", lambda _event: self.stop())
@@ -196,6 +198,7 @@ class Application:
         self.controller.start()
         if self.loop_job is None:
             self._last_cursor_position = self._cursor_position()
+            self.loop_guard.reset()
             self.runtime_log.write("run_control", "loop_started")
             self.loop_job = self.root.after(1000, self._loop_step)
             self.result.config(text="連続dry-run中")
@@ -208,6 +211,10 @@ class Application:
             self.capture_screen()
         current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
         assessment = self.current_assessment or self._assess_observation(current_observation)
+        if self.loop_guard.observe(current_observation):
+            self.runtime_log.write("run_control", "loop_stopped_by_repeat")
+            self.stop()
+            return
         if assessment.status in {"success", "failure"}:
             self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
             self.stop()
