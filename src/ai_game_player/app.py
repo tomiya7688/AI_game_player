@@ -12,6 +12,7 @@ from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
 from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.outcome import OutcomeEvaluator
+from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
@@ -184,7 +185,7 @@ class Application:
         try:
             from ai_game_player.frame_analyzer import FrameAnalyzer
             selected_handle = self.window_handles.get(self.window_choice.get())
-            observation = FrameAnalyzer().analyze(WindowsScreenCapture().capture(selected_handle), "live")
+            observation = FrameAnalyzer(TesseractOcrRecognizer.optional()).analyze(WindowsScreenCapture().capture(selected_handle), "live")
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
             assessment = self._assess_observation(observation)

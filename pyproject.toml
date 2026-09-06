@@ -3,6 +3,9 @@ name = "ai-game-player"
 version = "0.1.0"
 requires-python = ">=3.10"
 
+[project.optional-dependencies]
+ocr = ["Pillow", "pytesseract"]
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 

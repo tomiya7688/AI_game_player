@@ -21,7 +21,7 @@ class DecisionPipeline:
 
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[object, list[ActionCandidate]]:
         observation, configured = self.source.read()
-        detected = self.ocr.detect(observation, ocr_texts or [])
+        detected = self.ocr.detect(observation, ocr_texts if ocr_texts is not None else observation.features.get("ocr_candidates", []))
         return observation, self.merger.merge(configured, detected)
 
     def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
