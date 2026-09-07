@@ -8,6 +8,7 @@ from tkinter import messagebox, ttk
 from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.execution_mode import execution_labels
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
 from ai_game_player.loop_guard import LoopGuard
@@ -78,7 +79,7 @@ class Application:
         ttk.Entry(prompt_settings, textvariable=self.personality, width=20).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="目的").pack(side=tk.LEFT)
         ttk.Entry(prompt_settings, textvariable=self.purpose, width=34).pack(side=tk.LEFT, padx=5)
-        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution).pack(side=tk.LEFT, padx=5)
+        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution, command=self._refresh_execution_controls).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         window_settings = ttk.Frame(frame)
@@ -101,10 +102,15 @@ class Application:
         controls.pack(anchor=tk.W, pady=8)
         ttk.Label(frame, text="停止方法: ■ 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
-        ttk.Button(controls, text="判断＋実行（dry-run）", command=self.run_and_execute).pack(side=tk.LEFT, padx=6)
-        ttk.Button(controls, text="連続dry-run開始", command=self.start_loop).pack(side=tk.LEFT)
+        self.execute_button = ttk.Button(controls, command=self.run_and_execute)
+        self.execute_button.pack(side=tk.LEFT, padx=6)
+        self.loop_button = ttk.Button(controls, command=self.start_loop)
+        self.loop_button.pack(side=tk.LEFT)
         ttk.Button(controls, text="■ 停止（連続実行を停止）", command=self.stop).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
+        self.live_status = ttk.Label(frame)
+        self.live_status.pack(anchor=tk.W)
+        self._refresh_execution_controls()
         self.result = ttk.Label(frame, text="待機中")
         self.result.pack(anchor=tk.W)
         self.metrics = ttk.Label(frame, text="指標: 0件")
@@ -119,6 +125,16 @@ class Application:
         if os.name == "nt":
             self.refresh_windows()
             self._poll_global_stop()
+
+    def _refresh_execution_controls(self) -> None:
+        execute_label, loop_label, status = execution_labels(self.live_execution.get())
+        self.execute_button.config(text=execute_label)
+        self.loop_button.config(text=loop_label)
+        self.live_status.config(text=status)
+
+    def _validate_live_execution(self) -> None:
+        if self.live_execution.get() and self.input_mode.get() == "window_message" and not self.window_handles.get(self.window_choice.get()):
+            raise ValueError("実入力には対象ウィンドウの選択が必要です")
 
     def _cursor_position(self) -> tuple[int, int] | None:
         if os.name != "nt":
