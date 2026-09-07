@@ -197,7 +197,7 @@ class Application:
         self.runtime_log.write("outcome", assessment.reason, {"status": assessment.status, "confidence": assessment.confidence, "provider": self.provider.get()})
         return assessment
 
-    def capture_screen(self) -> None:
+    def capture_screen(self) -> ScreenObservation | None:
         try:
             from ai_game_player.frame_analyzer import FrameAnalyzer
             selected_handle = self.window_handles.get(self.window_choice.get())
@@ -207,9 +207,11 @@ class Application:
             assessment = self._assess_observation(observation)
             self.outcome.config(text=f"状態: {assessment.status} ({assessment.confidence:.0%})")
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
+            return observation
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
             messagebox.showerror("画面取得エラー", str(exc))
+            return None
 
     def start_loop(self) -> None:
         self.controller.start()
@@ -224,8 +226,10 @@ class Application:
         self.loop_job = None
         if not self.controller.is_running:
             return
-        if os.name == "nt":
-            self.capture_screen()
+        if os.name == "nt" and self.capture_screen() is None:
+            self.runtime_log.write("run_control", "loop_stopped_by_capture_failure")
+            self.stop()
+            return
         current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
         assessment = self.current_assessment or self._assess_observation(current_observation)
         if self.loop_guard.observe(current_observation):
