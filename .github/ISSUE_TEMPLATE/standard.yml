@@ -1,0 +1,109 @@
+name: Standard Issue
+description: Kadoka AI Game Player の標準Issueフォーマット
+title: ""
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Kadoka Issue Standard
+        Issue本文はこの順序を正本とします。優先度は本文ではなく P0〜P3 ラベルと Issue #19 で管理します。
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: 種別
+      description: Issueの主目的を1つ選択してください。
+      options:
+        - 実装
+        - 改善
+        - バグ
+        - 設計
+        - 評価
+        - 調査 / 研究
+        - 開発運用
+        - 将来機能
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 何をするIssueかを短く記載してください。
+      placeholder: 1〜3文で要点を記載
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景 / 問題
+      description: なぜ必要か、現在何が問題かを記載してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目的
+      description: このIssueで達成したい状態を記載してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: スコープ
+      description: このIssueで実施する内容を箇条書きで記載してください。
+      placeholder: |
+        - 対象1
+        - 対象2
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 非対象
+      description: 今回は扱わない内容があれば記載してください。なければ「なし」。
+      placeholder: なし
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: 実装 / 設計方針
+      description: 想定する構造、インターフェース、アルゴリズム、段階実装など。未定なら「未定」。
+      placeholder: 未定
+    validations:
+      required: true
+
+  - type: textarea
+    id: completion
+    attributes:
+      label: 完了条件
+      description: close可能と判断できる検証可能な条件を箇条書きで記載してください。
+      placeholder: |
+        - [ ] 条件1
+        - [ ] 条件2
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 関連Issue / 依存関係
+      description: 関連Issue、前提、ブロッカーを記載してください。なければ「なし」。
+      placeholder: なし
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補足
+      description: 評価指標、参考情報、将来拡張など必要な場合だけ記載してください。
+    validations:
+      required: false
