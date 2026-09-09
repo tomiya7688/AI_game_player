@@ -3,20 +3,9 @@ from urllib.request import Request, urlopen
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 class RuleProvider:
     def assess_outcome(self, observation: ScreenObservation, previous: ScreenObservation | None = None):
-        from ai_game_player.outcome import OutcomeAssessment
-        context = {"instruction": "画面状態を評価し、status(confidence,reason)をJSONで返す", "observation": observation.to_dict(), "previous": previous.to_dict() if previous else {}}
-        payload = {"model": self.model, "stream": False, "format": "json", "prompt": json.dumps(context, ensure_ascii=False)}
-        request = Request(self.endpoint + "/api/generate", data=json.dumps(payload, ensure_ascii=False).encode("utf-8"), headers={"Content-Type": "application/json"}, method="POST")
-        try:
-            with urlopen(request, timeout=self.timeout) as response:
-                parsed = json.loads(json.loads(response.read().decode("utf-8"))["response"])
-            status = str(parsed["status"]).lower()
-            if status not in {"success", "failure", "ongoing", "unknown"}: raise ValueError("invalid outcome status")
-            confidence = float(parsed.get("confidence", 0.0))
-            if not 0 <= confidence <= 1: raise ValueError("invalid outcome confidence")
-            return OutcomeAssessment(status, confidence, str(parsed.get("reason", "")))
-        except Exception as exc:
-            raise RuntimeError(f"Ollama状態評価を解釈できません: {exc}") from exc
+        from ai_game_player.outcome import OutcomeEvaluator
+
+        return OutcomeEvaluator().assess(observation)
 
     def choose(self,candidates:list[ActionCandidate],observation:ScreenObservation|None=None,purpose:str="",personality:str="")->ActionDecision:
         if not candidates: raise ValueError("許可された操作候補がありません")
