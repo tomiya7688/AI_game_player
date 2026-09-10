@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- 画面の64bit dHash・類似度・変化分類を追加し、LoopGuardがほぼ同じ画面の反復も検出できるようにする。
+- 図表生成・整合性確認・テストを一括実行するfinish_task.batと、CI用の生成物チェックを追加する。
 
 - Codex向けの最小コンテキスト入口としてAGENTS.mdを追加し、Issue中心の参照ルールを定義する。
 
