@@ -15,3 +15,7 @@ class ModelValidationTest(unittest.TestCase):
     def test_rejects_partial_coordinates(self):
         with self.assertRaises(ValueError):
             ActionCandidate("a", "click", "A", x=1)
+
+    def test_rejects_non_positive_bbox_size(self):
+        with self.assertRaises(ValueError):
+            ActionCandidate("a", "click", "A", bbox=(1, 2, 0, 3))

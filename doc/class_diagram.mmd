@@ -31,6 +31,7 @@ classDiagram
         +__init__()
         +merge()
         +_same()
+        +_iou()
     }
     Protocol <|-- FrameCapture
     class FrameCapture {
@@ -119,6 +120,12 @@ classDiagram
     class OutcomeEvaluator {
         +__init__()
         +assess()
+    }
+    class PerceptualHasher {
+        +hash()
+        +similarity()
+        +_brightness()
+        +_hash_value()
     }
     class DecisionPipeline {
         +__init__()
