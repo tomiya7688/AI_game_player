@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 操作候補に任意の矩形情報を保持し、CandidateMergerがIoUで重複候補を統合できるようにする。
+
 - 図表生成・整合性確認・テストを一括実行するfinish_task.batと、CI用の生成物チェックを追加する。
 
 - Codex向けの最小コンテキスト入口としてAGENTS.mdを追加し、Issue中心の参照ルールを定義する。

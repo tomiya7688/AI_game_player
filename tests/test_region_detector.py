@@ -10,3 +10,4 @@ class RegionDetectorTest(unittest.TestCase):
             path=Path(d)/"automation.json"; path.write_text(json.dumps({"regions":[{"action_id":"shop","label":"Shop","x":10,"y":20,"width":40,"height":20}]}),encoding="utf-8")
             result=ConfiguredRegionDetector(path).detect(ScreenObservation("menu",100,100))
             self.assertEqual((result[0].x,result[0].y),(30,30))
+            self.assertEqual(result[0].bbox,(10,20,40,20))

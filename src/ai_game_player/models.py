@@ -30,6 +30,7 @@ class ActionCandidate:
     y: int | None = None
     confidence: float = 1.0
     dangerous: bool = False
+    bbox: tuple[int, int, int, int] | None = None
 
     def __post_init__(self) -> None:
         if not self.action_id.strip():
@@ -40,6 +41,9 @@ class ActionCandidate:
             raise ValueError("confidence must be between 0 and 1")
         if (self.x is None) != (self.y is None):
             raise ValueError("x and y must be provided together")
+        if self.bbox is not None:
+            if len(self.bbox) != 4 or self.bbox[2] <= 0 or self.bbox[3] <= 0:
+                raise ValueError("bbox must be (x, y, positive_width, positive_height)")
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "ActionCandidate":
@@ -47,7 +51,8 @@ class ActionCandidate:
             raise ValueError("action candidate must be an object")
         x = value.get("x")
         y = value.get("y")
-        return cls(str(value["action_id"]), str(value["kind"]), str(value.get("label", value["action_id"])), int(x) if x is not None else None, int(y) if y is not None else None, float(value.get("confidence", 1.0)), bool(value.get("dangerous", False)))
+        bbox = value.get("bbox")
+        return cls(str(value["action_id"]), str(value["kind"]), str(value.get("label", value["action_id"])), int(x) if x is not None else None, int(y) if y is not None else None, float(value.get("confidence", 1.0)), bool(value.get("dangerous", False)), tuple(int(part) for part in bbox) if bbox is not None else None)
 
     def to_dict(self) -> dict[str, Any]:
         return self.__dict__.copy()
