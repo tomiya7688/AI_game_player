@@ -1,0 +1,21 @@
+{
+  "docs": {
+    "class_diagram": true,
+    "sequence_diagram": true
+  },
+  "paths": {
+    "source": "src/ai_game_player",
+    "class_diagram": "doc/class_diagram.mmd",
+    "sequence_diagram": "doc/sequence_diagram.mmd"
+  },
+  "sequence": {
+    "source_file": "src/ai_game_player/pipeline.py",
+    "class_name": "DecisionPipeline",
+    "method_name": "run_and_execute"
+  },
+  "checks": {
+    "tests": true,
+    "compile": true,
+    "git_diff": true
+  }
+}

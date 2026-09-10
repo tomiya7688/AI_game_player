@@ -58,13 +58,6 @@ Non-negotiable constraints:
 ## Completion
 
 - Follow `doc/ワークフロー/ワークフロー.md`.
-- Before a code commit, run the relevant tests; for a full suite use:
-
-```powershell
-$env:PYTHONPATH = "src;."
-python -m unittest discover -s tests -v
-python -m compileall -q src
-```
-
-- Run `git diff --check`, update `doc/versions.md`, and create a focused PR.
-- Issue #25 will automate the completion workflow. Until then, keep this checklist short and execute it rather than re-reading broad documentation.
+- Before every commit, run `finish_task.bat`. Do not commit when it fails.
+- Its generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
+- Update `doc/versions.md` and create a focused PR.
