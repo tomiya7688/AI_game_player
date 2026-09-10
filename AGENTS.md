@@ -3,9 +3,10 @@
 ## Standard start: minimum context
 
 1. Read this file.
-2. Identify the target GitHub Issue. GitHub Issues are the source of truth for requirements and priority.
-3. Read only the Issue, the mapped source/tests below, and any document explicitly needed for that Issue.
-4. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
+2. Run `start_task.bat` when no target Issue was explicitly assigned. It returns only the highest-priority open Issue (P0 -> P1 -> P2 -> P3 fallback).
+3. If a target Issue was explicitly assigned, use that Issue instead of scanning the Issue list.
+4. Read only the selected Issue, the mapped source/tests below, and any document explicitly needed for that Issue.
+5. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
 
 Do not begin by reading the entire repository, every document, all Issues, or generated diagrams. Expand context only when the current task requires it.
 
@@ -59,5 +60,7 @@ Non-negotiable constraints:
 
 - Follow `doc/ワークフロー/ワークフロー.md`.
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
+- For the standard end-to-end Git/PR path, run `finish_pr.bat "commit message" next-branch`. It runs completion checks, stages changes, validates/displays the diff, commits, pushes, creates and merges the PR when GitHub reports it mergeable, returns to updated `main`, and creates the next branch.
+- `finish_pr.bat` must stop instead of auto-resolving when the PR is conflicting, mergeability is unknown, a check fails, or `main` cannot fast-forward. Codex should inspect the state/diff and decide the resolution in those cases.
 - Its generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
 - Update `doc/versions.md` and create a focused PR.
