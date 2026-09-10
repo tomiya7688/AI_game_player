@@ -13,17 +13,26 @@ if errorlevel 1 (
   exit /b 1
 )
 
-set "TMP_FILE=%TEMP%\kadoka_priority_issue_%RANDOM%_%RANDOM%.txt"
+set "ISSUE_NUMBER="
+set "ISSUE_PRIORITY="
 
 for %%P in (P0 P1 P2 P3) do (
-  >"!TMP_FILE!" gh issue list --state open --label %%P --limit 1 --search "sort:created-asc" --template "{{range .}}{{printf \"Priority: %%P\nIssue: #%%v %%s\nURL: %%s\n\n%%s\n\" .number .title .url .body}}{{end}}" 2>nul
-  for %%A in ("!TMP_FILE!") do if %%~zA GTR 0 (
-    type "!TMP_FILE!"
-    del /q "!TMP_FILE!" >nul 2>&1
-    exit /b 0
+  if not defined ISSUE_NUMBER (
+    for /f "usebackq delims=" %%I in (`gh issue list --state open --label %%P --limit 20 --search "sort:created-asc" --json number --jq ".[].number" 2^>nul`) do (
+      if not "%%I"=="19" if not defined ISSUE_NUMBER (
+        set "ISSUE_NUMBER=%%I"
+        set "ISSUE_PRIORITY=%%P"
+      )
+    )
   )
 )
 
-del /q "%TMP_FILE%" >nul 2>&1
-echo [INFO] No open P0-P3 Issue was found.
-exit /b 2
+if not defined ISSUE_NUMBER (
+  echo [INFO] No open P0-P3 work Issue was found.
+  exit /b 2
+)
+
+echo Priority: !ISSUE_PRIORITY!
+echo.
+gh issue view !ISSUE_NUMBER!
+exit /b %ERRORLEVEL%
