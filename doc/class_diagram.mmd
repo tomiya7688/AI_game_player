@@ -11,7 +11,14 @@ classDiagram
     }
     class Application {
         +__init__()
+        +_refresh_execution_controls()
+        +_validate_live_execution()
+        +_cursor_position()
+        +_poll_global_stop()
+        +check_ollama()
+        +refresh_models()
         +refresh_windows()
+        +_assess_observation()
         +capture_screen()
         +start_loop()
         +_loop_step()
@@ -55,6 +62,7 @@ classDiagram
         +append()
     }
     class FrameAnalyzer {
+        +__init__()
         +analyze()
     }
     class HistoryStore {
@@ -68,15 +76,22 @@ classDiagram
         +_read()
         +_write()
     }
+    class LoopGuard {
+        +__init__()
+        +observe()
+        +reset()
+    }
     class ExecutionMetrics {
     }
     class MetricsCalculator {
         +calculate()
     }
     class ScreenObservation {
+        +__post_init__()
         +to_dict()
     }
     class ActionCandidate {
+        +__post_init__()
         +from_dict()
         +to_dict()
     }
@@ -94,16 +109,37 @@ classDiagram
     class OcrTextCandidateDetector {
         +detect()
     }
+    class TesseractOcrRecognizer {
+        +__init__()
+        +optional()
+        +recognize()
+    }
+    class OutcomeAssessment {
+    }
+    class OutcomeEvaluator {
+        +__init__()
+        +assess()
+    }
+    class PerceptualHasher {
+        +hash()
+        +similarity()
+        +_brightness()
+        +_hash_value()
+    }
     class DecisionPipeline {
         +__init__()
+        +_read_candidates()
         +run()
         +run_and_execute()
     }
     class RuleProvider {
+        +assess_outcome()
         +choose()
     }
     class OllamaProvider {
+        +list_models()
         +__init__()
+        +assess_outcome()
         +choose()
     }
     class ConfiguredRegionDetector {
@@ -126,8 +162,18 @@ classDiagram
     class WindowsScreenCapture {
         +capture()
     }
+    class ScreenSimilarity {
+        +__init__()
+        +compare()
+        +_fallback_similarity()
+        +_result()
+    }
     class WindowInfo {
     }
     class WindowsWindowSelector {
         +list_windows()
+    }
+    class WindowsInputExecutor {
+        +__init__()
+        +execute()
     }
