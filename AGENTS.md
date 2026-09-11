@@ -3,12 +3,12 @@
 ## Standard start: minimum context
 
 1. Read this file.
-2. Run `start_task.bat` when no target Issue was explicitly assigned. It returns only the highest-priority open Issue (P0 -> P1 -> P2 -> P3 fallback).
+2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority work Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> unlabeled fallback; Issue #19 is policy, not work selection).
 3. If a target Issue was explicitly assigned, use that Issue instead of scanning the Issue list.
-4. Read only the selected Issue, the mapped source/tests below, and any document explicitly needed for that Issue.
+4. Read `.codex/next_issue.md`, then only the mapped source/tests and documents required for that Issue.
 5. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
 
-Do not begin by reading the entire repository, every document, all Issues, or generated diagrams. Expand context only when the current task requires it.
+Do not begin by reading the entire repository, every document, all Issues, generated diagrams, or routine full PR diffs. Expand context only when the current task requires it.
 
 ## Compressed project state (Issue #19)
 
@@ -47,6 +47,10 @@ Non-negotiable constraints:
 | Persistence / logs | `config.py`, `knowledge.py`, `history.py`, `execution_history.py`, `runtime_log.py`, matching tests | `doc/設定永続化機能説明書.md`, `doc/知識ベース機能説明書.md` |
 | Generated diagrams | `tools/` generator and diagram tests | `doc/class_diagram.mmd`, `doc/sequence_diagram.mmd` only when generation or a diagram issue is in scope |
 
+## Issue spec labels
+
+`start_task.bat` recognizes `spec:recognition`, `spec:capture`, `spec:decision`, `spec:execution`, and `spec:persistence` and writes the matching document paths into `.codex/next_issue.md`. Use multiple `spec:*` labels only when an Issue genuinely spans multiple areas.
+
 ## Information source responsibilities
 
 - `README.md`: human-facing introduction, setup, and safe usage.
@@ -60,7 +64,9 @@ Non-negotiable constraints:
 
 - Follow `doc/ワークフロー/ワークフロー.md`.
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
-- For the standard end-to-end Git/PR path, run `finish_pr.bat "commit message" next-branch`. It runs completion checks, stages changes, validates/displays the diff, commits, pushes, creates and merges the PR when GitHub reports it mergeable, returns to updated `main`, and creates the next branch.
-- `finish_pr.bat` must stop instead of auto-resolving when the PR is conflicting, mergeability is unknown, a check fails, or `main` cannot fast-forward. Codex should inspect the state/diff and decide the resolution in those cases.
-- Its generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
+- For the standard Git/PR path, run `finish_pr.bat "commit message" next-branch`.
+- Routine PR preparation should use changed-file names, diff stat, commit summary, and validation results. Do not print/read the full diff unless a check fails or a specific change needs inspection.
+- `.codex/` is generated local context and must not be committed.
+- `finish_pr.bat` must stop instead of auto-resolving when the PR is conflicting, mergeability is unknown, a check fails, or `main` cannot fast-forward.
+- Generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
 - Update `doc/versions.md` and create a focused PR.
