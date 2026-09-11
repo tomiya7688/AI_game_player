@@ -1,38 +1,23 @@
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
+setlocal
+cd /d "%~dp0"
 
-where gh >nul 2>&1
-if errorlevel 1 (
+where gh >nul 2>&1 || (
   echo [ERROR] GitHub CLI ^(gh^) was not found in PATH.
   exit /b 1
 )
-
-gh auth status >nul 2>&1
-if errorlevel 1 (
+gh auth status >nul 2>&1 || (
   echo [ERROR] GitHub CLI is not authenticated. Run: gh auth login
   exit /b 1
 )
-
-set "ISSUE_NUMBER="
-set "ISSUE_PRIORITY="
-
-for %%P in (P0 P1 P2 P3) do (
-  if not defined ISSUE_NUMBER (
-    for /f "usebackq delims=" %%I in (`gh issue list --state open --label %%P --limit 20 --search "sort:created-asc" --json number --jq ".[].number" 2^>nul`) do (
-      if not "%%I"=="19" if not defined ISSUE_NUMBER (
-        set "ISSUE_NUMBER=%%I"
-        set "ISSUE_PRIORITY=%%P"
-      )
-    )
-  )
+where python >nul 2>&1 || (
+  echo [ERROR] python was not found in PATH.
+  exit /b 1
 )
 
-if not defined ISSUE_NUMBER (
-  echo [INFO] No open P0-P3 work Issue was found.
-  exit /b 2
-)
+python tools\issue_context.py
+if errorlevel 1 exit /b 1
 
-echo Priority: !ISSUE_PRIORITY!
 echo.
-gh issue view !ISSUE_NUMBER!
-exit /b %ERRORLEVEL%
+echo Read AGENTS.md, then .codex\next_issue.md. Do not scan unrelated Issues or docs.
+endlocal
