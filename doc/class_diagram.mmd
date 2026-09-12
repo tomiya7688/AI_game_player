@@ -161,6 +161,26 @@ classDiagram
         +stop()
         +ensure_running()
     }
+    str <|-- RuntimeCapability
+    Enum <|-- RuntimeCapability
+    class RuntimeCapability {
+    }
+    class RuntimeDescriptor {
+        +__post_init__()
+        +supports()
+    }
+    Protocol <|-- RuntimeBackend
+    class RuntimeBackend {
+        +descriptor()
+        +is_healthy()
+    }
+    class RuntimeRegistry {
+        +__init__()
+        +register()
+        +get()
+        +names()
+        +resolve()
+    }
     class RuntimeLog {
         +__init__()
         +write()
