@@ -1,6 +1,5 @@
+import unittest
 from dataclasses import dataclass
-
-import pytest
 
 from ai_game_player.runtime import (
     RuntimeCapability,
@@ -18,44 +17,47 @@ class FakeBackend:
         return self.healthy
 
 
-def test_registry_resolves_backend_by_capability() -> None:
-    registry = RuntimeRegistry()
-    registry.register(
-        FakeBackend(
-            RuntimeDescriptor(
-                "native",
-                "cpp",
-                capabilities=frozenset({RuntimeCapability.CAPTURE, RuntimeCapability.SAFETY}),
+class RuntimeRegistryTest(unittest.TestCase):
+    def test_resolves_backend_by_capability(self) -> None:
+        registry = RuntimeRegistry()
+        registry.register(
+            FakeBackend(
+                RuntimeDescriptor(
+                    "native",
+                    "cpp",
+                    capabilities=frozenset({RuntimeCapability.CAPTURE, RuntimeCapability.SAFETY}),
+                )
             )
         )
-    )
 
-    backend = registry.resolve({RuntimeCapability.CAPTURE})
+        backend = registry.resolve({RuntimeCapability.CAPTURE})
 
-    assert backend.descriptor.name == "native"
+        self.assertEqual("native", backend.descriptor.name)
 
-
-def test_registry_skips_unhealthy_backend() -> None:
-    registry = RuntimeRegistry()
-    registry.register(
-        FakeBackend(
-            RuntimeDescriptor(
-                "native",
-                "cpp",
-                capabilities=frozenset({RuntimeCapability.INPUT}),
-            ),
-            healthy=False,
+    def test_skips_unhealthy_backend(self) -> None:
+        registry = RuntimeRegistry()
+        registry.register(
+            FakeBackend(
+                RuntimeDescriptor(
+                    "native",
+                    "cpp",
+                    capabilities=frozenset({RuntimeCapability.INPUT}),
+                ),
+                healthy=False,
+            )
         )
-    )
 
-    with pytest.raises(LookupError):
-        registry.resolve({RuntimeCapability.INPUT})
+        with self.assertRaises(LookupError):
+            registry.resolve({RuntimeCapability.INPUT})
 
-
-def test_registry_rejects_duplicate_names() -> None:
-    registry = RuntimeRegistry()
-    backend = FakeBackend(RuntimeDescriptor("python", "python"))
-    registry.register(backend)
-
-    with pytest.raises(ValueError):
+    def test_rejects_duplicate_names(self) -> None:
+        registry = RuntimeRegistry()
+        backend = FakeBackend(RuntimeDescriptor("python", "python"))
         registry.register(backend)
+
+        with self.assertRaises(ValueError):
+            registry.register(backend)
+
+
+if __name__ == "__main__":
+    unittest.main()
