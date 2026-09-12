@@ -8,11 +8,17 @@ class CandidateMerger:
         self.proximity = proximity
         self.iou_threshold = iou_threshold
 
-    def merge(self, automation: list[ActionCandidate], ocr: list[ActionCandidate]) -> list[ActionCandidate]:
+    def merge(
+        self,
+        automation: list[ActionCandidate],
+        ocr: list[ActionCandidate],
+        image: list[ActionCandidate] | None = None,
+    ) -> list[ActionCandidate]:
         result = list(automation)
-        for candidate in ocr:
-            if not any(self._same(existing, candidate) for existing in result):
-                result.append(candidate)
+        for candidates in (ocr, image or []):
+            for candidate in candidates:
+                if not any(self._same(existing, candidate) for existing in result):
+                    result.append(candidate)
         return result
 
     def _same(self, left: ActionCandidate, right: ActionCandidate) -> bool:
