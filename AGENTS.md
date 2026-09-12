@@ -24,6 +24,7 @@ Current P0:
 - Decision: candidate-based selection and initial evaluation primitives (#8, #12, #29).
 - Execution: dry-run by default, explicitly enabled live input, reliable stop and target-loss stop.
 - Outcome: determine whether an action worked, progressed, failed, or repeated.
+- Architecture: establish the high-level-language + C++ Native Runtime boundary before performance-sensitive code spreads (#56).
 - Gate: validate the whole loop with a no-manual-candidate 10-minute E2E run (#30).
 
 Non-negotiable constraints:
@@ -34,6 +35,10 @@ Non-negotiable constraints:
 - Never give an LLM unrestricted coordinates or input; use validated candidates.
 - Prefer closed-loop completion over advanced learning or orchestration features.
 - Log failures and disagreement as well as successes.
+- Do not default every new component to Python. Evaluate latency, call frequency, native API proximity, safety responsibility, AI/ML dependencies, and language-boundary overhead before implementation.
+- Put performance/realtime/OS/safety-sensitive work in C++ when the end-to-end benefit exceeds FFI/IPC/copy/deployment cost; keep crossings coarse grained.
+- Keep ordinary user setup minimal and self-contained. Development runtime/toolchain complexity must not become an end-user installation requirement.
+- Preserve advanced customization through versioned providers, policies, profiles, and extension contracts while keeping Basic usage minimal (#57).
 
 ## Task router
 
@@ -43,6 +48,7 @@ Non-negotiable constraints:
 | Capture / observation | `screen_capture.py`, `captured_source.py`, `observation_source.py`, matching tests | `doc/画面キャプチャ機能説明書.md`, `doc/観測入力機能説明書.md` |
 | Decision / provider / outcome | `pipeline.py`, `engine.py`, `provider.py`, `evaluator.py`, `outcome.py`, matching tests | `doc/判断パイプライン機能説明書.md`, `doc/評価指標機能説明書.md` |
 | Execution / safety | `action_executor.py`, `windows_input.py`, `run_control.py`, `execution_mode.py`, matching tests | `doc/操作実行機能説明書.md` |
+| Runtime architecture / native boundary | `src/ai_game_player/runtime/`, `native/include/kadoka/runtime_api.h`, matching tests | `doc/architecture/runtime_layers.md`, Issues #56/#57 |
 | GUI | `app.py` and the directly called module/tests | README and the specific feature document only |
 | Persistence / logs | `config.py`, `knowledge.py`, `history.py`, `execution_history.py`, `runtime_log.py`, matching tests | `doc/設定永続化機能説明書.md`, `doc/知識ベース機能説明書.md` |
 | Generated diagrams | `tools/` generator and diagram tests | `doc/class_diagram.mmd`, `doc/sequence_diagram.mmd` only when generation or a diagram issue is in scope |
@@ -56,6 +62,7 @@ Non-negotiable constraints:
 - `README.md`: human-facing introduction, setup, and safe usage.
 - `AGENTS.md`: this AI/Codex router and compressed working policy.
 - `key_info.md`: implemented capabilities and current limitations.
+- `doc/architecture/runtime_layers.md`: cross-language runtime boundary and repository ownership rules.
 - `doc/`: detailed feature contracts; read on demand through the router.
 - GitHub Issues: requirements, feedback, priority, and discussion. Do not recreate their detailed content in local documents.
 - `doc/開発予定.md`: high-level project notes only; it does not override Issue #19 priority.

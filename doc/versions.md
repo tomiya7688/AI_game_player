@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 高水準言語とC++ Native Runtimeを分離するためのruntime capability contract、registry、C ABIスケルトン、architecture/profile配置を追加する。
+- 一般ユーザー向けはself-containedで最小操作、上級ユーザー向けはversioned provider/policy/profile等で拡張可能とする設計方針をAGENTS.mdへ反映する。
 - 明るい連結領域から、OCRに依存しない低信頼度の画像由来操作候補を生成・統合する。
 
 - 操作候補に任意の矩形情報を保持し、CandidateMergerがIoUで重複候補を統合できるようにする。
