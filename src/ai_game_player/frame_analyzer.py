@@ -1,5 +1,6 @@
 from hashlib import sha256
 
+from ai_game_player.bright_region_detector import BrightRegionDetector
 from ai_game_player.models import ScreenObservation
 from ai_game_player.perceptual_hasher import PerceptualHasher
 from ai_game_player.screen_capture import ScreenFrame
@@ -8,9 +9,10 @@ from ai_game_player.screen_capture import ScreenFrame
 class FrameAnalyzer:
     """Converts a raw frame into stable visual features and optional OCR."""
 
-    def __init__(self, ocr=None, perceptual_hasher: PerceptualHasher | None = None) -> None:
+    def __init__(self, ocr=None, perceptual_hasher: PerceptualHasher | None = None, bright_region_detector: BrightRegionDetector | None = None) -> None:
         self.ocr = ocr
         self.perceptual_hasher = perceptual_hasher or PerceptualHasher()
+        self.bright_region_detector = bright_region_detector or BrightRegionDetector()
 
     def analyze(self, frame: ScreenFrame, screen_id: str = "screen") -> ScreenObservation:
         if len(frame.bgra) != frame.width * frame.height * 4:
@@ -25,6 +27,7 @@ class FrameAnalyzer:
             "signature": sha256(frame.bgra).hexdigest(),
             "perceptual_hash": self.perceptual_hasher.hash(frame),
         }
+        features["image_candidates"] = [candidate.to_dict() for candidate in self.bright_region_detector.detect(frame)]
         if self.ocr is not None:
             features["ocr_candidates"] = self.ocr.recognize(frame)
         ocr_text = [str(item["text"]) for item in features.get("ocr_candidates", [])]
