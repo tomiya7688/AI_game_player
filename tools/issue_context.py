@@ -35,9 +35,29 @@ def main():
     summary = re.sub(r"\s+", " ", issue.get("body") or "").strip()[:900] or "No description provided."
     rank = key(issue)[0]
     priority = f"P{rank}" if rank < 4 else "unlabeled"
-    lines = ["# Next Issue", "", f"Issue: #{issue['number']} — {issue['title']}", f"Priority: {priority}", f"Labels: {', '.join(labels) or '(none)'}", f"URL: {issue['url']}", "", "## Compact summary", summary, "", "## Read only if needed"]
+    lines = [
+        "# Next Issue",
+        "",
+        f"Issue: #{issue['number']} — {issue['title']}",
+        f"Priority: {priority}",
+        f"Labels: {', '.join(labels) or '(none)'}",
+        f"URL: {issue['url']}",
+        "",
+        "## Compact summary",
+        summary,
+        "",
+        "## Read only if needed",
+    ]
     lines += [f"- `{x}`" for x in dict.fromkeys(docs)] or ["- Use the AGENTS.md task router; read only directly relevant files."]
-    lines += ["", "## Codex instruction", "Treat this as the current task. Do not scan all issues or documents.", ""]
+    lines += [
+        "",
+        "## Codex instruction",
+        "Read `AI_CONTEXT.md` first and treat this as the current task.",
+        "Do not scan all issues, documents, source files, or history.",
+        "Once Goal / Required / Acceptance are sufficient, stop broad exploration and implement.",
+        "If validation cannot cover a required environment, report that area as Unverified.",
+        "",
+    ]
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text("\n".join(lines), encoding="utf-8")
     print(f"[{priority}] #{issue['number']} {issue['title']}")
