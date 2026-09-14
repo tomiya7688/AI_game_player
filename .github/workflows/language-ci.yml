@@ -1,0 +1,108 @@
+name: language-ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  native-cpp:
+    name: C++20 native (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure native runtime
+        run: cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+      - name: Build native runtime
+        run: cmake --build build/native --config Release --parallel
+
+  detect-optional-languages:
+    name: Detect optional language sources
+    runs-on: ubuntu-latest
+    outputs:
+      lua: ${{ steps.detect.outputs.lua }}
+      dotnet: ${{ steps.detect.outputs.dotnet }}
+      node: ${{ steps.detect.outputs.node }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect
+        name: Detect language inputs
+        shell: bash
+        run: |
+          if find . -type f -name '*.lua' -not -path './.git/*' -print -quit | grep -q .; then
+            echo "lua=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "lua=false" >> "$GITHUB_OUTPUT"
+          fi
+          if find . -type f \( -name '*.csproj' -o -name '*.sln' \) -not -path './.git/*' -print -quit | grep -q .; then
+            echo "dotnet=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dotnet=false" >> "$GITHUB_OUTPUT"
+          fi
+          if find . -type f -name 'package.json' -not -path './.git/*' -print -quit | grep -q .; then
+            echo "node=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "node=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  lua:
+    name: Lua syntax
+    needs: detect-optional-languages
+    if: needs.detect-optional-languages.outputs.lua == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.4
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Check Lua syntax
+        shell: bash
+        run: find . -type f -name '*.lua' -not -path './.git/*' -print0 | xargs -0 -n1 luac5.4 -p
+
+  dotnet:
+    name: .NET build and test
+    needs: detect-optional-languages
+    if: needs.detect-optional-languages.outputs.dotnet == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore, build and test
+        shell: pwsh
+        run: |
+          $target = Get-ChildItem -Recurse -Filter *.sln | Select-Object -First 1
+          if (-not $target) {
+            $target = Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1
+          }
+          if (-not $target) { throw 'No .sln or .csproj found after detection.' }
+          dotnet restore $target.FullName
+          dotnet build $target.FullName --configuration Release --no-restore
+          dotnet test $target.FullName --configuration Release --no-build
+
+  node:
+    name: JavaScript / TypeScript
+    needs: detect-optional-languages
+    if: needs.detect-optional-languages.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require reproducible dependency lock
+        run: test -f package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Test
+        run: npm test --if-present
+      - name: Typecheck
+        run: npm run typecheck --if-present
+      - name: Build
+        run: npm run build --if-present
