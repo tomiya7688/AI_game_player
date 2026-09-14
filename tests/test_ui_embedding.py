@@ -99,7 +99,7 @@ class UiEmbeddingTest(unittest.TestCase):
         self.assertEqual(provider.calls, 1)
         self.assertFalse(first.statuses[0].cache_hit)
         self.assertTrue(second.statuses[0].cache_hit)
-        self.assertEqual(len(cache), 1)
+        self.assertEqual(len(pipeline.cache), 1)
 
     def test_fallback_runs_only_for_missing_lane(self):
         visual = CountingProvider()
