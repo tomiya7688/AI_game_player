@@ -19,5 +19,6 @@ python tools\issue_context.py
 if errorlevel 1 exit /b 1
 
 echo.
-echo Read AGENTS.md, then .codex\next_issue.md. Do not scan unrelated Issues or docs.
+echo Read AI_CONTEXT.md first, then AGENTS.md and .codex\next_issue.md.
+echo Stop broad exploration once Goal / Required / Acceptance are sufficient.
 endlocal
