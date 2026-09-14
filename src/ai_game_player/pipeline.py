@@ -25,15 +25,19 @@ class DecisionPipeline:
         image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
         return observation, self.merger.merge(configured, detected, image)
 
+    def _decide(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> tuple[ActionDecision, list[ActionCandidate]]:
+        observation, candidates = self._read_candidates(ocr_texts)
+        decision = self.engine.step(observation, candidates, purpose, personality)
+        return decision, candidates
+
     def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
         self.controller.ensure_running()
-        observation, candidates = self._read_candidates(ocr_texts)
-        return self.engine.step(observation, candidates, purpose, personality)
+        decision, _ = self._decide(ocr_texts, purpose, personality)
+        return decision
 
     def run_and_execute(self, ocr_texts=None, purpose: str = "", personality: str = "") -> ExecutionResult:
         self.controller.ensure_running()
-        decision = self.run(ocr_texts, purpose, personality)
-        _, candidates = self._read_candidates(ocr_texts)
+        decision, candidates = self._decide(ocr_texts, purpose, personality)
         selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
         if selected is None:
             raise RuntimeError("決定された候補が統合済み候補にありません")
