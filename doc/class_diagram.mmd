@@ -63,11 +63,6 @@ classDiagram
         +__init__()
         +step()
     }
-    class ActionEvaluator {
-        +explain()
-        +evaluate()
-        +_rejection_reason()
-    }
     class EvaluationAxis {
         +__post_init__()
         +to_dict()
@@ -92,6 +87,11 @@ classDiagram
     class EvaluationLog {
         +__init__()
         +append()
+    }
+    class ActionEvaluator {
+        +explain()
+        +evaluate()
+        +_rejection_reason()
     }
     class ExecutionHistory {
         +__init__()
