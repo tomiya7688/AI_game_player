@@ -276,6 +276,83 @@ classDiagram
         +_fallback_similarity()
         +_result()
     }
+    Protocol <|-- UiDetectorProvider
+    class UiDetectorProvider {
+        +detect()
+    }
+    class DetectorProviderAdapter {
+        +__init__()
+        +detect()
+    }
+    class UiProviderConfig {
+        +__post_init__()
+    }
+    class UiProviderStatus {
+        +to_dict()
+    }
+    class UiDetectionBatch {
+        +to_dict()
+    }
+    class UiDetectionPipeline {
+        +__init__()
+        +detect()
+        +detect_batch()
+        +_run()
+        +_skipped()
+        +_fuse()
+        +_element()
+        +_same()
+        +_normalize()
+        +_iou()
+    }
+    class UiRecognitionSample {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+    }
+    class UiPrototype {
+        +from_dict()
+        +to_dict()
+    }
+    class UiRecognitionMemory {
+        +__init__()
+        +record()
+        +samples()
+        +prototypes()
+        +detect_game()
+        +promote_cross_game()
+        +detect_prototypes()
+        +_detect_samples()
+        +_fingerprint()
+        +_similarity()
+        +_normalize_bbox()
+        +_denormalize_bbox()
+        +_clamp_bbox()
+        +_read()
+        +_write()
+    }
+    class KnownUiDetector {
+        +__init__()
+        +detect()
+    }
+    class CrossGamePrototypeDetector {
+        +__init__()
+        +detect()
+    }
+    class UiTransferMetrics {
+    }
+    class UiTransferEvaluator {
+        +__init__()
+        +evaluate()
+        +_same()
+        +_iou()
+    }
+    class UiDetectionImpact {
+    }
+    class UiDetectionImpactEvaluator {
+        +__init__()
+        +assess()
+    }
     class WindowInfo {
     }
     class WindowsWindowSelector {
