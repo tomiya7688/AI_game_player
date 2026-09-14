@@ -28,7 +28,6 @@ class FrameAnalyzer:
             "perceptual_hash": self.perceptual_hasher.hash(frame),
         }
         elements = self.bright_region_detector.detect(frame)
-        features["detected_elements"] = [element.to_dict() for element in elements]
         features["image_candidates"] = [
             {
                 "action_id": element.element_id,
@@ -42,7 +41,15 @@ class FrameAnalyzer:
             }
             for element in elements
         ]
-        if self.ocr is not None:
+        if self.ocr is not None and hasattr(self.ocr, "recognize_batch"):
+            batch = self.ocr.recognize_batch(frame, screen_id)
+            features["ocr_candidates"] = batch.to_candidate_dicts()
+            features["ocr_results"] = [result.to_dict() for result in batch.results]
+            features["ocr_provider_status"] = [status.to_dict() for status in batch.statuses]
+            features["ocr_fallback_used"] = batch.fallback_used
+            elements.extend(batch.elements)
+        elif self.ocr is not None:
             features["ocr_candidates"] = self.ocr.recognize(frame)
+        features["detected_elements"] = [element.to_dict() for element in elements]
         ocr_text = [str(item["text"]) for item in features.get("ocr_candidates", [])]
         return ScreenObservation(screen_id, frame.width, frame.height, ocr_text, features)
