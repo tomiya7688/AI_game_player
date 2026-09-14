@@ -63,6 +63,31 @@ classDiagram
         +__init__()
         +step()
     }
+    class EvaluationAxis {
+        +__post_init__()
+        +to_dict()
+    }
+    class EvaluationResult {
+        +__post_init__()
+        +to_dict()
+        +to_decision_context()
+    }
+    class PrimitiveEvaluator {
+        +__init__()
+        +evaluate()
+        +_progress()
+        +_survival()
+        +_signal_axis()
+        +_penalty_axis()
+        +_signals()
+        +_weights()
+        +_clamp()
+        +_confidence()
+    }
+    class EvaluationLog {
+        +__init__()
+        +append()
+    }
     class ActionEvaluator {
         +explain()
         +evaluate()
