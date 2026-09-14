@@ -35,7 +35,7 @@ class GamePlayerEngine:
             previous_outcome=previous_outcome,
             current_goal=purpose,
         )
-        if hasattr(self.provider, "choose_context"):
+        if self._uses_context_api():
             decision = self.provider.choose_context(context, personality)
         else:
             decision = self.provider.choose(allowed, observation, purpose, personality)
@@ -45,6 +45,17 @@ class GamePlayerEngine:
         self.trace.append(context, decision)
         self._previous_observation = observation
         return decision
+
+    def _uses_context_api(self) -> bool:
+        if not hasattr(self.provider, "choose_context"):
+            return False
+        provider_type = type(self.provider)
+        if isinstance(self.provider, RuleProvider) and provider_type is not RuleProvider:
+            legacy_choose = getattr(provider_type, "choose", None)
+            inherited_context = getattr(provider_type, "choose_context", None) is RuleProvider.choose_context
+            if legacy_choose is not RuleProvider.choose and inherited_context:
+                return False
+        return True
 
     def _assess_previous_outcome(self, observation: ScreenObservation) -> OutcomeAssessment:
         if self._previous_observation is None:
