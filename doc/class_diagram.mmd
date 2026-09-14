@@ -31,13 +31,17 @@ classDiagram
         +__init__()
         +detect()
         +_component()
-        +_candidate()
+        +_element()
         +_is_bright()
     }
     class CandidateMerger {
         +__init__()
         +merge()
+        +_view()
         +_same()
+        +_prefer()
+        +_priority()
+        +_normalize_text()
         +_iou()
     }
     Protocol <|-- FrameCapture
@@ -96,6 +100,11 @@ classDiagram
     }
     class ScreenObservation {
         +__post_init__()
+        +to_dict()
+    }
+    class DetectedElement {
+        +__post_init__()
+        +from_dict()
         +to_dict()
     }
     class ActionCandidate {
