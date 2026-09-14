@@ -2,13 +2,16 @@
 
 ## Standard start: minimum context
 
-1. Read this file.
+0. Read `AI_CONTEXT.md` first. It is the compact ai-context-reducer entrypoint and defines exploration stop conditions.
+1. Read this file only for task/source/test routing and project-specific working rules.
 2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority work Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> unlabeled fallback; Issue #19 is policy, not work selection).
 3. If a target Issue was explicitly assigned, use that Issue instead of scanning the Issue list.
 4. Read `.codex/next_issue.md`, then only the mapped source/tests and documents required for that Issue.
 5. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
 
 Do not begin by reading the entire repository, every document, all Issues, generated diagrams, or routine full PR diffs. Expand context only when the current task requires it.
+
+When **Goal / Required / Acceptance** are all known well enough to implement and validate the task, stop broad exploration. Resume exploration only for a concrete missing fact discovered during implementation or validation. Report unavoidable gaps as `Unverified` instead of reading unrelated areas defensively.
 
 ## Compressed project state (Issue #19)
 
@@ -59,6 +62,7 @@ Non-negotiable constraints:
 
 ## Information source responsibilities
 
+- `AI_CONTEXT.md`: smallest AI entrypoint, source-of-truth pointers, context priority, and exploration stop conditions.
 - `README.md`: human-facing introduction, setup, and safe usage.
 - `AGENTS.md`: this AI/Codex router and compressed working policy.
 - `key_info.md`: implemented capabilities and current limitations.
@@ -73,6 +77,8 @@ Non-negotiable constraints:
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
 - For the standard Git/PR path, run `finish_pr.bat "commit message" next-branch`.
 - Routine PR preparation should use changed-file names, diff stat, commit summary, and validation results. Do not print/read the full diff unless a check fails or a specific change needs inspection.
+- Prefer targeted validation while implementing. Broaden validation only when the changed contract or dependency surface requires it.
+- If a required runtime/GUI/Windows check cannot be executed, mark it `Unverified` in the result/handoff.
 - `.codex/` is generated local context and must not be committed.
 - `finish_pr.bat` must stop instead of auto-resolving when the PR is conflicting, mergeability is unknown, a check fails, or `main` cannot fast-forward.
 - Generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
