@@ -126,6 +126,51 @@ classDiagram
     class OcrTextCandidateDetector {
         +detect()
     }
+    class OcrResult {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+    }
+    Protocol <|-- OcrProvider
+    class OcrProvider {
+        +recognize()
+    }
+    class RecognizerOcrProvider {
+        +__init__()
+        +recognize()
+    }
+    class OcrProviderConfig {
+        +__post_init__()
+    }
+    class OcrProviderStatus {
+        +to_dict()
+    }
+    class OcrBatch {
+        +to_candidate_dicts()
+        +to_dict()
+    }
+    class OcrFusionPipeline {
+        +__init__()
+        +recognize()
+        +recognize_batch()
+        +_run()
+        +_not_run_statuses()
+        +_needs_fallback()
+        +_fuse()
+        +_element()
+        +_weight()
+        +_temporal_support()
+        +_same()
+        +_normalize()
+        +_iou()
+    }
+    class OcrDecisionImpact {
+        +to_dict()
+    }
+    class OcrDecisionImpactEvaluator {
+        +assess()
+        +_normalize()
+    }
     class TesseractOcrRecognizer {
         +__init__()
         +optional()
