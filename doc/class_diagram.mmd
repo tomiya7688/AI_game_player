@@ -276,6 +276,78 @@ classDiagram
         +_fallback_similarity()
         +_result()
     }
+    class EmbeddingVector {
+        +__post_init__()
+        +dimension()
+        +compatible_with()
+        +from_dict()
+        +to_dict()
+    }
+    Protocol <|-- EmbeddingProvider
+    class EmbeddingProvider {
+        +embed()
+    }
+    class GridVisualEmbeddingProvider {
+        +__init__()
+        +embed()
+    }
+    class HashedTextEmbeddingProvider {
+        +__init__()
+        +embed()
+    }
+    class EmbeddingProviderConfig {
+    }
+    class EmbeddingProviderStatus {
+        +to_dict()
+    }
+    class EmbeddingBatch {
+        +lanes()
+        +to_dict()
+    }
+    class EmbeddingCache {
+        +__init__()
+        +get()
+        +put()
+        +__len__()
+        +_flush()
+    }
+    class EmbeddingPipeline {
+        +__init__()
+        +embed()
+        +_run()
+        +_validate_provider_vector()
+        +_cache_key()
+    }
+    class EmbeddingRecord {
+        +from_dict()
+        +to_dict()
+    }
+    class EmbeddingPrototype {
+        +from_dict()
+        +to_dict()
+    }
+    class EmbeddingNeighbor {
+    }
+    class PrototypeNeighbor {
+    }
+    class EmbeddingMemory {
+        +__init__()
+        +add()
+        +records()
+        +prototypes()
+        +nearest()
+        +nearest_prototypes()
+        +build_from_ui_prototypes()
+        +_read()
+        +_write()
+    }
+    class EmbeddingRetrievalCase {
+    }
+    class EmbeddingRetrievalMetrics {
+    }
+    class EmbeddingRetrievalEvaluator {
+        +evaluate()
+    }
     Protocol <|-- UiDetectorProvider
     class UiDetectorProvider {
         +detect()
