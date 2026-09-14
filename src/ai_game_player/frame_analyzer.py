@@ -27,7 +27,21 @@ class FrameAnalyzer:
             "signature": sha256(frame.bgra).hexdigest(),
             "perceptual_hash": self.perceptual_hasher.hash(frame),
         }
-        features["image_candidates"] = [candidate.to_dict() for candidate in self.bright_region_detector.detect(frame)]
+        elements = self.bright_region_detector.detect(frame)
+        features["detected_elements"] = [element.to_dict() for element in elements]
+        features["image_candidates"] = [
+            {
+                "action_id": element.element_id,
+                "kind": element.kind,
+                "label": element.text or element.element_type,
+                "x": element.bbox[0] + element.bbox[2] // 2,
+                "y": element.bbox[1] + element.bbox[3] // 2,
+                "confidence": element.confidence,
+                "dangerous": element.dangerous,
+                "bbox": element.bbox,
+            }
+            for element in elements
+        ]
         if self.ocr is not None:
             features["ocr_candidates"] = self.ocr.recognize(frame)
         ocr_text = [str(item["text"]) for item in features.get("ocr_candidates", [])]

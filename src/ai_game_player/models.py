@@ -22,6 +22,55 @@ class ScreenObservation:
 
 
 @dataclass(frozen=True)
+class DetectedElement:
+    element_id: str
+    element_type: str
+    bbox: tuple[int, int, int, int]
+    source: str
+    confidence: float = 1.0
+    text: str | None = None
+    kind: str = "click"
+    dangerous: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.element_id.strip():
+            raise ValueError("element_id must not be empty")
+        if not self.element_type.strip():
+            raise ValueError("element_type must not be empty")
+        if not self.source.strip():
+            raise ValueError("source must not be empty")
+        if not isfinite(self.confidence) or not 0 <= self.confidence <= 1:
+            raise ValueError("confidence must be between 0 and 1")
+        if len(self.bbox) != 4 or self.bbox[2] <= 0 or self.bbox[3] <= 0:
+            raise ValueError("bbox must be (x, y, positive_width, positive_height)")
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> "DetectedElement":
+        if not isinstance(value, dict):
+            raise ValueError("detected element must be an object")
+        element_id = value.get("element_id", value.get("action_id"))
+        if element_id is None:
+            raise ValueError("detected element requires element_id")
+        bbox = value.get("bbox")
+        if bbox is None:
+            raise ValueError("detected element requires bbox")
+        text = value.get("text", value.get("label"))
+        return cls(
+            str(element_id),
+            str(value.get("element_type", "region")),
+            tuple(int(part) for part in bbox),
+            str(value.get("source", "unknown")),
+            float(value.get("confidence", 1.0)),
+            str(text) if text is not None else None,
+            str(value.get("kind", "click")),
+            bool(value.get("dangerous", False)),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.__dict__.copy()
+
+
+@dataclass(frozen=True)
 class ActionCandidate:
     action_id: str
     kind: str

@@ -1,11 +1,11 @@
 from collections import deque
 
-from ai_game_player.models import ActionCandidate
+from ai_game_player.models import DetectedElement
 from ai_game_player.screen_capture import ScreenFrame
 
 
 class BrightRegionDetector:
-    """Finds bright connected regions as low-confidence, bounded click candidates."""
+    """Finds bright connected regions as low-confidence detected UI elements."""
 
     def __init__(self, brightness_threshold: int = 220, min_pixels: int = 9) -> None:
         if not 0 <= brightness_threshold <= 255:
@@ -15,17 +15,17 @@ class BrightRegionDetector:
         self.brightness_threshold = brightness_threshold
         self.min_pixels = min_pixels
 
-    def detect(self, frame: ScreenFrame) -> list[ActionCandidate]:
+    def detect(self, frame: ScreenFrame) -> list[DetectedElement]:
         visited = bytearray(frame.width * frame.height)
-        candidates: list[ActionCandidate] = []
+        elements: list[DetectedElement] = []
         for index in range(frame.width * frame.height):
             if visited[index] or not self._is_bright(frame, index):
                 continue
             component = self._component(frame, index, visited)
-            candidate = self._candidate(component, frame.width, len(candidates))
-            if candidate is not None:
-                candidates.append(candidate)
-        return candidates
+            element = self._element(component, frame.width, len(elements))
+            if element is not None:
+                elements.append(element)
+        return elements
 
     def _component(self, frame: ScreenFrame, start: int, visited: bytearray) -> list[int]:
         pending = deque([start])
@@ -44,7 +44,7 @@ class BrightRegionDetector:
                     pending.append(neighbor)
         return component
 
-    def _candidate(self, component: list[int], width: int, index: int) -> ActionCandidate | None:
+    def _element(self, component: list[int], width: int, index: int) -> DetectedElement | None:
         if len(component) < self.min_pixels:
             return None
         xs = [pixel % width for pixel in component]
@@ -55,14 +55,12 @@ class BrightRegionDetector:
             return None
         density = len(component) / (region_width * region_height)
         confidence = round(0.5 + 0.2 * density, 2)
-        return ActionCandidate(
+        return DetectedElement(
             f"bright-region-{index}",
-            "click",
+            "region",
+            (left, top, region_width, region_height),
             "bright_region",
-            left + region_width // 2,
-            top + region_height // 2,
             confidence,
-            bbox=(left, top, region_width, region_height),
         )
 
     def _is_bright(self, frame: ScreenFrame, index: int) -> bool:
