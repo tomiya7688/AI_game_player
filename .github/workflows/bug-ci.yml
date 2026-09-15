@@ -1,0 +1,35 @@
+name: bug-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bug-check:
+    name: Static bug checker (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Compile Python sources
+        run: python -m compileall -q src tools tests
+      - name: Run high-confidence bug checker
+        env:
+          PYTHONPATH: src
+        run: python tools/bug_check.py src tools tests --output build/bug-check/report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bug-check-report-python-${{ matrix.python }}
+          path: build/bug-check/report.json
+          if-no-files-found: error
