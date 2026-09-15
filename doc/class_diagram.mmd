@@ -4,6 +4,9 @@ classDiagram
     class ActionExecutor {
         +__init__()
         +execute()
+        +record_progress()
+        +trigger_emergency_stop()
+        +rearm_safety()
     }
     str <|-- SafetyStatus
     Enum <|-- SafetyStatus
@@ -299,6 +302,8 @@ classDiagram
         +run()
         +run_and_execute()
         +record_safety_outcome()
+        +trigger_emergency_stop()
+        +rearm_safety()
         +_safety_context()
     }
     class RuleProvider {
@@ -348,6 +353,66 @@ classDiagram
     class RuntimeLog {
         +__init__()
         +write()
+    }
+    str <|-- SafetyState
+    Enum <|-- SafetyState
+    class SafetyState {
+    }
+    class SafetyGuardConfig {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+    }
+    class TargetState {
+        +contains_client_point()
+    }
+    class SafetyDecision {
+    }
+    class SafetyEvent {
+        +to_dict()
+    }
+    class SafetyLog {
+        +__init__()
+        +append()
+        +events()
+    }
+    class EmergencyStop {
+        +__init__()
+        +state()
+        +reason()
+        +is_triggered()
+        +trigger()
+        +rearm()
+    }
+    class EmergencyStopMonitor {
+        +__init__()
+        +start()
+        +stop()
+        +poll_once()
+        +_run()
+        +_windows_f12_pressed()
+    }
+    class WindowsTargetProbe {
+        +inspect()
+    }
+    class NativeSafetyValidator {
+        +__init__()
+        +try_load()
+        +validate()
+        +_key_descriptor()
+    }
+    class SafetyGuard {
+        +__init__()
+        +check()
+        +record_progress()
+        +trigger_emergency_stop()
+        +rearm()
+        +_check_locked()
+        +_has_repeating_cycle()
+        +_trim_history()
+        +_block()
+        +_log()
+        +_normalize_key()
     }
     class ScreenFrame {
     }
@@ -517,4 +582,11 @@ classDiagram
     class WindowsInputExecutor {
         +__init__()
         +execute()
+        +release_all()
+        +_execute_click()
+        +_post_click()
+        +_execute_key()
+        +_key_down()
+        +_key_up()
+        +_interruptible_sleep()
     }
