@@ -15,6 +15,7 @@ from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObserva
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
 from ai_game_player.run_control import RunController
+from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
 
 
 class DecisionPipeline:
@@ -28,12 +29,23 @@ class DecisionPipeline:
         window_handle: int | None = None,
         input_mode: str = "mouse",
         safety_evaluator: ActionSafetyEvaluator | None = None,
+        safety_guard: SafetyGuard | None = None,
+        safety_guard_config: SafetyGuardConfig | None = None,
+        emergency_stop: EmergencyStop | None = None,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
         self.merger = CandidateMerger()
         self.engine = GamePlayerEngine(game_directory, provider)
-        self.executor = ActionExecutor(dry_run, window_handle=window_handle, input_mode=input_mode)
+        self.executor = ActionExecutor(
+            dry_run,
+            window_handle=window_handle,
+            input_mode=input_mode,
+            safety_guard=safety_guard,
+            safety_config=safety_guard_config,
+            safety_log_path=game_directory / "safety_guard.jsonl",
+            emergency_stop=emergency_stop,
+        )
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
         self.safety_audit = ActionSafetyAuditLog(game_directory / "action_safety.json")
@@ -87,6 +99,17 @@ class DecisionPipeline:
         if self.last_safety_result is None:
             raise RuntimeError("no action safety assessment is available")
         self.safety_audit.append_outcome(self.last_safety_result.assessment_id, status, confidence, evidence)
+        normalized = status.casefold()
+        changed = normalized in {"ongoing", "success"} or "screen signature changed" in evidence.casefold()
+        self.executor.record_progress(changed)
+
+    def trigger_emergency_stop(self, reason: str = "emergency stop requested") -> None:
+        self.controller.stop()
+        self.executor.trigger_emergency_stop(reason)
+
+    def rearm_safety(self) -> None:
+        self.executor.rearm_safety()
+        self.controller.start()
 
     def _safety_context(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)
