@@ -135,17 +135,19 @@ def main() -> int:
         target = WindowsTargetProbe().inspect(handle)
         if not target.valid or not target.visible or target.pid <= 0:
             raise RuntimeError(f"invalid safety CI target: {target}")
+        if not target.foreground:
+            raise RuntimeError("safety CI target must be foreground for global input validation")
         wait_for_step(state_file, 0)
 
         emergency_stop = EmergencyStop()
         executor = ActionExecutor(
             dry_run=False,
             window_handle=handle,
-            input_mode="window_message",
+            input_mode="mouse",
             emergency_stop=emergency_stop,
             safety_config=SafetyGuardConfig(
                 require_target=True,
-                require_foreground=False,
+                require_foreground=True,
                 max_actions_per_second=100,
                 max_burst_actions=200,
                 max_hold_seconds=2.0,
