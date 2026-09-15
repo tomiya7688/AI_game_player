@@ -40,9 +40,10 @@ class ActionExecutor:
         production_live = not dry_run and live_executor is None
         if safety_guard is None:
             if safety_config is None:
+                bound_windows_target = production_live and window_handle is not None
                 safety_config = SafetyGuardConfig(
-                    require_target=production_live,
-                    require_foreground=production_live and input_mode == "mouse",
+                    require_target=bound_windows_target,
+                    require_foreground=bound_windows_target and input_mode == "mouse",
                 )
             stop = emergency_stop or (default_emergency_stop() if production_live else EmergencyStop())
             safety_guard = SafetyGuard(
@@ -64,6 +65,8 @@ class ActionExecutor:
             return ExecutionResult(candidate.action_id, False, "dry_run", "OS入力は無効です")
         executor = self.live_executor
         if executor is None:
+            if self.window_handle is None:
+                raise RuntimeError("SafetyGuard blocked action [target_missing]: live Windows input requires a target window")
             from ai_game_player.windows_input import WindowsInputExecutor
 
             executor = WindowsInputExecutor(
