@@ -21,6 +21,8 @@ jobs:
         run: cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
       - name: Build native runtime
         run: cmake --build build/native --config Release --parallel
+      - name: Test native runtime
+        run: ctest --test-dir build/native -C Release --output-on-failure
 
   windows-app-bundle:
     name: Windows application bundle + startup smoke

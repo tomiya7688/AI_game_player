@@ -9,6 +9,9 @@ class RunController:
         return self._running
 
     def start(self) -> None:
+        from ai_game_player.safety_guard import rearm_default_emergency_stop
+
+        rearm_default_emergency_stop()
         self._running = True
 
     def stop(self) -> None:

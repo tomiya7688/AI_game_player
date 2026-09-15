@@ -80,6 +80,7 @@ class ActionCandidate:
     confidence: float = 1.0
     dangerous: bool = False
     bbox: tuple[int, int, int, int] | None = None
+    hold_seconds: float | None = None
 
     def __post_init__(self) -> None:
         if not self.action_id.strip():
@@ -93,6 +94,8 @@ class ActionCandidate:
         if self.bbox is not None:
             if len(self.bbox) != 4 or self.bbox[2] <= 0 or self.bbox[3] <= 0:
                 raise ValueError("bbox must be (x, y, positive_width, positive_height)")
+        if self.hold_seconds is not None and (not isfinite(self.hold_seconds) or self.hold_seconds < 0):
+            raise ValueError("hold_seconds must be finite and non-negative")
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "ActionCandidate":
@@ -101,7 +104,18 @@ class ActionCandidate:
         x = value.get("x")
         y = value.get("y")
         bbox = value.get("bbox")
-        return cls(str(value["action_id"]), str(value["kind"]), str(value.get("label", value["action_id"])), int(x) if x is not None else None, int(y) if y is not None else None, float(value.get("confidence", 1.0)), bool(value.get("dangerous", False)), tuple(int(part) for part in bbox) if bbox is not None else None)
+        hold_seconds = value.get("hold_seconds")
+        return cls(
+            str(value["action_id"]),
+            str(value["kind"]),
+            str(value.get("label", value["action_id"])),
+            int(x) if x is not None else None,
+            int(y) if y is not None else None,
+            float(value.get("confidence", 1.0)),
+            bool(value.get("dangerous", False)),
+            tuple(int(part) for part in bbox) if bbox is not None else None,
+            float(hold_seconds) if hold_seconds is not None else None,
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return self.__dict__.copy()
