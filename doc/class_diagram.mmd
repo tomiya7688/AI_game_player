@@ -59,9 +59,56 @@ classDiagram
         +load()
         +save()
     }
+    class EvaluatorEvidence {
+        +__post_init__()
+        +to_dict()
+    }
+    class KnowledgeEvidence {
+        +__post_init__()
+        +to_dict()
+    }
+    class CandidateDecisionContext {
+        +to_dict()
+    }
+    class DecisionContext {
+        +to_dict()
+    }
+    Protocol <|-- CandidateContextEvaluator
+    class CandidateContextEvaluator {
+        +evaluate()
+    }
+    class SafetyContextEvaluator {
+        +__init__()
+        +evaluate()
+    }
+    class RepetitionContextEvaluator {
+        +__init__()
+        +evaluate()
+    }
+    class EvaluationFusion {
+        +__init__()
+        +fuse()
+    }
+    class CandidateKnowledgeRetriever {
+        +__init__()
+        +retrieve()
+    }
+    class DecisionContextBuilder {
+        +__init__()
+        +build()
+    }
+    class DecisionTraceStore {
+        +__init__()
+        +append()
+        +recent()
+        +_read()
+        +_write()
+    }
     class GamePlayerEngine {
         +__init__()
         +step()
+        +_uses_context_api()
+        +_assess_previous_outcome()
     }
     class EvaluationAxis {
         +__post_init__()
@@ -223,12 +270,15 @@ classDiagram
     class RuleProvider {
         +assess_outcome()
         +choose()
+        +choose_context()
     }
     class OllamaProvider {
         +list_models()
         +__init__()
         +assess_outcome()
         +choose()
+        +choose_context()
+        +_request_decision()
     }
     class ConfiguredRegionDetector {
         +__init__()
