@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.e2e_runner import ContinuousE2ERunner
+from ai_game_player.e2e_runner import run_continuous_e2e
 from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.models import ScreenObservation
 
@@ -73,7 +73,7 @@ class E2ERunnerTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             log = Path(directory) / "e2e.jsonl"
-            runner = ContinuousE2ERunner(
+            report = run_continuous_e2e(
                 pipeline,
                 observation,
                 log,
@@ -81,14 +81,14 @@ class E2ERunnerTest(unittest.TestCase):
                 max_steps=6,
                 max_wall_seconds=5,
                 settle_seconds=0,
+                purpose="advance",
             )
-            report = runner.run("advance")
             lines = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
 
-        self.assertTrue(report.success)
-        self.assertEqual(report.steps, 3)
-        self.assertEqual(report.stop_reason, "milestone_reached")
-        self.assertTrue(report.live_input_verified)
+        self.assertTrue(report["success"])
+        self.assertEqual(report["steps"], 3)
+        self.assertEqual(report["stop_reason"], "milestone_reached")
+        self.assertTrue(report["live_input_verified"])
         self.assertEqual(len([entry for entry in lines if entry["event"] == "step"]), 3)
         self.assertEqual(lines[0]["candidate_actions"], ["advance"])
         self.assertEqual(lines[0]["provider"], "fake")
@@ -103,7 +103,7 @@ class E2ERunnerTest(unittest.TestCase):
             return ScreenObservation("sample", 100, 80, features={"signature": "same"})
 
         with tempfile.TemporaryDirectory() as directory:
-            runner = ContinuousE2ERunner(
+            report = run_continuous_e2e(
                 pipeline,
                 observation,
                 Path(directory) / "e2e.jsonl",
@@ -112,11 +112,10 @@ class E2ERunnerTest(unittest.TestCase):
                 max_wall_seconds=5,
                 settle_seconds=0,
             )
-            report = runner.run()
 
-        self.assertFalse(report.success)
-        self.assertEqual(report.steps, 3)
-        self.assertEqual(report.stop_reason, "repeated_observation")
+        self.assertFalse(report["success"])
+        self.assertEqual(report["steps"], 3)
+        self.assertEqual(report["stop_reason"], "repeated_observation")
 
     def test_duration_target_is_a_success_gate(self):
         pipeline = FakePipeline()
@@ -125,7 +124,7 @@ class E2ERunnerTest(unittest.TestCase):
             return ScreenObservation("sample", 100, 80, features={"signature": f"sig-{pipeline.steps}"})
 
         with tempfile.TemporaryDirectory() as directory:
-            runner = ContinuousE2ERunner(
+            report = run_continuous_e2e(
                 pipeline,
                 observation,
                 Path(directory) / "e2e.jsonl",
@@ -135,11 +134,10 @@ class E2ERunnerTest(unittest.TestCase):
                 settle_seconds=0,
                 step_delay_seconds=0.01,
             )
-            report = runner.run()
 
-        self.assertTrue(report.success)
-        self.assertEqual(report.stop_reason, "duration_reached")
-        self.assertGreaterEqual(report.steps, 1)
+        self.assertTrue(report["success"])
+        self.assertEqual(report["stop_reason"], "duration_reached")
+        self.assertGreaterEqual(report["steps"], 1)
 
 
 if __name__ == "__main__":
