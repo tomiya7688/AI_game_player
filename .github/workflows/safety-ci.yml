@@ -1,0 +1,71 @@
+name: safety-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safety-python:
+    name: SafetyGuard Python (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Run deterministic SafetyGuard regression tests
+        env:
+          PYTHONPATH: "src;."
+        run: python -m unittest discover -s tests -p "test_safety_guard.py" -v
+      - name: Run Executor boundary regression tests
+        env:
+          PYTHONPATH: "src;."
+        run: python -m unittest discover -s tests -p "test_action_executor.py" -v
+      - name: Run Windows input boundary regression tests
+        env:
+          PYTHONPATH: "src;."
+        run: python -m unittest discover -s tests -p "test_windows_input.py" -v
+
+  native-safety:
+    name: Native Safety ABI (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure native runtime
+        run: cmake -S native -B build/native-safety -DCMAKE_BUILD_TYPE=Release
+      - name: Build native runtime safety tests
+        run: cmake --build build/native-safety --config Release --parallel
+      - name: Run Native Safety ABI CTest
+        run: ctest --test-dir build/native-safety -C Release --output-on-failure -R kadoka_native_runtime_test
+
+  windows-emergency-stop:
+    name: Windows Emergency Stop live-target smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Verify Emergency Stop, re-arm, target loss and invalid coordinates
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python tools/run_windows_safety_ci.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kadoka-safety-ci-audit
+          path: build/safety-ci
+          if-no-files-found: error
