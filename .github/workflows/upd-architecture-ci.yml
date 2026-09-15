@@ -1,0 +1,40 @@
+name: upd-architecture-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upd-checker:
+    name: UPD Commander architecture checker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install pinned UPD Commander checker
+        run: >-
+          python -m pip install
+          "git+https://github.com/tomiya7688/upd-commander-base-design.git@8abe0828e173e62ad42f69cfcfa002b6bf73c3b9#subdirectory=support_tools/python/upd_commander_checker"
+      - name: Enforce new quality application boundary
+        run: upd-commander-check src/ai_game_player/applications/quality --output build/upd/quality.txt
+      - name: Enforce commanders and messengers strictly
+        shell: bash
+        run: |
+          upd-commander-check src/ai_game_player/applications/quality/process/quality_commander.py --warnings-as-errors
+          upd-commander-check src/ai_game_player/applications/quality/process/quality_messenger.py --warnings-as-errors
+          upd-commander-check src/ai_game_player/applications/quality/data/quality_commander.py --warnings-as-errors
+          upd-commander-check src/ai_game_player/applications/quality/data/quality_messenger.py --warnings-as-errors
+      - name: Report whole-core UPD findings
+        run: upd-commander-check src/ai_game_player --output build/upd/core.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: upd-architecture-report
+          path: build/upd
+          if-no-files-found: error
