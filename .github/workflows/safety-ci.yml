@@ -23,15 +23,15 @@ jobs:
           python-version: "3.14"
       - name: Run deterministic SafetyGuard regression tests
         env:
-          PYTHONPATH: "src;."
+          PYTHONPATH: "src"
         run: python -m unittest discover -s tests -p "test_safety_guard.py" -v
       - name: Run Executor boundary regression tests
         env:
-          PYTHONPATH: "src;."
+          PYTHONPATH: "src"
         run: python -m unittest discover -s tests -p "test_action_executor.py" -v
       - name: Run Windows input boundary regression tests
         env:
-          PYTHONPATH: "src;."
+          PYTHONPATH: "src"
         run: python -m unittest discover -s tests -p "test_windows_input.py" -v
 
   native-safety:
@@ -51,14 +51,14 @@ jobs:
         run: ctest --test-dir build/native-safety -C Release --output-on-failure -R kadoka_native_runtime_test
 
   windows-emergency-stop:
-    name: Windows Emergency Stop live-target smoke
+    name: Windows stop-from-any-state live-target smoke
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - name: Verify Emergency Stop, re-arm, target loss and invalid coordinates
+      - name: Verify stop from every implemented execution state
         shell: pwsh
         env:
           PYTHONPATH: "src;."
