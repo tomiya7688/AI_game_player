@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-from ai_game_player.e2e_runner import ContinuousE2ERunner
+from ai_game_player.e2e_runner import run_continuous_e2e
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.models import ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
@@ -114,7 +114,7 @@ def main() -> int:
             window_handle=handle,
             input_mode="mouse",
         )
-        runner = ContinuousE2ERunner(
+        report = run_continuous_e2e(
             pipeline,
             lambda: source.read()[0],
             log_path,
@@ -124,12 +124,12 @@ def main() -> int:
             minimum_duration_seconds=args.duration,
             settle_seconds=0.08,
             step_delay_seconds=0.02,
+            purpose="advance the visible sample-game control until the milestone",
         )
-        report = runner.run("advance the visible sample-game control until the milestone")
-        print(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
-        if not report.success:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        if not report["success"]:
             return 1
-        if not report.live_input_verified:
+        if not report["live_input_verified"]:
             print("E2E completed without verifying live Windows input", file=sys.stderr)
             return 2
         return 0
