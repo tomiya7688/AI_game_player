@@ -5,6 +5,38 @@ classDiagram
         +__init__()
         +execute()
     }
+    str <|-- SafetyStatus
+    Enum <|-- SafetyStatus
+    class SafetyStatus {
+    }
+    class SafetyEvidence {
+        +__post_init__()
+        +to_dict()
+    }
+    class SafetyEvaluationContext {
+        +__post_init__()
+    }
+    class ActionSafetyResult {
+        +__post_init__()
+        +to_dict()
+    }
+    class ActionSafetyEvaluator {
+        +__init__()
+        +evaluate()
+        +_normalize()
+        +_contains()
+        +_risk_level()
+        +_goal_supports()
+    }
+    class ActionSafetyAuditLog {
+        +__init__()
+        +append_evaluation()
+        +append_execution()
+        +append_outcome()
+        +entries()
+        +_append()
+        +_read()
+    }
     class MemorySource {
         +__init__()
         +read()
@@ -266,6 +298,8 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +record_safety_outcome()
+        +_safety_context()
     }
     class RuleProvider {
         +assess_outcome()
