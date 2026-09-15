@@ -7,19 +7,17 @@ from ai_game_player.applications.quality.process.quality_messenger import send_r
 
 def run_performance_quality(
     budgets: dict[str, float],
-    output_path: Path | None = None,
+    output_path: Path,
 ) -> dict[str, object]:
     result = run_performance_checks(budgets)
-    if output_path is not None:
-        send_report(result, output_path)
+    send_report(result, output_path)
     return result
 
 
 def run_bug_quality(
     paths: list[Path],
-    output_path: Path | None = None,
+    output_path: Path,
 ) -> dict[str, object]:
     result = run_bug_checks(paths)
-    if output_path is not None:
-        send_report(result, output_path)
+    send_report(result, output_path)
     return result
