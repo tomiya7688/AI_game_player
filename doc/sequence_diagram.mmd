@@ -3,5 +3,10 @@ sequenceDiagram
     participant target as DecisionPipeline
     caller->>target: DecisionPipeline.controller.ensure_running()
     caller->>target: DecisionPipeline._decide()
+    caller->>target: DecisionPipeline._safety_context()
+    caller->>target: DecisionPipeline.safety_evaluator.evaluate()
+    caller->>target: DecisionPipeline.safety_audit.append_evaluation()
     caller->>target: DecisionPipeline.executor.execute()
     caller->>target: DecisionPipeline.execution_history.append()
+    caller->>target: DecisionPipeline.safety_audit.append_execution()
+    caller->>target: ', '.join()
