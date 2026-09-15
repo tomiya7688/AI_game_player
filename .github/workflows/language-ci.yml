@@ -54,6 +54,26 @@ jobs:
           path: build/app-bundle/dist/Kadoka
           if-no-files-found: error
 
+  windows-e2e:
+    name: Windows closed-loop sample E2E
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Run capture-recognition-decision-live-input loop to milestone
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python tools/run_windows_e2e.py --steps 24
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kadoka-windows-e2e-trace
+          path: build/e2e
+          if-no-files-found: warn
+
   detect-optional-languages:
     name: Detect optional language sources
     runs-on: ubuntu-latest
