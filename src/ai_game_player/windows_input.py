@@ -54,7 +54,11 @@ class WindowsInputExecutor:
             self._execute_key(candidate)
             return ExecutionResult(candidate.action_id, True, "live", "Windows key input sent")
         if candidate.kind == "wait":
-            self._interruptible_sleep(float(candidate.label or "0.5"))
+            try:
+                duration = float(candidate.label or "0.5")
+            except ValueError:
+                duration = 0.5
+            self._interruptible_sleep(duration)
             return ExecutionResult(candidate.action_id, True, "live", "Wait completed")
         raise ValueError(f"unsupported live action kind: {candidate.kind}")
 
