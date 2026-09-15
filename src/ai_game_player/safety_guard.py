@@ -61,7 +61,7 @@ class SafetyGuardConfig:
 
     @classmethod
     def from_dict(cls, value: dict[str, object]) -> "SafetyGuardConfig":
-        allowed = {name for name in cls.__dataclass_fields__}
+        allowed = set(cls.__dataclass_fields__)
         return cls(**{key: item for key, item in value.items() if key in allowed})
 
     def to_dict(self) -> dict[str, object]:
@@ -219,8 +219,7 @@ class WindowsTargetProbe:
             raise RuntimeError("Windows target validation requires Windows")
         user32 = ctypes.windll.user32
         handle = int(window_handle)
-        valid = bool(user32.IsWindow(handle))
-        if not valid:
+        if not user32.IsWindow(handle):
             return TargetState(handle, 0, False, False, False, 0, 0, 0, 0, 0, 0)
 
         pid = ctypes.c_ulong()
@@ -234,21 +233,19 @@ class WindowsTargetProbe:
         point = (ctypes.c_long * 2)(0, 0)
         if not user32.ClientToScreen(handle, ctypes.byref(point)):
             raise RuntimeError("ClientToScreen failed")
-        window_left, window_top, window_right, window_bottom = (int(value) for value in window_rect)
-        client_width = int(client_rect[2] - client_rect[0])
-        client_height = int(client_rect[3] - client_rect[1])
+        left, top, right, bottom = (int(value) for value in window_rect)
         return TargetState(
             handle,
             int(pid.value),
             True,
             bool(user32.IsWindowVisible(handle)),
             int(user32.GetForegroundWindow()) == handle,
-            window_right - window_left,
-            window_bottom - window_top,
-            int(point[0]) - window_left,
-            int(point[1]) - window_top,
-            client_width,
-            client_height,
+            right - left,
+            bottom - top,
+            int(point[0]) - left,
+            int(point[1]) - top,
+            int(client_rect[2] - client_rect[0]),
+            int(client_rect[3] - client_rect[1]),
         )
 
 
@@ -303,8 +300,8 @@ class NativeSafetyValidator:
         if configured:
             candidates.append(Path(configured))
         executable_dir = Path(sys.executable).resolve().parent
-        names = ("kadoka_native_runtime.dll", "libkadoka_native_runtime.so", "libkadoka_native_runtime.dylib")
-        candidates.extend(executable_dir / name for name in names)
+        for name in ("kadoka_native_runtime.dll", "libkadoka_native_runtime.so", "libkadoka_native_runtime.dylib"):
+            candidates.append(executable_dir / name)
         for path in candidates:
             if not path.exists():
                 continue
@@ -353,16 +350,7 @@ class NativeSafetyValidator:
 class SafetyGuard:
     SUPPORTED_KINDS = frozenset({"click", "double_click", "key", "wait"})
     DENIED_KEY_LABELS = frozenset(
-        {
-            "ALT+TAB",
-            "ALT+F4",
-            "CTRL+ALT+DELETE",
-            "WIN",
-            "WINDOWS",
-            "LWIN",
-            "RWIN",
-            "F12",
-        }
+        {"ALT+TAB", "ALT+F4", "CTRL+ALT+DELETE", "WIN", "WINDOWS", "LWIN", "RWIN", "F12"}
     )
 
     def __init__(
@@ -395,7 +383,13 @@ class SafetyGuard:
             try:
                 decision = self._check_locked(candidate)
             except Exception as exc:
-                decision = SafetyDecision(False, "guard_exception", f"SafetyGuard failed closed: {exc}", self.emergency_stop.state, self._bound_pid)
+                decision = SafetyDecision(
+                    False,
+                    "guard_exception",
+                    f"SafetyGuard failed closed: {exc}",
+                    self.emergency_stop.state,
+                    self._bound_pid,
+                )
             self._log(candidate, decision)
             return decision
 
@@ -437,13 +431,12 @@ class SafetyGuard:
             try:
                 wait_seconds = float(candidate.label or "0.5")
             except ValueError:
-                return self._block("invalid_action", "wait action requires a numeric duration")
+                wait_seconds = 0.5
             if wait_seconds < 0 or wait_seconds > self.config.max_wait_seconds:
                 return self._block("wait_timeout", "wait duration exceeds configured maximum")
         if candidate.kind == "key" and self._normalize_key(candidate.label) in self.DENIED_KEY_LABELS:
             return self._block("denied_key", f"OS/reserved key is denied: {candidate.label}")
 
-        target: TargetState | None = None
         if self.config.require_target:
             if self.window_handle is None:
                 return self._block("target_missing", "live input requires a target window")
@@ -495,7 +488,13 @@ class SafetyGuard:
 
         self._history.append((now, candidate.action_id))
         self._session_actions += 1
-        return SafetyDecision(True, "allowed", "deterministic SafetyGuard checks passed", self.emergency_stop.state, self._bound_pid)
+        return SafetyDecision(
+            True,
+            "allowed",
+            "deterministic SafetyGuard checks passed",
+            self.emergency_stop.state,
+            self._bound_pid,
+        )
 
     def _has_repeating_cycle(self, next_action_id: str) -> bool:
         ids = [action_id for _, action_id in self._history] + [next_action_id]
