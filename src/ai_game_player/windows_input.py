@@ -85,7 +85,7 @@ class WindowsInputExecutor:
             lparam = (int(point[1]) << 16) | (int(point[0]) & 0xFFFF)
             self._post_click(lparam)
             if candidate.kind == "double_click":
-                time.sleep(0.05)
+                self._interruptible_sleep(0.05)
                 self._post_click(lparam)
             return
 
@@ -99,7 +99,7 @@ class WindowsInputExecutor:
         user32.mouse_event(0x0002, 0, 0, 0, 0)
         user32.mouse_event(0x0004, 0, 0, 0, 0)
         if candidate.kind == "double_click":
-            time.sleep(0.05)
+            self._interruptible_sleep(0.05)
             user32.mouse_event(0x0002, 0, 0, 0, 0)
             user32.mouse_event(0x0004, 0, 0, 0, 0)
 

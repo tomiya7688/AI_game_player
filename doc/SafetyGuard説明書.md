@@ -59,17 +59,27 @@ click座標は単なるwindow矩形内だけでなくclient area内であるこ�
 
 `EmergencyStopMonitor` はRecognition / Decision loopとは別daemon threadでF12を監視する。F12検出後は共有 `EmergencyStop` が `EMERGENCY_STOP` になり、以降のActionを拒否する。
 
-key hold中も`WindowsInputExecutor`が約20ms単位でstop状態を確認し、停止時はheld keyをreleaseして例外終了する。
+停止操作は現在実装されている実行状態に依存してはならない。現在の最低保証は次の通り。
+
+- idle / Action間: 次の入力を実行しない
+- Recognition / Decision処理中: その処理の完了を待たずEmergency Stop状態を独立してlatchし、その後の入力を実行しない
+- wait中: 約20ms単位でstopを確認し、途中で中断する
+- key hold中: stopを確認してheld keyをreleaseし、中断する
+- double-click途中: 1回目と2回目の間もstopを確認し、停止後の2回目を送らない
+- Safety block中 / target loss中: 既にfail-closedであり、停止状態から勝手に復帰しない
+- re-arm後: 再度停止操作を受け付ける
+
+ここでいう「停止」は、少なくともOS/Gameへの追加入力が停止し、held inputが解放され、明示re-armまで新規入力が拒否されることを意味する。任意の第三者model processやOS processを強制killすることは #33 の保証には含めない。process crash / OOM / hard kill時のout-of-process lease/watchdogは #40 の責務とする。
 
 再開は暗黙には行わない。`RunController.start()` または `DecisionPipeline.rearm_safety()` の明示操作をre-armとする。
-
-process crash / OOM / hard kill時のout-of-process lease/watchdogは #40 の責務であり、#33では扱わない。
 
 ## Windows input境界
 
 `mouse` modeはglobal cursorを利用するため、SafetyGuardは対象windowがforegroundであることを要求する。
 
 `window_message` modeのkey/clickは対象HWNDへ直接messageを送り、global cursorへfallbackしない。clickではscreen座標をclient座標へ変換してから `WM_LBUTTONDOWN / WM_LBUTTONUP` を送る。
+
+wait、key hold、double-clickのinter-click intervalはstop-awareにし、長さのある入力処理でEmergency Stopを無視する区間を作らない。
 
 ## Native Runtime
 
@@ -136,6 +146,35 @@ no-progressが閾値へ達した状態で同一Actionを繰り返すと `no_prog
 
 高度なOutcome Detection / Fusionは #34 で実装し、この接続点をそのまま利用する。
 
+## 専用Safety CI
+
+`.github/workflows/safety-ci.yml` をSafetyGuard / Emergency Stop専用のblocking候補Gateとして分離する。通常の `tests` / `language-ci` が通っていてもSafety専用Gateが失敗した場合、Safety変更は正常とはみなさない。
+
+専用CIは次の3層を検証する。
+
+1. `SafetyGuard Python (Ubuntu / Windows)`
+   - SafetyGuard回帰
+   - ActionExecutor境界
+   - WindowsInput境界
+   - EmergencyStopMonitor / explicit re-arm
+2. `Native Safety ABI (Ubuntu / Windows)`
+   - C++20 build
+   - `kadoka_safety_validate_action`
+   - Native CTest
+3. `Windows Emergency Stop live-target smoke`
+   - 実HWNDの固定サンプルGUIを利用
+   - idle / Action間から停止可能
+   - Recognition / Decision相当のupstream処理中でも独立して停止状態をlatch
+   - wait途中の停止
+   - key hold途中の停止とrelease
+   - double-click途中の停止
+   - explicit re-arm後のみlive input復帰
+   - invalid coordinate拒否
+   - target window消失後のfail-closed
+   - `safety_guard.jsonl` artifact保存
+
+Windows smokeの最終結果には `all_implemented_states_stoppable=true` を要求する。新しい長時間実行状態や入力種別を追加した場合は、この状態マトリクスへ同時にケースを追加する。
+
 ## Test coverage
 
 Python regression testで最低限次を固定する。
@@ -155,4 +194,4 @@ Python regression testで最低限次を固定する。
 - held input release
 - JSONL audit
 
-さらに既存Windows closed-loop E2E Gate (#30) をSafetyGuard込みで通し、実入力経路がGuardを迂回していないことを継続検証する。
+さらに既存Windows closed-loop E2E Gate (#30) をSafetyGuard込みで通し、実入力経路がGuardを迂回していないことを継続検証する。Safety専用CIはこれとは別に、停止可能性そのものを独立Gateとして検証する。
