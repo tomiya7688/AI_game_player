@@ -25,6 +25,8 @@ The boundary is capability-based rather than language-based. A backend may provi
 
 `src/ai_game_player/runtime/` defines the high-level contract. `native/` owns the stable C ABI for native implementations.
 
+The concrete v1 placement decision, language evaluation, test policy, and benchmark coverage are defined in `doc/architecture/native_runtime_boundary.md`. The machine-readable source for component/language placement is `config/runtime_boundary.json`; `tools/runtime_boundary_check.py` keeps that manifest synchronized with the Python contract, C ABI, and Windows bundle entrypoint.
+
 ## Rules
 
 1. Performance-, realtime-, OS-, and safety-sensitive work should be evaluated for native implementation before coding.
@@ -40,6 +42,7 @@ The boundary is capability-based rather than language-based. A backend may provi
 - `src/ai_game_player/`: application and high-level AI/orchestration code.
 - `src/ai_game_player/runtime/`: language-neutral runtime capability contracts and backend selection.
 - `native/`: C/C++ runtime ABI and native implementations.
+- `config/runtime_boundary.json`: versioned component/language placement and coarse boundary units.
 - `profiles/`: user-selectable configuration profiles; basic operation must not require manual editing.
 - `plugins/`: extension contract notes/examples; plugins may not depend on private internals.
 - `doc/`: detailed architecture and feature contracts.
@@ -48,7 +51,7 @@ The boundary is capability-based rather than language-based. A backend may provi
 
 Development may require multiple toolchains/runtimes. End-user distribution must absorb that complexity. A normal user must not be required to install Python, pip, CMake, MSVC, Lua, Node.js, .NET SDK, or edit PATH/environment variables manually.
 
-Release acceptance eventually requires clean-Windows installation/bundle testing and automatic initialization of bundled runtimes/dependencies/models. Vendor/OS drivers that cannot legally or technically be bundled must be detected and explained clearly.
+Release acceptance eventually requires clean-Windows installation/bundle testing and automatic initialization of bundled runtimes/dependencies/models. Vendor/OS drivers that cannot legally or technically be bundled must be detected and explained clearly before a profile that requires them becomes the default.
 
 ## Customization
 
