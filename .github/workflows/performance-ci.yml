@@ -1,0 +1,37 @@
+name: performance-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance-check:
+    name: Runtime performance budget (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            multiplier: "1.0"
+          - os: windows-latest
+            multiplier: "1.5"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Check CPU hot-path performance budgets
+        env:
+          PYTHONPATH: src
+        run: python tools/performance_check.py --budget-multiplier ${{ matrix.multiplier }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-report-${{ matrix.os }}
+          path: build/performance/report.json
+          if-no-files-found: error
