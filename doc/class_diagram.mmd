@@ -143,6 +143,7 @@ classDiagram
         +__init__()
         +step()
         +_uses_context_api()
+        +_semantic_outcome_provider()
         +_assess_previous_outcome()
     }
     class EvaluationAxis {
@@ -157,6 +158,7 @@ classDiagram
     class PrimitiveEvaluator {
         +__init__()
         +evaluate()
+        +evaluate_event()
         +_progress()
         +_survival()
         +_signal_axis()
@@ -288,6 +290,46 @@ classDiagram
     class OutcomeEvaluator {
         +__init__()
         +assess()
+    }
+    class TerminalTextDetector {
+        +detect()
+    }
+    class StateDeltaDetector {
+        +detect()
+    }
+    class ScreenDiffDetector {
+        +__init__()
+        +detect()
+    }
+    class TemporalChangeDetector {
+        +__init__()
+        +detect()
+    }
+    Protocol <|-- SemanticOutcomeProvider
+    class SemanticOutcomeProvider {
+        +assess_outcome()
+    }
+    class DeterministicOutcomeFusion {
+        +fuse()
+        +_support()
+        +_bounded_support()
+        +_relative_confidence()
+        +_event()
+    }
+    class OutcomeDetector {
+        +__init__()
+        +detect()
+    }
+    class OutcomeEvidence {
+        +__post_init__()
+        +weight()
+        +to_dict()
+    }
+    class OutcomeEvent {
+        +__post_init__()
+        +to_assessment()
+        +to_evaluation_signals()
+        +to_dict()
     }
     class PerceptualHasher {
         +hash()
