@@ -76,14 +76,33 @@ class StateDeltaDetector:
         before_elements = _element_signature(before)
         after_elements = _element_signature(after)
         elements_changed = before_elements != after_elements
+        has_state_evidence = bool(
+            before_state
+            or after_state
+            or before_text
+            or after_text
+            or before_elements
+            or after_elements
+        )
 
         details: dict[str, Any] = {
             "changed_fields": changed_fields,
             "text_changed": text_changed,
             "elements_changed": elements_changed,
+            "state_evidence_available": has_state_evidence,
         }
         _add_generic_deltas(details, before_state, after_state)
 
+        if not has_state_evidence:
+            return OutcomeEvidence(
+                "state_delta",
+                "state_delta",
+                "unknown",
+                0.0,
+                0.9,
+                "state_delta/v1",
+                details,
+            )
         if changed_fields:
             return OutcomeEvidence(
                 "state_delta",
