@@ -11,6 +11,7 @@ from ai_game_player.action_safety import (
 from ai_game_player.candidate_merger import CandidateMerger
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.fail_safe_runtime import FailSafeConfig, FailSafeRuntime, FailSafeState
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
@@ -32,11 +33,16 @@ class DecisionPipeline:
         safety_guard: SafetyGuard | None = None,
         safety_guard_config: SafetyGuardConfig | None = None,
         emergency_stop: EmergencyStop | None = None,
+        fail_safe_runtime: FailSafeRuntime | None = None,
+        fail_safe_config: FailSafeConfig | None = None,
+        external_watchdog: bool = True,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
         self.merger = CandidateMerger()
         self.engine = GamePlayerEngine(game_directory, provider)
+        self.controller = controller or RunController()
+        self._seen_rearm_token = 0
         self.executor = ActionExecutor(
             dry_run,
             window_handle=window_handle,
@@ -45,15 +51,21 @@ class DecisionPipeline:
             safety_config=safety_guard_config,
             safety_log_path=game_directory / "safety_guard.jsonl",
             emergency_stop=emergency_stop,
+            fail_safe_runtime=fail_safe_runtime,
+            fail_safe_config=fail_safe_config,
+            fail_safe_state_directory=game_directory / "fail_safe",
+            external_watchdog=external_watchdog,
         )
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
         self.safety_audit = ActionSafetyAuditLog(game_directory / "action_safety.json")
         self.last_safety_result: ActionSafetyResult | None = None
-        self.controller = controller or RunController()
 
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:
         observation, configured = self.source.read()
+        runtime = self.executor.fail_safe_runtime
+        if runtime is not None and runtime.state == FailSafeState.ACTIVE:
+            self.executor.record_observation()
         detected = self.ocr.detect(observation, ocr_texts if ocr_texts is not None else observation.features.get("ocr_candidates", []))
         image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
         return observation, self.merger.merge(configured, detected, image)
@@ -70,11 +82,13 @@ class DecisionPipeline:
 
     def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
         self.controller.ensure_running()
+        self._sync_runtime_rearm()
         decision, _, _ = self._decide(ocr_texts, purpose, personality)
         return decision
 
     def run_and_execute(self, ocr_texts=None, purpose: str = "", personality: str = "") -> ExecutionResult:
         self.controller.ensure_running()
+        self._sync_runtime_rearm()
         decision, candidates, observation = self._decide(ocr_texts, purpose, personality)
         selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
         if selected is None:
@@ -108,8 +122,21 @@ class DecisionPipeline:
         self.executor.trigger_emergency_stop(reason)
 
     def rearm_safety(self) -> None:
-        self.executor.rearm_safety()
         self.controller.start()
+        self._sync_runtime_rearm()
+
+    def close(self) -> None:
+        self.executor.close()
+
+    def _sync_runtime_rearm(self) -> None:
+        runtime = self.executor.fail_safe_runtime
+        if runtime is None:
+            return
+        token = self.controller.rearm_token
+        if token <= self._seen_rearm_token:
+            return
+        self.executor.rearm_safety()
+        self._seen_rearm_token = token
 
     def _safety_context(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)
