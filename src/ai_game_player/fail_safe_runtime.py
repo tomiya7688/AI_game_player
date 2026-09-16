@@ -367,7 +367,7 @@ class FailSafeRuntime:
             self._target_pid = int(target_pid)
             self._target_handle = int(target_handle)
             self._last_observation_at = 0.0
-            self._observation_expires_at = 0.0
+            self._observation_expires_at = self.clock() + self.config.observation_timeout_seconds
             self._last_sequence = 0
             self._next_sequence = 0
             self._inflight = 0
