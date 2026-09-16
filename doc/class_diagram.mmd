@@ -5,8 +5,15 @@ classDiagram
         +__init__()
         +execute()
         +record_progress()
+        +record_observation()
+        +heartbeat()
         +trigger_emergency_stop()
         +rearm_safety()
+        +close()
+        +fail_safe_state()
+        +_stop_requested()
+        +_current_target()
+        +_release_live_inputs()
     }
     str <|-- SafetyStatus
     Enum <|-- SafetyStatus
@@ -182,6 +189,72 @@ classDiagram
         +load()
         +append()
     }
+    str <|-- FailSafeState
+    Enum <|-- FailSafeState
+    class FailSafeState {
+    }
+    class FailSafeConfig {
+        +__post_init__()
+    }
+    class FailSafeCommand {
+        +to_dict()
+        +from_dict()
+    }
+    class FailSafeDecision {
+    }
+    class AtomicJsonStore {
+        +__init__()
+        +read()
+        +write()
+    }
+    class FailSafeJournal {
+        +__init__()
+        +read()
+        +record()
+    }
+    class InputLedger {
+        +__init__()
+        +configure()
+        +hold_key()
+        +release_key()
+        +hold_mouse()
+        +release_mouse()
+        +snapshot()
+        +clear()
+        +_read()
+        +_entries()
+    }
+    class ExternalWatchdogProcess {
+        +__init__()
+        +start()
+        +stop()
+    }
+    class FailSafeRuntime {
+        +__init__()
+        +state()
+        +reason()
+        +epoch()
+        +session_id()
+        +rearm()
+        +heartbeat()
+        +record_observation()
+        +make_command()
+        +check_command()
+        +complete_command()
+        +emergency_stop()
+        +recovery_required()
+        +safe_idle()
+        +close()
+        +_start_heartbeat_locked()
+        +_heartbeat_loop()
+        +_renew_lease_locked()
+        +_transition()
+        +_release_inputs()
+        +_persist_or_fail()
+        +_write_lease_or_fail()
+        +_lease_payload()
+        +_block()
+    }
     class FrameAnalyzer {
         +__init__()
         +analyze()
@@ -346,6 +419,8 @@ classDiagram
         +record_safety_outcome()
         +trigger_emergency_stop()
         +rearm_safety()
+        +close()
+        +_sync_runtime_rearm()
         +_safety_context()
     }
     class RuleProvider {
@@ -368,6 +443,7 @@ classDiagram
     class RunController {
         +__init__()
         +is_running()
+        +rearm_token()
         +start()
         +stop()
         +ensure_running()
@@ -630,5 +706,11 @@ classDiagram
         +_execute_key()
         +_key_down()
         +_key_up()
+        +_mouse_down()
+        +_mouse_up()
+        +_ledger_hold_key()
+        +_ledger_release_key()
+        +_ledger_hold_mouse()
+        +_ledger_release_mouse()
         +_interruptible_sleep()
     }
