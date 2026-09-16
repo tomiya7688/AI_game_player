@@ -330,6 +330,7 @@ class FailSafeRuntime:
         }:
             self._state = FailSafeState.RECOVERY_REQUIRED
             self._reason = "unclean_previous_runtime_state"
+        _release_ledger(self.ledger, release_all=True, now=self.clock())
         self._persist_or_fail(self._reason)
 
     @property
@@ -357,6 +358,9 @@ class FailSafeRuntime:
             if target_pid <= 0 or target_handle <= 0:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_target_on_rearm")
                 raise RuntimeError("fail-safe re-arm requires a valid target PID/HWND")
+            if self._watchdog is not None:
+                self._watchdog.stop()
+            _release_ledger(self.ledger, release_all=True, now=self.clock())
             self._release_inputs()
             self._epoch = uuid4().hex
             self._session_id = session_id or uuid4().hex
@@ -379,29 +383,14 @@ class FailSafeRuntime:
 
     def heartbeat(self) -> bool:
         with self._lock:
-            if self._state != FailSafeState.ACTIVE:
+            if self._state != FailSafeState.ACTIVE or not self._honor_persisted_stop_locked():
                 return False
-            persisted = self.lease_store.read()
-            if not persisted and self.lease_store.path.exists():
-                self._state = FailSafeState.RECOVERY_REQUIRED
-                self._reason = "lease_unreadable"
-                self._heartbeat_shutdown.set()
-                self._release_inputs()
-                return False
-            if persisted and str(persisted.get("epoch", "")) == self._epoch:
-                persisted_state = str(persisted.get("state", ""))
-                if persisted_state and persisted_state != FailSafeState.ACTIVE.value:
-                    self._state = FailSafeState.RECOVERY_REQUIRED
-                    self._reason = str(persisted.get("reason", "external_watchdog_stop"))
-                    self._heartbeat_shutdown.set()
-                    self._release_inputs()
-                    return False
             self._renew_lease_locked()
             return self._write_lease_or_fail("heartbeat_storage_failure")
 
     def record_observation(self, observed_at: float | None = None) -> bool:
         with self._lock:
-            if self._state != FailSafeState.ACTIVE:
+            if self._state != FailSafeState.ACTIVE or not self._honor_persisted_stop_locked():
                 return False
             now = self.clock()
             timestamp = now if observed_at is None else float(observed_at)
@@ -439,6 +428,8 @@ class FailSafeRuntime:
             now = self.clock()
             if self._state != FailSafeState.ACTIVE:
                 return self._block("runtime_not_active", f"fail-safe runtime is {self._state.value}")
+            if not self._honor_persisted_stop_locked():
+                return self._block("runtime_not_active", f"fail-safe runtime is {self._state.value}")
             if now > self._lease_expires_at:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "lease_expired")
                 return self._block("lease_expired", "control lease expired")
@@ -474,7 +465,7 @@ class FailSafeRuntime:
         del command
         with self._lock:
             self._inflight = max(0, self._inflight - 1)
-            if self._state == FailSafeState.ACTIVE:
+            if self._state == FailSafeState.ACTIVE and self._honor_persisted_stop_locked():
                 self._renew_lease_locked()
                 self._write_lease_or_fail("command_complete_storage_failure")
 
@@ -515,6 +506,35 @@ class FailSafeRuntime:
 
     def _renew_lease_locked(self) -> None:
         self._lease_expires_at = self.clock() + self.config.lease_timeout_seconds
+
+    def _honor_persisted_stop_locked(self) -> bool:
+        persisted = self.lease_store.read()
+        if not persisted:
+            if not self.lease_store.path.exists():
+                return True
+            self._state = FailSafeState.RECOVERY_REQUIRED
+            self._reason = "lease_unreadable"
+            self._heartbeat_shutdown.set()
+            self._release_inputs()
+            try:
+                self.journal.record(self._state, self._reason, self._epoch, timestamp=self.clock())
+            except Exception:
+                pass
+            return False
+        if str(persisted.get("epoch", "")) != self._epoch:
+            return True
+        persisted_state = str(persisted.get("state", ""))
+        if not persisted_state or persisted_state == FailSafeState.ACTIVE.value:
+            return True
+        try:
+            adopted = FailSafeState(persisted_state)
+        except ValueError:
+            adopted = FailSafeState.RECOVERY_REQUIRED
+        self._state = adopted if adopted != FailSafeState.ACTIVE else FailSafeState.RECOVERY_REQUIRED
+        self._reason = str(persisted.get("reason", "external_watchdog_stop"))
+        self._heartbeat_shutdown.set()
+        self._release_inputs()
+        return False
 
     def _transition(self, state: FailSafeState, reason: str) -> None:
         self._state = state
