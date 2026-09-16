@@ -264,7 +264,7 @@ class ExternalWatchdogProcess:
             "cwd": str(Path.cwd()),
         }
         if os.name == "nt":
-            kwargs["creationflags"] = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+            kwargs["creationflags"] = 0x00000008 | 0x00000200
         else:
             kwargs["start_new_session"] = True
         self.process = subprocess.Popen(command, **kwargs)  # type: ignore[arg-type]
@@ -381,6 +381,21 @@ class FailSafeRuntime:
         with self._lock:
             if self._state != FailSafeState.ACTIVE:
                 return False
+            persisted = self.lease_store.read()
+            if not persisted and self.lease_store.path.exists():
+                self._state = FailSafeState.RECOVERY_REQUIRED
+                self._reason = "lease_unreadable"
+                self._heartbeat_shutdown.set()
+                self._release_inputs()
+                return False
+            if persisted and str(persisted.get("epoch", "")) == self._epoch:
+                persisted_state = str(persisted.get("state", ""))
+                if persisted_state and persisted_state != FailSafeState.ACTIVE.value:
+                    self._state = FailSafeState.RECOVERY_REQUIRED
+                    self._reason = str(persisted.get("reason", "external_watchdog_stop"))
+                    self._heartbeat_shutdown.set()
+                    self._release_inputs()
+                    return False
             self._renew_lease_locked()
             return self._write_lease_or_fail("heartbeat_storage_failure")
 
