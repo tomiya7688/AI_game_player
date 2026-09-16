@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import json
 import os
 import subprocess
@@ -46,6 +47,29 @@ def find_window(title: str, timeout_seconds: float = 15.0) -> int:
                 return window.handle
         time.sleep(0.05)
     raise RuntimeError(f"safety CI target window not found: {title}")
+
+
+def ensure_foreground_window(handle: int, timeout_seconds: float = 5.0) -> None:
+    """Recover deterministic focus on hosted Windows runners before global-input validation."""
+    user32 = ctypes.windll.user32
+    user32.ShowWindow(handle, 9)  # SW_RESTORE
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        if int(user32.GetForegroundWindow()) == int(handle):
+            return
+        user32.BringWindowToTop(handle)
+        user32.SetForegroundWindow(handle)
+        if int(user32.GetForegroundWindow()) == int(handle):
+            return
+        rect = (ctypes.c_long * 4)()
+        if user32.GetWindowRect(handle, ctypes.byref(rect)):
+            # Clicking the non-client title bar is a test-harness-only way to restore focus;
+            # it does not invoke the game control under test.
+            user32.SetCursorPos(int(rect[0]) + 80, int(rect[1]) + 8)
+            user32.mouse_event(0x0002, 0, 0, 0, 0)
+            user32.mouse_event(0x0004, 0, 0, 0, 0)
+        time.sleep(0.05)
+    raise RuntimeError("safety CI target could not be focused for global input validation")
 
 
 def expect_blocked(executor: ActionExecutor, candidate: ActionCandidate, expected: str) -> str:
@@ -135,6 +159,7 @@ def main() -> int:
     executor: ActionExecutor | None = None
     try:
         handle = find_window(TITLE)
+        ensure_foreground_window(handle)
         target = WindowsTargetProbe().inspect(handle)
         if not target.valid or not target.visible or target.pid <= 0:
             raise RuntimeError(f"invalid safety CI target: {target}")
@@ -168,7 +193,6 @@ def main() -> int:
         noop_x = target.client_offset_x + 20
         noop_y = target.client_offset_y + 20
 
-        # Idle / between actions: stop must block the next OS input immediately.
         executor.trigger_emergency_stop("safety CI idle stop")
         expect_blocked(executor, advance_button, "emergency_stop")
         time.sleep(0.05)
@@ -176,7 +200,6 @@ def main() -> int:
             raise AssertionError("target changed while idle Emergency Stop was active")
         report["idle_or_between_actions"] = True
 
-        # Recognition / Decision busy: Emergency Stop must be independent of the busy worker.
         executor.rearm_safety()
         executor.record_observation()
         worker_started = threading.Event()
@@ -202,7 +225,6 @@ def main() -> int:
             raise AssertionError("simulated upstream worker did not finish")
         report["recognition_or_decision_busy"] = True
 
-        # Wait state: stop must interrupt an already running wait.
         wait_latency = expect_inflight_stop(
             executor,
             ActionCandidate("interruptible-wait", "wait", "2.0"),
@@ -215,7 +237,6 @@ def main() -> int:
         report["wait_inflight"] = True
         report["wait_interrupt_latency_seconds"] = round(wait_latency, 4)
 
-        # Key-hold state: held key must be released and the action aborted.
         key_latency = expect_inflight_stop(
             executor,
             ActionCandidate("interruptible-key-hold", "key", "SPACE", hold_seconds=1.0),
@@ -230,7 +251,6 @@ def main() -> int:
         report["key_hold_inflight"] = True
         report["key_hold_interrupt_latency_seconds"] = round(key_latency, 4)
 
-        # Double-click state: stop between clicks must prevent the second click.
         double_click_latency = expect_inflight_stop(
             executor,
             ActionCandidate("interruptible-double-click", "double_click", "No-op", noop_x, noop_y),
@@ -243,7 +263,6 @@ def main() -> int:
         report["double_click_inflight"] = True
         report["double_click_interrupt_latency_seconds"] = round(double_click_latency, 4)
 
-        # Explicit re-arm is necessary but not sufficient: a fresh observation is also required.
         executor.rearm_safety()
         expect_blocked(executor, advance_button, "observation_stale")
         report["fresh_observation_required"] = True
