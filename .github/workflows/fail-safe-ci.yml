@@ -1,0 +1,50 @@
+name: fail-safe-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-safe-runtime:
+    name: Fail-safe runtime contract (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Run lease / replay / recovery / storage regression tests
+        env:
+          PYTHONPATH: "src"
+        run: python -m unittest discover -s tests -p "test_fail_safe_runtime.py" -v
+
+  external-watchdog:
+    name: Out-of-process watchdog failure injection (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Inject process/OOM/network/capture/target/hold failures
+        env:
+          PYTHONPATH: "src"
+        run: python tools/run_fail_safe_ci.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kadoka-fail-safe-${{ matrix.os }}
+          path: build/fail-safe-ci
+          if-no-files-found: error

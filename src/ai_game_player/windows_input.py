@@ -3,6 +3,7 @@ import os
 import time
 from typing import Callable
 
+from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
 
 
@@ -25,7 +26,7 @@ SPECIAL_KEYS = {
 
 
 class WindowsInputExecutor:
-    """Executes already-guarded Windows input and releases any held keys on exit."""
+    """Executes already-guarded Windows input and mirrors held state to the fail-safe ledger."""
 
     def __init__(
         self,
@@ -33,11 +34,18 @@ class WindowsInputExecutor:
         input_mode: str = "mouse",
         *,
         stop_checker: Callable[[], bool] | None = None,
+        input_ledger: InputLedger | None = None,
+        hold_ttl_seconds: float | None = None,
     ) -> None:
         self.window_handle = window_handle
         self.input_mode = input_mode
         self.stop_checker = stop_checker or (lambda: False)
+        self.input_ledger = input_ledger
+        self.hold_ttl_seconds = 1.0 if hold_ttl_seconds is None else float(hold_ttl_seconds)
+        if self.hold_ttl_seconds <= 0:
+            raise ValueError("hold TTL must be positive")
         self._held_keys: set[int] = set()
+        self._held_mouse: set[str] = set()
 
     def execute(self, candidate: ActionCandidate):
         from ai_game_player.action_executor import ExecutionResult
@@ -65,9 +73,17 @@ class WindowsInputExecutor:
     def release_all(self) -> None:
         if os.name != "nt":
             self._held_keys.clear()
+            self._held_mouse.clear()
+            if self.input_ledger is not None:
+                try:
+                    self.input_ledger.clear()
+                except Exception:
+                    pass
             return
         for virtual_key in tuple(self._held_keys):
             self._key_up(virtual_key)
+        for button in tuple(self._held_mouse):
+            self._mouse_up(button)
 
     def _execute_click(self, candidate: ActionCandidate) -> None:
         if candidate.x is None or candidate.y is None:
@@ -96,19 +112,35 @@ class WindowsInputExecutor:
                 raise RuntimeError("GetWindowRect failed")
             x, y = x + int(rect[0]), y + int(rect[1])
         user32.SetCursorPos(x, y)
-        user32.mouse_event(0x0002, 0, 0, 0, 0)
-        user32.mouse_event(0x0004, 0, 0, 0, 0)
+        self._mouse_down("left")
+        try:
+            self._mouse_up("left")
+        except Exception:
+            self._mouse_up("left")
+            raise
         if candidate.kind == "double_click":
             self._interruptible_sleep(0.05)
-            user32.mouse_event(0x0002, 0, 0, 0, 0)
-            user32.mouse_event(0x0004, 0, 0, 0, 0)
+            self._mouse_down("left")
+            try:
+                self._mouse_up("left")
+            except Exception:
+                self._mouse_up("left")
+                raise
 
     def _post_click(self, lparam: int) -> None:
         user32 = ctypes.windll.user32
         if self.window_handle is None:
             raise RuntimeError("window_message requires a selected window")
-        user32.PostMessageW(self.window_handle, 0x0201, 0x0001, lparam)
-        user32.PostMessageW(self.window_handle, 0x0202, 0, lparam)
+        self._ledger_hold_mouse("left")
+        self._held_mouse.add("left")
+        try:
+            if not user32.PostMessageW(self.window_handle, 0x0201, 0x0001, lparam):
+                raise RuntimeError("PostMessageW mouse-down failed")
+            if not user32.PostMessageW(self.window_handle, 0x0202, 0, lparam):
+                raise RuntimeError("PostMessageW mouse-up failed")
+        finally:
+            self._held_mouse.discard("left")
+            self._ledger_release_mouse("left")
 
     def _execute_key(self, candidate: ActionCandidate) -> None:
         user32 = ctypes.windll.user32
@@ -127,13 +159,18 @@ class WindowsInputExecutor:
 
     def _key_down(self, virtual_key: int) -> None:
         user32 = ctypes.windll.user32
-        if self.input_mode == "window_message":
-            if self.window_handle is None:
-                raise RuntimeError("window_message requires a selected window")
-            if not user32.PostMessageW(self.window_handle, 0x0100, virtual_key, 0):
-                raise RuntimeError("PostMessageW key-down failed")
-        else:
-            user32.keybd_event(virtual_key, 0, 0, 0)
+        self._ledger_hold_key(virtual_key)
+        try:
+            if self.input_mode == "window_message":
+                if self.window_handle is None:
+                    raise RuntimeError("window_message requires a selected window")
+                if not user32.PostMessageW(self.window_handle, 0x0100, virtual_key, 0):
+                    raise RuntimeError("PostMessageW key-down failed")
+            else:
+                user32.keybd_event(virtual_key, 0, 0, 0)
+        except Exception:
+            self._ledger_release_key(virtual_key)
+            raise
         self._held_keys.add(virtual_key)
 
     def _key_up(self, virtual_key: int) -> None:
@@ -146,6 +183,48 @@ class WindowsInputExecutor:
                 user32.keybd_event(virtual_key, 0, 2, 0)
         finally:
             self._held_keys.discard(virtual_key)
+            self._ledger_release_key(virtual_key)
+
+    def _mouse_down(self, button: str) -> None:
+        if button != "left":
+            raise ValueError(f"unsupported mouse button: {button}")
+        self._ledger_hold_mouse(button)
+        try:
+            ctypes.windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
+        except Exception:
+            self._ledger_release_mouse(button)
+            raise
+        self._held_mouse.add(button)
+
+    def _mouse_up(self, button: str) -> None:
+        try:
+            if button == "left":
+                ctypes.windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+        finally:
+            self._held_mouse.discard(button)
+            self._ledger_release_mouse(button)
+
+    def _ledger_hold_key(self, virtual_key: int) -> None:
+        if self.input_ledger is not None:
+            self.input_ledger.hold_key(virtual_key, self.hold_ttl_seconds)
+
+    def _ledger_release_key(self, virtual_key: int) -> None:
+        if self.input_ledger is not None:
+            try:
+                self.input_ledger.release_key(virtual_key)
+            except Exception:
+                pass
+
+    def _ledger_hold_mouse(self, button: str) -> None:
+        if self.input_ledger is not None:
+            self.input_ledger.hold_mouse(button, self.hold_ttl_seconds)
+
+    def _ledger_release_mouse(self, button: str) -> None:
+        if self.input_ledger is not None:
+            try:
+                self.input_ledger.release_mouse(button)
+            except Exception:
+                pass
 
     def _interruptible_sleep(self, duration: float) -> None:
         deadline = time.monotonic() + duration

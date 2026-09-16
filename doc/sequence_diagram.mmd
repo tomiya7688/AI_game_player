@@ -2,6 +2,7 @@ sequenceDiagram
     participant caller as Caller
     participant target as DecisionPipeline
     caller->>target: DecisionPipeline.controller.ensure_running()
+    caller->>target: DecisionPipeline._sync_runtime_rearm()
     caller->>target: DecisionPipeline._decide()
     caller->>target: DecisionPipeline._safety_context()
     caller->>target: DecisionPipeline.safety_evaluator.evaluate()

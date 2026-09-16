@@ -103,6 +103,7 @@ def main() -> int:
         [sys.executable, str(sample_script), "--state-file", str(state_file), "--steps", str(sample_steps), "--title", TITLE],
         cwd=root,
     )
+    pipeline: DecisionPipeline | None = None
     try:
         handle = find_window(TITLE)
         source = WindowsSampleObservationSource(handle)
@@ -114,6 +115,8 @@ def main() -> int:
             window_handle=handle,
             input_mode="mouse",
         )
+        # Live input starts SAFE_IDLE by design. E2E must model the user's explicit Start/re-arm action.
+        pipeline.rearm_safety()
         report = run_continuous_e2e(
             pipeline,
             lambda: source.read()[0],
@@ -134,6 +137,8 @@ def main() -> int:
             return 2
         return 0
     finally:
+        if pipeline is not None:
+            pipeline.close()
         process.terminate()
         try:
             process.wait(timeout=5)
