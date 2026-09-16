@@ -74,7 +74,10 @@ class OutcomeFusionTests(unittest.TestCase):
 
         event = detector.detect(before, "navigate", after, followups)
 
+        state_delta = next(item for item in event.evidence if item.signal == "state_delta")
         temporal = next(item for item in event.evidence if item.signal == "temporal_change")
+        self.assertEqual(state_delta.value, "unknown")
+        self.assertFalse(state_delta.details["state_evidence_available"])
         self.assertEqual(temporal.value, "persistent")
         self.assertEqual(event.status, "changed")
 
