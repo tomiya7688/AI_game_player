@@ -8,6 +8,17 @@ permissions:
   contents: read
 
 jobs:
+  runtime-boundary:
+    name: Runtime contract / language boundary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Validate versioned runtime boundary
+        run: python tools/runtime_boundary_check.py
+
   native-cpp:
     name: C++20 native (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -17,12 +28,22 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
       - name: Configure native runtime
         run: cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
       - name: Build native runtime
         run: cmake --build build/native --config Release --parallel
       - name: Test native runtime
         run: ctest --test-dir build/native -C Release --output-on-failure
+      - name: Measure FFI / IPC / serialization / copy boundary costs
+        run: python tools/runtime_boundary_benchmark.py --search-root build/native --output "build/runtime-boundary/${{ matrix.os }}.json" --samples 1000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-boundary-${{ matrix.os }}
+          path: build/runtime-boundary
+          if-no-files-found: error
 
   windows-app-bundle:
     name: Windows application bundle + startup smoke
