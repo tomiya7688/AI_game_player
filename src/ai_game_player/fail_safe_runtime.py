@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Callable
 from uuid import uuid4
 
+from ai_game_player.cross_process_lock import cross_process_file_lock
+
 
 class FailSafeState(str, Enum):
     SAFE_IDLE = "safe_idle"
@@ -83,12 +85,17 @@ class FailSafeDecision:
 
 
 class AtomicJsonStore:
-    """Crash-consistent single-record JSON store using fsync + atomic replace."""
+    """Crash-consistent JSON store with cross-process read/write serialization."""
 
     def __init__(self, path: Path) -> None:
         self.path = path
+        self.lock_path = path.with_name(f".{path.name}.lock")
 
     def read(self) -> dict[str, object]:
+        with cross_process_file_lock(self.lock_path):
+            return self._read_unlocked()
+
+    def _read_unlocked(self) -> dict[str, object]:
         if not self.path.exists():
             return {}
         try:
@@ -98,6 +105,10 @@ class AtomicJsonStore:
         return value if isinstance(value, dict) else {}
 
     def write(self, value: dict[str, object]) -> None:
+        with cross_process_file_lock(self.lock_path):
+            self._write_unlocked(value)
+
+    def _write_unlocked(self, value: dict[str, object]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_name(f".{self.path.name}.{uuid4().hex}.tmp")
         data = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -106,7 +117,14 @@ class AtomicJsonStore:
                 stream.write(data)
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary, self.path)
+            for attempt in range(8):
+                try:
+                    os.replace(temporary, self.path)
+                    break
+                except PermissionError:
+                    if attempt == 7:
+                        raise
+                    time.sleep(0.005 * (attempt + 1))
             try:
                 directory_fd = os.open(str(self.path.parent), os.O_RDONLY)
             except (AttributeError, OSError):
