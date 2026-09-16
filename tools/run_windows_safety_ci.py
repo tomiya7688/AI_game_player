@@ -67,6 +67,7 @@ def expect_inflight_stop(
     max_latency_seconds: float,
 ) -> float:
     executor.rearm_safety()
+    executor.record_observation()
     timer = threading.Timer(delay_seconds, lambda: executor.trigger_emergency_stop(reason))
     timer.start()
     started = time.monotonic()
@@ -127,9 +128,11 @@ def main() -> int:
         "key_hold_inflight": False,
         "double_click_inflight": False,
         "rearm_then_live_input": False,
+        "fresh_observation_required": False,
         "invalid_coordinate": False,
         "target_loss": False,
     }
+    executor: ActionExecutor | None = None
     try:
         handle = find_window(TITLE)
         target = WindowsTargetProbe().inspect(handle)
@@ -175,6 +178,7 @@ def main() -> int:
 
         # Recognition / Decision busy: Emergency Stop must be independent of the busy worker.
         executor.rearm_safety()
+        executor.record_observation()
         worker_started = threading.Event()
         worker_release = threading.Event()
 
@@ -239,8 +243,12 @@ def main() -> int:
         report["double_click_inflight"] = True
         report["double_click_interrupt_latency_seconds"] = round(double_click_latency, 4)
 
-        # Explicit re-arm is the only path back to live input.
+        # Explicit re-arm is necessary but not sufficient: a fresh observation is also required.
         executor.rearm_safety()
+        expect_blocked(executor, advance_button, "observation_stale")
+        report["fresh_observation_required"] = True
+        executor.rearm_safety()
+        executor.record_observation()
         result = executor.execute(advance_button)
         if not result.executed:
             raise AssertionError("re-armed live input did not execute")
@@ -261,12 +269,11 @@ def main() -> int:
 
         process.terminate()
         process.wait(timeout=5)
-        executor.rearm_safety()
         expect_blocked(executor, advance_button, "target_invalid")
         report["target_loss"] = True
 
         events = log_path.read_text(encoding="utf-8").splitlines() if log_path.exists() else []
-        if len(events) < 8:
+        if len(events) < 9:
             raise AssertionError(f"expected SafetyGuard audit events, found {len(events)}")
         report["audit_event_count"] = len(events)
         report["all_implemented_states_stoppable"] = all(
@@ -278,6 +285,7 @@ def main() -> int:
                 "key_hold_inflight",
                 "double_click_inflight",
                 "rearm_then_live_input",
+                "fresh_observation_required",
                 "invalid_coordinate",
                 "target_loss",
             )
@@ -285,6 +293,8 @@ def main() -> int:
         print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
         return 0
     finally:
+        if executor is not None:
+            executor.close()
         if process.poll() is None:
             process.terminate()
             try:
