@@ -6,6 +6,7 @@ from typing import Mapping
 from uuid import uuid4
 
 from ai_game_player.outcome import OutcomeAssessment
+from ai_game_player.outcome_models import OutcomeEvent
 
 
 PRIMITIVES = (
@@ -108,6 +109,14 @@ class PrimitiveEvaluator:
             score = sum(axes[name].value * active_weights[name] for name in PRIMITIVES) / weight_total
             confidence = sum(axes[name].confidence * active_weights[name] for name in PRIMITIVES) / weight_total
         return EvaluationResult(axes, active_weights, round(score, 6), round(confidence, 6))
+
+    def evaluate_event(
+        self,
+        event: OutcomeEvent,
+        weights: Mapping[str, float] | None = None,
+    ) -> EvaluationResult:
+        """Convert detected facts into #8 value primitives without moving value judgement into detection."""
+        return self.evaluate(event.to_assessment(), event.to_evaluation_signals(), weights)
 
     def _progress(self, outcome: OutcomeAssessment, signals: dict[str, float]) -> EvaluationAxis:
         if outcome.status == "success":
