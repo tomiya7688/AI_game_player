@@ -259,6 +259,7 @@ class Application:
         self.result.config(text="停止中")
 
     def run_and_execute(self) -> None:
+        pipeline: DecisionPipeline | None = None
         try:
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
@@ -276,13 +277,17 @@ class Application:
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "execution"})
             messagebox.showerror("実行エラー", str(exc))
+        finally:
+            if pipeline is not None:
+                pipeline.close()
+
     def run(self) -> None:
         try:
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get(), window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=True, window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
             decision = pipeline.run(purpose=self.purpose.get(), personality=self.personality.get())
             self.result.config(text=f"選択: {decision.action_id} / {decision.reason}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
