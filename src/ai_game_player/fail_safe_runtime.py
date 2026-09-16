@@ -7,7 +7,6 @@ import subprocess
 import sys
 import threading
 import time
-from collections import deque
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -28,22 +27,21 @@ class FailSafeConfig:
     observation_timeout_seconds: float = 2.0
     max_command_age_seconds: float = 0.5
     max_queue_depth: int = 32
-    recent_action_window: int = 256
     hold_ttl_seconds: float = 1.0
     watchdog_poll_seconds: float = 0.05
 
     def __post_init__(self) -> None:
-        values = (
+        times = (
             self.lease_timeout_seconds,
             self.observation_timeout_seconds,
             self.max_command_age_seconds,
             self.hold_ttl_seconds,
             self.watchdog_poll_seconds,
         )
-        if any(value <= 0 for value in values):
+        if any(value <= 0 for value in times):
             raise ValueError("fail-safe time limits must be positive")
-        if self.max_queue_depth < 1 or self.recent_action_window < 1:
-            raise ValueError("fail-safe queue/history limits must be positive")
+        if self.max_queue_depth < 1:
+            raise ValueError("fail-safe queue depth must be positive")
         if self.watchdog_poll_seconds >= self.lease_timeout_seconds:
             raise ValueError("watchdog poll interval must be shorter than lease timeout")
 
@@ -155,7 +153,7 @@ class FailSafeJournal:
 
 
 class InputLedger:
-    """Small cross-process ledger of input that may need an out-of-process release."""
+    """Cross-process ledger for keys/buttons that must be releasable after parent loss."""
 
     def __init__(self, path: Path, store: AtomicJsonStore | None = None, clock: Callable[[], float] = time.time) -> None:
         self.path = path
@@ -174,7 +172,7 @@ class InputLedger:
     def hold_key(self, virtual_key: int, ttl_seconds: float) -> None:
         with self._lock:
             current = self._read()
-            keys = self._key_entries(current)
+            keys = self._entries(current, "held_keys", integer_keys=True)
             keys[str(int(virtual_key))] = self.clock() + float(ttl_seconds)
             current["held_keys"] = keys
             current["updated_at"] = self.clock()
@@ -183,7 +181,7 @@ class InputLedger:
     def release_key(self, virtual_key: int) -> None:
         with self._lock:
             current = self._read()
-            keys = self._key_entries(current)
+            keys = self._entries(current, "held_keys", integer_keys=True)
             keys.pop(str(int(virtual_key)), None)
             current["held_keys"] = keys
             current["updated_at"] = self.clock()
@@ -192,7 +190,7 @@ class InputLedger:
     def hold_mouse(self, button: str, ttl_seconds: float) -> None:
         with self._lock:
             current = self._read()
-            buttons = self._mouse_entries(current)
+            buttons = self._entries(current, "held_mouse", integer_keys=False)
             buttons[str(button)] = self.clock() + float(ttl_seconds)
             current["held_mouse"] = buttons
             current["updated_at"] = self.clock()
@@ -201,7 +199,7 @@ class InputLedger:
     def release_mouse(self, button: str) -> None:
         with self._lock:
             current = self._read()
-            buttons = self._mouse_entries(current)
+            buttons = self._entries(current, "held_mouse", integer_keys=False)
             buttons.pop(str(button), None)
             current["held_mouse"] = buttons
             current["updated_at"] = self.clock()
@@ -225,44 +223,31 @@ class InputLedger:
             "schema": "kadoka-input-ledger/v1",
             "target_handle": int(value.get("target_handle", 0)),
             "input_mode": str(value.get("input_mode", "mouse")),
-            "held_keys": self._key_entries(value),
-            "held_mouse": self._mouse_entries(value),
+            "held_keys": self._entries(value, "held_keys", integer_keys=True),
+            "held_mouse": self._entries(value, "held_mouse", integer_keys=False),
             "updated_at": float(value.get("updated_at", 0.0)),
         }
 
     @staticmethod
-    def _key_entries(value: dict[str, object]) -> dict[str, float]:
-        raw = value.get("held_keys", {})
+    def _entries(value: dict[str, object], name: str, *, integer_keys: bool) -> dict[str, float]:
+        raw = value.get(name, {})
         if not isinstance(raw, dict):
             return {}
         result: dict[str, float] = {}
-        for key, expires in raw.items():
+        for key, expiry in raw.items():
             try:
-                result[str(int(key))] = float(expires)
-            except (TypeError, ValueError):
-                continue
-        return result
-
-    @staticmethod
-    def _mouse_entries(value: dict[str, object]) -> dict[str, float]:
-        raw = value.get("held_mouse", {})
-        if not isinstance(raw, dict):
-            return {}
-        result: dict[str, float] = {}
-        for key, expires in raw.items():
-            try:
-                result[str(key)] = float(expires)
+                normalized = str(int(key)) if integer_keys else str(key)
+                result[normalized] = float(expiry)
             except (TypeError, ValueError):
                 continue
         return result
 
 
 class ExternalWatchdogProcess:
-    """Detached watchdog that survives loss of the AI process long enough to release input."""
+    """Detached watcher that survives parent loss and has no AI/model dependency."""
 
-    def __init__(self, state_directory: Path, poll_seconds: float) -> None:
+    def __init__(self, state_directory: Path) -> None:
         self.state_directory = state_directory
-        self.poll_seconds = poll_seconds
         self.process: subprocess.Popen[bytes] | None = None
 
     def start(self) -> None:
@@ -271,13 +256,7 @@ class ExternalWatchdogProcess:
         if getattr(sys, "frozen", False):
             command = [sys.executable, "--failsafe-watchdog", str(self.state_directory)]
         else:
-            command = [
-                sys.executable,
-                "-m",
-                "ai_game_player",
-                "--failsafe-watchdog",
-                str(self.state_directory),
-            ]
+            command = [sys.executable, "-m", "ai_game_player", "--failsafe-watchdog", str(self.state_directory)]
         kwargs: dict[str, object] = {
             "stdin": subprocess.DEVNULL,
             "stdout": subprocess.DEVNULL,
@@ -304,7 +283,7 @@ class ExternalWatchdogProcess:
 
 
 class FailSafeRuntime:
-    """Fail-closed lease/epoch gate between SafetyGuard and OS input."""
+    """Short-lease fail-closed gate between SafetyGuard and OS input."""
 
     def __init__(
         self,
@@ -338,10 +317,9 @@ class FailSafeRuntime:
         self._last_sequence = 0
         self._next_sequence = 0
         self._inflight = 0
-        self._recent_actions: deque[str] = deque(maxlen=self.config.recent_action_window)
         self._heartbeat_shutdown = threading.Event()
         self._heartbeat_thread: threading.Thread | None = None
-        self._watchdog = ExternalWatchdogProcess(self.state_directory, self.config.watchdog_poll_seconds) if external_watchdog else None
+        self._watchdog = ExternalWatchdogProcess(self.state_directory) if external_watchdog else None
 
         previous = self.journal.read()
         previous_state = str(previous.get("state", ""))
@@ -353,8 +331,6 @@ class FailSafeRuntime:
             self._state = FailSafeState.RECOVERY_REQUIRED
             self._reason = "unclean_previous_runtime_state"
         self._persist_or_fail(self._reason)
-        if self._watchdog is not None:
-            self._watchdog.start()
 
     @property
     def state(self) -> FailSafeState:
@@ -391,13 +367,14 @@ class FailSafeRuntime:
             self._last_sequence = 0
             self._next_sequence = 0
             self._inflight = 0
-            self._recent_actions.clear()
             self._state = FailSafeState.ACTIVE
             self._reason = "explicit_rearm"
             self._renew_lease_locked()
             if not self._persist_or_fail("explicit_rearm"):
                 raise RuntimeError("fail-safe re-arm could not persist critical state")
             self._start_heartbeat_locked()
+            if self._watchdog is not None:
+                self._watchdog.start()
             return self._epoch
 
     def heartbeat(self) -> bool:
@@ -462,8 +439,6 @@ class FailSafeRuntime:
                 return self._block("stale_observation", "command was not created from the latest observation")
             if command.sequence <= self._last_sequence:
                 return self._block("stale_sequence", "command sequence is stale or duplicated")
-            if command.action_id in self._recent_actions:
-                return self._block("duplicate_action", "action_id was already accepted in this epoch")
             if command.target_pid != self._target_pid or command.target_handle != self._target_handle:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "target_changed")
                 return self._block("target_changed", "command target differs from the re-armed target")
@@ -473,7 +448,6 @@ class FailSafeRuntime:
                 return self._block("queue_full", "fail-safe command queue depth exceeded")
 
             self._last_sequence = command.sequence
-            self._recent_actions.append(command.action_id)
             self._inflight += 1
             self._renew_lease_locked()
             if not self._write_lease_or_fail("command_accept_storage_failure"):
@@ -503,14 +477,13 @@ class FailSafeRuntime:
 
     def close(self) -> None:
         self.safe_idle("runtime closed")
-        watchdog = self._watchdog
-        if watchdog is not None:
-            watchdog.stop()
+        if self._watchdog is not None:
+            self._watchdog.stop()
 
     def _start_heartbeat_locked(self) -> None:
+        self._heartbeat_shutdown.clear()
         if self._heartbeat_thread is not None and self._heartbeat_thread.is_alive():
             return
-        self._heartbeat_shutdown.clear()
         interval = min(self.config.lease_timeout_seconds / 3.0, 0.25)
         self._heartbeat_thread = threading.Thread(
             target=self._heartbeat_loop,
@@ -522,9 +495,8 @@ class FailSafeRuntime:
 
     def _heartbeat_loop(self, interval: float) -> None:
         while not self._heartbeat_shutdown.wait(interval):
-            if not self.heartbeat():
-                if self.state != FailSafeState.ACTIVE:
-                    return
+            if not self.heartbeat() and self.state != FailSafeState.ACTIVE:
+                return
 
     def _renew_lease_locked(self) -> None:
         self._lease_expires_at = self.clock() + self.config.lease_timeout_seconds
@@ -533,15 +505,15 @@ class FailSafeRuntime:
         self._state = state
         self._reason = reason
         self._heartbeat_shutdown.set()
-        self._lease_expires_at = 0.0 if state != FailSafeState.ACTIVE else self._lease_expires_at
+        if state != FailSafeState.ACTIVE:
+            self._lease_expires_at = 0.0
         self._release_inputs()
         self._persist_or_fail(reason, allow_state_change=False)
 
     def _release_inputs(self) -> None:
-        callback = self.release_callback
-        if callback is not None:
+        if self.release_callback is not None:
             try:
-                callback()
+                self.release_callback()
             except Exception:
                 pass
 
@@ -610,18 +582,24 @@ class FailSafeRuntime:
 
 
 def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float | None = None) -> int:
-    """Run the dependency-minimal out-of-process watchdog loop."""
+    """Run the dependency-minimal watchdog in a separate process."""
 
     state_directory = Path(state_directory)
     lease_store = AtomicJsonStore(state_directory / "lease.json")
     journal = FailSafeJournal(state_directory / "journal.json")
     ledger = InputLedger(state_directory / "input_ledger.json")
     started = time.time()
-    owner_seen = False
 
     while True:
         lease = lease_store.read()
         if not lease:
+            if lease_store.path.exists():
+                _release_ledger(ledger, release_all=True, now=time.time())
+                try:
+                    journal.record(FailSafeState.RECOVERY_REQUIRED, "lease_unreadable", "")
+                except Exception:
+                    pass
+                return 2
             if max_runtime_seconds is not None and time.time() - started >= max_runtime_seconds:
                 return 0
             time.sleep(0.05)
@@ -633,23 +611,24 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
         target_handle = int(lease.get("target_handle", 0))
         state = str(lease.get("state", FailSafeState.SAFE_IDLE.value))
         epoch = str(lease.get("epoch", ""))
-        owner_alive = _process_alive(owner_pid) if owner_pid > 0 else False
-        owner_seen = owner_seen or owner_pid > 0
+
+        if state != FailSafeState.ACTIVE.value:
+            _release_ledger(ledger, release_all=True, now=now)
+            return 0
 
         reason = ""
-        if state == FailSafeState.ACTIVE.value:
-            if owner_pid > 0 and not owner_alive:
-                reason = "owner_process_lost"
-            elif target_pid > 0 and not _process_alive(target_pid):
-                reason = "target_process_lost"
-            elif os.name == "nt" and target_handle > 0 and not _windows_target_matches(target_handle, target_pid):
-                reason = "target_window_lost"
-            elif now > float(lease.get("lease_expires_at", 0.0)):
-                reason = "lease_expired"
-            else:
-                observation_expires = float(lease.get("observation_expires_at", 0.0))
-                if observation_expires <= 0 or now > observation_expires:
-                    reason = "observation_stale"
+        if owner_pid <= 0 or not _process_alive(owner_pid):
+            reason = "owner_process_lost"
+        elif target_pid > 0 and not _process_alive(target_pid):
+            reason = "target_process_lost"
+        elif os.name == "nt" and target_handle > 0 and not _windows_target_matches(target_handle, target_pid):
+            reason = "target_window_lost"
+        elif now > float(lease.get("lease_expires_at", 0.0)):
+            reason = "lease_expired"
+        else:
+            observation_expires = float(lease.get("observation_expires_at", 0.0))
+            if observation_expires <= 0 or now > observation_expires:
+                reason = "observation_stale"
 
         if reason:
             _release_ledger(ledger, release_all=True, now=now)
@@ -669,14 +648,9 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
                 )
             except Exception:
                 pass
-            state = FailSafeState.RECOVERY_REQUIRED.value
-        elif state != FailSafeState.ACTIVE.value:
-            _release_ledger(ledger, release_all=True, now=now)
-        else:
-            _release_ledger(ledger, release_all=False, now=now)
-
-        if owner_seen and owner_pid > 0 and not owner_alive and state != FailSafeState.ACTIVE.value:
             return 0
+
+        _release_ledger(ledger, release_all=False, now=now)
         if max_runtime_seconds is not None and now - started >= max_runtime_seconds:
             return 0
         poll = float(lease.get("watchdog_poll_seconds", 0.05))
@@ -690,39 +664,37 @@ def _release_ledger(ledger: InputLedger, *, release_all: bool, now: float) -> No
         return
     mode = str(snapshot.get("input_mode", "mouse"))
     target_handle = int(snapshot.get("target_handle", 0))
-    keys = snapshot.get("held_keys", {})
-    buttons = snapshot.get("held_mouse", {})
-    if not isinstance(keys, dict):
-        keys = {}
-    if not isinstance(buttons, dict):
-        buttons = {}
-
+    raw_keys = snapshot.get("held_keys", {})
+    raw_buttons = snapshot.get("held_mouse", {})
+    keys = dict(raw_keys) if isinstance(raw_keys, dict) else {}
+    buttons = dict(raw_buttons) if isinstance(raw_buttons, dict) else {}
     changed = False
+
     for raw_key, raw_expiry in list(keys.items()):
         try:
             key = int(raw_key)
             expiry = float(raw_expiry)
         except (TypeError, ValueError):
+            keys.pop(raw_key, None)
             changed = True
             continue
         if release_all or expiry <= now:
             _release_key_os(key, mode, target_handle)
+            keys.pop(raw_key, None)
             changed = True
-        else:
-            continue
-        keys.pop(raw_key, None)
+
     for button, raw_expiry in list(buttons.items()):
         try:
             expiry = float(raw_expiry)
         except (TypeError, ValueError):
+            buttons.pop(button, None)
             changed = True
             continue
         if release_all or expiry <= now:
             _release_mouse_os(str(button), mode, target_handle)
+            buttons.pop(button, None)
             changed = True
-        else:
-            continue
-        buttons.pop(button, None)
+
     if changed:
         try:
             ledger.store.write(
@@ -744,19 +716,23 @@ def _process_alive(pid: int) -> bool:
         return False
     if os.name == "nt":
         kernel32 = ctypes.windll.kernel32
-        handle = kernel32.OpenProcess(0x1000, False, int(pid))  # PROCESS_QUERY_LIMITED_INFORMATION
+        handle = kernel32.OpenProcess(0x1000, False, int(pid))
         if not handle:
             return False
         try:
             exit_code = ctypes.c_ulong()
             if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
                 return False
-            return int(exit_code.value) == 259  # STILL_ACTIVE
+            return int(exit_code.value) == 259
         finally:
             kernel32.CloseHandle(handle)
     try:
         os.kill(pid, 0)
-    except (ProcessLookupError, PermissionError, OSError):
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
         return False
     return True
 
