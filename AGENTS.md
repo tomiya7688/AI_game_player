@@ -51,7 +51,7 @@ Non-negotiable constraints:
 | Capture / observation | `screen_capture.py`, `captured_source.py`, `observation_source.py`, matching tests | `doc/画面キャプチャ機能説明書.md`, `doc/観測入力機能説明書.md` |
 | Decision / provider / outcome | `pipeline.py`, `engine.py`, `provider.py`, `evaluator.py`, `outcome.py`, matching tests | `doc/判断パイプライン機能説明書.md`, `doc/評価指標機能説明書.md` |
 | Execution / safety | `action_executor.py`, `windows_input.py`, `run_control.py`, `execution_mode.py`, matching tests | `doc/操作実行機能説明書.md` |
-| Runtime architecture / native boundary | `src/ai_game_player/runtime/`, `native/include/kadoka/runtime_api.h`, matching tests | `doc/architecture/runtime_layers.md`, Issues #56/#57 |
+| Runtime architecture / native boundary | `src/ai_game_player/runtime/`, `native/include/kadoka/runtime_api.h`, `config/runtime_boundary.json`, matching tests | `doc/architecture/runtime_layers.md`, `doc/architecture/native_runtime_boundary.md`, `tools/runtime_boundary_check.py`, Issues #56/#57 |
 | Architecture / quality gates | `doc/UPDCommander導入方針.md`, `src/ai_game_player/applications/quality/`, `tools/bug_check.py`, `tools/performance_check.py` | `.github/workflows/upd-architecture-ci.yml`, `.github/workflows/performance-ci.yml`, `.github/workflows/bug-ci.yml` |
 | GUI | `app.py` and the directly called module/tests | README and the specific feature document only |
 | Persistence / logs | `config.py`, `knowledge.py`, `history.py`, `execution_history.py`, `runtime_log.py`, matching tests | `doc/設定永続化機能説明書.md`, `doc/知識ベース機能説明書.md` |
@@ -68,6 +68,8 @@ Non-negotiable constraints:
 - `AGENTS.md`: this AI/Codex router and compressed working policy.
 - `key_info.md`: implemented capabilities and current limitations.
 - `doc/architecture/runtime_layers.md`: cross-language runtime boundary and repository ownership rules.
+- `doc/architecture/native_runtime_boundary.md`: Issue #56 concrete placement, language evaluation, C ABI/high-level contract, benchmark, and distribution policy.
+- `config/runtime_boundary.json`: machine-readable component/language placement and allowed coarse crossing units.
 - `doc/UPDCommander導入方針.md`: UPD Commander staged adoption, architecture checker, performance gate, and bug gate policy.
 - `doc/`: detailed feature contracts; read on demand through the router.
 - GitHub Issues: requirements, feedback, priority, and discussion. Do not recreate their detailed content in local documents.
@@ -77,8 +79,9 @@ Non-negotiable constraints:
 
 - Follow `doc/ワークフロー/ワークフロー.md`.
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
-- `finish_task.bat` includes generated docs, unit tests, compile checks, high-confidence bug checks, runtime performance budgets, and `git diff --check`.
+- `finish_task.bat` includes generated docs, unit tests, compile checks, high-confidence bug checks, runtime-boundary contract validation, runtime performance budgets, and `git diff --check`.
 - UPD architecture rules are enforced by `upd-architecture-ci`; the checker is a development/CI dependency and must not enter the normal game runtime import path.
+- `language-ci` validates the versioned runtime boundary, builds/tests Native Runtime on Ubuntu/Windows, records FFI/IPC/serialization/copy benchmark artifacts, smoke-launches the self-contained Windows bundle, and runs the Windows closed-loop E2E.
 - For the standard Git/PR path, run `finish_pr.bat "commit message" next-branch`.
 - Routine PR preparation should use changed-file names, diff stat, commit summary, and validation results. Do not print/read the full diff unless a check fails or a specific change needs inspection.
 - Prefer targeted validation while implementing. Broaden validation only when the changed contract or dependency surface requires it.
