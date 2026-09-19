@@ -1,0 +1,56 @@
+{
+  "schema": "kadoka.default-models/1",
+  "runtime_family": "llama.cpp-compatible",
+  "distribution_policy": {
+    "weights_committed_to_git": false,
+    "verify_license_and_sha256_before_use": true,
+    "default_network_scope": "localhost-only"
+  },
+  "profiles": [
+    {
+      "id": "smoke-tiny",
+      "purpose": "CI, contract test, startup and provider smoke verification",
+      "source_repository": "lmstudio-community/SmolLM2-135M-Instruct-GGUF",
+      "source_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "file": "SmolLM2-135M-Instruct-Q4_K_M.gguf",
+      "quantization": "Q4_K_M",
+      "reported_size": "105 MB",
+      "sha256": "bda484992f9655d22504b14e57985257fa6a86937c61f957cf99c10a3bcae169",
+      "license": "Apache-2.0",
+      "default_context_tokens": 2048,
+      "multimodal_projector_loaded": false,
+      "acceptance": {
+        "quality_role": "smoke_only",
+        "must_not_be_used_as_quality_baseline": true
+      }
+    },
+    {
+      "id": "standard-small",
+      "purpose": "Default local decision model candidate",
+      "source_repository": "bartowski/Qwen_Qwen3.5-2B-GGUF",
+      "source_model": "Qwen/Qwen3.5-2B",
+      "file": "Qwen_Qwen3.5-2B-Q4_K_M.gguf",
+      "quantization": "Q4_K_M",
+      "reported_size": "1.40 GB",
+      "sha256": "57a1085840f497d764a7fc5d346922dbde961efb54cc792ea81d694fd846a1d8",
+      "license": "Apache-2.0",
+      "default_context_tokens": 4096,
+      "multimodal_projector_loaded": false,
+      "hardware_acceptance": {
+        "reference_gpu": "NVIDIA GeForce GTX 1080",
+        "reference_vram_gb": 8,
+        "concurrent_kadoka_components": true,
+        "status": "unverified",
+        "required_measurements": [
+          "peak_vram_mb",
+          "peak_system_ram_mb",
+          "decision_latency_p50_ms",
+          "decision_latency_p95_ms",
+          "tokens_per_second",
+          "oom_count"
+        ],
+        "required_oom_count": 0
+      }
+    }
+  ]
+}
