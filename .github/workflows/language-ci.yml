@@ -26,6 +26,11 @@ jobs:
               Path("schemas/inference_provider/v1/provider_manifest.schema.json"),
               Path("schemas/inference_provider/v1/inference_request.schema.json"),
               Path("schemas/inference_provider/v1/inference_response.schema.json"),
+              Path("schemas/inference_provider/v1/cancel_response.schema.json"),
+              Path("schemas/inference_provider/v1/cancel_request.schema.json"),
+              Path("schemas/inference_provider/v1/models_response.schema.json"),
+              Path("schemas/inference_provider/v1/capabilities_response.schema.json"),
+              Path("schemas/inference_provider/v1/health_response.schema.json"),
               Path("config/default_models.json"),
               Path("config/e2e_reference_games.json"),
           ]
