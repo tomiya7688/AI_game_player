@@ -118,4 +118,11 @@ An Adapter should:
 7. declare whether any data can leave the device,
 8. keep credentials outside normal payload/log fields.
 
+Deployment kind describes the Provider endpoint that Kadoka talks to:
+- `bundled_local`: Kadoka-managed loopback sidecar
+- `local_external`: user/adapter-managed local endpoint; it may itself bridge to a remote vendor
+- `remote_direct`: Kadoka talks directly to a remote HTTPS Provider endpoint
+
+Whether data can leave the device is declared independently by `privacy.may_transmit_off_device`.
+
 Vendor compatibility belongs to the Adapter. Kadoka's public protocol does not copy a vendor API as its source of truth.
