@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/config/default-models.schema.json",
+  "title": "Kadoka Default Model Profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "runtime_family", "distribution_policy", "profiles"],
+  "properties": {
+    "schema": { "const": "kadoka.default-models/1" },
+    "runtime_family": { "type": "string", "minLength": 1 },
+    "distribution_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weights_committed_to_git",
+        "verify_license_and_sha256_before_use",
+        "default_network_scope"
+      ],
+      "properties": {
+        "weights_committed_to_git": { "const": false },
+        "verify_license_and_sha256_before_use": { "const": true },
+        "default_network_scope": { "const": "localhost-only" }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/profile" },
+      "allOf": [
+        { "contains": { "properties": { "id": { "const": "smoke-tiny" } }, "required": ["id"] }, "minContains": 1 },
+        { "contains": { "properties": { "id": { "const": "standard-small" } }, "required": ["id"] }, "minContains": 1 }
+      ]
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "purpose",
+        "source_repository",
+        "source_model",
+        "file",
+        "quantization",
+        "reported_size",
+        "sha256",
+        "license",
+        "default_context_tokens",
+        "multimodal_projector_loaded"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{1,63}$" },
+        "purpose": { "type": "string", "minLength": 1 },
+        "source_repository": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
+        "source_model": { "type": "string", "minLength": 1 },
+        "file": { "type": "string", "minLength": 1 },
+        "quantization": { "type": "string", "minLength": 1 },
+        "reported_size": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "license": { "type": "string", "minLength": 1 },
+        "default_context_tokens": { "type": "integer", "minimum": 128 },
+        "multimodal_projector_loaded": { "type": "boolean" },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quality_role": { "type": "string", "minLength": 1 },
+            "must_not_be_used_as_quality_baseline": { "type": "boolean" }
+          }
+        },
+        "hardware_acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reference_gpu",
+            "reference_vram_gb",
+            "concurrent_kadoka_components",
+            "status",
+            "required_measurements",
+            "required_oom_count"
+          ],
+          "properties": {
+            "reference_gpu": { "type": "string", "minLength": 1 },
+            "reference_vram_gb": { "type": "integer", "minimum": 1 },
+            "concurrent_kadoka_components": { "type": "boolean" },
+            "status": { "enum": ["unverified", "passed", "failed"] },
+            "required_measurements": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "required_oom_count": { "type": "integer", "minimum": 0 }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "id": { "const": "standard-small" } },
+            "required": ["id"]
+          },
+          "then": { "required": ["hardware_acceptance"] }
+        }
+      ]
+    }
+  }
+}
