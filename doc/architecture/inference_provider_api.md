@@ -190,3 +190,27 @@ The standard-small and pre-1.0.0 Gates remain separate:
 - smoke-tiny: long CI gameplay endurance
 - standard-small: lightweight real inference + optional VRAM budget in PR CI
 - pre-1.0.0: GTX 1080 real-hardware quality/performance/playability acceptance
+
+
+## Noisy Language Provider fixture
+
+Kadoka must also be tested against a Provider that is intentionally bad at reasoning.
+
+`NoisyLanguageProvider` is a test-only, deterministic pseudo-language-model:
+
+- no ML runtime or network dependency,
+- pseudo-random selection only from allowed Action IDs,
+- irrelevant word-salad reasons,
+- low-confidence unstable semantic outcome assessments,
+- reproducible seed,
+- explicit Provider timing instrumentation.
+
+This fixture has two purposes.
+
+First, robustness: Core, grounding, Safety, persistence, and loop control must not assume that a model gives sensible reasons or selects high-utility actions.
+
+Second, non-LLM performance: because the Provider is nearly free, CI records total step time and subtracts measured Provider CPU time to approximate Kadoka's non-LLM Core overhead.
+
+A separate negative-test Provider intentionally returns an out-of-set Action ID. The engine must reject it before execution.
+
+The synthetic Noisy Provider Gate runs on every `performance-ci` execution. When the Level 1 game runner exists, the same Provider should also run a continuous 2048 campaign; gameplay score is not the hard Gate.
