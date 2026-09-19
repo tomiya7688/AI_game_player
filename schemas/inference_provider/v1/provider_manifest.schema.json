@@ -78,7 +78,7 @@
           "items": { "enum": ["text", "json", "image"] }
         },
         "structured_output": { "type": "boolean" },
-        "streaming": { "type": "boolean" },
+        "streaming": { "const": false },
         "cancellation": { "type": "boolean" },
         "max_concurrency": {
           "type": ["integer", "null"],
@@ -113,5 +113,51 @@
       "type": "object",
       "additionalProperties": true
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "capabilities": {
+            "properties": { "cancellation": { "const": true } },
+            "required": ["cancellation"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "deployment": {
+            "required": ["cancel_path"],
+            "properties": {
+              "cancel_path": { "type": "string", "pattern": "^/" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "deployment": {
+            "properties": { "kind": { "const": "remote_adapter" } },
+            "required": ["kind"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "deployment": {
+            "properties": {
+              "base_url": { "type": "string", "format": "uri", "pattern": "^https://" }
+            }
+          },
+          "privacy": {
+            "properties": {
+              "may_transmit_off_device": { "const": true }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
