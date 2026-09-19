@@ -1,0 +1,83 @@
+{
+  "schema": "kadoka.reference-games/1",
+  "materialization": {
+    "strategy": "pinned_git_checkout",
+    "destination": "build/ci-games",
+    "commit_upstream_latest": false,
+    "record_lock_metadata": true
+  },
+  "levels": [
+    {
+      "level": 1,
+      "id": "2048",
+      "title": "2048",
+      "repository": "gabrielecirulli/2048",
+      "commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+      "license_spdx": "MIT",
+      "license_paths": ["LICENSE.txt"],
+      "launch": {
+        "kind": "browser_static",
+        "entrypoint": "index.html"
+      },
+      "controls": ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+      "focus": ["keyboard_input", "board_state", "basic_planning", "outcome_detection"],
+      "ci_status": "level1_target",
+      "issue": 176
+    },
+    {
+      "level": 2,
+      "id": "memory-game",
+      "title": "Memory Game",
+      "repository": "sen-ltd/memory-game",
+      "commit": "7be6a32f0913c5325208e33fb059b4061fb03704",
+      "license_spdx": "MIT",
+      "license_paths": ["LICENSE"],
+      "launch": {
+        "kind": "browser_static",
+        "entrypoint": "index.html"
+      },
+      "controls": ["mouse_click", "keyboard_accessibility"],
+      "focus": ["click_targeting", "short_term_memory", "ui_state", "animation"],
+      "ci_status": "source_pinned"
+    },
+    {
+      "level": 3,
+      "id": "ruggrogue",
+      "title": "RuggRogue",
+      "repository": "tung/ruggrogue",
+      "commit": "164ff8380deb21964cbe65bd60db7c5cd7dbd107",
+      "license_spdx": "MIT",
+      "license_paths": ["LICENSE.txt"],
+      "additional_license_notes": [
+        "Tile graphics are described upstream as CC0.",
+        "GohuFont is described upstream as WTFPL.",
+        "Preserve upstream asset notices when materializing CI artifacts."
+      ],
+      "launch": {
+        "kind": "web_or_native_build",
+        "entrypoint": "index.html",
+        "build_required_may_vary": true
+      },
+      "controls": ["keyboard_multi_key", "menus", "inventory"],
+      "focus": ["long_horizon_state", "menu_navigation", "inventory", "scene_transition"],
+      "ci_status": "source_pinned"
+    },
+    {
+      "level": 4,
+      "id": "pygame-tetris",
+      "title": "Pygame Tetris",
+      "repository": "Owsap/pygame-tetris",
+      "commit": "c4b6667b1ea56d12d535a8a2045dbeb370462fae",
+      "license_spdx": "MIT",
+      "license_paths": ["LICENSE"],
+      "launch": {
+        "kind": "python_pygame",
+        "entrypoint": "pygame-tetris.py",
+        "requirements": "requirements.txt"
+      },
+      "controls": ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space", "P", "Enter", "Escape"],
+      "focus": ["realtime", "timing", "repeated_control", "latency_budget"],
+      "ci_status": "source_pinned"
+    }
+  ]
+}
