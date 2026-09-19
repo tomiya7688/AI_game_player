@@ -1,0 +1,30 @@
+{
+  "schema": "kadoka.inference.provider-manifest/1",
+  "provider_id": "example.remote.bridge",
+  "provider_version": "1.0.0",
+  "protocol_versions": [1],
+  "display_name": "Example Remote API Bridge",
+  "deployment": {
+    "kind": "local_external",
+    "base_url": "http://127.0.0.1:18181",
+    "health_path": "/kadoka/v1/health",
+    "capabilities_path": "/kadoka/v1/capabilities",
+    "models_path": "/kadoka/v1/models",
+    "inference_path": "/kadoka/v1/inference",
+    "cancel_path": "/kadoka/v1/cancel",
+    "default_timeout_ms": 30000
+  },
+  "capabilities": {
+    "operations": ["decision", "text_generation"],
+    "input_modalities": ["text", "json", "image"],
+    "structured_output": true,
+    "streaming": false,
+    "cancellation": true,
+    "max_concurrency": 4
+  },
+  "privacy": {
+    "may_transmit_off_device": true,
+    "credentials_required": true,
+    "declared_data_classes": ["decision_context", "ocr_text", "cropped_image", "history"]
+  }
+}
