@@ -34,7 +34,7 @@
       "required": ["kind", "base_url", "health_path", "capabilities_path", "models_path", "inference_path"],
       "properties": {
         "kind": {
-          "enum": ["bundled_local", "local_external", "remote_adapter"]
+          "enum": ["bundled_local", "local_external", "remote_direct"]
         },
         "base_url": { "type": "string", "format": "uri" },
         "health_path": { "type": "string", "pattern": "^/" },
@@ -167,7 +167,7 @@
       "if": {
         "properties": {
           "deployment": {
-            "properties": { "kind": { "const": "remote_adapter" } },
+            "properties": { "kind": { "const": "remote_direct" } },
             "required": ["kind"]
           }
         }
