@@ -49,7 +49,19 @@
           "tokens_per_second",
           "oom_count"
         ],
-        "required_oom_count": 0
+        "required_oom_count": 0,
+        "reference_gpu_compute_capability": "6.1",
+        "backend_candidates": [
+          "kadoka-bundled-cuda12-sm61",
+          "vulkan",
+          "cpu"
+        ],
+        "official_upstream_cuda_prebuilt_assumed_compatible": false,
+        "notes": [
+          "GTX 1080 is Pascal / sm_61.",
+          "Do not assume current upstream Windows CUDA prebuilt binaries include sm_61.",
+          "Benchmark Kadoka-bundled CUDA 12 sm_61 build and Vulkan before selecting the default backend."
+        ]
       }
     }
   ]
