@@ -172,3 +172,37 @@ Hard failure:
 これによりtiny Modelのゲーム攻略能力そのものではなく、**小型LLMを長時間Decision loopへ入れた時にKadoka全体が安全かつ連続して動くこと**を毎PRで検証する。
 
 将来Level 2-4へ同じcampaign runnerを展開してよい。高難度Levelのscore/攻略性能をsmoke-tinyのmerge Gateへ直接しない。
+
+
+## Noisy Language Provider 常設CI
+
+高品質ModelだけをCIへ置くと、Core側が暗黙にModel品質へ依存していても検出しにくい。
+そのため #178 の `NoisyLanguageProvider` を常設fixtureとして利用する。
+
+Noisy ProviderはML runtimeを持たないseed固定pseudo-LMで、次の性質を持つ。
+
+- allowed candidate内から擬似ランダムに選ぶ
+- utilityの高い候補を優先しない
+- reasonは意味の薄いword salad
+- semantic outcomeも低confidenceで揺れる
+- 同一seedでは再現可能
+- Provider内部時間を計測可能
+
+現在の常設Gateはsynthetic closed loopを200 measured step実行する。結果は `build/performance/noisy_provider_report.json` へ保存する。
+
+主な測定値:
+
+```text
+total_step_ms
+provider_ms
+non_provider_core_ms = max(0, total_step_ms - provider_ms)
+```
+
+初期budget:
+- Provider p95 <= 2 ms
+- non-provider Core p95 <= 100 ms on Linux baseline
+- Windowsはperformance-ciの既存multiplierを適用
+
+これは真のLLM性能benchmarkではなく、LLM待ち時間をほぼ除いたCore regression detectorである。
+
+Level 1 / 2048 runner完成後は、同じNoisy Providerを実ゲームにも常設接続する。攻略scoreはGateにせず、crash、candidate grounding違反、Safety bypass、execution failure、回復不能stall等をhard failureとする。
