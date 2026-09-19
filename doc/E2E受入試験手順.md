@@ -144,3 +144,31 @@ CIでは `python tools/fetch_ci_games.py --all --clean` により `build/ci-game
 Level 1の実ゲームGateは Issue #176 を正本とする。Level 2-4はLevel 1でrunner/interfaceが安定した後、独立した実装単位へ分離する。
 
 第三者ゲームの内部state/DOM等はmilestone検証に利用してよいが、Kadokaの通常Observation/Decision入力へ正解情報として直接注入しない。
+
+
+## smoke-tiny Continuous Gameplay CI
+
+`smoke-tiny` は単なるProvider疎通確認だけではなく、安価に長時間回せる実ゲーム耐久CIモデルとして扱う。
+
+Level 1の2048では、Bundled Local Providerが実装された後、CIで次を標準Gateとする。
+
+- Decision Providerは `smoke-tiny` を使用する
+- DecisionをRuleProviderへfallbackしない
+- 1 campaignは原則600秒
+- game over等のterminalへ到達した場合は自動再開始し、campaign期限まで継続する
+- candidate JSONを人間が編集しない
+- 実画面Observation -> Candidate -> Provider Decision -> Safety -> Input -> Outcomeを通す
+- score / max tile / episode数等は保存するが、当面はModel品質のhard thresholdにしない
+
+Hard failure:
+- Provider crash
+- timeout budget exhaustion
+- request/response schema violation
+- `allowed_action_ids` 外のAction選択
+- Safety bypass
+- execution failure
+- bounded recoveryで解消できないstall
+
+これによりtiny Modelのゲーム攻略能力そのものではなく、**小型LLMを長時間Decision loopへ入れた時にKadoka全体が安全かつ連続して動くこと**を毎PRで検証する。
+
+将来Level 2-4へ同じcampaign runnerを展開してよい。高難度Levelのscore/攻略性能をsmoke-tinyのmerge Gateへ直接しない。
