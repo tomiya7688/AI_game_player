@@ -37,6 +37,7 @@ jobs:
               Path("schemas/inference_provider/v1/cancel_response.schema.json"),
               Path("schemas/config/default_models.schema.json"),
               Path("schemas/config/e2e_reference_games.schema.json"),
+              Path("schemas/config/noisy_provider_ci.schema.json"),
           ]
           schemas = {}
           for path in schema_paths:
@@ -53,6 +54,10 @@ jobs:
               (
                   Path("config/e2e_reference_games.json"),
                   schemas["schemas/config/e2e_reference_games.schema.json"],
+              ),
+              (
+                  Path("config/noisy_provider_ci.json"),
+                  schemas["schemas/config/noisy_provider_ci.schema.json"],
               ),
           ]
           for path, schema in instances:
