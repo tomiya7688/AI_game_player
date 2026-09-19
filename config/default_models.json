@@ -62,6 +62,36 @@
           "Do not assume current upstream Windows CUDA prebuilt binaries include sm_61.",
           "Benchmark Kadoka-bundled CUDA 12 sm_61 build and Vulkan before selecting the default backend."
         ]
+      },
+      "ci_acceptance": {
+        "pr_gate": {
+          "scope": "inference_runtime_model_packaging_changes",
+          "functional_inference_required": true,
+          "minimum_successful_decisions": 1,
+          "full_gameplay_benchmark_required": false,
+          "long_duration_benchmark_required": false,
+          "artifact_cache_key_fields": [
+            "source_repository",
+            "file",
+            "sha256"
+          ],
+          "vram": {
+            "measure_when_available": true,
+            "peak_increment_limit_mib": 6144,
+            "baseline_subtracted": true,
+            "measurement_scope": "entire_kadoka_acceptance_command",
+            "fail_when_measured_over_limit": true,
+            "unavailable_policy": "do_not_fail_vram_only"
+          }
+        },
+        "release_gate_before_1_0_0": {
+          "gtx1080_real_hardware_required": true,
+          "concurrent_kadoka_components_required": true,
+          "real_game_playability_required": true,
+          "public_or_mit_game_required": false,
+          "reject_default_model_if_unplayable": true,
+          "full_memory_latency_stability_benchmark_required": true
+        }
       }
     }
   ]
