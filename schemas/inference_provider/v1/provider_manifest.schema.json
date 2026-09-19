@@ -139,6 +139,34 @@
       "if": {
         "properties": {
           "deployment": {
+            "properties": { "kind": { "const": "bundled_local" } },
+            "required": ["kind"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "deployment": {
+            "properties": {
+              "base_url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^http://(127\\.0\\.0\\.1|\\[::1\\])(?::[0-9]{1,5})?(?:/.*)?$"
+              }
+            }
+          },
+          "privacy": {
+            "properties": {
+              "may_transmit_off_device": { "const": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "deployment": {
             "properties": { "kind": { "const": "remote_adapter" } },
             "required": ["kind"]
           }
