@@ -102,3 +102,7 @@ Non-negotiable constraints:
 - Missing VRAM telemetry does not fail the VRAM item; functional inference failure always fails.
 - Do not add long gameplay/p50/p95/full GTX 1080 benchmark work to routine PR CI.
 - Full GTX 1080 + concurrent Kadoka components + real-game playability is a separate mandatory Gate before 1.0.0.
+
+
+- Smoke-tiny is the long-running gameplay CI model: use it for bounded real-game campaigns (initially Level 1 / 2048, about 600 seconds), without RuleProvider decision fallback.
+- Smoke-tiny gameplay CI gates protocol/safety/continuity failures, not gameplay score. Record score and progress as metrics unless a later Issue explicitly defines a quality threshold.
