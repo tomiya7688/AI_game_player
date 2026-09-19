@@ -145,6 +145,77 @@
             },
             "must_not_be_used_as_quality_baseline": {
               "type": "boolean"
+            },
+            "must_not_be_used_as_release_quality_baseline": {
+              "type": "boolean"
+            },
+            "ci_gameplay": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "enabled",
+                "reference_level",
+                "game_id",
+                "decision_provider_required",
+                "rule_fallback_for_decision",
+                "campaign_wall_seconds",
+                "restart_after_terminal",
+                "continue_until_campaign_deadline",
+                "hard_fail_on",
+                "metrics_only",
+                "quality_threshold_enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "const": true
+                },
+                "reference_level": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "game_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "decision_provider_required": {
+                  "const": true
+                },
+                "rule_fallback_for_decision": {
+                  "const": false
+                },
+                "campaign_wall_seconds": {
+                  "type": "integer",
+                  "minimum": 60,
+                  "maximum": 7200
+                },
+                "restart_after_terminal": {
+                  "const": true
+                },
+                "continue_until_campaign_deadline": {
+                  "const": true
+                },
+                "hard_fail_on": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "metrics_only": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "quality_threshold_enabled": {
+                  "const": false
+                }
+              }
             }
           }
         },
@@ -354,6 +425,32 @@
               "hardware_acceptance",
               "ci_acceptance"
             ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "smoke-tiny"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "required": [
+              "acceptance"
+            ],
+            "properties": {
+              "acceptance": {
+                "required": [
+                  "quality_role",
+                  "must_not_be_used_as_release_quality_baseline",
+                  "ci_gameplay"
+                ]
+              }
+            }
           }
         }
       ]
