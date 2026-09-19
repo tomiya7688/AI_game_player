@@ -1,0 +1,22 @@
+{
+  "schema": "kadoka.noisy-provider-ci/1",
+  "seed": 1729,
+  "warmup_steps": 20,
+  "measured_steps": 200,
+  "candidates_per_step": 4,
+  "budgets": {
+    "provider_p95_ms": 2.0,
+    "non_provider_core_p95_ms": 100.0
+  },
+  "hard_requirements": {
+    "zero_uncaught_errors": true,
+    "all_decisions_grounded": true,
+    "dry_run_only": true
+  },
+  "future_reference_game": {
+    "level": 1,
+    "game_id": "2048",
+    "enabled_when_runner_available": true,
+    "quality_threshold_enabled": false
+  }
+}
