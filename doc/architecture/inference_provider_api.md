@@ -126,3 +126,16 @@ Deployment kind describes the Provider endpoint that Kadoka talks to:
 Whether data can leave the device is declared independently by `privacy.may_transmit_off_device`.
 
 Vendor compatibility belongs to the Adapter. Kadoka's public protocol does not copy a vendor API as its source of truth.
+
+
+## GTX 1080 backend note
+
+The reference GTX 1080 is Pascal compute capability 6.1. Kadoka must not assume that an upstream generic Windows CUDA prebuilt contains sm_61 kernels.
+
+For the `standard-small` acceptance run, compare:
+
+1. a Kadoka-bundled CUDA 12 build that explicitly includes sm_61,
+2. the Vulkan backend,
+3. CPU fallback.
+
+The selected bundle backend is based on measured end-to-end latency, peak VRAM, stability, and coexistence with Capture/Recognition/Safety. End users must not be asked to install CUDA Toolkit, CMake, or a compiler.
