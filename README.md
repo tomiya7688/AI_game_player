@@ -31,7 +31,18 @@ $env:PYTHONPATH = "src;."
 py -3.10 -m ai_game_player
 ```
 
-Ollamaを使う場合は `ollama serve` とモデルの取得が必要です。実入力は対象ウィンドウ、入力方式、実入力許可を確認してから有効化してください。
+現在のOllamaProviderを使う場合は `ollama serve` とモデルの取得が必要です。これは現行実装上の任意Providerであり、通常ユーザー向けの最終必須依存にはしません。実入力は対象ウィンドウ、入力方式、実入力許可を確認してから有効化してください。
+
+## 推論Provider方針
+
+今後の標準経路は、Kadoka同梱のLocal Inference Serviceを自動起動し、versionedな `Kadoka Inference Provider API` 経由で利用する構成です。
+
+- 何も選ばない場合: local-onlyの同梱Provider
+- Advanced: Ollama等のlocal external Provider
+- Expert/Developer: Remote API / 独自Adapter
+- Remote送信: 明示opt-in
+
+Provider API仕様は [Inference Provider API v1](doc/architecture/inference_provider_api.md)、既定Model候補は `config/default_models.json` を参照してください。
 
 ## テスト
 
@@ -41,3 +52,9 @@ py -3.10 -m unittest discover -s tests -v
 ```
 
 GitHub Actionsでもテストを実行します。
+
+## CI上の低品質AI耐性
+
+Kadokaは高品質LLMだけを前提にせず、テスト専用の `NoisyLanguageProvider` も常時CIで利用します。これは実MLモデルではなく、候補内から擬似ランダムに操作を選び、意味の薄い文章を返すdeterministic fixtureです。
+
+目的は攻略性能ではなく、低品質なAI出力が続いてもCore/Safetyが壊れないことと、LLM推論時間をほぼ除いたKadoka側overheadを継続測定することです。

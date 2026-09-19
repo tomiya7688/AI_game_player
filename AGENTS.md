@@ -41,6 +41,8 @@ Non-negotiable constraints:
 - Do not default every new component to Python. Evaluate latency, call frequency, native API proximity, safety responsibility, AI/ML dependencies, and language-boundary overhead before implementation.
 - Put performance/realtime/OS/safety-sensitive work in C++ when the end-to-end benefit exceeds FFI/IPC/copy/deployment cost; keep crossings coarse grained.
 - Keep ordinary user setup minimal and self-contained. Development runtime/toolchain complexity must not become an end-user installation requirement.
+- Inference uses a versioned Kadoka Inference Provider API rather than vendor-specific Core calls. The default target is a bundled localhost-only Local Inference Service; Ollama/remote APIs are optional adapters.
+- Remote inference is explicit opt-in and must follow #123 data-class/privacy rules. Model output never bypasses candidate validation or Safety.
 - Preserve advanced customization through versioned providers, policies, profiles, and extension contracts while keeping Basic usage minimal (#57).
 
 ## Task router
@@ -50,6 +52,7 @@ Non-negotiable constraints:
 | Recognition / OCR / candidates | `frame_analyzer.py`, `ocr_recognizer.py`, `ocr_detector.py`, `region_detector.py`, `candidate_merger.py`, matching `tests/test_*.py` | `doc/画像解析機能説明書.md`, `doc/OCR候補検出機能説明書.md`, `doc/候補統合機能説明書.md` |
 | Capture / observation | `screen_capture.py`, `captured_source.py`, `observation_source.py`, matching tests | `doc/画面キャプチャ機能説明書.md`, `doc/観測入力機能説明書.md` |
 | Decision / provider / outcome | `pipeline.py`, `engine.py`, `provider.py`, `evaluator.py`, `outcome.py`, matching tests | `doc/判断パイプライン機能説明書.md`, `doc/評価指標機能説明書.md` |
+| Inference Provider / local models | `schemas/inference_provider/v1/`, `config/default_models.json`, provider composition/tests | `doc/architecture/inference_provider_api.md`, Issues #174/#175/#123 |
 | Execution / safety | `action_executor.py`, `windows_input.py`, `run_control.py`, `execution_mode.py`, matching tests | `doc/操作実行機能説明書.md` |
 | Runtime architecture / native boundary | `src/ai_game_player/runtime/`, `native/include/kadoka/runtime_api.h`, matching tests | `doc/architecture/runtime_layers.md`, Issues #56/#57 |
 | Architecture / quality gates | `doc/UPDCommander導入方針.md`, `src/ai_game_player/applications/quality/`, `tools/bug_check.py`, `tools/performance_check.py` | `.github/workflows/upd-architecture-ci.yml`, `.github/workflows/performance-ci.yml`, `.github/workflows/bug-ci.yml` |
@@ -68,6 +71,8 @@ Non-negotiable constraints:
 - `AGENTS.md`: this AI/Codex router and compressed working policy.
 - `key_info.md`: implemented capabilities and current limitations.
 - `doc/architecture/runtime_layers.md`: cross-language runtime boundary and repository ownership rules.
+- `doc/architecture/inference_provider_api.md`: public Local/Remote inference contract, candidate-only Decision response, privacy boundary, and default local model profiles.
+- `config/e2e_reference_games.json`: pinned Level 1-4 OSS Reference Game source/license matrix.
 - `doc/UPDCommander導入方針.md`: UPD Commander staged adoption, architecture checker, performance gate, and bug gate policy.
 - `doc/`: detailed feature contracts; read on demand through the router.
 - GitHub Issues: requirements, feedback, priority, and discussion. Do not recreate their detailed content in local documents.
@@ -87,3 +92,23 @@ Non-negotiable constraints:
 - `finish_pr.bat` must stop instead of auto-resolving when the PR is conflicting, mergeability is unknown, a check fails, or `main` cannot fast-forward.
 - Generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
 - Update `doc/versions.md` and create a focused PR.
+
+
+## Inference validation policy
+
+- Standard-small inference PR validation is a lightweight functional Gate, not a full hardware benchmark.
+- For inference/runtime/model/packaging changes, require at least one real Provider API inference with the standard-small profile once #175 provides the bundled service.
+- When NVIDIA VRAM telemetry is available, wrap the complete acceptance command with `tools/check_gpu_vram_budget.py --limit-mib 6144 -- ...`. Measured peak VRAM increase above baseline must not exceed 6144 MiB.
+- Missing VRAM telemetry does not fail the VRAM item; functional inference failure always fails.
+- Do not add long gameplay/p50/p95/full GTX 1080 benchmark work to routine PR CI.
+- Full GTX 1080 + concurrent Kadoka components + real-game playability is a separate mandatory Gate before 1.0.0.
+
+
+- Smoke-tiny is the long-running gameplay CI model: use it for bounded real-game campaigns (initially Level 1 / 2048, about 600 seconds), without RuleProvider decision fallback.
+- Smoke-tiny gameplay CI gates protocol/safety/continuity failures, not gameplay score. Record score and progress as metrics unless a later Issue explicitly defines a quality threshold.
+
+
+- `NoisyLanguageProvider` is a permanent CI fixture (#178), not a production fallback. Keep it deterministic by seed, semantically poor, and restricted to allowed Action IDs in its normal mode.
+- Always keep a negative test where a deliberately out-of-set Action is rejected before execution.
+- Use Noisy Provider timing to estimate non-LLM Core regression; do not reinterpret it as real-model latency or quality.
+- `performance-ci` must continue running the synthetic Noisy Provider loop on Linux and Windows. When Level 1 gameplay is available, add the real-game Noisy campaign without replacing the synthetic performance Gate.

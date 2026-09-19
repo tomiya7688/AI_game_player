@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/config/default-models.schema.json",
+  "title": "Kadoka Default Model Profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "runtime_family",
+    "distribution_policy",
+    "profiles"
+  ],
+  "properties": {
+    "schema": {
+      "const": "kadoka.default-models/1"
+    },
+    "runtime_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "distribution_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weights_committed_to_git",
+        "verify_license_and_sha256_before_use",
+        "default_network_scope"
+      ],
+      "properties": {
+        "weights_committed_to_git": {
+          "const": false
+        },
+        "verify_license_and_sha256_before_use": {
+          "const": true
+        },
+        "default_network_scope": {
+          "const": "localhost-only"
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/profile"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "smoke-tiny"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "minContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "standard-small"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "minContains": 1
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "purpose",
+        "source_repository",
+        "source_model",
+        "file",
+        "quantization",
+        "reported_size",
+        "sha256",
+        "license",
+        "default_context_tokens",
+        "multimodal_projector_loaded"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,63}$"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_repository": {
+          "type": "string",
+          "pattern": "^[^/]+/[^/]+$"
+        },
+        "source_model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reported_size": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "default_context_tokens": {
+          "type": "integer",
+          "minimum": 128
+        },
+        "multimodal_projector_loaded": {
+          "type": "boolean"
+        },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quality_role": {
+              "type": "string",
+              "minLength": 1
+            },
+            "must_not_be_used_as_quality_baseline": {
+              "type": "boolean"
+            },
+            "must_not_be_used_as_release_quality_baseline": {
+              "type": "boolean"
+            },
+            "ci_gameplay": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "enabled",
+                "reference_level",
+                "game_id",
+                "decision_provider_required",
+                "rule_fallback_for_decision",
+                "campaign_wall_seconds",
+                "restart_after_terminal",
+                "continue_until_campaign_deadline",
+                "hard_fail_on",
+                "metrics_only",
+                "quality_threshold_enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "const": true
+                },
+                "reference_level": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "game_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "decision_provider_required": {
+                  "const": true
+                },
+                "rule_fallback_for_decision": {
+                  "const": false
+                },
+                "campaign_wall_seconds": {
+                  "type": "integer",
+                  "minimum": 60,
+                  "maximum": 7200
+                },
+                "restart_after_terminal": {
+                  "const": true
+                },
+                "continue_until_campaign_deadline": {
+                  "const": true
+                },
+                "hard_fail_on": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "metrics_only": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "quality_threshold_enabled": {
+                  "const": false
+                }
+              }
+            }
+          }
+        },
+        "hardware_acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reference_gpu",
+            "reference_vram_gb",
+            "concurrent_kadoka_components",
+            "status",
+            "required_measurements",
+            "required_oom_count",
+            "reference_gpu_compute_capability",
+            "backend_candidates",
+            "official_upstream_cuda_prebuilt_assumed_compatible",
+            "notes"
+          ],
+          "properties": {
+            "reference_gpu": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reference_vram_gb": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "concurrent_kadoka_components": {
+              "type": "boolean"
+            },
+            "status": {
+              "enum": [
+                "unverified",
+                "passed",
+                "failed"
+              ]
+            },
+            "required_measurements": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required_oom_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "reference_gpu_compute_capability": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+$"
+            },
+            "backend_candidates": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "official_upstream_cuda_prebuilt_assumed_compatible": {
+              "const": false
+            },
+            "notes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "ci_acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pr_gate",
+            "release_gate_before_1_0_0"
+          ],
+          "properties": {
+            "pr_gate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "scope",
+                "functional_inference_required",
+                "minimum_successful_decisions",
+                "full_gameplay_benchmark_required",
+                "long_duration_benchmark_required",
+                "artifact_cache_key_fields",
+                "vram"
+              ],
+              "properties": {
+                "scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "functional_inference_required": {
+                  "const": true
+                },
+                "minimum_successful_decisions": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "full_gameplay_benchmark_required": {
+                  "const": false
+                },
+                "long_duration_benchmark_required": {
+                  "const": false
+                },
+                "artifact_cache_key_fields": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "vram": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "measure_when_available",
+                    "peak_increment_limit_mib",
+                    "baseline_subtracted",
+                    "measurement_scope",
+                    "fail_when_measured_over_limit",
+                    "unavailable_policy"
+                  ],
+                  "properties": {
+                    "measure_when_available": {
+                      "const": true
+                    },
+                    "peak_increment_limit_mib": {
+                      "const": 6144
+                    },
+                    "baseline_subtracted": {
+                      "const": true
+                    },
+                    "measurement_scope": {
+                      "const": "entire_kadoka_acceptance_command"
+                    },
+                    "fail_when_measured_over_limit": {
+                      "const": true
+                    },
+                    "unavailable_policy": {
+                      "const": "do_not_fail_vram_only"
+                    }
+                  }
+                }
+              }
+            },
+            "release_gate_before_1_0_0": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "gtx1080_real_hardware_required",
+                "concurrent_kadoka_components_required",
+                "real_game_playability_required",
+                "public_or_mit_game_required",
+                "reject_default_model_if_unplayable",
+                "full_memory_latency_stability_benchmark_required"
+              ],
+              "properties": {
+                "gtx1080_real_hardware_required": {
+                  "const": true
+                },
+                "concurrent_kadoka_components_required": {
+                  "const": true
+                },
+                "real_game_playability_required": {
+                  "const": true
+                },
+                "public_or_mit_game_required": {
+                  "const": false
+                },
+                "reject_default_model_if_unplayable": {
+                  "const": true
+                },
+                "full_memory_latency_stability_benchmark_required": {
+                  "const": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "standard-small"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "required": [
+              "hardware_acceptance",
+              "ci_acceptance"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "smoke-tiny"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "then": {
+            "required": [
+              "acceptance"
+            ],
+            "properties": {
+              "acceptance": {
+                "required": [
+                  "quality_role",
+                  "must_not_be_used_as_release_quality_baseline",
+                  "ci_gameplay"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
