@@ -139,3 +139,40 @@ For the `standard-small` acceptance run, compare:
 3. CPU fallback.
 
 The selected bundle backend is based on measured end-to-end latency, peak VRAM, stability, and coexistence with Capture/Recognition/Safety. End users must not be asked to install CUDA Toolkit, CMake, or a compiler.
+
+
+## CI acceptance and 1.0 release gate
+
+Do not run the full GTX 1080 gameplay benchmark on every pull request.
+
+### Pull request CI
+
+For changes that affect inference, runtime, model profiles, or packaging:
+
+- `smoke-tiny` remains the cheap contract/startup model.
+- `standard-small` must actually start and complete at least one Provider API Decision inference.
+- Long gameplay, p50/p95 characterization, and extended stability testing are not PR requirements.
+- Model artifacts may be cached by source/file/SHA-256.
+
+If NVIDIA VRAM telemetry is available, run the complete Kadoka acceptance command under:
+
+```text
+python tools/check_gpu_vram_budget.py --limit-mib 6144 -- <acceptance command>
+```
+
+The checker records total `nvidia-smi memory.used` before startup and samples while the complete acceptance command is running. The Gate uses the peak increase over that baseline.
+
+- measurable peak increase `<= 6144 MiB`: pass the VRAM budget
+- measurable peak increase `> 6144 MiB`: fail
+- VRAM telemetry unavailable: report `unavailable`; do not fail the VRAM item only
+- inference/process failure: fail regardless of VRAM telemetry
+
+The 6 GiB limit intentionally leaves headroom on an 8 GB reference GPU for Windows, graphics, Capture/Recognition, and other Kadoka work.
+
+### Before 1.0.0 release
+
+Run a separate real-hardware Release Gate on a GTX 1080 8 GB machine with the rest of Kadoka active.
+
+This Gate includes full memory/latency/stability measurement and actual gameplay. The game does not need to be an MIT/public CI asset; a locally and legally usable game is acceptable. If the default model cannot play the selected real game adequately enough to satisfy the release acceptance scenario, reject that model/profile as the default candidate.
+
+PR CI protects against obvious breakage and resource growth. The Release Gate decides real-world fitness.
