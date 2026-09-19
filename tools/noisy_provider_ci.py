@@ -9,6 +9,7 @@ from time import perf_counter_ns
 
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.safety_guard import SafetyGuardConfig
 from ai_game_player.testing.noisy_language_provider import NoisyLanguageProvider
 
 
@@ -90,6 +91,16 @@ def run_noisy_ci(config: dict[str, object], budget_multiplier: float) -> dict[st
             provider=provider,
             dry_run=True,
             external_watchdog=False,
+            safety_guard_config=SafetyGuardConfig(
+                max_actions_per_second=100000,
+                max_burst_actions=100000,
+                max_same_action_repeats=10000,
+                max_cycle_repeats=10000,
+                max_session_actions=100000,
+                no_progress_repeat_limit=100000,
+                require_target=False,
+                require_foreground=False,
+            ),
         )
         try:
             for step in range(warmup_steps + measured_steps):
