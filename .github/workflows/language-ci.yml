@@ -8,6 +8,39 @@ permissions:
   contents: read
 
 jobs:
+  contract-assets:
+    name: Provider schema / Reference game source pins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Parse versioned Provider schemas and manifests
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          paths = [
+              Path("schemas/inference_provider/v1/provider_manifest.schema.json"),
+              Path("schemas/inference_provider/v1/inference_request.schema.json"),
+              Path("schemas/inference_provider/v1/inference_response.schema.json"),
+              Path("config/default_models.json"),
+              Path("config/e2e_reference_games.json"),
+          ]
+          for path in paths:
+              json.loads(path.read_text(encoding="utf-8"))
+              print(f"OK {path}")
+          PY
+      - name: Materialize pinned OSS Reference Game sources
+        run: python tools/fetch_ci_games.py --all --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kadoka-reference-game-lock
+          path: build/ci-games/manifest-lock.json
+          if-no-files-found: error
+
   native-cpp:
     name: C++20 native (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
