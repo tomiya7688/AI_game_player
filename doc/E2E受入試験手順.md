@@ -124,3 +124,23 @@ PR Gateは専用サンプルウィンドウだけを対象とする。live input
 - 発見したblockerと関連Issue
 
 実ゲームE2Eで人間による候補JSON編集は行わない。認識誤りや候補不足で止まった場合は、その停止自体をfailure evidenceとして残す。
+
+
+## Reference Game Level 1-4
+
+固定サンプルGUIをLevel 0とし、実ゲーム評価を段階化する。
+
+| Level | Game | License | 主な評価 |
+|---|---|---|---|
+| 0 | Kadoka固定サンプルGUI | Project fixture | closed-loop contract / Windows live input |
+| 1 | 2048 | MIT | keyboard / board state / basic planning |
+| 2 | Memory Game | MIT | click target / memory / UI state / animation |
+| 3 | RuggRogue | MIT code + upstream asset notices | menu / inventory / long-horizon state |
+| 4 | Pygame Tetris | MIT | realtime / timing / repeated control |
+
+Source URL、license path、固定commitは `config/e2e_reference_games.json` を正本とする。
+CIでは `python tools/fetch_ci_games.py --all --clean` により `build/ci-games/` へ固定commitだけをmaterializeし、上流最新版を自動追従しない。
+
+Level 1の実ゲームGateは Issue #176 を正本とする。Level 2-4はLevel 1でrunner/interfaceが安定した後、独立した実装単位へ分離する。
+
+第三者ゲームの内部state/DOM等はmilestone検証に利用してよいが、Kadokaの通常Observation/Decision入力へ正解情報として直接注入しない。
