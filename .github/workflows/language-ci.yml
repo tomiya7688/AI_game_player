@@ -59,6 +59,29 @@ jobs:
               instance = json.loads(path.read_text(encoding="utf-8"))
               Draft202012Validator(schema).validate(instance)
               print(f"INSTANCE OK {path}")
+
+          examples = [
+              (
+                  Path("schemas/inference_provider/v1/examples/bundled_local_provider.json"),
+                  schemas["schemas/inference_provider/v1/provider_manifest.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/local_remote_bridge_provider.json"),
+                  schemas["schemas/inference_provider/v1/provider_manifest.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/decision_request.json"),
+                  schemas["schemas/inference_provider/v1/inference_request.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/decision_response.json"),
+                  schemas["schemas/inference_provider/v1/inference_response.schema.json"],
+              ),
+          ]
+          for path, schema in examples:
+              instance = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator(schema).validate(instance)
+              print(f"EXAMPLE OK {path}")
           PY
       - name: Materialize pinned OSS Reference Game sources
         run: python tools/fetch_ci_games.py --all --clean
