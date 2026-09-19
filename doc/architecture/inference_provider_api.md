@@ -176,3 +176,17 @@ Run a separate real-hardware Release Gate on a GTX 1080 8 GB machine with the re
 This Gate includes full memory/latency/stability measurement and actual gameplay. The game does not need to be an MIT/public CI asset; a locally and legally usable game is acceptable. If the default model cannot play the selected real game adequately enough to satisfy the release acceptance scenario, reject that model/profile as the default candidate.
 
 PR CI protects against obvious breakage and resource growth. The Release Gate decides real-world fitness.
+
+
+### smoke-tiny gameplay endurance
+
+The tiny model is deliberately cheap enough to do more than a one-request smoke test.
+
+Once the bundled Local Provider and Level 1 runner exist, routine CI should run a roughly 600-second 2048 campaign with `smoke-tiny` as the actual Decision Provider. If the game reaches a terminal state, restart it and continue until the campaign deadline.
+
+This is a robustness/safety Gate, not a release-quality ranking of the tiny model. Score, max tile, episode count, action count, latency, and recovery count are recorded as metrics. The hard Gate is protocol validity, candidate grounding, Safety integrity, execution continuity, bounded recovery, and absence of Provider/runtime crashes.
+
+The standard-small and pre-1.0.0 Gates remain separate:
+- smoke-tiny: long CI gameplay endurance
+- standard-small: lightweight real inference + optional VRAM budget in PR CI
+- pre-1.0.0: GTX 1080 real-hardware quality/performance/playability acceptance
