@@ -25,11 +25,18 @@ Initial HTTP endpoints:
 - `POST /kadoka/v1/inference`
 - `POST /kadoka/v1/cancel` when cancellation is advertised
 
+Streaming is intentionally not standardized in protocol v1. A v1 Provider MUST advertise `streaming=false`; a future wire-format change requires a protocol revision.
+
 The machine-readable source of truth is:
 
 - `schemas/inference_provider/v1/provider_manifest.schema.json`
 - `schemas/inference_provider/v1/inference_request.schema.json`
 - `schemas/inference_provider/v1/inference_response.schema.json`
+- `schemas/inference_provider/v1/health_response.schema.json`
+- `schemas/inference_provider/v1/capabilities_response.schema.json`
+- `schemas/inference_provider/v1/models_response.schema.json`
+- `schemas/inference_provider/v1/cancel_request.schema.json`
+- `schemas/inference_provider/v1/cancel_response.schema.json`
 
 Protocol version and Application version are independent. v1 stays v1 until this contract changes.
 
