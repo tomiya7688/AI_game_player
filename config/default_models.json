@@ -20,8 +20,37 @@
       "default_context_tokens": 2048,
       "multimodal_projector_loaded": false,
       "acceptance": {
-        "quality_role": "smoke_only",
-        "must_not_be_used_as_quality_baseline": true
+        "quality_role": "ci_endurance_not_release_quality",
+        "must_not_be_used_as_release_quality_baseline": true,
+        "ci_gameplay": {
+          "enabled": true,
+          "reference_level": 1,
+          "game_id": "2048",
+          "decision_provider_required": true,
+          "rule_fallback_for_decision": false,
+          "campaign_wall_seconds": 600,
+          "restart_after_terminal": true,
+          "continue_until_campaign_deadline": true,
+          "hard_fail_on": [
+            "provider_crash",
+            "provider_timeout_budget_exhausted",
+            "schema_violation",
+            "selected_action_outside_allowed_action_ids",
+            "safety_bypass",
+            "execution_failure",
+            "unrecoverable_stall"
+          ],
+          "metrics_only": [
+            "score",
+            "max_tile",
+            "episodes",
+            "accepted_actions",
+            "rejected_actions",
+            "provider_latency",
+            "recovery_count"
+          ],
+          "quality_threshold_enabled": false
+        }
       }
     },
     {
