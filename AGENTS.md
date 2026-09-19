@@ -92,3 +92,13 @@ Non-negotiable constraints:
 - `finish_pr.bat` must stop instead of auto-resolving when the PR is conflicting, mergeability is unknown, a check fails, or `main` cannot fast-forward.
 - Generated-document targets and checks are configured in `tools/completion_config.json`; CI runs `python tools/generate_docs.py --check`.
 - Update `doc/versions.md` and create a focused PR.
+
+
+## Inference validation policy
+
+- Standard-small inference PR validation is a lightweight functional Gate, not a full hardware benchmark.
+- For inference/runtime/model/packaging changes, require at least one real Provider API inference with the standard-small profile once #175 provides the bundled service.
+- When NVIDIA VRAM telemetry is available, wrap the complete acceptance command with `tools/check_gpu_vram_budget.py --limit-mib 6144 -- ...`. Measured peak VRAM increase above baseline must not exceed 6144 MiB.
+- Missing VRAM telemetry does not fail the VRAM item; functional inference failure always fails.
+- Do not add long gameplay/p50/p95/full GTX 1080 benchmark work to routine PR CI.
+- Full GTX 1080 + concurrent Kadoka components + real-game playability is a separate mandatory Gate before 1.0.0.
