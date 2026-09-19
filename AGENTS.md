@@ -106,3 +106,9 @@ Non-negotiable constraints:
 
 - Smoke-tiny is the long-running gameplay CI model: use it for bounded real-game campaigns (initially Level 1 / 2048, about 600 seconds), without RuleProvider decision fallback.
 - Smoke-tiny gameplay CI gates protocol/safety/continuity failures, not gameplay score. Record score and progress as metrics unless a later Issue explicitly defines a quality threshold.
+
+
+- `NoisyLanguageProvider` is a permanent CI fixture (#178), not a production fallback. Keep it deterministic by seed, semantically poor, and restricted to allowed Action IDs in its normal mode.
+- Always keep a negative test where a deliberately out-of-set Action is rejected before execution.
+- Use Noisy Provider timing to estimate non-LLM Core regression; do not reinterpret it as real-model latency or quality.
+- `performance-ci` must continue running the synthetic Noisy Provider loop on Linux and Windows. When Level 1 gameplay is available, add the real-game Noisy campaign without replacing the synthetic performance Gate.
