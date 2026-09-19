@@ -52,3 +52,9 @@ py -3.10 -m unittest discover -s tests -v
 ```
 
 GitHub Actionsでもテストを実行します。
+
+## CI上の低品質AI耐性
+
+Kadokaは高品質LLMだけを前提にせず、テスト専用の `NoisyLanguageProvider` も常時CIで利用します。これは実MLモデルではなく、候補内から擬似ランダムに操作を選び、意味の薄い文章を返すdeterministic fixtureです。
+
+目的は攻略性能ではなく、低品質なAI出力が続いてもCore/Safetyが壊れないことと、LLM推論時間をほぼ除いたKadoka側overheadを継続測定することです。
