@@ -4,7 +4,7 @@
 
 0. Read `AI_CONTEXT.md` first. It is the compact ai-context-reducer entrypoint and defines exploration stop conditions.
 1. Read this file only for task/source/test routing and project-specific working rules.
-2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority work Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> unlabeled fallback; Issue #19 is policy, not work selection).
+2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority work Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> P4 -> P5 -> unlabeled fallback; Issue #19 is policy, not work selection).
 3. If a target Issue was explicitly assigned, use that Issue instead of scanning the Issue list.
 4. Read `.codex/next_issue.md`, then only the mapped source/tests and documents required for that Issue.
 5. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
@@ -21,14 +21,16 @@ Goal: establish a safe closed loop for one GUI game without hand-editing candida
 Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next decision
 ```
 
-Current P0:
+Priority semantics:
 
-- State: screen recognition, OCR, UI detection/segmentation, and Decision Context (#2, #9-#12).
-- Decision: candidate-based selection and initial evaluation primitives (#8, #12, #29).
-- Execution: dry-run by default, explicitly enabled live input, reliable stop and target-loss stop.
-- Outcome: determine whether an action worked, progressed, failed, or repeated.
-- Architecture: establish the high-level-language + C++ Native Runtime boundary before performance-sensitive code spreads (#56).
-- Gate: validate the whole loop with a no-manual-candidate 10-minute E2E run (#30).
+- P0: emergency-only. Active safety/security regression, broken main, or release-stopping incident. It is normal for P0 to be empty.
+- P1: normal priority / current critical path.
+- P2: normal implementation work.
+- P3: lower-priority but necessary project work.
+- P4: may be deferred, but wanted before 1.0.0.
+- P5: future / long-horizon implementation.
+
+Current P1/P2 critical path is tracked by Issue #19. Typical near-term work includes Native Runtime boundary (#148), Provider API/local inference (#174/#175), Level 1 real-game E2E (#176), application responsibility split (#145-#147), Basic UI (#137/#138), self-contained distribution (#149), and robustness/reliability work (#38/#39/#43/#178).
 
 Non-negotiable constraints:
 
@@ -72,6 +74,7 @@ Non-negotiable constraints:
 - `key_info.md`: implemented capabilities and current limitations.
 - `doc/architecture/runtime_layers.md`: cross-language runtime boundary and repository ownership rules.
 - `doc/architecture/inference_provider_api.md`: public Local/Remote inference contract, candidate-only Decision response, privacy boundary, and default local model profiles.
+- `doc/release_1_0.md`: accepted 1.0.0 product scope, privacy defaults, distribution entrypoint, licensing, and release acceptance.
 - `config/e2e_reference_games.json`: pinned Level 1-4 OSS Reference Game source/license matrix.
 - `doc/UPDCommander導入方針.md`: UPD Commander staged adoption, architecture checker, performance gate, and bug gate policy.
 - `doc/`: detailed feature contracts; read on demand through the router.
@@ -101,7 +104,7 @@ Non-negotiable constraints:
 - When NVIDIA VRAM telemetry is available, wrap the complete acceptance command with `tools/check_gpu_vram_budget.py --limit-mib 6144 -- ...`. Measured peak VRAM increase above baseline must not exceed 6144 MiB.
 - Missing VRAM telemetry does not fail the VRAM item; functional inference failure always fails.
 - Do not add long gameplay/p50/p95/full GTX 1080 benchmark work to routine PR CI.
-- Full GTX 1080 + concurrent Kadoka components + real-game playability is a separate mandatory Gate before 1.0.0.
+- Full GTX 1080 + concurrent project components + real-game playability is a separate mandatory Gate before 1.0.0, owned by #179.
 
 
 - Smoke-tiny is the long-running gameplay CI model: use it for bounded real-game campaigns (initially Level 1 / 2048, about 600 seconds), without RuleProvider decision fallback.
