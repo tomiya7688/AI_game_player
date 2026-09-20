@@ -546,6 +546,19 @@ classDiagram
         +_fallback_similarity()
         +_result()
     }
+    class NoisyLanguageProvider {
+        +__init__()
+        +choose()
+        +choose_context()
+        +assess_outcome()
+        +consume_elapsed_ms()
+        +_timed_choose()
+        +_word_salad()
+    }
+    NoisyLanguageProvider <|-- OutOfSetNoisyLanguageProvider
+    class OutOfSetNoisyLanguageProvider {
+        +choose_context()
+    }
     class EmbeddingVector {
         +__post_init__()
         +dimension()
