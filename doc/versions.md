@@ -73,3 +73,11 @@ Key acceptance:
 - pre-release: #179 30-minute-class automated/reference and GTX 1080 real-game acceptance
 - first-party project code/docs use MIT; Kadoka/Maru character assets use Obake License
 - final Product/Engine name must be recorded in #154 before 1.0.0
+
+
+### 1.0.0 licensing boundary
+
+- 1.0.0 first-party shipped scope is MIT-only.
+- Wise Misk remains eligible for 1.0.0 under MIT.
+- Obake License assets are deferred to 1.1+.
+- Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.
