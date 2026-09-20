@@ -115,3 +115,14 @@ Non-negotiable constraints:
 - Always keep a negative test where a deliberately out-of-set Action is rejected before execution.
 - Use Noisy Provider timing to estimate non-LLM Core regression; do not reinterpret it as real-model latency or quality.
 - `performance-ci` must continue running the synthetic Noisy Provider loop on Linux and Windows. When Level 1 gameplay is available, add the real-game Noisy campaign without replacing the synthetic performance Gate.
+
+
+## 1.0 learning policy
+
+- 1.0 bundled learnable components must have at least one supported, versioned improvement path.
+- Use the common flow: Experience -> Dataset -> Trainer/Update Adapter -> Challenger -> Evaluation -> Promote/Reject -> Rollback.
+- Do not modify the active Champion in place.
+- Training/runtime failures must not break normal gameplay.
+- Learning is local-first and user-triggered/bounded by default.
+- Decision LLM, OCR, UI recognition/detection, Embedding, and Outcome/Reliability/Evaluator all need a 1.0 learning strategy; gradient training is not required when a versioned prototype/calibration/adapter update is the appropriate learning mechanism.
+- Learning implementation is tracked by #180-#188 with Experience/Learning infrastructure #36/#37/#166-#173.
