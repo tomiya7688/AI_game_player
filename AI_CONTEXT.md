@@ -3,7 +3,7 @@
 > Codex / AI が最初に読む小さい索引。詳細仕様はここへ複製しない。
 
 ## Project
-- Name: Kadoka AI Game Player
+- Name: AI Game Player project (final Product/Engine name is tracked by Issue #154; do not assume Kadoka is final)
 - Goal: `Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next decision`
 - Primary runtime: Python today; performance/realtime/OS/safety-sensitive work may move behind the C++ native runtime boundary.
 
@@ -13,6 +13,7 @@
 - AI routing / detailed working rules: `AGENTS.md`
 - Implemented capabilities / limitations: `key_info.md`
 - Runtime boundary: `doc/architecture/runtime_layers.md`
+- 1.0.0 scope / release acceptance: `doc/release_1_0.md`
 - Source / behavior truth: code + matching tests
 - Detailed feature contracts: `doc/` only when routed or required
 
@@ -56,12 +57,13 @@ Unless directly in scope, do not read:
 - Standard Git/PR completion: `finish_pr.bat "commit message" next-branch`.
 - If a required runtime/GUI/Windows validation cannot be executed, report it as **Unverified** instead of expanding context indefinitely.
 
-## Context Priority
-- P0: current Issue, acceptance criteria, safety/compatibility constraints
-- P1: target source and matching tests
-- P2: direct dependencies and interfaces
-- P3: routed detailed docs
-- P4: history, auxiliary docs, broad repository context
+## Context Reading Tiers
+These are reading tiers, not GitHub Issue priority labels.
+- C0: current Issue, acceptance criteria, safety/compatibility constraints
+- C1: target source and matching tests
+- C2: direct dependencies and interfaces
+- C3: routed detailed docs
+- C4: history, auxiliary docs, broad repository context
 
 ## Existing Reducers
 Do not duplicate these mechanisms:
