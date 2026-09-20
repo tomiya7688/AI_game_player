@@ -3,7 +3,7 @@ from pathlib import Path
 
 REPO = "tomiya7688/AI_game_player"
 OUT = Path(".codex/next_issue.md")
-RANK = {"p0": 0, "p1": 1, "p2": 2, "p3": 3}
+RANK = {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4, "p5": 5}
 DOCS = {
     "spec:recognition": ["doc/画像解析機能説明書.md", "doc/OCR候補検出機能説明書.md", "doc/候補統合機能説明書.md"],
     "spec:capture": ["doc/画面キャプチャ機能説明書.md", "doc/観測入力機能説明書.md"],
@@ -34,7 +34,7 @@ def main():
             docs += paths
     summary = re.sub(r"\s+", " ", issue.get("body") or "").strip()[:900] or "No description provided."
     rank = key(issue)[0]
-    priority = f"P{rank}" if rank < 4 else "unlabeled"
+    priority = f"P{rank}" if rank < 6 else "unlabeled"
     lines = [
         "# Next Issue",
         "",
