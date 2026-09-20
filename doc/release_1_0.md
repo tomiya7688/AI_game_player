@@ -86,7 +86,24 @@ reference machine, it is rejected as the default model candidate.
 
 - first-party code/docs/non-character software assets: MIT
 - Wise Misk character assets: MIT
-- Kadoka/Maru character assets: Obake License
+- Obake License assets (including Kadoka/Maru): **not included in the 1.0.0 product scope; target 1.1+**
 - third-party artifacts: their original licenses and required notices
 
 See `LICENSE`, `ASSET_LICENSES.md`, and `THIRD_PARTY_NOTICES.md`.
+
+
+## 1.0.0 licensing boundary
+
+Version 1.0.0 intentionally keeps the shipped first-party product scope MIT-only.
+
+Included in 1.0.0:
+- first-party code and documentation under MIT
+- Wise Misk assets under MIT
+- third-party components only under their own redistribution-compatible upstream licenses, with notices
+
+Deferred to 1.1 or later:
+- Kadoka assets under the Obake License
+- Maru assets under the Obake License
+- Obake-license-dependent Character Mode/UI integrations
+
+This does not relicense Kadoka/Maru. It only keeps those assets/features out of the 1.0.0 distribution scope.
