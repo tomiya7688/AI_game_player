@@ -5,6 +5,8 @@ side of the accepted 1.0.0 product boundary.
 
 ## Product scope
 
+The normal/default player character is **Wise Misk (賢者ミスク)**. The UI provides a dedicated player seat, and Wise Misk occupies it by default while the game-playing session is active or ready.
+
 1.0.0 targets Windows x64 and local-first game playing.
 
 The normal user path is:
@@ -83,6 +85,7 @@ reference machine, it is rejected as the default model candidate.
 ## Licensing
 
 - first-party code/docs/non-character software assets: MIT
+- Wise Misk character assets: MIT
 - Kadoka/Maru character assets: Obake License
 - third-party artifacts: their original licenses and required notices
 
