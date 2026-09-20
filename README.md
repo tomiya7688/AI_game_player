@@ -58,3 +58,28 @@ GitHub Actionsでもテストを実行します。
 Kadokaは高品質LLMだけを前提にせず、テスト専用の `NoisyLanguageProvider` も常時CIで利用します。これは実MLモデルではなく、候補内から擬似ランダムに操作を選び、意味の薄い文章を返すdeterministic fixtureです。
 
 目的は攻略性能ではなく、低品質なAI出力が続いてもCore/Safetyが壊れないことと、LLM推論時間をほぼ除いたKadoka側overheadを継続測定することです。
+
+
+## 1.0.0の配布方針
+
+1.0.0はWindows x64 / local-firstを基本とし、配布物rootの実行ファイルを起動すれば、必要なruntime・Local Inference Service・model/packageが自動的に解決され、通常利用を開始できる状態を目標にします。通常ユーザーへPython、pip、CMake、compiler、Ollama等の手動導入は要求しません。
+
+Basic導線は `Launch -> Game/Window Select -> Start/Stop` です。Remote Providerはoptionalかつ明示opt-inです。詳細は `doc/release_1_0.md` を参照してください。
+
+Product/Engineの最終名称はIssue #154で管理します。現時点のKadoka表記を最終Product名として固定しません。
+
+## Privacy defaults for 1.0.0
+
+- telemetry: OFF
+- Remote Provider: OFF
+- raw frame / replay persistent storage: OFF
+- trace: local-only + bounded retention
+- diagnostic export / remote transmission: explicit user action
+
+## License
+
+- first-party code / docs / non-character software assets: MIT License
+- Kadoka / Maru character assets: Obake License
+- third-party code / runtime / model / game / asset: upstream licenseを維持
+
+詳細は `LICENSE`、`ASSET_LICENSES.md`、`THIRD_PARTY_NOTICES.md` を参照してください。
