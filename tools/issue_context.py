@@ -13,7 +13,7 @@ DOCS = {
 }
 
 def run():
-    data = subprocess.check_output(["gh","issue","list","--repo",REPO,"--state","open","--limit","100","--json","number,title,body,labels,url"], text=True, encoding="utf-8")
+    data = subprocess.check_output(["gh","issue","list","--repo",REPO,"--state","open","--limit","500","--json","number,title,body,labels,url"], text=True, encoding="utf-8")
     return json.loads(data)
 
 def key(issue):
