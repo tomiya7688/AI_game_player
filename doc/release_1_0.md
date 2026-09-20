@@ -147,3 +147,49 @@ Release-blocking failures include:
 The 30-minute-class automated/reference test and GTX 1080 real-game test are
 necessary but not sufficient; startup, setup, stop, shutdown, cleanup, and
 relaunch are part of the same 1.0.0 acceptance.
+
+
+## 1.0.0 learning requirement
+
+Version 1.0.0 must not ship as a set of permanently fixed model artifacts.
+
+Each bundled learnable component must expose at least one supported improvement
+path through the common Learning Runtime:
+
+```text
+Play Experience
+ -> versioned Dataset
+ -> component-specific Trainer / Update Adapter
+ -> Challenger Artifact
+ -> before/after Evaluation
+ -> Promote or Reject
+ -> Rollback
+```
+
+The minimum 1.0 scope includes:
+
+- Decision LLM: lightweight local update such as LoRA/adapter
+- OCR: correction-driven update path
+- UI recognition/detection: labeled sample/prototype/classifier update path
+- Embedding: prototype/memory update, with trainer extension where supported
+- Outcome/Reliability/Evaluator: calibration/threshold/lightweight-model update
+
+Learning does not require full foundation-model training. Prototype updates,
+calibration, adapters, and other bounded versioned updates count when they can
+be evaluated and rolled back.
+
+Release requirements:
+
+- local-first and user-triggered by default
+- normal gameplay inference and training runtime are isolated
+- Champion is never modified in-place
+- Challenger is evaluated before promotion
+- regression rejects promotion
+- rollback is available
+- dataset/artifact provenance is recorded
+- training failure cannot break the normal gameplay path
+- the clean 1.0 distribution can reach the Learning UI/workflow without manual
+  Python/compiler/trainer-environment setup
+
+Implementation tracking: Issues #180-#188 plus the Experience/Learning
+infrastructure in #36/#37/#166-#173.
