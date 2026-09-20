@@ -83,3 +83,8 @@ Product/Engineの最終名称はIssue #154で管理します。現時点のKadok
 - third-party code / runtime / model / game / asset: upstream licenseを維持
 
 詳細は `LICENSE`、`ASSET_LICENSES.md`、`THIRD_PARTY_NOTICES.md` を参照してください。
+
+
+### 1.0.0 License boundary
+
+1.0.0ではfirst-party配布範囲をMITで揃えます。賢者ミスクはMITのため1.0.0に含められます。Kadoka / MaruなどObake License対象の素材・Character機能は1.1以降へ延期します。third-partyは各upstream licenseと必要noticeを維持します。
