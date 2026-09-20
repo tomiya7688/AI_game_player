@@ -35,3 +35,14 @@ https://github.com/tomiya7688/Tomiya_character_lisence
 
 Wise Misk is the default player character/seat occupant for the application.
 This does not change the separate Obake License applied to Kadoka/Maru assets.
+
+
+## 1.0.0 distribution boundary
+
+The 1.0.0 release intentionally ships only the MIT-licensed first-party character scope.
+
+- Wise Misk: eligible for 1.0.0
+- Kadoka: Obake License, deferred to 1.1+
+- Maru: Obake License, deferred to 1.1+
+
+Kadoka/Maru remain documented here so their license boundary is explicit, but their assets are not part of the 1.0.0 product distribution.
