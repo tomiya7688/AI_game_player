@@ -22,3 +22,16 @@ license inventory.
 
 First-party assets that are not Kadoka/Maru character assets use the repository
 MIT license by default unless they carry an explicit different license.
+
+
+## Wise Misk / 賢者ミスク
+
+Wise Misk character assets use the **MIT License**, matching the AI Game Player
+project code license.
+
+Canonical character-license repository:
+
+https://github.com/tomiya7688/Tomiya_character_lisence
+
+Wise Misk is the default player character/seat occupant for the application.
+This does not change the separate Obake License applied to Kadoka/Maru assets.
