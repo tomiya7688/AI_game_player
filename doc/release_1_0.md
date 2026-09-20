@@ -107,3 +107,43 @@ Deferred to 1.1 or later:
 - Obake-license-dependent Character Mode/UI integrations
 
 This does not relicense Kadoka/Maru. It only keeps those assets/features out of the 1.0.0 distribution scope.
+
+
+## 1.0.0 quality bar
+
+Version 1.0.0 is the first release intended to be easy to download and use
+under an MIT-first-party scope. It is therefore not released merely because a
+technical demo works.
+
+A release candidate must pass the complete normal-user lifecycle:
+
+```text
+Download / unpack
+ -> launch distribution-root executable
+ -> first-run runtime/model setup
+ -> choose game/window
+ -> Start
+ -> sustained autonomous play
+ -> Stop
+ -> clean shutdown
+ -> relaunch
+ -> start another session
+```
+
+Release-blocking failures include:
+
+- crash or OOM,
+- Safety bypass,
+- invalid Action execution,
+- unbounded loop or unrecoverable stall,
+- held input remaining after Stop,
+- orphan Local Inference/runtime process after shutdown,
+- first-run setup requiring manual Python/Ollama/compiler/model-server work,
+- failure that is only visible as an internal traceback with no user-readable
+  error,
+- inability to relaunch into a usable state,
+- default model failing the real-game playability acceptance.
+
+The 30-minute-class automated/reference test and GTX 1080 real-game test are
+necessary but not sufficient; startup, setup, stop, shutdown, cleanup, and
+relaunch are part of the same 1.0.0 acceptance.
