@@ -4,7 +4,11 @@
   "distribution_policy": {
     "weights_committed_to_git": false,
     "verify_license_and_sha256_before_use": true,
-    "default_network_scope": "localhost-only"
+    "default_network_scope": "localhost-only",
+    "release_1_0_weights_bundled": false,
+    "first_run_auto_acquire": true,
+    "show_license_during_acquire": true,
+    "official_pretrained_profile_bundled_in_1_0": false
   },
   "profiles": [
     {
