@@ -75,6 +75,7 @@ Non-negotiable constraints:
 - `doc/architecture/runtime_layers.md`: cross-language runtime boundary and repository ownership rules.
 - `doc/architecture/inference_provider_api.md`: public Local/Remote inference contract, candidate-only Decision response, privacy boundary, and default local model profiles.
 - `doc/release_1_0.md`: accepted 1.0.0 product scope, privacy defaults, distribution entrypoint, licensing, and release acceptance.
+- `doc/licensing_rationale.md`: human-facing explanation of why 1.0 uses a MIT-focused release profile, why asset/model licenses stay separate, and why later releases may be multi-license.
 - `config/e2e_reference_games.json`: pinned Level 1-4 OSS Reference Game source/license matrix.
 - `doc/UPDCommander導入方針.md`: UPD Commander staged adoption, architecture checker, performance gate, and bug gate policy.
 - `doc/`: detailed feature contracts; read on demand through the router.
