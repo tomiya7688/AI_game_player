@@ -126,3 +126,15 @@ Non-negotiable constraints:
 - Learning is local-first and user-triggered/bounded by default.
 - Decision LLM, OCR, UI recognition/detection, Embedding, and Outcome/Reliability/Evaluator all need a 1.0 learning strategy; gradient training is not required when a versioned prototype/calibration/adapter update is the appropriate learning mechanism.
 - Learning implementation is tracked by #180-#188 with Experience/Learning infrastructure #36/#37/#166-#173.
+
+
+## 1.0 compatibility / later-release policy
+
+- The MIT-focused distribution policy is specific to 1.0.0. Do not require later releases to maintain a separate MIT-only build.
+- Development Player may be Wise Misk, but the 1.0.0 release profile uses the MIT-licensed Super Icon asset pack.
+- Wise Misk artwork license is undecided; do not describe it as MIT unless a future license decision explicitly does so.
+- Keep 1.0 Core small and put optional/later functionality behind versioned Provider/Profile/StageEnvelope/Hook boundaries where practical.
+- #58/#150-#152 are part of the 1.0 compatibility architecture; Hook Record/Replay #153 is not required for 1.0.
+- Later releases publish #192 Update Content Sheets describing contracts, dependencies, licenses, and whether a feature can be backported to 1.0 as a MOD/Feature Pack.
+- Player Asset Pack roles and license UX are tracked by #190.
+- First-run Tutorial #191 must start with player name/image customization and then reach Learning-enabled play.
