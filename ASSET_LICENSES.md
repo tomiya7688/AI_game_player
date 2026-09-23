@@ -81,3 +81,12 @@ Icon's role, and later multi-license releases are explained in
 
 That document is explanatory only. The applicable license text remains the
 source of legal permissions and conditions.
+
+
+## Why this split exists
+
+This file records which license applies. The project rationale for using a
+MIT-focused 1.0 release profile, a different development player, and
+multi-license later releases is documented in:
+
+`doc/licensing_rationale.md`
