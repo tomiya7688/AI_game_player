@@ -72,3 +72,12 @@ available from the UI.
 
 Later distributions may directly bundle official pre-trained/fine-tuned model
 artifacts. Such distributions are explicitly multi-license.
+
+
+## Why third-party licenses stay separate
+
+The project intentionally does not flatten third-party models/runtimes into the
+project MIT license. The reasoning behind the 1.0 acquisition model and later
+multi-license releases is explained in:
+
+`doc/licensing_rationale.md`
