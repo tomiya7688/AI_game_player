@@ -82,7 +82,7 @@ Product/Engineの最終名称はIssue #154で管理します。現時点のKadok
 - Kadoka / Maru character assets: Obake License
 - third-party code / runtime / model / game / asset: upstream licenseを維持
 
-詳細は `LICENSE`、`ASSET_LICENSES.md`、`THIRD_PARTY_NOTICES.md` を参照してください。
+詳細は `LICENSE`、`ASSET_LICENSES.md`、`THIRD_PARTY_NOTICES.md` を参照してください。各Licenseをなぜ使い分けているかは `LICENSE_INTENT.md` に人間向けの説明を置いています。正式な利用条件は各License本文が優先します。
 
 
 ### 1.0.0 License boundary
