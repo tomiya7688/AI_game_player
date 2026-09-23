@@ -71,3 +71,13 @@ multi-license distribution. There is no requirement to maintain a parallel
 MIT-only asset set after 1.0.0.
 
 Every bundled Player Asset Pack still carries its own license/source metadata.
+
+
+## Human-readable intent
+
+The reasons behind the 1.0 MIT profile, Wise Misk's undecided license, Super
+Icon's role, and later multi-license releases are explained in
+`LICENSE_INTENT.md`.
+
+That document is explanatory only. The applicable license text remains the
+source of legal permissions and conditions.
