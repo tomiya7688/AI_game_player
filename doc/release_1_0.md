@@ -5,7 +5,7 @@ side of the accepted 1.0.0 product boundary.
 
 ## Product scope
 
-The normal/default player character is **Wise Misk (賢者ミスク)**. The UI provides a dedicated player seat, and Wise Misk occupies it by default while the game-playing session is active or ready.
+During development, the default player profile is **Wise Misk (賢者ミスク)**. For the 1.0.0 release artifact, the bundled/default player asset is replaced with the MIT-licensed **すーぱーあいこん** asset set. The Player Seat/Profile implementation must not depend on one particular character asset.
 
 1.0.0 targets Windows x64 and local-first game playing.
 
@@ -85,8 +85,9 @@ reference machine, it is rejected as the default model candidate.
 ## Licensing
 
 - first-party code/docs/non-character software assets: MIT
-- Wise Misk character assets: MIT
-- Obake License assets (including Kadoka/Maru): **not included in the 1.0.0 product scope; target 1.1+**
+- 1.0.0 bundled player assets: すーぱーあいこん / MIT
+- Wise Misk artwork: license undecided; development-only and not bundled in 1.0.0
+- Obake License assets (including Kadoka/Maru): not included in the 1.0.0 release asset payload
 - third-party artifacts: their original licenses and required notices
 
 See `LICENSE`, `ASSET_LICENSES.md`, and `THIRD_PARTY_NOTICES.md`.
@@ -96,15 +97,16 @@ See `LICENSE`, `ASSET_LICENSES.md`, and `THIRD_PARTY_NOTICES.md`.
 
 Version 1.0.0 intentionally keeps the shipped first-party product scope MIT-only.
 
-Included in 1.0.0:
-- first-party code and documentation under MIT
-- Wise Misk assets under MIT
-- third-party components only under their own redistribution-compatible upstream licenses, with notices
+Included in the 1.0.0 release artifact:
+- project code and documentation under MIT
+- bundled player assets from すーぱーあいこん under MIT
+- Local Inference/runtime bootstrap needed to acquire compatible third-party dependencies automatically
 
-Deferred to 1.1 or later:
+Not bundled in the 1.0.0 release artifact:
+- Wise Misk artwork while its final license is undecided
 - Kadoka assets under the Obake License
 - Maru assets under the Obake License
-- Obake-license-dependent Character Mode/UI integrations
+- official pre-trained/fine-tuned project artifacts intended for later multi-license releases
 
 This does not relicense Kadoka/Maru. It only keeps those assets/features out of the 1.0.0 distribution scope.
 
@@ -197,14 +199,16 @@ infrastructure in #36/#37/#166-#173.
 
 ## Player profile customization
 
-The default 1.0 player profile is Wise Misk / 賢者ミスク, but the visible
-player identity is not the same thing as the technical model identity.
+Development builds default to Wise Misk / 賢者ミスク. The 1.0.0 release
+profile defaults to the MIT-licensed すーぱーあいこん assets. In both cases,
+the visible player identity is not the same thing as the technical model
+identity.
 
 Basic UI must expose an obvious Player Profile control near the Player Seat for:
 
 - display name change,
 - player image change,
-- reset to the default Wise Misk profile.
+- reset to the active build/release default profile.
 
 Changing the player name/image must not rename or mutate the underlying model,
 provider, adapter, artifact hash, publisher, or provenance.
@@ -214,3 +218,30 @@ player name/image unless the user explicitly requests it.
 
 Community fine-tunes are encouraged to use distinct technical model names while
 describing their origin separately, for example "fine-tuned from Wise Misk".
+
+
+## 1.0.0 release artifact versus installed dependencies
+
+The 1.0.0 downloadable release artifact is intended to keep its project-owned
+payload MIT-based.
+
+Third-party base-model weights such as the current Qwen/SmolLM candidates retain
+their upstream licenses. For the strict 1.0 MIT release profile they should not
+be embedded as if they were MIT project assets. The root executable instead
+performs automatic first-run acquisition:
+
+```text
+root executable
+ -> show dependency/model name + license
+ -> download pinned artifact
+ -> verify SHA-256 / provenance
+ -> install into application-managed storage
+ -> start local inference
+```
+
+This still satisfies the no-manual-setup requirement: the user does not install
+Python, Ollama, a model server, or fetch model files by hand.
+
+Later releases may directly distribute official pre-trained/fine-tuned
+artifacts. At that point the distribution is explicitly multi-license and the
+UI/release manifest must enumerate every applicable license.
