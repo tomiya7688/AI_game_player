@@ -245,3 +245,70 @@ Python, Ollama, a model server, or fetch model files by hand.
 Later releases may directly distribute official pre-trained/fine-tuned
 artifacts. At that point the distribution is explicitly multi-license and the
 UI/release manifest must enumerate every applicable license.
+
+
+## Post-1.0 licensing and 1.0 backportability
+
+The MIT-focused distribution policy is a **1.0.0-only release profile**.
+
+Starting with later feature releases, the project may directly distribute
+pre-trained/fine-tuned model artifacts, additional character assets, and other
+components under multiple compatible licenses. The project does not promise to
+maintain a parallel MIT-only build after 1.0.0.
+
+To keep 1.0 useful for users who prefer to remain on that release:
+
+- keep the 1.0 Core small,
+- expose stable/versioned Provider/Profile/Hook/Stage contracts,
+- keep required Safety outside optional feature code,
+- publish an Update Content Sheet for later features,
+- state whether each feature can be recreated on 1.0 as a MOD/Feature Pack,
+  partially backported, or requires a newer Core.
+
+The project documents the backport path; it does not promise to implement every
+backport officially.
+
+Implementation tracking: #58, #150-#152, #192.
+
+## Player asset pack and license UX
+
+Player Asset Packs use at least these semantic image roles:
+
+- cover: shown on the model/player selection surface,
+- player: shown in the Player Seat,
+- happy: used for victory/achievement reactions,
+- sad: used for defeat/failure reactions.
+
+Happy/sad images may fall back to the normal player image when absent.
+
+Each pack carries license/source metadata. Asset selection surfaces show the
+license name inline, while full text/source/notice is available through
+"Details". Selecting an asset does not repeatedly force a full license dialog.
+
+Development uses Wise Misk. The 1.0.0 release defaults to the MIT-licensed
+Super Icon / すーぱーあいこん pack.
+
+Implementation tracking: #190.
+
+## First-run tutorial
+
+The official 1.0 tutorial prioritizes personalization and learning before
+advanced configuration.
+
+The initial path is:
+
+```text
+change player name
+ -> change player image / asset pack
+ -> inspect license name (details optional)
+ -> choose game/window
+ -> enable Learning / Improve
+ -> play
+ -> observe Experience collection
+ -> enter Challenger/evaluation workflow
+```
+
+The tutorial is skippable and restartable, and uses the actual application
+controls rather than a disconnected mock flow.
+
+Implementation tracking: #191.
