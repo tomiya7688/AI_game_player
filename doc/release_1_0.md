@@ -92,6 +92,8 @@ reference machine, it is rejected as the default model candidate.
 
 See `LICENSE`, `ASSET_LICENSES.md`, and `THIRD_PARTY_NOTICES.md`.
 
+For the human-facing explanation of **why** the project uses this split, see `doc/licensing_rationale.md`.
+
 
 ## 1.0.0 licensing boundary
 
