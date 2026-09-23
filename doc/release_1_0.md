@@ -193,3 +193,24 @@ Release requirements:
 
 Implementation tracking: Issues #180-#188 plus the Experience/Learning
 infrastructure in #36/#37/#166-#173.
+
+
+## Player profile customization
+
+The default 1.0 player profile is Wise Misk / 賢者ミスク, but the visible
+player identity is not the same thing as the technical model identity.
+
+Basic UI must expose an obvious Player Profile control near the Player Seat for:
+
+- display name change,
+- player image change,
+- reset to the default Wise Misk profile.
+
+Changing the player name/image must not rename or mutate the underlying model,
+provider, adapter, artifact hash, publisher, or provenance.
+
+Conversely, switching or fine-tuning a model must not overwrite a user's chosen
+player name/image unless the user explicitly requests it.
+
+Community fine-tunes are encouraged to use distinct technical model names while
+describing their origin separately, for example "fine-tuned from Wise Misk".
