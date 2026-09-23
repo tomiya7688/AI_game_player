@@ -100,3 +100,14 @@ Product/Engineの最終名称はIssue #154で管理します。現時点のKadok
 Player ProfileはModel Identityと独立しているため、開発用ProfileとRelease Profileを差し替えてもInference/Learning contractは変わりません。
 
 1.0.0のroot executableは必要なthird-party model/runtimeを自動取得・SHA-256検証し、license名を表示できるようにします。ユーザーがPython/Ollama/Model Serverを手動で準備する必要はありません。
+
+
+## 1.0.0だけのMIT Release Profile
+
+MIT中心の配布構成を維持するのは1.0.0だけです。開発時のDefault Playerは賢者ミスクですが、正式1.0.0ではMITの「すーぱーあいこん」を同梱Default Playerとして使用します。
+
+1.1以降は事前学習/fine-tune済みModelや追加Character等を直接配布できるmulti-license構成を許容し、MIT-only版の並行保守は約束しません。
+
+その代わり、1.0 Coreは小さく保ち、Provider/Profile/MOD Hook等のversioned境界を用意します。後続ReleaseではUpdate Content Sheetを公開し、1.0ユーザーが欲しい機能をMOD/Feature Packや手実装として持ち込みやすい情報を残します。
+
+Player素材はcover / player-seat / happy / sadを基本roleとし、選択画面ではLicense名を表示、全文は「詳細を見る」から確認する方針です。1.0公式Tutorialでは最初にPlayer名・画像変更を行い、その後Learningを有効にしてPlayするところまで案内します。
