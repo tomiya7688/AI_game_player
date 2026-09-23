@@ -24,7 +24,11 @@
       "required": [
         "weights_committed_to_git",
         "verify_license_and_sha256_before_use",
-        "default_network_scope"
+        "default_network_scope",
+        "release_1_0_weights_bundled",
+        "first_run_auto_acquire",
+        "show_license_during_acquire",
+        "official_pretrained_profile_bundled_in_1_0"
       ],
       "properties": {
         "weights_committed_to_git": {
@@ -35,6 +39,18 @@
         },
         "default_network_scope": {
           "const": "localhost-only"
+        },
+        "release_1_0_weights_bundled": {
+          "const": false
+        },
+        "first_run_auto_acquire": {
+          "const": true
+        },
+        "show_license_during_acquire": {
+          "const": true
+        },
+        "official_pretrained_profile_bundled_in_1_0": {
+          "const": false
         }
       }
     },
