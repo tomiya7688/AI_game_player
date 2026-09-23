@@ -59,3 +59,15 @@ character packs. Those releases are expected to be **multi-license** and must
 surface the license of every bundled model/asset/runtime.
 
 See `THIRD_PARTY_NOTICES.md` and `doc/release_1_0.md`.
+
+
+## Post-1.0 policy
+
+The MIT-focused asset payload is a 1.0.0-only release choice.
+
+Later releases may bundle Wise Misk (after its license is decided), Kadoka,
+Maru, other characters, and official pre-trained/fine-tuned artifacts under a
+multi-license distribution. There is no requirement to maintain a parallel
+MIT-only asset set after 1.0.0.
+
+Every bundled Player Asset Pack still carries its own license/source metadata.
