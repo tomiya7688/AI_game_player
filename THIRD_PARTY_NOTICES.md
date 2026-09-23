@@ -57,3 +57,18 @@ release must include it before publication.
 
 Kadoka/Maru first-party character assets are not third-party; see
 `ASSET_LICENSES.md`.
+
+
+## 1.0.0 acquisition boundary
+
+The 1.0.0 project release artifact does not treat third-party model weights as
+MIT project assets.
+
+Current model candidates such as SmolLM2 and Qwen retain Apache-2.0 and are
+intended to be acquired automatically on first run for the strict 1.0 release
+profile. The application must show the dependency/model license name, verify
+the pinned SHA-256/provenance, and keep the upstream license information
+available from the UI.
+
+Later distributions may directly bundle official pre-trained/fine-tuned model
+artifacts. Such distributions are explicitly multi-license.
