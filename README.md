@@ -87,4 +87,16 @@ Product/Engineの最終名称はIssue #154で管理します。現時点のKadok
 
 ### 1.0.0 License boundary
 
-1.0.0ではfirst-party配布範囲をMITで揃えます。賢者ミスクはMITのため1.0.0に含められます。Kadoka / MaruなどObake License対象の素材・Character機能は1.1以降へ延期します。third-partyは各upstream licenseと必要noticeを維持します。
+1.0.0ではproject-ownedの配布payloadをMIT中心に揃えます。開発中のDefault Playerは賢者ミスクですが、正式1.0.0では同梱Player素材をMITの「すーぱーあいこん」へ差し替えます。賢者ミスクの最終Asset Licenseは未確定で、1.0.0には同梱しません。Kadoka / MaruなどObake License対象素材も1.0.0には同梱しません。third-party model/runtimeは各upstream licenseを維持し、1.0.0では必要に応じて初回起動時に自動取得・検証します。
+
+
+### 開発Playerと1.0 Release Player
+
+- Development default: 賢者ミスク
+- 1.0.0 bundled/default player asset: すーぱーあいこん（MIT）
+- Wise Misk artwork: license未確定、1.0.0配布物には含めない
+- Kadoka / Maru: Obake License、1.0.0配布物には含めない
+
+Player ProfileはModel Identityと独立しているため、開発用ProfileとRelease Profileを差し替えてもInference/Learning contractは変わりません。
+
+1.0.0のroot executableは必要なthird-party model/runtimeを自動取得・SHA-256検証し、license名を表示できるようにします。ユーザーがPython/Ollama/Model Serverを手動で準備する必要はありません。
