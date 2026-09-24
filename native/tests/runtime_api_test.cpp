@@ -3,6 +3,7 @@
 #include <cassert>
 
 int main() {
+    assert(kadoka_runtime_query(nullptr) == -1);
     kadoka_runtime_info info{};
     info.struct_size = sizeof(info);
     assert(kadoka_runtime_query(&info) == 0);
