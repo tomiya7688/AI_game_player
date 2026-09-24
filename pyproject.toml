@@ -5,9 +5,23 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 ocr = ["Pillow", "pytesseract"]
+dev = ["ruff==0.15.22", "mypy==2.3.1"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
 [project.scripts]
 ai-game-player = "ai_game_player.app:main"
+
+[tool.ruff]
+target-version = "py310"
+
+# Existing E701/E702 one-line style findings are tolerated during gradual cleanup.
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E701", "E702"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src/ai_game_player/models.py"]
+strict = true

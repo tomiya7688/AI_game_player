@@ -3,6 +3,13 @@ from math import isfinite
 from typing import Any
 
 
+def _parse_bbox(value: Any) -> tuple[int, int, int, int]:
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        raise ValueError("bbox must contain exactly four values")
+    return (int(value[0]), int(value[1]), int(value[2]), int(value[3]))
+
+
+
 @dataclass(frozen=True)
 class ScreenObservation:
     screen_id: str
@@ -58,7 +65,7 @@ class DetectedElement:
         return cls(
             str(element_id),
             str(value.get("element_type", "region")),
-            tuple(int(part) for part in bbox),
+            _parse_bbox(bbox),
             str(value.get("source", "unknown")),
             float(value.get("confidence", 1.0)),
             str(text) if text is not None else None,
@@ -113,7 +120,7 @@ class ActionCandidate:
             int(y) if y is not None else None,
             float(value.get("confidence", 1.0)),
             bool(value.get("dangerous", False)),
-            tuple(int(part) for part in bbox) if bbox is not None else None,
+            _parse_bbox(bbox) if bbox is not None else None,
             float(hold_seconds) if hold_seconds is not None else None,
         )
 

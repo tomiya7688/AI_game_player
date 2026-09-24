@@ -9,7 +9,7 @@ class KnowledgeStore:
         needle=query.casefold(); return [e for e in self._read() if (category is None or e.get("category")==category) and needle in (str(e.get("subject",""))+" "+str(e.get("statement",""))).casefold()]
     def _read(self)->list[dict[str,object]]:
         if not self.path.exists(): return []
-        value=json.loads(self.path.read_text(encoding="utf-8"));
+        value=json.loads(self.path.read_text(encoding="utf-8"))
         if not isinstance(value,list): raise ValueError("knowledge.json must contain an array")
         return value
     def _write(self,entries:list[dict[str,object]])->None:
