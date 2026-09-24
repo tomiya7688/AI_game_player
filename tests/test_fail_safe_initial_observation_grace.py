@@ -2,6 +2,7 @@ import os
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from ai_game_player.fail_safe_runtime import (
@@ -14,7 +15,8 @@ from ai_game_player.fail_safe_runtime import (
 
 
 class FailSafeInitialObservationGraceTest(unittest.TestCase):
-    def test_rearm_allows_initial_observation_grace_without_granting_input(self):
+    @patch("ai_game_player.fail_safe_runtime._windows_target_matches", return_value=True)
+    def test_rearm_allows_initial_observation_grace_without_granting_input(self, _target_matches):
         with tempfile.TemporaryDirectory() as directory:
             state_directory = Path(directory)
             runtime = FailSafeRuntime(

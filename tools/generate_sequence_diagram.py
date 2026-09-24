@@ -11,7 +11,7 @@ def render_sequence_diagram(source_file: Path, class_name: str, method_name: str
     method = next((node for node in target.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == method_name), None)
     if method is None:
         raise ValueError(f"method not found: {class_name}.{method_name}")
-    lines = ["sequenceDiagram", f"    participant caller as Caller", f"    participant target as {class_name}"]
+    lines = ["sequenceDiagram", "    participant caller as Caller", f"    participant target as {class_name}"]
     for node in ast.walk(method):
         if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
             continue

@@ -1,4 +1,6 @@
-import json, re, subprocess
+import json
+import re
+import subprocess
 from pathlib import Path
 
 REPO = "tomiya7688/AI_game_player"

@@ -8,6 +8,19 @@ permissions:
   contents: read
 
 jobs:
+  python-quality:
+    name: Python quality (Ruff + syntax)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff check src tools tests
+      - run: python -m mypy src/ai_game_player/models.py
+      - run: python -m compileall -q src tools tests
+
   unit-tests:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
