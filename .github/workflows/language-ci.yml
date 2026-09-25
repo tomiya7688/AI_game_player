@@ -24,6 +24,25 @@ jobs:
       - name: Test native runtime
         run: ctest --test-dir build/native -C Release --output-on-failure
 
+  native-sanitizers:
+    name: Native C++ ASan + UBSan + GCC analyzer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure sanitized native tests
+        run: cmake -S native -B build/native-sanitized -DCMAKE_BUILD_TYPE=Debug -DKADOKA_ENABLE_SANITIZERS=ON -DKADOKA_ENABLE_GCC_ANALYZER=ON
+      - name: Build sanitized native tests
+        run: cmake --build build/native-sanitized --parallel
+      - name: Run sanitized native tests
+        run: ctest --test-dir build/native-sanitized --output-on-failure
+      - name: Upload sanitizer diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-sanitizer-diagnostics
+          path: build/native-sanitized/Testing/Temporary
+          if-no-files-found: warn
+
   windows-app-bundle:
     name: Windows application bundle + startup smoke
     runs-on: windows-latest
