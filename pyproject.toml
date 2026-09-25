@@ -23,7 +23,11 @@ ignore = ["E701", "E702"]
 
 [tool.mypy]
 python_version = "3.10"
-files = ["src/ai_game_player/models.py", "src/ai_game_player/safety_guard.py"]
+files = [
+  "src/ai_game_player/models.py",
+  "src/ai_game_player/safety_guard.py",
+  "src/ai_game_player/action_executor.py",
+]
 strict = true
 
 [tool.coverage.run]
