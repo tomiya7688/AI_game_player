@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import ctypes
 import os
 import time
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from ai_game_player.action_executor import ExecutionResult
 
 from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
@@ -47,7 +52,7 @@ class WindowsInputExecutor:
         self._held_keys: set[int] = set()
         self._held_mouse: set[str] = set()
 
-    def execute(self, candidate: ActionCandidate):
+    def execute(self, candidate: ActionCandidate) -> ExecutionResult:
         from ai_game_player.action_executor import ExecutionResult
 
         if os.name != "nt":
