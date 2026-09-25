@@ -215,14 +215,14 @@ class EmergencyStopMonitor:
     def _windows_f12_pressed() -> bool:
         if os.name != "nt":
             return False
-        return bool(ctypes.windll.user32.GetAsyncKeyState(0x7B) & 0x8000)
+        return bool(getattr(ctypes, "windll").user32.GetAsyncKeyState(0x7B) & 0x8000)
 
 
 class WindowsTargetProbe:
     def inspect(self, window_handle: int) -> TargetState:
         if os.name != "nt":
             raise RuntimeError("Windows target validation requires Windows")
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         handle = int(window_handle)
         if not user32.IsWindow(handle):
             return TargetState(handle, 0, False, False, False, 0, 0, 0, 0, 0, 0)
