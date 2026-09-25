@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 from ai_game_player.fail_safe_runtime import FailSafeCommand, FailSafeConfig, FailSafeRuntime, FailSafeState
 from ai_game_player.models import ActionCandidate
@@ -8,6 +9,7 @@ from ai_game_player.safety_guard import (
     SafetyGuard,
     SafetyGuardConfig,
     SafetyLog,
+    TargetState,
     default_emergency_stop,
     ensure_default_emergency_monitor,
 )
@@ -21,11 +23,15 @@ class ExecutionResult:
     detail: str
 
 
+class LiveExecutor(Protocol):
+    def execute(self, candidate: ActionCandidate) -> ExecutionResult: ...
+
+
 class ActionExecutor:
     def __init__(
         self,
         dry_run: bool = True,
-        live_executor=None,
+        live_executor: LiveExecutor | None = None,
         window_handle: int | None = None,
         input_mode: str = "mouse",
         *,
@@ -183,7 +189,7 @@ class ActionExecutor:
             runtime is not None and runtime.state != FailSafeState.ACTIVE
         )
 
-    def _current_target(self):
+    def _current_target(self) -> TargetState | None:
         if self.window_handle is None:
             return None
         try:

@@ -1,6 +1,10 @@
 classDiagram
     class ExecutionResult {
     }
+    Protocol <|-- LiveExecutor
+    class LiveExecutor {
+        +execute()
+    }
     class ActionExecutor {
         +__init__()
         +execute()
