@@ -5,7 +5,7 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 ocr = ["Pillow", "pytesseract"]
-dev = ["ruff==0.15.22", "mypy==2.3.1"]
+dev = ["ruff==0.15.22", "mypy==2.3.1", "coverage==7.16.1"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -25,3 +25,18 @@ ignore = ["E701", "E702"]
 python_version = "3.10"
 files = ["src/ai_game_player/models.py"]
 strict = true
+
+[tool.coverage.run]
+branch = true
+source = ["src/ai_game_player"]
+data_file = "build/coverage/.coverage"
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 70.0
+
+[tool.coverage.xml]
+output = "build/coverage/coverage.xml"
+
+[tool.coverage.html]
+directory = "build/coverage/html"
