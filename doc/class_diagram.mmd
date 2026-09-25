@@ -487,6 +487,10 @@ classDiagram
     class TargetState {
         +contains_client_point()
     }
+    Protocol <|-- TargetProbe
+    class TargetProbe {
+        +inspect()
+    }
     class SafetyDecision {
     }
     class SafetyEvent {
