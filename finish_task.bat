@@ -5,7 +5,7 @@ set "PYTHONPATH=src;."
 
 python tools\generate_docs.py || exit /b 1
 python -m ruff check src tools tests || exit /b 1
-python -m mypy src/ai_game_player/models.py || exit /b 1
+python -m mypy || exit /b 1
 if not exist build\coverage mkdir build\coverage
 python -m coverage run -m unittest discover -s tests -v || exit /b 1
 python -m coverage report --show-missing || exit /b 1
