@@ -6,6 +6,35 @@ profiles. It is written for humans and does not replace any license text.
 If this explanation and an applicable license ever disagree, the actual license
 text for that code, model, or asset controls.
 
+## Default Allow / Explicit Exceptions
+
+This project's licensing policy is designed for **both people who use the AI
+Game Player and developers who build on it**.
+
+If the only goal were to minimize work for the copyright holder, the simplest
+policy would be to prohibit reuse, modification, redistribution, and derivative
+work unless permission is requested individually. That is intentionally **not**
+the goal here.
+
+The preferred direction is:
+
+- allow ordinary use, modification, redistribution, learning, fine-tuning, and
+  extension as broadly as practical,
+- make the permitted scope predictable so users and developers do not need to
+  ask for permission for normal uses,
+- use explicit exceptions only where a particular asset, character identity,
+  model artifact, third-party obligation, safety boundary, or official-status
+  concern genuinely requires one,
+- explain **why** an exception exists instead of making users infer the author's
+  intent from legal text alone.
+
+In short: **default to allowing useful activity, and document narrow exceptions
+with their reasons.**
+
+A more restrictive license may still be appropriate for a particular character
+or artifact. That choice should be made because the asset needs that boundary,
+not because prohibition is easier for the author to administer.
+
 ## Why 1.0.0 is intentionally simple
 
 Version 1.0.0 is intended to be the easiest release to download, inspect,
