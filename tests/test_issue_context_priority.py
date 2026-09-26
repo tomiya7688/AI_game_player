@@ -11,9 +11,10 @@ MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
 
-def issue(number: int, *labels: str) -> dict:
+def issue(number: int, *labels: str, title: str = "Implementation Issue") -> dict:
     return {
         "number": number,
+        "title": title,
         "labels": [{"name": label} for label in labels],
     }
 
@@ -35,6 +36,15 @@ class IssueContextPriorityTest(unittest.TestCase):
 
     def test_unlabeled_issue_is_after_p5(self):
         self.assertGreater(MODULE.key(issue(1))[0], MODULE.key(issue(2, "P5"))[0])
+
+    def test_parent_issue_is_not_work_issue(self):
+        self.assertFalse(MODULE.is_work_issue(issue(10, "P1", title="[Architecture Parent] Runtime")))
+
+    def test_policy_issue_19_is_not_work_issue(self):
+        self.assertFalse(MODULE.is_work_issue(issue(19, "P1")))
+
+    def test_normal_issue_is_work_issue(self):
+        self.assertTrue(MODULE.is_work_issue(issue(20, "P2", title="[Native] C ABI Binding")))
 
 
 if __name__ == "__main__":
