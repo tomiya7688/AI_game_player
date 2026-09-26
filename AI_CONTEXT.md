@@ -76,3 +76,12 @@ Do not duplicate these mechanisms:
 
 ## Adoption Source
 This project follows the applicable principles from `tomiya7688/ai-context-reducer` without taking it as a runtime dependency. The reducer repository is guidance; this file and `AGENTS.md` define the local application of those principles.
+
+
+## Issue unit rule
+
+Parent Issues are never selected automatically by `start_task.bat`. A Parent
+contains architecture/policy/child indexes/integration acceptance only.
+
+Implementation Issues are the normal work unit: one primary deliverable, one
+focused PR, and independent validation. See Issue #19 for the current structure.
