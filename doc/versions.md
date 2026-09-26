@@ -1,5 +1,39 @@
 # Versions
 
+## Versioning policy
+
+Application versionとSchema/API/ABI versionは独立して管理する。
+
+### Application
+
+正式リリース前は先頭を必ず `0` とする。
+
+- `0.0.0`: 開発開始点
+- `0.0.1`: 軽微な修正・小変更
+- `0.1.0`: 大きめの機能追加・開発マイルストーン
+- `1.0.0`: 最初の正式リリース
+- `1.0.1`: 正式版のbugfix / 軽微変更
+- `1.1.0`: 通常の機能追加
+- `2.0.0`: 大規模breaking change
+
+現在の `0.1.0` は既に到達した開発マイルストーンとして維持し、巻き戻さない。
+
+### Schema / API / ABI
+
+対象contract自体が更新された時だけversionを上げる。Application version変更だけでは連動して上げない。
+
+```text
+app_version                     0.1.0
+native_runtime_abi_version      1
+inference_provider_api_version  1
+decision_context_schema         1
+experience_schema               1
+stage_envelope_schema           1
+plugin_manifest_schema          1
+```
+
+各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
+
 ## Unreleased
 
 - strict mypy対象にWindowsInputExecutorを追加し、ActionExecutorからWindows実入力までの実行境界を検査対象にした。
@@ -35,3 +69,27 @@
 - window_message方式の実入力前に対象ウィンドウ選択を検証する。
 - 対象ウィンドウのキャプチャに失敗した場合、連続実行を停止する。
 - RuleProviderの状態評価をローカルのOutcomeEvaluatorへ統一し、Rule経路でネットワークアクセスしないようにする。
+
+
+## 1.0.0 scope
+
+1.0.0 release boundary is defined in `doc/release_1_0.md` and Issue #19.
+
+Key acceptance:
+- Windows x64 / local-first
+- distribution-root executable as the normal user entrypoint
+- bundled/automatic Local Inference setup
+- Basic Game/Window Select -> Start/Stop path
+- default privacy: telemetry/remote/raw-frame persistence/replay persistence OFF
+- routine CI: smoke-tiny endurance, standard-small functional inference, Noisy Provider robustness
+- pre-release: #179 30-minute-class automated/reference and GTX 1080 real-game acceptance
+- first-party project code/docs use MIT; Kadoka/Maru character assets use Obake License
+- final Product/Engine name must be recorded in #154 before 1.0.0
+
+
+### 1.0.0 licensing boundary
+
+- 1.0.0 first-party shipped scope is MIT-only.
+- Wise Misk remains eligible for 1.0.0 under MIT.
+- Obake License assets are deferred to 1.1+.
+- Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.

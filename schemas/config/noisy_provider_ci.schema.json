@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/config/noisy-provider-ci.schema.json",
+  "title": "Kadoka Noisy Provider CI Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "seed",
+    "warmup_steps",
+    "measured_steps",
+    "candidates_per_step",
+    "budgets",
+    "hard_requirements",
+    "future_reference_game"
+  ],
+  "properties": {
+    "schema": { "const": "kadoka.noisy-provider-ci/1" },
+    "seed": { "type": "integer" },
+    "warmup_steps": { "type": "integer", "minimum": 0, "maximum": 10000 },
+    "measured_steps": { "type": "integer", "minimum": 100, "maximum": 100000 },
+    "candidates_per_step": { "type": "integer", "minimum": 2, "maximum": 128 },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider_p95_ms", "non_provider_core_p95_ms"],
+      "properties": {
+        "provider_p95_ms": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000
+        },
+        "non_provider_core_p95_ms": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "hard_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "zero_uncaught_errors",
+        "all_decisions_grounded",
+        "dry_run_only"
+      ],
+      "properties": {
+        "zero_uncaught_errors": { "const": true },
+        "all_decisions_grounded": { "const": true },
+        "dry_run_only": { "const": true }
+      }
+    },
+    "future_reference_game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "game_id",
+        "enabled_when_runner_available",
+        "quality_threshold_enabled"
+      ],
+      "properties": {
+        "level": { "type": "integer", "minimum": 1 },
+        "game_id": { "type": "string", "minLength": 1 },
+        "enabled_when_runner_available": { "const": true },
+        "quality_threshold_enabled": { "const": false }
+      }
+    }
+  }
+}
