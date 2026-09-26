@@ -24,7 +24,7 @@ class DecisionPipeline:
         self,
         source: ObservationSource,
         game_directory: Path,
-        provider=None,
+        provider: object | None = None,
         controller: RunController | None = None,
         dry_run: bool = True,
         window_handle: int | None = None,
@@ -86,7 +86,12 @@ class DecisionPipeline:
         decision, _, _ = self._decide(ocr_texts, purpose, personality)
         return decision
 
-    def run_and_execute(self, ocr_texts=None, purpose: str = "", personality: str = "") -> ExecutionResult:
+    def run_and_execute(
+        self,
+        ocr_texts: list[dict[str, object]] | None = None,
+        purpose: str = "",
+        personality: str = "",
+    ) -> ExecutionResult:
         self.controller.ensure_running()
         self._sync_runtime_rearm()
         decision, candidates, observation = self._decide(ocr_texts, purpose, personality)

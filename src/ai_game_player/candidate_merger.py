@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from ai_game_player.models import ActionCandidate, DetectedElement
 
 
@@ -15,8 +17,8 @@ class CandidateMerger:
     def merge(
         self,
         automation: list[ActionCandidate],
-        ocr: list[CandidateInput],
-        image: list[CandidateInput] | None = None,
+        ocr: Sequence[CandidateInput],
+        image: Sequence[CandidateInput] | None = None,
     ) -> list[ActionCandidate]:
         result: list[CandidateView] = [self._view(candidate, "automation") for candidate in automation]
         for group, candidates in (("ocr", ocr), ("image", image or [])):
