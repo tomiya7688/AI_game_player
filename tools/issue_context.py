@@ -20,8 +20,14 @@ def key(issue):
     labels = {x["name"].lower() for x in issue.get("labels", [])}
     return min([RANK[x] for x in labels if x in RANK] or [50]), issue["number"]
 
+def is_work_issue(issue):
+    if issue["number"] == 19:
+        return False
+    title = str(issue.get("title", ""))
+    return "parent" not in title.casefold()
+
 def main():
-    issues = [x for x in run() if x["number"] != 19]
+    issues = [x for x in run() if is_work_issue(x)]
     if not issues:
         print("No open work issues.")
         return
