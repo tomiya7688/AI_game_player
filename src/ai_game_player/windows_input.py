@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import ctypes
 import os
 import time
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from ai_game_player.action_executor import ExecutionResult
 
 from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
@@ -47,7 +52,7 @@ class WindowsInputExecutor:
         self._held_keys: set[int] = set()
         self._held_mouse: set[str] = set()
 
-    def execute(self, candidate: ActionCandidate):
+    def execute(self, candidate: ActionCandidate) -> ExecutionResult:
         from ai_game_player.action_executor import ExecutionResult
 
         if os.name != "nt":
@@ -88,7 +93,7 @@ class WindowsInputExecutor:
     def _execute_click(self, candidate: ActionCandidate) -> None:
         if candidate.x is None or candidate.y is None:
             raise ValueError("click action requires coordinates")
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         if self.input_mode == "window_message":
             if self.window_handle is None:
                 raise RuntimeError("window_message requires a selected window")
@@ -128,7 +133,7 @@ class WindowsInputExecutor:
                 raise
 
     def _post_click(self, lparam: int) -> None:
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         if self.window_handle is None:
             raise RuntimeError("window_message requires a selected window")
         self._ledger_hold_mouse("left")
@@ -143,7 +148,7 @@ class WindowsInputExecutor:
             self._ledger_release_mouse("left")
 
     def _execute_key(self, candidate: ActionCandidate) -> None:
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         key_name = candidate.label.strip().upper()
         key_code = SPECIAL_KEYS.get(key_name, user32.VkKeyScanW(ord(candidate.label[0])) if candidate.label else -1)
         if key_code < 0:
@@ -158,7 +163,7 @@ class WindowsInputExecutor:
             self._key_up(virtual_key)
 
     def _key_down(self, virtual_key: int) -> None:
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         self._ledger_hold_key(virtual_key)
         try:
             if self.input_mode == "window_message":
@@ -174,7 +179,7 @@ class WindowsInputExecutor:
         self._held_keys.add(virtual_key)
 
     def _key_up(self, virtual_key: int) -> None:
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         try:
             if self.input_mode == "window_message":
                 if self.window_handle is not None:
@@ -190,7 +195,7 @@ class WindowsInputExecutor:
             raise ValueError(f"unsupported mouse button: {button}")
         self._ledger_hold_mouse(button)
         try:
-            ctypes.windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
+            getattr(ctypes, "windll").user32.mouse_event(0x0002, 0, 0, 0, 0)
         except Exception:
             self._ledger_release_mouse(button)
             raise
@@ -199,7 +204,7 @@ class WindowsInputExecutor:
     def _mouse_up(self, button: str) -> None:
         try:
             if button == "left":
-                ctypes.windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+                getattr(ctypes, "windll").user32.mouse_event(0x0004, 0, 0, 0, 0)
         finally:
             self._held_mouse.discard(button)
             self._ledger_release_mouse(button)
