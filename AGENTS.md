@@ -4,7 +4,7 @@
 
 0. Read `AI_CONTEXT.md` first. It is the compact ai-context-reducer entrypoint and defines exploration stop conditions.
 1. Read this file only for task/source/test routing and project-specific working rules.
-2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority work Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> P4 -> P5 -> unlabeled fallback; Issue #19 is policy, not work selection).
+2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority Implementation Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> P4 -> P5 -> unlabeled fallback). Issue #19 and titles containing `Parent` are policy/index issues and are excluded from automatic work selection.
 3. If a target Issue was explicitly assigned, use that Issue instead of scanning the Issue list.
 4. Read `.codex/next_issue.md`, then only the mapped source/tests and documents required for that Issue.
 5. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
@@ -139,3 +139,12 @@ Non-negotiable constraints:
 - Later releases publish #192 Update Content Sheets describing contracts, dependencies, licenses, and whether a feature can be backported to 1.0 as a MOD/Feature Pack.
 - Player Asset Pack roles and license UX are tracked by #190.
 - First-run Tutorial #191 must start with player name/image customization and then reach Learning-enabled play.
+
+
+## Issue implementation granularity
+
+- Titles containing `Parent` are policy/index/integration Issues and are not direct implementation targets.
+- One Implementation Issue should normally produce one primary code/doc/config artifact set, one focused PR, and its own tests/acceptance criteria.
+- Split an Issue when independent deliverables can be merged separately.
+- Do not split tightly coupled code/tests merely to reduce line count.
+- #19 is the project-wide source of truth for the current Parent/Implementation structure.
