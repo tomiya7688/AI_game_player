@@ -29,3 +29,7 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
         self.assertGreater(frame.width, 0)
         self.assertGreater(frame.height, 0)
         self.assertEqual(len(frame.bgra), frame.width * frame.height * 4)
+
+    def test_invalid_or_lost_window_handle_fails_closed(self):
+        with self.assertRaisesRegex(RuntimeError, "GetWindowRect failed"):
+            WindowsScreenCapture().capture(-1)

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Windows Captureは無効または失効したHWNDをフレーム化せず明示的に失敗することをCIで確認する。
+
 - Windows CIで実デスクトップを読み取り専用でキャプチャし、BGRAフレーム契約とCapturedObservationSourceへの接続を検証する。
 
 - Safety CIでビルドしたNative shared libraryをPython ctypesから実際にロードし、許可/拒否判定までWindows/Linux双方で結合検証する。
