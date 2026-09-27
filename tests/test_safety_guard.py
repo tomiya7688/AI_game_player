@@ -1,8 +1,13 @@
+import ctypes
 import json
 import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+import ai_game_player.safety_guard as safety_guard_module
 
 from ai_game_player.action_executor import ActionExecutor
 from ai_game_player.models import ActionCandidate
@@ -13,8 +18,51 @@ from ai_game_player.safety_guard import (
     SafetyGuardConfig,
     SafetyLog,
     TargetState,
+    WindowsTargetProbe,
 )
 
+
+class FakeWindowUser32:
+    def __init__(self, *, valid=True, foreground_handle=100, visible=True):
+        self.valid = valid
+        self.foreground_handle = foreground_handle
+        self.visible = visible
+        self.calls = []
+
+    def IsWindow(self, _handle):
+        self.calls.append("IsWindow")
+        return self.valid
+
+    def GetWindowThreadProcessId(self, _handle, pid_pointer):
+        self.calls.append("GetWindowThreadProcessId")
+        ctypes.cast(pid_pointer, ctypes.POINTER(ctypes.c_ulong)).contents.value = 4321
+        return 7
+
+    def GetWindowRect(self, _handle, rect_pointer):
+        self.calls.append("GetWindowRect")
+        rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
+        rect[:] = (100, 200, 900, 800)
+        return 1
+
+    def GetClientRect(self, _handle, rect_pointer):
+        self.calls.append("GetClientRect")
+        rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
+        rect[:] = (0, 0, 784, 570)
+        return 1
+
+    def ClientToScreen(self, _handle, point_pointer):
+        self.calls.append("ClientToScreen")
+        point = ctypes.cast(point_pointer, ctypes.POINTER(ctypes.c_long * 2)).contents
+        point[:] = (108, 230)
+        return 1
+
+    def IsWindowVisible(self, _handle):
+        self.calls.append("IsWindowVisible")
+        return self.visible
+
+    def GetForegroundWindow(self):
+        self.calls.append("GetForegroundWindow")
+        return self.foreground_handle
 
 class FakeClock:
     def __init__(self) -> None:
@@ -81,6 +129,50 @@ class FakeExecutor:
 
 
 class SafetyGuardTest(unittest.TestCase):
+    def test_windows_target_probe_reads_pid_visibility_and_client_geometry_without_os_calls(self):
+        user32 = FakeWindowUser32()
+
+        with (
+            patch.object(safety_guard_module.os, "name", "nt"),
+            patch.object(safety_guard_module.ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+        ):
+            target = WindowsTargetProbe().inspect(100)
+
+        self.assertTrue(target.valid)
+        self.assertEqual(target.pid, 4321)
+        self.assertTrue(target.visible)
+        self.assertTrue(target.foreground)
+        self.assertEqual((target.window_width, target.window_height), (800, 600))
+        self.assertEqual((target.client_offset_x, target.client_offset_y), (8, 30))
+        self.assertEqual((target.client_width, target.client_height), (784, 570))
+        self.assertNotIn("SetCursorPos", user32.calls)
+        self.assertNotIn("mouse_event", user32.calls)
+        self.assertNotIn("PostMessageW", user32.calls)
+
+    def test_windows_target_probe_reports_hidden_background_window(self):
+        user32 = FakeWindowUser32(visible=False, foreground_handle=101)
+
+        with (
+            patch.object(safety_guard_module.os, "name", "nt"),
+            patch.object(safety_guard_module.ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+        ):
+            target = WindowsTargetProbe().inspect(100)
+
+        self.assertTrue(target.valid)
+        self.assertFalse(target.visible)
+        self.assertFalse(target.foreground)
+    def test_windows_target_probe_stops_after_invalid_handle(self):
+        user32 = FakeWindowUser32(valid=False)
+
+        with (
+            patch.object(safety_guard_module.os, "name", "nt"),
+            patch.object(safety_guard_module.ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+        ):
+            target = WindowsTargetProbe().inspect(100)
+
+        self.assertFalse(target.valid)
+        self.assertEqual(target.pid, 0)
+        self.assertEqual(user32.calls, ["IsWindow"])
     def make_guard(self, **config_overrides):
         clock = FakeClock()
         config = SafetyGuardConfig(**config_overrides)
