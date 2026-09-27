@@ -18,6 +18,7 @@ class FakeUser32:
         self.mouse_events = []
         self.key_events = []
         self.messages = []
+        self.failed_messages = set()
 
     def GetWindowRect(self, _handle, rect_pointer):
         rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
@@ -42,7 +43,18 @@ class FakeUser32:
 
     def PostMessageW(self, handle, message, wparam, lparam):
         self.messages.append((handle, message, wparam, lparam))
-        return 1
+        return int(message not in self.failed_messages)
+
+
+class MemoryLedgerStore:
+    def __init__(self):
+        self.data = {}
+
+    def read(self):
+        return self.data.copy()
+
+    def write(self, value):
+        self.data = value.copy()
 
 
 class WindowsInputTest(unittest.TestCase):
@@ -84,18 +96,8 @@ class WindowsInputTest(unittest.TestCase):
         self.assertEqual(user32.cursor_positions, [])
 
     def test_release_all_releases_fake_held_inputs_and_clears_ledger(self):
-        class MemoryStore:
-            def __init__(self):
-                self.data = {}
-
-            def read(self):
-                return self.data.copy()
-
-            def write(self, value):
-                self.data = value.copy()
-
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryStore(), clock=lambda: 100.0)
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
         executor = WindowsInputExecutor(input_ledger=ledger)
 
         with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
@@ -112,6 +114,29 @@ class WindowsInputTest(unittest.TestCase):
         self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0)])
         self.assertEqual(ledger.snapshot()["held_keys"], {})
         self.assertEqual(ledger.snapshot()["held_mouse"], {})
+
+    def test_failed_window_messages_leave_no_held_state_or_ledger_entry(self):
+        user32 = FakeUser32()
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", input_ledger=ledger)
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            user32.failed_messages = {0x0100}
+            with self.assertRaisesRegex(RuntimeError, "key-down failed"):
+                executor._key_down(0x41)
+
+            self.assertEqual(ledger.snapshot()["held_keys"], {})
+            self.assertEqual(executor._held_keys, set())
+
+            user32.failed_messages = {0x0201}
+            with self.assertRaisesRegex(RuntimeError, "mouse-down failed"):
+                executor._post_click(0)
+
+        self.assertEqual(ledger.snapshot()["held_mouse"], {})
+        self.assertEqual(executor._held_mouse, set())
+        self.assertEqual(user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0201, 0x0001, 0)])
+        self.assertEqual(user32.key_events, [])
+        self.assertEqual(user32.mouse_events, [])
 
     def test_special_key_names_are_defined(self):
         self.assertEqual(SPECIAL_KEYS["ENTER"], 0x0D)
