@@ -1,5 +1,6 @@
 import ctypes
 import json
+import os
 import tempfile
 import time
 import unittest
@@ -130,6 +131,27 @@ class FakeExecutor:
 
 
 class SafetyGuardTest(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get("KADOKA_NATIVE_RUNTIME"), "requires the native Safety CI library")
+    def test_native_safety_validator_loads_built_library_and_validates_actions(self):
+        validator = NativeSafetyValidator.try_load()
+        self.assertIsNotNone(validator)
+
+        allowed, allowed_reason = validator.validate(
+            ActionCandidate("native-safe-click", "click", "Play", 20, 30),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+        denied, denied_reason = validator.validate(
+            ActionCandidate("native-denied-key", "key", "ALT+F4"),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+
+        self.assertEqual((allowed, allowed_reason), (True, 0))
+        self.assertEqual((denied, denied_reason), (False, 5))
+
     def test_native_safety_validator_loads_and_calls_the_ctypes_abi_contract(self):
         class FakeNativeFunction:
             def __init__(self):

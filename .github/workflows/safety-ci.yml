@@ -43,12 +43,20 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
       - name: Configure native runtime
         run: cmake -S native -B build/native-safety -DCMAKE_BUILD_TYPE=Release
       - name: Build native runtime safety tests
         run: cmake --build build/native-safety --config Release --parallel
       - name: Run Native Safety ABI CTest
         run: ctest --test-dir build/native-safety -C Release --output-on-failure -R kadoka_native_runtime_test
+      - name: Run Python-to-native Safety FFI integration
+        env:
+          PYTHONPATH: src
+          KADOKA_NATIVE_RUNTIME: ${{ runner.os == 'Windows' && 'build/native-safety/Release/kadoka_native_runtime.dll' || 'build/native-safety/libkadoka_native_runtime.so' }}
+        run: python -m unittest discover -s tests -p "test_safety_guard.py" -v
 
   windows-emergency-stop:
     name: Windows stop-from-any-state live-target smoke
