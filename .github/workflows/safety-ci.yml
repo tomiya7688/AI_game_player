@@ -33,6 +33,10 @@ jobs:
         env:
           PYTHONPATH: "src"
         run: python -m unittest discover -s tests -p "test_windows_input.py" -v
+      - name: Run Windows desktop capture integration tests
+        env:
+          PYTHONPATH: "src"
+        run: python -m unittest discover -s tests -p "test_windows_capture_integration.py" -v
 
   native-safety:
     name: Native Safety ABI (${{ matrix.os }})
