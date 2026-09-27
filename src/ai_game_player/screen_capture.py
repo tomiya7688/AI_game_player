@@ -1,12 +1,14 @@
 import ctypes
 import os
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class ScreenFrame:
     width: int
     height: int
     bgra: bytes
+    captured_at: float = field(default_factory=lambda: time.monotonic())
 
 class WindowsScreenCapture:
     """Captures the virtual desktop without coupling capture to OCR or input."""

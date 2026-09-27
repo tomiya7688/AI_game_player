@@ -31,6 +31,12 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
         self.assertGreater(frame.height, 0)
         self.assertEqual(len(frame.bgra), frame.width * frame.height * 4)
 
+    def test_captured_frame_timestamps_are_monotonic(self):
+        capture = WindowsScreenCapture()
+        frames = [capture.capture() for _ in range(3)]
+
+        self.assertTrue(all(earlier.captured_at <= later.captured_at for earlier, later in zip(frames, frames[1:])))
+
     def test_invalid_or_lost_window_handle_fails_closed(self):
         with self.assertRaisesRegex(RuntimeError, "GetWindowRect failed"):
             WindowsScreenCapture().capture(-1)
