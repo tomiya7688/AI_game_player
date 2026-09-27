@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- ScreenFrameにプロセス内で比較可能なmonotonic取得時刻を追加し、Windows Capture連続取得で非減少を検証する。
+
 - Windows Capture CIでテスト用非表示HWNDのresize、破棄後の失効検知、新しいHWNDでの再取得を検証する。
 
 - Windows Captureは無効または失効したHWNDをフレーム化せず明示的に失敗することをCIで確認する。
