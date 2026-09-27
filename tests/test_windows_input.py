@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from ai_game_player import windows_input
 from ai_game_player.action_executor import ActionExecutor
 from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
@@ -104,7 +105,8 @@ class WindowsInputTest(unittest.TestCase):
             self.assertEqual(ledger.snapshot()["held_keys"], {"65": 101.0})
             self.assertEqual(ledger.snapshot()["held_mouse"], {"left": 101.0})
 
-            executor.release_all()
+            with patch.object(windows_input.os, "name", "nt"):
+                executor.release_all()
 
         self.assertEqual(user32.key_events, [(0x41, 0), (0x41, 2)])
         self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0)])
