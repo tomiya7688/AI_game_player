@@ -19,6 +19,8 @@ class FakeUser32:
         self.key_events = []
         self.messages = []
         self.failed_messages = set()
+        self.failed_mouse_flags = set()
+        self.failed_key_flags = set()
 
     def GetWindowRect(self, _handle, rect_pointer):
         rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
@@ -37,9 +39,13 @@ class FakeUser32:
 
     def mouse_event(self, flags, _x, _y, _data, _extra):
         self.mouse_events.append((flags, _x, _y))
+        if flags in self.failed_mouse_flags:
+            raise RuntimeError("fake mouse event failed")
 
     def keybd_event(self, virtual_key, _scan_code, flags, _extra):
         self.key_events.append((virtual_key, flags))
+        if flags in self.failed_key_flags:
+            raise RuntimeError("fake key event failed")
 
     def PostMessageW(self, handle, message, wparam, lparam):
         self.messages.append((handle, message, wparam, lparam))
@@ -181,6 +187,48 @@ class WindowsInputTest(unittest.TestCase):
         self.assertEqual(user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0101, 0x41, 0), (123, 0x0101, 0x41, 0)])
         self.assertEqual(user32.key_events, [])
         self.assertEqual(ledger.snapshot()["held_keys"], {})
+
+    def test_release_all_keeps_global_key_ledger_after_release_api_failure(self):
+        user32 = FakeUser32()
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        executor = WindowsInputExecutor(input_ledger=ledger)
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            executor._key_down(0x41)
+            user32.failed_key_flags = {2}
+            with patch.object(windows_input.os, "name", "nt"):
+                with self.assertRaisesRegex(RuntimeError, "fake key event failed"):
+                    executor.release_all()
+
+                self.assertEqual(executor._held_keys, {0x41})
+                self.assertEqual(ledger.snapshot()["held_keys"], {"65": 101.0})
+
+                user32.failed_key_flags.clear()
+                executor.release_all()
+
+        self.assertEqual(user32.key_events, [(0x41, 0), (0x41, 2), (0x41, 2)])
+        self.assertEqual(ledger.snapshot()["held_keys"], {})
+
+    def test_release_all_keeps_global_mouse_ledger_after_release_api_failure(self):
+        user32 = FakeUser32()
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        executor = WindowsInputExecutor(input_ledger=ledger)
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            executor._mouse_down("left")
+            user32.failed_mouse_flags = {0x0004}
+            with patch.object(windows_input.os, "name", "nt"):
+                with self.assertRaisesRegex(RuntimeError, "fake mouse event failed"):
+                    executor.release_all()
+
+                self.assertEqual(executor._held_mouse, {"left"})
+                self.assertEqual(ledger.snapshot()["held_mouse"], {"left": 101.0})
+
+                user32.failed_mouse_flags.clear()
+                executor.release_all()
+
+        self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0), (0x0004, 0, 0)])
+        self.assertEqual(ledger.snapshot()["held_mouse"], {})
 
     def test_special_key_names_are_defined(self):
         self.assertEqual(SPECIAL_KEYS["ENTER"], 0x0D)
