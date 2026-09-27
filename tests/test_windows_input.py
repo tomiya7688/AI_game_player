@@ -152,7 +152,8 @@ class WindowsInputTest(unittest.TestCase):
             self.assertEqual(ledger.snapshot()["held_mouse"], {"left": 101.0})
 
             user32.failed_messages.clear()
-            executor.release_all()
+            with patch.object(windows_input.os, "name", "nt"):
+                executor.release_all()
 
         self.assertEqual(user32.messages, [(123, 0x0201, 0x0001, 0x1234), (123, 0x0202, 0, 0x1234), (123, 0x0202, 0, 0x1234)])
         self.assertEqual(user32.mouse_events, [])
@@ -166,14 +167,16 @@ class WindowsInputTest(unittest.TestCase):
         with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
             executor._key_down(0x41)
             user32.failed_messages = {0x0101}
-            with self.assertRaisesRegex(RuntimeError, "key-up failed"):
-                executor.release_all()
+            with patch.object(windows_input.os, "name", "nt"):
+                with self.assertRaisesRegex(RuntimeError, "key-up failed"):
+                    executor.release_all()
 
             self.assertEqual(executor._held_keys, {0x41})
             self.assertEqual(ledger.snapshot()["held_keys"], {"65": 101.0})
 
             user32.failed_messages.clear()
-            executor.release_all()
+            with patch.object(windows_input.os, "name", "nt"):
+                executor.release_all()
 
         self.assertEqual(user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0101, 0x41, 0), (123, 0x0101, 0x41, 0)])
         self.assertEqual(user32.key_events, [])
