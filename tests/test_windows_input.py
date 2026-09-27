@@ -1,10 +1,12 @@
 import ctypes
 import os
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from ai_game_player.action_executor import ActionExecutor
+from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
 from ai_game_player.windows_input import SPECIAL_KEYS, WindowsInputExecutor
 
@@ -13,6 +15,7 @@ class FakeUser32:
     def __init__(self):
         self.cursor_positions = []
         self.mouse_events = []
+        self.key_events = []
         self.messages = []
 
     def GetWindowRect(self, _handle, rect_pointer):
@@ -32,6 +35,9 @@ class FakeUser32:
 
     def mouse_event(self, flags, _x, _y, _data, _extra):
         self.mouse_events.append((flags, _x, _y))
+
+    def keybd_event(self, virtual_key, _scan_code, flags, _extra):
+        self.key_events.append((virtual_key, flags))
 
     def PostMessageW(self, handle, message, wparam, lparam):
         self.messages.append((handle, message, wparam, lparam))
@@ -75,6 +81,35 @@ class WindowsInputTest(unittest.TestCase):
         expected_messages = [(123, 0x0201, 0x0001, expected_lparam), (123, 0x0202, 0, expected_lparam)]
         self.assertEqual(user32.messages, expected_messages)
         self.assertEqual(user32.cursor_positions, [])
+
+    def test_release_all_releases_fake_held_inputs_and_clears_ledger(self):
+        class MemoryStore:
+            def __init__(self):
+                self.data = {}
+
+            def read(self):
+                return self.data.copy()
+
+            def write(self, value):
+                self.data = value.copy()
+
+        user32 = FakeUser32()
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryStore(), clock=lambda: 100.0)
+        executor = WindowsInputExecutor(input_ledger=ledger)
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            executor._key_down(0x41)
+            executor._mouse_down("left")
+
+            self.assertEqual(ledger.snapshot()["held_keys"], {"65": 101.0})
+            self.assertEqual(ledger.snapshot()["held_mouse"], {"left": 101.0})
+
+            executor.release_all()
+
+        self.assertEqual(user32.key_events, [(0x41, 0), (0x41, 2)])
+        self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0)])
+        self.assertEqual(ledger.snapshot()["held_keys"], {})
+        self.assertEqual(ledger.snapshot()["held_mouse"], {})
 
     def test_special_key_names_are_defined(self):
         self.assertEqual(SPECIAL_KEYS["ENTER"], 0x0D)
