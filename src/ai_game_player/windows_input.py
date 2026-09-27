@@ -51,6 +51,7 @@ class WindowsInputExecutor:
             raise ValueError("hold TTL must be positive")
         self._held_keys: set[int] = set()
         self._held_mouse: set[str] = set()
+        self._held_mouse_lparams: dict[str, int] = {}
 
     def execute(self, candidate: ActionCandidate) -> ExecutionResult:
         from ai_game_player.action_executor import ExecutionResult
@@ -137,15 +138,22 @@ class WindowsInputExecutor:
         if self.window_handle is None:
             raise RuntimeError("window_message requires a selected window")
         self._ledger_hold_mouse("left")
-        self._held_mouse.add("left")
+        down_sent = False
+        up_sent = False
         try:
             if not user32.PostMessageW(self.window_handle, 0x0201, 0x0001, lparam):
                 raise RuntimeError("PostMessageW mouse-down failed")
+            down_sent = True
+            self._held_mouse.add("left")
+            self._held_mouse_lparams["left"] = lparam
             if not user32.PostMessageW(self.window_handle, 0x0202, 0, lparam):
                 raise RuntimeError("PostMessageW mouse-up failed")
+            up_sent = True
         finally:
-            self._held_mouse.discard("left")
-            self._ledger_release_mouse("left")
+            if not down_sent or up_sent:
+                self._held_mouse.discard("left")
+                self._held_mouse_lparams.pop("left", None)
+                self._ledger_release_mouse("left")
 
     def _execute_key(self, candidate: ActionCandidate) -> None:
         user32 = getattr(ctypes, "windll").user32
@@ -180,15 +188,20 @@ class WindowsInputExecutor:
 
     def _key_up(self, virtual_key: int) -> None:
         user32 = getattr(ctypes, "windll").user32
+        released = False
         try:
             if self.input_mode == "window_message":
-                if self.window_handle is not None:
-                    user32.PostMessageW(self.window_handle, 0x0101, virtual_key, 0)
+                if self.window_handle is None:
+                    raise RuntimeError("window_message requires a selected window")
+                if not user32.PostMessageW(self.window_handle, 0x0101, virtual_key, 0):
+                    raise RuntimeError("PostMessageW key-up failed")
             else:
                 user32.keybd_event(virtual_key, 0, 2, 0)
+            released = True
         finally:
-            self._held_keys.discard(virtual_key)
-            self._ledger_release_key(virtual_key)
+            if released:
+                self._held_keys.discard(virtual_key)
+                self._ledger_release_key(virtual_key)
 
     def _mouse_down(self, button: str) -> None:
         if button != "left":
@@ -202,12 +215,22 @@ class WindowsInputExecutor:
         self._held_mouse.add(button)
 
     def _mouse_up(self, button: str) -> None:
+        released = False
         try:
-            if button == "left":
+            if self.input_mode == "window_message":
+                if self.window_handle is None:
+                    raise RuntimeError("window_message requires a selected window")
+                lparam = self._held_mouse_lparams.get(button, 0)
+                if not getattr(ctypes, "windll").user32.PostMessageW(self.window_handle, 0x0202, 0, lparam):
+                    raise RuntimeError("PostMessageW mouse-up failed")
+            elif button == "left":
                 getattr(ctypes, "windll").user32.mouse_event(0x0004, 0, 0, 0, 0)
+            released = True
         finally:
-            self._held_mouse.discard(button)
-            self._ledger_release_mouse(button)
+            if released:
+                self._held_mouse.discard(button)
+                self._held_mouse_lparams.pop(button, None)
+                self._ledger_release_mouse(button)
 
     def _ledger_hold_key(self, virtual_key: int) -> None:
         if self.input_ledger is not None:

@@ -138,6 +138,47 @@ class WindowsInputTest(unittest.TestCase):
         self.assertEqual(user32.key_events, [])
         self.assertEqual(user32.mouse_events, [])
 
+    def test_release_all_retries_failed_window_message_mouse_up_without_os_input(self):
+        user32 = FakeUser32()
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", input_ledger=ledger)
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            user32.failed_messages = {0x0202}
+            with self.assertRaisesRegex(RuntimeError, "mouse-up failed"):
+                executor._post_click(0x1234)
+
+            self.assertEqual(executor._held_mouse, {"left"})
+            self.assertEqual(ledger.snapshot()["held_mouse"], {"left": 101.0})
+
+            user32.failed_messages.clear()
+            executor.release_all()
+
+        self.assertEqual(user32.messages, [(123, 0x0201, 0x0001, 0x1234), (123, 0x0202, 0, 0x1234), (123, 0x0202, 0, 0x1234)])
+        self.assertEqual(user32.mouse_events, [])
+        self.assertEqual(ledger.snapshot()["held_mouse"], {})
+
+    def test_release_all_retries_failed_window_message_key_up(self):
+        user32 = FakeUser32()
+        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", input_ledger=ledger)
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            executor._key_down(0x41)
+            user32.failed_messages = {0x0101}
+            with self.assertRaisesRegex(RuntimeError, "key-up failed"):
+                executor.release_all()
+
+            self.assertEqual(executor._held_keys, {0x41})
+            self.assertEqual(ledger.snapshot()["held_keys"], {"65": 101.0})
+
+            user32.failed_messages.clear()
+            executor.release_all()
+
+        self.assertEqual(user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0101, 0x41, 0), (123, 0x0101, 0x41, 0)])
+        self.assertEqual(user32.key_events, [])
+        self.assertEqual(ledger.snapshot()["held_keys"], {})
+
     def test_special_key_names_are_defined(self):
         self.assertEqual(SPECIAL_KEYS["ENTER"], 0x0D)
         self.assertEqual(SPECIAL_KEYS["SPACE"], 0x20)
