@@ -14,6 +14,7 @@ from ai_game_player.models import ActionCandidate
 from ai_game_player.safety_guard import (
     EmergencyStop,
     EmergencyStopMonitor,
+    NativeSafetyValidator,
     SafetyGuard,
     SafetyGuardConfig,
     SafetyLog,
@@ -129,6 +130,75 @@ class FakeExecutor:
 
 
 class SafetyGuardTest(unittest.TestCase):
+    def test_native_safety_validator_loads_and_calls_the_ctypes_abi_contract(self):
+        class FakeNativeFunction:
+            def __init__(self):
+                self.argtypes = None
+                self.restype = None
+                self.action = None
+
+            def __call__(self, action_pointer, result_pointer):
+                action = ctypes.cast(
+                    action_pointer,
+                    ctypes.POINTER(NativeSafetyValidator._Action),
+                ).contents
+                result = ctypes.cast(
+                    result_pointer,
+                    ctypes.POINTER(NativeSafetyValidator._Result),
+                ).contents
+                self.action = {
+                    name: getattr(action, name)
+                    for name, _field_type in NativeSafetyValidator._Action._fields_
+                }
+                result.allowed = 1
+                result.reason_code = 17
+                return 0
+
+        fake_function = FakeNativeFunction()
+        library = SimpleNamespace(kadoka_safety_validate_action=fake_function)
+        configured_path = str(Path(__file__).resolve())
+
+        with (
+            patch.dict(safety_guard_module.os.environ, {"KADOKA_NATIVE_RUNTIME": configured_path}),
+            patch.object(safety_guard_module.ctypes, "CDLL", return_value=library) as load_library,
+        ):
+            validator = NativeSafetyValidator.try_load()
+
+        self.assertIsNotNone(validator)
+        load_library.assert_called_once_with(configured_path)
+        self.assertEqual(
+            fake_function.argtypes,
+            [
+                ctypes.POINTER(NativeSafetyValidator._Action),
+                ctypes.POINTER(NativeSafetyValidator._Result),
+            ],
+        )
+        self.assertIs(fake_function.restype, ctypes.c_int32)
+
+        allowed, reason = validator.validate(
+            ActionCandidate("native-check", "key", "CTRL+F4", hold_seconds=0.25),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+
+        self.assertEqual((allowed, reason), (True, 17))
+        self.assertEqual(
+            fake_function.action,
+            {
+                "struct_size": ctypes.sizeof(NativeSafetyValidator._Action),
+                "kind": 3,
+                "x": 0,
+                "y": 0,
+                "viewport_width": 640,
+                "viewport_height": 480,
+                "hold_seconds": 0.25,
+                "max_hold_seconds": 0.5,
+                "key_code": 0x73,
+                "modifiers": 1,
+            },
+        )
+
     def test_windows_target_probe_reads_pid_visibility_and_client_geometry_without_os_calls(self):
         user32 = FakeWindowUser32()
 
