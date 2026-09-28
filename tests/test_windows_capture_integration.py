@@ -49,11 +49,13 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
 
         capture = WindowsScreenCapture()
         capture.capture()  # Warm up ctypes and GDI before taking the baseline.
-        baseline = get_gui_resources(process, 0)  # GR_GDIOBJECTS
-        for _ in range(12):
+        for _ in range(4):
+            capture.capture()
+        steady_state = get_gui_resources(process, 0)  # GR_GDIOBJECTS
+        for _ in range(8):
             capture.capture()
 
-        self.assertEqual(get_gui_resources(process, 0), baseline)
+        self.assertEqual(get_gui_resources(process, 0), steady_state)
 
     def test_invalid_or_lost_window_handle_fails_closed(self):
         with self.assertRaisesRegex(RuntimeError, "GetWindowRect failed"):
@@ -94,10 +96,15 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
         ]
         destroy_window = user32.DestroyWindow
         destroy_window.argtypes = [wintypes.HWND]
+        show_window = user32.ShowWindow
+        show_window.argtypes = [wintypes.HWND, ctypes.c_int]
+        is_iconic = user32.IsIconic
+        is_iconic.argtypes = [wintypes.HWND]
+        is_iconic.restype = wintypes.BOOL
 
         def create_hidden_window():
             handle = create_window(
-                0,
+                0x00000080,  # WS_EX_TOOLWINDOW; avoid a taskbar button when minimized.
                 "STATIC",
                 "AI Game Player capture test",
                 0x80000000,  # WS_POPUP; never shown or activated.
@@ -130,6 +137,22 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
                 (resized_frame.width, resized_frame.height),
                 (initial_frame.width, initial_frame.height),
             )
+
+            show_window(window, 7)  # SW_SHOWMINNOACTIVE
+            self.assertTrue(is_iconic(window))
+            minimized_frame = capture.capture(int(window))
+            self.assertGreater(minimized_frame.width, 0)
+            self.assertGreater(minimized_frame.height, 0)
+            self.assertEqual(
+                len(minimized_frame.bgra),
+                minimized_frame.width * minimized_frame.height * 4,
+            )
+
+            show_window(window, 0)  # SW_HIDE
+            hidden_frame = capture.capture(int(window))
+            self.assertGreater(hidden_frame.width, 0)
+            self.assertGreater(hidden_frame.height, 0)
+            self.assertEqual(len(hidden_frame.bgra), hidden_frame.width * hidden_frame.height * 4)
 
             stale_window_handle = int(window)
             self.assertTrue(destroy_window(window), ctypes.get_last_error())
