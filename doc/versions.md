@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Windows Capture integrationで最小化・非表示のテスト用HWNDでもフレーム寸法とBGRA契約が維持されることを確認し、内容取得は保証しない制約を明記する。
+
 - Windows CaptureのWin32/GDIハンドル取得失敗を明示し、途中まで確保したDC/Bitmapを解放する失敗経路をfake APIで検証する。
 
 - Windows Captureを連続実行してもプロセスのGDIオブジェクト数が増加しないことをCIで検証する。
