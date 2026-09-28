@@ -37,6 +37,24 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
 
         self.assertTrue(all(earlier.captured_at <= later.captured_at for earlier, later in zip(frames, frames[1:])))
 
+    def test_repeated_capture_releases_gdi_resources(self):
+        user32 = ctypes.WinDLL("user32", use_last_error=True)
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        get_current_process = kernel32.GetCurrentProcess
+        get_current_process.restype = wintypes.HANDLE
+        get_gui_resources = user32.GetGuiResources
+        get_gui_resources.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        get_gui_resources.restype = wintypes.DWORD
+        process = get_current_process()
+
+        capture = WindowsScreenCapture()
+        capture.capture()  # Warm up ctypes and GDI before taking the baseline.
+        baseline = get_gui_resources(process, 0)  # GR_GDIOBJECTS
+        for _ in range(12):
+            capture.capture()
+
+        self.assertEqual(get_gui_resources(process, 0), baseline)
+
     def test_invalid_or_lost_window_handle_fails_closed(self):
         with self.assertRaisesRegex(RuntimeError, "GetWindowRect failed"):
             WindowsScreenCapture().capture(-1)
