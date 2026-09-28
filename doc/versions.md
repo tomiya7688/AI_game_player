@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Windows CaptureのWin32/GDIハンドル取得失敗を明示し、途中まで確保したDC/Bitmapを解放する失敗経路をfake APIで検証する。
+
 - Windows Captureを連続実行してもプロセスのGDIオブジェクト数が増加しないことをCIで検証する。
 
 - ScreenFrameにプロセス内で比較可能なmonotonic取得時刻を追加し、Windows Capture連続取得で非減少を検証する。
