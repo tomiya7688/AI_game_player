@@ -1,4 +1,6 @@
 import json
+import hashlib
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,6 +13,8 @@ from ai_game_player.experience import (
     ExperienceStep,
     InMemoryExperienceReader,
 )
+from ai_game_player.artifact_store import FileSystemArtifactStore
+from ai_game_player.experience_reader import ExperienceRecoveryError, JsonlExperienceReader, migrate_experience_dict
 
 
 def episode() -> ExperienceEpisode:
@@ -91,6 +95,111 @@ class ExperienceSchemaTest(unittest.TestCase):
         self.assertIsNone(reader.get_episode("episode.missing"))
         with self.assertRaisesRegex(ValueError, "duplicate episode ID"):
             InMemoryExperienceReader((record, record))
+
+
+class ExperienceReaderTest(unittest.TestCase):
+    def _episode_with_states(self) -> ExperienceEpisode:
+        snapshot = ExperienceEvent(
+            "event.snapshot", "state.snapshot", "2026-09-30T10:00:00Z", "runtime",
+            payload={"state": {"hp": 10, "room": "start"}},
+        )
+        delta = ExperienceEvent(
+            "event.delta", "state.delta", "2026-09-30T10:00:01Z", "runtime",
+            payload={"set": {"hp": 8, "room": "next"}, "remove": []},
+        )
+        first = ExperienceStep("step.initial", 0, "2026-09-30T10:00:00Z", "runtime", events=(snapshot,))
+        second = ExperienceStep("step.next", 1, "2026-09-30T10:00:01Z", "runtime", events=(delta,))
+        return ExperienceEpisode("episode.states", "2026-09-30T10:00:00Z", "game.session", steps=(first, second))
+
+    def test_reads_arbitrary_step_and_reconstructs_snapshot_plus_deltas(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parents[1]) as directory:
+            path = Path(directory) / "episodes.jsonl"
+            path.write_text(json.dumps(self._episode_with_states().to_dict()) + "\n", encoding="utf-8")
+            reader = JsonlExperienceReader(path)
+
+            self.assertEqual("step.next", reader.get_step("episode.states", "step.next").step_id)
+            self.assertEqual({"hp": 8, "room": "next"}, reader.reconstruct_state("episode.states", "step.next"))
+            self.assertEqual({"hp": 10, "room": "start"}, reader.reconstruct_state("episode.states", "step.initial"))
+            self.assertIsNone(reader.get_step("episode.states", "step.missing"))
+
+    def test_query_filters_indexed_episodes(self):
+        first = self._episode_with_states()
+        other = ExperienceEpisode("episode.other", "2026-09-30T11:00:00Z", "other.source")
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parents[1]) as directory:
+            path = Path(directory) / "episodes.jsonl"
+            path.write_text("\n".join(json.dumps(item.to_dict()) for item in (first, other)) + "\n", encoding="utf-8")
+            reader = JsonlExperienceReader(path)
+            self.assertEqual((first,), reader.find(source="game.session", created_after="2026-09-30T09:00:00Z"))
+
+    def test_migrates_legacy_v0_episode_step_and_event(self):
+        legacy = self._episode_with_states().to_dict()
+        legacy.pop("schema_version")
+        for field in ("model_id", "model_version", "artifacts", "provenance"):
+            legacy.pop(field)
+        for step in legacy["steps"]:
+            for field in ("model_id", "model_version", "artifacts", "provenance"):
+                step.pop(field)
+            for event in step["events"]:
+                for field in ("artifacts", "provenance", "model_id", "model_version"):
+                    event.pop(field)
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parents[1]) as directory:
+            path = Path(directory) / "legacy.jsonl"
+            path.write_text(json.dumps(legacy) + "\n", encoding="utf-8")
+            reader = JsonlExperienceReader(path)
+            restored = reader.get_episode("episode.states")
+            self.assertEqual(EXPERIENCE_SCHEMA_VERSION, restored.schema_version)
+            self.assertEqual({"hp": 8, "room": "next"}, reader.reconstruct_state("episode.states", "step.next"))
+            self.assertEqual(EXPERIENCE_SCHEMA_VERSION, migrate_experience_dict(legacy)["schema_version"])
+
+    def test_recovers_truncated_final_record_but_rejects_corrupt_interior(self):
+        valid = json.dumps(self._episode_with_states().to_dict()) + "\n"
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parents[1]) as directory:
+            path = Path(directory) / "episodes.jsonl"
+            path.write_text(valid + '{"schema_version":', encoding="utf-8")
+            reader = JsonlExperienceReader(path)
+            self.assertEqual(("episode.states",), tuple(item.episode_id for item in reader.iter_episodes()))
+            self.assertEqual(1, len(reader.recovery_notices))
+
+            path.write_text('{bad json}\n' + valid, encoding="utf-8")
+            with self.assertRaisesRegex(ExperienceRecoveryError, "interior record"):
+                JsonlExperienceReader(path)
+
+            unsupported = self._episode_with_states().to_dict()
+            unsupported["schema_version"] = EXPERIENCE_SCHEMA_VERSION + 1
+            path.write_text(json.dumps(unsupported), encoding="utf-8")
+            with self.assertRaisesRegex(ExperienceRecoveryError, "unsupported experience schema"):
+                JsonlExperienceReader(path)
+
+    def test_validates_checkpoint_and_artifact_references(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parents[1]) as directory:
+            root = Path(directory)
+            store = FileSystemArtifactStore(root / "artifacts")
+            reference = store.put(b"frame", media_type="image/png", sensitive=True)
+            record = ExperienceEpisode(
+                "episode.with-artifact", "2026-09-30T10:00:00Z", "game.session", artifacts=(reference,),
+            )
+            path = root / "episodes.jsonl"
+            raw = (json.dumps(record.to_dict()) + "\n").encode("utf-8")
+            path.write_bytes(raw)
+            checkpoint = {"line_count": 1, "sha256": hashlib.sha256(raw).hexdigest()}
+            Path(str(path) + ".checkpoint.json").write_text(json.dumps(checkpoint), encoding="utf-8")
+            reader = JsonlExperienceReader(path, artifact_store=store)
+            self.assertTrue(reader.checkpoint_valid)
+
+            missing = ArtifactReference("artifact.missing", "0" * 64, "image/png", True)
+            broken = ExperienceEpisode(
+                "episode.missing-artifact", "2026-09-30T10:00:00Z", "game.session", artifacts=(missing,),
+            )
+            path.write_text(json.dumps(broken.to_dict()) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "artifact not found"):
+                JsonlExperienceReader(path, artifact_store=store)
+
+            path.write_bytes(raw)
+            checkpoint["sha256"] = "0" * 64
+            Path(str(path) + ".checkpoint.json").write_text(json.dumps(checkpoint), encoding="utf-8")
+            reader = JsonlExperienceReader(path, artifact_store=store)
+            self.assertFalse(reader.checkpoint_valid)
+            self.assertEqual(1, len(reader.recovery_notices))
 
 
 if __name__ == "__main__":
