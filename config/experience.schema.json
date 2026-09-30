@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:experience:1",
+  "title": "AI Game Player Canonical Experience Episode",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "episode_id", "created_at", "source", "model_id", "model_version", "artifacts", "provenance", "steps"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "episode_id": {"$ref": "#/$defs/identifier"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source": {"$ref": "#/$defs/identifier"},
+    "model_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "model_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifactReference"}},
+    "provenance": {"anyOf": [{"$ref": "#/$defs/provenance"}, {"type": "null"}]},
+    "steps": {"type": "array", "items": {"$ref": "#/$defs/step"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"model_id": {"type": "string"}}, "required": ["model_id"]},
+      "then": {"properties": {"model_version": {"$ref": "#/$defs/version"}}}
+    },
+    {
+      "if": {"properties": {"model_version": {"type": "string"}}, "required": ["model_version"]},
+      "then": {"properties": {"model_id": {"$ref": "#/$defs/identifier"}}}
+    }
+  ],
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}([-+][A-Za-z0-9.-]+)?$"},
+    "artifactReference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "media_type", "sensitive"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/identifier"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "media_type": {"type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$"},
+        "sensitive": {"type": "boolean"}
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "actor_id", "model_id", "model_version", "confidence", "evidence_event_id"],
+      "properties": {
+        "source": {"$ref": "#/$defs/identifier"},
+        "actor_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "confidence": {"anyOf": [{"type": "number", "minimum": 0, "maximum": 1}, {"type": "null"}]},
+        "evidence_event_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}
+      },
+      "allOf": [
+        {"if": {"properties": {"model_id": {"type": "string"}}, "required": ["model_id"]}, "then": {"properties": {"model_version": {"$ref": "#/$defs/version"}}}},
+        {"if": {"properties": {"model_version": {"type": "string"}}, "required": ["model_version"]}, "then": {"properties": {"model_id": {"$ref": "#/$defs/identifier"}}}}
+      ]
+    },
+    "event": {
+      "type": "object", "additionalProperties": false,
+      "required": ["event_id", "event_type", "timestamp", "source", "payload", "model_id", "model_version", "artifacts", "provenance"],
+      "properties": {
+        "event_id": {"$ref": "#/$defs/identifier"}, "event_type": {"$ref": "#/$defs/identifier"},
+        "timestamp": {"type": "string", "format": "date-time"}, "source": {"$ref": "#/$defs/identifier"},
+        "payload": {"type": "object"},
+        "model_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifactReference"}},
+        "provenance": {"anyOf": [{"$ref": "#/$defs/provenance"}, {"type": "null"}]}
+      }
+    },
+    "step": {
+      "type": "object", "additionalProperties": false,
+      "required": ["step_id", "sequence", "timestamp", "source", "events", "model_id", "model_version", "artifacts", "provenance"],
+      "properties": {
+        "step_id": {"$ref": "#/$defs/identifier"}, "sequence": {"type": "integer", "minimum": 0},
+        "timestamp": {"type": "string", "format": "date-time"}, "source": {"$ref": "#/$defs/identifier"},
+        "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+        "model_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifactReference"}},
+        "provenance": {"anyOf": [{"$ref": "#/$defs/provenance"}, {"type": "null"}]}
+      }
+    }
+  }
+}

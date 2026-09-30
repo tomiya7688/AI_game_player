@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #166: Episode/Step/Event canonical Experience schema、source/model provenance、sensitive artifact referencesと論理Reader APIを追加。
+
 - Issue #181: Model learning capability、Dataset/Trainer compatibility、artifact provenanceおよびuntrainable状態を表すversioned contractとJSON Schemasを追加。
 
 - Issue #220: Capability Manifestを使うComposition Resolver、preferred/default選択、dependency/health検査、fallbackとdegraded reason、provider lifecycle cleanupを追加。
