@@ -1,0 +1,157 @@
+{
+  "schema": "kadoka-runtime-boundary/v1",
+  "contract_version": 1,
+  "capabilities": [
+    "capture",
+    "input",
+    "safety",
+    "fast_cv"
+  ],
+  "coarse_boundary_units": [
+    "frame",
+    "observation",
+    "candidate_set",
+    "decision",
+    "batch",
+    "control_lease"
+  ],
+  "components": [
+    {
+      "name": "capture",
+      "capability": "capture",
+      "preferred_language": "cpp",
+      "current_language": "python",
+      "boundary_unit": "frame",
+      "status": "native_target",
+      "reason": "High-frequency Windows/native API work; cross the boundary once per complete frame."
+    },
+    {
+      "name": "input",
+      "capability": "input",
+      "preferred_language": "cpp",
+      "current_language": "python",
+      "boundary_unit": "decision",
+      "status": "native_target",
+      "reason": "OS input and release-all are latency/safety sensitive and should not depend on Python scheduling long term."
+    },
+    {
+      "name": "safety",
+      "capability": "safety",
+      "preferred_language": "cpp",
+      "current_language": "cpp",
+      "boundary_unit": "decision",
+      "status": "implemented",
+      "reason": "Deterministic action validation already has a C ABI implementation and remains available independently of model inference."
+    },
+    {
+      "name": "fast_cv",
+      "capability": "fast_cv",
+      "preferred_language": "cpp",
+      "current_language": "python_native_libraries",
+      "boundary_unit": "frame",
+      "status": "native_when_measured",
+      "reason": "Keep OpenCV/NumPy-backed work high-level while native code owns measured Python loops or latency-sensitive frame primitives."
+    },
+    {
+      "name": "decision_context",
+      "preferred_language": "python",
+      "current_language": "python",
+      "boundary_unit": "candidate_set",
+      "status": "implemented",
+      "reason": "Rapidly changing AI/orchestration logic benefits from Python and is not a per-pixel hot path."
+    },
+    {
+      "name": "model_orchestration",
+      "preferred_language": "python",
+      "current_language": "python",
+      "boundary_unit": "observation",
+      "status": "implemented",
+      "reason": "AI/ML ecosystem integration and experimentation dominate over interpreter overhead."
+    },
+    {
+      "name": "evaluation_outcome",
+      "preferred_language": "python",
+      "current_language": "python",
+      "boundary_unit": "observation",
+      "status": "implemented",
+      "reason": "High-level semantic policy remains separate from deterministic native safety."
+    },
+    {
+      "name": "ui_tooling",
+      "preferred_language": "python",
+      "current_language": "python",
+      "boundary_unit": "batch",
+      "status": "implemented",
+      "reason": "UI/tooling is not currently latency-critical enough to justify another mandatory runtime."
+    },
+    {
+      "name": "game_rules_plugins",
+      "preferred_language": "python",
+      "current_language": "python",
+      "boundary_unit": "candidate_set",
+      "status": "lua_deferred",
+      "reason": "Lua is a strong embedded rule/plugin candidate, but adding a mandatory script runtime before the plugin contract stabilizes has negative current net benefit."
+    }
+  ],
+  "languages": {
+    "python": {
+      "decision": "adopted",
+      "roles": [
+        "ai_ml",
+        "orchestration",
+        "evaluation",
+        "learning",
+        "ui",
+        "tooling"
+      ]
+    },
+    "cpp": {
+      "decision": "adopted",
+      "roles": [
+        "native_runtime",
+        "safety",
+        "input_target",
+        "capture_target",
+        "fast_cv_target"
+      ]
+    },
+    "lua": {
+      "decision": "deferred",
+      "roles": [
+        "game_specific_rules",
+        "policy_plugins"
+      ],
+      "revisit_when": "A stable plugin ABI exists and measured startup/deployment cost is smaller than the sandboxing and extension benefit."
+    },
+    "csharp": {
+      "decision": "deferred",
+      "roles": [
+        "windows_shell",
+        "native_runtime_management"
+      ],
+      "revisit_when": "Windows shell, accessibility, installer, tray, or lifecycle requirements materially exceed the current bundled Python UI capability."
+    },
+    "javascript_typescript": {
+      "decision": "optional",
+      "roles": [
+        "web_control_panel",
+        "developer_tooling"
+      ],
+      "revisit_when": "A browser/web surface is implemented and can remain outside the safety-critical runtime path."
+    }
+  },
+  "distribution": {
+    "self_contained": true,
+    "manual_end_user_toolchains_forbidden": [
+      "python",
+      "pip",
+      "cmake",
+      "msvc",
+      "lua",
+      "node",
+      "dotnet_sdk"
+    ],
+    "windows_bundle_entrypoint": "tools/build_windows_bundle.ps1",
+    "bundled_native_library": "kadoka_native_runtime.dll"
+  }
+}
