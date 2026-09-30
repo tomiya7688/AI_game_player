@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #181: Model learning capability、Dataset/Trainer compatibility、artifact provenanceおよびuntrainable状態を表すversioned contractとJSON Schemasを追加。
+
 - Issue #220: Capability Manifestを使うComposition Resolver、preferred/default選択、dependency/health検査、fallbackとdegraded reason、provider lifecycle cleanupを追加。
 
 - Issue #219: Optional feature capability manifestのJSON Schema、runtime検証、required/optional dependency・lifecycle・config namespace・fallback/degraded mode宣言と検証を追加。

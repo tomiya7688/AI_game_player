@@ -277,6 +277,24 @@ classDiagram
         +_read()
         +_write()
     }
+    class LearningCapabilityManifest {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +validate_compatibility()
+    }
+    class LearningArtifactProvenance {
+        +__post_init__()
+        +validate_for()
+        +to_dict()
+        +from_dict()
+    }
+    class LearningCapabilityRegistry {
+        +__init__()
+        +register()
+        +resolve()
+        +manifests()
+    }
     class LoopGuard {
         +__init__()
         +observe()
