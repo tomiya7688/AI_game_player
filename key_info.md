@@ -9,10 +9,12 @@
 - dry-run、連続実行、停止（ボタン/Esc/F12/手動マウス移動）
 - ルールまたはOllamaによるsuccess/failure/ongoing評価
 - 判断・実行・状態評価の履歴とログ
+- ExperienceからDecision/OCR/UI/Embedding/Evaluator向けのTraining Datasetを生成・重複排除・固定seed分割・JSON export
 
 ## 制約
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
 - OCRは`Pillow`と`pytesseract`の任意依存で、未導入時は手入力候補のみです。ゲーム固有の成功条件は追加調整が必要です。
+- Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。
 - 長期目的、知識埋め込み、複数人格比較は未実装です。
