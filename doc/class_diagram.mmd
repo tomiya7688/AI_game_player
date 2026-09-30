@@ -261,6 +261,22 @@ classDiagram
         +get_episode()
         +iter_episodes()
     }
+    class RecoveryNotice {
+    }
+    ValueError <|-- ExperienceRecoveryError
+    class ExperienceRecoveryError {
+    }
+    class JsonlExperienceReader {
+        +__init__()
+        +get_episode()
+        +iter_episodes()
+        +get_step()
+        +find()
+        +reconstruct_state()
+        +_load()
+        +_validate_checkpoint()
+        +_validate_artifacts()
+    }
     str <|-- FailSafeState
     Enum <|-- FailSafeState
     class FailSafeState {

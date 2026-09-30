@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #168: JSONL Experience Readerの任意Step/検索index、snapshot/delta再構築、schema v0移行、破損tail回復、checkpoint検証とArtifact参照検査を追加。
+
 - Issue #167: SHA-256 content-addressed Artifact Store、atomic publication、artifact type metadata schema、dedup/integrity/orphan検査とlocal benchmarkを追加。
 
 - Issue #166: Episode/Step/Event canonical Experience schema、source/model provenance、sensitive artifact referencesと論理Reader APIを追加。
