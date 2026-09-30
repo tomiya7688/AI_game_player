@@ -193,6 +193,41 @@ classDiagram
         +load()
         +append()
     }
+    class ArtifactReference {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class ExperienceProvenance {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class ExperienceEvent {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class ExperienceStep {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class ExperienceEpisode {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    Protocol <|-- ExperienceReader
+    class ExperienceReader {
+        +get_episode()
+        +iter_episodes()
+    }
+    class InMemoryExperienceReader {
+        +__init__()
+        +get_episode()
+        +iter_episodes()
+    }
     str <|-- FailSafeState
     Enum <|-- FailSafeState
     class FailSafeState {
