@@ -19,4 +19,10 @@ Optional features declare their capability IDs, required and optional dependency
 }
 ```
 
-Register manifests first, then call `CapabilityManifestRegistry.validate(available_dependencies)` to check fallback references, compatibility, capability coverage, cycles, and required dependencies that have no fallback. `manifests_for(capability)` provides discovery metadata without selecting an implementation. Runtime selection and fallback execution are deliberately left to the separate Composition Resolver in Issue #220.
+Register manifests first, then call `CapabilityManifestRegistry.validate(available_dependencies)` to check fallback references, compatibility, capability coverage, cycles, and required dependencies that have no fallback. `manifests_for(capability)` provides discovery metadata without selecting an implementation.
+
+## Composition Resolver
+
+`CompositionResolver` in `runtime/composition.py` binds manifest IDs to provider factories. Resolution is explicit per capability: a caller may provide a preferred manifest ID, or use the resolver's configured preference; without one, registration order is the deterministic default. The resolver checks declared required dependencies, initializes the provider, and requires a passing `is_healthy()` check. Failures follow the declared fallback chain and are returned as structured reasons on `ResolvedFeature`; optional dependency absence or unknown availability marks the result degraded and includes the declared degraded mode.
+
+The returned `LifecycleHandle` owns the selected provider and closes/shuts it down once, including context-manager use. A provider whose initialization or health check fails is cleaned up before trying its fallback. This resolver is intentionally separate from the GUI/Application composition root; Issue #147 remains responsible for wiring production components into the application.

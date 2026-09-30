@@ -11,6 +11,12 @@ from ai_game_player.runtime.manifest import (
     FeatureLifecycle,
     MANIFEST_SCHEMA_VERSION,
 )
+from ai_game_player.runtime.composition import (
+    CompositionResolver,
+    LifecycleHandle,
+    ResolvedFeature,
+    ResolutionFailure,
+)
 
 __all__ = [
     "RuntimeBackend",
@@ -22,4 +28,8 @@ __all__ = [
     "CapabilityManifestRegistry",
     "FeatureLifecycle",
     "MANIFEST_SCHEMA_VERSION",
+    "CompositionResolver",
+    "LifecycleHandle",
+    "ResolvedFeature",
+    "ResolutionFailure",
 ]
