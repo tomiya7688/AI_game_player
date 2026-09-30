@@ -468,6 +468,23 @@ classDiagram
         +descriptor()
         +is_healthy()
     }
+    str <|-- FeatureLifecycle
+    Enum <|-- FeatureLifecycle
+    class FeatureLifecycle {
+    }
+    class CapabilityManifest {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class CapabilityManifestRegistry {
+        +__init__()
+        +register()
+        +get()
+        +validate()
+        +manifests_for()
+        +_fallback_chain()
+    }
     class RuntimeRegistry {
         +__init__()
         +register()
