@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/inference-provider/v1/models-response.schema.json",
+  "title": "Kadoka Inference Models Response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "provider_id", "provider_version", "models"],
+  "properties": {
+    "schema": { "const": "kadoka.inference.models/1" },
+    "provider_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "provider_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "display_name",
+          "operations",
+          "input_modalities",
+          "loaded",
+          "is_default"
+        ],
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "revision": { "type": ["string", "null"], "maxLength": 256 },
+          "display_name": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "operations": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["decision", "outcome_assessment", "text_generation"] }
+          },
+          "input_modalities": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["text", "json", "image"] }
+          },
+          "context_window_tokens": { "type": ["integer", "null"], "minimum": 1 },
+          "max_output_tokens": { "type": ["integer", "null"], "minimum": 1 },
+          "loaded": { "type": "boolean" },
+          "is_default": { "type": "boolean" },
+          "local_artifact": { "type": ["boolean", "null"] },
+          "metadata": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  }
+}

@@ -29,9 +29,13 @@ jobs:
         env:
           PYTHONPATH: src
         run: python tools/performance_check.py --budget-multiplier ${{ matrix.multiplier }}
+      - name: Run deterministic bad-AI robustness and non-LLM core performance
+        env:
+          PYTHONPATH: src
+        run: python tools/noisy_provider_ci.py --budget-multiplier ${{ matrix.multiplier }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-report-${{ matrix.os }}
-          path: build/performance/report.json
+          path: build/performance
           if-no-files-found: error

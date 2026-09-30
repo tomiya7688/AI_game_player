@@ -8,6 +8,94 @@ permissions:
   contents: read
 
 jobs:
+  contract-assets:
+    name: Provider schema / Reference game source pins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install schema validator
+        run: python -m pip install --disable-pip-version-check jsonschema
+      - name: Validate versioned Provider and config schemas
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          schema_paths = [
+              Path("schemas/inference_provider/v1/provider_manifest.schema.json"),
+              Path("schemas/inference_provider/v1/inference_request.schema.json"),
+              Path("schemas/inference_provider/v1/inference_response.schema.json"),
+              Path("schemas/inference_provider/v1/health_response.schema.json"),
+              Path("schemas/inference_provider/v1/capabilities_response.schema.json"),
+              Path("schemas/inference_provider/v1/models_response.schema.json"),
+              Path("schemas/inference_provider/v1/cancel_request.schema.json"),
+              Path("schemas/inference_provider/v1/cancel_response.schema.json"),
+              Path("schemas/config/default_models.schema.json"),
+              Path("schemas/config/e2e_reference_games.schema.json"),
+              Path("schemas/config/noisy_provider_ci.schema.json"),
+          ]
+          schemas = {}
+          for path in schema_paths:
+              schema = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator.check_schema(schema)
+              schemas[path.as_posix()] = schema
+              print(f"SCHEMA OK {path}")
+
+          instances = [
+              (
+                  Path("config/default_models.json"),
+                  schemas["schemas/config/default_models.schema.json"],
+              ),
+              (
+                  Path("config/e2e_reference_games.json"),
+                  schemas["schemas/config/e2e_reference_games.schema.json"],
+              ),
+              (
+                  Path("config/noisy_provider_ci.json"),
+                  schemas["schemas/config/noisy_provider_ci.schema.json"],
+              ),
+          ]
+          for path, schema in instances:
+              instance = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator(schema).validate(instance)
+              print(f"INSTANCE OK {path}")
+
+          examples = [
+              (
+                  Path("schemas/inference_provider/v1/examples/bundled_local_provider.json"),
+                  schemas["schemas/inference_provider/v1/provider_manifest.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/local_remote_bridge_provider.json"),
+                  schemas["schemas/inference_provider/v1/provider_manifest.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/decision_request.json"),
+                  schemas["schemas/inference_provider/v1/inference_request.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/decision_response.json"),
+                  schemas["schemas/inference_provider/v1/inference_response.schema.json"],
+              ),
+          ]
+          for path, schema in examples:
+              instance = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator(schema).validate(instance)
+              print(f"EXAMPLE OK {path}")
+          PY
+      - name: Materialize pinned OSS Reference Game sources
+        run: python tools/fetch_ci_games.py --all --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kadoka-reference-game-lock
+          path: build/ci-games/manifest-lock.json
+          if-no-files-found: error
+
   native-cpp:
     name: C++20 native (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

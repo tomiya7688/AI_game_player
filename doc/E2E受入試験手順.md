@@ -124,3 +124,85 @@ PR Gateは専用サンプルウィンドウだけを対象とする。live input
 - 発見したblockerと関連Issue
 
 実ゲームE2Eで人間による候補JSON編集は行わない。認識誤りや候補不足で止まった場合は、その停止自体をfailure evidenceとして残す。
+
+
+## Reference Game Level 1-4
+
+固定サンプルGUIをLevel 0とし、実ゲーム評価を段階化する。
+
+| Level | Game | License | 主な評価 |
+|---|---|---|---|
+| 0 | Kadoka固定サンプルGUI | Project fixture | closed-loop contract / Windows live input |
+| 1 | 2048 | MIT | keyboard / board state / basic planning |
+| 2 | Memory Game | MIT | click target / memory / UI state / animation |
+| 3 | RuggRogue | MIT code + upstream asset notices | menu / inventory / long-horizon state |
+| 4 | Pygame Tetris | MIT | realtime / timing / repeated control |
+
+Source URL、license path、固定commitは `config/e2e_reference_games.json` を正本とする。
+CIでは `python tools/fetch_ci_games.py --all --clean` により `build/ci-games/` へ固定commitだけをmaterializeし、上流最新版を自動追従しない。
+
+Level 1の実ゲームGateは Issue #176 を正本とする。Level 2-4はLevel 1でrunner/interfaceが安定した後、独立した実装単位へ分離する。
+
+第三者ゲームの内部state/DOM等はmilestone検証に利用してよいが、Kadokaの通常Observation/Decision入力へ正解情報として直接注入しない。
+
+
+## smoke-tiny Continuous Gameplay CI
+
+`smoke-tiny` は単なるProvider疎通確認だけではなく、安価に長時間回せる実ゲーム耐久CIモデルとして扱う。
+
+Level 1の2048では、Bundled Local Providerが実装された後、CIで次を標準Gateとする。
+
+- Decision Providerは `smoke-tiny` を使用する
+- DecisionをRuleProviderへfallbackしない
+- 1 campaignは原則600秒
+- game over等のterminalへ到達した場合は自動再開始し、campaign期限まで継続する
+- candidate JSONを人間が編集しない
+- 実画面Observation -> Candidate -> Provider Decision -> Safety -> Input -> Outcomeを通す
+- score / max tile / episode数等は保存するが、当面はModel品質のhard thresholdにしない
+
+Hard failure:
+- Provider crash
+- timeout budget exhaustion
+- request/response schema violation
+- `allowed_action_ids` 外のAction選択
+- Safety bypass
+- execution failure
+- bounded recoveryで解消できないstall
+
+これによりtiny Modelのゲーム攻略能力そのものではなく、**小型LLMを長時間Decision loopへ入れた時にKadoka全体が安全かつ連続して動くこと**を毎PRで検証する。
+
+将来Level 2-4へ同じcampaign runnerを展開してよい。高難度Levelのscore/攻略性能をsmoke-tinyのmerge Gateへ直接しない。
+
+
+## Noisy Language Provider 常設CI
+
+高品質ModelだけをCIへ置くと、Core側が暗黙にModel品質へ依存していても検出しにくい。
+そのため #178 の `NoisyLanguageProvider` を常設fixtureとして利用する。
+
+Noisy ProviderはML runtimeを持たないseed固定pseudo-LMで、次の性質を持つ。
+
+- allowed candidate内から擬似ランダムに選ぶ
+- utilityの高い候補を優先しない
+- reasonは意味の薄いword salad
+- semantic outcomeも低confidenceで揺れる
+- 同一seedでは再現可能
+- Provider内部時間を計測可能
+
+現在の常設Gateはsynthetic closed loopを200 measured step実行する。結果は `build/performance/noisy_provider_report.json` へ保存する。
+
+主な測定値:
+
+```text
+total_step_ms
+provider_ms
+non_provider_core_ms = max(0, total_step_ms - provider_ms)
+```
+
+初期budget:
+- Provider p95 <= 2 ms
+- non-provider Core p95 <= 100 ms on Linux baseline
+- Windowsはperformance-ciの既存multiplierを適用
+
+これは真のLLM性能benchmarkではなく、LLM待ち時間をほぼ除いたCore regression detectorである。
+
+Level 1 / 2048 runner完成後は、同じNoisy Providerを実ゲームにも常設接続する。攻略scoreはGateにせず、crash、candidate grounding違反、Safety bypass、execution failure、回復不能stall等をhard failureとする。
