@@ -174,7 +174,7 @@ class Application:
     def refresh_windows(self) -> None:
         try:
             self.windows = WindowsWindowSelector().list_windows()
-            self.window_handles = {window.title: window.handle for window in self.windows}
+            self.window_handles = {window.display_name: window.handle for window in self.windows}
             self.window_combo["values"] = list(self.window_handles)
             if self.window_handles and not self.window_choice.get():
                 self.window_choice.set(next(iter(self.window_handles)))

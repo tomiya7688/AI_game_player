@@ -543,11 +543,18 @@ classDiagram
         +_log()
         +_normalize_key()
     }
+    ctypes.Structure <|-- BitmapInfoHeader
+    class BitmapInfoHeader {
+    }
+    ctypes.Structure <|-- BitmapInfo
+    class BitmapInfo {
+    }
     class ScreenFrame {
     }
     class WindowsScreenCapture {
         +__init__()
         +capture()
+        +_is_visible_and_unoccluded()
     }
     class ScreenSimilarity {
         +__init__()
@@ -705,6 +712,7 @@ classDiagram
         +assess()
     }
     class WindowInfo {
+        +display_name()
     }
     class WindowsWindowSelector {
         +list_windows()
