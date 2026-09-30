@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #94: 選択HWNDのキャプチャをデスクトップ座標コピーからタイムアウト付きWM_PRINTへ切り替え、同一タイトルや非表示のウィンドウをHWNDごとに選択可能にした。描画できない場合は明示的に失敗し、fake APIでデスクトップ画素への誤フォールバックがないことを検証。
+
 - Windows Capture integrationで最小化・非表示のテスト用HWNDでもフレーム寸法とBGRA契約が維持されることを確認し、内容取得は保証しない制約を明記する。
 
 - Windows CaptureのWin32/GDIハンドル取得失敗を明示し、途中まで確保したDC/Bitmapを解放する失敗経路をfake APIで検証する。

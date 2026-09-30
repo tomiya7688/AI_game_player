@@ -543,6 +543,12 @@ classDiagram
         +_log()
         +_normalize_key()
     }
+    ctypes.Structure <|-- BitmapInfoHeader
+    class BitmapInfoHeader {
+    }
+    ctypes.Structure <|-- BitmapInfo
+    class BitmapInfo {
+    }
     class ScreenFrame {
     }
     class WindowsScreenCapture {
@@ -705,6 +711,7 @@ classDiagram
         +assess()
     }
     class WindowInfo {
+        +display_name()
     }
     class WindowsWindowSelector {
         +list_windows()

@@ -8,6 +8,10 @@ class WindowInfo:
     handle: int
     title: str
 
+    @property
+    def display_name(self) -> str:
+        return f"{self.title} (HWND 0x{self.handle:X})"
+
 
 class WindowsWindowSelector:
     """Enumerates visible, titled top-level windows on Windows."""
@@ -20,12 +24,11 @@ class WindowsWindowSelector:
         callback_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
 
         def callback(hwnd, _lparam):
-            if user32.IsWindowVisible(hwnd):
-                length = user32.GetWindowTextLengthW(hwnd)
-                if length:
-                    buffer = ctypes.create_unicode_buffer(length + 1)
-                    user32.GetWindowTextW(hwnd, buffer, length + 1)
-                    windows.append(WindowInfo(int(hwnd), buffer.value))
+            length = user32.GetWindowTextLengthW(hwnd)
+            if length:
+                buffer = ctypes.create_unicode_buffer(length + 1)
+                user32.GetWindowTextW(hwnd, buffer, length + 1)
+                windows.append(WindowInfo(int(hwnd), buffer.value))
             return True
 
         user32.EnumWindows(callback_type(callback), 0)
