@@ -7,19 +7,30 @@ from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 
 
 class FakeUser32:
-    def __init__(self, *, screen_dc=17):
+    def __init__(self, *, screen_dc=17, window_visible=False, window_above=0):
         self.screen_dc = screen_dc
+        self.window_visible = window_visible
+        self.window_above = window_above
         self.released = []
         self.send_message_result = 1
 
     def GetSystemMetrics(self, index):
-        return 2
+        return 100
 
     def GetDesktopWindow(self):
         return 999
 
     def IsWindow(self, window):
         return window == 123
+
+    def IsWindowVisible(self, window):
+        return self.window_visible
+
+    def IsIconic(self, window):
+        return False
+
+    def GetWindow(self, window, command):
+        return self.window_above if window == 123 else 0
 
     def GetWindowRect(self, window, rect_pointer):
         values = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
@@ -120,6 +131,24 @@ class ScreenCaptureTest(unittest.TestCase):
             WindowsScreenCapture(user32=user32, gdi32=gdi32).capture(123)
 
         self.assertNotIn("BitBlt", gdi32.calls)
+
+    def test_visible_unoccluded_window_uses_its_screen_region(self):
+        user32 = FakeUser32(window_visible=True)
+        gdi32 = FakeGdi32()
+
+        WindowsScreenCapture(user32=user32, gdi32=gdi32).capture(123)
+
+        self.assertIn("BitBlt", gdi32.calls)
+        self.assertFalse(hasattr(user32, "send_message_args"))
+
+    def test_occluded_window_never_falls_back_to_other_windows_pixels(self):
+        user32 = FakeUser32(window_visible=True, window_above=456)
+        gdi32 = FakeGdi32()
+
+        WindowsScreenCapture(user32=user32, gdi32=gdi32).capture(123)
+
+        self.assertNotIn("BitBlt", gdi32.calls)
+        self.assertEqual(user32.send_message_args[0], 123)
 
     def test_invalid_window_is_rejected_before_capture(self):
         user32 = FakeUser32()

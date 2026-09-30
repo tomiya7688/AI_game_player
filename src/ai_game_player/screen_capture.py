@@ -59,6 +59,12 @@ class WindowsScreenCapture:
             user32.IsWindow.restype = wintypes.BOOL
             user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(ctypes.c_long * 4)]
             user32.GetWindowRect.restype = wintypes.BOOL
+            user32.IsWindowVisible.argtypes = [wintypes.HWND]
+            user32.IsWindowVisible.restype = wintypes.BOOL
+            user32.IsIconic.argtypes = [wintypes.HWND]
+            user32.IsIconic.restype = wintypes.BOOL
+            user32.GetWindow.argtypes = [wintypes.HWND, wintypes.UINT]
+            user32.GetWindow.restype = wintypes.HWND
             user32.SendMessageTimeoutW.argtypes = [
                 wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
                 wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t),
@@ -83,6 +89,7 @@ class WindowsScreenCapture:
             gdi32.DeleteDC.argtypes = [wintypes.HDC]
             gdi32.DeleteDC.restype = wintypes.BOOL
         capture_window = window_handle is not None and window_handle != user32.GetDesktopWindow()
+        use_desktop_pixels = not capture_window
         if capture_window:
             if not user32.IsWindow(window_handle):
                 raise RuntimeError("Selected window handle is no longer valid")
@@ -91,6 +98,9 @@ class WindowsScreenCapture:
                 raise RuntimeError("GetWindowRect failed")
             left, top, right, bottom = rect
             width, height = right - left, bottom - top
+            use_desktop_pixels = self._is_visible_and_unoccluded(
+                user32, window_handle, left, top, right, bottom,
+            )
         elif window_handle is None:
             left, top = 0, 0
             width = user32.GetSystemMetrics(0)
@@ -102,8 +112,8 @@ class WindowsScreenCapture:
         if width <= 0 or height <= 0:
             raise RuntimeError("Capture area has no visible size")
 
-        screen_dc = None if capture_window else user32.GetDC(0)
-        if not capture_window and not screen_dc:
+        screen_dc = user32.GetDC(0) if use_desktop_pixels else None
+        if use_desktop_pixels and not screen_dc:
             raise RuntimeError("GetDC failed")
         memory_dc = None
         bitmap = None
@@ -128,7 +138,7 @@ class WindowsScreenCapture:
             if not previous_object or previous_object in (-1, ctypes.c_void_p(-1).value):
                 previous_object = None
                 raise RuntimeError("SelectObject failed")
-            if capture_window:
+            if capture_window and not use_desktop_pixels:
                 message_result = ctypes.c_size_t()
                 rendered = user32.SendMessageTimeoutW(
                     window_handle,
@@ -157,3 +167,27 @@ class WindowsScreenCapture:
                 gdi32.DeleteDC(memory_dc)
             if screen_dc:
                 user32.ReleaseDC(0, screen_dc)
+
+    @staticmethod
+    def _is_visible_and_unoccluded(user32: Any, window: int, left: int, top: int, right: int, bottom: int) -> bool:
+        if not user32.IsWindowVisible(window) or user32.IsIconic(window):
+            return False
+        if left < 0 or top < 0 or right > user32.GetSystemMetrics(0) or bottom > user32.GetSystemMetrics(1):
+            return False
+
+        above = user32.GetWindow(window, 3)  # GW_HWNDPREV: windows above the target in z-order.
+        visited: set[int] = set()
+        while above:
+            above_handle = int(above)
+            if above_handle in visited:
+                return False
+            visited.add(above_handle)
+            if user32.IsWindowVisible(above):
+                rect = (ctypes.c_long * 4)()
+                if not user32.GetWindowRect(above, ctypes.byref(rect)):
+                    return False
+                other_left, other_top, other_right, other_bottom = rect
+                if left < other_right and other_left < right and top < other_bottom and other_top < bottom:
+                    return False
+            above = user32.GetWindow(above, 3)
+        return True

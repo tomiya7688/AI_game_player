@@ -231,7 +231,7 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
             self.assertIn(int(second_window), listed_handles)
 
             self.assertTrue(
-                set_window_pos(window, None, 10, 10, 360, 240, 0x0004 | 0x0010),
+                set_window_pos(window, None, -32000, -32000, 360, 240, 0x0004 | 0x0010),
                 ctypes.get_last_error(),
             )
             show_window(window, 4)
@@ -248,6 +248,7 @@ class WindowsCaptureIntegrationTest(unittest.TestCase):
 
             recreated_window = create_hidden_window("WINDOW C", 0x000000FF)
             try:
+                set_window_pos(recreated_window, None, -32000, -32000, 180, 120, 0x0004 | 0x0010)
                 show_window(recreated_window, 4)
                 update_window(recreated_window)
                 recreated_frame = capture.capture(int(recreated_window))
