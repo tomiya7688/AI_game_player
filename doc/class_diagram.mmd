@@ -455,6 +455,24 @@ classDiagram
         +stop()
         +ensure_running()
     }
+    class ResolutionFailure {
+    }
+    class LifecycleHandle {
+        +__init__()
+        +closed()
+        +close()
+        +__enter__()
+        +__exit__()
+    }
+    class ResolvedFeature {
+    }
+    class CompositionResolver {
+        +__init__()
+        +resolve()
+        +_try_chain()
+        +_unavailable_reason()
+        +_fallback()
+    }
     str <|-- RuntimeCapability
     Enum <|-- RuntimeCapability
     class RuntimeCapability {
