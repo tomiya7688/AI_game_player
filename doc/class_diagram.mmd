@@ -379,6 +379,28 @@ classDiagram
         +resolve()
         +manifests()
     }
+    class DatasetSource {
+        +to_dict()
+        +from_dict()
+    }
+    class TrainingSample {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class ExperienceTrainingDataset {
+        +__post_init__()
+        +_content_dict()
+        +to_dict()
+        +to_json()
+        +from_dict()
+        +from_json()
+    }
+    class ExperienceDatasetBuilder {
+        +__init__()
+        +build()
+        +_sample_record()
+    }
     class LoopGuard {
         +__init__()
         +observe()
