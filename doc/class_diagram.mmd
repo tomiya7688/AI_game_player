@@ -73,6 +73,39 @@ classDiagram
         +run_and_execute()
         +run()
     }
+    ValueError <|-- ArtifactIntegrityError
+    class ArtifactIntegrityError {
+    }
+    class ArtifactMetadata {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+        +to_reference()
+    }
+    class IntegrityIssue {
+    }
+    Protocol <|-- ArtifactStore
+    class ArtifactStore {
+        +put()
+        +read()
+        +verify()
+        +find_orphans()
+        +check_integrity()
+    }
+    class FileSystemArtifactStore {
+        +__init__()
+        +put()
+        +read()
+        +verify()
+        +find_orphans()
+        +check_integrity()
+        +_load()
+        +_read_metadata()
+        +_object_path()
+        +_iter_digests()
+        +_write_staged_file()
+        +_fsync_directory()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
