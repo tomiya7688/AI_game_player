@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #148: C ABI v1へsize/version付き初期化options、opaque runtime handleのinit/shutdown lifecycle、安定status code、未実装のcoarse batch入口をfail closedする契約とC/C++ contract testを追加。Issue #86の段階導入方針に沿い、mypyは依存moduleの型推論を維持しつつ、指定root 6ファイルのstrict検査へ範囲を明示。
+
 - Issue #182: Learning Capabilityのversioned schemaに沿うExperience Dataset Builder、5種のtyped sample、provenance/label・sensitive artifact制御、dedup、再現可能split、JSON export/importとcontent digestを追加。
 
 - Issue #168: JSONL Experience Readerの任意Step/検索index、snapshot/delta再構築、schema v0移行、破損tail回復、checkpoint検証とArtifact参照検査を追加。

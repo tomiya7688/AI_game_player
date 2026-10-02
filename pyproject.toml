@@ -32,6 +32,9 @@ files = [
   "src/ai_game_player/pipeline.py",
 ]
 strict = true
+# Gradual typing: retain dependency inference but report errors only in the
+# explicitly selected roots above (Issue #86).
+follow_imports = "silent"
 
 [tool.coverage.run]
 branch = true
