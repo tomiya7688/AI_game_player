@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(kadoka_native_runtime LANGUAGES CXX)
+project(kadoka_native_runtime LANGUAGES C CXX)
 
 include(CTest)
 
@@ -41,6 +41,10 @@ else()
 endif()
 
 if(BUILD_TESTING)
+    add_executable(kadoka_native_runtime_c_abi_test tests/c_abi_test.c)
+    target_link_libraries(kadoka_native_runtime_c_abi_test PRIVATE kadoka_native_runtime)
+    add_test(NAME kadoka_native_runtime_c_abi_test COMMAND kadoka_native_runtime_c_abi_test)
+
     add_executable(kadoka_native_runtime_test tests/runtime_api_test.cpp)
     target_link_libraries(kadoka_native_runtime_test PRIVATE kadoka_native_runtime)
     target_compile_features(kadoka_native_runtime_test PRIVATE cxx_std_20)

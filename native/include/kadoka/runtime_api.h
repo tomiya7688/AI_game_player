@@ -18,6 +18,18 @@ extern "C" {
 #endif
 
 #define KADOKA_RUNTIME_ABI_VERSION 1u
+#define KADOKA_RUNTIME_STATUS_OK 0
+#define KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT -1
+#define KADOKA_RUNTIME_STATUS_UNSUPPORTED_ABI -2
+#define KADOKA_RUNTIME_STATUS_ALLOCATION_FAILED -3
+#define KADOKA_RUNTIME_STATUS_NOT_IMPLEMENTED -4
+
+#define KADOKA_RUNTIME_BATCH_FRAME 1u
+#define KADOKA_RUNTIME_BATCH_OBSERVATION 2u
+#define KADOKA_RUNTIME_BATCH_CANDIDATE_SET 3u
+#define KADOKA_RUNTIME_BATCH_DECISION 4u
+#define KADOKA_RUNTIME_BATCH_INPUT 5u
+#define KADOKA_RUNTIME_BATCH_CONTROL_LEASE 6u
 #define KADOKA_CAP_CAPTURE (UINT64_C(1) << 0)
 #define KADOKA_CAP_INPUT (UINT64_C(1) << 1)
 #define KADOKA_CAP_SAFETY (UINT64_C(1) << 2)
@@ -47,6 +59,30 @@ typedef struct kadoka_runtime_info {
     uint64_t capabilities;
 } kadoka_runtime_info;
 
+typedef struct kadoka_runtime_options {
+    uint32_t struct_size;
+    uint32_t requested_abi_version;
+} kadoka_runtime_options;
+
+typedef struct kadoka_runtime_handle kadoka_runtime_handle;
+
+/* Metadata-only v1 placeholder. Payload/ownership belong to a later contract. */
+typedef struct kadoka_runtime_batch_request {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint64_t batch_id;
+    uint32_t kind;
+    uint32_t reserved;
+} kadoka_runtime_batch_request;
+
+typedef struct kadoka_runtime_batch_result {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint64_t batch_id;
+    int32_t status;
+    uint32_t reserved;
+} kadoka_runtime_batch_result;
+
 typedef struct kadoka_safety_action {
     uint32_t struct_size;
     uint32_t kind;
@@ -67,7 +103,18 @@ typedef struct kadoka_safety_result {
 } kadoka_safety_result;
 
 KADOKA_RUNTIME_API uint32_t kadoka_runtime_abi_version(void);
+/* out_runtime must point to a null-initialized pointer. Failure retains it. */
+KADOKA_RUNTIME_API int32_t kadoka_runtime_init(
+    const kadoka_runtime_options* options,
+    kadoka_runtime_handle** out_runtime
+);
+KADOKA_RUNTIME_API int32_t kadoka_runtime_shutdown(kadoka_runtime_handle** runtime);
 KADOKA_RUNTIME_API int32_t kadoka_runtime_query(kadoka_runtime_info* out_info);
+KADOKA_RUNTIME_API int32_t kadoka_runtime_process_batch(
+    const kadoka_runtime_handle* runtime,
+    const kadoka_runtime_batch_request* request,
+    kadoka_runtime_batch_result* out_result
+);
 KADOKA_RUNTIME_API int32_t kadoka_safety_validate_action(
     const kadoka_safety_action* action,
     kadoka_safety_result* out_result
