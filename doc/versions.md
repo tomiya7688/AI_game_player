@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #232: Native Runtime C ABI v1の薄いPython loader/binding、ABI versionとstruct検証、init/shutdown所有権、batch/status変換、明示的availability、Linux/Windows実共有ライブラリ結合テストを追加。capture/inputやbuffer実装・GUI自動切替は含まない。
+
 - Issue #148: C ABI v1へsize/version付き初期化options、opaque runtime handleのinit/shutdown lifecycle、安定status code、未実装のcoarse batch入口をfail closedする契約とC/C++ contract testを追加。Issue #86の段階導入方針に沿い、mypyは依存moduleの型推論を維持しつつ、指定root 6ファイルのstrict検査へ範囲を明示。
 
 - Issue #182: Learning Capabilityのversioned schemaに沿うExperience Dataset Builder、5種のtyped sample、provenance/label・sensitive artifact制御、dedup、再現可能split、JSON export/importとcontent digestを追加。

@@ -627,6 +627,54 @@ classDiagram
         +manifests_for()
         +_fallback_chain()
     }
+    IntEnum <|-- NativeStatus
+    class NativeStatus {
+    }
+    IntEnum <|-- NativeBatchKind
+    class NativeBatchKind {
+    }
+    str <|-- NativeLoadStatus
+    Enum <|-- NativeLoadStatus
+    class NativeLoadStatus {
+    }
+    RuntimeError <|-- NativeRuntimeError
+    class NativeRuntimeError {
+        +__init__()
+    }
+    RuntimeError <|-- NativeABIError
+    class NativeABIError {
+    }
+    NativeABIError <|-- NativeContractError
+    class NativeContractError {
+    }
+    ctypes.Structure <|-- _Options
+    class _Options {
+    }
+    ctypes.Structure <|-- _Info
+    class _Info {
+    }
+    ctypes.Structure <|-- _BatchRequest
+    class _BatchRequest {
+    }
+    ctypes.Structure <|-- _BatchResult
+    class _BatchResult {
+    }
+    class NativeRuntimeInfo {
+    }
+    class NativeBatchResult {
+    }
+    class NativeLoadResult {
+    }
+    class NativeRuntime {
+        +__init__()
+        +load()
+        +descriptor()
+        +is_healthy()
+        +process_batch()
+        +close()
+        +__enter__()
+        +__exit__()
+    }
     class RuntimeRegistry {
         +__init__()
         +register()
