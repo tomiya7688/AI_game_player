@@ -61,6 +61,11 @@ jobs:
           PYTHONPATH: src
           KADOKA_NATIVE_RUNTIME: ${{ runner.os == 'Windows' && 'build/native-safety/Release/kadoka_native_runtime.dll' || 'build/native-safety/libkadoka_native_runtime.so' }}
         run: python -m unittest discover -s tests -p "test_safety_guard.py" -v
+      - name: Run Native Runtime lifecycle and version binding tests
+        env:
+          PYTHONPATH: src
+          KADOKA_NATIVE_RUNTIME: ${{ runner.os == 'Windows' && 'build/native-safety/Release/kadoka_native_runtime.dll' || 'build/native-safety/libkadoka_native_runtime.so' }}
+        run: python -m unittest discover -s tests -p "test_native_runtime.py" -v
 
   windows-emergency-stop:
     name: Windows stop-from-any-state live-target smoke

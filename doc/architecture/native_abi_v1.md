@@ -20,7 +20,7 @@ The v1 lifecycle currently owns only the runtime context. Capability query and t
 
 ## Coarse batch placeholder
 
-`kadoka_runtime_process_batch()` accepts a size/version-tagged metadata envelope for one frame, observation, candidate set, decision, input batch, or control lease. It validates the runtime, structure sizes, exact ABI version, kind, and zero reserved field. Invalid requests leave result fields unchanged. Valid requests echo the batch ID and return `KADOKA_RUNTIME_STATUS_NOT_IMPLEMENTED` both as the function status and in the result. This entrypoint performs no capture, processing, or input, and query does not advertise those capabilities. Buffer payload/ownership is deferred to #233 and the Python binding to #232.
+`kadoka_runtime_process_batch()` accepts a size/version-tagged metadata envelope for one frame, observation, candidate set, decision, input batch, or control lease. It validates the runtime, structure sizes, exact ABI version, kind, and zero reserved field. Invalid requests leave result fields unchanged. Valid requests echo the batch ID and return `KADOKA_RUNTIME_STATUS_NOT_IMPLEMENTED` both as the function status and in the result. This entrypoint performs no capture, processing, or input, and query does not advertise those capabilities. Buffer payload/ownership is deferred to #233. The Python binding provides version validation, lifecycle ownership, and status mapping; see [Native Runtime Python binding](../NativeRuntime接続機能説明書.md).
 
 ## Compatibility rules
 
