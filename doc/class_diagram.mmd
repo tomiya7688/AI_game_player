@@ -57,6 +57,8 @@ classDiagram
     }
     class Application {
         +__init__()
+        +_save_shell_state()
+        +_set_status()
         +_refresh_execution_controls()
         +_validate_live_execution()
         +_cursor_position()
@@ -768,6 +770,32 @@ classDiagram
         +compare()
         +_fallback_similarity()
         +_result()
+    }
+    class ShellState {
+        +__post_init__()
+    }
+    class ShellStateStore {
+        +__init__()
+        +load()
+        +save()
+    }
+    class ShellController {
+        +__init__()
+        +select_workspace()
+        +toggle_inspector()
+        +toggle_bottom_panel()
+        +_change()
+    }
+    ttk.Frame <|-- ApplicationShell
+    class ApplicationShell {
+        +__init__()
+        +state()
+        +play_host()
+        +inspector_host()
+        +set_status()
+        +select_workspace()
+        +toggle_inspector()
+        +toggle_bottom_panel()
     }
     class EmbeddingVector {
         +__post_init__()

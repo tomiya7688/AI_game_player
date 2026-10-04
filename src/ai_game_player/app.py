@@ -20,6 +20,7 @@ from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import RunController
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.screen_capture import WindowsScreenCapture
+from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 
 
 class MemorySource:
@@ -47,9 +48,13 @@ class Application:
         self.current_assessment = None
         self.loop_guard = LoopGuard()
         root.title("AI Game Player - Decision Sandbox")
-        root.geometry("900x650")
+        root.geometry("1120x760")
+        root.minsize(800, 600)
         root.bind("<Escape>", lambda _event: self.stop())
-        frame = ttk.Frame(root, padding=10)
+        self.shell_state_store = ShellStateStore(Path("data/shell_state.json"))
+        self.shell = ApplicationShell(root, self.shell_state_store.load(), self.stop, self._save_shell_state)
+        self.shell.pack(fill=tk.BOTH, expand=True)
+        frame = ttk.Frame(self.shell.play_host, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
         self.provider = tk.StringVar(value=config.provider)
         self.model = tk.StringVar(value=config.model)
@@ -99,13 +104,12 @@ class Application:
         self.actions.insert("1.0", json.dumps([{"action_id": "new-game", "kind": "click", "label": "NEW GAME", "x": 640, "y": 360, "confidence": .95}, {"action_id": "option", "kind": "click", "label": "OPTION", "x": 640, "y": 500, "confidence": .8}], ensure_ascii=False, indent=2))
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
-        ttk.Label(frame, text="停止方法: ■ 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
+        ttk.Label(frame, text="停止方法: 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
         self.loop_button = ttk.Button(controls, command=self.start_loop)
         self.loop_button.pack(side=tk.LEFT)
-        ttk.Button(controls, text="■ 停止（連続実行を停止）", command=self.stop).pack(side=tk.LEFT, padx=6)
         ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
         self.live_status = ttk.Label(frame)
         self.live_status.pack(anchor=tk.W)
@@ -124,6 +128,16 @@ class Application:
         if os.name == "nt":
             self.refresh_windows()
             self._poll_global_stop()
+
+    def _save_shell_state(self, state: ShellState) -> None:
+        try:
+            self.shell_state_store.save(state)
+        except OSError as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "save_shell_state"})
+
+    def _set_status(self, message: str) -> None:
+        self.result.config(text=message)
+        self.shell.set_status(message)
 
     def _refresh_execution_controls(self) -> None:
         execute_label, loop_label, status = execution_labels(self.live_execution.get())
@@ -156,10 +170,10 @@ class Application:
         try:
             models = OllamaProvider.list_models(self.endpoint.get())
             self.model_combo["values"] = models
-            self.result.config(text=f"Ollama接続OK: {len(models)}モデル")
+            self._set_status(f"Ollama接続OK: {len(models)}モデル")
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "ollama_connection"})
-            self.result.config(text="Ollama接続エラー")
+            self._set_status("Ollama接続エラー")
 
     def refresh_models(self) -> None:
         try:
@@ -169,7 +183,7 @@ class Application:
                 self.model.set(models[0])
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "model_list"})
-            self.result.config(text="Ollamaモデル一覧を取得できません")
+            self._set_status("Ollamaモデル一覧を取得できません")
 
     def refresh_windows(self) -> None:
         try:
@@ -219,7 +233,7 @@ class Application:
             self.loop_guard.reset()
             self.runtime_log.write("run_control", "loop_started")
             self.loop_job = self.root.after(1000, self._loop_step)
-            self.result.config(text="連続dry-run中")
+            self._set_status("連続dry-run中")
 
     def _loop_step(self) -> None:
         self.loop_job = None
@@ -247,7 +261,7 @@ class Application:
     def start(self) -> None:
         self.controller.start()
         self.runtime_log.write("run_control", "started")
-        self.result.config(text="実行可能")
+        self._set_status("実行可能")
 
     def stop(self) -> None:
         self.controller.stop()
@@ -255,7 +269,7 @@ class Application:
             self.root.after_cancel(self.loop_job)
             self.loop_job = None
         self.runtime_log.write("run_control", "stopped")
-        self.result.config(text="停止中")
+        self._set_status("停止中")
 
     def run_and_execute(self) -> None:
         pipeline: DecisionPipeline | None = None
@@ -269,7 +283,7 @@ class Application:
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
             pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get(), window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
             result = pipeline.run_and_execute(purpose=self.purpose.get(), personality=self.personality.get())
-            self.result.config(text=f"実行: {result.action_id} / {result.mode} / {result.detail}")
+            self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
             self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
             self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
@@ -288,7 +302,7 @@ class Application:
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
             pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=True, window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
             decision = pipeline.run(purpose=self.purpose.get(), personality=self.personality.get())
-            self.result.config(text=f"選択: {decision.action_id} / {decision.reason}")
+            self._set_status(f"選択: {decision.action_id} / {decision.reason}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
             self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
             self.runtime_log.write("decision", decision.reason, {"action_id": decision.action_id, "provider": self.provider.get()})
