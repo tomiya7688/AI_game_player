@@ -53,10 +53,25 @@ classDiagram
     }
     class MemorySource {
         +__init__()
+        +update()
         +read()
+    }
+    class TkAfterScheduler {
+        +__init__()
+        +schedule()
+        +cancel()
     }
     class Application {
         +__init__()
+        +_save_current_config()
+        +_update_memory_source()
+        +_create_session_runtime()
+        +_ensure_session()
+        +_observe_for_loop()
+        +_perform_session_step()
+        +_on_session_state_change()
+        +_on_session_error()
+        +close()
         +_save_shell_state()
         +_set_status()
         +_refresh_execution_controls()
@@ -69,7 +84,6 @@ classDiagram
         +_assess_observation()
         +capture_screen()
         +start_loop()
-        +_loop_step()
         +start()
         +stop()
         +run_and_execute()
@@ -351,6 +365,46 @@ classDiagram
     class FrameAnalyzer {
         +__init__()
         +analyze()
+    }
+    Protocol <|-- SessionRuntime
+    class SessionRuntime {
+        +close()
+    }
+    Protocol <|-- SessionScheduler
+    class SessionScheduler {
+        +schedule()
+        +cancel()
+    }
+    str <|-- SessionStatus
+    Enum <|-- SessionStatus
+    class SessionStatus {
+    }
+    class SessionStep {
+    }
+    class LoopObservation {
+    }
+    class SessionSnapshot {
+    }
+    class GameSessionController {
+        +__init__()
+        +status()
+        +snapshot()
+        +is_running()
+        +is_looping()
+        +start()
+        +step()
+        +start_loop()
+        +stop()
+        +ensure_running()
+        +rearm_token()
+        +_schedule_next()
+        +_run_loop_step()
+        +_finish()
+        +_fail()
+        +_close_runtime()
+        +_cancel_scheduled()
+        +_notify_error()
+        +_notify()
     }
     class HistoryStore {
         +__init__()

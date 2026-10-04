@@ -9,27 +9,45 @@ from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.execution_mode import execution_labels
 from ai_game_player.evaluator import ActionEvaluator
+from ai_game_player.game_session import GameSessionController, LoopObservation, SessionRuntime, SessionSnapshot, SessionStatus, SessionStep
 from ai_game_player.metrics import MetricsCalculator
-from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.outcome import OutcomeEvaluator
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.runtime_log import RuntimeLog
-from ai_game_player.run_control import RunController
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.screen_capture import WindowsScreenCapture
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 
 
 class MemorySource:
-    def __init__(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None:
+    def __init__(self) -> None:
+        self.observation: ScreenObservation | None = None
+        self.candidates: list[ActionCandidate] = []
+
+    def update(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None:
         self.observation = observation
         self.candidates = candidates
 
     def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
+        if self.observation is None:
+            raise RuntimeError("The session has no observation yet")
         return self.observation, self.candidates
+
+
+class TkAfterScheduler:
+    """Adapt Tk's timer to the GUI-independent session scheduler contract."""
+
+    def __init__(self, root: tk.Misc) -> None:
+        self.root = root
+
+    def schedule(self, delay_ms: int, callback) -> object:
+        return self.root.after(delay_ms, callback)
+
+    def cancel(self, token: object) -> None:
+        self.root.after_cancel(token)
 
 
 class Application:
@@ -38,15 +56,16 @@ class Application:
         config = config_store.load()
         self.root = root
         self.runtime_log = RuntimeLog()
-        self.controller = RunController()
+        self.memory_source = MemorySource()
+        self._session_dry_run = True
+        self._session_signature = None
+        self._last_session_mode: tuple[SessionStatus, bool] | None = None
         self.windows: list = []
         self.window_handles: dict[str, int] = {}
-        self.loop_job: str | None = None
         self._last_cursor_position: tuple[int, int] | None = None
         self.outcome_evaluator = OutcomeEvaluator()
         self.previous_observation: ScreenObservation | None = None
         self.current_assessment = None
-        self.loop_guard = LoopGuard()
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("1120x760")
         root.minsize(800, 600)
@@ -123,11 +142,123 @@ class Application:
         ttk.Label(frame, text="評価結果JSON").pack(anchor=tk.W)
         self.evaluation = tk.Text(frame, height=5)
         self.evaluation.pack(fill=tk.X)
+        self.session_controller = GameSessionController(
+            runtime_factory=self._create_session_runtime,
+            step_handler=self._perform_session_step,
+            scheduler=TkAfterScheduler(root),
+            loop_observer=self._observe_for_loop,
+            on_state_change=self._on_session_state_change,
+            on_error=self._on_session_error,
+        )
+        self.controller = self.session_controller.run_control
+        root.protocol("WM_DELETE_WINDOW", self.close)
         if config.provider == "Ollama":
             self.root.after(0, self.refresh_models)
         if os.name == "nt":
             self.refresh_windows()
             self._poll_global_stop()
+
+    def _save_current_config(self) -> None:
+        self.config_store.save(AppConfig(
+            self.provider.get(),
+            self.model.get(),
+            self.endpoint.get(),
+            self.personality.get(),
+            self.purpose.get(),
+            self.live_execution.get(),
+            self.input_mode.get(),
+        ))
+
+    def _update_memory_source(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
+        observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+        candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
+        self.memory_source.update(observation, candidates)
+        return observation, candidates
+
+    def _create_session_runtime(self) -> DecisionPipeline:
+        provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
+        return DecisionPipeline(
+            self.memory_source,
+            Path("data/games/sandbox"),
+            provider,
+            self.controller,
+            dry_run=self._session_dry_run,
+            window_handle=self.window_handles.get(self.window_choice.get()),
+            input_mode=self.input_mode.get(),
+        )
+
+    def _ensure_session(self, dry_run: bool) -> None:
+        signature = (
+            dry_run,
+            self.provider.get(),
+            self.model.get(),
+            self.endpoint.get(),
+            self.window_handles.get(self.window_choice.get()),
+            self.input_mode.get(),
+        )
+        if self.session_controller.is_running and signature == self._session_signature:
+            return
+        if self.session_controller.is_running:
+            self.session_controller.stop("session settings changed")
+        self._session_dry_run = dry_run
+        self._session_signature = signature
+        self.outcome_evaluator = OutcomeEvaluator()
+        self.previous_observation = None
+        self.current_assessment = None
+        self.session_controller.start()
+
+    def _observe_for_loop(self) -> LoopObservation:
+        if os.name == "nt" and self.capture_screen() is None:
+            self.runtime_log.write("run_control", "loop_stopped_by_capture_failure")
+            return LoopObservation(None, terminal_reason="capture failure")
+        observation, _ = self._update_memory_source()
+        assessment = self.current_assessment or self._assess_observation(observation)
+        return LoopObservation(observation, assessment.status)
+
+    def _perform_session_step(self, runtime: SessionRuntime, command: str) -> SessionStep:
+        observation, _ = self.memory_source.read()
+        if command == "decide":
+            decision = runtime.run(purpose=self.purpose.get(), personality=self.personality.get())
+            self._set_status(f"選択: {decision.action_id} / {decision.reason}")
+            self.runtime_log.write("decision", decision.reason, {"action_id": decision.action_id, "provider": self.provider.get()})
+        else:
+            evaluation = ActionEvaluator().explain(observation, self.memory_source.read()[1])
+            self.evaluation.delete("1.0", tk.END)
+            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
+            result = runtime.run_and_execute(purpose=self.purpose.get(), personality=self.personality.get())
+            self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
+            self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
+            if self.session_controller.is_looping:
+                self._last_cursor_position = self._cursor_position()
+        metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
+        self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
+        return SessionStep()
+
+    def _on_session_state_change(self, snapshot: SessionSnapshot) -> None:
+        self.runtime_log.write("session", snapshot.status.value, {
+            "steps": snapshot.steps,
+            "stop_reason": snapshot.stop_reason,
+        })
+        session_mode = (snapshot.status, snapshot.looping)
+        mode_changed = session_mode != self._last_session_mode
+        self._last_session_mode = session_mode
+        if mode_changed and snapshot.status is SessionStatus.RUNNING:
+            self._set_status("連続実行中" if snapshot.looping else "実行可能")
+        elif mode_changed and snapshot.status is SessionStatus.COMPLETED:
+            self._set_status(f"連続実行停止: {snapshot.stop_reason}")
+        elif mode_changed and snapshot.status in {SessionStatus.STOPPED, SessionStatus.IDLE}:
+            self._set_status("停止中")
+        elif mode_changed and snapshot.status is SessionStatus.FAILED:
+            self._set_status(f"セッションエラー: {snapshot.error}")
+
+    def _on_session_error(self, error: Exception) -> None:
+        self.runtime_log.write("error", str(error), {"operation": "game_session"})
+        self._set_status(f"セッションエラー: {error}")
+        messagebox.showerror("セッションエラー", str(error))
+
+    def close(self) -> None:
+        self.session_controller.stop("window closed")
+        self.root.destroy()
 
     def _save_shell_state(self, state: ShellState) -> None:
         try:
@@ -161,7 +292,7 @@ class Application:
         if os.name == "nt" and ctypes.windll.user32.GetAsyncKeyState(0x7B) & 1:
             self.stop()
         current = self._cursor_position()
-        if self.loop_job is not None and self._last_cursor_position is not None and current != self._last_cursor_position:
+        if self.session_controller.is_looping and self._last_cursor_position is not None and current != self._last_cursor_position:
             self.runtime_log.write("run_control", "stopped_by_manual_mouse_move")
             self.stop()
         self.root.after(100, self._poll_global_stop)
@@ -227,88 +358,58 @@ class Application:
             return None
 
     def start_loop(self) -> None:
-        self.controller.start()
-        if self.loop_job is None:
+        try:
+            self._save_current_config()
+            self._update_memory_source()
+            if self.live_execution.get():
+                self._validate_live_execution()
+            self._ensure_session(dry_run=not self.live_execution.get())
             self._last_cursor_position = self._cursor_position()
-            self.loop_guard.reset()
             self.runtime_log.write("run_control", "loop_started")
-            self.loop_job = self.root.after(1000, self._loop_step)
-            self._set_status("連続dry-run中")
-
-    def _loop_step(self) -> None:
-        self.loop_job = None
-        if not self.controller.is_running:
-            return
-        if os.name == "nt" and self.capture_screen() is None:
-            self.runtime_log.write("run_control", "loop_stopped_by_capture_failure")
-            self.stop()
-            return
-        current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-        assessment = self.current_assessment or self._assess_observation(current_observation)
-        if self.loop_guard.observe(current_observation):
-            self.runtime_log.write("run_control", "loop_stopped_by_repeat")
-            self.stop()
-            return
-        if assessment.status in {"success", "failure"}:
-            self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
-            self.stop()
-            return
-        self.run_and_execute()
-        self._last_cursor_position = self._cursor_position()
-        if self.controller.is_running:
-            self.loop_job = self.root.after(1000, self._loop_step)
+            self.session_controller.start_loop(command="execute", interval_ms=1000)
+        except Exception as exc:
+            if self.session_controller.status is not SessionStatus.FAILED:
+                self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+                messagebox.showerror("連続実行エラー", str(exc))
 
     def start(self) -> None:
-        self.controller.start()
-        self.runtime_log.write("run_control", "started")
-        self._set_status("実行可能")
+        try:
+            self._save_current_config()
+            self._update_memory_source()
+            self._ensure_session(dry_run=not self.live_execution.get())
+            self.runtime_log.write("run_control", "started")
+        except Exception as exc:
+            if self.session_controller.status is not SessionStatus.FAILED:
+                self.runtime_log.write("error", str(exc), {"operation": "start_session"})
+                messagebox.showerror("開始エラー", str(exc))
 
     def stop(self) -> None:
-        self.controller.stop()
-        if self.loop_job is not None:
-            self.root.after_cancel(self.loop_job)
-            self.loop_job = None
+        self.session_controller.stop()
         self.runtime_log.write("run_control", "stopped")
-        self._set_status("停止中")
 
     def run_and_execute(self) -> None:
-        pipeline: DecisionPipeline | None = None
         try:
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
-            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            evaluation = ActionEvaluator().explain(observation, candidates)
-            self.evaluation.delete("1.0", tk.END)
-            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
-            provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get(), window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
-            result = pipeline.run_and_execute(purpose=self.purpose.get(), personality=self.personality.get())
-            self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
-            metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
-            self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
-            self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
+            self._save_current_config()
+            self._update_memory_source()
+            if self.live_execution.get():
+                self._validate_live_execution()
+            self._ensure_session(dry_run=not self.live_execution.get())
+            self.session_controller.step("execute")
         except Exception as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "execution"})
-            messagebox.showerror("実行エラー", str(exc))
-        finally:
-            if pipeline is not None:
-                pipeline.close()
+            if self.session_controller.status is not SessionStatus.FAILED:
+                self.runtime_log.write("error", str(exc), {"operation": "execution"})
+                messagebox.showerror("実行エラー", str(exc))
 
     def run(self) -> None:
         try:
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
-            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=True, window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
-            decision = pipeline.run(purpose=self.purpose.get(), personality=self.personality.get())
-            self._set_status(f"選択: {decision.action_id} / {decision.reason}")
-            metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
-            self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
-            self.runtime_log.write("decision", decision.reason, {"action_id": decision.action_id, "provider": self.provider.get()})
+            self._save_current_config()
+            self._update_memory_source()
+            self._ensure_session(dry_run=True)
+            self.session_controller.step("decide")
         except Exception as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "decision"})
-            messagebox.showerror("判断エラー", str(exc))
+            if self.session_controller.status is not SessionStatus.FAILED:
+                self.runtime_log.write("error", str(exc), {"operation": "decision"})
+                messagebox.showerror("判断エラー", str(exc))
 
 
 def main() -> None:
