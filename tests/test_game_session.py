@@ -47,7 +47,7 @@ class FakeScheduler:
 
 
 class GameSessionControllerTests(unittest.TestCase):
-    def make_controller(self, step_handler=None, loop_observer=None, scheduler=None, on_error=None):
+    def make_controller(self, step_handler=None, loop_observer=None, scheduler=None, on_error=None, on_state_change=None):
         runtimes = []
 
         def create_runtime():
@@ -66,6 +66,7 @@ class GameSessionControllerTests(unittest.TestCase):
             step_handler,
             scheduler=scheduler,
             loop_observer=loop_observer,
+            on_state_change=on_state_change,
             on_error=on_error,
         )
         return controller, runtimes, calls
@@ -154,6 +155,49 @@ class GameSessionControllerTests(unittest.TestCase):
         self.assertEqual(controller.snapshot.stop_reason, "capture failure")
         self.assertEqual(runtimes[0].close_count, 1)
 
+    def test_loop_observer_failure_fails_and_cleans_up(self):
+        errors = []
+        scheduler = FakeScheduler()
+
+        def fail_observation():
+            raise ValueError("bad observation")
+
+        controller, runtimes, calls = self.make_controller(
+            scheduler=scheduler,
+            loop_observer=fail_observation,
+            on_error=errors.append,
+        )
+        controller.start_loop(interval_ms=1)
+        scheduler.run_next()
+
+        self.assertEqual(controller.status, SessionStatus.FAILED)
+        self.assertFalse(controller.is_looping)
+        self.assertEqual(controller.snapshot.error, "bad observation")
+        self.assertEqual(str(errors[-1]), "bad observation")
+        self.assertEqual(runtimes[0].close_count, 1)
+        self.assertEqual(calls, [])
+
+    def test_state_notification_failure_does_not_leave_loop_start_ambiguous(self):
+        errors = []
+        scheduler = FakeScheduler()
+        controller, runtimes, calls = self.make_controller(
+            scheduler=scheduler,
+            loop_observer=lambda: LoopObservation(ScreenObservation("menu", 1, 1)),
+            on_state_change=lambda _snapshot: (_ for _ in ()).throw(RuntimeError("status UI failed")),
+            on_error=errors.append,
+        )
+
+        controller.start_loop(interval_ms=1)
+        self.assertTrue(controller.is_looping)
+        scheduler.run_next()
+
+        self.assertTrue(controller.is_looping)
+        self.assertEqual(controller.status, SessionStatus.RUNNING)
+        self.assertEqual(calls, [(1, "execute")])
+        self.assertEqual(runtimes[0].close_count, 0)
+        self.assertTrue(errors)
+        self.assertTrue(all(str(error) == "status UI failed" for error in errors))
+
     def test_stop_cancels_pending_timer_and_ignores_stale_callback(self):
         scheduler = FakeScheduler()
         controller, runtimes, calls = self.make_controller(
@@ -210,6 +254,17 @@ class GameSessionControllerTests(unittest.TestCase):
         closing.stop()
         self.assertEqual(closing.status, SessionStatus.FAILED)
         self.assertEqual(closing.snapshot.error, "close failed")
+        with self.assertRaisesRegex(RuntimeError, "previous session runtime"):
+            closing.start()
+        self.assertEqual(closed_runtime.close_count, 1)
+
+        closing.stop()
+        self.assertEqual(closing.status, SessionStatus.FAILED)
+        self.assertEqual(closed_runtime.close_count, 2)
+        closed_runtime.close_error = None
+        closing.stop()
+        self.assertEqual(closing.status, SessionStatus.STOPPED)
+        self.assertEqual(closed_runtime.close_count, 3)
 
 
 if __name__ == "__main__":

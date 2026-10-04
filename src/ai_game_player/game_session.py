@@ -100,6 +100,8 @@ class GameSessionController:
     def start(self) -> None:
         if self.is_running:
             return
+        if self._runtime is not None:
+            raise RuntimeError("The previous session runtime has not been closed")
         self._loop_generation += 1
         self._looping = False
         self._steps = 0
@@ -209,7 +211,9 @@ class GameSessionController:
                 self._finish(SessionStatus.COMPLETED, f"outcome: {observation.outcome_status}")
                 return
             self.step(self._loop_command, from_loop=True)
-        except Exception:
+        except Exception as exc:
+            if self._status is not SessionStatus.FAILED:
+                self._fail(exc)
             return
         if generation == self._loop_generation and self.is_looping:
             self._schedule_next(generation)
@@ -248,13 +252,13 @@ class GameSessionController:
 
     def _close_runtime(self) -> Exception | None:
         runtime = self._runtime
-        self._runtime = None
         if runtime is None:
             return None
         try:
             runtime.close()
         except Exception as exc:
             return exc
+        self._runtime = None
         return None
 
     def _cancel_scheduled(self) -> None:
@@ -274,4 +278,7 @@ class GameSessionController:
             pass
 
     def _notify(self) -> None:
-        self._on_state_change(self.snapshot)
+        try:
+            self._on_state_change(self.snapshot)
+        except Exception as exc:
+            self._notify_error(exc)

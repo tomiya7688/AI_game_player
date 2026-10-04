@@ -102,7 +102,7 @@ class Application:
         ttk.Entry(prompt_settings, textvariable=self.personality, width=20).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="目的").pack(side=tk.LEFT)
         ttk.Entry(prompt_settings, textvariable=self.purpose, width=34).pack(side=tk.LEFT, padx=5)
-        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution, command=self._refresh_execution_controls).pack(side=tk.LEFT, padx=5)
+        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution, command=self._on_live_execution_changed).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         window_settings = ttk.Frame(frame)
@@ -216,6 +216,8 @@ class Application:
         return LoopObservation(observation, assessment.status)
 
     def _perform_session_step(self, runtime: SessionRuntime, command: str) -> SessionStep:
+        if command != "decide" and not self._session_dry_run and not self.live_execution.get():
+            return SessionStep(terminal_reason="live execution permission revoked")
         observation, _ = self.memory_source.read()
         if command == "decide":
             decision = runtime.run(purpose=self.purpose.get(), personality=self.personality.get())
@@ -275,6 +277,15 @@ class Application:
         self.execute_button.config(text=execute_label)
         self.loop_button.config(text=loop_label)
         self.live_status.config(text=status)
+
+    def _on_live_execution_changed(self) -> None:
+        self._refresh_execution_controls()
+        if (
+            not self.live_execution.get()
+            and self._session_dry_run is False
+            and self.session_controller.is_running
+        ):
+            self.session_controller.stop("live execution permission revoked")
 
     def _validate_live_execution(self) -> None:
         if self.live_execution.get() and self.input_mode.get() == "window_message" and not self.window_handles.get(self.window_choice.get()):
