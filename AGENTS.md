@@ -4,9 +4,9 @@
 
 0. Read `AI_CONTEXT.md` first. It is the compact ai-context-reducer entrypoint and defines exploration stop conditions.
 1. Read this file only for task/source/test routing and project-specific working rules.
-2. Run `start_task.bat` when no target Issue was explicitly assigned. It writes only the highest-priority work Issue to `.codex/next_issue.md` (P0 -> P1 -> P2 -> P3 -> unlabeled fallback; Issue #19 is policy, not work selection).
-3. If a target Issue was explicitly assigned, use that Issue instead of scanning the Issue list.
-4. Read `.codex/next_issue.md`, then only the mapped source/tests and documents required for that Issue.
+2. Follow `AI_CONTEXT.md` Remote Delta First, then run `start_task.bat` when no target Issue was explicitly assigned. Metadata-only pagination selects the highest-priority work Issue (P0 -> P1 -> P2 -> P3 -> P4 -> P5 -> unlabeled; Issue #19 and parent titles/labels are excluded).
+3. For an assigned Issue, run `start_task.bat --issue NUMBER` instead of scanning the Issue list. This also permits explicit parent-Issue work.
+4. Read `.codex/next_issue.md`, then only the mapped source/tests and documents required for that Issue. Treat the pack as a bounded pointer, not complete requirements; check omitted requirements/relevant discussion at the original Issue. Never use an old pack after a failed refresh.
 5. Read Issue #19 only when priority, scope, or a cross-cutting design decision is unclear. Its compressed policy is below.
 
 Do not begin by reading the entire repository, every document, all Issues, generated diagrams, or routine full PR diffs. Expand context only when the current task requires it.

@@ -18,10 +18,17 @@
 
 ## Read First
 1. This file.
-2. If no Issue was explicitly assigned, run `start_task.bat`.
-3. Read `.codex/next_issue.md` or the explicitly assigned Issue.
-4. Read only the target source and matching tests routed by `AGENTS.md`.
-5. Open detailed docs only when source/tests/Issue do not provide required evidence.
+2. Check compact remote delta before implementation (see below).
+3. Run `start_task.bat`, or `start_task.bat --issue NUMBER` for an assigned Issue.
+4. Read `.codex/next_issue.md`; open the original Issue if requirements are omitted or unclear.
+5. Read only the target source and matching tests routed by `AGENTS.md`.
+6. Open detailed docs only when source/tests/Issue do not provide required evidence.
+
+## Remote Delta First
+- Run `git fetch origin main`, then `git rev-list --left-right --count HEAD...origin/main`.
+- If remote-only commits exist, first use `git log --oneline HEAD..origin/main -10` and `git diff --stat HEAD...origin/main`; inspect only task-related changed files.
+- A failed fetch means remote state is Unverified, not up to date.
+- Never reset, auto-resolve conflicts, or update a dirty/diverged checkout. Fast-forward only after checking local changes and commits; implementation branches may need explicit reconciliation.
 
 ## Stop Exploring When
 Stop broad exploration once all three are known:
@@ -67,6 +74,8 @@ Unless directly in scope, do not read:
 Do not duplicate these mechanisms:
 
 - Task selection/context pack: `start_task.bat` + `tools/issue_context.py`
+- Automatic selection reads all open Issue metadata (no bodies/discussions), skips policy/parent Issues, and orders P0-P5. Explicit `--issue` bypasses selection.
+- Packs preserve Markdown headings, default to at most 8000 characters (`--max-chars 2000..16000`), and mark truncation. Character limits are not token counts. Unloaded comments and truncated requirements require original-Issue lookup when relevant; failed refresh means an old pack must not be used.
 - Task/source/doc routing: `AGENTS.md`
 - Repository State / Test Impact future work: Issue #27
 - Completion checks: `finish_task.bat`
@@ -74,3 +83,5 @@ Do not duplicate these mechanisms:
 
 ## Adoption Source
 This project follows the applicable principles from `tomiya7688/ai-context-reducer` without taking it as a runtime dependency. The reducer repository is guidance; this file and `AGENTS.md` define the local application of those principles.
+
+Reviewed upstream: `7d7fa11bca671c40768825f951102750e3d580b7` (2026-10-04). Adopted Core, metadata-first Task Routing, bounded packs, and Remote Delta First. Existing completion/policy checks are reused. Source Structure Index / detailed Test Impact remain Issues #142/#144; no new toolchain or summary cache is needed for this change.
