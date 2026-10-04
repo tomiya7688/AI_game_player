@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #313: ai-context-reducerのTask Routing / Remote Delta Firstを開発入口へ適用。Issue一覧は本文なしのmetadataだけを全ページ取得し、P0-P5・親Issue除外・明示指定で対象1件の本文のみ取得。文字数上限・省略表示・原典ポインタ・失敗時の古いpack再利用禁止と回帰テストを追加。AST索引/Test Impactは別Issueのまま。
+
 - Issue #232: Native Runtime C ABI v1の薄いPython loader/binding、ABI versionとstruct検証、init/shutdown所有権、batch/status変換、明示的availability、Linux/Windows実共有ライブラリ結合テストを追加。capture/inputやbuffer実装・GUI自動切替は含まない。
 
 - Issue #148: C ABI v1へsize/version付き初期化options、opaque runtime handleのinit/shutdown lifecycle、安定status code、未実装のcoarse batch入口をfail closedする契約とC/C++ contract testを追加。Issue #86の段階導入方針に沿い、mypyは依存moduleの型推論を維持しつつ、指定root 6ファイルのstrict検査へ範囲を明示。

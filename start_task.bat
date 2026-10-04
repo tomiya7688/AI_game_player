@@ -15,7 +15,7 @@ where python >nul 2>&1 || (
   exit /b 1
 )
 
-python tools\issue_context.py
+python tools\issue_context.py %*
 if errorlevel 1 exit /b 1
 
 echo.
