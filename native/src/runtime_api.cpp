@@ -15,6 +15,21 @@ struct kadoka_runtime_handle {
 
 namespace {
 
+constexpr uint32_t kBgraBytesPerPixel = 4u;
+constexpr uint32_t kRgbChannelCount = 3u;
+constexpr uint32_t kRedLumaWeight = 299u;
+constexpr uint32_t kGreenLumaWeight = 587u;
+constexpr uint32_t kBlueLumaWeight = 114u;
+constexpr uint32_t kLumaWeightTotal = 1000u;
+constexpr uint32_t kMaxChannelValue = std::numeric_limits<uint8_t>::max();
+constexpr uint32_t kDHashRows = 8u;
+constexpr uint32_t kDHashComparisonsPerRow = 8u;
+constexpr uint32_t kDHashSamplesPerRow = kDHashComparisonsPerRow + 1u;
+constexpr uint32_t kMinimumBrightRegionExtent = 3u;
+constexpr uint8_t kMaskNotBright = 0u;
+constexpr uint8_t kMaskBright = 1u;
+constexpr uint8_t kMaskVisited = 2u;
+
 void set_result(kadoka_safety_result* result, int32_t allowed, uint32_t reason) {
     result->allowed = allowed;
     result->reason_code = reason;
@@ -56,7 +71,8 @@ uint8_t pixel_brightness(const uint8_t* pixel) {
     const uint32_t blue = pixel[0];
     const uint32_t green = pixel[1];
     const uint32_t red = pixel[2];
-    return static_cast<uint8_t>((red * 299u + green * 587u + blue * 114u) / 1000u);
+    return static_cast<uint8_t>((red * kRedLumaWeight + green * kGreenLumaWeight +
+        blue * kBlueLumaWeight) / kLumaWeightTotal);
 }
 
 }  // namespace
@@ -196,144 +212,155 @@ int32_t kadoka_runtime_preprocess_frame(
     if (input->reserved != 0u || input->width == 0u || input->height == 0u ||
         input->width > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) ||
         input->height > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) ||
-        input->brightness_threshold > 255u || input->min_region_pixels == 0u ||
+        input->brightness_threshold > kMaxChannelValue || input->min_region_pixels == 0u ||
         input->bgra == nullptr || (out_result->regions == nullptr && out_result->region_capacity != 0u)) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
 
-    const uint64_t minimum_stride = static_cast<uint64_t>(input->width) * 4u;
-    const uint64_t required_size = static_cast<uint64_t>(input->stride_bytes) * input->height;
-    const uint64_t pixel_count_64 = static_cast<uint64_t>(input->width) * input->height;
-    if (input->stride_bytes < minimum_stride || input->bgra_size < required_size ||
-        pixel_count_64 > std::numeric_limits<uint32_t>::max()) {
+    const uint64_t minimum_stride = static_cast<uint64_t>(input->width) * kBgraBytesPerPixel;
+    const uint64_t required_bgra_size = static_cast<uint64_t>(input->stride_bytes) * input->height;
+    const uint64_t frame_pixel_count = static_cast<uint64_t>(input->width) * input->height;
+    if (input->stride_bytes < minimum_stride || input->bgra_size < required_bgra_size ||
+        frame_pixel_count > std::numeric_limits<uint32_t>::max()) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
 
-    const size_t pixel_count = static_cast<size_t>(pixel_count_64);
-    const auto started = std::chrono::steady_clock::now();
+    const size_t frame_pixel_count_size = static_cast<size_t>(frame_pixel_count);
+    const auto processing_start = std::chrono::steady_clock::now();
     try {
-        std::vector<uint8_t> bright_mask(pixel_count, 0u);
-        uint64_t red_sum = 0u;
-        uint64_t green_sum = 0u;
-        uint64_t blue_sum = 0u;
+        std::vector<uint8_t> bright_mask(frame_pixel_count_size, kMaskNotBright);
+        uint64_t red_channel_sum = 0u;
+        uint64_t green_channel_sum = 0u;
+        uint64_t blue_channel_sum = 0u;
         for (uint32_t y = 0u; y < input->height; ++y) {
             const uint8_t* row = input->bgra + static_cast<size_t>(y) * input->stride_bytes;
             for (uint32_t x = 0u; x < input->width; ++x) {
-                const uint8_t* pixel = row + static_cast<size_t>(x) * 4u;
-                blue_sum += pixel[0];
-                green_sum += pixel[1];
-                red_sum += pixel[2];
-                const size_t index = static_cast<size_t>(y) * input->width + x;
+                const uint8_t* pixel = row + static_cast<size_t>(x) * kBgraBytesPerPixel;
+                blue_channel_sum += pixel[0];
+                green_channel_sum += pixel[1];
+                red_channel_sum += pixel[2];
+                const size_t pixel_index = static_cast<size_t>(y) * input->width + x;
                 if (pixel_brightness(pixel) >= input->brightness_threshold) {
-                    bright_mask[index] = 1u;
+                    bright_mask[pixel_index] = kMaskBright;
                 }
             }
         }
 
-        uint64_t perceptual_hash = 0u;
-        uint8_t samples[8][9]{};
-        for (uint32_t row = 0u; row < 8u; ++row) {
+        uint64_t frame_perceptual_hash = 0u;
+        uint8_t brightness_samples[kDHashRows][kDHashSamplesPerRow]{};
+        for (uint32_t row = 0u; row < kDHashRows; ++row) {
             const uint32_t y = static_cast<uint32_t>(std::min<uint64_t>(
-                input->height - 1u, static_cast<uint64_t>(row) * input->height / 8u));
-            for (uint32_t column = 0u; column < 9u; ++column) {
+                input->height - 1u, static_cast<uint64_t>(row) * input->height / kDHashRows));
+            for (uint32_t column = 0u; column < kDHashSamplesPerRow; ++column) {
                 const uint32_t x = static_cast<uint32_t>(std::min<uint64_t>(
-                    input->width - 1u, static_cast<uint64_t>(column) * input->width / 9u));
+                    input->width - 1u,
+                    static_cast<uint64_t>(column) * input->width / kDHashSamplesPerRow));
                 const uint8_t* pixel = input->bgra + static_cast<size_t>(y) * input->stride_bytes +
-                    static_cast<size_t>(x) * 4u;
-                samples[row][column] = pixel_brightness(pixel);
+                    static_cast<size_t>(x) * kBgraBytesPerPixel;
+                brightness_samples[row][column] = pixel_brightness(pixel);
             }
-            for (uint32_t column = 0u; column < 8u; ++column) {
-                perceptual_hash = (perceptual_hash << 1u) |
-                    static_cast<uint64_t>(samples[row][column] > samples[row][column + 1u]);
+            for (uint32_t column = 0u; column < kDHashComparisonsPerRow; ++column) {
+                frame_perceptual_hash = (frame_perceptual_hash << 1u) |
+                    static_cast<uint64_t>(
+                        brightness_samples[row][column] > brightness_samples[row][column + 1u]);
             }
         }
 
-        std::vector<kadoka_frame_region> regions;
-        std::vector<uint32_t> pending;
-        for (uint32_t start = 0u; start < static_cast<uint32_t>(pixel_count_64); ++start) {
-            if (bright_mask[start] != 1u) {
+        std::vector<kadoka_frame_region> detected_regions;
+        std::vector<uint32_t> pending_pixel_indices;
+        for (uint32_t start_pixel_index = 0u;
+             start_pixel_index < static_cast<uint32_t>(frame_pixel_count);
+             ++start_pixel_index) {
+            if (bright_mask[start_pixel_index] != kMaskBright) {
                 continue;
             }
-            pending.clear();
-            pending.push_back(start);
-            bright_mask[start] = 2u;
-            uint32_t min_x = start % input->width;
+            pending_pixel_indices.clear();
+            pending_pixel_indices.push_back(start_pixel_index);
+            bright_mask[start_pixel_index] = kMaskVisited;
+            uint32_t min_x = start_pixel_index % input->width;
             uint32_t max_x = min_x;
-            uint32_t min_y = start / input->width;
+            uint32_t min_y = start_pixel_index / input->width;
             uint32_t max_y = min_y;
-            uint64_t component_pixels = 0u;
-            for (size_t cursor = 0u; cursor < pending.size(); ++cursor) {
-                const uint32_t index = pending[cursor];
-                const uint32_t x = index % input->width;
-                const uint32_t y = index / input->width;
-                ++component_pixels;
+            uint64_t component_pixel_count = 0u;
+            for (size_t queue_position = 0u;
+                 queue_position < pending_pixel_indices.size();
+                 ++queue_position) {
+                const uint32_t pixel_index = pending_pixel_indices[queue_position];
+                const uint32_t x = pixel_index % input->width;
+                const uint32_t y = pixel_index / input->width;
+                ++component_pixel_count;
                 min_x = std::min(min_x, x);
                 max_x = std::max(max_x, x);
                 min_y = std::min(min_y, y);
                 max_y = std::max(max_y, y);
 
-                const auto visit = [&](uint32_t neighbor) {
-                    if (bright_mask[neighbor] == 1u) {
-                        bright_mask[neighbor] = 2u;
-                        pending.push_back(neighbor);
+                const auto visit_neighbor = [&](uint32_t neighbor_pixel_index) {
+                    if (bright_mask[neighbor_pixel_index] == kMaskBright) {
+                        bright_mask[neighbor_pixel_index] = kMaskVisited;
+                        pending_pixel_indices.push_back(neighbor_pixel_index);
                     }
                 };
                 if (x > 0u) {
-                    visit(index - 1u);
+                    visit_neighbor(pixel_index - 1u);
                 }
                 if (x + 1u < input->width) {
-                    visit(index + 1u);
+                    visit_neighbor(pixel_index + 1u);
                 }
                 if (y > 0u) {
-                    visit(index - input->width);
+                    visit_neighbor(pixel_index - input->width);
                 }
                 if (y + 1u < input->height) {
-                    visit(index + input->width);
+                    visit_neighbor(pixel_index + input->width);
                 }
             }
 
             const uint32_t region_width = max_x - min_x + 1u;
             const uint32_t region_height = max_y - min_y + 1u;
-            if (component_pixels >= input->min_region_pixels && region_width >= 3u && region_height >= 3u) {
-                regions.push_back({
+            if (component_pixel_count >= input->min_region_pixels &&
+                region_width >= kMinimumBrightRegionExtent &&
+                region_height >= kMinimumBrightRegionExtent) {
+                detected_regions.push_back({
                     static_cast<int32_t>(min_x),
                     static_cast<int32_t>(min_y),
                     static_cast<int32_t>(region_width),
                     static_cast<int32_t>(region_height),
                     0u,
-                    component_pixels,
+                    component_pixel_count,
                 });
             }
         }
 
-        const uint32_t region_count = static_cast<uint32_t>(regions.size());
+        const uint32_t region_count = static_cast<uint32_t>(detected_regions.size());
         out_result->abi_version = runtime->abi_version;
-        out_result->mean_red = round_ratio_to_even(red_sum, pixel_count_64);
-        out_result->mean_green = round_ratio_to_even(green_sum, pixel_count_64);
-        out_result->mean_blue = round_ratio_to_even(blue_sum, pixel_count_64);
+        out_result->mean_red = round_ratio_to_even(red_channel_sum, frame_pixel_count);
+        out_result->mean_green = round_ratio_to_even(green_channel_sum, frame_pixel_count);
+        out_result->mean_blue = round_ratio_to_even(blue_channel_sum, frame_pixel_count);
         out_result->mean_brightness = round_ratio_to_even(
-            red_sum + green_sum + blue_sum, 3u * pixel_count_64);
-        out_result->perceptual_hash = perceptual_hash;
+            red_channel_sum + green_channel_sum + blue_channel_sum,
+            kRgbChannelCount * frame_pixel_count);
+        out_result->perceptual_hash = frame_perceptual_hash;
         out_result->region_count = region_count;
-        out_result->input_bytes_read = pixel_count_64 * 4u;
+        out_result->input_frame_bytes_processed = frame_pixel_count * kBgraBytesPerPixel;
         out_result->output_bytes_written = 0u;
         out_result->input_copy_count = 0u;
         out_result->input_copy_bytes = 0u;
         out_result->processing_ns = 0u;
         out_result->reserved = 0u;
         if (region_count > out_result->region_capacity) {
-            const auto finished = std::chrono::steady_clock::now();
+            const auto processing_end = std::chrono::steady_clock::now();
             out_result->processing_ns = static_cast<uint64_t>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(finished - started).count());
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    processing_end - processing_start).count());
             return KADOKA_RUNTIME_STATUS_BUFFER_TOO_SMALL;
         }
-        for (uint32_t index = 0u; index < region_count; ++index) {
-            out_result->regions[index] = regions[index];
+        for (uint32_t region_index = 0u; region_index < region_count; ++region_index) {
+            out_result->regions[region_index] = detected_regions[region_index];
         }
         out_result->output_bytes_written = static_cast<uint64_t>(region_count) * sizeof(kadoka_frame_region);
-        const auto finished = std::chrono::steady_clock::now();
+        const auto processing_end = std::chrono::steady_clock::now();
         out_result->processing_ns = static_cast<uint64_t>(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(finished - started).count());
+            std::chrono::duration_cast<std::chrono::nanoseconds>(
+                processing_end - processing_start).count());
         return KADOKA_RUNTIME_STATUS_OK;
     } catch (const std::bad_alloc&) {
         return KADOKA_RUNTIME_STATUS_ALLOCATION_FAILED;

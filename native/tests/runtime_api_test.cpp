@@ -89,7 +89,7 @@ void test_frame_preprocess(const kadoka_runtime_handle* runtime) {
     assert(result.mean_brightness == 76u);
     assert(result.perceptual_hash == UINT64_C(0x0000010101010100));
     assert(result.region_count == 1u);
-    assert(result.input_bytes_read == pixels.size());
+    assert(result.input_frame_bytes_processed == pixels.size());
     assert(result.output_bytes_written == 0u);
     assert(result.input_copy_count == 0u);
     assert(result.input_copy_bytes == 0u);
@@ -120,7 +120,7 @@ void test_frame_preprocess(const kadoka_runtime_handle* runtime) {
     assert(result.mean_blue == 0u);
     assert(result.mean_brightness == 42u);
     assert(result.region_count == 0u);
-    assert(result.input_bytes_read == 8u);
+    assert(result.input_frame_bytes_processed == 8u);
     assert(result.output_bytes_written == 0u);
     assert(result.input_copy_count == 0u);
     assert(result.input_copy_bytes == 0u);

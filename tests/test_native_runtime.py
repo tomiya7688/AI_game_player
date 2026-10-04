@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from ai_game_player.bright_region_detector import BrightRegionDetector
+from ai_game_player.bright_region_detector import BGRA_BYTES_PER_PIXEL, BrightRegionDetector
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.runtime import native as abi
 from ai_game_player.runtime import RuntimeCapability, RuntimeRegistry
@@ -98,25 +98,29 @@ class FakeLibrary:
 
     def preprocess_frame(self, handle, input_pointer, result_pointer):
         assert handle.value == 0x12345678
-        request = ctypes.cast(input_pointer, ctypes.POINTER(abi._FrameInput)).contents
-        result = ctypes.cast(result_pointer, ctypes.POINTER(abi._FrameResult)).contents
-        self.frame_capacities.append(result.region_capacity)
-        result.abi_version = 1
-        result.mean_red, result.mean_green, result.mean_blue, result.mean_brightness = self.frame_mean
-        result.perceptual_hash = self.frame_hash
-        result.region_count = len(self.frame_regions)
-        result.input_bytes_read = request.width * request.height * 4
-        result.output_bytes_written = 0
-        result.input_copy_count = 0
-        result.input_copy_bytes = 0
-        result.processing_ns = 123
-        for field, value in self.frame_corrupt_result.items():
-            setattr(result, field, value)
-        if result.region_capacity < len(self.frame_regions):
+        frame_input = ctypes.cast(input_pointer, ctypes.POINTER(abi._FrameInput)).contents
+        frame_result = ctypes.cast(result_pointer, ctypes.POINTER(abi._FrameResult)).contents
+        self.frame_capacities.append(frame_result.region_capacity)
+        frame_result.abi_version = 1
+        frame_result.mean_red, frame_result.mean_green, frame_result.mean_blue, frame_result.mean_brightness = self.frame_mean
+        frame_result.perceptual_hash = self.frame_hash
+        frame_result.region_count = len(self.frame_regions)
+        frame_result.input_frame_bytes_processed = (
+            frame_input.width * frame_input.height * BGRA_BYTES_PER_PIXEL
+        )
+        frame_result.output_bytes_written = 0
+        frame_result.input_copy_count = 0
+        frame_result.input_copy_bytes = 0
+        frame_result.processing_ns = 123
+        if frame_result.region_capacity < len(self.frame_regions):
+            for field, value in self.frame_corrupt_result.items():
+                setattr(frame_result, field, value)
             return abi.NativeStatus.BUFFER_TOO_SMALL
         for index, region in enumerate(self.frame_regions):
-            result.regions[index] = region
-        result.output_bytes_written = len(self.frame_regions) * ctypes.sizeof(abi._FrameRegion)
+            frame_result.regions[index] = region
+        frame_result.output_bytes_written = len(self.frame_regions) * ctypes.sizeof(abi._FrameRegion)
+        for field, value in self.frame_corrupt_result.items():
+            setattr(frame_result, field, value)
         return self.batch_status
 
 
@@ -203,7 +207,7 @@ class NativeRuntimeTest(unittest.TestCase):
         self.assertEqual((2, 1, 3, 3), result.detected_elements[0].bbox)
         self.assertEqual(0.7, result.detected_elements[0].confidence)
         self.assertEqual(123, result.processing_ns)
-        self.assertEqual(len(frame.bgra), result.input_bytes_read)
+        self.assertEqual(len(frame.bgra), result.input_frame_bytes_processed)
         self.assertEqual(ctypes.sizeof(abi._FrameRegion), result.output_bytes_written)
         self.assertEqual(0, result.input_copy_count)
         self.assertEqual(0, result.input_copy_bytes)
@@ -218,10 +222,13 @@ class NativeRuntimeTest(unittest.TestCase):
         with abi.NativeRuntime(library) as runtime:
             result = runtime.preprocess(frame)
 
-        self.assertEqual([256, 257], library.frame_capacities)
+        self.assertEqual(
+            [abi.INITIAL_REGION_BUFFER_CAPACITY, abi.INITIAL_REGION_BUFFER_CAPACITY + 1],
+            library.frame_capacities,
+        )
         self.assertEqual(257, len(result.detected_elements))
         self.assertEqual(246, result.processing_ns)
-        self.assertEqual(2 * len(frame.bgra), result.input_bytes_read)
+        self.assertEqual(2 * len(frame.bgra), result.input_frame_bytes_processed)
         self.assertEqual(257 * ctypes.sizeof(abi._FrameRegion), result.output_bytes_written)
 
     def test_native_frame_preprocessor_rejects_invalid_frame_before_ffi(self):
@@ -232,6 +239,47 @@ class NativeRuntimeTest(unittest.TestCase):
                 with self.subTest(frame=frame), self.assertRaises(ValueError):
                     runtime.preprocess(frame)
         self.assertEqual(0, library.kadoka_runtime_preprocess_frame.calls)
+
+    def test_corrupted_native_frame_results_invalidate_runtime(self):
+        frame = ScreenFrame(6, 5, bytes(6 * 5 * BGRA_BYTES_PER_PIXEL))
+        corruption_cases = (
+            ({"abi_version": 2}, []),
+            ({"mean_red": 256}, []),
+            ({"input_frame_bytes_processed": 1}, []),
+            ({"input_copy_count": 1}, []),
+            ({"output_bytes_written": 1}, []),
+            ({"reserved": 1}, []),
+            ({}, [abi._FrameRegion(4, 3, 3, 3, 0, 9)]),
+        )
+
+        for corruption, frame_regions in corruption_cases:
+            with self.subTest(corruption=corruption, frame_regions=frame_regions):
+                library = FakeLibrary()
+                library.capabilities = 4 | 8
+                library.frame_corrupt_result = corruption
+                library.frame_regions = frame_regions
+                runtime = abi.NativeRuntime(library)
+                self.addCleanup(runtime.close)
+
+                with self.assertRaises(abi.NativeContractError):
+                    runtime.preprocess(frame)
+
+                self.assertFalse(runtime.is_healthy())
+
+    def test_corrupted_buffer_too_small_result_invalidates_runtime(self):
+        library = FakeLibrary()
+        library.capabilities = 4 | 8
+        library.frame_regions = [
+            abi._FrameRegion(0, 0, 3, 3, 0, 9)
+            for _ in range(abi.INITIAL_REGION_BUFFER_CAPACITY + 1)
+        ]
+        library.frame_corrupt_result = {"input_frame_bytes_processed": 1}
+        frame = ScreenFrame(300, 300, bytes(300 * 300 * BGRA_BYTES_PER_PIXEL))
+
+        with abi.NativeRuntime(library) as runtime:
+            with self.assertRaises(abi.NativeContractError):
+                runtime.preprocess(frame)
+            self.assertFalse(runtime.is_healthy())
 
     def test_prototypes_set_before_calls(self):
         library = FakeLibrary()

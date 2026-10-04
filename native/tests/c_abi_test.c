@@ -42,7 +42,7 @@ int main(void) {
         frame_result.mean_red != 255u || frame_result.mean_green != 0u ||
         frame_result.mean_blue != 0u || frame_result.mean_brightness != 85u ||
         frame_result.perceptual_hash != 0u || frame_result.region_count != 0u ||
-        frame_result.input_bytes_read != sizeof(pixel) || frame_result.output_bytes_written != 0u ||
+        frame_result.input_frame_bytes_processed != sizeof(pixel) || frame_result.output_bytes_written != 0u ||
         frame_result.input_copy_count != 0u || frame_result.input_copy_bytes != 0u) {
         (void)kadoka_runtime_shutdown(&runtime);
         return 7;

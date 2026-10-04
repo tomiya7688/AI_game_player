@@ -12,6 +12,16 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any
 
+from ai_game_player.bright_region_detector import (
+    BGRA_BYTES_PER_PIXEL,
+    BRIGHT_REGION_CONFIDENCE_BASE,
+    BRIGHT_REGION_CONFIDENCE_DECIMAL_PLACES,
+    BRIGHT_REGION_DENSITY_WEIGHT,
+    DEFAULT_BRIGHTNESS_THRESHOLD,
+    DEFAULT_MIN_REGION_PIXELS,
+    MAX_CHANNEL_VALUE,
+    MIN_BRIGHT_REGION_EXTENT,
+)
 from ai_game_player.frame_preprocessor import FramePrimitiveBatch
 from ai_game_player.models import DetectedElement
 from ai_game_player.runtime.contracts import RuntimeCapability, RuntimeDescriptor
@@ -20,6 +30,9 @@ from ai_game_player.screen_capture import ScreenFrame
 
 NATIVE_ABI_VERSION = 1
 CAP_FAST_CV = 1 << 3
+MAX_INT32 = (1 << 31) - 1
+MAX_UINT32 = (1 << 32) - 1
+INITIAL_REGION_BUFFER_CAPACITY = 256
 
 
 class NativeStatus(IntEnum):
@@ -136,7 +149,7 @@ class _FrameResult(ctypes.Structure):
         ("region_count", ctypes.c_uint32),
         ("region_capacity", ctypes.c_uint32),
         ("regions", ctypes.POINTER(_FrameRegion)),
-        ("input_bytes_read", ctypes.c_uint64),
+        ("input_frame_bytes_processed", ctypes.c_uint64),
         ("output_bytes_written", ctypes.c_uint64),
         ("input_copy_count", ctypes.c_uint64),
         ("input_copy_bytes", ctypes.c_uint64),
@@ -269,164 +282,208 @@ class NativeRuntime:
         self,
         frame: ScreenFrame,
         *,
-        brightness_threshold: int = 220,
-        min_region_pixels: int = 9,
+        brightness_threshold: int = DEFAULT_BRIGHTNESS_THRESHOLD,
+        min_region_pixels: int = DEFAULT_MIN_REGION_PIXELS,
     ) -> FramePrimitiveBatch:
         if (
             isinstance(frame.width, bool) or not isinstance(frame.width, int)
             or isinstance(frame.height, bool) or not isinstance(frame.height, int)
             or frame.width <= 0 or frame.height <= 0
-            or len(frame.bgra) != frame.width * frame.height * 4
+            or len(frame.bgra) != frame.width * frame.height * BGRA_BYTES_PER_PIXEL
         ):
             raise ValueError("BGRA buffer size does not match frame dimensions")
         if self._preprocess_frame is None:
             raise NativeRuntimeError("preprocess_frame (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
         if (
-            frame.width > 0x7FFFFFFF or frame.height > 0x7FFFFFFF
-            or frame.width * 4 > 0xFFFFFFFF
+            frame.width > MAX_INT32 or frame.height > MAX_INT32
+            or frame.width * BGRA_BYTES_PER_PIXEL > MAX_UINT32
             or isinstance(brightness_threshold, bool) or not isinstance(brightness_threshold, int)
-            or not 0 <= brightness_threshold <= 255
+            or not 0 <= brightness_threshold <= MAX_CHANNEL_VALUE
             or isinstance(min_region_pixels, bool) or not isinstance(min_region_pixels, int)
-            or not 1 <= min_region_pixels <= 0xFFFFFFFF
+            or not 1 <= min_region_pixels <= MAX_UINT32
         ):
             raise ValueError("frame preprocessing parameters are outside the C ABI range")
 
-        pixel_count = frame.width * frame.height
-        initial_capacity = min(256, pixel_count // min_region_pixels)
-        buffer = ctypes.c_char_p(frame.bgra)
-        data_pointer = ctypes.cast(buffer, ctypes.POINTER(ctypes.c_uint8))
+        frame_pixel_count = frame.width * frame.height
+        frame_payload_bytes = frame_pixel_count * BGRA_BYTES_PER_PIXEL
+        initial_region_capacity = min(
+            INITIAL_REGION_BUFFER_CAPACITY,
+            frame_pixel_count // min_region_pixels,
+        )
+        bgra_buffer_owner = ctypes.c_char_p(frame.bgra)
+        bgra_data_pointer = ctypes.cast(bgra_buffer_owner, ctypes.POINTER(ctypes.c_uint8))
         with self._lock:
             if not self.is_healthy():
                 raise NativeRuntimeError("preprocess_frame (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
-            capacity = initial_capacity
+            region_capacity = initial_region_capacity
             total_processing_ns = 0
-            total_input_bytes_read = 0
+            total_input_frame_bytes_processed = 0
             total_output_bytes_written = 0
             while True:
-                regions = (_FrameRegion * capacity)() if capacity else None
-                region_pointer = (
-                    ctypes.cast(regions, ctypes.POINTER(_FrameRegion))
-                    if regions is not None else ctypes.POINTER(_FrameRegion)()
+                region_buffer = (_FrameRegion * region_capacity)() if region_capacity else None
+                region_buffer_pointer = (
+                    ctypes.cast(region_buffer, ctypes.POINTER(_FrameRegion))
+                    if region_buffer is not None else ctypes.POINTER(_FrameRegion)()
                 )
-                request = _FrameInput(
+                frame_input = _FrameInput(
                     ctypes.sizeof(_FrameInput),
                     NATIVE_ABI_VERSION,
                     frame.width,
                     frame.height,
-                    frame.width * 4,
+                    frame.width * BGRA_BYTES_PER_PIXEL,
                     brightness_threshold,
                     min_region_pixels,
                     0,
                     len(frame.bgra),
-                    data_pointer,
+                    bgra_data_pointer,
                 )
-                result = _FrameResult()
-                result.struct_size = ctypes.sizeof(_FrameResult)
-                result.abi_version = NATIVE_ABI_VERSION
-                result.region_capacity = capacity
-                result.regions = region_pointer
-                status = int(self._preprocess_frame(self._handle, ctypes.byref(request), ctypes.byref(result)))
-                if status == NativeStatus.BUFFER_TOO_SMALL:
-                    if not self._valid_frame_result(
-                        result, capacity, pixel_count, frame.width, frame.height,
-                        min_region_pixels, regions, buffer_bytes=len(frame.bgra), buffer_too_small=True,
-                    ):
-                        self._healthy = False
-                        raise NativeContractError("Native Runtime returned an invalid frame result")
-                    total_processing_ns += int(result.processing_ns)
-                    total_input_bytes_read += int(result.input_bytes_read)
-                    total_output_bytes_written += int(result.output_bytes_written)
-                    capacity = int(result.region_count)
-                    continue
-                if status in (NativeStatus.OK,):
-                    if not self._valid_frame_result(
-                        result, capacity, pixel_count, frame.width, frame.height,
-                        min_region_pixels, regions, buffer_bytes=len(frame.bgra), buffer_too_small=False,
-                    ):
-                        self._healthy = False
-                        raise NativeContractError("Native Runtime returned an invalid frame result")
-                _check("preprocess_frame", status)
-                total_processing_ns += int(result.processing_ns)
-                total_input_bytes_read += int(result.input_bytes_read)
-                total_output_bytes_written += int(result.output_bytes_written)
-                detected = tuple(
-                    DetectedElement(
-                        f"bright-region-{index}",
-                        "region",
-                        (int(region.x), int(region.y), int(region.width), int(region.height)),
-                        "bright_region",
-                        round(0.5 + 0.2 * int(region.pixel_count) / (int(region.width) * int(region.height)), 2),
+                frame_result = _FrameResult()
+                frame_result.struct_size = ctypes.sizeof(_FrameResult)
+                frame_result.abi_version = NATIVE_ABI_VERSION
+                frame_result.region_capacity = region_capacity
+                frame_result.regions = region_buffer_pointer
+                native_status = int(
+                    self._preprocess_frame(
+                        self._handle,
+                        ctypes.byref(frame_input),
+                        ctypes.byref(frame_result),
                     )
-                    for index, region in enumerate(() if regions is None else regions[:result.region_count])
+                )
+                if native_status == NativeStatus.BUFFER_TOO_SMALL:
+                    if not self._valid_frame_result(
+                        frame_result,
+                        region_capacity,
+                        frame_pixel_count,
+                        frame.width,
+                        frame.height,
+                        min_region_pixels,
+                        region_buffer,
+                        frame_payload_bytes=frame_payload_bytes,
+                        buffer_too_small=True,
+                    ):
+                        self._healthy = False
+                        raise NativeContractError("Native Runtime returned an invalid frame result")
+                    total_processing_ns += int(frame_result.processing_ns)
+                    total_input_frame_bytes_processed += int(frame_result.input_frame_bytes_processed)
+                    total_output_bytes_written += int(frame_result.output_bytes_written)
+                    region_capacity = int(frame_result.region_count)
+                    continue
+                if native_status == NativeStatus.OK:
+                    if not self._valid_frame_result(
+                        frame_result,
+                        region_capacity,
+                        frame_pixel_count,
+                        frame.width,
+                        frame.height,
+                        min_region_pixels,
+                        region_buffer,
+                        frame_payload_bytes=frame_payload_bytes,
+                        buffer_too_small=False,
+                    ):
+                        self._healthy = False
+                        raise NativeContractError("Native Runtime returned an invalid frame result")
+                _check("preprocess_frame", native_status)
+                total_processing_ns += int(frame_result.processing_ns)
+                total_input_frame_bytes_processed += int(frame_result.input_frame_bytes_processed)
+                total_output_bytes_written += int(frame_result.output_bytes_written)
+                detected_elements = tuple(
+                    DetectedElement(
+                        f"bright-region-{region_index}",
+                        "region",
+                        (
+                            int(region.x),
+                            int(region.y),
+                            int(region.width),
+                            int(region.height),
+                        ),
+                        "bright_region",
+                        round(
+                            BRIGHT_REGION_CONFIDENCE_BASE
+                            + BRIGHT_REGION_DENSITY_WEIGHT * int(region.pixel_count)
+                            / (int(region.width) * int(region.height)),
+                            BRIGHT_REGION_CONFIDENCE_DECIMAL_PLACES,
+                        ),
+                    )
+                    for region_index, region in enumerate(
+                        () if region_buffer is None
+                        else region_buffer[:frame_result.region_count]
+                    )
                 )
                 return FramePrimitiveBatch(
                     mean_rgb={
-                        "r": int(result.mean_red),
-                        "g": int(result.mean_green),
-                        "b": int(result.mean_blue),
+                        "r": int(frame_result.mean_red),
+                        "g": int(frame_result.mean_green),
+                        "b": int(frame_result.mean_blue),
                     },
-                    mean_brightness=int(result.mean_brightness),
-                    perceptual_hash=f"{int(result.perceptual_hash):016x}",
-                    detected_elements=detected,
+                    mean_brightness=int(frame_result.mean_brightness),
+                    perceptual_hash=f"{int(frame_result.perceptual_hash):016x}",
+                    detected_elements=detected_elements,
                     processing_ns=total_processing_ns,
-                    input_bytes_read=total_input_bytes_read,
+                    input_frame_bytes_processed=total_input_frame_bytes_processed,
                     output_bytes_written=total_output_bytes_written,
-                    input_copy_count=int(result.input_copy_count),
-                    input_copy_bytes=int(result.input_copy_bytes),
+                    input_copy_count=int(frame_result.input_copy_count),
+                    input_copy_bytes=int(frame_result.input_copy_bytes),
                 )
 
     @staticmethod
     def _valid_frame_result(
-        result: _FrameResult,
-        capacity: int,
-        pixel_count: int,
+        frame_result: _FrameResult,
+        region_capacity: int,
+        frame_pixel_count: int,
         frame_width: int,
         frame_height: int,
-        min_region_pixels: int,
-        regions: Any,
+        minimum_region_pixels: int,
+        region_buffer: Any,
         *,
-        buffer_bytes: int,
+        frame_payload_bytes: int,
         buffer_too_small: bool,
     ) -> bool:
         if (
-            result.struct_size != ctypes.sizeof(_FrameResult)
-            or result.abi_version != NATIVE_ABI_VERSION
-            or result.region_capacity != capacity
-            or result.reserved != 0
-            or any(value > 255 for value in (
-                result.mean_red, result.mean_green, result.mean_blue, result.mean_brightness,
+            frame_result.struct_size != ctypes.sizeof(_FrameResult)
+            or frame_result.abi_version != NATIVE_ABI_VERSION
+            or frame_result.region_capacity != region_capacity
+            or frame_result.reserved != 0
+            or any(value > MAX_CHANNEL_VALUE for value in (
+                frame_result.mean_red,
+                frame_result.mean_green,
+                frame_result.mean_blue,
+                frame_result.mean_brightness,
             ))
-            or result.input_bytes_read != buffer_bytes
-            or result.input_copy_count != 0
-            or result.input_copy_bytes != 0
-            or result.region_count > pixel_count // min_region_pixels
+            or frame_result.input_frame_bytes_processed != frame_payload_bytes
+            or frame_result.input_copy_count != 0
+            or frame_result.input_copy_bytes != 0
+            or frame_result.region_count > frame_pixel_count // minimum_region_pixels
         ):
             return False
-        expected_pointer = (
-            ctypes.cast(regions, ctypes.c_void_p).value
-            if regions is not None else None
+        expected_region_buffer_pointer = (
+            ctypes.cast(region_buffer, ctypes.c_void_p).value
+            if region_buffer is not None else None
         )
-        actual_pointer = ctypes.cast(result.regions, ctypes.c_void_p).value
-        if actual_pointer != expected_pointer:
+        native_region_buffer_pointer = ctypes.cast(frame_result.regions, ctypes.c_void_p).value
+        if native_region_buffer_pointer != expected_region_buffer_pointer:
             return False
         if buffer_too_small:
-            return bool(result.region_count > capacity and result.output_bytes_written == 0)
-        if result.region_count > capacity:
+            return bool(
+                frame_result.region_count > region_capacity
+                and frame_result.output_bytes_written == 0
+            )
+        if frame_result.region_count > region_capacity:
             return False
-        expected_output = result.region_count * ctypes.sizeof(_FrameRegion)
-        if result.output_bytes_written != expected_output:
+        expected_region_payload_bytes = frame_result.region_count * ctypes.sizeof(_FrameRegion)
+        if frame_result.output_bytes_written != expected_region_payload_bytes:
             return False
-        if result.region_count and not result.regions:
+        if frame_result.region_count and not frame_result.regions:
             return False
-        for index in range(result.region_count):
-            region = result.regions[index]
+        for region_index in range(frame_result.region_count):
+            region = frame_result.regions[region_index]
             if (
                 region.reserved != 0
                 or region.x < 0 or region.y < 0
-                or region.width < 3 or region.height < 3
+                or region.width < MIN_BRIGHT_REGION_EXTENT
+                or region.height < MIN_BRIGHT_REGION_EXTENT
                 or region.x + region.width > frame_width
                 or region.y + region.height > frame_height
-                or region.pixel_count < min_region_pixels
+                or region.pixel_count < minimum_region_pixels
                 or region.pixel_count > region.width * region.height
             ):
                 return False

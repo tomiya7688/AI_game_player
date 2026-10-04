@@ -121,8 +121,8 @@ typedef struct kadoka_frame_preprocess_result {
     uint32_t region_capacity;
     /* Caller-owned storage; no native allocation is returned across the ABI. */
     kadoka_frame_region* regions;
-    /* Input pixel bytes read and region payload bytes written; excludes struct headers. */
-    uint64_t input_bytes_read;
+    /* Logical BGRA pixel payload processed per call; excludes row padding and struct headers. */
+    uint64_t input_frame_bytes_processed;
     uint64_t output_bytes_written;
     /* The BGRA pointer is borrowed; these fields report copies of the source pixels. */
     uint64_t input_copy_count;

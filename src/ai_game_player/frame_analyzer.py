@@ -1,6 +1,6 @@
 from hashlib import sha256
 
-from ai_game_player.bright_region_detector import BrightRegionDetector
+from ai_game_player.bright_region_detector import BGRA_BYTES_PER_PIXEL, BrightRegionDetector
 from ai_game_player.frame_preprocessor import FramePreprocessor, PythonFramePreprocessor
 from ai_game_player.models import ScreenObservation
 from ai_game_player.perceptual_hasher import PerceptualHasher
@@ -26,20 +26,20 @@ class FrameAnalyzer:
         )
 
     def analyze(self, frame: ScreenFrame, screen_id: str = "screen") -> ScreenObservation:
-        if len(frame.bgra) != frame.width * frame.height * 4:
+        if len(frame.bgra) != frame.width * frame.height * BGRA_BYTES_PER_PIXEL:
             raise ValueError("BGRA buffer size does not match frame dimensions")
-        primitives = self.frame_preprocessor.preprocess(
+        primitive_batch = self.frame_preprocessor.preprocess(
             frame,
             brightness_threshold=self.bright_region_detector.brightness_threshold,
             min_region_pixels=self.bright_region_detector.min_pixels,
         )
         features = {
-            "mean_rgb": primitives.mean_rgb,
-            "mean_brightness": primitives.mean_brightness,
+            "mean_rgb": primitive_batch.mean_rgb,
+            "mean_brightness": primitive_batch.mean_brightness,
             "signature": sha256(frame.bgra).hexdigest(),
-            "perceptual_hash": primitives.perceptual_hash,
+            "perceptual_hash": primitive_batch.perceptual_hash,
         }
-        elements = list(primitives.detected_elements)
+        detected_elements = list(primitive_batch.detected_elements)
         features["image_candidates"] = [
             {
                 "action_id": element.element_id,
@@ -51,7 +51,7 @@ class FrameAnalyzer:
                 "dangerous": element.dangerous,
                 "bbox": element.bbox,
             }
-            for element in elements
+            for element in detected_elements
         ]
         if self.ocr is not None and hasattr(self.ocr, "recognize_batch"):
             batch = self.ocr.recognize_batch(frame, screen_id)
@@ -59,9 +59,9 @@ class FrameAnalyzer:
             features["ocr_results"] = [result.to_dict() for result in batch.results]
             features["ocr_provider_status"] = [status.to_dict() for status in batch.statuses]
             features["ocr_fallback_used"] = batch.fallback_used
-            elements.extend(batch.elements)
+            detected_elements.extend(batch.elements)
         elif self.ocr is not None:
             features["ocr_candidates"] = self.ocr.recognize(frame)
-        features["detected_elements"] = [element.to_dict() for element in elements]
+        features["detected_elements"] = [element.to_dict() for element in detected_elements]
         ocr_text = [str(item["text"]) for item in features.get("ocr_candidates", [])]
         return ScreenObservation(screen_id, frame.width, frame.height, ocr_text, features)
