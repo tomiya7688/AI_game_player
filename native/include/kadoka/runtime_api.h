@@ -23,6 +23,7 @@ extern "C" {
 #define KADOKA_RUNTIME_STATUS_UNSUPPORTED_ABI -2
 #define KADOKA_RUNTIME_STATUS_ALLOCATION_FAILED -3
 #define KADOKA_RUNTIME_STATUS_NOT_IMPLEMENTED -4
+#define KADOKA_RUNTIME_STATUS_BUFFER_TOO_SMALL -5
 
 #define KADOKA_RUNTIME_BATCH_FRAME 1u
 #define KADOKA_RUNTIME_BATCH_OBSERVATION 2u
@@ -83,6 +84,54 @@ typedef struct kadoka_runtime_batch_result {
     uint32_t reserved;
 } kadoka_runtime_batch_result;
 
+typedef struct kadoka_frame_preprocess_input {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint32_t width;
+    uint32_t height;
+    uint32_t stride_bytes;
+    uint32_t brightness_threshold;
+    uint32_t min_region_pixels;
+    uint32_t reserved;
+    uint64_t bgra_size;
+    /* Borrowed only for the duration of kadoka_runtime_preprocess_frame. */
+    const uint8_t* bgra;
+} kadoka_frame_preprocess_input;
+
+/* Caller-owned output. Pixel count records the connected bright component size. */
+typedef struct kadoka_frame_region {
+    int32_t x;
+    int32_t y;
+    int32_t width;
+    int32_t height;
+    uint32_t reserved;
+    uint64_t pixel_count;
+} kadoka_frame_region;
+
+typedef struct kadoka_frame_preprocess_result {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint32_t mean_red;
+    uint32_t mean_green;
+    uint32_t mean_blue;
+    uint32_t mean_brightness;
+    uint64_t perceptual_hash;
+    /* region_count is required capacity; on BUFFER_TOO_SMALL, retry with that capacity. */
+    uint32_t region_count;
+    uint32_t region_capacity;
+    /* Caller-owned storage; no native allocation is returned across the ABI. */
+    kadoka_frame_region* regions;
+    /* Input pixel bytes read and region payload bytes written; excludes struct headers. */
+    uint64_t input_bytes_read;
+    uint64_t output_bytes_written;
+    /* The BGRA pointer is borrowed; these fields report copies of the source pixels. */
+    uint64_t input_copy_count;
+    uint64_t input_copy_bytes;
+    /* Native processing duration; excludes Python/FFI scheduling and marshaling. */
+    uint64_t processing_ns;
+    uint32_t reserved;
+} kadoka_frame_preprocess_result;
+
 typedef struct kadoka_safety_action {
     uint32_t struct_size;
     uint32_t kind;
@@ -114,6 +163,11 @@ KADOKA_RUNTIME_API int32_t kadoka_runtime_process_batch(
     const kadoka_runtime_handle* runtime,
     const kadoka_runtime_batch_request* request,
     kadoka_runtime_batch_result* out_result
+);
+KADOKA_RUNTIME_API int32_t kadoka_runtime_preprocess_frame(
+    const kadoka_runtime_handle* runtime,
+    const kadoka_frame_preprocess_input* input,
+    kadoka_frame_preprocess_result* out_result
 );
 KADOKA_RUNTIME_API int32_t kadoka_safety_validate_action(
     const kadoka_safety_action* action,

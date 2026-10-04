@@ -352,6 +352,16 @@ classDiagram
         +__init__()
         +analyze()
     }
+    class FramePrimitiveBatch {
+    }
+    Protocol <|-- FramePreprocessor
+    class FramePreprocessor {
+        +preprocess()
+    }
+    class PythonFramePreprocessor {
+        +__init__()
+        +preprocess()
+    }
     class HistoryStore {
         +__init__()
         +append()
@@ -661,6 +671,15 @@ classDiagram
     ctypes.Structure <|-- _BatchResult
     class _BatchResult {
     }
+    ctypes.Structure <|-- _FrameInput
+    class _FrameInput {
+    }
+    ctypes.Structure <|-- _FrameRegion
+    class _FrameRegion {
+    }
+    ctypes.Structure <|-- _FrameResult
+    class _FrameResult {
+    }
     class NativeRuntimeInfo {
     }
     class NativeBatchResult {
@@ -673,6 +692,8 @@ classDiagram
         +descriptor()
         +is_healthy()
         +process_batch()
+        +preprocess()
+        +_valid_frame_result()
         +close()
         +__enter__()
         +__exit__()

@@ -1,6 +1,7 @@
 from hashlib import sha256
 
 from ai_game_player.bright_region_detector import BrightRegionDetector
+from ai_game_player.frame_preprocessor import FramePreprocessor, PythonFramePreprocessor
 from ai_game_player.models import ScreenObservation
 from ai_game_player.perceptual_hasher import PerceptualHasher
 from ai_game_player.screen_capture import ScreenFrame
@@ -9,25 +10,36 @@ from ai_game_player.screen_capture import ScreenFrame
 class FrameAnalyzer:
     """Converts a raw frame into stable visual features and optional OCR."""
 
-    def __init__(self, ocr=None, perceptual_hasher: PerceptualHasher | None = None, bright_region_detector: BrightRegionDetector | None = None) -> None:
+    def __init__(
+        self,
+        ocr=None,
+        perceptual_hasher: PerceptualHasher | None = None,
+        bright_region_detector: BrightRegionDetector | None = None,
+        frame_preprocessor: FramePreprocessor | None = None,
+    ) -> None:
         self.ocr = ocr
         self.perceptual_hasher = perceptual_hasher or PerceptualHasher()
         self.bright_region_detector = bright_region_detector or BrightRegionDetector()
+        self.frame_preprocessor = frame_preprocessor if frame_preprocessor is not None else PythonFramePreprocessor(
+            self.perceptual_hasher,
+            self.bright_region_detector,
+        )
 
     def analyze(self, frame: ScreenFrame, screen_id: str = "screen") -> ScreenObservation:
         if len(frame.bgra) != frame.width * frame.height * 4:
             raise ValueError("BGRA buffer size does not match frame dimensions")
-        pixels = frame.width * frame.height
-        blue = sum(frame.bgra[0::4])
-        green = sum(frame.bgra[1::4])
-        red = sum(frame.bgra[2::4])
+        primitives = self.frame_preprocessor.preprocess(
+            frame,
+            brightness_threshold=self.bright_region_detector.brightness_threshold,
+            min_region_pixels=self.bright_region_detector.min_pixels,
+        )
         features = {
-            "mean_rgb": {"r": round(red / pixels), "g": round(green / pixels), "b": round(blue / pixels)},
-            "mean_brightness": round((red + green + blue) / (3 * pixels)),
+            "mean_rgb": primitives.mean_rgb,
+            "mean_brightness": primitives.mean_brightness,
             "signature": sha256(frame.bgra).hexdigest(),
-            "perceptual_hash": self.perceptual_hasher.hash(frame),
+            "perceptual_hash": primitives.perceptual_hash,
         }
-        elements = self.bright_region_detector.detect(frame)
+        elements = list(primitives.detected_elements)
         features["image_candidates"] = [
             {
                 "action_id": element.element_id,
