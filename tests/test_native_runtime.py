@@ -45,6 +45,8 @@ class FakeLibrary:
         self.frame_mean = (0, 0, 0, 0)
         self.frame_hash = 0
         self.frame_capacities = []
+        self.frame_input_copy_count = 0
+        self.frame_input_copy_bytes = 0
         self.frame_corrupt_result = {}
         self.kadoka_runtime_abi_version = FakeFunction(lambda: self.version)
         self.kadoka_runtime_query = FakeFunction(self.query)
@@ -109,8 +111,8 @@ class FakeLibrary:
             frame_input.width * frame_input.height * BGRA_BYTES_PER_PIXEL
         )
         frame_result.output_bytes_written = 0
-        frame_result.input_copy_count = 0
-        frame_result.input_copy_bytes = 0
+        frame_result.input_copy_count = self.frame_input_copy_count
+        frame_result.input_copy_bytes = self.frame_input_copy_bytes
         frame_result.processing_ns = 123
         if frame_result.region_capacity < len(self.frame_regions):
             for field, value in self.frame_corrupt_result.items():
@@ -218,6 +220,8 @@ class NativeRuntimeTest(unittest.TestCase):
         library.capabilities = 4 | 8
         library.frame_regions = [abi._FrameRegion(0, 0, 3, 3, 0, 9) for _ in range(257)]
         frame = ScreenFrame(300, 300, bytes(300 * 300 * 4))
+        library.frame_input_copy_count = 2
+        library.frame_input_copy_bytes = len(frame.bgra)
 
         with abi.NativeRuntime(library) as runtime:
             result = runtime.preprocess(frame)
@@ -230,6 +234,8 @@ class NativeRuntimeTest(unittest.TestCase):
         self.assertEqual(246, result.processing_ns)
         self.assertEqual(2 * len(frame.bgra), result.input_frame_bytes_processed)
         self.assertEqual(257 * ctypes.sizeof(abi._FrameRegion), result.output_bytes_written)
+        self.assertEqual(4, result.input_copy_count)
+        self.assertEqual(2 * len(frame.bgra), result.input_copy_bytes)
 
     def test_native_frame_preprocessor_rejects_invalid_frame_before_ffi(self):
         library = FakeLibrary()
@@ -246,7 +252,6 @@ class NativeRuntimeTest(unittest.TestCase):
             ({"abi_version": 2}, []),
             ({"mean_red": 256}, []),
             ({"input_frame_bytes_processed": 1}, []),
-            ({"input_copy_count": 1}, []),
             ({"output_bytes_written": 1}, []),
             ({"reserved": 1}, []),
             ({}, [abi._FrameRegion(4, 3, 3, 3, 0, 9)]),

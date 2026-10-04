@@ -319,6 +319,8 @@ class NativeRuntime:
             total_processing_ns = 0
             total_input_frame_bytes_processed = 0
             total_output_bytes_written = 0
+            total_input_copy_count = 0
+            total_input_copy_bytes = 0
             while True:
                 region_buffer = (_FrameRegion * region_capacity)() if region_capacity else None
                 region_buffer_pointer = (
@@ -366,6 +368,8 @@ class NativeRuntime:
                     total_processing_ns += int(frame_result.processing_ns)
                     total_input_frame_bytes_processed += int(frame_result.input_frame_bytes_processed)
                     total_output_bytes_written += int(frame_result.output_bytes_written)
+                    total_input_copy_count += int(frame_result.input_copy_count)
+                    total_input_copy_bytes += int(frame_result.input_copy_bytes)
                     region_capacity = int(frame_result.region_count)
                     continue
                 if native_status == NativeStatus.OK:
@@ -386,6 +390,8 @@ class NativeRuntime:
                 total_processing_ns += int(frame_result.processing_ns)
                 total_input_frame_bytes_processed += int(frame_result.input_frame_bytes_processed)
                 total_output_bytes_written += int(frame_result.output_bytes_written)
+                total_input_copy_count += int(frame_result.input_copy_count)
+                total_input_copy_bytes += int(frame_result.input_copy_bytes)
                 detected_elements = tuple(
                     DetectedElement(
                         f"bright-region-{region_index}",
@@ -421,8 +427,8 @@ class NativeRuntime:
                     processing_ns=total_processing_ns,
                     input_frame_bytes_processed=total_input_frame_bytes_processed,
                     output_bytes_written=total_output_bytes_written,
-                    input_copy_count=int(frame_result.input_copy_count),
-                    input_copy_bytes=int(frame_result.input_copy_bytes),
+                    input_copy_count=total_input_copy_count,
+                    input_copy_bytes=total_input_copy_bytes,
                 )
 
     @staticmethod
@@ -450,8 +456,6 @@ class NativeRuntime:
                 frame_result.mean_brightness,
             ))
             or frame_result.input_frame_bytes_processed != frame_payload_bytes
-            or frame_result.input_copy_count != 0
-            or frame_result.input_copy_bytes != 0
             or frame_result.region_count > frame_pixel_count // minimum_region_pixels
         ):
             return False

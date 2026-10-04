@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingとFrameAnalyzer注入点、同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
+- Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingはproviderが報告したinput-copy metricsを受け入れ、capacity retryを含む各ABI呼び出しの値を合算する。FrameAnalyzer注入点と同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 
