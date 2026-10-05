@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。
+
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 
 - Issue #313: ai-context-reducerのTask Routing / Remote Delta Firstを開発入口へ適用。Issue一覧は本文なしのmetadataだけを全ページ取得し、P0-P5・親Issue除外・明示指定で対象1件の本文のみ取得。文字数上限・省略表示・原典ポインタ・失敗時の古いpack再利用禁止と回帰テストを追加。AST索引/Test Impactは別Issueのまま。

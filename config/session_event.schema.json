@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schemas/session-event-v1.schema.json",
+  "title": "Kadoka Session Event Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "session_id",
+    "sequence",
+    "timestamp_utc",
+    "monotonic_ns",
+    "event_type",
+    "status",
+    "frame_id",
+    "turn_id",
+    "snapshot_id",
+    "correlation_id",
+    "payload",
+    "artifact_refs"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "event_id": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "timestamp_utc": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "monotonic_ns": { "type": "integer", "minimum": 0 },
+    "event_type": { "type": "string", "minLength": 1 },
+    "status": { "type": ["string", "null"], "minLength": 1 },
+    "frame_id": { "type": ["string", "null"], "minLength": 1 },
+    "turn_id": { "type": ["string", "null"], "minLength": 1 },
+    "snapshot_id": { "type": ["string", "null"], "minLength": 1 },
+    "correlation_id": { "type": ["string", "null"], "minLength": 1 },
+    "payload": { "type": "object" },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifact_id", "sha256", "media_type", "sensitive"],
+        "properties": {
+          "artifact_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "media_type": { "type": "string", "pattern": "^[^\\s/]+/[^\\s/]+$" },
+          "sensitive": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}
