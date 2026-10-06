@@ -146,8 +146,14 @@ class Application:
         self.live_status.config(text=status)
 
     def _validate_live_execution(self) -> None:
-        if self.live_execution.get() and self.input_mode.get() == "window_message" and not self.window_handles.get(self.window_choice.get()):
+        if not self.live_execution.get():
+            return
+
+        target_handle = self.window_handles.get(self.window_choice.get())
+        if target_handle is None:
             raise ValueError("実入力には対象ウィンドウの選択が必要です")
+        if os.name == "nt" and not ctypes.windll.user32.IsWindow(target_handle):
+            raise ValueError("選択中の対象ウィンドウは利用できません。一覧を更新してください")
 
     def _cursor_position(self) -> tuple[int, int] | None:
         if os.name != "nt":
@@ -274,6 +280,7 @@ class Application:
     def run_and_execute(self) -> None:
         pipeline: DecisionPipeline | None = None
         try:
+            self._validate_live_execution()
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]

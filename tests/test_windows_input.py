@@ -64,6 +64,25 @@ class MemoryLedgerStore:
 
 
 class WindowsInputTest(unittest.TestCase):
+    def test_unsupported_input_mode_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "unsupported Windows input mode"):
+            WindowsInputExecutor(input_mode="unknown")
+
+    def test_window_message_click_without_target_never_sends_global_mouse_input(self):
+        user32 = FakeUser32()
+        executor = WindowsInputExecutor(input_mode="window_message")
+        candidate = ActionCandidate("click", "click", "Play", 30, 45)
+
+        with patch.object(windows_input.os, "name", "nt"), patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
+            with self.assertRaisesRegex(RuntimeError, "requires a selected window"):
+                executor.execute(candidate)
+
+        self.assertEqual(user32.messages, [])
+        self.assertEqual(user32.cursor_positions, [])
+        self.assertEqual(user32.mouse_events, [])
+
     def test_live_executor_is_explicit_on_non_windows(self):
         if os.name != "nt":
             with self.assertRaises(RuntimeError):

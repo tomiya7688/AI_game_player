@@ -43,6 +43,8 @@ class WindowsInputExecutor:
         hold_ttl_seconds: float | None = None,
     ) -> None:
         self.window_handle = window_handle
+        if input_mode not in {"mouse", "window_message"}:
+            raise ValueError(f"unsupported Windows input mode: {input_mode}")
         self.input_mode = input_mode
         self.stop_checker = stop_checker or (lambda: False)
         self.input_ledger = input_ledger
