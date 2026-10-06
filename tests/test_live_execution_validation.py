@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 from ai_game_player import app as app_module
 from ai_game_player.app import Application
+from ai_game_player.models import ScreenObservation
+from ai_game_player.run_control import RunController
 
 
 # {
@@ -110,6 +112,8 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application.window_choice = FakeVariable("Game")
         application.window_handles = handles or {}
         application.window_process_ids = {name: 456 for name in application.window_handles}
+        application._execution_in_progress = False
+        application._loop_active = False
         return application
 
     # {
@@ -153,13 +157,13 @@ class LiveExecutionValidationTests(unittest.TestCase):
 
         self.assertEqual(user32.checked_handles, [123])
 
+    # {
+    #   責務: [test_recycled_window_handle_with_different_process_is_rejected: HWND再利用時に別プロセスへの入力を拒否する]
+    #   処理: [列挙時PIDと現在PIDが異なる対象を検証する]
+    #   引数: []
+    #   戻り値: []
+    # }
     def test_recycled_window_handle_with_different_process_is_rejected(self):
-        # {
-        #   責務: [test_recycled_window_handle_with_different_process_is_rejected: HWND再利用時に別プロセスへの入力を拒否する]
-        #   処理: [列挙時PIDと現在PIDが異なる対象を検証する]
-        #   引数: []
-        #   戻り値: []
-        # }
         application = self.make_application(handles={"Game": 123})
         user32 = FakeUser32(valid_handles=[123], process_id=999)
 
@@ -171,13 +175,13 @@ class LiveExecutionValidationTests(unittest.TestCase):
 
         self.assertEqual(user32.checked_handles, [123])
 
+    # {
+    #   責務: [test_start_loop_refuses_invalid_target_before_starting_controller: 不正対象では連続実行を開始しないことを確認する]
+    #   処理: [対象未選択の開始要求がcontrollerを起動しないことを検証する]
+    #   引数: []
+    #   戻り値: []
+    # }
     def test_start_loop_refuses_invalid_target_before_starting_controller(self):
-        # {
-        #   責務: [test_start_loop_refuses_invalid_target_before_starting_controller: 不正対象では連続実行を開始しないことを確認する]
-        #   処理: [対象未選択の開始要求がcontrollerを起動しないことを検証する]
-        #   引数: []
-        #   戻り値: []
-        # }
         application = self.make_application()
         application.runtime_log = RecordingLog()
         application.controller = SimpleNamespace(start=lambda: self.fail("controller started"))
@@ -188,38 +192,40 @@ class LiveExecutionValidationTests(unittest.TestCase):
 
         show_error.assert_called_once()
 
+    # {
+    #   責務: [test_loop_stops_when_step_fails: 評価後にstepを開始できなければ連続実行を止める]
+    #   処理: [失敗結果を返す非同期起動後にstopが呼ばれることを検証する]
+    #   引数: []
+    #   戻り値: []
+    # }
     def test_loop_stops_when_step_fails(self):
-        # {
-        #   責務: [test_loop_stops_when_step_fails: 1ステップ失敗時に連続実行を停止することを確認する]
-        #   処理: [失敗結果を返すステップ後にstopが呼ばれることを検証する]
-        #   引数: []
-        #   戻り値: []
-        # }
         application = self.make_application(live=False)
-        application.controller = SimpleNamespace(is_running=True)
+        application.controller = SimpleNamespace(is_running=True, rearm_token=0)
+        application._loop_active = True
         application.loop_job = None
         application.runtime_log = RecordingLog()
-        application.capture_screen = lambda: object()
-        application.obs = SimpleNamespace(
-            get=lambda *_args: '{"screen_id":"play","width":1280,"height":720,"ocr_text":[]}'
-        )
         application.loop_guard = SimpleNamespace(observe=lambda _observation: False)
-        application.current_assessment = SimpleNamespace(status="ongoing")
-        application.run_and_execute = lambda: False
+        application._run_is_current = lambda _token: True
+        application.run_and_execute = lambda **_kwargs: False
         stopped = []
-        application.stop = lambda: stopped.append(True)
-        application._loop_step()
+        application.stop = lambda *_args: stopped.append(True)
+        application._continue_loop_with_assessment(
+            ScreenObservation("play", 1280, 720, []),
+            SimpleNamespace(status="ongoing"),
+            0,
+        )
 
         self.assertEqual(stopped, [True])
 
+    # {
+    #   責務: [test_run_and_execute_validates_before_persisting_or_constructing_pipeline: 実行前検証が設定保存より先に行われることを検証する]
+    #   処理: [対象未選択時に保存とpipeline構築を行わずエラーを記録する]
+    #   引数: []
+    #   戻り値: []
+    # }
     def test_run_and_execute_validates_before_persisting_or_constructing_pipeline(self):
-        # {
-        #   責務: [test_run_and_execute_validates_before_persisting_or_constructing_pipeline: 実行前検証が設定保存より先に行われることを検証する]
-        #   処理: [対象未選択時に保存とpipeline構築を行わずエラーを記録する]
-        #   引数: []
-        #   戻り値: []
-        # }
         application = self.make_application()
+        application.controller = RunController()
         application.config_store = SimpleNamespace(save=lambda _config: self.fail("config saved before validation"))
         application.runtime_log = RecordingLog()
 

@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from pathlib import Path
 
 from ai_game_player.decision_context import DecisionContextBuilder, DecisionTraceStore
@@ -29,13 +30,23 @@ class GamePlayerEngine:
         self._previous_observation: ScreenObservation | None = None
         self._previous_action_id: str | None = None
 
+    # {
+    #   責務: [step: 許可候補から判断し、停止確認後に判断履歴を確定する]
+    #   処理: [provider応答の候補を検証し、必要なら永続化前の実行状態確認を行う]
+    #   引数: [before_provider: LLM呼出し前の実行状態検証, before_commit: 履歴保存前の実行状態検証]
+    #   戻り値: [ActionDecision: 許可候補から選ばれた判断]
+    # }
     def step(
         self,
         observation: ScreenObservation,
         candidates: list[ActionCandidate],
         purpose: str = "",
         personality: str = "",
+        before_provider: Callable[[], None] | None = None,
+        before_commit: Callable[[], None] | None = None,
     ) -> ActionDecision:
+        if before_provider is not None:
+            before_provider()
         allowed = self.evaluator.evaluate(observation, candidates)
         previous_outcome = self._assess_previous_outcome(observation)
         context = self.context_builder.build(
@@ -46,12 +57,16 @@ class GamePlayerEngine:
             previous_outcome=previous_outcome,
             current_goal=purpose,
         )
+        if before_provider is not None:
+            before_provider()
         if self._uses_context_api():
             decision = self.provider.choose_context(context, personality)
         else:
             decision = self.provider.choose(allowed, observation, purpose, personality)
         if decision.action_id not in {candidate.action_id for candidate in allowed}:
             raise ValueError("Decision provider selected an action outside the allowed snapshot")
+        if before_commit is not None:
+            before_commit()
         self.history.append(observation, decision)
         self.trace.append(context, decision)
         self._previous_observation = observation

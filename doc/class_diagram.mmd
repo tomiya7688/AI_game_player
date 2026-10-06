@@ -68,8 +68,15 @@ classDiagram
         +refresh_windows()
         +_assess_observation()
         +capture_screen()
+        +_start_assessment_worker()
+        +_assess_observation_in_background()
+        +_start_pipeline_worker()
+        +_run_pipeline_in_background()
+        +_run_is_current()
+        +_poll_background_results()
         +start_loop()
         +_loop_step()
+        +_continue_loop_with_assessment()
         +start()
         +stop()
         +run_and_execute()
@@ -573,10 +580,15 @@ classDiagram
         +__init__()
         +detect()
     }
+    RuntimeError <|-- ExecutionCancelled
+    class ExecutionCancelled {
+        +__init__()
+    }
     class RunController {
         +__init__()
         +is_running()
         +rearm_token()
+        +stop_reason()
         +start()
         +stop()
         +ensure_running()

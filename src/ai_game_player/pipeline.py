@@ -93,31 +93,70 @@ class DecisionPipeline:
         image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
         return observation, self.merger.merge(configured, detected, image)
 
+    # {
+    #   責務: [_decide: 候補を判断し、推論応答を履歴へ確定する前に停止状態を再検証する]
+    #   処理: [観測候補を取得してproviderを呼び、run世代の確認関数をengineへ渡す]
+    #   引数: [expected_rearm_token: 判断開始時の再開世代]
+    #   戻り値: [ActionDecision・候補・ScreenObservation: 同一snapshotの判断情報]
+    # }
     def _decide(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
         purpose: str = "",
         personality: str = "",
+        expected_rearm_token: int | None = None,
     ) -> tuple[ActionDecision, list[ActionCandidate], ScreenObservation]:
         observation, candidates = self._read_candidates(ocr_texts)
-        decision = self.engine.step(observation, candidates, purpose, personality)
+        decision = self.engine.step(
+            observation,
+            candidates,
+            purpose,
+            personality,
+            before_provider=lambda: self.controller.ensure_running(expected_rearm_token),
+            before_commit=lambda: self.controller.ensure_running(expected_rearm_token),
+        )
         return decision, candidates, observation
 
-    def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
-        self.controller.ensure_running()
+    # {
+    #   責務: [run: 実行世代を固定して判断し、停止後に返った推論結果を破棄する]
+    #   処理: [開始時の世代を検証し、判断後にも同世代の実行許可を確認する]
+    #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
+    #   戻り値: [ActionDecision: 有効な実行世代で得た判断]
+    #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
+    # }
+    def run(
+        self,
+        ocr_texts: list[dict[str, object]] | None = None,
+        purpose: str = "",
+        personality: str = "",
+        expected_rearm_token: int | None = None,
+    ) -> ActionDecision:
+        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, _, _ = self._decide(ocr_texts, purpose, personality)
+        decision, _, _ = self._decide(ocr_texts, purpose, personality, run_token)
+        self.controller.ensure_running(run_token)
         return decision
 
+    # {
+    #   責務: [run_and_execute: 停止・再開された推論結果を実入力へ進ませず候補を実行する]
+    #   処理: [開始世代を記録し、推論後と入力直前に実行許可を再検証する]
+    #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
+    #   戻り値: [ExecutionResult: 候補の実行結果]
+    #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
+    # }
     def run_and_execute(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
         purpose: str = "",
         personality: str = "",
+        expected_rearm_token: int | None = None,
     ) -> ExecutionResult:
-        self.controller.ensure_running()
+        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, candidates, observation = self._decide(ocr_texts, purpose, personality)
+        decision, candidates, observation = self._decide(ocr_texts, purpose, personality, run_token)
+        self.controller.ensure_running(run_token)
         selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
         if selected is None:
             raise RuntimeError("決定された候補が統合済み候補にありません")
@@ -132,6 +171,7 @@ class DecisionPipeline:
             requests = ", ".join(assessment.verification_requests)
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
 
+        self.controller.ensure_running(run_token)
         result = self.executor.execute(selected)
         self.execution_history.append(result)
         self.safety_audit.append_execution(assessment.assessment_id, result)

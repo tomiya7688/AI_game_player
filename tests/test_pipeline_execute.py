@@ -1,10 +1,24 @@
 import tempfile
+import queue
+import threading
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
+from ai_game_player.app import Application
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
+from ai_game_player.run_control import ExecutionCancelled, RunController
+
+
+# {
+#   責務: [PipelineExecuteTest timeouts: 非同期停止回帰の待機上限を名前付きで示す]
+#   フィールド: [provider_response_wait_seconds: provider待機上限, provider_start_wait_seconds: 起動確認上限, background_result_wait_seconds: worker結果待機上限]
+# }
+PROVIDER_RESPONSE_WAIT_SECONDS = 5
+PROVIDER_START_WAIT_SECONDS = 2
+BACKGROUND_RESULT_WAIT_SECONDS = 5
 
 
 class Source:
@@ -48,3 +62,73 @@ class PipelineExecuteTest(unittest.TestCase):
 
         self.assertEqual(source.read_count, 1)
         self.assertEqual(result.action_id, "first-action")
+
+    # {
+    #   責務: [test_stop_during_provider_wait_discards_result_before_live_input: 推論待ち中の停止を受理し旧結果を実入力へ進ませない]
+    #   処理: [遅延providerをworkerで待機させ、停止・再開後の戻り値がキャンセルされexecutor未呼出しであることを検証する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_stop_during_provider_wait_discards_result_before_live_input(self):
+        provider_started = threading.Event()
+        allow_provider_to_return = threading.Event()
+        executed_actions = []
+
+        # {
+        #   責務: [DelayedProvider: Ollama相当の判断応答をテスト中に保留する]
+        #   処理: [provider entryと解放待ちを外部eventへ公開する]
+        # }
+        class DelayedProvider(RuleProvider):
+            # {
+            #   責務: [choose: 停止テスト中にprovider応答を保留する]
+            #   処理: [開始を通知して解放eventまで待ち、最初の許可候補を返す]
+            #   引数: [candidates: 判断可能候補]
+            #   戻り値: [ActionDecision: テスト用の遅延判断]
+            # }
+            def choose(self, candidates, observation=None, purpose="", personality=""):
+                provider_started.set()
+                if not allow_provider_to_return.wait(timeout=PROVIDER_RESPONSE_WAIT_SECONDS):
+                    raise TimeoutError("test provider was not released")
+                return ActionDecision(candidates[0].action_id, "delayed", "test")
+
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RunController()
+            pipeline = DecisionPipeline(Source(), Path(directory), DelayedProvider(), controller, dry_run=False)
+            pipeline.executor.execute = lambda candidate: executed_actions.append(candidate.action_id)
+
+            application = Application.__new__(Application)
+            application.controller = controller
+            application._execution_in_progress = False
+            application._background_task_counter = 0
+            application._execution_task_id = None
+            application._background_results = queue.Queue()
+            application.provider = SimpleNamespace(get=lambda: "Ollama")
+            application._set_status = lambda _message: None
+
+            run_token = controller.rearm_token
+            self.assertTrue(application._start_pipeline_worker(pipeline, "execute", "", "", run_token, False))
+            self.assertTrue(provider_started.wait(timeout=PROVIDER_START_WAIT_SECONDS))
+
+            controller.stop("停止ボタン")
+            controller.start()
+            allow_provider_to_return.set()
+
+            task_type, task_id, result_token, operation, _result, error, _loop_step, _observation = application._background_results.get(timeout=BACKGROUND_RESULT_WAIT_SECONDS)
+
+            logged_events = []
+            application._execution_task_id = task_id
+            application.runtime_log = SimpleNamespace(write=lambda *record: logged_events.append(record))
+            application.root = SimpleNamespace(after=lambda *_args: None)
+            statuses = []
+            application._set_status = statuses.append
+            application._background_results.put((task_type, task_id, result_token, operation, _result, error, _loop_step, _observation))
+            application._poll_background_results()
+
+        self.assertEqual(task_type, "pipeline")
+        self.assertEqual(result_token, run_token)
+        self.assertEqual(operation, "execute")
+        self.assertIsInstance(error, ExecutionCancelled)
+        self.assertEqual(executed_actions, [])
+        self.assertFalse(application._execution_in_progress)
+        self.assertIn("停止理由: 停止ボタン", str(logged_events[0]))
+        self.assertIn("停止要求後の推論応答を破棄しました", statuses)
