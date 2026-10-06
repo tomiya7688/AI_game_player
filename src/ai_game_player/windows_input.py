@@ -30,13 +30,50 @@ SPECIAL_KEYS = {
 }
 
 
+# {
+#   責務: [
+#     WindowsInputExecutor: HWND・PIDが一致した対象へWindows入力を送る
+#   ]
+#   フィールド: [
+#     window_handle: 選択済みウィンドウハンドル
+#     window_process_id: ウィンドウ選択時の所有PID
+#     input_mode: window_messageまたはグローバルmouse方式
+#   ]
+#   処理: [
+#     1: 入力対象の現行PIDを実行直前に検証する
+#     2: 選択された入力方式に限定して操作する
+#     3: held状態をfail-safe ledgerと同期する
+#   ]
+# }
 class WindowsInputExecutor:
     """Executes already-guarded Windows input and mirrors held state to the fail-safe ledger."""
 
+    # {
+    #   責務: [
+    #     __init__: 対象ウィンドウの識別情報と停止・ledger設定を保持する
+    #   ]
+    #   処理: [
+    #     1: HWND・入力方式・期待PIDを保存する
+    #     2: stop checkerとledgerを設定する
+    #     3: 不正な入力方式とhold TTLを拒否する
+    #   ]
+    #   引数: [
+    #     window_handle: 選択対象のHWND
+    #     input_mode: 入力方式
+    #     window_process_id: 選択時の対象プロセスID
+    #     stop_checker: 緊急停止状態を確認する関数
+    #     input_ledger: held入力状態の記録先
+    #   ]
+    #   戻り値: []
+    #   エラー: [
+    #     未対応入力方式または非正数hold TTLでValueError
+    #   ]
+    # }
     def __init__(
         self,
         window_handle: int | None = None,
         input_mode: str = "mouse",
+        window_process_id: int | None = None,
         *,
         stop_checker: Callable[[], bool] | None = None,
         input_ledger: InputLedger | None = None,
@@ -46,6 +83,7 @@ class WindowsInputExecutor:
         if input_mode not in {"mouse", "window_message"}:
             raise ValueError(f"unsupported Windows input mode: {input_mode}")
         self.input_mode = input_mode
+        self.window_process_id = window_process_id
         self.stop_checker = stop_checker or (lambda: False)
         self.input_ledger = input_ledger
         self.hold_ttl_seconds = 1.0 if hold_ttl_seconds is None else float(hold_ttl_seconds)
@@ -55,6 +93,25 @@ class WindowsInputExecutor:
         self._held_mouse: set[str] = set()
         self._held_mouse_lparams: dict[str, int] = {}
 
+    # {
+    #   責務: [
+    #     execute: 停止・対象同一性を確認して候補操作を実行する
+    #   ]
+    #   処理: [
+    #     1: Windows実行環境と停止状態を確認する
+    #     2: 入力操作ならHWNDとPIDが選択時のままか確認する
+    #     3: click/key/wait候補を対応する経路で処理する
+    #   ]
+    #   引数: [
+    #     candidate: 安全評価済みの操作候補
+    #   ]
+    #   戻り値: [
+    #     ExecutionResult: 実行結果
+    #   ]
+    #   エラー: [
+    #     Windows以外・停止中・対象不一致・未対応候補でRuntimeErrorまたはValueError
+    #   ]
+    # }
     def execute(self, candidate: ActionCandidate) -> ExecutionResult:
         from ai_game_player.action_executor import ExecutionResult
 
@@ -62,6 +119,8 @@ class WindowsInputExecutor:
             raise RuntimeError("WindowsInputExecutor requires Windows")
         if self.stop_checker():
             raise RuntimeError("emergency stop is active")
+        if candidate.kind in {"click", "double_click", "key"}:
+            self._verify_target_identity()
         if candidate.kind in {"click", "double_click"}:
             self._execute_click(candidate)
             detail = "Windows target message sent" if self.input_mode == "window_message" else "Windows mouse input sent"
@@ -77,6 +136,35 @@ class WindowsInputExecutor:
             self._interruptible_sleep(duration)
             return ExecutionResult(candidate.action_id, True, "live", "Wait completed")
         raise ValueError(f"unsupported live action kind: {candidate.kind}")
+
+    # {
+    #   責務: [
+    #     _verify_target_identity: 入力直前にHWNDが列挙時のPIDの所有物か検証する
+    #   ]
+    #   処理: [
+    #     1: HWNDと期待PIDの存在を確認する
+    #     2: IsWindowでハンドルの有効性を確認する
+    #     3: GetWindowThreadProcessIdの結果を期待PIDと比較する
+    #   ]
+    #   引数: []
+    #   戻り値: []
+    #   エラー: [
+    #     対象未選択・失効・PID変更でRuntimeError
+    #   ]
+    # }
+    def _verify_target_identity(self) -> None:
+        if self.window_handle is None or not self.window_process_id:
+            raise RuntimeError("live Windows input requires a selected window and its process identity")
+
+        user32 = getattr(ctypes, "windll").user32
+        if not user32.IsWindow(self.window_handle):
+            raise RuntimeError("selected target window is no longer available")
+
+        process_id = ctypes.c_ulong()
+        if not user32.GetWindowThreadProcessId(self.window_handle, ctypes.byref(process_id)):
+            raise RuntimeError("selected target process identity is unavailable")
+        if int(process_id.value) != self.window_process_id:
+            raise RuntimeError("selected target window now belongs to a different process")
 
     def release_all(self) -> None:
         if os.name != "nt":

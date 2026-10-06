@@ -27,13 +27,46 @@ class LiveExecutor(Protocol):
     def execute(self, candidate: ActionCandidate) -> ExecutionResult: ...
 
 
+# {
+#   責務: [
+#     ActionExecutor: 候補の安全評価とOS入力への到達を制御する
+#   ]
+#   フィールド: [
+#     window_handle: 実入力先として選択されたHWND
+#     window_process_id: 選択時の対象PID
+#     input_mode: OS入力の送信方式
+#     dry_run: OS入力を無効にする状態
+#   ]
+#   処理: [
+#     1: SafetyGuardを通す
+#     2: 対象が変化していないことを確認する
+#     3: 明示されたExecutorだけを呼び出す
+#   ]
+# }
 class ActionExecutor:
+    # {
+    #   責務: [
+    #     __init__: 安全評価・停止制御・対象識別を統合する実行境界を構築する
+    #   ]
+    #   処理: [
+    #     1: dry-runと実入力経路を設定する
+    #     2: 対象HWND・PIDを保持する
+    #     3: 必要な安全監視とfail-safe runtimeを準備する
+    #   ]
+    #   引数: [
+    #     window_handle: 対象HWND
+    #     input_mode: 選択された入力方式
+    #     window_process_id: 列挙時に対象HWNDを所有したPID
+    #   ]
+    #   戻り値: []
+    # }
     def __init__(
         self,
         dry_run: bool = True,
         live_executor: LiveExecutor | None = None,
         window_handle: int | None = None,
         input_mode: str = "mouse",
+        window_process_id: int | None = None,
         *,
         safety_guard: SafetyGuard | None = None,
         safety_config: SafetyGuardConfig | None = None,
@@ -48,6 +81,7 @@ class ActionExecutor:
         self.live_executor = live_executor
         self.window_handle = window_handle
         self.input_mode = input_mode
+        self.window_process_id = window_process_id
         production_live = not dry_run and live_executor is None
         if safety_guard is None:
             if safety_config is None:
@@ -86,6 +120,27 @@ class ActionExecutor:
         if production_live:
             ensure_default_emergency_monitor()
 
+    # {
+    #   責務: [
+    #     execute: 安全評価を通過した候補だけを対象識別が一致する実行先へ渡す
+    #   ]
+    #   処理: [
+    #     1: SafetyGuardで候補を検証する
+    #     2: dry-runならOS入力なしで結果を返す
+    #     3: 実入力対象のHWNDとPIDを確認する
+    #     4: FailSafeRuntimeを確認して選択Executorを呼ぶ
+    #   ]
+    #   引数: [
+    #     candidate: 実行候補
+    #     fail_safe_command: 任意のsession command
+    #   ]
+    #   戻り値: [
+    #     ExecutionResult: 実行結果
+    #   ]
+    #   エラー: [
+    #     安全評価・対象識別・Executorが拒否した場合RuntimeError
+    #   ]
+    # }
     def execute(
         self,
         candidate: ActionCandidate,
@@ -96,6 +151,9 @@ class ActionExecutor:
             raise RuntimeError(f"SafetyGuard blocked action [{decision.code}]: {decision.reason}")
         if self.dry_run:
             return ExecutionResult(candidate.action_id, False, "dry_run", "OS入力は無効です")
+
+        if self.live_executor is None and (self.window_handle is None or not self.window_process_id):
+            raise RuntimeError("live Windows input requires a selected window and its process identity")
 
         command = fail_safe_command
         runtime = self.fail_safe_runtime
@@ -127,6 +185,7 @@ class ActionExecutor:
                 executor = WindowsInputExecutor(
                     self.window_handle,
                     self.input_mode,
+                    window_process_id=self.window_process_id,
                     stop_checker=self._stop_requested,
                     input_ledger=runtime.ledger if runtime is not None else None,
                     hold_ttl_seconds=runtime.config.hold_ttl_seconds if runtime is not None else None,

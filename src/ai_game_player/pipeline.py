@@ -19,7 +19,28 @@ from ai_game_player.run_control import RunController
 from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
 
 
+# {
+#   責務: [DecisionPipeline: 画面観測から候補判断・安全評価・実行までを接続する]
+#   フィールド: [source: 観測入力, executor: 安全な候補実行境界, controller: 実行制御]
+#   処理: [対象識別情報を実行境界まで引き継ぎ、実行結果と履歴を管理する]
+# }
 class DecisionPipeline:
+    # {
+    #   責務: [
+    #     __init__: observation・判断・実行コンポーネントを対象識別情報付きで接続する
+    #   ]
+    #   処理: [
+    #     1: 候補生成と判断用componentを初期化する
+    #     2: HWND・PID・入力方式をActionExecutorへ渡す
+    #     3: Session用履歴と安全評価を初期化する
+    #   ]
+    #   引数: [
+    #     window_handle: 選択中の対象HWND
+    #     window_process_id: 列挙時にHWNDを所有していたPID
+    #     input_mode: OSマウスまたは対象ウィンドウmessage方式
+    #   ]
+    #   戻り値: []
+    # }
     def __init__(
         self,
         source: ObservationSource,
@@ -29,6 +50,7 @@ class DecisionPipeline:
         dry_run: bool = True,
         window_handle: int | None = None,
         input_mode: str = "mouse",
+        window_process_id: int | None = None,
         safety_evaluator: ActionSafetyEvaluator | None = None,
         safety_guard: SafetyGuard | None = None,
         safety_guard_config: SafetyGuardConfig | None = None,
@@ -46,6 +68,7 @@ class DecisionPipeline:
         self.executor = ActionExecutor(
             dry_run,
             window_handle=window_handle,
+            window_process_id=window_process_id,
             input_mode=input_mode,
             safety_guard=safety_guard,
             safety_config=safety_guard_config,

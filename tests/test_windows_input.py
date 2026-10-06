@@ -12,6 +12,10 @@ from ai_game_player.models import ActionCandidate
 from ai_game_player.windows_input import SPECIAL_KEYS, WindowsInputExecutor
 
 
+# {
+#   責務: [FakeUser32: Windows APIの入力・ウィンドウ操作を記録する]
+#   フィールド: [messages: ウィンドウメッセージ, mouse_events: マウス入力, key_events: キー入力]
+# }
 class FakeUser32:
     def __init__(self):
         self.cursor_positions = []
@@ -25,6 +29,25 @@ class FakeUser32:
     def GetWindowRect(self, _handle, rect_pointer):
         rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
         rect[:] = (100, 200, 900, 800)
+        return 1
+
+    # {
+    #   責務: [IsWindow: fake HWNDを有効として報告する]
+    #   処理: [Win32の成功値を返す]
+    #   引数: [_handle: 検証対象HWND]
+    #   戻り値: [int: 成功値]
+    # }
+    def IsWindow(self, _handle):
+        return 1
+
+    # {
+    #   責務: [GetWindowThreadProcessId: fake HWNDの所有PIDを返す]
+    #   処理: [期待とは異なるPIDを出力領域に設定する]
+    #   引数: [_handle: 対象HWND, process_id_pointer: PID出力先]
+    #   戻り値: [int: 有効なスレッドID]
+    # }
+    def GetWindowThreadProcessId(self, _handle, process_id_pointer):
+        ctypes.cast(process_id_pointer, ctypes.POINTER(ctypes.c_ulong)).contents.value = 999
         return 1
 
     def ScreenToClient(self, _handle, point_pointer):
@@ -63,6 +86,10 @@ class MemoryLedgerStore:
         self.data = value.copy()
 
 
+# {
+#   責務: [WindowsInputTest: Windows入力の対象検証と送信動作を検証する]
+#   フィールド: [各testがfake user32とActionCandidateを使う]
+# }
 class WindowsInputTest(unittest.TestCase):
     def test_unsupported_input_mode_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "unsupported Windows input mode"):
@@ -82,6 +109,25 @@ class WindowsInputTest(unittest.TestCase):
         self.assertEqual(user32.messages, [])
         self.assertEqual(user32.cursor_positions, [])
         self.assertEqual(user32.mouse_events, [])
+
+    def test_recycled_handle_is_rejected_before_sending_input(self):
+        # {
+        #   責務: [test_recycled_handle_is_rejected_before_sending_input: HWND所有PID不一致で入力を拒否する]
+        #   処理: [異なるPIDを返すfake user32に対するクリックを実行し拒否を検証する]
+        #   引数: []
+        #   戻り値: []
+        # }
+        user32 = FakeUser32()
+        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", window_process_id=456)
+        candidate = ActionCandidate("click", "click", "Play", 30, 45)
+
+        with patch.object(windows_input.os, "name", "nt"), patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
+            with self.assertRaisesRegex(RuntimeError, "different process"):
+                executor.execute(candidate)
+
+        self.assertEqual(user32.messages, [])
 
     def test_live_executor_is_explicit_on_non_windows(self):
         if os.name != "nt":

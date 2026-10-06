@@ -32,7 +32,36 @@ class MemorySource:
         return self.observation, self.candidates
 
 
+# {
+#   責務: [
+#     Application: UI入力を受け取り、ゲーム実行状態と対象ウィンドウを管理する
+#   ]
+#   フィールド: [
+#     window_handles: 表示名ごとのHWND
+#     window_process_ids: 表示名ごとの列挙時PID
+#     live_execution: 実入力の許可状態
+#   ]
+#   処理: [
+#     1: UI commandの入力を検証する
+#     2: 対象識別情報を実行パイプラインへ渡す
+#     3: 実行結果と状態を画面へ表示する
+#   ]
+# }
 class Application:
+    # {
+    #   責務: [
+    #     __init__: UIと実行制御の初期状態を構築する
+    #   ]
+    #   処理: [
+    #     1: 設定と実行制御を初期化する
+    #     2: 対象ウィンドウの識別情報を保持する
+    #     3: UI commandと表示を接続する
+    #   ]
+    #   引数: [
+    #     root: Tkinterのルートウィンドウ
+    #   ]
+    #   戻り値: []
+    # }
     def __init__(self, root: tk.Tk) -> None:
         config_store = ConfigStore(Path("data/config.json"))
         config = config_store.load()
@@ -41,6 +70,7 @@ class Application:
         self.controller = RunController()
         self.windows: list = []
         self.window_handles: dict[str, int] = {}
+        self.window_process_ids: dict[str, int] = {}
         self.loop_job: str | None = None
         self._last_cursor_position: tuple[int, int] | None = None
         self.outcome_evaluator = OutcomeEvaluator()
@@ -145,15 +175,39 @@ class Application:
         self.loop_button.config(text=loop_label)
         self.live_status.config(text=status)
 
+    # {
+    #   責務: [
+    #     _validate_live_execution: 実入力に使う選択対象のHWNDとPIDを再検証する
+    #   ]
+    #   処理: [
+    #     1: dry-runなら検証を終える
+    #     2: 選択されたHWNDと列挙時PIDを取得する
+    #     3: Windows上で現在のHWND所有PIDと保存済みPIDを比較する
+    #   ]
+    #   引数: []
+    #   戻り値: []
+    #   エラー: [
+    #     対象未選択またはHWND/PID不一致でValueError
+    #   ]
+    # }
     def _validate_live_execution(self) -> None:
         if not self.live_execution.get():
             return
 
-        target_handle = self.window_handles.get(self.window_choice.get())
-        if target_handle is None:
+        selected_window = self.window_choice.get()
+        target_handle = self.window_handles.get(selected_window)
+        expected_process_id = self.window_process_ids.get(selected_window)
+        if target_handle is None or expected_process_id is None:
             raise ValueError("実入力には対象ウィンドウの選択が必要です")
-        if os.name == "nt" and not ctypes.windll.user32.IsWindow(target_handle):
-            raise ValueError("選択中の対象ウィンドウは利用できません。一覧を更新してください")
+        if os.name == "nt":
+            user32 = ctypes.windll.user32
+            process_id = ctypes.c_ulong()
+            if (
+                not user32.IsWindow(target_handle)
+                or not user32.GetWindowThreadProcessId(target_handle, ctypes.byref(process_id))
+                or process_id.value != expected_process_id
+            ):
+                raise ValueError("選択中の対象ウィンドウが別の対象へ変化または失効しています。一覧を更新してください")
 
     def _cursor_position(self) -> tuple[int, int] | None:
         if os.name != "nt":
@@ -191,10 +245,26 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": "model_list"})
             self._set_status("Ollamaモデル一覧を取得できません")
 
+    # {
+    #   責務: [
+    #     refresh_windows: 操作対象ウィンドウの一覧とPID対応を更新する
+    #   ]
+    #   処理: [
+    #     1: Windowsの対象一覧を取得する
+    #     2: 表示名からHWNDと列挙時PIDへの対応を保存する
+    #     3: 選択UIの候補を更新する
+    #   ]
+    #   引数: []
+    #   戻り値: []
+    #   副作用: [
+    #     window_handles、window_process_ids、選択UIを更新する
+    #   ]
+    # }
     def refresh_windows(self) -> None:
         try:
             self.windows = WindowsWindowSelector().list_windows()
             self.window_handles = {window.display_name: window.handle for window in self.windows}
+            self.window_process_ids = {window.display_name: window.process_id for window in self.windows}
             self.window_combo["values"] = list(self.window_handles)
             if self.window_handles and not self.window_choice.get():
                 self.window_choice.set(next(iter(self.window_handles)))
@@ -232,7 +302,27 @@ class Application:
             messagebox.showerror("画面取得エラー", str(exc))
             return None
 
+    # {
+    #   責務: [
+    #     start_loop: 対象を検証してから連続実行を開始する
+    #   ]
+    #   処理: [
+    #     1: 実入力対象のHWNDとPIDを検証する
+    #     2: 不正なら記録と通知を行い開始を拒否する
+    #     3: 正常ならcontrollerを開始し次stepを予約する
+    #   ]
+    #   引数: []
+    #   戻り値: []
+    # }
     def start_loop(self) -> None:
+        try:
+            self._validate_live_execution()
+        except ValueError as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            messagebox.showerror("連続実行エラー", str(exc))
+            self._set_status("連続実行を開始できません")
+            return
+
         self.controller.start()
         if self.loop_job is None:
             self._last_cursor_position = self._cursor_position()
@@ -241,6 +331,18 @@ class Application:
             self.loop_job = self.root.after(1000, self._loop_step)
             self._set_status("連続dry-run中")
 
+    # {
+    #   責務: [
+    #     _loop_step: 連続実行の1stepを実行し、失敗時にloopを止める
+    #   ]
+    #   処理: [
+    #     1: 実行中状態と画面・outcomeを確認する
+    #     2: 実行に失敗したらloopを停止する
+    #     3: 成功した場合だけ次stepを予約する
+    #   ]
+    #   引数: []
+    #   戻り値: []
+    # }
     def _loop_step(self) -> None:
         self.loop_job = None
         if not self.controller.is_running:
@@ -259,7 +361,9 @@ class Application:
             self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
             self.stop()
             return
-        self.run_and_execute()
+        if not self.run_and_execute():
+            self.stop()
+            return
         self._last_cursor_position = self._cursor_position()
         if self.controller.is_running:
             self.loop_job = self.root.after(1000, self._loop_step)
@@ -277,7 +381,22 @@ class Application:
         self.runtime_log.write("run_control", "stopped")
         self._set_status("停止中")
 
-    def run_and_execute(self) -> None:
+    # {
+    #   責務: [
+    #     run_and_execute: 候補を判断・実行し結果をUIとログへ返す
+    #   ]
+    #   処理: [
+    #     1: 実入力対象を検証する
+    #     2: Observationと候補を読み込む
+    #     3: DecisionPipelineで判断・実行する
+    #     4: 結果を表示・記録する
+    #   ]
+    #   引数: []
+    #   戻り値: [
+    #     bool: 実行完了時True、例外時False
+    #   ]
+    # }
+    def run_and_execute(self) -> bool:
         pipeline: DecisionPipeline | None = None
         try:
             self._validate_live_execution()
@@ -288,26 +407,40 @@ class Application:
             self.evaluation.delete("1.0", tk.END)
             self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get(), window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get(), window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get(), window_process_id=self.window_process_ids.get(self.window_choice.get()))
             result = pipeline.run_and_execute(purpose=self.purpose.get(), personality=self.personality.get())
             self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
             self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
             self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
+            return True
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "execution"})
             messagebox.showerror("実行エラー", str(exc))
+            return False
         finally:
             if pipeline is not None:
                 pipeline.close()
 
+    # {
+    #   責務: [
+    #     run: 実入力を行わず候補判断と評価を表示する
+    #   ]
+    #   処理: [
+    #     1: 設定・Observation・候補を読み込む
+    #     2: dry-run用DecisionPipelineを実行する
+    #     3: 判断とmetricsを画面・ログへ表示する
+    #   ]
+    #   引数: []
+    #   戻り値: []
+    # }
     def run(self) -> None:
         try:
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=True, window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get())
+            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=True, window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get(), window_process_id=self.window_process_ids.get(self.window_choice.get()))
             decision = pipeline.run(purpose=self.purpose.get(), personality=self.personality.get())
             self._set_status(f"選択: {decision.action_id} / {decision.reason}")
             metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
