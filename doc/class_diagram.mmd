@@ -771,6 +771,35 @@ classDiagram
         +_fallback_similarity()
         +_result()
     }
+    class SelfCheckMonitor {
+        +__init__()
+        +observe()
+        +reset()
+        +_detect_repeated_cycle()
+        +_detect_stagnation()
+        +_detect_outcome_mismatch()
+        +_detect_scene_duration()
+        +_detect_evaluator_disagreement()
+        +_create_event()
+    }
+    str <|-- SelfCheckCategory
+    Enum <|-- SelfCheckCategory
+    class SelfCheckCategory {
+    }
+    str <|-- SelfCheckSeverity
+    Enum <|-- SelfCheckSeverity
+    class SelfCheckSeverity {
+    }
+    class SelfCheckConfig {
+        +__post_init__()
+    }
+    class SelfCheckSample {
+        +__post_init__()
+    }
+    class SelfCheckEvent {
+        +__post_init__()
+        +to_dict()
+    }
     class ShellState {
         +__post_init__()
     }
