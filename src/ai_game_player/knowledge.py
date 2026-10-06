@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 from uuid import uuid4
+
+from ai_game_player.atomic_json import write_json_array_atomically
 class KnowledgeStore:
     def __init__(self,path:Path): self.path=path
     def add(self,category:str,subject:str,statement:str,confidence:float=1.0)->dict[str,object]:
@@ -13,5 +15,4 @@ class KnowledgeStore:
         if not isinstance(value,list): raise ValueError("knowledge.json must contain an array")
         return value
     def _write(self,entries:list[dict[str,object]])->None:
-        self.path.parent.mkdir(parents=True,exist_ok=True); tmp=self.path.with_suffix(f".{uuid4().hex}.tmp")
-        tmp.write_text(json.dumps(entries,ensure_ascii=False,indent=2),encoding="utf-8"); tmp.replace(self.path)
+        write_json_array_atomically(self.path, entries)
