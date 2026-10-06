@@ -199,7 +199,12 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application.controller = SimpleNamespace(is_running=True)
         application.loop_job = None
         application.runtime_log = RecordingLog()
-        application.capture_screen = lambda: None
+        application.capture_screen = lambda: object()
+        application.obs = SimpleNamespace(
+            get=lambda *_args: '{"screen_id":"play","width":1280,"height":720,"ocr_text":[]}'
+        )
+        application.loop_guard = SimpleNamespace(observe=lambda _observation: False)
+        application.current_assessment = SimpleNamespace(status="ongoing")
         application.run_and_execute = lambda: False
         stopped = []
         application.stop = lambda: stopped.append(True)
