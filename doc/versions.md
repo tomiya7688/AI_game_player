@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #331: 判断時に評価・許可された候補オブジェクトを実行まで引き継ぎ、操作IDから元候補を再検索しないようにする。操作IDが重複する候補はすべて拒否し、拒否候補の誤実行や候補の取り違えを回帰テストで防ぐ。
+
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 
 - Issue #313: ai-context-reducerのTask Routing / Remote Delta Firstを開発入口へ適用。Issue一覧は本文なしのmetadataだけを全ページ取得し、P0-P5・親Issue除外・明示指定で対象1件の本文のみ取得。文字数上限・省略表示・原典ポインタ・失敗時の古いpack再利用禁止と回帰テストを追加。AST索引/Test Impactは別Issueのまま。

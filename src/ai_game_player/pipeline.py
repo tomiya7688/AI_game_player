@@ -86,6 +86,28 @@ class DecisionPipeline:
         decision, _, _ = self._decide(ocr_texts, purpose, personality)
         return decision
 
+    # {
+    #   責務: [
+    #     run_and_execute: 1回の画面観測で選択・安全評価した候補だけを実行する
+    #   ]
+    #   処理: [
+    #     1: 画面観測と候補を1回だけ取得する
+    #     2: 判断とともに評価済み候補の実体を受け取る
+    #     3: 同じ候補を安全評価して、許可された場合だけ実行する
+    #     4: 実行結果と安全監査結果を保存する
+    #   ]
+    #   引数: [
+    #     ocr_texts: 判断に追加するOCR候補。省略時は観測データを使う
+    #     purpose: 現在の目的
+    #     personality: Providerへ渡す判断方針
+    #   ]
+    #   戻り値: [
+    #     result: 選択候補の実行結果
+    #   ]
+    #   エラー: [
+    #     安全評価または実行制約が候補を拒否した場合はRuntimeErrorを送出する
+    #   ]
+    # }
     def run_and_execute(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
@@ -94,11 +116,10 @@ class DecisionPipeline:
     ) -> ExecutionResult:
         self.controller.ensure_running()
         self._sync_runtime_rearm()
-        decision, candidates, observation = self._decide(ocr_texts, purpose, personality)
-        selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
-        if selected is None:
-            raise RuntimeError("決定された候補が統合済み候補にありません")
+        observation, candidates = self._read_candidates(ocr_texts)
+        _, selected = self.engine.step_with_candidate(observation, candidates, purpose, personality)
 
+        # 評価・判断済みオブジェクトを維持し、後段で同じIDの別候補へ置き換えない。
         safety_context, snapshot_id = self._safety_context(selected.action_id, purpose)
         assessment = self.safety_evaluator.evaluate(observation, selected, safety_context)
         self.last_safety_result = assessment
