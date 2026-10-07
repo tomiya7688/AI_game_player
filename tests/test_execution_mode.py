@@ -1,5 +1,5 @@
 import unittest
-from ai_game_player.execution_mode import execution_labels
+from ai_game_player.execution.execution_mode import execution_labels
 
 class ExecutionModeTest(unittest.TestCase):
     def test_live_and_dry_run_labels_are_distinct(self):

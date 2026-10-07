@@ -3,15 +3,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.decision_context import (
+from ai_game_player.decision.decision_context import (
     DecisionContextBuilder,
     EvaluationFusion,
     EvaluatorEvidence,
 )
-from ai_game_player.engine import GamePlayerEngine
-from ai_game_player.knowledge import KnowledgeStore
-from ai_game_player.models import ActionCandidate, ScreenObservation
-from ai_game_player.outcome import OutcomeAssessment
+from ai_game_player.core.engine import GamePlayerEngine
+from ai_game_player.storage.knowledge import KnowledgeStore
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
+from ai_game_player.decision.outcome import OutcomeAssessment
 
 
 class FixedEvaluator:

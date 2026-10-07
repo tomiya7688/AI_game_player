@@ -2,8 +2,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from ai_game_player.action_executor import ExecutionResult
-from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.execution.action_executor import ExecutionResult
+from ai_game_player.storage.execution_history import ExecutionHistory
 class ExecutionHistoryTest(unittest.TestCase):
     def test_records_result(self):
         with tempfile.TemporaryDirectory() as d:

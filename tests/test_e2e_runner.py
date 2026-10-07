@@ -3,9 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.e2e_runner import run_continuous_e2e
-from ai_game_player.loop_guard import LoopGuard
-from ai_game_player.models import ScreenObservation
+from ai_game_player.e2e.runner import run_continuous_e2e
+from ai_game_player.core.loop_guard import LoopGuard
+from ai_game_player.core.models import ScreenObservation
 
 
 class FakeResult:

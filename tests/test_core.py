@@ -2,8 +2,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from ai_game_player.engine import GamePlayerEngine
-from ai_game_player.models import ActionCandidate,ScreenObservation
+from ai_game_player.core.engine import GamePlayerEngine
+from ai_game_player.core.models import ActionCandidate,ScreenObservation
 class CoreTest(unittest.TestCase):
  def test_unsafe_excluded_and_history_saved(self):
   with tempfile.TemporaryDirectory() as folder:

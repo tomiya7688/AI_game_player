@@ -1,7 +1,7 @@
 import unittest
 
-from ai_game_player.evaluator import ActionEvaluator
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.decision.evaluator import ActionEvaluator
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
 
 
 class EvaluatorExplainTest(unittest.TestCase):
