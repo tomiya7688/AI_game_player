@@ -16,6 +16,8 @@ JAPANESE_NEGATION_WINDOW_CHARS = 24
 ENGLISH_CLAUSE_CONTINUATION_PATTERN = (
     r"because|since|as|unless|when|while|if|though|although|but|and|or|so|where|which|that|instead"
 )
+ENGLISH_ACTION_DIRECTIVE_PATTERN = r"choose|select|pick|use|click|double\s+click|press"
+ENGLISH_ACTION_PASSIVE_PATTERN = r"chosen|selected|picked|used|clicked|double\s+clicked|pressed"
 ENGLISH_ACTION_MODIFIER_PATTERN = (
     r"now|please|immediately|again|today|later|first|right away|right now|at all costs|for now"
 )
@@ -390,11 +392,11 @@ class DecisionVerifier:
 
 # {
 #   責務: [
-#     _reason_contradicts_action: 理由が選択候補を明示的に拒否しているか検査する
+#     _reason_contradicts_action: 理由が選択・クリック・押下を明示的に拒否しているか検査する
 #   ]
 #   処理: [
 #     1: 理由・action ID・候補名の区切り文字を同じ形式へ正規化する
-#     2: 選択を直接否定する日本語・英語の表現を照合する
+#     2: 選択・クリック・ダブルクリック・押下を否定する日本語・英語の表現を照合する
 #   ]
 #   引数: [
 #     reason: Providerが返した選択理由
@@ -421,9 +423,9 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
         )
         english_negation = (
             rf"\b(?:do not|don't|should not|must not|not)\s+"
-            rf"(?:(?:choose|select|pick|use)\s+)?{directive_target}"
-            rf"|\b(?:avoid|reject)\s+{directive_target}"
-            rf"|{bounded_english_term}\s+(?:should|must)\s+not\s+be\s+(?:chosen|selected|used)\b"
+            rf"(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?{directive_target}"
+            rf"|\b(?:avoid|reject)\s+(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?{directive_target}"
+            rf"|{bounded_english_term}\s+(?:should|must)\s+not\s+be\s+(?:{ENGLISH_ACTION_PASSIVE_PATTERN})\b"
         )
         japanese_directive = (
             rf"(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"

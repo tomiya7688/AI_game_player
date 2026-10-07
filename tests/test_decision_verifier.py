@@ -144,6 +144,35 @@ class DecisionVerifierTest(unittest.TestCase):
 
                 self.assertEqual(result.status, ReliabilityStatus.REJECT)
 
+    def test_rejects_english_negation_of_click_and_press_actions(self):
+        candidate = ActionCandidate("start", "click", "Start", x=20, y=20, confidence=0.9)
+        context = DecisionContextBuilder().build(self.observation, [candidate], [candidate])
+        for reason in (
+            "Do not click Start",
+            "Do not press Start",
+            "Do not double-click Start",
+            "Start should not be clicked",
+            "Start must not be pressed",
+            "Start should not be double-clicked",
+        ):
+            with self.subTest(reason=reason):
+                decision = ActionDecision(
+                    "start",
+                    reason,
+                    "test-provider",
+                    context.snapshot_id,
+                    "menu",
+                    "menu-v1",
+                )
+                result = self.verifier.verify(
+                    decision,
+                    context,
+                    self.observation,
+                )
+
+                self.assertEqual(result.status, ReliabilityStatus.REJECT)
+                self.assertTrue(any(item.check == "reason_action_consistency" for item in result.evidence))
+
     def test_does_not_reject_japanese_negation_of_negation(self):
         for reason in (
             "Startは不適切ではないため選択する",
