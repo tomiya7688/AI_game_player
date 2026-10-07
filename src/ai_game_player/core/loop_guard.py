@@ -1,7 +1,7 @@
 from collections import deque
 
-from ai_game_player.models import ScreenObservation
-from ai_game_player.screen_similarity import ScreenSimilarity
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.perception.screen_similarity import ScreenSimilarity
 
 
 class LoopGuard:

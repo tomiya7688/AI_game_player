@@ -1,22 +1,22 @@
 from pathlib import Path
 
-from ai_game_player.action_executor import ActionExecutor, ExecutionResult
-from ai_game_player.action_safety import (
+from ai_game_player.execution.action_executor import ActionExecutor, ExecutionResult
+from ai_game_player.execution.action_safety import (
     ActionSafetyAuditLog,
     ActionSafetyEvaluator,
     ActionSafetyResult,
     SafetyEvaluationContext,
     SafetyStatus,
 )
-from ai_game_player.candidate_merger import CandidateMerger
-from ai_game_player.engine import GamePlayerEngine
-from ai_game_player.execution_history import ExecutionHistory
-from ai_game_player.fail_safe_runtime import FailSafeConfig, FailSafeRuntime, FailSafeState
-from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.observation_source import ObservationSource
-from ai_game_player.ocr_detector import OcrTextCandidateDetector
-from ai_game_player.run_control import RunController
-from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
+from ai_game_player.perception.candidate_merger import CandidateMerger
+from ai_game_player.core.engine import GamePlayerEngine
+from ai_game_player.storage.execution_history import ExecutionHistory
+from ai_game_player.execution.fail_safe_runtime import FailSafeConfig, FailSafeRuntime, FailSafeState
+from ai_game_player.core.models import ActionCandidate, ActionDecision, ScreenObservation
+from ai_game_player.perception.observation_source import ObservationSource
+from ai_game_player.perception.ocr_detector import OcrTextCandidateDetector
+from ai_game_player.core.run_control import RunController
+from ai_game_player.execution.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
 
 
 class DecisionPipeline:

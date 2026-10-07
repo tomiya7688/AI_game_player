@@ -15,7 +15,7 @@ class RunController:
         return self._rearm_token
 
     def start(self) -> None:
-        from ai_game_player.safety_guard import rearm_default_emergency_stop
+        from ai_game_player.execution.safety_guard import rearm_default_emergency_stop
 
         rearm_default_emergency_stop()
         self._rearm_token += 1

@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
-from ai_game_player.evaluator import ActionEvaluator
-from ai_game_player.knowledge import KnowledgeStore
-from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.outcome import OutcomeAssessment
+from ai_game_player.decision.evaluator import ActionEvaluator
+from ai_game_player.storage.knowledge import KnowledgeStore
+from ai_game_player.core.models import ActionCandidate, ActionDecision, ScreenObservation
+from ai_game_player.decision.outcome import OutcomeAssessment
 
 
 @dataclass(frozen=True)

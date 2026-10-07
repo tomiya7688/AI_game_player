@@ -1,7 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass
 from typing import Iterable
-from ai_game_player.action_executor import ExecutionResult
+from ai_game_player.execution.action_executor import ExecutionResult
 
 @dataclass(frozen=True)
 class ExecutionMetrics:

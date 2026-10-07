@@ -1,14 +1,14 @@
 from pathlib import Path
 
-from ai_game_player.decision_context import DecisionContextBuilder, DecisionTraceStore
-from ai_game_player.evaluator import ActionEvaluator
-from ai_game_player.history import HistoryStore
-from ai_game_player.knowledge import KnowledgeStore
-from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.outcome_fusion import OutcomeDetector
-from ai_game_player.outcome_models import OutcomeEvent
-from ai_game_player.provider import RuleProvider
+from ai_game_player.decision.decision_context import DecisionContextBuilder, DecisionTraceStore
+from ai_game_player.decision.evaluator import ActionEvaluator
+from ai_game_player.storage.history import HistoryStore
+from ai_game_player.storage.knowledge import KnowledgeStore
+from ai_game_player.core.models import ActionCandidate, ActionDecision, ScreenObservation
+from ai_game_player.decision.outcome import OutcomeAssessment
+from ai_game_player.decision.outcome_fusion import OutcomeDetector
+from ai_game_player.decision.outcome_models import OutcomeEvent
+from ai_game_player.decision.provider import RuleProvider
 
 
 class GamePlayerEngine:
