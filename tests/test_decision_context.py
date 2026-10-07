@@ -178,6 +178,26 @@ class DecisionContextTest(unittest.TestCase):
         self.assertEqual(len(recent_actions), 1)
         self.assertEqual(recent_actions[0]["action_id"], "start")
 
+    def test_blocked_decision_stays_in_audit_trace_but_not_action_history(self):
+        candidate = self.candidate()
+        context = DecisionContextBuilder().build(self.observation(), [candidate], [candidate])
+        with tempfile.TemporaryDirectory() as directory:
+            store = DecisionTraceStore(Path(directory) / "decision_trace.json")
+            store.append(
+                context,
+                ActionDecision("start", "accepted", "test-provider"),
+                reliability={"status": "TRUST"},
+            )
+
+            marked = store.mark_action_not_executed(context.snapshot_id, "start", "verification required")
+            audit_trace = store.recent()
+            recent_actions = store.recent_actions()
+
+        self.assertTrue(marked)
+        self.assertEqual(audit_trace[0]["execution_status"], "blocked")
+        self.assertEqual(audit_trace[0]["execution_block_reason"], "verification required")
+        self.assertEqual(recent_actions, [])
+
     def test_fusion_uses_confidence_and_reliability_independently(self):
         score, confidence, conflict = EvaluationFusion().fuse(
             [

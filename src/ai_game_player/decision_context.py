@@ -320,15 +320,16 @@ class DecisionContextBuilder:
 
 # {
 #   責務: [
-#     DecisionTraceStore: snapshot・context・decision・outcome・reliabilityを追記保存する
+#     DecisionTraceStore: snapshot・context・decision・outcome・reliabilityの監査記録を保存する
 #   ]
 #   フィールド: [
 #     path: trace記録先
 #   ]
 #   処理: [
-#     1: 検証済み判断をappend-only記録へ追加する
+#     1: 検証済み判断を監査記録へ追加する
 #     2: 拒否された判断とEvidenceも記録する
-#     3: 一時ファイルをatomic replaceして保存する
+#     3: 実行前に止めた判断には状態と理由を記録する
+#     4: 一時ファイルをatomic replaceして保存する
 #   ]
 # }
 class DecisionTraceStore:
@@ -379,6 +380,39 @@ class DecisionTraceStore:
             trace_entry["reliability"] = reliability
         entries.append(trace_entry)
         self._write(entries)
+
+    # {
+    #   責務: [
+    #     mark_action_not_executed: 実行前に止めた判断を監査traceへ記録する
+    #   ]
+    #   処理: [
+    #     1: snapshot IDと操作IDが一致する判断記録を末尾から探す
+    #     2: 実行前に停止した状態と理由を記録する
+    #     3: 行動履歴から除外できるようtraceを保存する
+    #   ]
+    #   引数: [
+    #     snapshot_id: 判断に使った画面snapshotのID
+    #     action_id: 実行前に停止した操作ID
+    #     reason: 停止した理由
+    #   ]
+    #   戻り値: [
+    #     bool: 対象の判断記録を更新できた場合True
+    #   ]
+    #   エラー: []
+    # }
+    def mark_action_not_executed(self, snapshot_id: str, action_id: str, reason: str) -> bool:
+        entries = self._read()
+        for entry in reversed(entries):
+            if (
+                entry.get("snapshot_id") == snapshot_id
+                and entry.get("action_id") == action_id
+                and isinstance(entry.get("decision"), dict)
+            ):
+                entry["execution_status"] = "blocked"
+                entry["execution_block_reason"] = reason
+                self._write(entries)
+                return True
+        return False
 
     # {
     #   責務: [
@@ -498,16 +532,19 @@ def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
 #   処理: [
 #     1: decisionが保存された記録か確認する
 #     2: reliabilityがREJECTの記録を除外する
+#     3: 実行前に停止した記録を除外する
 #   ]
 #   引数: [
 #     entry: DecisionTraceStoreの監査記録
 #   ]
 #   戻り値: [
-#     bool: 実行済み判断として履歴に含める場合True
+#     bool: 実行済み操作として履歴に含める場合True
 #   ]
 # }
 def _is_action_history_entry(entry: dict[str, Any]) -> bool:
     if not isinstance(entry.get("decision"), dict):
+        return False
+    if entry.get("execution_status") == "blocked":
         return False
     reliability = entry.get("reliability")
     if not isinstance(reliability, dict):

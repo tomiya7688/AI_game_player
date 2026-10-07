@@ -147,6 +147,9 @@ class OllamaProvider:
     #   戻り値: [
     #     ActionDecision: LLMから受け取った候補判断
     #   ]
+    #   エラー: [
+    #     ValueError: 許可候補が空、または応答IDが許可候補外
+    #   ]
     # }
     def choose(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
         if not candidates:
@@ -158,7 +161,11 @@ class OllamaProvider:
             "observation": observation.to_dict() if observation else {},
             "allowed_actions": [candidate.to_dict() for candidate in candidates],
         }
-        return self._request_decision(context)
+        decision = self._request_decision(context)
+        allowed_action_ids = {candidate.action_id for candidate in candidates}
+        if not isinstance(decision.action_id, str) or decision.action_id not in allowed_action_ids:
+            raise ValueError("Ollamaが許可候補外の操作を選択しました")
+        return decision
 
     # {
     #   責務: [

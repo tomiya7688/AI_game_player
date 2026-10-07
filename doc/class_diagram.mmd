@@ -181,6 +181,7 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +mark_action_not_executed()
         +append_rejection()
         +recent()
         +recent_actions()
@@ -209,6 +210,7 @@ classDiagram
     class GamePlayerEngine {
         +__init__()
         +step()
+        +mark_last_decision_not_executed()
         +_bind_legacy_context_references()
         +_uses_context_api()
         +_semantic_outcome_provider()

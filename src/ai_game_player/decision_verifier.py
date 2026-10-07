@@ -16,6 +16,9 @@ JAPANESE_NEGATION_WINDOW_CHARS = 24
 ENGLISH_CLAUSE_CONTINUATION_PATTERN = (
     r"because|since|as|unless|when|while|if|though|although|but|and|or|so|where|which|that|instead"
 )
+ENGLISH_ACTION_MODIFIER_PATTERN = (
+    r"now|please|immediately|again|today|later|first|right away|right now|at all costs|for now"
+)
 JAPANESE_NEGATION_CONTINUATION_PATTERN = (
     r"ではない|ではありません|じゃない|じゃありません|でない|ではなく|でなく|わけではない|"
     r"わけではありません|必要(?:は|が)?(?:ない|ありません)|べきではない|べきではありません|"
@@ -405,7 +408,7 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
     normalized_terms = {
         _normalize_contradiction_text(value)
         for value in (candidate.action_id, candidate.label)
-        if len(value.strip()) >= 2
+        if value.strip()
     }
     normalized_reason = _normalize_contradiction_text(reason)
     for term in normalized_terms:
@@ -413,7 +416,8 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
         bounded_english_term = rf"(?<!\w){escaped_term}(?!\w)"
         directive_target = (
             rf"{bounded_english_term}"
-            rf"(?=$|[.,;:!?)]|\s+(?:{ENGLISH_CLAUSE_CONTINUATION_PATTERN})\b)"
+            rf"(?=(?:\s+(?:{ENGLISH_ACTION_MODIFIER_PATTERN}))*"
+            rf"(?:$|[.,;:!?)]|\s+(?:{ENGLISH_CLAUSE_CONTINUATION_PATTERN})\b))"
         )
         english_negation = (
             rf"\b(?:do not|don't|should not|must not|not)\s+"

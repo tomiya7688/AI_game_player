@@ -63,6 +63,7 @@ class GamePlayerEngine:
         self.last_outcome_event: OutcomeEvent | None = None
         self._previous_observation: ScreenObservation | None = None
         self._previous_action_id: str | None = None
+        self._last_decision_trace_reference: tuple[str, str] | None = None
 
     # {
     #   責務: [
@@ -130,7 +131,36 @@ class GamePlayerEngine:
         self.trace.append(context, decision, reliability=reliability.to_dict())
         self._previous_observation = observation
         self._previous_action_id = decision.action_id
+        self._last_decision_trace_reference = (context.snapshot_id, decision.action_id)
         return decision
+
+    # {
+    #   責務: [
+    #     mark_last_decision_not_executed: 実行前に止めた判断を履歴対象から外す
+    #   ]
+    #   処理: [
+    #     1: 最新trace記録へ実行前停止の状態と理由を保存する
+    #     2: 次回Outcome評価に未実行操作を使わないよう前回操作参照を消す
+    #   ]
+    #   引数: [
+    #     reason: 実行前に停止した理由
+    #   ]
+    #   戻り値: []
+    #   エラー: [
+    #     RuntimeError: 更新対象の判断traceが存在しない
+    #   ]
+    # }
+    def mark_last_decision_not_executed(self, reason: str) -> None:
+        trace_reference = self._last_decision_trace_reference
+        if trace_reference is None:
+            raise RuntimeError("実行前停止を記録する判断traceがありません")
+        snapshot_id, action_id = trace_reference
+        if not self.trace.mark_action_not_executed(snapshot_id, action_id, reason):
+            raise RuntimeError("実行前停止を記録する判断traceを更新できません")
+        self._last_decision_trace_reference = None
+        if self._previous_action_id == action_id:
+            self._previous_observation = None
+            self._previous_action_id = None
 
     # {
     #   責務: [

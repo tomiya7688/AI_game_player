@@ -38,13 +38,17 @@ class SafetyEvidence:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     SafetyEvaluationContext: Action Safety判定と上流reliability evidenceを分けて保持する
+#     SafetyEvaluationContext: 操作の危険度を判断するための目的・予測・選択信頼性をまとめる
 #   ]
 #   フィールド: [
-#     current_goal: 現在の目的
-#     short_term_goal: 直近の目的
-#     utility_score: 上流の候補効用値
-#     decision_reliability: 独立したDecision Reliability判定
+#     current_goal: 達成したいゲーム上の目的
+#     short_term_goal: 次に達成したい短期の目的
+#     expected_effect_consistent: 操作後の変化が予測と一致するか（未評価ならNone）
+#     utility_score: 候補が目的に役立つ度合い（-1: 逆効果、0: 中立、1: 効果が高い）
+#     utility_confidence: utility_scoreの見込みへの確信度（0: 低い、1: 高い）
+#     target_scope_hint: 影響範囲の見込み（local: 一部、game: ゲーム、session: 今回の実行、system: OS）
+#     reversible_hint: 操作を元に戻せる見込み（未評価ならNone）
+#     decision_reliability: 選択が許可候補・画面・理由に矛盾しないかの検査結果
 #   ]
 # }
 class SafetyEvaluationContext:
@@ -71,14 +75,26 @@ class SafetyEvaluationContext:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     ActionSafetyResult: 操作安全性と関連する上流Decision Reliability evidenceを保持する
+#     ActionSafetyResult: 操作の危険度判定と、その根拠を画面上の判断信頼性とは分けて保持する
 #   ]
 #   フィールド: [
-#     assessment_id: Action Safety判定ID
-#     action_id: 評価対象候補ID
-#     status: SAFE・SUSPICIOUS・BLOCK
-#     evidence: Action Safety判定Evidence
-#     decision_reliability: 独立したDecision Reliability監査記録
+#     assessment_id: この安全評価記録を識別するID
+#     action_id: 危険度を評価した操作候補のID
+#     status: SAFE:安全、SUSPICIOUS:実行前確認が必要、BLOCK:実行禁止
+#     recognition_confidence: 画面認識器が候補を検出した確信度
+#     safety_score: 安全と判定した度合い（0:危険、1:安全）
+#     risk_score: 危険と判定した度合い（0:低い、1:高い）
+#     risk_level: 危険度の区分（low/medium/high/critical）
+#     reversible: 操作を元に戻せるか
+#     blast_radius: 問題発生時に影響する広さ
+#     target_scope: 操作が影響する範囲（local/game/session/system）
+#     goal_alignment: 操作が現在の目的に沿っているか
+#     expected_effect_consistent: 操作後の変化が予測と一致するか
+#     requires_verification: 実行前の追加確認が必要か
+#     verification_requests: 実行前に確認する項目
+#     upstream_anomaly: 上流評価との不自然な食い違いがあるか
+#     evidence: 安全判定を支えた個々の検査結果
+#     decision_reliability: 操作の危険度とは別に記録する候補選択の信頼性判定
 #   ]
 # }
 class ActionSafetyResult:

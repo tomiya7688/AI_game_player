@@ -133,6 +133,17 @@ class DecisionVerifierTest(unittest.TestCase):
 
                 self.assertEqual(result.status, ReliabilityStatus.TRUST)
 
+    def test_rejects_english_negation_with_ordinary_trailing_modifiers(self):
+        for reason in (
+            "Do not select Start now",
+            "Do not select Start please",
+            "Avoid Start at all costs",
+        ):
+            with self.subTest(reason=reason):
+                result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
+
+                self.assertEqual(result.status, ReliabilityStatus.REJECT)
+
     def test_does_not_reject_japanese_negation_of_negation(self):
         for reason in (
             "Startは不適切ではないため選択する",
@@ -144,6 +155,23 @@ class DecisionVerifierTest(unittest.TestCase):
                 result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
 
                 self.assertEqual(result.status, ReliabilityStatus.TRUST)
+
+    def test_rejects_negation_of_one_character_action(self):
+        candidate = ActionCandidate("A", "wait", "A", confidence=0.9)
+        context = DecisionContextBuilder().build(self.observation, [candidate], [candidate])
+        decision = ActionDecision(
+            "A",
+            "Do not select A",
+            "test-provider",
+            context.snapshot_id,
+            "menu",
+            "menu-v1",
+        )
+
+        result = self.verifier.verify(decision, context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.REJECT)
+        self.assertTrue(any(item.check == "reason_action_consistency" for item in result.evidence))
 
     def test_missing_snapshot_reference_requires_verification(self):
         result = self.verifier.verify(self.decision(snapshot_id=None), self.context, self.observation)

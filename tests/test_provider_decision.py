@@ -90,6 +90,15 @@ class ProviderDecisionTest(unittest.TestCase):
 
         urlopen.assert_not_called()
 
+    @patch("ai_game_player.provider.urlopen")
+    def test_legacy_choose_rejects_action_outside_allowed_candidates(self, urlopen):
+        urlopen.return_value = FakeResponse(
+            {"response": json.dumps({"action_id": "not-allowed", "reason": "choose another action"})}
+        )
+
+        with self.assertRaisesRegex(ValueError, "許可候補外"):
+            OllamaProvider("small-model").choose([self.candidate], self.observation)
+
 
 if __name__ == "__main__":
     unittest.main()

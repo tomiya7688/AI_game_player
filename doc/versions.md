@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Issue #43: Decision Provider出力をschema・許可候補・snapshot/scene・reason/action整合性で決定論的に検証し、TRUST/CAUTION/VERIFY/REJECTとprovenance付きEvidenceをDecision traceおよびAction Safety監査へ記録する。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で否定表現の区切り文字を統一し、非選択指示だけを拒否対象に限定、未実行のREJECT提案を行動履歴から除外する。再レビューでは候補語境界と二重否定、拒否記録を除外した後の履歴上限、空候補の通信前拒否、schema失敗時のprovider provenance、旧choose API互換、Evaluator許可候補による独立groundingを追加検証する。
+- Issue #43: Decision Provider出力をschema・許可候補・snapshot/scene・reason/action整合性で決定論的に検証し、TRUST/CAUTION/VERIFY/REJECTとprovenance付きEvidenceをDecision traceおよびAction Safety監査へ記録する。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で候補語境界・修飾語・一文字候補・二重否定を検証し、拒否／未実行判断を行動履歴と次画面のOutcome評価から除外する。空候補の通信前拒否、schema失敗時のprovider provenance、旧API互換、Evaluator許可候補による独立groundingも追加検証し、Action Safetyのcontext/resultコメントを初見でも意味が分かる説明へ直す。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 

@@ -135,6 +135,7 @@ class DecisionPipeline:
         decision, candidates, observation = self._decide(ocr_texts, purpose, personality)
         selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
         if selected is None:
+            self.engine.mark_last_decision_not_executed("決定した候補が統合済み候補にありません")
             raise RuntimeError("決定された候補が統合済み候補にありません")
 
         reliability_result = self.engine.last_reliability_result
@@ -144,15 +145,20 @@ class DecisionPipeline:
         self.last_safety_result = assessment
         self.safety_audit.append_evaluation(assessment, snapshot_id=snapshot_id, goal=purpose)
         if assessment.status == SafetyStatus.BLOCK:
+            self.engine.mark_last_decision_not_executed(f"Action Safety Evaluator blocked action: {selected.action_id}")
             raise RuntimeError(f"Action Safety Evaluator blocked action: {selected.action_id}")
         if assessment.requires_verification and not self.executor.dry_run:
             requests = ", ".join(assessment.verification_requests)
+            self.engine.mark_last_decision_not_executed(f"Action Safety verification required: {requests}")
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
         if (
             reliability_result is not None
             and reliability_result.status != ReliabilityStatus.TRUST
             and not self.executor.dry_run
         ):
+            self.engine.mark_last_decision_not_executed(
+                f"Decision Reliability requires verification: {reliability_result.status.value}"
+            )
             raise RuntimeError(
                 "Decision Reliability requires verification before live input: "
                 f"{reliability_result.status.value}"

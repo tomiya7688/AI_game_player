@@ -122,6 +122,7 @@ class ActionSafetyTest(unittest.TestCase):
             entries = pipeline.safety_audit.entries()
             self.assertEqual(len(entries), 1)
             self.assertEqual(entries[0]["result"]["status"], "SUSPICIOUS")
+            self.assertEqual(pipeline.engine.trace.recent_actions(), [])
 
     def test_safe_live_pipeline_executes_and_can_attach_outcome(self):
         class Source:
@@ -164,9 +165,13 @@ class ActionSafetyTest(unittest.TestCase):
                 pipeline.run_and_execute()
 
             audit = pipeline.safety_audit.entries()
+            recent_actions = pipeline.engine.trace.recent_actions()
+            previous_action_id = pipeline.engine._previous_action_id
 
         self.assertEqual(fake.calls, 0)
         self.assertEqual(audit[0]["result"]["decision_reliability"]["status"], "VERIFY")
+        self.assertEqual(recent_actions, [])
+        self.assertIsNone(previous_action_id)
 
     def test_live_pipeline_blocks_caution_decision_and_retains_evidence(self):
         class Source:
