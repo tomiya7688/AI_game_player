@@ -181,6 +181,8 @@ class OllamaProvider:
     #   ]
     # }
     def choose_context(self, context: DecisionContext, personality: str = "") -> ActionDecision:
+        if not context.allowed_action_ids:
+            raise ValueError("許可された操作候補がありません")
         prompt_context = {
             "instruction": "Decision Contextを根拠にallowed_action_idsから1つ選び、action_id、reason、snapshot_id、screen_id、state_signatureをJSONで返す。参照値は入力をそのままコピーする",
             "personality": personality,

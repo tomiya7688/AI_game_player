@@ -1,5 +1,5 @@
 import re
-from typing import Any, Callable
+from typing import Any, Callable, Sequence
 from uuid import uuid4
 
 from ai_game_player.decision_context import CandidateDecisionContext, DecisionContext
@@ -13,6 +13,14 @@ from ai_game_player.models import ActionDecision, ScreenObservation
 
 DETERMINISTIC_EVIDENCE_CONFIDENCE = 1.0
 JAPANESE_NEGATION_WINDOW_CHARS = 24
+ENGLISH_CLAUSE_CONTINUATION_PATTERN = (
+    r"because|since|as|unless|when|while|if|though|although|but|and|or|so|where|which|that|instead"
+)
+JAPANESE_NEGATION_CONTINUATION_PATTERN = (
+    r"ではない|ではありません|じゃない|じゃありません|でない|ではなく|でなく|わけではない|"
+    r"わけではありません|必要(?:は|が)?(?:ない|ありません)|べきではない|べきではありません|"
+    r"とは限らない|とは限りません"
+)
 
 
 # {
@@ -35,23 +43,27 @@ class DecisionVerifier:
     #   処理: [
     #     1: 出力schemaと型を検査する
     #     2: context候補と現在画面の整合を検査する
-    #     3: snapshot・scene参照とreason/action矛盾を検査する
+    #     3: Evaluator許可候補・snapshot・scene参照とreason/action矛盾を検査する
     #     4: EvidenceとprovenanceをReliabilityResultへまとめる
     #   ]
     #   引数: [
     #     decision_output: Providerから返された未信頼値
     #     context: 判断に使ったDecision Context
     #     observation: 実際の現在観測
+    #     evaluator_allowed_action_ids: Action Evaluatorが許可した候補ID
     #   ]
     #   戻り値: [
     #     ReliabilityResult: TRUST・CAUTION・VERIFY・REJECT判定
     #   ]
+    #   エラー: []
     # }
     def verify(
         self,
         decision_output: object,
         context: DecisionContext,
         observation: ScreenObservation,
+        *,
+        evaluator_allowed_action_ids: Sequence[str] | None = None,
     ) -> ReliabilityResult:
         evidence: list[ReliabilityEvidence] = []
 
@@ -100,7 +112,12 @@ class DecisionVerifier:
                 "Decision schema or field type is invalid",
                 schema_details,
             )
-            return self._build_result(context, "", "", evidence)
+            provider = (
+                decision_output.provider
+                if isinstance(decision_output, ActionDecision) and isinstance(decision_output.provider, str)
+                else ""
+            )
+            return self._build_result(context, "", provider, evidence)
 
         # Context自体が現在の観測を表しているかを先に検証する。
         state_screen_id = context.state.get("screen_id")
@@ -138,18 +155,39 @@ class DecisionVerifier:
         # Each selected ID must resolve to one candidate that the current snapshot explicitly allows.
         candidate_by_id = self._index_candidates(context, add_evidence)
         allowed_ids = list(context.allowed_action_ids)
+        evaluator_allowed_ids = (
+            list(evaluator_allowed_action_ids)
+            if evaluator_allowed_action_ids is not None
+            else allowed_ids
+        )
         if not allowed_ids:
             add_evidence("allowed_candidate_grounding", "reject", "Decision Context has no allowed actions")
         elif len(allowed_ids) != len(set(allowed_ids)):
             add_evidence("allowed_candidate_grounding", "reject", "Decision Context repeats an allowed action ID")
+        if evaluator_allowed_action_ids is not None:
+            if not evaluator_allowed_ids:
+                add_evidence("allowed_candidate_grounding", "reject", "Action Evaluator has no allowed actions")
+            elif len(evaluator_allowed_ids) != len(set(evaluator_allowed_ids)):
+                add_evidence("allowed_candidate_grounding", "reject", "Action Evaluator repeats an allowed action ID")
 
         selected_candidate = candidate_by_id.get(decision_fields.action_id)
-        if decision_fields.action_id not in allowed_ids or selected_candidate is None or not selected_candidate.allowed:
+        if (
+            decision_fields.action_id not in allowed_ids
+            or decision_fields.action_id not in evaluator_allowed_ids
+            or selected_candidate is None
+            or not selected_candidate.allowed
+        ):
+            grounding_details = {
+                "action_id": decision_fields.action_id,
+                "allowed_action_ids": allowed_ids,
+            }
+            if evaluator_allowed_action_ids is not None:
+                grounding_details["evaluator_allowed_action_ids"] = evaluator_allowed_ids
             add_evidence(
                 "allowed_candidate_grounding",
                 "reject",
                 "Selected action is not grounded in an allowed candidate",
-                {"action_id": decision_fields.action_id, "allowed_action_ids": allowed_ids},
+                grounding_details,
             )
         else:
             add_evidence(
@@ -372,17 +410,25 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
     normalized_reason = _normalize_contradiction_text(reason)
     for term in normalized_terms:
         escaped_term = re.escape(term)
+        bounded_english_term = rf"(?<!\w){escaped_term}(?!\w)"
+        directive_target = (
+            rf"{bounded_english_term}"
+            rf"(?=$|[.,;:!?)]|\s+(?:{ENGLISH_CLAUSE_CONTINUATION_PATTERN})\b)"
+        )
         english_negation = (
             rf"\b(?:do not|don't|should not|must not|not)\s+"
-            rf"(?:(?:choose|select|pick|use)\s+)?{escaped_term}"
-            rf"|\b(?:avoid|reject)\s+{escaped_term}"
-            rf"|\b{escaped_term}\s+(?:should|must)\s+not\s+be\s+(?:chosen|selected|used)"
+            rf"(?:(?:choose|select|pick|use)\s+)?{directive_target}"
+            rf"|\b(?:avoid|reject)\s+{directive_target}"
+            rf"|{bounded_english_term}\s+(?:should|must)\s+not\s+be\s+(?:chosen|selected|used)\b"
         )
-        japanese_negation = (
+        japanese_directive = (
             rf"(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
             rf".{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}{escaped_term}"
             rf"|{escaped_term}.{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}"
             rf"(?:は|を|が)?(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
+        )
+        japanese_negation = (
+            rf"(?:{japanese_directive})(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN})"
         )
         if re.search(english_negation, normalized_reason) or re.search(japanese_negation, normalized_reason):
             return True

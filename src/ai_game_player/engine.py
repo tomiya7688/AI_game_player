@@ -1,6 +1,7 @@
+from dataclasses import replace
 from pathlib import Path
 
-from ai_game_player.decision_context import DecisionContextBuilder, DecisionTraceStore
+from ai_game_player.decision_context import DecisionContext, DecisionContextBuilder, DecisionTraceStore
 from ai_game_player.decision_verifier import DecisionVerifier, ReliabilityResult, ReliabilityStatus
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.history import HistoryStore
@@ -99,7 +100,7 @@ class GamePlayerEngine:
             observation,
             candidates,
             allowed,
-            recent_history=self.trace.recent(5),
+            recent_history=self.trace.recent_actions(5),
             previous_outcome=previous_outcome,
             current_goal=purpose,
         )
@@ -107,7 +108,13 @@ class GamePlayerEngine:
             raw_decision = self.provider.choose_context(context, personality)
         else:
             raw_decision = self.provider.choose(allowed, observation, purpose, personality)
-        reliability = self.decision_verifier.verify(raw_decision, context, observation)
+            raw_decision = self._bind_legacy_context_references(raw_decision, context)
+        reliability = self.decision_verifier.verify(
+            raw_decision,
+            context,
+            observation,
+            evaluator_allowed_action_ids=[candidate.action_id for candidate in allowed],
+        )
         self.last_reliability_result = reliability
         if reliability.status == ReliabilityStatus.REJECT:
             self.trace.append_rejection(context, reliability.to_dict())
@@ -124,6 +131,39 @@ class GamePlayerEngine:
         self._previous_observation = observation
         self._previous_action_id = decision.action_id
         return decision
+
+    # {
+    #   責務: [
+    #     _bind_legacy_context_references: 旧choose APIの判断へ同期Context参照を補う
+    #   ]
+    #   処理: [
+    #     1: ActionDecisionの欠落参照だけを特定する
+    #     2: 現在のDecision Contextから不足参照を補完する
+    #     3: 既存の明示参照・Provider・判断内容を保持する
+    #   ]
+    #   引数: [
+    #     decision_output: 旧choose APIから返された未検証判断
+    #     context: 同期呼び出しに使ったDecision Context
+    #   ]
+    #   戻り値: [
+    #     object: 参照補完済みActionDecision、または変更しないProvider出力
+    #   ]
+    # }
+    @staticmethod
+    def _bind_legacy_context_references(decision_output: object, context: DecisionContext) -> object:
+        if not isinstance(decision_output, ActionDecision):
+            return decision_output
+        missing_references = {
+            "snapshot_id": context.snapshot_id,
+            "screen_id": str(context.state.get("screen_id", "")),
+            "state_signature": str(context.state.get("signature", "")),
+        }
+        values_to_bind = {
+            field_name: reference
+            for field_name, reference in missing_references.items()
+            if getattr(decision_output, field_name) is None
+        }
+        return replace(decision_output, **values_to_bind) if values_to_bind else decision_output
 
     def _uses_context_api(self) -> bool:
         if not hasattr(self.provider, "choose_context"):

@@ -415,6 +415,32 @@ class DecisionTraceStore:
             raise ValueError("history limit must not be negative")
         return self._read()[-limit:] if limit else []
 
+    # {
+    #   責務: [
+    #     recent_actions: 拒否記録を除いた直近の行動判断だけを返す
+    #   ]
+    #   処理: [
+    #     1: trace全件から行動履歴に使える判断を抽出する
+    #     2: 抽出後に件数上限を適用する
+    #   ]
+    #   引数: [
+    #     limit: 返す行動判断の最大件数
+    #   ]
+    #   戻り値: [
+    #     list[dict[str, Any]]: 拒否記録を除いた新しい順の判断記録
+    #   ]
+    #   エラー: [
+    #     ValueError: history limitが負数
+    #   ]
+    # }
+    def recent_actions(self, limit: int = 5) -> list[dict[str, Any]]:
+        if limit < 0:
+            raise ValueError("history limit must not be negative")
+        if limit == 0:
+            return []
+        action_entries = [entry for entry in self._read() if _is_action_history_entry(entry)]
+        return action_entries[-limit:]
+
     def _read(self) -> list[dict[str, Any]]:
         if not self.path.exists():
             return []

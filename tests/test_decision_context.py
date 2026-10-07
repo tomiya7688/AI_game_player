@@ -5,13 +5,14 @@ from pathlib import Path
 
 from ai_game_player.decision_context import (
     DecisionContextBuilder,
+    DecisionTraceStore,
     EvaluationFusion,
     EvaluatorEvidence,
     RepetitionContextEvaluator,
 )
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.knowledge import KnowledgeStore
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 
 
@@ -155,6 +156,27 @@ class DecisionContextTest(unittest.TestCase):
         self.assertEqual([entry["action_id"] for entry in context.recent_history], ["options"])
         self.assertEqual(context.candidates[0].utility_score, 0.0)
         self.assertLess(context.candidates[1].utility_score, 0.0)
+
+    def test_recent_action_limit_is_applied_after_rejection_filtering(self):
+        candidate = self.candidate()
+        context = DecisionContextBuilder().build(self.observation(), [candidate], [candidate])
+        with tempfile.TemporaryDirectory() as directory:
+            store = DecisionTraceStore(Path(directory) / "decision_trace.json")
+            store.append(
+                context,
+                ActionDecision("start", "accepted", "test-provider"),
+                reliability={"status": "TRUST"},
+            )
+            for _ in range(5):
+                store.append_rejection(
+                    context,
+                    {"action_id": "start", "status": "REJECT"},
+                )
+
+            recent_actions = store.recent_actions(5)
+
+        self.assertEqual(len(recent_actions), 1)
+        self.assertEqual(recent_actions[0]["action_id"], "start")
 
     def test_fusion_uses_confidence_and_reliability_independently(self):
         score, confidence, conflict = EvaluationFusion().fuse(

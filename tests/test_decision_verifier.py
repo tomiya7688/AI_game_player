@@ -123,6 +123,28 @@ class DecisionVerifierTest(unittest.TestCase):
 
         self.assertEqual(result.status, ReliabilityStatus.TRUST)
 
+    def test_does_not_match_english_prefixes_of_different_candidate_phrases(self):
+        for reason in (
+            "Avoid startup delay; select Start",
+            "Do not select Start Over; select Start",
+        ):
+            with self.subTest(reason=reason):
+                result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
+
+                self.assertEqual(result.status, ReliabilityStatus.TRUST)
+
+    def test_does_not_reject_japanese_negation_of_negation(self):
+        for reason in (
+            "Startは不適切ではないため選択する",
+            "Startを避ける必要はない",
+            "Startを避ける必要がありません",
+            "Startを避けるわけではない",
+        ):
+            with self.subTest(reason=reason):
+                result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
+
+                self.assertEqual(result.status, ReliabilityStatus.TRUST)
+
     def test_missing_snapshot_reference_requires_verification(self):
         result = self.verifier.verify(self.decision(snapshot_id=None), self.context, self.observation)
 
@@ -156,6 +178,39 @@ class DecisionVerifierTest(unittest.TestCase):
         self.assertEqual(len(trace), 1)
         self.assertIsNone(trace[0]["decision"])
         self.assertEqual(trace[0]["reliability"]["status"], "REJECT")
+
+    def test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive(self):
+        class OverpermissiveContextBuilder(DecisionContextBuilder):
+            def build(self, observation, candidates, allowed_candidates, **kwargs):
+                return super().build(observation, candidates, candidates, **kwargs)
+
+        class Provider:
+            def choose_context(self, context, personality=""):
+                return ActionDecision(
+                    "weak",
+                    "Choose the only candidate",
+                    "test-provider",
+                    context.snapshot_id,
+                    context.state["screen_id"],
+                    context.state["signature"],
+                )
+
+        weak_candidate = ActionCandidate("weak", "wait", "Weak", confidence=0.2)
+        with tempfile.TemporaryDirectory() as directory:
+            engine = GamePlayerEngine(
+                Path(directory),
+                provider=Provider(),
+                context_builder=OverpermissiveContextBuilder(),
+            )
+
+            with self.assertRaisesRegex(ValueError, "allowed_candidate_grounding"):
+                engine.step(self.observation, [weak_candidate])
+
+        self.assertEqual(engine.last_reliability_result.status, ReliabilityStatus.REJECT)
+        grounding = [
+            item for item in engine.last_reliability_result.evidence if item.check == "allowed_candidate_grounding"
+        ]
+        self.assertTrue(any(item.severity == "reject" for item in grounding))
 
 
 if __name__ == "__main__":

@@ -2,9 +2,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
+from ai_game_player.safety_guard import EmergencyStop
 
 
 class Source:
@@ -26,6 +28,38 @@ class PipelineExecuteTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             result = DecisionPipeline(Source(), Path(directory), Provider()).run_and_execute([{"text": "OCR START", "x": 10, "y": 10, "width": 20, "height": 10}])
             self.assertEqual(result.action_id, "ocr-0")
+
+    def test_live_execution_remains_available_to_legacy_choose_providers(self):
+        class LiveSource:
+            def read(self):
+                observation = ScreenObservation("menu", 100, 80, features={"signature": "menu-v1"})
+                return observation, [ActionCandidate("continue", "wait", "Continue")]
+
+        class LegacyProvider(RuleProvider):
+            def choose(self, candidates, observation, purpose="", personality=""):
+                return ActionDecision(candidates[0].action_id, "Continue the game", "legacy-provider")
+
+        class FakeExecutor:
+            def execute(self, candidate):
+                return ExecutionResult(candidate.action_id, True, "live", "ok")
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(
+                LiveSource(),
+                Path(directory),
+                LegacyProvider(),
+                dry_run=False,
+                emergency_stop=EmergencyStop(),
+            )
+            pipeline.executor.live_executor = FakeExecutor()
+
+            result = pipeline.run_and_execute()
+
+        self.assertTrue(result.executed)
+        self.assertEqual(result.action_id, "continue")
+        reliability = pipeline.engine.last_reliability_result
+        self.assertIsNotNone(reliability)
+        self.assertEqual(reliability.status.value, "TRUST")
 
     def test_run_and_execute_reads_source_once_and_uses_same_candidates(self):
         class ChangingSource:

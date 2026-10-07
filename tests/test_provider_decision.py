@@ -75,6 +75,20 @@ class ProviderDecisionTest(unittest.TestCase):
 
         self.assertIsNotNone(decision.validation_error)
         self.assertEqual(result.status, ReliabilityStatus.REJECT)
+        self.assertEqual(result.provider, "ollama:small-model")
+
+    @patch("ai_game_player.provider.urlopen")
+    def test_rejects_empty_allowed_actions_before_network_request(self, urlopen):
+        context = DecisionContextBuilder().build(
+            self.observation,
+            [self.candidate],
+            [],
+        )
+
+        with self.assertRaisesRegex(ValueError, "許可された操作候補がありません"):
+            OllamaProvider("small-model").choose_context(context)
+
+        urlopen.assert_not_called()
 
 
 if __name__ == "__main__":
