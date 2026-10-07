@@ -6,10 +6,10 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from ai_game_player.action_executor import ExecutionResult
+    from ai_game_player.execution.action_executor import ExecutionResult
 
-from ai_game_player.fail_safe_runtime import InputLedger
-from ai_game_player.models import ActionCandidate
+from ai_game_player.execution.fail_safe_runtime import InputLedger
+from ai_game_player.core.models import ActionCandidate
 
 
 SPECIAL_KEYS = {
@@ -54,7 +54,7 @@ class WindowsInputExecutor:
         self._held_mouse_lparams: dict[str, int] = {}
 
     def execute(self, candidate: ActionCandidate) -> ExecutionResult:
-        from ai_game_player.action_executor import ExecutionResult
+        from ai_game_player.execution.action_executor import ExecutionResult
 
         if os.name != "nt":
             raise RuntimeError("WindowsInputExecutor requires Windows")
