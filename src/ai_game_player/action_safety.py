@@ -36,6 +36,17 @@ class SafetyEvidence:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     SafetyEvaluationContext: Action Safety判定と上流reliability evidenceを分けて保持する
+#   ]
+#   フィールド: [
+#     current_goal: 現在の目的
+#     short_term_goal: 直近の目的
+#     utility_score: 上流の候補効用値
+#     decision_reliability: 独立したDecision Reliability判定
+#   ]
+# }
 class SafetyEvaluationContext:
     current_goal: str = ""
     short_term_goal: str = ""
@@ -44,6 +55,7 @@ class SafetyEvaluationContext:
     utility_confidence: float | None = None
     target_scope_hint: str | None = None
     reversible_hint: bool | None = None
+    decision_reliability: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if self.utility_score is not None and (not isfinite(self.utility_score) or not -1.0 <= self.utility_score <= 1.0):
@@ -57,6 +69,18 @@ class SafetyEvaluationContext:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     ActionSafetyResult: 操作安全性と関連する上流Decision Reliability evidenceを保持する
+#   ]
+#   フィールド: [
+#     assessment_id: Action Safety判定ID
+#     action_id: 評価対象候補ID
+#     status: SAFE・SUSPICIOUS・BLOCK
+#     evidence: Action Safety判定Evidence
+#     decision_reliability: 独立したDecision Reliability監査記録
+#   ]
+# }
 class ActionSafetyResult:
     assessment_id: str
     action_id: str
@@ -74,6 +98,7 @@ class ActionSafetyResult:
     verification_requests: tuple[str, ...]
     upstream_anomaly: bool
     evidence: tuple[SafetyEvidence, ...]
+    decision_reliability: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if not self.assessment_id.strip() or not self.action_id.strip():
@@ -94,6 +119,19 @@ class ActionSafetyResult:
         if self.status == SafetyStatus.SAFE and self.requires_verification:
             raise ValueError("SAFE result cannot require verification")
 
+    # {
+    #   責務: [
+    #     to_dict: Action Safetyと上流reliabilityを別fieldで監査形式へ変換する
+    #   ]
+    #   処理: [
+    #     1: Safety判定と独立したReliability記録を辞書へ格納する
+    #     2: Safety EvidenceをJSON保存可能な項目へ変換する
+    #   ]
+    #   引数: []
+    #   戻り値: [
+    #     dict[str, Any]: action-safety/v1監査記録
+    #   ]
+    # }
     def to_dict(self) -> dict[str, Any]:
         return {
             "schema": "action-safety/v1",
@@ -113,11 +151,28 @@ class ActionSafetyResult:
             "verification_requests": list(self.verification_requests),
             "upstream_anomaly": self.upstream_anomaly,
             "evidence": [entry.to_dict() for entry in self.evidence],
+            "decision_reliability": self.decision_reliability,
         }
 
 
+# {
+#   責務: [
+#     ActionSafetyEvaluator: 操作候補の意味・不変条件を実行前に独立評価する
+#   ]
+#   フィールド: [
+#     suspicious_threshold: suspicious判定を始めるrisk threshold
+#     high_risk_threshold: high riskとして扱うthreshold
+#   ]
+#   処理: [
+#     1: 空間・危険性・目的・期待効果を決定論的に検査する
+#     2: SAFE・SUSPICIOUS・BLOCKと根拠を返す
+#     3: Action SafetyとDecision Reliabilityの記録を分離する
+#   ]
+#   補足: [
+#     最終的なhard input guardであるIssue #33とは別責務
+#   ]
+# }
 class ActionSafetyEvaluator:
-    """Semantic/invariant pre-execution evaluator. It is not the final #33 hard guard."""
 
     SUPPORTED_KINDS = frozenset({"click", "double_click", "key", "wait"})
     IRREVERSIBLE_TERMS = (
@@ -159,6 +214,24 @@ class ActionSafetyEvaluator:
         self.suspicious_threshold = suspicious_threshold
         self.high_risk_threshold = high_risk_threshold
 
+    # {
+    #   責務: [
+    #     evaluate: 操作候補の実行リスクを決定論的に評価する
+    #   ]
+    #   処理: [
+    #     1: 空間・危険性・目的・期待効果を検査する
+    #     2: safety statusとverification要求を決定する
+    #     3: 上流Decision Reliability記録を独立fieldで保持する
+    #   ]
+    #   引数: [
+    #     observation: 現在画面と寸法
+    #     candidate: 実行対象候補
+    #     context: 目的と上流評価evidence
+    #   ]
+    #   戻り値: [
+    #     ActionSafetyResult: safety判定と関連監査記録
+    #   ]
+    # }
     def evaluate(
         self,
         observation: ScreenObservation,
@@ -310,6 +383,7 @@ class ActionSafetyEvaluator:
             verification_requests,
             upstream_anomaly,
             tuple(evidence),
+            context.decision_reliability,
         )
 
     @staticmethod

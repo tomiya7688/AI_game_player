@@ -129,10 +129,51 @@ class ActionCandidate:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     ActionDecision: 選択した操作と、その判断に使った観測参照を保持する
+#   ]
+#   フィールド: [
+#     action_id: 選択した候補ID
+#     reason: 選択理由
+#     provider: 判断に使ったProvider
+#     snapshot_id: 判断対象の観測snapshot ID
+#     screen_id: 判断対象の画面ID
+#     state_signature: 判断対象の状態signature
+#     validation_error: Provider出力のschema不備
+#   ]
+# }
 class ActionDecision:
     action_id: str
     reason: str
     provider: str
+    snapshot_id: str | None = None
+    screen_id: str | None = None
+    state_signature: str | None = None
+    validation_error: str | None = None
 
-    def to_dict(self) -> dict[str, str]:
-        return self.__dict__.copy()
+    # {
+    #   責務: [
+    #     to_dict: 判断と利用可能な観測参照を記録形式へ変換する
+    #   ]
+    #   処理: [
+    #     1: 必須の判断情報を辞書へ格納する
+    #     2: 値がある観測参照と検証エラーを追加する
+    #   ]
+    #   引数: []
+    #   戻り値: [
+    #     dict[str, Any]: 判断情報と存在する観測参照
+    #   ]
+    # }
+    def to_dict(self) -> dict[str, Any]:
+        decision_record: dict[str, Any] = {
+            "action_id": self.action_id,
+            "reason": self.reason,
+            "provider": self.provider,
+        }
+        # 過去形式の記録を維持し、任意の参照情報だけを追加する。
+        for field_name in ("snapshot_id", "screen_id", "state_signature", "validation_error"):
+            field_value = getattr(self, field_name)
+            if field_value is not None:
+                decision_record[field_name] = field_value
+        return decision_record

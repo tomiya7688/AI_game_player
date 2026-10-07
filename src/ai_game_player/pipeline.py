@@ -9,6 +9,7 @@ from ai_game_player.action_safety import (
     SafetyStatus,
 )
 from ai_game_player.candidate_merger import CandidateMerger
+from ai_game_player.decision_verifier import ReliabilityStatus
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.fail_safe_runtime import FailSafeConfig, FailSafeRuntime, FailSafeState
@@ -19,6 +20,21 @@ from ai_game_player.run_control import RunController
 from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
 
 
+# {
+#   責務: [
+#     DecisionPipeline: 観測・Decision・Reliability・Safety・実行を順に接続する
+#   ]
+#   フィールド: [
+#     engine: Decision Context・候補選択・reliability検証
+#     safety_evaluator: 実行前のAction Safety検査
+#     executor: dry-runまたは明示許可された実行手段
+#   ]
+#   処理: [
+#     1: 観測と候補から判断を得る
+#     2: reliability evidenceをAction Safety監査へ渡す
+#     3: dry-run設定とverification状態を確認して実行する
+#   ]
+# }
 class DecisionPipeline:
     def __init__(
         self,
@@ -86,6 +102,28 @@ class DecisionPipeline:
         decision, _, _ = self._decide(ocr_texts, purpose, personality)
         return decision
 
+    # {
+    #   責務: [
+    #     run_and_execute: 判断を検証・安全評価して安全な場合だけ操作を実行する
+    #   ]
+    #   処理: [
+    #     1: 現在snapshotの候補判断を取得する
+    #     2: 選択候補をAction Safety Evaluatorへ渡す
+    #     3: reliability・safetyのverification要求を実行前に適用する
+    #     4: 実行結果と監査Evidenceを保存する
+    #   ]
+    #   引数: [
+    #     ocr_texts: 任意のOCR候補
+    #     purpose: 現在のゲーム目的
+    #     personality: Provider向けの任意の振る舞い指定
+    #   ]
+    #   戻り値: [
+    #     ExecutionResult: dry-runまたは実行結果
+    #   ]
+    #   エラー: [
+    #     RuntimeError: decision・safety・reliabilityが実行を拒否
+    #   ]
+    # }
     def run_and_execute(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
@@ -99,7 +137,9 @@ class DecisionPipeline:
         if selected is None:
             raise RuntimeError("決定された候補が統合済み候補にありません")
 
-        safety_context, snapshot_id = self._safety_context(selected.action_id, purpose)
+        reliability_result = self.engine.last_reliability_result
+        reliability_record = reliability_result.to_dict() if reliability_result is not None else None
+        safety_context, snapshot_id = self._safety_context(selected.action_id, purpose, reliability_record)
         assessment = self.safety_evaluator.evaluate(observation, selected, safety_context)
         self.last_safety_result = assessment
         self.safety_audit.append_evaluation(assessment, snapshot_id=snapshot_id, goal=purpose)
@@ -108,6 +148,15 @@ class DecisionPipeline:
         if assessment.requires_verification and not self.executor.dry_run:
             requests = ", ".join(assessment.verification_requests)
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
+        if (
+            reliability_result is not None
+            and reliability_result.status != ReliabilityStatus.TRUST
+            and not self.executor.dry_run
+        ):
+            raise RuntimeError(
+                "Decision Reliability requires verification before live input: "
+                f"{reliability_result.status.value}"
+            )
 
         result = self.executor.execute(selected)
         self.execution_history.append(result)
@@ -143,14 +192,40 @@ class DecisionPipeline:
         self.executor.rearm_safety()
         self._seen_rearm_token = token
 
-    def _safety_context(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]:
+    # {
+    #   責務: [
+    #     _safety_context: 判断traceから安全評価向けcontextとsnapshot IDを組み立てる
+    #   ]
+    #   処理: [
+    #     1: 直近traceから選択候補のutility evidenceを探す
+    #     2: Decision Reliabilityを独立したevidenceとして添える
+    #     3: SafetyEvaluationContextとsnapshot IDを返す
+    #   ]
+    #   引数: [
+    #     action_id: 安全評価対象の候補ID
+    #     purpose: 現在のゲーム目的
+    #     decision_reliability: Decision Verifierの任意監査記録
+    #   ]
+    #   戻り値: [
+    #     tuple[SafetyEvaluationContext, str]: 評価contextとsnapshot ID
+    #   ]
+    # }
+    def _safety_context(
+        self,
+        action_id: str,
+        purpose: str,
+        decision_reliability: dict[str, object] | None = None,
+    ) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)
         if not recent:
-            return SafetyEvaluationContext(current_goal=purpose), ""
+            return SafetyEvaluationContext(current_goal=purpose, decision_reliability=decision_reliability), ""
         entry = recent[-1]
         raw_context = entry.get("context", {})
         if not isinstance(raw_context, dict):
-            return SafetyEvaluationContext(current_goal=purpose), str(entry.get("snapshot_id", ""))
+            return (
+                SafetyEvaluationContext(current_goal=purpose, decision_reliability=decision_reliability),
+                str(entry.get("snapshot_id", "")),
+            )
         utility_score = None
         utility_confidence = None
         candidates = raw_context.get("candidates", [])
@@ -170,6 +245,7 @@ class DecisionPipeline:
                 current_goal=purpose,
                 utility_score=utility_score,
                 utility_confidence=utility_confidence,
+                decision_reliability=decision_reliability,
             ),
             str(raw_context.get("snapshot_id", entry.get("snapshot_id", ""))),
         )

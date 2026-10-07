@@ -1,0 +1,129 @@
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from ai_game_player.decision_context import DecisionContextBuilder
+from ai_game_player.decision_verifier import DecisionVerifier, ReliabilityStatus
+from ai_game_player.engine import GamePlayerEngine
+from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
+
+
+class DecisionVerifierTest(unittest.TestCase):
+    def setUp(self):
+        self.verifier = DecisionVerifier()
+        self.observation = ScreenObservation("menu", 100, 80, features={"signature": "menu-v1"})
+        self.candidate = ActionCandidate("start", "wait", "Start", confidence=0.9)
+        self.context = DecisionContextBuilder().build(
+            self.observation,
+            [self.candidate],
+            [self.candidate],
+        )
+
+    def decision(self, **overrides):
+        fields = {
+            "action_id": "start",
+            "reason": "Start is the highest-rated allowed action",
+            "provider": "test-provider",
+            "snapshot_id": self.context.snapshot_id,
+            "screen_id": "menu",
+            "state_signature": "menu-v1",
+        }
+        fields.update(overrides)
+        return ActionDecision(**fields)
+
+    def test_trusts_action_grounded_in_current_snapshot_and_scene(self):
+        result = self.verifier.verify(self.decision(), self.context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.TRUST)
+        self.assertEqual(result.action_id, "start")
+        self.assertEqual(result.snapshot_id, self.context.snapshot_id)
+        self.assertTrue(all(item.source == "decision_verifier/v1" for item in result.evidence))
+        self.assertEqual(result.to_dict()["schema"], "reliability/v1")
+
+    def test_rejects_invalid_schema_types_and_unexpected_fields(self):
+        for decision in (
+            {"action_id": 7, "reason": "start", "provider": "test-provider"},
+            {"action_id": "start", "reason": "start", "provider": "test-provider", "coordinate": [1, 2]},
+            object(),
+        ):
+            with self.subTest(decision=decision):
+                result = self.verifier.verify(decision, self.context, self.observation)
+                self.assertEqual(result.status, ReliabilityStatus.REJECT)
+                self.assertEqual(result.evidence[0].check, "decision_schema")
+
+    def test_rejects_action_outside_allowed_candidate_set(self):
+        result = self.verifier.verify(self.decision(action_id="quit"), self.context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.REJECT)
+        self.assertIn("allowed_candidate_grounding", {item.check for item in result.evidence})
+
+    def test_rejects_stale_snapshot_and_state_references(self):
+        stale_snapshot = self.verifier.verify(
+            self.decision(snapshot_id="previous-snapshot"), self.context, self.observation
+        )
+        stale_state = self.verifier.verify(
+            self.decision(state_signature="previous-state"), self.context, self.observation
+        )
+
+        self.assertEqual(stale_snapshot.status, ReliabilityStatus.REJECT)
+        self.assertEqual(stale_state.status, ReliabilityStatus.REJECT)
+        self.assertTrue(any(item.check == "snapshot_reference" for item in stale_snapshot.evidence))
+        self.assertTrue(any(item.check == "state_reference" for item in stale_state.evidence))
+
+    def test_rejects_context_from_a_different_screen(self):
+        different_screen = ScreenObservation("battle", 100, 80, features={"signature": "menu-v1"})
+
+        result = self.verifier.verify(self.decision(), self.context, different_screen)
+
+        self.assertEqual(result.status, ReliabilityStatus.REJECT)
+        self.assertTrue(any(item.check == "context_scene_consistency" for item in result.evidence))
+
+    def test_rejects_reason_that_explicitly_denies_selected_action(self):
+        for reason in (
+            "Do not select Start because it is not appropriate",
+            "Startは選択しない",
+        ):
+            with self.subTest(reason=reason):
+                result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
+
+                self.assertEqual(result.status, ReliabilityStatus.REJECT)
+                self.assertTrue(any(item.check == "reason_action_consistency" for item in result.evidence))
+
+    def test_missing_snapshot_reference_requires_verification(self):
+        result = self.verifier.verify(self.decision(snapshot_id=None), self.context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.VERIFY)
+        self.assertTrue(any(item.severity == "verify" for item in result.evidence))
+
+    def test_empty_reason_is_caution_without_claiming_trust(self):
+        result = self.verifier.verify(self.decision(reason=""), self.context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.CAUTION)
+
+    def test_rejection_is_persisted_before_engine_fails_closed(self):
+        class InvalidProvider:
+            def choose_context(self, context, personality=""):
+                return ActionDecision(
+                    "outside",
+                    "Choose outside the allowed set",
+                    "invalid-provider",
+                    context.snapshot_id,
+                    context.state["screen_id"],
+                    context.state["signature"],
+                )
+
+        with tempfile.TemporaryDirectory() as directory:
+            engine = GamePlayerEngine(Path(directory), provider=InvalidProvider())
+            with self.assertRaisesRegex(ValueError, "reliability verifier"):
+                engine.step(self.observation, [self.candidate])
+
+            trace = json.loads((Path(directory) / "decision_trace.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(len(trace), 1)
+        self.assertIsNone(trace[0]["decision"])
+        self.assertEqual(trace[0]["reliability"]["status"], "REJECT")
+
+
+if __name__ == "__main__":
+    unittest.main()

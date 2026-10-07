@@ -317,28 +317,93 @@ class DecisionContextBuilder:
         )
 
 
+# {
+#   責務: [
+#     DecisionTraceStore: snapshot・context・decision・outcome・reliabilityを追記保存する
+#   ]
+#   フィールド: [
+#     path: trace記録先
+#   ]
+#   処理: [
+#     1: 検証済み判断をappend-only記録へ追加する
+#     2: 拒否された判断とEvidenceも記録する
+#     3: 一時ファイルをatomic replaceして保存する
+#   ]
+# }
 class DecisionTraceStore:
-    """Append-only trace that binds one observation snapshot to context, decision and previous outcome."""
 
     def __init__(self, path: Path) -> None:
         self.path = path
 
-    def append(self, context: DecisionContext, decision: ActionDecision) -> None:
+    # {
+    #   責務: [
+    #     append: snapshot・判断・reliability evidenceを追記する
+    #   ]
+    #   処理: [
+    #     1: 既存traceを読み込む
+    #     2: context・decision・ReliabilityResultを同じ記録へ追加する
+    #     3: 既存ファイルをatomic replaceする
+    #   ]
+    #   引数: [
+    #     context: 判断対象Decision Context
+    #     decision: 検証済み判断
+    #     reliability: 任意のdecision reliability監査辞書
+    #   ]
+    #   戻り値: []
+    # }
+    def append(
+        self,
+        context: DecisionContext,
+        decision: ActionDecision,
+        *,
+        reliability: dict[str, Any] | None = None,
+    ) -> None:
+        entries = self._read()
+        trace_entry: dict[str, Any] = {
+            "snapshot_id": context.snapshot_id,
+            "screen_id": context.state.get("screen_id", ""),
+            "state_signature": context.state.get("signature", ""),
+            "action_id": decision.action_id,
+            "decision": decision.to_dict(),
+            "previous_outcome": context.previous_outcome,
+            "used_evidence_ids": [
+                evidence.evidence_id
+                for candidate in context.candidates
+                if candidate.action_id == decision.action_id
+                for evidence in candidate.knowledge
+            ],
+            "context": context.to_dict(),
+        }
+        if reliability is not None:
+            trace_entry["reliability"] = reliability
+        entries.append(trace_entry)
+        self._write(entries)
+
+    # {
+    #   責務: [
+    #     append_rejection: 拒否された判断とreliability evidenceを履歴へ残す
+    #   ]
+    #   処理: [
+    #     1: 既存traceを読み込む
+    #     2: decisionなしの拒否記録を追加する
+    #     3: 既存ファイルをatomic replaceする
+    #   ]
+    #   引数: [
+    #     context: 拒否判定が参照したDecision Context
+    #     reliability: 拒否理由を含むReliabilityResult辞書
+    #   ]
+    #   戻り値: []
+    # }
+    def append_rejection(self, context: DecisionContext, reliability: dict[str, Any]) -> None:
         entries = self._read()
         entries.append(
             {
                 "snapshot_id": context.snapshot_id,
                 "screen_id": context.state.get("screen_id", ""),
                 "state_signature": context.state.get("signature", ""),
-                "action_id": decision.action_id,
-                "decision": decision.to_dict(),
-                "previous_outcome": context.previous_outcome,
-                "used_evidence_ids": [
-                    evidence.evidence_id
-                    for candidate in context.candidates
-                    if candidate.action_id == decision.action_id
-                    for evidence in candidate.knowledge
-                ],
+                "action_id": reliability.get("action_id", ""),
+                "decision": None,
+                "reliability": reliability,
                 "context": context.to_dict(),
             }
         )

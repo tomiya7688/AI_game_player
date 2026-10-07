@@ -14,3 +14,4 @@ class SequenceDiagramTest(unittest.TestCase):
             self.assertIn("sequenceDiagram", diagram)
             self.assertIn("Runner.source.read()", diagram)
             self.assertIn("Runner.engine.step()", diagram)
+            self.assertLess(diagram.index("Runner.source.read()"), diagram.index("Runner.engine.step()"))

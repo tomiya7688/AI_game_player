@@ -181,9 +181,29 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +append_rejection()
         +recent()
         +_read()
         +_write()
+    }
+    str <|-- ReliabilityStatus
+    Enum <|-- ReliabilityStatus
+    class ReliabilityStatus {
+    }
+    class ReliabilityEvidence {
+        +__post_init__()
+        +to_dict()
+    }
+    class ReliabilityResult {
+        +to_dict()
+    }
+    class _DecisionFields {
+    }
+    class DecisionVerifier {
+        +verify()
+        +normalize_decision()
+        +_index_candidates()
+        +_build_result()
     }
     class GamePlayerEngine {
         +__init__()
