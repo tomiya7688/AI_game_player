@@ -3,7 +3,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
+from ai_game_player.platform.windows.screen_capture import ScreenFrame, WindowsScreenCapture
 
 
 class FakeUser32:
@@ -97,7 +97,7 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertGreater(frame.captured_at, 0)
 
     def test_frame_timestamp_uses_monotonic_clock(self):
-        with patch("ai_game_player.screen_capture.time.monotonic", return_value=12.5):
+        with patch("ai_game_player.platform.windows.screen_capture.time.monotonic", return_value=12.5):
             frame = ScreenFrame(1, 1, b"x" * 4)
 
         self.assertEqual(frame.captured_at, 12.5)

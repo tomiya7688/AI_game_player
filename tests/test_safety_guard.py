@@ -8,11 +8,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-import ai_game_player.safety_guard as safety_guard_module
+import ai_game_player.execution.safety_guard as safety_guard_module
 
-from ai_game_player.action_executor import ActionExecutor
-from ai_game_player.models import ActionCandidate
-from ai_game_player.safety_guard import (
+from ai_game_player.execution.action_executor import ActionExecutor
+from ai_game_player.core.models import ActionCandidate
+from ai_game_player.execution.safety_guard import (
     EmergencyStop,
     EmergencyStopMonitor,
     NativeSafetyValidator,

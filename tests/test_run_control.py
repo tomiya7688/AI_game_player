@@ -1,6 +1,6 @@
 import unittest
 
-from ai_game_player.run_control import RunController
+from ai_game_player.core.run_control import RunController
 
 
 class RunControllerTest(unittest.TestCase):

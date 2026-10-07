@@ -2,8 +2,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from ai_game_player.models import ScreenObservation
-from ai_game_player.region_detector import ConfiguredRegionDetector
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.perception.region_detector import ConfiguredRegionDetector
 class RegionDetectorTest(unittest.TestCase):
     def test_named_region_becomes_center_candidate(self):
         with tempfile.TemporaryDirectory() as d:

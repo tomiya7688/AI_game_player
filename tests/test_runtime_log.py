@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.runtime_log import RuntimeLog
+from ai_game_player.storage.runtime_log import RuntimeLog
 
 
 class RuntimeLogTest(unittest.TestCase):
