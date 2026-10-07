@@ -4,8 +4,8 @@ from hashlib import sha1
 from math import isfinite
 from typing import Any, Protocol
 
-from ai_game_player.models import DetectedElement
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.core.models import DetectedElement
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 
 
 @dataclass(frozen=True)

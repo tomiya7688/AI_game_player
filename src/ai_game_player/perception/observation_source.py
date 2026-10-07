@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import Protocol
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
 
 class ObservationSource(Protocol):
     def read(self) -> tuple[ScreenObservation,list[ActionCandidate]]: ...

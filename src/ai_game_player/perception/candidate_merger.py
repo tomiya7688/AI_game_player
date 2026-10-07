@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from ai_game_player.models import ActionCandidate, DetectedElement
+from ai_game_player.core.models import ActionCandidate, DetectedElement
 
 
 CandidateInput = ActionCandidate | DetectedElement

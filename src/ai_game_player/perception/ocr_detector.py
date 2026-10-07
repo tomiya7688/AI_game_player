@@ -1,6 +1,6 @@
 from typing import Any
 
-from ai_game_player.models import DetectedElement, ScreenObservation
+from ai_game_player.core.models import DetectedElement, ScreenObservation
 
 
 class OcrTextCandidateDetector:
