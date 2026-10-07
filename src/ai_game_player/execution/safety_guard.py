@@ -12,7 +12,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Protocol, cast
 
-from ai_game_player.models import ActionCandidate
+from ai_game_player.core.models import ActionCandidate
 
 
 class SafetyState(str, Enum):

@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from ai_game_player.fail_safe_runtime import FailSafeCommand, FailSafeConfig, FailSafeRuntime, FailSafeState
-from ai_game_player.models import ActionCandidate
-from ai_game_player.safety_guard import (
+from ai_game_player.execution.fail_safe_runtime import FailSafeCommand, FailSafeConfig, FailSafeRuntime, FailSafeState
+from ai_game_player.core.models import ActionCandidate
+from ai_game_player.execution.safety_guard import (
     EmergencyStop,
     SafetyGuard,
     SafetyGuardConfig,
@@ -122,7 +122,7 @@ class ActionExecutor:
                     raise RuntimeError(
                         "SafetyGuard blocked action [target_missing]: live Windows input requires a target window"
                     )
-                from ai_game_player.windows_input import WindowsInputExecutor
+                from ai_game_player.platform.windows.windows_input import WindowsInputExecutor
 
                 executor = WindowsInputExecutor(
                     self.window_handle,

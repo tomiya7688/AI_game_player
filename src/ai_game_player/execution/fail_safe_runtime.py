@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Callable
 from uuid import uuid4
 
-from ai_game_player.cross_process_lock import cross_process_file_lock
+from ai_game_player.runtime.cross_process_lock import cross_process_file_lock
 
 
 class FailSafeState(str, Enum):

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
 
 
 class SafetyStatus(str, Enum):
