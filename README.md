@@ -15,6 +15,21 @@
 - [シーケンス図](doc/sequence_diagram.mmd)
 - [評価指標](doc/評価指標機能説明書.md)
 
+## ソースコードを読む
+
+GitHub上では、まず **[src/ai_game_player/](src/ai_game_player/)** を入口にしてください。package内の役割と「何を読むべきか」は **[Source Map](src/ai_game_player/README.md)** にまとめています。
+
+主な入口:
+
+- [CLI / package entrypoint](src/ai_game_player/__main__.py)
+- [現在のApplication UI](src/ai_game_player/app.py)
+- [Decision Pipeline](src/ai_game_player/pipeline.py)
+- [Native Runtime boundary](src/ai_game_player/runtime/)
+- [Quality Application](src/ai_game_player/applications/quality/)
+- [Tests](tests/)
+
+現在は `src/ai_game_player/` 直下にmoduleが多いため、#350で責務別subpackageへ段階的に整理しています。Source Mapは移動中も「現在どこに何があるか」の入口として維持します。
+
 ## 現在できること
 
 - 起動済みWindowsの一覧取得と対象ウィンドウ選択
