@@ -5,21 +5,21 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
 
-from ai_game_player.config import AppConfig, ConfigStore
-from ai_game_player.execution_history import ExecutionHistory
-from ai_game_player.execution_mode import execution_labels
-from ai_game_player.evaluator import ActionEvaluator
-from ai_game_player.metrics import MetricsCalculator
-from ai_game_player.loop_guard import LoopGuard
-from ai_game_player.outcome import OutcomeEvaluator
-from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
-from ai_game_player.models import ActionCandidate, ScreenObservation
-from ai_game_player.pipeline import DecisionPipeline
-from ai_game_player.provider import OllamaProvider, RuleProvider
-from ai_game_player.runtime_log import RuntimeLog
-from ai_game_player.run_control import RunController
-from ai_game_player.window_selector import WindowsWindowSelector
-from ai_game_player.screen_capture import WindowsScreenCapture
+from ai_game_player.storage.config import AppConfig, ConfigStore
+from ai_game_player.storage.execution_history import ExecutionHistory
+from ai_game_player.execution.execution_mode import execution_labels
+from ai_game_player.decision.evaluator import ActionEvaluator
+from ai_game_player.core.metrics import MetricsCalculator
+from ai_game_player.core.loop_guard import LoopGuard
+from ai_game_player.decision.outcome import OutcomeEvaluator
+from ai_game_player.perception.ocr_recognizer import TesseractOcrRecognizer
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
+from ai_game_player.core.pipeline import DecisionPipeline
+from ai_game_player.decision.provider import OllamaProvider, RuleProvider
+from ai_game_player.storage.runtime_log import RuntimeLog
+from ai_game_player.core.run_control import RunController
+from ai_game_player.platform.windows.window_selector import WindowsWindowSelector
+from ai_game_player.platform.windows.screen_capture import WindowsScreenCapture
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 
 
@@ -212,7 +212,7 @@ class Application:
 
     def capture_screen(self) -> ScreenObservation | None:
         try:
-            from ai_game_player.frame_analyzer import FrameAnalyzer
+            from ai_game_player.perception.frame_analyzer import FrameAnalyzer
             selected_handle = self.window_handles.get(self.window_choice.get())
             observation = FrameAnalyzer(TesseractOcrRecognizer.optional()).analyze(WindowsScreenCapture().capture(selected_handle), "live")
             self.obs.delete("1.0", tk.END)
