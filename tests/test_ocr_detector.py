@@ -1,7 +1,7 @@
 import unittest
 
-from ai_game_player.models import DetectedElement, ScreenObservation
-from ai_game_player.ocr_detector import OcrTextCandidateDetector
+from ai_game_player.core.models import DetectedElement, ScreenObservation
+from ai_game_player.perception.ocr_detector import OcrTextCandidateDetector
 
 
 class OcrDetectorTest(unittest.TestCase):

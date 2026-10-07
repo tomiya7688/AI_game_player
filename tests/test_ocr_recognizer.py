@@ -1,6 +1,6 @@
 import unittest
-from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.perception.ocr_recognizer import TesseractOcrRecognizer
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 
 class FakeTesseract:
     class Output: DICT = "dict"

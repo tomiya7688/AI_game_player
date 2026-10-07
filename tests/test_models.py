@@ -1,6 +1,6 @@
 import unittest
 
-from ai_game_player.models import ActionCandidate, DetectedElement
+from ai_game_player.core.models import ActionCandidate, DetectedElement
 
 
 class ModelDeserializationTest(unittest.TestCase):

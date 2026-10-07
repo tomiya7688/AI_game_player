@@ -1,7 +1,7 @@
 import unittest
 
-from ai_game_player.loop_guard import LoopGuard
-from ai_game_player.models import ScreenObservation
+from ai_game_player.core.loop_guard import LoopGuard
+from ai_game_player.core.models import ScreenObservation
 
 
 class LoopGuardTest(unittest.TestCase):

@@ -1,14 +1,14 @@
 import unittest
 
-from ai_game_player.frame_analyzer import FrameAnalyzer
-from ai_game_player.ocr_provider import (
+from ai_game_player.perception.frame_analyzer import FrameAnalyzer
+from ai_game_player.perception.ocr_provider import (
     OcrDecisionImpactEvaluator,
     OcrFusionPipeline,
     OcrProviderConfig,
     OcrResult,
     RecognizerOcrProvider,
 )
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 
 
 class FakeProvider:

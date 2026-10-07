@@ -1,6 +1,6 @@
 import unittest
-from ai_game_player.action_executor import ExecutionResult
-from ai_game_player.metrics import MetricsCalculator
+from ai_game_player.execution.action_executor import ExecutionResult
+from ai_game_player.core.metrics import MetricsCalculator
 class MetricsTest(unittest.TestCase):
     def test_calculates_execution_summary(self):
         result=MetricsCalculator().calculate([ExecutionResult("a",False,"dry_run",""),ExecutionResult("a",True,"live",""),ExecutionResult("b",False,"failed","")])
