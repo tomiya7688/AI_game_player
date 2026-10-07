@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from urllib.request import Request, urlopen
 
 from ai_game_player.decision_context import DecisionContext
@@ -137,6 +138,7 @@ class OllamaProvider:
     #     1: 操作候補が存在することを確認する
     #     2: 画面・目的・候補をLLM向けpayloadへまとめる
     #     3: 構造化された判断出力を受け取る
+    #     4: 候補IDと判断理由の型を確認し、未入力の理由を空文字列にする
     #   ]
     #   引数: [
     #     candidates: 判断対象となる許可候補
@@ -148,7 +150,7 @@ class OllamaProvider:
     #     ActionDecision: LLMから受け取った候補判断
     #   ]
     #   エラー: [
-    #     ValueError: 許可候補が空、または応答IDが許可候補外
+    #     ValueError: 許可候補が空、応答IDが許可候補外、または判断理由が文字列以外
     #   ]
     # }
     def choose(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
@@ -165,6 +167,13 @@ class OllamaProvider:
         allowed_action_ids = {candidate.action_id for candidate in candidates}
         if not isinstance(decision.action_id, str) or decision.action_id not in allowed_action_ids:
             raise ValueError("Ollamaが許可候補外の操作を選択しました")
+        validation_error_codes = (decision.validation_error or "").split(";")
+        if "invalid_decision_reason_type" in validation_error_codes:
+            raise ValueError("Ollamaの判断理由が文字列ではありません")
+        if decision.reason is None:
+            decision = replace(decision, reason="")
+        elif not isinstance(decision.reason, str):
+            raise ValueError("Ollamaの判断理由が文字列ではありません")
         return decision
 
     # {
@@ -249,9 +258,12 @@ class OllamaProvider:
         # 型を文字列へ強制変換せず、検証器が元の不正型を検出できるようにする。
         allowed_response_fields = {"action_id", "reason", "snapshot_id", "screen_id", "state_signature"}
         unexpected_fields = set(parsed).difference(allowed_response_fields)
-        validation_error = None
+        validation_errors = []
         if unexpected_fields:
-            validation_error = "unexpected_decision_fields:" + ",".join(sorted(str(name) for name in unexpected_fields))
+            validation_errors.append("unexpected_decision_fields:" + ",".join(sorted(str(name) for name in unexpected_fields)))
+        if "reason" in parsed and not isinstance(parsed["reason"], str):
+            validation_errors.append("invalid_decision_reason_type")
+        validation_error = ";".join(validation_errors) or None
         return ActionDecision(
             parsed.get("action_id"),
             parsed.get("reason"),

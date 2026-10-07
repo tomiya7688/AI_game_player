@@ -99,6 +99,25 @@ class ProviderDecisionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "許可候補外"):
             OllamaProvider("small-model").choose([self.candidate], self.observation)
 
+    @patch("ai_game_player.provider.urlopen")
+    def test_legacy_choose_keeps_empty_reason_for_missing_field(self, urlopen):
+        urlopen.return_value = FakeResponse({"response": json.dumps({"action_id": "start"})})
+
+        decision = OllamaProvider("small-model").choose([self.candidate], self.observation)
+
+        self.assertEqual(decision.reason, "")
+
+    @patch("ai_game_player.provider.urlopen")
+    def test_legacy_choose_rejects_non_string_reason(self, urlopen):
+        for reason in (None, 7):
+            with self.subTest(reason=reason):
+                urlopen.return_value = FakeResponse(
+                    {"response": json.dumps({"action_id": "start", "reason": reason})}
+                )
+
+                with self.assertRaisesRegex(ValueError, "判断理由が文字列ではありません"):
+                    OllamaProvider("small-model").choose([self.candidate], self.observation)
+
 
 if __name__ == "__main__":
     unittest.main()

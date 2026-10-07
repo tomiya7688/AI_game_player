@@ -5,6 +5,15 @@ from typing import Any
 from ai_game_player.outcome import OutcomeAssessment
 
 
+_STATE_CHANGE_EVIDENCE_SIGNALS = frozenset(
+    {
+        ("state_delta", "changed"),
+        ("screen_diff", "changed"),
+        ("temporal_change", "persistent"),
+    }
+)
+
+
 @dataclass(frozen=True)
 class OutcomeEvidence:
     detector: str
@@ -61,6 +70,27 @@ class OutcomeEvent:
             raise ValueError(f"invalid outcome event status: {self.status}")
         if not isfinite(self.confidence) or not 0.0 <= self.confidence <= 1.0:
             raise ValueError("outcome event confidence must be between 0 and 1")
+
+    # {
+    #   責務: [
+    #     has_state_change_evidence: 最終結果statusに関係なく状態変化のEvidenceがあるか返す
+    #   ]
+    #   処理: [
+    #     1: 構造化状態・画面・継続観測の変化Evidenceを調べる
+    #     2: いずれかが変化を示す場合Trueを返す
+    #   ]
+    #   引数: []
+    #   戻り値: [
+    #     bool: 状態または画面の変化EvidenceがあればTrue
+    #   ]
+    #   エラー: []
+    # }
+    @property
+    def has_state_change_evidence(self) -> bool:
+        return any(
+            (evidence.signal, evidence.value) in _STATE_CHANGE_EVIDENCE_SIGNALS
+            for evidence in self.evidence
+        )
 
     def to_assessment(self) -> OutcomeAssessment:
         status = self.status if self.status in {"success", "failure", "unknown"} else "ongoing"

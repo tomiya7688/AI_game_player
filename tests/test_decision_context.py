@@ -155,6 +155,33 @@ class DecisionContextTest(unittest.TestCase):
         self.assertEqual(next_context.recent_history[0]["outcome"], "changed")
         self.assertTrue(next_context.previous_outcome["state_changed"])
 
+    def test_terminal_outcome_trace_preserves_simultaneous_state_change(self):
+        for terminal_text, terminal_status in (("VICTORY", "success"), ("GAME OVER", "failure")):
+            with self.subTest(terminal_status=terminal_status), tempfile.TemporaryDirectory() as directory:
+                before = ScreenObservation(
+                    "menu",
+                    320,
+                    200,
+                    ["PLAYING"],
+                    {"signature": "state-a", "state": {"progress": 1}, "perceptual_hash": "0000"},
+                )
+                after = ScreenObservation(
+                    "menu",
+                    320,
+                    200,
+                    [terminal_text],
+                    {"signature": "state-b", "state": {"progress": 2}, "perceptual_hash": "ffff"},
+                )
+                candidates = [self.candidate("advance", "ADVANCE")]
+
+                engine = GamePlayerEngine(Path(directory))
+                engine.step(before, candidates)
+                engine.step(after, candidates)
+                trace = engine.trace.recent()
+
+                self.assertEqual(trace[0]["action_outcome"]["status"], terminal_status)
+                self.assertTrue(trace[0]["action_outcome"]["state_changed"])
+
     def test_trace_binds_snapshot_decision_evaluations_and_knowledge(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
