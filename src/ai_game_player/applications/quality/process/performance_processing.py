@@ -4,12 +4,12 @@ import statistics
 import time
 from collections.abc import Callable
 
-from ai_game_player.candidate_merger import CandidateMerger
-from ai_game_player.decision_context import DecisionContextBuilder
-from ai_game_player.frame_analyzer import FrameAnalyzer
-from ai_game_player.models import ActionCandidate, ScreenObservation
-from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.perception.candidate_merger import CandidateMerger
+from ai_game_player.decision.decision_context import DecisionContextBuilder
+from ai_game_player.perception.frame_analyzer import FrameAnalyzer
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
+from ai_game_player.execution.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 
 
 def run_performance_checks(budgets: dict[str, float]) -> dict[str, object]:
