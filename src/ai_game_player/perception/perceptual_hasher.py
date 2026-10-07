@@ -1,4 +1,4 @@
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 
 
 class PerceptualHasher:

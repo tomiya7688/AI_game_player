@@ -1,5 +1,5 @@
-from ai_game_player.models import ScreenObservation
-from ai_game_player.perceptual_hasher import PerceptualHasher
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.perception.perceptual_hasher import PerceptualHasher
 
 
 class ScreenSimilarity:

@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
-from ai_game_player.models import DetectedElement
-from ai_game_player.screen_capture import ScreenFrame
-from ai_game_player.ui_recognition import UiPrototype
+from ai_game_player.core.models import DetectedElement
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
+from ai_game_player.perception.ui_recognition import UiPrototype
 
 
 @dataclass(frozen=True)
