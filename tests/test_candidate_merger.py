@@ -1,7 +1,7 @@
 import unittest
 
-from ai_game_player.candidate_merger import CandidateMerger
-from ai_game_player.models import ActionCandidate, DetectedElement
+from ai_game_player.perception.candidate_merger import CandidateMerger
+from ai_game_player.core.models import ActionCandidate, DetectedElement
 
 
 class CandidateMergerTest(unittest.TestCase):

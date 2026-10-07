@@ -1,6 +1,6 @@
 import unittest
-from ai_game_player.action_executor import ActionExecutor
-from ai_game_player.models import ActionCandidate
+from ai_game_player.execution.action_executor import ActionExecutor
+from ai_game_player.core.models import ActionCandidate
 class ActionExecutorTest(unittest.TestCase):
     def test_default_is_dry_run(self):
         result=ActionExecutor().execute(ActionCandidate("start","click","Start",1,1))

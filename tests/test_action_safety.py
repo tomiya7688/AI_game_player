@@ -2,15 +2,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.action_executor import ExecutionResult
-from ai_game_player.action_safety import (
+from ai_game_player.execution.action_executor import ExecutionResult
+from ai_game_player.execution.action_safety import (
     ActionSafetyAuditLog,
     ActionSafetyEvaluator,
     SafetyEvaluationContext,
     SafetyStatus,
 )
-from ai_game_player.models import ActionCandidate, ScreenObservation
-from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
+from ai_game_player.core.pipeline import DecisionPipeline
 
 
 class ActionSafetyTest(unittest.TestCase):

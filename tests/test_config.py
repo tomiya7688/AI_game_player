@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.config import AppConfig, ConfigStore
+from ai_game_player.storage.config import AppConfig, ConfigStore
 
 
 class ConfigTest(unittest.TestCase):

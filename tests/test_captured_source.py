@@ -1,6 +1,6 @@
 import unittest
-from ai_game_player.captured_source import CapturedObservationSource
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.perception.captured_source import CapturedObservationSource
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 class Capture:
     def capture(self): return ScreenFrame(1,1,bytes([1,2,3,255]))
 class CapturedSourceTest(unittest.TestCase):

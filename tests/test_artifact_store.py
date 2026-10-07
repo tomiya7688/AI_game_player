@@ -5,7 +5,7 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from ai_game_player.artifact_store import (
+from ai_game_player.storage.artifact_store import (
     ArtifactIntegrityError,
     ArtifactMetadata,
     ArtifactStore,
