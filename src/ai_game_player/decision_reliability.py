@@ -9,13 +9,13 @@ from ai_game_player.models import ActionDecision
 
 # {
 #   責務: [
-#     ReliabilityStatus: 決定論的なDecision信頼性判定を4段階で表す
+#     ReliabilityStatus: 検査結果にもとづく候補選択の扱い方を4段階で表す
 #   ]
 #   フィールド: [
-#     TRUST: 候補と現在の観測へ矛盾なく結び付いた
-#     CAUTION: 判断理由が不足し、慎重な扱いが必要
-#     VERIFY: 参照情報が不足し、追加確認が必要
-#     REJECT: schema・候補・snapshot・文脈の検証に失敗した
+#     TRUST: 実施した検査を通過した（誤りが絶対にない保証ではない）
+#     CAUTION: 判断理由が空など情報不足のため、慎重な扱いが必要
+#     VERIFY: 画面や状態の参照情報が不足し、追加確認が必要
+#     REJECT: 出力形式・許可候補・画面状態のいずれかが検査に失敗した
 #   ]
 # }
 class ReliabilityStatus(str, Enum):
@@ -95,15 +95,15 @@ class ReliabilityEvidence:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     ReliabilityResult: 検証状態・対象snapshot・監査Evidenceを保持する
+#     ReliabilityResult: 候補選択の検査結果と、後から確認するための記録を保持する
 #   ]
 #   フィールド: [
-#     assessment_id: 一意な判定ID
-#     status: TRUST・CAUTION・VERIFY・REJECT
-#     snapshot_id: 検証対象snapshot
-#     action_id: 選択候補ID
-#     provider: 判断Provider
-#     evidence: 判定を再確認できる検査Evidence
+#     assessment_id: この検査結果を識別するID
+#     status: 検査結果の扱い方（TRUST/CAUTION/VERIFY/REJECT）
+#     snapshot_id: 判断時の画面観測を識別するID
+#     action_id: Providerが選んだ許可候補のID
+#     provider: 判断を返したProviderまたはモデル名
+#     evidence: 実施した検査・結果・比較した値の記録
 #   ]
 # }
 class ReliabilityResult:
@@ -142,15 +142,15 @@ class ReliabilityResult:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     _DecisionFields: schema検査済みDecisionの値を内部で束ねる
+#     _DecisionFields: 出力形式を確認したDecisionの値を扱いやすく束ねる
 #   ]
 #   フィールド: [
-#     action_id: 選択候補ID
+#     action_id: Providerが選んだ候補のID
 #     reason: 選択理由
-#     provider: 判断Provider
-#     snapshot_id: 判断対象snapshot
-#     screen_id: 判断対象scene
-#     state_signature: 判断対象状態signature
+#     provider: 判断を返したProviderまたはモデル名
+#     snapshot_id: 判断時の画面観測を識別するID
+#     screen_id: 判断時に観測した画面のID
+#     state_signature: 判断時の画面状態を照合する文字列
 #   ]
 # }
 class _DecisionFields:
