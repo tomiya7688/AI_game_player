@@ -2,9 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.models import DetectedElement
-from ai_game_player.screen_capture import ScreenFrame
-from ai_game_player.ui_embedding import (
+from ai_game_player.core.models import DetectedElement
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
+from ai_game_player.perception.ui_embedding import (
     EmbeddingBatch,
     EmbeddingCache,
     EmbeddingMemory,
@@ -16,7 +16,7 @@ from ai_game_player.ui_embedding import (
     GridVisualEmbeddingProvider,
     HashedTextEmbeddingProvider,
 )
-from ai_game_player.ui_recognition import UiPrototype
+from ai_game_player.perception.ui_recognition import UiPrototype
 
 
 class CountingProvider:

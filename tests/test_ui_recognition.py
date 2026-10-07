@@ -2,10 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.bright_region_detector import BrightRegionDetector
-from ai_game_player.models import DetectedElement
-from ai_game_player.screen_capture import ScreenFrame
-from ai_game_player.ui_recognition import (
+from ai_game_player.perception.bright_region_detector import BrightRegionDetector
+from ai_game_player.core.models import DetectedElement
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
+from ai_game_player.perception.ui_recognition import (
     DetectorProviderAdapter,
     KnownUiDetector,
     UiDetectionImpactEvaluator,

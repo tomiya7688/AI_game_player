@@ -6,10 +6,10 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from ai_game_player import windows_input
-from ai_game_player.action_executor import ActionExecutor
-from ai_game_player.fail_safe_runtime import InputLedger
-from ai_game_player.models import ActionCandidate
-from ai_game_player.windows_input import SPECIAL_KEYS, WindowsInputExecutor
+from ai_game_player.execution.action_executor import ActionExecutor
+from ai_game_player.execution.fail_safe_runtime import InputLedger
+from ai_game_player.core.models import ActionCandidate
+from ai_game_player.platform.windows.windows_input import SPECIAL_KEYS, WindowsInputExecutor
 
 
 class FakeUser32:

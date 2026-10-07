@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from ai_game_player.window_selector import WindowInfo, WindowsWindowSelector
+from ai_game_player.platform.windows.window_selector import WindowInfo, WindowsWindowSelector
 
 
 class WindowSelectorTest(unittest.TestCase):
