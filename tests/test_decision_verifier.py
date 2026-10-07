@@ -207,10 +207,14 @@ class DecisionVerifierTest(unittest.TestCase):
 
     # {
     #   責務: [長い別候補への否定を選択候補への否定として誤判定しないことを確認する]
-    #   処理: [1: 「終了」と「終了確認」を候補にする 2: 別候補を避けて選択候補を選ぶ理由は信頼する 3: 選択候補自体を避ける理由は拒否する]
-    #   引数: []
-    #   戻り値: [None: 信頼性判定の結果を検証する]
-    #   エラー: []
+    #   処理: [
+    #     1: 「終了」と「終了確認」の2候補を同じ画面の許可候補として登録する
+    #     2: 「終了確認」を避けて「終了」を選ぶ理由ではTRUSTになることを確かめる
+    #     3: 「終了」自体を避ける理由ではREJECTになることを確かめる
+    #   ]
+    #   引数: [
+    #   ]
+    #   戻り値: [なし。期待した状態をassertで確認し、期待と異なる場合はunittestがテスト失敗にする]
     # }
     def test_japanese_negation_of_longer_candidate_does_not_reject_selected_candidate(self):
         selected = ActionCandidate("finish", "wait", "終了", confidence=0.9)

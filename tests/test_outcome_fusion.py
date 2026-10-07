@@ -66,11 +66,15 @@ class OutcomeFusionTests(unittest.TestCase):
         self.assertLessEqual(evaluation.axes["progress"].confidence, 0.5)
 
     # {
-    #   責務: [終端成功Evidenceが状態変化の融合結果を上書きしないことを確認する]
-    #   処理: [1: 状態安定と画面変化の競合Evidenceを作る 2: 終端成功を追加する 3: 成功状態と融合済み状態変化を個別に検証する]
-    #   引数: []
-    #   戻り値: [None: OutcomeEventの状態を検証する]
-    #   エラー: []
+    #   責務: [ゲーム成功の根拠があっても、状態差分の検査が出した「変化なし」を保持することを確かめる]
+    #   処理: [
+    #     1: 構造化状態は安定、画面差分は変化とする根拠を作る
+    #     2: 根拠を融合し、状態検査がunchangedを選ぶことを確かめる
+    #     3: 終端成功を加え、最終statusはsuccess、state_changedはFalseのままか検査する
+    #   ]
+    #   引数: [
+    #   ]
+    #   戻り値: [なし。期待値をassertで確認し、期待と異なる場合はunittestがテスト失敗にする]
     # }
     def test_terminal_result_preserves_fused_stability_state(self):
         evidence = (
@@ -85,11 +89,15 @@ class OutcomeFusionTests(unittest.TestCase):
         self.assertFalse(event.state_changed)
 
     # {
-    #   責務: [終端成功Evidenceが融合済みの状態変化を保持することを確認する]
-    #   処理: [1: 終端成功と強い状態変化Evidenceを作る 2: Evidenceを融合する 3: 成功状態と状態変化フラグを個別に検証する]
-    #   引数: []
-    #   戻り値: [None: OutcomeEventの状態を検証する]
-    #   エラー: []
+    #   責務: [ゲーム成功の根拠と、状態差分が示す「変化あり」を別々に記録することを確かめる]
+    #   処理: [
+    #     1: 終端成功と高い確信度の状態変化を示す根拠を作る
+    #     2: 根拠を融合し、終端判定より先に状態差分も評価されることを確かめる
+    #     3: 最終statusはsuccess、state_changedはTrueとして両方が残るか検査する
+    #   ]
+    #   引数: [
+    #   ]
+    #   戻り値: [なし。期待値をassertで確認し、期待と異なる場合はunittestがテスト失敗にする]
     # }
     def test_terminal_result_preserves_fused_change_state(self):
         evidence = (

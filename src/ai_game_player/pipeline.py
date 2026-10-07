@@ -22,17 +22,17 @@ from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardC
 
 # {
 #   責務: [
-#     DecisionPipeline: 観測・Decision・Reliability・Safety・実行を順に接続する
+#     DecisionPipeline: 画面入力から候補判断・危険度検査・安全な入力実行までの順序を管理する
 #   ]
 #   フィールド: [
-#     engine: Decision Context・候補選択・reliability検証
-#     safety_evaluator: 実行前のAction Safety検査
-#     executor: dry-runまたは明示許可された実行手段
+#     engine: 画面候補から判断を選び、画面・許可候補との整合を記録する処理
+#     safety_evaluator: 選択操作の対象範囲や不可逆性を、入力送信前に規則で調べる処理
+#     executor: 既定では実入力を送らず、設定で許可された場合だけ画面へ操作を送る実行器
 #   ]
 #   処理: [
-#     1: 観測と候補から判断を得る
-#     2: reliability evidenceをAction Safety監査へ渡す
-#     3: dry-run設定とverification状態を確認して実行する
+#     1: 画面・文字認識・部品検出から統合候補を作り、許可候補から操作を選ぶ
+#     2: 選択の信頼性記録を危険度評価へ渡し、二つの判定根拠を別々に保存する
+#     3: 実入力では危険判定と追加確認の条件を満たした場合だけ操作を送る。dry-runでは送信せず結果を記録する
 #   ]
 # }
 class DecisionPipeline:
@@ -104,24 +104,24 @@ class DecisionPipeline:
 
     # {
     #   責務: [
-    #     run_and_execute: 判断を検証・安全評価して安全な場合だけ操作を実行する
+    #     run_and_execute: 現在画面の判断と安全条件を確かめ、設定に応じて実入力またはdry-runを行う
     #   ]
     #   処理: [
-    #     1: 現在snapshotの候補判断を取得する
-    #     2: 選択候補をAction Safety Evaluatorへ渡す
-    #     3: reliability・safetyのverification要求を実行前に適用する
-    #     4: 実行結果と監査Evidenceを保存する
+    #     1: 画面を取り込み、候補を統合して現在の画面に結び付いた選択を得る
+    #     2: 選択候補を危険度検査へ渡し、実行前確認が必要か判定する
+    #     3: BLOCKは常に停止し、実入力では安全性または選択信頼性の追加確認が残る場合も停止する
+    #     4: 設定がdry-runなら入力を送らず、それ以外は許可後に実行し、結果と監査記録を保存する
     #   ]
     #   引数: [
-    #     ocr_texts: 任意のOCR候補
-    #     purpose: 現在のゲーム目的
-    #     personality: Provider向けの任意の振る舞い指定
+    #     ocr_texts: 画面から別途得た文字列候補。省略時は観測に含まれるOCR候補を使う
+    #     purpose: 判断元と危険度検査に渡す、今回のゲーム内達成目的
+    #     personality: 判断元へ渡す任意の応答方針。候補の許可状態や安全条件を変える設定ではない
     #   ]
     #   戻り値: [
-    #     ExecutionResult: dry-runまたは実行結果
+    #     ExecutionResult: 入力未送信のdry-run結果、または実際に送信した操作の実行結果
     #   ]
     #   エラー: [
-    #     RuntimeError: decision・safety・reliabilityが実行を拒否
+    #     RuntimeError: 選択候補が統合一覧にない、安全判定がBLOCK、または実入力前の確認条件を満たさない場合
     #   ]
     # }
     def run_and_execute(
@@ -200,20 +200,20 @@ class DecisionPipeline:
 
     # {
     #   責務: [
-    #     _safety_context: 判断traceから安全評価向けcontextとsnapshot IDを組み立てる
+    #     _safety_context: 今回の判断履歴から、危険度評価に必要な目的・候補評価・検査記録を取り出す
     #   ]
     #   処理: [
-    #     1: 直近traceから選択候補のutility evidenceを探す
-    #     2: Decision Reliabilityを独立したevidenceとして添える
-    #     3: SafetyEvaluationContextとsnapshot IDを返す
+    #     1: 直近判断記録から指定候補の目的寄与点と、その予測の確信度を探す
+    #     2: 候補選択の信頼性記録を危険度情報と混ぜずに添える
+    #     3: 記録がない場合は未評価項目のまま安全評価用入力を返す
     #   ]
     #   引数: [
-    #     action_id: 安全評価対象の候補ID
-    #     purpose: 現在のゲーム目的
-    #     decision_reliability: Decision Verifierの任意監査記録
+    #     action_id: 安全評価する操作候補を、今回の判断履歴から特定するID
+    #     purpose: 操作が達成に役立つか照合するための現在のゲーム目的
+    #     decision_reliability: 同じ選択に対して先に行った画面・候補整合検査の記録。未取得ならNone
     #   ]
     #   戻り値: [
-    #     tuple[SafetyEvaluationContext, str]: 評価contextとsnapshot ID
+    #     tuple[SafetyEvaluationContext, str]: 危険度評価に渡す値と、根拠の判断を特定する画面観測ID
     #   ]
     # }
     def _safety_context(

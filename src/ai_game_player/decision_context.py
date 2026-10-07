@@ -320,38 +320,47 @@ class DecisionContextBuilder:
 
 # {
 #   責務: [
-#     DecisionTraceStore: snapshot・context・decision・outcome・reliabilityの監査記録を保存する
+#     DecisionTraceStore: 画面状態、判断、判断の信頼性検査、操作結果を一件の履歴に結び付けて保存する
 #   ]
 #   フィールド: [
-#     path: trace記録先
+#     path: 判断履歴のJSON配列を読み書きするファイルの場所
 #   ]
 #   処理: [
-#     1: 検証済み判断を監査記録へ追加する
-#     2: 拒否された判断とEvidenceも記録する
-#     3: 実行前に止めた判断には状態と理由を記録する
-#     4: 一時ファイルをatomic replaceして保存する
+#     1: 許可候補から選ばれた判断に、画面状態と選択理由を添えて追加する
+#     2: 拒否された判断や実行前に停止した理由も残し、行動履歴と区別する
+#     3: 操作後に届いた結果を、画面IDと操作IDが一致する判断へ結び付ける
+#     4: 一時ファイルへ全件を書いてから置き換え、途中終了で履歴が半端になるのを防ぐ
 #   ]
 # }
 class DecisionTraceStore:
 
+    # {
+    #   責務: [
+    #     __init__: 判断履歴を保存するファイルの場所を記録し、このStoreの書き込み先を決める
+    #   ]
+    #   引数: [
+    #     path: 画面・判断・操作結果をJSON配列として保存するファイルの場所
+    #   ]
+    #   戻り値: [なし。保存先をインスタンスに保持する]
+    # }
     def __init__(self, path: Path) -> None:
         self.path = path
 
     # {
     #   責務: [
-    #     append: snapshot・判断・reliability evidenceを追記する
+#     append: REJECTされず記録対象となった判断に、参照した画面・候補・検査記録を添えて履歴へ追加する
     #   ]
     #   処理: [
-    #     1: 既存traceを読み込む
-    #     2: context・decision・ReliabilityResultを同じ記録へ追加する
-    #     3: 既存ファイルをatomic replaceする
+    #     1: 既存履歴を読み込み、選択操作・画面状態・判断材料を一件にまとめる
+    #     2: 任意の信頼性検査記録がある場合は同じ履歴に関連付ける
+    #     3: 一時ファイルへ全件を書き、完成後に履歴ファイルと置き換える
     #   ]
     #   引数: [
-    #     context: 判断対象Decision Context
-    #     decision: 検証済み判断
-    #     reliability: 任意のdecision reliability監査辞書
+    #     context: モデルへ渡した画面状態、操作候補、目標、過去の操作結果
+    #     decision: 拒否されず候補一覧から選ばれた操作とその理由。追加確認が必要な状態も記録できる
+    #     reliability: 選択が画面や許可候補と矛盾しないかを調べた記録。未実施なら省略する
     #   ]
-    #   戻り値: []
+    #   戻り値: [なし。履歴ファイルを更新する。保存に失敗した場合は書き込み例外を呼び出し元へ返す]
     # }
     def append(
         self,
@@ -383,22 +392,21 @@ class DecisionTraceStore:
 
     # {
     #   責務: [
-    #     mark_action_not_executed: 実行前に止めた判断を監査traceへ記録する
+    #     mark_action_not_executed: 実行前の安全確認などで中止した判断を、実行済み操作と誤認されない状態に更新する
     #   ]
     #   処理: [
-    #     1: snapshot IDと操作IDが一致する判断記録を末尾から探す
-    #     2: 実行前に停止した状態と理由を記録する
-    #     3: 行動履歴から除外できるようtraceを保存する
+    #     1: 新しい履歴から順に、指定画面と操作の判断記録を探す
+    #     2: 該当記録に停止状態と理由を保存し、見つからなければ何も変更しない
+    #     3: 停止した操作が次回の成功済み行動履歴に混ざらないようにする
     #   ]
     #   引数: [
-    #     snapshot_id: 判断に使った画面snapshotのID
-    #     action_id: 実行前に停止した操作ID
-    #     reason: 停止した理由
+    #     snapshot_id: 中止した判断を特定する、判断時点の画面ID
+    #     action_id: 中止した操作候補のID
+    #     reason: 実行しなかった理由。安全判定や実行条件など、後から監査できる説明を渡す
     #   ]
     #   戻り値: [
-    #     bool: 対象の判断記録を更新できた場合True
+    #     bool: 一致する判断を見つけて停止状態を保存した場合True。該当履歴がなければFalse
     #   ]
-    #   エラー: []
     # }
     def mark_action_not_executed(self, snapshot_id: str, action_id: str, reason: str) -> bool:
         entries = self._read()
@@ -416,18 +424,18 @@ class DecisionTraceStore:
 
     # {
     #   責務: [
-    #     append_rejection: 拒否された判断とreliability evidenceを履歴へ残す
+    #     append_rejection: 信頼性検査で拒否した判断を、実行可能な選択と混同しない履歴として保存する
     #   ]
     #   処理: [
-    #     1: 既存traceを読み込む
-    #     2: decisionなしの拒否記録を追加する
-    #     3: 既存ファイルをatomic replaceする
+    #     1: 拒否時に使った画面状態と検査結果を一件にまとめる
+    #     2: 実行する判断が存在しないことをdecision=nullで記録する
+    #     3: 一時ファイルへ全件を書き、完成後に履歴ファイルと置き換える
     #   ]
     #   引数: [
-    #     context: 拒否判定が参照したDecision Context
-    #     reliability: 拒否理由を含むReliabilityResult辞書
+    #     context: モデルに提示した候補や画面状態など、拒否判定の基になった情報
+    #     reliability: 不許可の理由と検査根拠を含む、信頼性判定の辞書
     #   ]
-    #   戻り値: []
+    #   戻り値: [なし。履歴ファイルを更新する。保存に失敗した場合は書き込み例外を呼び出し元へ返す]
     # }
     def append_rejection(self, context: DecisionContext, reliability: dict[str, Any]) -> None:
         entries = self._read()
@@ -446,22 +454,21 @@ class DecisionTraceStore:
 
     # {
     #   責務: [
-    #     record_action_outcome: 実行した操作に対する最新のOutcome結果をtraceへ保存する
+    #     record_action_outcome: 実行後の観測結果を、元の画面で選んだ操作の判断記録へ結び付ける
     #   ]
     #   処理: [
-    #     1: snapshot IDと操作IDが一致する実行対象の判断記録を末尾から探す
-    #     2: 操作結果を判断記録へ追加する
-    #     3: 更新したtraceを保存する
+    #     1: 新しい履歴から順に、画面ID・操作IDが一致し実行対象となる判断を探す
+    #     2: 該当する判断に、進行・失敗・状態変化などの観測結果を記録する
+    #     3: 履歴を更新して保存し、該当記録がなければFalseを返す
     #   ]
     #   引数: [
-    #     snapshot_id: 結果を記録する判断時の画面snapshot ID
-    #     action_id: 結果を記録する操作ID
-    #     outcome: OutcomeDetectorが返した操作結果
+    #     snapshot_id: 操作を選択した画面のID。後続の同じ操作と取り違えないために使う
+    #     action_id: 結果を記録する操作候補のID
+    #     outcome: 操作後の画面比較から得た結果の辞書
     #   ]
     #   戻り値: [
-    #     bool: 対象の実行判断を更新できた場合True
+    #     bool: 一致する実行判断を更新できた場合True。該当履歴がない場合False
     #   ]
-    #   エラー: []
     # }
     def record_action_outcome(self, snapshot_id: str, action_id: str, outcome: dict[str, Any]) -> bool:
         entries = self._read()
@@ -476,6 +483,16 @@ class DecisionTraceStore:
                 return True
         return False
 
+    # {
+    #   責務: [次の判断に渡すため、保存順を保った直近の判断記録を返す]
+    #   処理: [
+    #     1: 保存済み履歴を読み込む
+    #     2: 指定件数を超える古い項目を除き、残りを古い順で返す
+    #   ]
+    #   引数: [limit: 返す記録の最大件数。0なら空の一覧を返す]
+    #   戻り値: [list[dict[str, Any]]: 指定件数以内の最新履歴。並び順は古い項目から新しい項目]
+    #   エラー: [ValueError: limitが負数の場合]
+    # }
     def recent(self, limit: int = 5) -> list[dict[str, Any]]:
         if limit < 0:
             raise ValueError("history limit must not be negative")
@@ -483,20 +500,20 @@ class DecisionTraceStore:
 
     # {
     #   責務: [
-    #     recent_actions: 拒否記録を除いた直近の行動判断だけを返す
+    #     recent_actions: 次の判断で繰り返しを避けるため、実行対象になった直近の操作履歴だけを返す
     #   ]
     #   処理: [
-    #     1: trace全件から行動履歴に使える判断を抽出する
-    #     2: 抽出後に件数上限を適用する
+    #     1: 拒否記録と実行前に止めた操作を履歴全件から除く
+    #     2: 残った記録の末尾から指定件数を返す
     #   ]
     #   引数: [
-    #     limit: 返す行動判断の最大件数
+    #     limit: 返す操作履歴の最大件数。0なら空の一覧を返す
     #   ]
     #   戻り値: [
-    #     list[dict[str, Any]]: 拒否記録を除いた新しい順の判断記録
+    #     list[dict[str, Any]]: 古いものから新しいものの順に並ぶ、実行対象の判断記録
     #   ]
     #   エラー: [
-    #     ValueError: history limitが負数
+    #     ValueError: limitが負数の場合。履歴件数として負数を指定できない
     #   ]
     # }
     def recent_actions(self, limit: int = 5) -> list[dict[str, Any]]:
@@ -507,6 +524,17 @@ class DecisionTraceStore:
         action_entries = [entry for entry in self._read() if _is_action_history_entry(entry)]
         return action_entries[-limit:]
 
+    # {
+    #   責務: [保存ファイルを読み、履歴として扱える辞書項目だけを呼び出し元へ渡す]
+    #   処理: [
+    #     1: ファイルがなければ、まだ履歴がないものとして空の一覧を返す
+    #     2: JSON配列を読み込み、配列以外なら履歴形式の誤りとして拒否する
+    #     3: 配列内から辞書ではない値を除き、履歴項目だけを返す
+    #   ]
+    #   引数: []
+    #   戻り値: [list[dict[str, Any]]: 保存順に並んだ、辞書形式の履歴項目]
+    #   エラー: [ValueError: ファイルの最上位がJSON配列でない場合。JSON解析や読み込みの例外も呼び出し元へ伝える]
+    # }
     def _read(self) -> list[dict[str, Any]]:
         if not self.path.exists():
             return []
@@ -515,6 +543,17 @@ class DecisionTraceStore:
             raise ValueError("decision trace must contain an array")
         return [entry for entry in value if isinstance(entry, dict)]
 
+    # {
+    #   責務: [履歴全件を一時ファイルへ書き切ってから置き換え、途中失敗で既存履歴を壊さないよう保存する]
+    #   処理: [
+    #     1: 保存先の親ディレクトリがなければ作成する
+    #     2: Unicodeをそのまま保持した整形JSONを一時ファイルへ書く
+    #     3: 書き込み完了後に一時ファイルを保存先へ置き換える
+    #   ]
+    #   引数: [entries: 保存する判断履歴全件。各項目は辞書形式]
+    #   戻り値: [なし。ディスクへの置き換えが成功した後に戻る]
+    #   エラー: [ディレクトリ作成・書き込み・置き換えに失敗した場合は、入出力例外を呼び出し元へ伝える]
+    # }
     def _write(self, entries: list[dict[str, Any]]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_suffix(f".{uuid4().hex}.tmp")
@@ -566,18 +605,18 @@ def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
 
 # {
 #   責務: [
-#     _is_action_history_entry: 拒否された判断を行動履歴から除外する
+#     _is_action_history_entry: 実際に実行対象となった判断だけを選び、拒否・中止記録を操作履歴から外す
 #   ]
 #   処理: [
-#     1: decisionが保存された記録か確認する
-#     2: reliabilityがREJECTの記録を除外する
-#     3: 実行前に停止した記録を除外する
+#     1: 選択された操作の記録がない項目を除外する
+#     2: 信頼性検査でREJECTになった項目を除外する
+#     3: 実行前に停止状態へ更新された項目を除外する
 #   ]
 #   引数: [
-#     entry: DecisionTraceStoreの監査記録
+#     entry: 画面状態・判断・実行結果などを含む履歴の1件
 #   ]
 #   戻り値: [
-#     bool: 実行済み操作として履歴に含める場合True
+#     bool: 次の判断で過去の操作として参照する記録ならTrue
 #   ]
 # }
 def _is_action_history_entry(entry: dict[str, Any]) -> bool:

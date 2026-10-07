@@ -15,35 +15,35 @@ from ai_game_player.provider import RuleProvider
 
 # {
 #   責務: [
-#     GamePlayerEngine: 観測・候補評価・Decision検証・履歴保存を順に実行する
+#     GamePlayerEngine: 画面と操作候補から選択判断を作り、検査結果と判断を操作履歴へ結び付ける
 #   ]
 #   フィールド: [
-#     decision_verifier: Provider出力をcontext evidenceと照合する検証器
-#     last_reliability_result: 直近判断の信頼性判定
+#     decision_verifier: 選択候補が現在の画面と許可一覧に合うかを実行規則で調べる検証器
+#     last_reliability_result: 最後の判断に対する検査状態と根拠。拒否時は停止理由の記録にも使う
 #   ]
 #   処理: [
-#     1: 観測状態と許可候補からDecision Contextを構築する
-#     2: Providerの判断を決定論的に検証する
-#     3: 判断・検証Evidence・履歴を保存する
+#     1: 前回の操作結果と現在画面を基に、候補選択に必要な判断材料を組み立てる
+#     2: 判断元の回答を画面・候補・参照IDと照合し、不整合があれば拒否記録を残す
+#     3: 有効な選択だけを操作履歴と判断根拠へ保存し、次回の結果判定に備える
 #   ]
 # }
 class GamePlayerEngine:
     # {
     #   責務: [
-    #     __init__: Decision処理と履歴を保持する依存関係を初期化する
+    #     __init__: ゲーム固有の保存先と差し替え可能な判断部品を接続し、初回用の状態を用意する
     #   ]
     #   処理: [
-    #     1: 候補評価・Provider・履歴Storeを初期化する
-    #     2: DecisionContextBuilderとReliabilityVerifierを接続する
-    #     3: 前回観測とOutcome状態を初期化する
+    #     1: 操作評価器、判断元、ゲームごとの行動・知識・監査記録の保存先を用意する
+    #     2: 画面と過去の結果から判断材料を作る処理、判断検証器、結果検出器を接続する
+    #     3: 前回画面・前回操作・未完了の履歴参照を、操作前の初期状態にする
     #   ]
     #   引数: [
-    #     game_directory: ゲーム固有データを保存するdirectory
-    #     provider: 判断を行う任意Provider
-    #     context_builder: 任意のDecision Context構築器
-    #     outcome_detector: 任意のOutcome検出器
+    #     game_directory: 行動履歴、知識、判断記録をこのゲーム用に保存するディレクトリ
+    #     provider: 操作候補を選ぶ判断元。省略時は外部通信を行わないルール方式を使う
+    #     context_builder: 判断材料の作成処理を差し替える場合に渡す。省略時はゲームの知識保存先と共に生成する
+    #     outcome_detector: 操作前後の画面を比較する結果検出器。省略時は既定の検出器を使う
     #   ]
-    #   戻り値: []
+    #   戻り値: [なし。各部品をインスタンスへ接続し、以後のstep呼び出しで使えるようにする]
     # }
     def __init__(
         self,
@@ -73,25 +73,25 @@ class GamePlayerEngine:
 
     # {
     #   責務: [
-    #     step: 観測snapshotから判断を取得し検証後に履歴へ保存する
+    #     step: 現在画面の操作候補を選び、信頼性検査でREJECTされなかった判断と根拠を記録する
     #   ]
     #   処理: [
-    #     1: 安全に許可された候補とDecision Contextを構築する
-    #     2: Provider出力をReliability Verifierへ渡す
-    #     3: REJECT時は拒否Evidenceを記録して停止する
-    #     4: 有効な判断とReliability Evidenceを履歴へ保存する
+    #     1: 候補を評価し、現在画面・過去の実行結果・ゲーム目標を含む判断材料を作る
+    #     2: 判断元の回答を画面参照と許可候補へ照合し、明確な不整合なら拒否記録を保存する
+    #     3: 拒否されなかった回答をActionDecisionへ正規化し、行動履歴と全検査根拠を保存する
+    #     4: 今回の判断を次の画面比較へ結び付け、実行前停止に備えた状態も保持する
     #   ]
     #   引数: [
-    #     observation: 判断対象の現在画面
-    #     candidates: 画面から統合した操作候補
-    #     purpose: 現在のゲーム目的
-    #     personality: Provider向けの任意の振る舞い指定
+    #     observation: 候補と照合する、今回の判断時点で取得した画面と解析情報
+    #     candidates: 画面解析器が検出・統合した操作候補。評価器が実行可否を絞り込む
+    #     purpose: 判断元と危険度検査に渡す、利用者が指定したゲーム内の達成目的
+    #     personality: 判断元が対応している場合だけ渡す応答方針。候補の許可条件を変更するものではない
     #   ]
     #   戻り値: [
-    #     ActionDecision: 検証済み候補判断
+    #     ActionDecision: 選択された許可候補、選択理由、画面参照を含む実行前判断
     #   ]
     #   エラー: [
-    #     ValueError: Provider判断がREJECTされた
+    #     ValueError: 回答が現在の候補・画面と明確に矛盾するか、検査後に有効な判断へ変換できない場合
     #   ]
     # }
     def step(
@@ -151,19 +151,19 @@ class GamePlayerEngine:
 
     # {
     #   責務: [
-    #     mark_last_decision_not_executed: 実行前に止めた判断を履歴対象から外す
+    #     mark_last_decision_not_executed: 安全確認などで実行しなかった直近判断を履歴から除き、以前の操作状態へ戻す
     #   ]
     #   処理: [
-    #     1: 最新trace記録へ実行前停止の状態と理由を保存する
-    #     2: 実行前停止した判断より前に実行した操作の参照へ戻す
-    #     3: 保存した操作状態を使って次回Outcome評価を継続する
+    #     1: 直近判断の画面IDと操作IDに停止理由を保存し、行動履歴から除外する
+    #     2: 今回の判断を作る前に退避した、直前に実行済みの操作状態を復元する
+    #     3: 次の画面観測を直前の実行済み操作の結果として比較できるよう参照を戻す
     #   ]
     #   引数: [
-    #     reason: 実行前に停止した理由
+    #     reason: 操作を送らなかった理由。安全判定や実行条件の監査履歴へ保存する
     #   ]
-    #   戻り値: []
+    #   戻り値: [なし。直近の判断を停止済みとして記録し、以前の操作状態へ戻す]
     #   エラー: [
-    #     RuntimeError: 更新対象の判断traceが存在しない
+    #     RuntimeError: 直近判断または退避状態がなく、対応する記録を更新できない場合
     #   ]
     # }
     def mark_last_decision_not_executed(self, reason: str) -> None:
@@ -186,19 +186,19 @@ class GamePlayerEngine:
 
     # {
     #   責務: [
-    #     _bind_legacy_context_references: 旧choose APIの判断へ同期Context参照を補う
+    #     _bind_legacy_context_references: 旧形式のchoose呼び出しが画面参照を返さない場合に限り、現在の判断参照を補う
     #   ]
     #   処理: [
-    #     1: ActionDecisionの欠落参照だけを特定する
-    #     2: 現在のDecision Contextから不足参照を補完する
-    #     3: 既存の明示参照・Provider・判断内容を保持する
+    #     1: ActionDecision以外の値は形を変えずに返す
+    #     2: 画面観測ID・画面ID・状態照合値のうち未設定の項目だけ、現在の判断材料から埋める
+    #     3: 既に明示された参照、判断元、候補、理由は書き換えない
     #   ]
     #   引数: [
-    #     decision_output: 旧choose APIから返された未検証判断
-    #     context: 同期呼び出しに使ったDecision Context
+    #     decision_output: 従来のchoose APIが返した値。形式検証前なので任意の型を取り得る
+    #     context: 同じ呼び出しで判断元へ渡した画面IDと状態照合値を持つ判断材料
     #   ]
     #   戻り値: [
-    #     object: 参照補完済みActionDecision、または変更しないProvider出力
+    #     object: 不足参照だけを補ったActionDecision、または入力と同じ値
     #   ]
     # }
     @staticmethod

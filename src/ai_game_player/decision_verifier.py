@@ -27,37 +27,34 @@ JAPANESE_NEGATION_CONTINUATION_PATTERN = (
 
 # {
 #   責務: [
-#     DecisionVerifier: Decision出力を現在の候補・snapshot・画面へ決定論的に照合する
+#     DecisionVerifier: 判断元の選択が現在の画面で許可された候補に基づくか、実行規則だけで照合する
 #   ]
 #   処理: [
-#     1: Decision schemaと型を検査する
-#     2: 選択候補を許可候補へ照合する
-#     3: snapshot・scene・reasonの矛盾を検査する
-#     4: 根拠と出所をReliabilityResultへ記録する
+#     1: 回答の必須項目・型・空値を検査し、不正な形式を後続へ渡さない
+#     2: 選ばれた操作IDが画面候補と両方の許可一覧に存在するか照合する
+#     3: 回答が参照した画面状態と、選択理由が候補に矛盾していないか調べる
+#     4: 各照合の比較内容を記録し、総合状態とともに返す
 #   ]
-#   フィールド: []
 # }
 class DecisionVerifier:
     # {
     #   責務: [
-    #     verify: Provider判断をschema・候補・scene・reasonの証拠で検証する
+    #     verify: 判断元の回答を現在の画面・許可候補・選択理由と照合し、実行前の扱いを決める
     #   ]
     #   処理: [
-    #     1: 出力schemaと型を検査する
-    #     2: context候補と現在画面の整合を検査する
-    #     3: Evaluator許可候補・snapshot・scene参照とreason/action矛盾を検査する
-    #     4: EvidenceとprovenanceをReliabilityResultへまとめる
+    #     1: 判断元が返した値の項目名・型・必須値を検査し、形式不備の回答を拒否する
+    #     2: 判断材料に記録された候補と、実際の現在画面との食い違いを調べる
+    #     3: 候補の許可状態、画面ID・状態ID、選択理由と操作の明示的な矛盾を照合する
+    #     4: 検査ごとの期待値・受信値・結論を根拠として集約し、扱いを返す
     #   ]
     #   引数: [
-    #     decision_output: Providerから返された未信頼値
-    #     context: 判断に使ったDecision Context
-    #     observation: 実際の現在観測
-    #     evaluator_allowed_action_ids: Action Evaluatorが許可した候補ID
+    #     decision_output: 判断元が返した未検証の値。形式や内容が正しいとは仮定しない
+    #     context: 判断元へ提示した画面状態、候補一覧、許可候補、過去の結果
+    #     observation: 検査時点の実画面。判断材料が古い画面を指していないか照合する
+    #     evaluator_allowed_action_ids: 候補評価器が今回の画面で実行可能とした操作ID一覧
     #   ]
     #   戻り値: [
-    #     ReliabilityResult: TRUST・CAUTION・VERIFY・REJECT判定
-    #   ]
-    #   エラー: []
+    #     ReliabilityResult: 候補を通す、注意して扱う、追加確認する、拒否するの総合判定と全根拠
     # }
     def verify(
         self,
@@ -77,21 +74,21 @@ class DecisionVerifier:
         ) -> None:
             # {
             #   責務: [
-            #     add_evidence: 一貫した出所を付けて検査Evidenceを追加する
+            #     add_evidence: 今行った照合の結論と比較情報を、共通形式の根拠記録へ追加する
             #   ]
             #   処理: [
-            #     1: 検査名・深刻度・比較値をReliabilityEvidenceへ変換する
-            #     2: 検査結果一覧へ追記する
+            #     1: 判定規則の出所を固定し、検査名・深刻度・結論・比較情報を1件にまとめる
+            #     2: 総合状態の計算に使う検査一覧へ追加する
             #   ]
             #   引数: [
-            #     check: 検査名
-            #     severity: 検査の深刻度
-            #     message: 判定理由
-            #     details: 比較値
+            #     check: 今回確かめた条件を識別する名前
+            #     severity: 検査結果の扱い。問題なし、注意、再確認、拒否を区別する
+            #     message: 何を比べ、どの条件に合ったかを人が読める形で説明する文
+            #     details: 期待値と受信値など、結論を後から確かめるための情報。不要なら省略する
             #   ]
-            #   戻り値: []
+            #   戻り値: [なし。1件の検査根拠をevidence一覧へ追加する]
             # }
-            # 検査ごとに出所と比較値を固定形式で残す。
+            # 出所を統一すると、別の検査器の結果と区別したまま根拠を集約できる。
             evidence.append(
                 ReliabilityEvidence(
                     check,
@@ -102,7 +99,7 @@ class DecisionVerifier:
                 )
             )
 
-        # Invalid types, missing required fields, and provider parser errors are rejected immediately.
+        # 回答の型や必須項目が崩れている場合は、候補との意味照合へ進まず拒否する。
         decision_fields = _decision_fields(decision_output)
         if decision_fields is None:
             schema_details = {}
@@ -121,7 +118,7 @@ class DecisionVerifier:
             )
             return self._build_result(context, "", provider, evidence)
 
-        # Context自体が現在の観測を表しているかを先に検証する。
+        # 判断元へ渡した候補一覧が検査時点の画面に属するか、回答内容を調べる前に確かめる。
         state_screen_id = context.state.get("screen_id")
         if state_screen_id != observation.screen_id:
             add_evidence(
@@ -154,7 +151,7 @@ class DecisionVerifier:
                 "A scene signature is unavailable for consistency verification",
             )
 
-        # Each selected ID must resolve to one candidate that the current snapshot explicitly allows.
+        # 選択IDを一意な画面候補へ結び付け、判断材料と候補評価器の両方が許可したことを要求する。
         candidate_by_id = self._index_candidates(context, add_evidence)
         allowed_ids = list(context.allowed_action_ids)
         evaluator_allowed_ids = (
@@ -199,7 +196,7 @@ class DecisionVerifier:
                 {"action_id": decision_fields.action_id},
             )
 
-        # Echoed references bind the provider answer to the exact prompt state.
+        # 回答が返した参照IDを判断時の値と照合し、古い画面への回答を現在の選択として扱わない。
         if not context.snapshot_id:
             add_evidence("snapshot_reference", "reject", "Decision Context has no snapshot ID")
         elif not decision_fields.snapshot_id:
@@ -248,7 +245,7 @@ class DecisionVerifier:
         else:
             add_evidence("state_reference", "info", "Decision output references the current state signature")
 
-        # Only explicit negation of the selected candidate is treated as contradiction.
+        # 選択理由の矛盾は、選ばれた候補を明示的に避ける文だけを対象にする。単なる不確かな表現は拒否理由にしない。
         if not decision_fields.reason.strip():
             add_evidence("reason_action_consistency", "caution", "Decision reason is empty")
         elif selected_candidate is not None and _reason_contradicts_action(
@@ -274,17 +271,17 @@ class DecisionVerifier:
 
     # {
     #   責務: [
-    #     normalize_decision: 検証を通過したMapping出力をActionDecisionへ変換する
+    #     normalize_decision: 形式検査を通過した回答を、実行処理が使うActionDecisionへ変換する
     #   ]
     #   処理: [
-    #     1: Decisionの型と必須値を検証する
-    #     2: 有効な値だけActionDecisionへ格納する
+    #     1: 回答の型、必須の操作ID・理由・判断元を取り出して検査する
+    #     2: 画面参照を含む有効な値だけを実行判断へ移し、不正な回答はNoneにする
     #   ]
     #   引数: [
-    #     decision_output: Providerから返された未信頼の値
+    #     decision_output: 判断元が返した未検証の値。呼び出し側で形式検査済みとは限らない
     #   ]
     #   戻り値: [
-    #     ActionDecision | None: 正規化結果、または不正時のNone
+    #     ActionDecision | None: 必須値が有効なら実行判断、不正または不足があればNone
     #   ]
     # }
     @staticmethod
@@ -303,19 +300,19 @@ class DecisionVerifier:
 
     # {
     #   責務: [
-    #     _index_candidates: Context内候補を一意なaction IDで検索できるようにする
+    #     _index_candidates: 候補IDの重複や許可状態の食い違いを記録し、選択IDから画面候補を検索できるようにする
     #   ]
     #   処理: [
-    #     1: 候補IDの重複を検査する
-    #     2: allowedフラグと許可ID一覧の整合を検査する
-    #     3: 候補IDから候補へ対応付ける
+    #     1: 候補一覧をIDから候補への辞書にし、重複IDを信頼性違反として記録する
+    #     2: 各候補の許可フラグと許可ID一覧が一致するか調べる
+    #     3: 許可一覧にだけ存在し候補が欠けているIDを記録する
     #   ]
     #   引数: [
-    #     context: 検証対象Decision Context
-    #     add_evidence: 検査Evidenceを追加する関数
+    #     context: 判断元に提示した候補と許可IDを含む判断材料
+    #     add_evidence: 不整合を総合結果の根拠一覧へ記録する関数
     #   ]
     #   戻り値: [
-    #     dict[str, CandidateDecisionContext]: action IDから候補への対応
+    #     dict[str, CandidateDecisionContext]: 操作IDで候補を一意に検索する辞書。重複があっても別途拒否根拠へ残す
     #   ]
     # }
     @staticmethod
@@ -356,20 +353,20 @@ class DecisionVerifier:
 
     # {
     #   責務: [
-    #     _build_result: Evidenceの深刻度から最終ReliabilityResultを構築する
+    #     _build_result: 各検査の深刻度を優先順位に従って集約し、候補選択の総合判定を作る
     #   ]
     #   処理: [
-    #     1: reject・verify・cautionの優先順位で状態を決める
-    #     2: 判定IDと対象参照を結果へ格納する
+    #     1: 拒否根拠があればREJECT、なければVERIFY（追加確認）、CAUTION（注意）の順で扱いを決める
+    #     2: 問題がなければTRUSTとし、画面ID・候補ID・全根拠を結果へ関連付ける
     #   ]
     #   引数: [
-    #     context: 判定対象Decision Context
-    #     action_id: 選択候補ID
-    #     provider: 決定Provider
-    #     evidence: 決定論的な検査結果
+    #     context: この判断が基づく画面観測と候補を含む判断材料
+    #     action_id: 回答が選び、または拒否対象として記録する操作ID
+    #     provider: 回答元のモデルまたは判断処理の識別名
+    #     evidence: 今回の照合で得た根拠の一覧
     #   ]
     #   戻り値: [
-    #     ReliabilityResult: schema付き信頼性判定
+    #     ReliabilityResult: 次の処理が候補をどう扱うかと、その理由を含む検査結果
     #   ]
     # }
     @staticmethod
@@ -393,20 +390,20 @@ class DecisionVerifier:
 
 # {
 #   責務: [
-#     _reason_contradicts_action: 理由が選択・クリック・押下を明示的に拒否しているか検査する
+#     _reason_contradicts_action: 判断元の理由が、選択された候補そのものを避けるよう明示しているか調べる
 #   ]
 #   処理: [
-#     1: 理由・action ID・候補名の区切り文字を同じ形式へ正規化する
-#     2: 英語・日本語の長い別候補名に一致する理由を区別する
-#     3: 後続修飾語の長さに制限を設けず、選択・入力を否定する日本語・英語表現を照合する
+#     1: 理由文と候補ID・表示名の大小文字や区切りを揃え、英語・日本語の否定表現を探す
+#     2: 選択候補名が別の長い候補名の先頭にも使われている場合、文が指す対象全体を見分ける
+#     3: 選択候補を避ける明示的な文だけを矛盾とし、別候補への否定を誤検出しない
 #   ]
 #   引数: [
-#     reason: Providerが返した選択理由
-#     candidate: 選択された許可候補
-#     candidates: 同じ画面にある候補の一覧
+#     reason: 判断元が返した、操作を選んだ理由の文章
+#     candidate: 実際に選択された許可候補。理由文がこの候補を否定していないか調べる
+#     candidates: 同じ画面に表示された候補一覧。似た名前の別候補との取り違えを防ぐ
 #   ]
 #   戻り値: [
-#     bool: 明示的な理由・Action矛盾があればTrue
+#     bool: 対象候補を避ける明示的な表現があればTrue。一般的な言い換え全てを理解する判定ではない
 #   ]
 # }
 def _reason_contradicts_action(
@@ -508,21 +505,21 @@ def _reason_contradicts_action(
 
 # {
 #   責務: [
-#     _matches_longer_candidate_phrase: 選択候補名より長い別の候補名を理由が指しているか調べる
+#     _matches_longer_candidate_phrase: 選択候補名から始まる長い英語候補名を文が指す場合、短い名前だけの一致を除外する
 #   ]
 #   処理: [
-#     1: 選択候補名の後ろに語が続く別候補名を探す
-#     2: 現在の候補一覧にある長い候補名と理由を照合する
-#     3: 理由が別候補名を指している場合Trueを返す
+#     1: 現在の候補一覧から、選択候補名に語を足した候補名を探す
+#     2: 理由文の照合位置がその候補名全体と一致するか確かめる
+#     3: 長い候補名を指している場合Trueを返し、短い候補への否定と誤認しない
 #   ]
 #   引数: [
-#     reason: 区切りだけ正規化し大文字小文字を残した判断理由
-#     candidate_term_start: 候補名の照合開始位置
-#     selected_term: 選択候補の正規化済みIDまたは名称
-#     candidate_terms: 現在画面にある候補の正規化済みIDと名称
+#     reason: 空白や区切りを整えた判断理由。英語の大小文字は境界判定に残す
+#     candidate_term_start: 判断理由内で候補名と照合を始める文字位置
+#     selected_term: 選択された候補IDまたは表示名の正規化形
+#     candidate_terms: 同じ画面の候補ID・表示名の正規化形
 #   ]
 #   戻り値: [
-#     bool: 別候補名全体との一致がある場合True
+#     bool: 選択候補名を含む長い候補名全体に一致した場合True
 #   ]
 # }
 def _matches_longer_candidate_phrase(
@@ -542,23 +539,22 @@ def _matches_longer_candidate_phrase(
 
 # {
 #   責務: [
-#     _matches_longer_japanese_candidate: 日本語理由内で選択候補より長い候補名を照合する
+#     _matches_longer_japanese_candidate: 選択候補名と同じ書き出しを持つ日本語候補を、助詞境界まで照合する
 #   ]
 #   処理: [
-#     1: 選択候補名から始まる候補を一覧から探す
-#     2: 候補名の直後が日本語助詞または区切り文字であることを確認する
-#     3: 長い別候補名と理由が一致する場合Trueを返す
+#     1: 現在の候補から、選択候補名より長く同じ文字列で始まる候補を探す
+#     2: 理由文がその候補名全体に続き、直後が助詞または文末であることを確認する
+#     3: 長い別候補を指すならTrueを返し、短い候補への否定と誤認しない
 #   ]
 #   引数: [
-#     reason: 小文字・区切り文字を正規化した日本語理由
-#     candidate_term_start: 候補名の照合開始位置
-#     selected_term: 選択候補の正規化済みIDまたは名称
-#     candidate_terms: 現在画面にある候補の正規化済みIDと名称
+#     reason: 英字の大小や区切りを整えた判断理由
+#     candidate_term_start: 理由文内で候補名と照合を始める文字位置
+#     selected_term: 選択された候補IDまたは表示名の正規化形
+#     candidate_terms: 同じ画面の候補ID・表示名の正規化形
 #   ]
 #   戻り値: [
-#     bool: 長い別候補名を助詞境界まで含めて指している場合True
+#     bool: 助詞境界まで含めて長い別候補名を指している場合True
 #   ]
-#   エラー: []
 # }
 def _matches_longer_japanese_candidate(
     reason: str,
@@ -584,23 +580,22 @@ def _matches_longer_japanese_candidate(
 
 # {
 #   責務: [
-#     _mentions_longer_candidate_before_japanese_negation: 日本語の否定語より前に長い別候補があるか調べる
+#     _mentions_longer_candidate_before_japanese_negation: 否定語の直前に別の長い候補名がある場合、その否定を選択候補の拒否と誤認しない
 #   ]
 #   処理: [
-#     1: 否定語の直前24文字から現在候補より長い候補を探す
-#     2: 長い候補名の直後に助詞と否定語が続く構文を照合する
-#     3: 否定語が別候補を指す場合Trueを返す
+#     1: 否定語の直前に定数で定めた範囲を取り、同じ書き出しの長い候補名を探す
+#     2: 長い候補名の後に日本語の助詞が続き、その後に否定語があるか照合する
+#     3: 否定語が長い別候補へ掛かる場合Trueを返す
 #   ]
 #   引数: [
-#     reason: 小文字・区切り文字を正規化した日本語理由
-#     directive_start: 否定語の開始位置
-#     selected_term: 選択候補の正規化済みIDまたは名称
-#     candidate_terms: 現在画面にある候補の正規化済みIDと名称
+#     reason: 英字の大小や区切りを整えた判断理由
+#     directive_start: 理由文内で否定・回避表現が始まる文字位置
+#     selected_term: 選択された候補IDまたは表示名の正規化形
+#     candidate_terms: 同じ画面の候補ID・表示名の正規化形
 #   ]
 #   戻り値: [
-#     bool: 否定語の直前で長い別候補を指している場合True
+#     bool: 否定語が選択候補ではなく、名前の似た別候補に掛かる場合True
 #   ]
-#   エラー: []
 # }
 def _mentions_longer_candidate_before_japanese_negation(
     reason: str,
@@ -621,18 +616,18 @@ def _mentions_longer_candidate_before_japanese_negation(
 
 # {
 #   責務: [
-#     _normalize_contradiction_text: 否定照合で使う文字列の大小文字と区切り文字を統一する
+#     _normalize_contradiction_text: 候補名と理由文の表記差を減らし、否定表現を同じ規則で照合できるようにする
 #   ]
 #   処理: [
-#     1: 大小文字をcasefoldで統一する
-#     2: ハイフン・アンダースコアを空白へ置換する
-#     3: 連続空白を単一空白へ正規化する
+#     1: 英字を大小文字の差がない比較形へ変換する
+#     2: ハイフンとアンダースコアを空白へ置き換える
+#     3: 連続空白や前後の空白を取り除き、単語境界を揃える
 #   ]
 #   引数: [
-#     value: Provider理由または候補名
+#     value: 判断元の理由文、または候補のID・表示名
 #   ]
 #   戻り値: [
-#     str: 正規化した照合文字列
+#     str: 候補名の比較に使う正規化済み文字列。元の文章は変更しない
 #   ]
 # }
 def _normalize_contradiction_text(value: str) -> str:

@@ -42,6 +42,22 @@ class OutcomeEvidence:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     OutcomeEvent: 操作後に推定したゲーム結果と、画面状態が変化したかを別々に記録する
+#   ]
+#   フィールド: [
+#     action_id: 結果を結び付ける、直前に実行した操作候補のID
+#     status: success/failureはゲームの終端結果、changed/unchangedは状態遷移、unknownは根拠不足を表す
+#     confidence: 総合結果の根拠の強さを0から1で示す。値が高くても正解を保証するものではない
+#     conflict: 成功と失敗、または状態変化と安定を複数の根拠が同時に支持した場合True
+#     abstained: 根拠が割れるか不足し、success/failureを断定せず保留した場合True
+#     evidence: 各検出器の結論、重み、確信度、判定元を残した一覧
+#     reason: 総合判定を選んだ主な理由
+#     semantic_fallback_used: 規則ベースの観測が弱い際に意味評価器も利用した場合True
+#     state_changed: 状態差分の検出器が変化を支持したか。success/failureの終端結果とは別に保存する
+#   ]
+# }
 class OutcomeEvent:
     action_id: str
     status: str

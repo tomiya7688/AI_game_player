@@ -38,17 +38,17 @@ class SafetyEvidence:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     SafetyEvaluationContext: 操作の危険度を判断するための目的・予測・選択信頼性をまとめる
+#     SafetyEvaluationContext: 操作の危険度を決める際に参照するゲーム目標、操作後の予測、候補選択の検査結果を受け渡す
 #   ]
 #   フィールド: [
-#     current_goal: 達成したいゲーム上の目的
-#     short_term_goal: 次に達成したい短期の目的
-#     expected_effect_consistent: 操作後の変化が予測と一致するか（未評価ならNone）
-#     utility_score: 候補が目的に役立つ度合い（-1: 逆効果、0: 中立、1: 効果が高い）
-#     utility_confidence: utility_scoreの見込みへの確信度（0: 低い、1: 高い）
-#     target_scope_hint: 影響範囲の見込み（local: 一部、game: ゲーム、session: 今回の実行、system: OS）
-#     reversible_hint: 操作を元に戻せる見込み（未評価ならNone）
-#     decision_reliability: 選択が許可候補・画面・理由に矛盾しないかの検査結果
+#     current_goal: 今回のプレイで最終的に達成したいゲーム内の目的。危険操作がこの目的に必要か調べる
+#     short_term_goal: 次の数手で達成したい中間目的。最終目的だけでは操作意図を判断できない場合に参照する
+#     expected_effect_consistent: 実行後に観測した変化が操作前の予測と一致したか。まだ実行していない場合はNone
+#     utility_score: 選択候補が目的へ与える見込みの寄与。-1は妨げる、0は影響なし、1は大きく進めることを示す
+#     utility_confidence: utility_scoreをどれだけ確かな予測とみなせるか。0は根拠が弱く、1は根拠が強い
+#     target_scope_hint: 操作が及ぶと予測した範囲。localは画面内の一部、gameはゲーム内、sessionは今回の実行、systemはOS
+#     reversible_hint: 操作前の状態へ戻せる見込み。元に戻せるか判定できていない場合はNone
+#     decision_reliability: 候補が許可一覧にあり、現在画面と選択理由に矛盾しないかを検査した記録
 #   ]
 # }
 class SafetyEvaluationContext:
@@ -75,26 +75,26 @@ class SafetyEvaluationContext:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     ActionSafetyResult: 操作の危険度判定と、その根拠を画面上の判断信頼性とは分けて保持する
+#     ActionSafetyResult: 操作を実行してよいかの判定、その判定根拠、および候補選択の信頼性記録を別々に保持する
 #   ]
 #   フィールド: [
-#     assessment_id: この安全評価記録を識別するID
-#     action_id: 危険度を評価した操作候補のID
-#     status: SAFE:安全、SUSPICIOUS:実行前確認が必要、BLOCK:実行禁止
-#     recognition_confidence: 画面認識器が候補を検出した確信度
-#     safety_score: 安全と判定した度合い（0:危険、1:安全）
-#     risk_score: 危険と判定した度合い（0:低い、1:高い）
-#     risk_level: 危険度の区分（low/medium/high/critical）
-#     reversible: 操作を元に戻せるか
-#     blast_radius: 問題発生時に影響する広さ
-#     target_scope: 操作が影響する範囲（local/game/session/system）
-#     goal_alignment: 操作が現在の目的に沿っているか
-#     expected_effect_consistent: 操作後の変化が予測と一致するか
-#     requires_verification: 実行前の追加確認が必要か
-#     verification_requests: 実行前に確認する項目
-#     upstream_anomaly: 上流評価との不自然な食い違いがあるか
-#     evidence: 安全判定を支えた個々の検査結果
-#     decision_reliability: 操作の危険度とは別に記録する候補選択の信頼性判定
+#     assessment_id: 個々の評価記録を後から参照するために発行した一意なID
+#     action_id: 画面内で危険度を調べた操作候補のID
+#     status: SAFEは既知の危険条件なし、SUSPICIOUSは追加確認が必要、BLOCKは実行を許可しない
+#     recognition_confidence: 画面解析が操作対象を正しく検出した見込み。低くても操作自体の危険度とは混同しない
+#     safety_score: 検査結果から算出した安全側の点数。0は危険、1は既知の危険がない状態
+#     risk_score: 操作説明や対象範囲から算出した危険側の点数。0は低く、1は極めて高い
+#     risk_level: risk_scoreをlow、medium、high、criticalの4段階にまとめた区分
+#     reversible: 実行後にゲーム内状態を元へ戻せると確認できた場合True。不明ならNone
+#     blast_radius: 失敗時に影響する広さをlow、medium、high、criticalで示す
+#     target_scope: 操作対象の範囲。localは一部、gameはゲーム内、sessionは今回の実行、systemはOS
+#     goal_alignment: 危険操作が現在の目標で明示的に必要とされる場合True。判断材料がない場合None
+#     expected_effect_consistent: 実行後の変化が事前予測に合致したか。未実行・未評価ならNone
+#     requires_verification: SUSPICIOUS判定に対して実行前確認を求める場合True
+#     verification_requests: 再観測や目標確認など、実行前に満たすべき確認項目
+#     upstream_anomaly: 上流が高い有用性を付けた一方で本評価が高リスクとした場合True
+#     evidence: 空間、操作種別、目的など各検査の判定・深刻度・根拠を記録した一覧
+#     decision_reliability: 選択候補が現在の画面と許可候補に整合するかの別系統の検査記録
 #   ]
 # }
 class ActionSafetyResult:
@@ -137,15 +137,15 @@ class ActionSafetyResult:
 
     # {
     #   責務: [
-    #     to_dict: Action Safetyと上流reliabilityを別fieldで監査形式へ変換する
+    #     to_dict: 安全評価と候補選択の信頼性を混ぜずに、ログへ保存できる辞書へ変換する
     #   ]
     #   処理: [
-    #     1: Safety判定と独立したReliability記録を辞書へ格納する
-    #     2: Safety EvidenceをJSON保存可能な項目へ変換する
+    #     1: Enumとタプルを文字列・一覧へ変換し、評価の各項目をスキーマ付き辞書へ格納する
+    #     2: 各検査根拠も同じ辞書に含め、後から判定を追跡できる形にする
     #   ]
     #   引数: []
     #   戻り値: [
-    #     dict[str, Any]: action-safety/v1監査記録
+    #     dict[str, Any]: action-safety/v1形式の記録。JSONへ保存して評価理由を再確認できる
     #   ]
     # }
     def to_dict(self) -> dict[str, Any]:
@@ -173,19 +173,19 @@ class ActionSafetyResult:
 
 # {
 #   責務: [
-#     ActionSafetyEvaluator: 操作候補の意味・不変条件を実行前に独立評価する
+#     ActionSafetyEvaluator: 選択された操作が画面範囲・ゲーム目的・既知の危険条件に反しないか実行前に判定する
 #   ]
 #   フィールド: [
-#     suspicious_threshold: suspicious判定を始めるrisk threshold
-#     high_risk_threshold: high riskとして扱うthreshold
+#     suspicious_threshold: risk_scoreがこの値以上なら注意対象としてSUSPICIOUS判定にする境界
+#     high_risk_threshold: risk_scoreがこの値以上なら高リスクとして追加確認を求める境界
 #   ]
 #   処理: [
-#     1: 空間・危険性・目的・期待効果を決定論的に検査する
-#     2: SAFE・SUSPICIOUS・BLOCKと根拠を返す
-#     3: Action SafetyとDecision Reliabilityの記録を分離する
+#     1: 操作種別、画面内座標、対象範囲、目的との整合、予測した効果を規則で検査する
+#     2: 実行禁止・追加確認・既知の危険なしのいずれかと、その根拠を返す
+#     3: 操作の危険度と候補選択の信頼性を別の記録として保つ
 #   ]
 #   補足: [
-#     最終的なhard input guardであるIssue #33とは別責務
+#     ここでは危険度を評価する。実際の入力送信を最後に遮断する安全装置の代わりにはならない
 #   ]
 # }
 class ActionSafetyEvaluator:
@@ -232,20 +232,20 @@ class ActionSafetyEvaluator:
 
     # {
     #   責務: [
-    #     evaluate: 操作候補の実行リスクを決定論的に評価する
+    #     evaluate: 画面上で選ばれた操作候補を検査し、安全判定と追加確認事項を返す
     #   ]
     #   処理: [
-    #     1: 空間・危険性・目的・期待効果を検査する
-    #     2: safety statusとverification要求を決定する
-    #     3: 上流Decision Reliability記録を独立fieldで保持する
+    #     1: クリック位置や範囲が現在の画面内か、操作種別や説明が危険語に当たるか確認する
+    #     2: ゲーム目標と予測効果に照らして追加確認の要否を決める
+    #     3: 危険度の根拠と、上流で行った候補選択検査を別項目として結果に残す
     #   ]
     #   引数: [
-    #     observation: 現在画面と寸法
-    #     candidate: 実行対象候補
-    #     context: 目的と上流評価evidence
+    #     observation: 操作位置が画面内か検証するための現在画面と幅・高さ
+    #     candidate: 種類、対象座標、説明、認識確信度を持つ今回の操作候補
+    #     context: 現在のゲーム目標、予測効果、候補選択の検査記録。省略時は未評価として扱う
     #   ]
     #   戻り値: [
-    #     ActionSafetyResult: safety判定と関連監査記録
+    #     ActionSafetyResult: SAFE・SUSPICIOUS・BLOCKの判定、点数、根拠、必要な追加確認
     #   ]
     # }
     def evaluate(
