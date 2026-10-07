@@ -2,11 +2,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.engine import GamePlayerEngine
-from ai_game_player.evaluation_primitives import PrimitiveEvaluator
-from ai_game_player.models import ActionCandidate, ScreenObservation
-from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.outcome_fusion import OutcomeDetector
+from ai_game_player.core.engine import GamePlayerEngine
+from ai_game_player.decision.evaluation_primitives import PrimitiveEvaluator
+from ai_game_player.core.models import ActionCandidate, ScreenObservation
+from ai_game_player.decision.outcome import OutcomeAssessment
+from ai_game_player.decision.outcome_fusion import OutcomeDetector
 
 
 def observation(

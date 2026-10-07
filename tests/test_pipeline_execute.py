@@ -2,9 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.pipeline import DecisionPipeline
-from ai_game_player.provider import RuleProvider
+from ai_game_player.core.models import ActionCandidate, ActionDecision, ScreenObservation
+from ai_game_player.core.pipeline import DecisionPipeline
+from ai_game_player.decision.provider import RuleProvider
 
 
 class Source:

@@ -1,7 +1,7 @@
 import unittest
 
-from ai_game_player.models import ScreenObservation
-from ai_game_player.outcome import OutcomeEvaluator
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.decision.outcome import OutcomeEvaluator
 
 
 class OutcomeEvaluatorTest(unittest.TestCase):

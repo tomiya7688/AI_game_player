@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from ai_game_player.provider import OllamaProvider
+from ai_game_player.decision.provider import OllamaProvider
 
 
 class FakeResponse:
@@ -17,6 +17,6 @@ class FakeResponse:
 
 
 class ProviderModelsTest(unittest.TestCase):
-    @patch("ai_game_player.provider.urlopen", return_value=FakeResponse())
+    @patch("ai_game_player.decision.provider.urlopen", return_value=FakeResponse())
     def test_lists_model_names(self, _urlopen):
         self.assertEqual(OllamaProvider.list_models(), ["gemma3:4b", "llama3:8b"])
