@@ -2,7 +2,7 @@ import json
 import unittest
 from pathlib import Path
 
-from ai_game_player.learning import (
+from ai_game_player.learning.contracts import (
     LearningArtifactProvenance,
     LearningCapabilityManifest,
     LearningCapabilityRegistry,

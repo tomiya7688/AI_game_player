@@ -3,7 +3,7 @@ import json
 import unittest
 from pathlib import Path
 
-from ai_game_player.experience import (
+from ai_game_player.storage.experience import (
     ArtifactReference,
     ExperienceEpisode,
     ExperienceEvent,
@@ -11,8 +11,8 @@ from ai_game_player.experience import (
     ExperienceStep,
     InMemoryExperienceReader,
 )
-from ai_game_player.learning import LearningCapabilityManifest
-from ai_game_player.learning_dataset import ExperienceDatasetBuilder, ExperienceTrainingDataset
+from ai_game_player.learning.contracts import LearningCapabilityManifest
+from ai_game_player.learning.contracts.dataset import ExperienceDatasetBuilder, ExperienceTrainingDataset
 
 
 def manifest(**kwargs) -> LearningCapabilityManifest:

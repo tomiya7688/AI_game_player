@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from ai_game_player.knowledge import KnowledgeStore
+from ai_game_player.storage.knowledge import KnowledgeStore
 class KnowledgeTest(unittest.TestCase):
     def test_add_and_search(self):
         with tempfile.TemporaryDirectory() as d:

@@ -3,8 +3,8 @@ import time
 import unittest
 from pathlib import Path
 
-from ai_game_player.action_executor import ActionExecutor
-from ai_game_player.fail_safe_runtime import (
+from ai_game_player.execution.action_executor import ActionExecutor
+from ai_game_player.execution.fail_safe_runtime import (
     AtomicJsonStore,
     FailSafeCommand,
     FailSafeConfig,
@@ -14,8 +14,8 @@ from ai_game_player.fail_safe_runtime import (
     InputLedger,
     run_external_watchdog,
 )
-from ai_game_player.models import ActionCandidate
-from ai_game_player.safety_guard import SafetyGuard, SafetyGuardConfig, TargetState
+from ai_game_player.core.models import ActionCandidate
+from ai_game_player.execution.safety_guard import SafetyGuard, SafetyGuardConfig, TargetState
 
 
 class FakeClock:

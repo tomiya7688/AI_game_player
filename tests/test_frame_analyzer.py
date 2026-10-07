@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from ai_game_player.frame_analyzer import FrameAnalyzer
-from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.perception.frame_analyzer import FrameAnalyzer
+from ai_game_player.platform.windows.screen_capture import ScreenFrame
 
 
 FIXTURES = Path(__file__).parent / "fixtures" / "recognition"

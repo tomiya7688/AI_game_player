@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ai_game_player.experience import (
+from ai_game_player.storage.experience import (
     EXPERIENCE_SCHEMA_VERSION,
     ArtifactReference,
     ExperienceEpisode,
@@ -13,8 +13,8 @@ from ai_game_player.experience import (
     ExperienceStep,
     InMemoryExperienceReader,
 )
-from ai_game_player.artifact_store import FileSystemArtifactStore
-from ai_game_player.experience_reader import ExperienceRecoveryError, JsonlExperienceReader, migrate_experience_dict
+from ai_game_player.storage.artifact_store import FileSystemArtifactStore
+from ai_game_player.storage.experience_reader import ExperienceRecoveryError, JsonlExperienceReader, migrate_experience_dict
 
 
 def episode() -> ExperienceEpisode:
