@@ -1,0 +1,55 @@
+from hashlib import sha256
+
+from ai_game_player.bright_region_detector import BrightRegionDetector
+from ai_game_player.models import ScreenObservation
+from ai_game_player.perceptual_hasher import PerceptualHasher
+from ai_game_player.screen_capture import ScreenFrame
+
+
+class FrameAnalyzer:
+    """Converts a raw frame into stable visual features and optional OCR."""
+
+    def __init__(self, ocr=None, perceptual_hasher: PerceptualHasher | None = None, bright_region_detector: BrightRegionDetector | None = None) -> None:
+        self.ocr = ocr
+        self.perceptual_hasher = perceptual_hasher or PerceptualHasher()
+        self.bright_region_detector = bright_region_detector or BrightRegionDetector()
+
+    def analyze(self, frame: ScreenFrame, screen_id: str = "screen") -> ScreenObservation:
+        if len(frame.bgra) != frame.width * frame.height * 4:
+            raise ValueError("BGRA buffer size does not match frame dimensions")
+        pixels = frame.width * frame.height
+        blue = sum(frame.bgra[0::4])
+        green = sum(frame.bgra[1::4])
+        red = sum(frame.bgra[2::4])
+        features = {
+            "mean_rgb": {"r": round(red / pixels), "g": round(green / pixels), "b": round(blue / pixels)},
+            "mean_brightness": round((red + green + blue) / (3 * pixels)),
+            "signature": sha256(frame.bgra).hexdigest(),
+            "perceptual_hash": self.perceptual_hasher.hash(frame),
+        }
+        elements = self.bright_region_detector.detect(frame)
+        features["image_candidates"] = [
+            {
+                "action_id": element.element_id,
+                "kind": element.kind,
+                "label": element.text or element.element_type,
+                "x": element.bbox[0] + element.bbox[2] // 2,
+                "y": element.bbox[1] + element.bbox[3] // 2,
+                "confidence": element.confidence,
+                "dangerous": element.dangerous,
+                "bbox": element.bbox,
+            }
+            for element in elements
+        ]
+        if self.ocr is not None and hasattr(self.ocr, "recognize_batch"):
+            batch = self.ocr.recognize_batch(frame, screen_id)
+            features["ocr_candidates"] = batch.to_candidate_dicts()
+            features["ocr_results"] = [result.to_dict() for result in batch.results]
+            features["ocr_provider_status"] = [status.to_dict() for status in batch.statuses]
+            features["ocr_fallback_used"] = batch.fallback_used
+            elements.extend(batch.elements)
+        elif self.ocr is not None:
+            features["ocr_candidates"] = self.ocr.recognize(frame)
+        features["detected_elements"] = [element.to_dict() for element in elements]
+        ocr_text = [str(item["text"]) for item in features.get("ocr_candidates", [])]
+        return ScreenObservation(screen_id, frame.width, frame.height, ocr_text, features)
