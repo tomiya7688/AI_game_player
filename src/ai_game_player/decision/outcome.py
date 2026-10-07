@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ai_game_player.models import ScreenObservation
+from ai_game_player.core.models import ScreenObservation
 
 
 @dataclass(frozen=True)

@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from ai_game_player.models import ScreenObservation
-from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.outcome_detectors import (
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.decision.outcome import OutcomeAssessment
+from ai_game_player.decision.outcome_detectors import (
     ScreenDiffDetector,
     StateDeltaDetector,
     TemporalChangeDetector,
     TerminalTextDetector,
 )
-from ai_game_player.outcome_models import OutcomeEvent, OutcomeEvidence
+from ai_game_player.decision.outcome_models import OutcomeEvent, OutcomeEvidence
 
 
 class SemanticOutcomeProvider(Protocol):

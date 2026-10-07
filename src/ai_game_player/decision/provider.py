@@ -1,13 +1,13 @@
 import json
 from urllib.request import Request, urlopen
 
-from ai_game_player.decision_context import DecisionContext
-from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
+from ai_game_player.decision.decision_context import DecisionContext
+from ai_game_player.core.models import ActionCandidate, ActionDecision, ScreenObservation
 
 
 class RuleProvider:
     def assess_outcome(self, observation: ScreenObservation, previous: ScreenObservation | None = None):
-        from ai_game_player.outcome import OutcomeEvaluator
+        from ai_game_player.decision.outcome import OutcomeEvaluator
 
         return OutcomeEvaluator().assess(observation)
 
@@ -51,7 +51,7 @@ class OllamaProvider:
         self.timeout = timeout
 
     def assess_outcome(self, observation: ScreenObservation, previous: ScreenObservation | None = None):
-        from ai_game_player.outcome import OutcomeAssessment
+        from ai_game_player.decision.outcome import OutcomeAssessment
 
         context = {
             "instruction": "画面状態を評価し、status(confidence,reason)をJSONで返す",

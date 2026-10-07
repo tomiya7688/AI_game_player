@@ -3,8 +3,8 @@ from __future__ import annotations
 from math import ceil
 from typing import Any, Iterable
 
-from ai_game_player.models import ScreenObservation
-from ai_game_player.outcome_models import OutcomeEvidence
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.decision.outcome_models import OutcomeEvidence
 
 
 _SUCCESS_TERMS = ("SUCCESS", "CLEAR", "VICTORY", "COMPLETE", "成功", "クリア", "勝利")

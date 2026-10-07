@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from math import isfinite
 from typing import Any
 
-from ai_game_player.outcome import OutcomeAssessment
+from ai_game_player.decision.outcome import OutcomeAssessment
 
 
 @dataclass(frozen=True)

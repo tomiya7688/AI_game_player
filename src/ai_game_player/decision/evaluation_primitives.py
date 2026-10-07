@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Mapping
 from uuid import uuid4
 
-from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.outcome_models import OutcomeEvent
+from ai_game_player.decision.outcome import OutcomeAssessment
+from ai_game_player.decision.outcome_models import OutcomeEvent
 
 
 PRIMITIVES = (
