@@ -36,6 +36,21 @@ class SafetyEvidence:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     SafetyEvaluationContext: 操作の危険度を決める際に参照するゲーム目標、操作後の予測、候補選択の検査結果を受け渡す
+#   ]
+#   フィールド: [
+#     current_goal: 今回のプレイで最終的に達成したいゲーム内の目的。危険操作がこの目的に必要か調べる
+#     short_term_goal: 次の数手で達成したい中間目的。最終目的だけでは操作意図を判断できない場合に参照する
+#     expected_effect_consistent: 実行後に観測した変化が操作前の予測と一致したか。まだ実行していない場合はNone
+#     utility_score: 選択候補が目的へ与える見込みの寄与。-1は妨げる、0は影響なし、1は大きく進めることを示す
+#     utility_confidence: utility_scoreをどれだけ確かな予測とみなせるか。0は根拠が弱く、1は根拠が強い
+#     target_scope_hint: 操作が及ぶと予測した範囲。localは画面内の一部、gameはゲーム内、sessionは今回の実行、systemはOS
+#     reversible_hint: 操作前の状態へ戻せる見込み。元に戻せるか判定できていない場合はNone
+#     decision_reliability: 候補が許可一覧にあり、現在画面と選択理由に矛盾しないかを検査した記録
+#   ]
+# }
 class SafetyEvaluationContext:
     current_goal: str = ""
     short_term_goal: str = ""
@@ -44,6 +59,7 @@ class SafetyEvaluationContext:
     utility_confidence: float | None = None
     target_scope_hint: str | None = None
     reversible_hint: bool | None = None
+    decision_reliability: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if self.utility_score is not None and (not isfinite(self.utility_score) or not -1.0 <= self.utility_score <= 1.0):
@@ -57,6 +73,30 @@ class SafetyEvaluationContext:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     ActionSafetyResult: 操作を実行してよいかの判定、その判定根拠、および候補選択の信頼性記録を別々に保持する
+#   ]
+#   フィールド: [
+#     assessment_id: 個々の評価記録を後から参照するために発行した一意なID
+#     action_id: 画面内で危険度を調べた操作候補のID
+#     status: SAFEは既知の危険条件なし、SUSPICIOUSは追加確認が必要、BLOCKは実行を許可しない
+#     recognition_confidence: 画面解析が操作対象を正しく検出した見込み。低くても操作自体の危険度とは混同しない
+#     safety_score: 検査結果から算出した安全側の点数。0は危険、1は既知の危険がない状態
+#     risk_score: 操作説明や対象範囲から算出した危険側の点数。0は低く、1は極めて高い
+#     risk_level: risk_scoreをlow、medium、high、criticalの4段階にまとめた区分
+#     reversible: 実行後にゲーム内状態を元へ戻せると確認できた場合True。不明ならNone
+#     blast_radius: 失敗時に影響する広さをlow、medium、high、criticalで示す
+#     target_scope: 操作対象の範囲。localは一部、gameはゲーム内、sessionは今回の実行、systemはOS
+#     goal_alignment: 危険操作が現在の目標で明示的に必要とされる場合True。判断材料がない場合None
+#     expected_effect_consistent: 実行後の変化が事前予測に合致したか。未実行・未評価ならNone
+#     requires_verification: SUSPICIOUS判定に対して実行前確認を求める場合True
+#     verification_requests: 再観測や目標確認など、実行前に満たすべき確認項目
+#     upstream_anomaly: 上流が高い有用性を付けた一方で本評価が高リスクとした場合True
+#     evidence: 空間、操作種別、目的など各検査の判定・深刻度・根拠を記録した一覧
+#     decision_reliability: 選択候補が現在の画面と許可候補に整合するかの別系統の検査記録
+#   ]
+# }
 class ActionSafetyResult:
     assessment_id: str
     action_id: str
@@ -74,6 +114,7 @@ class ActionSafetyResult:
     verification_requests: tuple[str, ...]
     upstream_anomaly: bool
     evidence: tuple[SafetyEvidence, ...]
+    decision_reliability: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if not self.assessment_id.strip() or not self.action_id.strip():
@@ -94,6 +135,19 @@ class ActionSafetyResult:
         if self.status == SafetyStatus.SAFE and self.requires_verification:
             raise ValueError("SAFE result cannot require verification")
 
+    # {
+    #   責務: [
+    #     to_dict: 安全評価と候補選択の信頼性を混ぜずに、ログへ保存できる辞書へ変換する
+    #   ]
+    #   処理: [
+    #     1: Enumとタプルを文字列・一覧へ変換し、評価の各項目をスキーマ付き辞書へ格納する
+    #     2: 各検査根拠も同じ辞書に含め、後から判定を追跡できる形にする
+    #   ]
+    #   引数: []
+    #   戻り値: [
+    #     dict[str, Any]: action-safety/v1形式の記録。JSONへ保存して評価理由を再確認できる
+    #   ]
+    # }
     def to_dict(self) -> dict[str, Any]:
         return {
             "schema": "action-safety/v1",
@@ -113,11 +167,28 @@ class ActionSafetyResult:
             "verification_requests": list(self.verification_requests),
             "upstream_anomaly": self.upstream_anomaly,
             "evidence": [entry.to_dict() for entry in self.evidence],
+            "decision_reliability": self.decision_reliability,
         }
 
 
+# {
+#   責務: [
+#     ActionSafetyEvaluator: 選択された操作が画面範囲・ゲーム目的・既知の危険条件に反しないか実行前に判定する
+#   ]
+#   フィールド: [
+#     suspicious_threshold: risk_scoreがこの値以上なら注意対象としてSUSPICIOUS判定にする境界
+#     high_risk_threshold: risk_scoreがこの値以上なら高リスクとして追加確認を求める境界
+#   ]
+#   処理: [
+#     1: 操作種別、画面内座標、対象範囲、目的との整合、予測した効果を規則で検査する
+#     2: 実行禁止・追加確認・既知の危険なしのいずれかと、その根拠を返す
+#     3: 操作の危険度と候補選択の信頼性を別の記録として保つ
+#   ]
+#   補足: [
+#     ここでは危険度を評価する。実際の入力送信を最後に遮断する安全装置の代わりにはならない
+#   ]
+# }
 class ActionSafetyEvaluator:
-    """Semantic/invariant pre-execution evaluator. It is not the final #33 hard guard."""
 
     SUPPORTED_KINDS = frozenset({"click", "double_click", "key", "wait"})
     IRREVERSIBLE_TERMS = (
@@ -159,6 +230,24 @@ class ActionSafetyEvaluator:
         self.suspicious_threshold = suspicious_threshold
         self.high_risk_threshold = high_risk_threshold
 
+    # {
+    #   責務: [
+    #     evaluate: 画面上で選ばれた操作候補を検査し、安全判定と追加確認事項を返す
+    #   ]
+    #   処理: [
+    #     1: クリック位置や範囲が現在の画面内か、操作種別や説明が危険語に当たるか確認する
+    #     2: ゲーム目標と予測効果に照らして追加確認の要否を決める
+    #     3: 危険度の根拠と、上流で行った候補選択検査を別項目として結果に残す
+    #   ]
+    #   引数: [
+    #     observation: 操作位置が画面内か検証するための現在画面と幅・高さ
+    #     candidate: 種類、対象座標、説明、認識確信度を持つ今回の操作候補
+    #     context: 現在のゲーム目標、予測効果、候補選択の検査記録。省略時は未評価として扱う
+    #   ]
+    #   戻り値: [
+    #     ActionSafetyResult: SAFE・SUSPICIOUS・BLOCKの判定、点数、根拠、必要な追加確認
+    #   ]
+    # }
     def evaluate(
         self,
         observation: ScreenObservation,
@@ -310,6 +399,7 @@ class ActionSafetyEvaluator:
             verification_requests,
             upstream_anomaly,
             tuple(evidence),
+            context.decision_reliability,
         )
 
     @staticmethod

@@ -129,10 +129,51 @@ class ActionCandidate:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [
+#     ActionDecision: 判断元が選んだ操作、その理由、回答が基づいた画面状態を実行前検証へ渡す
+#   ]
+#   フィールド: [
+#     action_id: 判断元が選択した操作候補のID。後段は許可候補一覧と照合してから使う
+#     reason: その操作を選んだ理由。選択候補を避ける内容でないか別途検査する
+#     provider: 回答した判断元またはモデルの識別名。失敗や不整合の出所を調べるために残す
+#     snapshot_id: 判断時に提示した画面観測のID。別時点の画面に対する回答でないか確かめる
+#     screen_id: 回答が参照した画面のID。現在画面との一致を確認するために使う
+#     state_signature: 回答が参照した画面内容の照合値。古い状態への回答を検知するために使う
+#     validation_error: 判断元の応答形式を読み取れなかった理由。設定されている場合は判断を拒否する
+#   ]
+# }
 class ActionDecision:
     action_id: str
     reason: str
     provider: str
+    snapshot_id: str | None = None
+    screen_id: str | None = None
+    state_signature: str | None = None
+    validation_error: str | None = None
 
-    def to_dict(self) -> dict[str, str]:
-        return self.__dict__.copy()
+    # {
+    #   責務: [
+    #     to_dict: 判断の必須情報と存在する場合だけ画面参照を、互換性を保った記録辞書へ変換する
+    #   ]
+    #   処理: [
+    #     1: 操作ID、理由、判断元を常に含める
+    #     2: Noneではない画面参照と検証エラーだけを追加し、従来の必須3項目の形式を崩さない
+    #   ]
+    #   引数: []
+    #   戻り値: [
+    #     dict[str, Any]: 必須判断情報と存在する任意参照を含む、JSON化可能な辞書
+    #   ]
+    # }
+    def to_dict(self) -> dict[str, Any]:
+        decision_record: dict[str, Any] = {
+            "action_id": self.action_id,
+            "reason": self.reason,
+            "provider": self.provider,
+        }
+        # 参照を持たない過去の記録も同じ必須キーで読めるよう、未設定の参照キーは出力しない。
+        for field_name in ("snapshot_id", "screen_id", "state_signature", "validation_error"):
+            field_value = getattr(self, field_name)
+            if field_value is not None:
+                decision_record[field_name] = field_value
+        return decision_record

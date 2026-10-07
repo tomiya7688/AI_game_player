@@ -9,7 +9,7 @@ from ai_game_player.action_safety import (
     SafetyEvaluationContext,
     SafetyStatus,
 )
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 
 
@@ -102,7 +102,7 @@ class ActionSafetyTest(unittest.TestCase):
     def test_live_pipeline_requires_verification_before_suspicious_input(self):
         class Source:
             def read(self):
-                return ScreenObservation("menu", 200, 120), [ActionCandidate("quit-game", "wait", "Quit Game", confidence=0.9)]
+                return ScreenObservation("menu", 200, 120, features={"signature": "menu-v1"}), [ActionCandidate("quit-game", "wait", "Quit Game", confidence=0.9)]
 
         class FakeExecutor:
             def __init__(self):
@@ -122,11 +122,12 @@ class ActionSafetyTest(unittest.TestCase):
             entries = pipeline.safety_audit.entries()
             self.assertEqual(len(entries), 1)
             self.assertEqual(entries[0]["result"]["status"], "SUSPICIOUS")
+            self.assertEqual(pipeline.engine.trace.recent_actions(), [])
 
     def test_safe_live_pipeline_executes_and_can_attach_outcome(self):
         class Source:
             def read(self):
-                return ScreenObservation("menu", 200, 120), [ActionCandidate("continue", "wait", "Continue", confidence=0.9)]
+                return ScreenObservation("menu", 200, 120, features={"signature": "menu-v1"}), [ActionCandidate("continue", "wait", "Continue", confidence=0.9)]
 
         class FakeExecutor:
             def execute(self, candidate):
@@ -141,6 +142,72 @@ class ActionSafetyTest(unittest.TestCase):
             entries = pipeline.safety_audit.entries()
             self.assertEqual([entry["event"] for entry in entries], ["evaluation", "execution", "actual_outcome"])
             self.assertEqual(entries[0]["result"]["status"], "SAFE")
+            self.assertEqual(entries[0]["result"]["decision_reliability"]["status"], "TRUST")
+
+    def test_live_pipeline_blocks_unverified_decision_and_retains_evidence(self):
+        class Source:
+            def read(self):
+                return ScreenObservation("menu", 200, 120), [ActionCandidate("continue", "wait", "Continue", confidence=0.9)]
+
+        class FakeExecutor:
+            def __init__(self):
+                self.calls = 0
+
+            def execute(self, candidate):
+                self.calls += 1
+                return ExecutionResult(candidate.action_id, True, "live", "ok")
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(Source(), Path(directory), dry_run=False)
+            fake = FakeExecutor()
+            pipeline.executor.live_executor = fake
+            with self.assertRaisesRegex(RuntimeError, "Decision Reliability requires verification"):
+                pipeline.run_and_execute()
+
+            audit = pipeline.safety_audit.entries()
+            recent_actions = pipeline.engine.trace.recent_actions()
+            previous_action_id = pipeline.engine._previous_action_id
+
+        self.assertEqual(fake.calls, 0)
+        self.assertEqual(audit[0]["result"]["decision_reliability"]["status"], "VERIFY")
+        self.assertEqual(recent_actions, [])
+        self.assertIsNone(previous_action_id)
+
+    def test_live_pipeline_blocks_caution_decision_and_retains_evidence(self):
+        class Source:
+            def read(self):
+                return ScreenObservation("menu", 200, 120, features={"signature": "menu-v1"}), [ActionCandidate("continue", "wait", "Continue", confidence=0.9)]
+
+        class CautiousProvider:
+            def choose_context(self, context, personality=""):
+                return ActionDecision(
+                    "continue",
+                    "",
+                    "cautious-provider",
+                    context.snapshot_id,
+                    context.state["screen_id"],
+                    context.state["signature"],
+                )
+
+        class FakeExecutor:
+            def __init__(self):
+                self.calls = 0
+
+            def execute(self, candidate):
+                self.calls += 1
+                return ExecutionResult(candidate.action_id, True, "live", "ok")
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(Source(), Path(directory), CautiousProvider(), dry_run=False)
+            fake = FakeExecutor()
+            pipeline.executor.live_executor = fake
+            with self.assertRaisesRegex(RuntimeError, "Decision Reliability requires verification"):
+                pipeline.run_and_execute()
+
+            audit = pipeline.safety_audit.entries()
+
+        self.assertEqual(fake.calls, 0)
+        self.assertEqual(audit[0]["result"]["decision_reliability"]["status"], "CAUTION")
 
 
 if __name__ == "__main__":

@@ -5,12 +5,14 @@ from pathlib import Path
 
 from ai_game_player.decision_context import (
     DecisionContextBuilder,
+    DecisionTraceStore,
     EvaluationFusion,
     EvaluatorEvidence,
+    RepetitionContextEvaluator,
 )
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.knowledge import KnowledgeStore
-from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 
 
@@ -109,6 +111,77 @@ class DecisionContextTest(unittest.TestCase):
             self.assertEqual(trace[1]["previous_outcome"]["status"], "ongoing")
             self.assertFalse(trace[1]["previous_outcome"]["state_changed"])
 
+    def test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context(self):
+        class SequentialProvider:
+            def __init__(self):
+                self.action_ids = iter(("advance", "blocked", "continue"))
+                self.contexts = []
+
+            def choose_context(self, context, personality=""):
+                self.contexts.append(context)
+                return ActionDecision(
+                    next(self.action_ids),
+                    "Choose a current allowed action",
+                    "test-provider",
+                    context.snapshot_id,
+                    context.state["screen_id"],
+                    context.state["signature"],
+                )
+
+        before = ScreenObservation("menu", 320, 200, features={"signature": "state-a", "state": {"progress": 1}})
+        after = ScreenObservation("menu", 320, 200, features={"signature": "state-b", "state": {"progress": 2}})
+        candidates = [
+            self.candidate("advance", "ADVANCE"),
+            self.candidate("blocked", "BLOCKED"),
+            self.candidate("continue", "CONTINUE"),
+        ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            provider = SequentialProvider()
+            engine = GamePlayerEngine(Path(directory), provider=provider)
+            engine.step(before, candidates)
+            engine.step(after, candidates)
+            engine.mark_last_decision_not_executed("verification required")
+
+            trace_after_block = engine.trace.recent()
+            history_after_block = engine.trace.recent_actions()
+            engine.step(after, candidates)
+            next_context = provider.contexts[-1]
+
+        self.assertEqual(trace_after_block[0]["action_outcome"]["status"], "changed")
+        self.assertEqual(trace_after_block[1]["execution_status"], "blocked")
+        self.assertEqual([entry["action_id"] for entry in history_after_block], ["advance"])
+        self.assertEqual(next_context.recent_history[0]["action_id"], "advance")
+        self.assertEqual(next_context.recent_history[0]["outcome"], "changed")
+        self.assertTrue(next_context.previous_outcome["state_changed"])
+
+    def test_terminal_outcome_trace_preserves_simultaneous_state_change(self):
+        for terminal_text, terminal_status in (("VICTORY", "success"), ("GAME OVER", "failure")):
+            with self.subTest(terminal_status=terminal_status), tempfile.TemporaryDirectory() as directory:
+                before = ScreenObservation(
+                    "menu",
+                    320,
+                    200,
+                    ["PLAYING"],
+                    {"signature": "state-a", "state": {"progress": 1}, "perceptual_hash": "0000"},
+                )
+                after = ScreenObservation(
+                    "menu",
+                    320,
+                    200,
+                    [terminal_text],
+                    {"signature": "state-b", "state": {"progress": 2}, "perceptual_hash": "ffff"},
+                )
+                candidates = [self.candidate("advance", "ADVANCE")]
+
+                engine = GamePlayerEngine(Path(directory))
+                engine.step(before, candidates)
+                engine.step(after, candidates)
+                trace = engine.trace.recent()
+
+                self.assertEqual(trace[0]["action_outcome"]["status"], terminal_status)
+                self.assertTrue(trace[0]["action_outcome"]["state_changed"])
+
     def test_trace_binds_snapshot_decision_evaluations_and_knowledge(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -123,6 +196,78 @@ class DecisionContextTest(unittest.TestCase):
             candidate = trace["context"]["candidates"][0]
             self.assertTrue(candidate["evaluation"]["evidence"])
             self.assertEqual(candidate["knowledge"][0]["evidence_id"], evidence["id"])
+
+    def test_rejected_provider_proposal_is_excluded_from_action_history(self):
+        primary = self.candidate("start", "START")
+        alternate = self.candidate("options", "OPTIONS")
+        rejected_proposal = {
+            "snapshot_id": "rejected-snapshot",
+            "screen_id": "menu",
+            "state_signature": "state-a",
+            "action_id": "start",
+            "decision": None,
+            "reliability": {"status": "REJECT"},
+        }
+        completed_action = {
+            "snapshot_id": "completed-snapshot",
+            "screen_id": "menu",
+            "state_signature": "state-a",
+            "action_id": "options",
+            "decision": {"action_id": "options"},
+            "reliability": {"status": "TRUST"},
+        }
+
+        context = DecisionContextBuilder(evaluators=[RepetitionContextEvaluator()]).build(
+            self.observation(),
+            [primary, alternate],
+            [primary, alternate],
+            recent_history=[rejected_proposal, completed_action],
+        )
+
+        self.assertEqual([entry["action_id"] for entry in context.recent_history], ["options"])
+        self.assertEqual(context.candidates[0].utility_score, 0.0)
+        self.assertLess(context.candidates[1].utility_score, 0.0)
+
+    def test_recent_action_limit_is_applied_after_rejection_filtering(self):
+        candidate = self.candidate()
+        context = DecisionContextBuilder().build(self.observation(), [candidate], [candidate])
+        with tempfile.TemporaryDirectory() as directory:
+            store = DecisionTraceStore(Path(directory) / "decision_trace.json")
+            store.append(
+                context,
+                ActionDecision("start", "accepted", "test-provider"),
+                reliability={"status": "TRUST"},
+            )
+            for _ in range(5):
+                store.append_rejection(
+                    context,
+                    {"action_id": "start", "status": "REJECT"},
+                )
+
+            recent_actions = store.recent_actions(5)
+
+        self.assertEqual(len(recent_actions), 1)
+        self.assertEqual(recent_actions[0]["action_id"], "start")
+
+    def test_blocked_decision_stays_in_audit_trace_but_not_action_history(self):
+        candidate = self.candidate()
+        context = DecisionContextBuilder().build(self.observation(), [candidate], [candidate])
+        with tempfile.TemporaryDirectory() as directory:
+            store = DecisionTraceStore(Path(directory) / "decision_trace.json")
+            store.append(
+                context,
+                ActionDecision("start", "accepted", "test-provider"),
+                reliability={"status": "TRUST"},
+            )
+
+            marked = store.mark_action_not_executed(context.snapshot_id, "start", "verification required")
+            audit_trace = store.recent()
+            recent_actions = store.recent_actions()
+
+        self.assertTrue(marked)
+        self.assertEqual(audit_trace[0]["execution_status"], "blocked")
+        self.assertEqual(audit_trace[0]["execution_block_reason"], "verification required")
+        self.assertEqual(recent_actions, [])
 
     def test_fusion_uses_confidence_and_reliability_independently(self):
         score, confidence, conflict = EvaluationFusion().fuse(

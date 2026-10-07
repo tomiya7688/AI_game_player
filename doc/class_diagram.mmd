@@ -181,13 +181,38 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +mark_action_not_executed()
+        +append_rejection()
+        +record_action_outcome()
         +recent()
+        +recent_actions()
         +_read()
         +_write()
+    }
+    str <|-- ReliabilityStatus
+    Enum <|-- ReliabilityStatus
+    class ReliabilityStatus {
+    }
+    class ReliabilityEvidence {
+        +__post_init__()
+        +to_dict()
+    }
+    class ReliabilityResult {
+        +to_dict()
+    }
+    class _DecisionFields {
+    }
+    class DecisionVerifier {
+        +verify()
+        +normalize_decision()
+        +_index_candidates()
+        +_build_result()
     }
     class GamePlayerEngine {
         +__init__()
         +step()
+        +mark_last_decision_not_executed()
+        +_bind_legacy_context_references()
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
@@ -517,6 +542,7 @@ classDiagram
     }
     class DeterministicOutcomeFusion {
         +fuse()
+        +_fuse_state_evidence()
         +_support()
         +_bounded_support()
         +_relative_confidence()
