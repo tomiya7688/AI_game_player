@@ -3,9 +3,9 @@ import time
 from pathlib import Path
 from typing import Callable
 
-from ai_game_player.loop_guard import LoopGuard
-from ai_game_player.models import ScreenObservation
-from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.core.loop_guard import LoopGuard
+from ai_game_player.core.models import ScreenObservation
+from ai_game_player.core.pipeline import DecisionPipeline
 
 
 def append_e2e_event(path: Path, event: dict[str, object]) -> None:

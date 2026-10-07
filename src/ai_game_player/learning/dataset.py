@@ -7,14 +7,14 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from ai_game_player.experience import (
+from ai_game_player.storage.experience import (
     ArtifactReference,
     ExperienceEpisode,
     ExperienceEvent,
     ExperienceProvenance,
     ExperienceReader,
 )
-from ai_game_player.learning import LearningCapabilityManifest, _ID, _VERSION
+from ai_game_player.learning.contracts import LearningCapabilityManifest, _ID, _VERSION
 
 
 DATASET_CONTRACT_VERSION = 1
