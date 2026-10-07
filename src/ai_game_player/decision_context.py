@@ -264,7 +264,8 @@ class DecisionContextBuilder:
         current_goal: str = "",
         short_term_goal: str = "",
     ) -> DecisionContext:
-        history = list(recent_history or [])[-self.history_limit :] if self.history_limit else []
+        history = [entry for entry in recent_history or [] if _is_action_history_entry(entry)]
+        history = history[-self.history_limit :] if self.history_limit else []
         outcome = previous_outcome or OutcomeAssessment("unknown", 0.0, "no previous action")
         allowed_ids = {candidate.action_id for candidate in allowed_candidates}
         candidate_contexts: list[CandidateDecisionContext] = []
@@ -462,6 +463,30 @@ def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
         "outcome": str(previous.get("status", "unknown")) if isinstance(previous, dict) else "unknown",
         "state_changed": bool(previous.get("state_changed", False)) if isinstance(previous, dict) else False,
     }
+
+
+# {
+#   責務: [
+#     _is_action_history_entry: 拒否された判断を行動履歴から除外する
+#   ]
+#   処理: [
+#     1: decisionが保存された記録か確認する
+#     2: reliabilityがREJECTの記録を除外する
+#   ]
+#   引数: [
+#     entry: DecisionTraceStoreの監査記録
+#   ]
+#   戻り値: [
+#     bool: 実行済み判断として履歴に含める場合True
+#   ]
+# }
+def _is_action_history_entry(entry: dict[str, Any]) -> bool:
+    if not isinstance(entry.get("decision"), dict):
+        return False
+    reliability = entry.get("reliability")
+    if not isinstance(reliability, dict):
+        return True
+    return str(reliability.get("status", "")).upper() != "REJECT"
 
 
 def _state_changed_from_history(observation: ScreenObservation, previous: dict[str, Any] | None) -> bool:

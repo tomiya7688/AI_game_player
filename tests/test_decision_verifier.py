@@ -90,6 +90,39 @@ class DecisionVerifierTest(unittest.TestCase):
                 self.assertEqual(result.status, ReliabilityStatus.REJECT)
                 self.assertTrue(any(item.check == "reason_action_consistency" for item in result.evidence))
 
+    def test_normalizes_candidate_separators_when_checking_negation(self):
+        candidate = ActionCandidate("quit_game", "wait", "Exit", confidence=0.9)
+        context = DecisionContextBuilder().build(self.observation, [candidate], [candidate])
+        decision = ActionDecision(
+            "quit_game",
+            "Do not select quit-game",
+            "test-provider",
+            context.snapshot_id,
+            "menu",
+            "menu-v1",
+        )
+
+        result = self.verifier.verify(decision, context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.REJECT)
+        self.assertTrue(any(item.check == "reason_action_consistency" for item in result.evidence))
+
+    def test_does_not_treat_negated_description_as_selection_rejection(self):
+        candidate = ActionCandidate("exit", "wait", "Exit", confidence=0.9)
+        context = DecisionContextBuilder().build(self.observation, [candidate], [candidate])
+        decision = ActionDecision(
+            "exit",
+            "Exit is not dangerous, select Exit",
+            "test-provider",
+            context.snapshot_id,
+            "menu",
+            "menu-v1",
+        )
+
+        result = self.verifier.verify(decision, context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.TRUST)
+
     def test_missing_snapshot_reference_requires_verification(self):
         result = self.verifier.verify(self.decision(snapshot_id=None), self.context, self.observation)
 

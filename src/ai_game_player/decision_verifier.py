@@ -12,7 +12,6 @@ from ai_game_player.decision_reliability import (
 from ai_game_player.models import ActionDecision, ScreenObservation
 
 DETERMINISTIC_EVIDENCE_CONFIDENCE = 1.0
-ENGLISH_NEGATION_WINDOW_CHARS = 32
 JAPANESE_NEGATION_WINDOW_CHARS = 24
 
 
@@ -353,8 +352,8 @@ class DecisionVerifier:
 #     _reason_contradicts_action: 理由が選択候補を明示的に拒否しているか検査する
 #   ]
 #   処理: [
-#     1: action IDと候補名を照合語へ正規化する
-#     2: 日本語・英語の明示的な否定表現を照合する
+#     1: 理由・action ID・候補名の区切り文字を同じ形式へ正規化する
+#     2: 選択を直接否定する日本語・英語の表現を照合する
 #   ]
 #   引数: [
 #     reason: Providerが返した選択理由
@@ -366,16 +365,18 @@ class DecisionVerifier:
 # }
 def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext) -> bool:
     normalized_terms = {
-        " ".join(value.casefold().replace("_", " ").replace("-", " ").split())
+        _normalize_contradiction_text(value)
         for value in (candidate.action_id, candidate.label)
         if len(value.strip()) >= 2
     }
-    normalized_reason = " ".join(reason.casefold().split())
+    normalized_reason = _normalize_contradiction_text(reason)
     for term in normalized_terms:
         escaped_term = re.escape(term)
         english_negation = (
-            rf"(?:do not|don't|should not|must not|not|avoid|reject)"
-            rf".{{0,{ENGLISH_NEGATION_WINDOW_CHARS}}}(?:choose|select|pick|use)?\s*{escaped_term}"
+            rf"\b(?:do not|don't|should not|must not|not)\s+"
+            rf"(?:(?:choose|select|pick|use)\s+)?{escaped_term}"
+            rf"|\b(?:avoid|reject)\s+{escaped_term}"
+            rf"|\b{escaped_term}\s+(?:should|must)\s+not\s+be\s+(?:chosen|selected|used)"
         )
         japanese_negation = (
             rf"(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
@@ -386,3 +387,23 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
         if re.search(english_negation, normalized_reason) or re.search(japanese_negation, normalized_reason):
             return True
     return False
+
+
+# {
+#   責務: [
+#     _normalize_contradiction_text: 否定照合で使う文字列の大小文字と区切り文字を統一する
+#   ]
+#   処理: [
+#     1: 大小文字をcasefoldで統一する
+#     2: ハイフン・アンダースコアを空白へ置換する
+#     3: 連続空白を単一空白へ正規化する
+#   ]
+#   引数: [
+#     value: Provider理由または候補名
+#   ]
+#   戻り値: [
+#     str: 正規化した照合文字列
+#   ]
+# }
+def _normalize_contradiction_text(value: str) -> str:
+    return " ".join(value.casefold().replace("_", " ").replace("-", " ").split())

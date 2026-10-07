@@ -7,6 +7,7 @@ from ai_game_player.decision_context import (
     DecisionContextBuilder,
     EvaluationFusion,
     EvaluatorEvidence,
+    RepetitionContextEvaluator,
 )
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.knowledge import KnowledgeStore
@@ -123,6 +124,37 @@ class DecisionContextTest(unittest.TestCase):
             candidate = trace["context"]["candidates"][0]
             self.assertTrue(candidate["evaluation"]["evidence"])
             self.assertEqual(candidate["knowledge"][0]["evidence_id"], evidence["id"])
+
+    def test_rejected_provider_proposal_is_excluded_from_action_history(self):
+        primary = self.candidate("start", "START")
+        alternate = self.candidate("options", "OPTIONS")
+        rejected_proposal = {
+            "snapshot_id": "rejected-snapshot",
+            "screen_id": "menu",
+            "state_signature": "state-a",
+            "action_id": "start",
+            "decision": None,
+            "reliability": {"status": "REJECT"},
+        }
+        completed_action = {
+            "snapshot_id": "completed-snapshot",
+            "screen_id": "menu",
+            "state_signature": "state-a",
+            "action_id": "options",
+            "decision": {"action_id": "options"},
+            "reliability": {"status": "TRUST"},
+        }
+
+        context = DecisionContextBuilder(evaluators=[RepetitionContextEvaluator()]).build(
+            self.observation(),
+            [primary, alternate],
+            [primary, alternate],
+            recent_history=[rejected_proposal, completed_action],
+        )
+
+        self.assertEqual([entry["action_id"] for entry in context.recent_history], ["options"])
+        self.assertEqual(context.candidates[0].utility_score, 0.0)
+        self.assertLess(context.candidates[1].utility_score, 0.0)
 
     def test_fusion_uses_confidence_and_reliability_independently(self):
         score, confidence, conflict = EvaluationFusion().fuse(
