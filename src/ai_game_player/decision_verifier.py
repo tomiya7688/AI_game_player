@@ -13,6 +13,7 @@ from ai_game_player.models import ActionDecision, ScreenObservation
 
 DETERMINISTIC_EVIDENCE_CONFIDENCE = 1.0
 JAPANESE_NEGATION_WINDOW_CHARS = 24
+JAPANESE_PARTICLE_CHARS = frozenset("をはがにへとでのもやからより")
 ENGLISH_ACTION_DIRECTIVE_PATTERN = r"choose|select|pick|use|click|double\s+click|press"
 ENGLISH_ACTION_PASSIVE_PATTERN = r"chosen|selected|picked|used|clicked|double\s+clicked|pressed"
 ENGLISH_ACTION_OBJECT_PREFIX_PATTERN = r"(?:(?:on\s+)?(?:the|a|an)\s+|on\s+)"
@@ -396,7 +397,7 @@ class DecisionVerifier:
 #   ]
 #   処理: [
 #     1: 理由・action ID・候補名の区切り文字を同じ形式へ正規化する
-#     2: 選択候補より長い別候補名に一致する理由を区別する
+#     2: 英語・日本語の長い別候補名に一致する理由を区別する
 #     3: 後続修飾語の長さに制限を設けず、選択・入力を否定する日本語・英語表現を照合する
 #   ]
 #   引数: [
@@ -464,16 +465,43 @@ def _reason_contradicts_action(
             ):
                 return True
 
+        japanese_directives = r"選ばない|選択しない|使わない|避ける|拒否する|不適切"
         japanese_directive = (
-            rf"(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
-            rf".{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}{escaped_term}"
-            rf"|{escaped_term}.{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}"
-            rf"(?:は|を|が)?(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
+            rf"(?P<directive_before>{japanese_directives})"
+            rf".{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}(?P<target_after>{escaped_term})"
+            rf"|(?P<target_before>{escaped_term}).{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}"
+            rf"(?:は|を|が)?(?P<directive_after>{japanese_directives})"
         )
         japanese_negation = (
-            rf"(?:{japanese_directive})(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN})"
+            rf"(?=(?:{japanese_directive})(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN}))"
         )
-        if re.search(japanese_negation, normalized_reason):
+        for match in re.finditer(japanese_negation, normalized_reason):
+            if match.group("target_after") is not None:
+                target_start = match.start("target_after")
+                directive_start = match.start("directive_before")
+                if _matches_longer_japanese_candidate(
+                    normalized_reason,
+                    target_start,
+                    term,
+                    all_candidate_terms,
+                ):
+                    continue
+                if _mentions_longer_candidate_before_japanese_negation(
+                    normalized_reason,
+                    directive_start,
+                    term,
+                    all_candidate_terms,
+                ):
+                    continue
+            else:
+                target_start = match.start("target_before")
+                if _matches_longer_japanese_candidate(
+                    normalized_reason,
+                    target_start,
+                    term,
+                    all_candidate_terms,
+                ):
+                    continue
             return True
     return False
 
@@ -508,6 +536,85 @@ def _matches_longer_candidate_phrase(
         if not other_term.startswith(f"{selected_term} "):
             continue
         if re.match(rf"{re.escape(other_term)}(?!\w)", remaining_reason, flags=re.IGNORECASE):
+            return True
+    return False
+
+
+# {
+#   責務: [
+#     _matches_longer_japanese_candidate: 日本語理由内で選択候補より長い候補名を照合する
+#   ]
+#   処理: [
+#     1: 選択候補名から始まる候補を一覧から探す
+#     2: 候補名の直後が日本語助詞または区切り文字であることを確認する
+#     3: 長い別候補名と理由が一致する場合Trueを返す
+#   ]
+#   引数: [
+#     reason: 小文字・区切り文字を正規化した日本語理由
+#     candidate_term_start: 候補名の照合開始位置
+#     selected_term: 選択候補の正規化済みIDまたは名称
+#     candidate_terms: 現在画面にある候補の正規化済みIDと名称
+#   ]
+#   戻り値: [
+#     bool: 長い別候補名を助詞境界まで含めて指している場合True
+#   ]
+#   エラー: []
+# }
+def _matches_longer_japanese_candidate(
+    reason: str,
+    candidate_term_start: int,
+    selected_term: str,
+    candidate_terms: set[str],
+) -> bool:
+    remaining_reason = reason[candidate_term_start:]
+    for other_term in candidate_terms:
+        if not other_term.startswith(selected_term) or len(other_term) <= len(selected_term):
+            continue
+        if not remaining_reason.startswith(other_term):
+            continue
+        following_text = remaining_reason[len(other_term) :]
+        if (
+            not following_text
+            or not following_text[0].isalnum()
+            or following_text[0] in JAPANESE_PARTICLE_CHARS
+        ):
+            return True
+    return False
+
+
+# {
+#   責務: [
+#     _mentions_longer_candidate_before_japanese_negation: 日本語の否定語より前に長い別候補があるか調べる
+#   ]
+#   処理: [
+#     1: 否定語の直前24文字から現在候補より長い候補を探す
+#     2: 長い候補名の直後に助詞と否定語が続く構文を照合する
+#     3: 否定語が別候補を指す場合Trueを返す
+#   ]
+#   引数: [
+#     reason: 小文字・区切り文字を正規化した日本語理由
+#     directive_start: 否定語の開始位置
+#     selected_term: 選択候補の正規化済みIDまたは名称
+#     candidate_terms: 現在画面にある候補の正規化済みIDと名称
+#   ]
+#   戻り値: [
+#     bool: 否定語の直前で長い別候補を指している場合True
+#   ]
+#   エラー: []
+# }
+def _mentions_longer_candidate_before_japanese_negation(
+    reason: str,
+    directive_start: int,
+    selected_term: str,
+    candidate_terms: set[str],
+) -> bool:
+    for other_term in candidate_terms:
+        if not other_term.startswith(selected_term) or len(other_term) <= len(selected_term):
+            continue
+        preceding_text_start = max(0, directive_start - JAPANESE_NEGATION_WINDOW_CHARS - len(other_term))
+        preceding_text = reason[preceding_text_start:directive_start]
+        candidate_with_particle = rf"{re.escape(other_term)}(?:を|は|が|に|へ|と|で|の|も)$"
+        if re.search(candidate_with_particle, preceding_text):
             return True
     return False
 

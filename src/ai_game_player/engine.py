@@ -249,6 +249,5 @@ class GamePlayerEngine:
         self.last_outcome_event = event
         if self._previous_action_trace_reference is not None:
             outcome = event.to_dict()
-            outcome["state_changed"] = event.has_state_change_evidence
             self.trace.record_action_outcome(*self._previous_action_trace_reference, outcome)
         return event.to_assessment()

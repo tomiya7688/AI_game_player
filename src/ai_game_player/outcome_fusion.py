@@ -36,6 +36,7 @@ class DeterministicOutcomeFusion:
         terminal_failure = self._support(evidence, "terminal", "failure")
         semantic_success = self._support(evidence, "semantic", "success")
         semantic_failure = self._support(evidence, "semantic", "failure")
+        state_transition = self._fuse_state_evidence(action_id, evidence, semantic_fallback_used)
 
         if terminal_success > 0.0 and terminal_failure > 0.0:
             return self._event(
@@ -47,6 +48,7 @@ class DeterministicOutcomeFusion:
                 evidence,
                 "conflicting terminal evidence",
                 semantic_fallback_used,
+                state_changed=state_transition.state_changed,
             )
         if terminal_success > 0.0:
             return self._event(
@@ -58,6 +60,7 @@ class DeterministicOutcomeFusion:
                 evidence,
                 "terminal success evidence",
                 semantic_fallback_used,
+                state_changed=state_transition.state_changed,
             )
         if terminal_failure > 0.0:
             return self._event(
@@ -69,6 +72,7 @@ class DeterministicOutcomeFusion:
                 evidence,
                 "terminal failure evidence",
                 semantic_fallback_used,
+                state_changed=state_transition.state_changed,
             )
 
         if semantic_success > 0.0 and semantic_failure > 0.0:
@@ -81,6 +85,7 @@ class DeterministicOutcomeFusion:
                 evidence,
                 "conflicting semantic outcome evidence",
                 semantic_fallback_used,
+                state_changed=state_transition.state_changed,
             )
         if semantic_success >= 0.45:
             return self._event(
@@ -92,6 +97,7 @@ class DeterministicOutcomeFusion:
                 evidence,
                 "semantic fallback reported success",
                 semantic_fallback_used,
+                state_changed=state_transition.state_changed,
             )
         if semantic_failure >= 0.45:
             return self._event(
@@ -103,8 +109,35 @@ class DeterministicOutcomeFusion:
                 evidence,
                 "semantic fallback reported failure",
                 semantic_fallback_used,
+                state_changed=state_transition.state_changed,
             )
+        return state_transition
 
+    # {
+    #   責務: [
+    #     _fuse_state_evidence: 変化Evidenceと安定Evidenceを重み付けして状態遷移を判定する
+    #   ]
+    #   処理: [
+    #     1: 状態・画面・継続観測の変化支持と安定支持を計算する
+    #     2: 競合と相対信頼度を求める
+    #     3: 既存の閾値で変化・安定・不明のOutcomeEventを返す
+    #   ]
+    #   引数: [
+    #     action_id: Evidenceを評価する操作ID
+    #     evidence: 状態遷移に利用するOutcomeEvidence
+    #     semantic_fallback_used: Evidenceに意味判定結果が含まれるか
+    #   ]
+    #   戻り値: [
+    #     OutcomeEvent: 状態変化と競合を反映した遷移結果
+    #   ]
+    #   エラー: []
+    # }
+    def _fuse_state_evidence(
+        self,
+        action_id: str,
+        evidence: tuple[OutcomeEvidence, ...],
+        semantic_fallback_used: bool,
+    ) -> OutcomeEvent:
         state_changed = self._support(evidence, "state_delta", "changed")
         state_stable = self._support(evidence, "state_delta", "stable")
         screen_changed = self._support(evidence, "screen_diff", "changed")
@@ -214,6 +247,8 @@ class DeterministicOutcomeFusion:
         evidence: tuple[OutcomeEvidence, ...],
         reason: str,
         semantic_fallback_used: bool,
+        *,
+        state_changed: bool | None = None,
     ) -> OutcomeEvent:
         return OutcomeEvent(
             action_id,
@@ -224,6 +259,7 @@ class DeterministicOutcomeFusion:
             evidence,
             reason,
             semantic_fallback_used,
+            status == "changed" and not abstained if state_changed is None else state_changed,
         )
 
 

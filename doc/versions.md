@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Issue #43: Decision Provider出力を形式・型・許可候補・判断時の画面状態・理由と候補の矛盾で決定論的に検証し、4段階の状態と根拠・出所をDecision traceおよびAction Safety監査へ記録する。TRUSTは実施検査に通過した状態であり、正しさの保証ではない。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で候補語境界・任意の後続修飾語・一文字候補・二重否定・クリック／押下の能動形と受動形、前置詞・冠詞・UI部品名を含む明示的な否定を検証し、複合名の別候補を区別する。未実行判断だけを行動履歴から除外し、直前に実行した操作のOutcome結果はその操作のtraceと後続Decision Contextに保持する。終端成功・失敗でも状態変化Evidenceを独立して記録し、旧Ollama APIは省略された理由を空文字列へ補い、文字列以外の理由を拒否する。空候補の通信前拒否、schema失敗時のprovider provenance、Evaluator許可候補による独立groundingも追加検証し、Action SafetyとDecision Reliabilityのコメント・説明を初見でも意味が分かる表現へ直す。
+- Issue #43: Decision Provider出力を形式・型・許可候補・判断時の画面状態・理由と候補の矛盾で決定論的に検証し、4段階の状態と根拠・出所をDecision traceおよびAction Safety監査へ記録する。TRUSTは実施検査に通過した状態であり、正しさの保証ではない。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で候補語境界・任意の後続修飾語・一文字候補・二重否定・クリック／押下の能動形と受動形、前置詞・冠詞・UI部品名を含む明示的な否定を検証し、英語・日本語とも候補一覧にある複合名の別候補を区別する。未実行判断だけを行動履歴から除外し、直前に実行した操作のOutcome結果はその操作のtraceと後続Decision Contextに保持する。終端結果でも変化・安定Evidenceを重み付けして `state_changed` を独立判定し、競合が強い場合は状態変化として扱わない。旧Ollama APIは省略された理由を空文字列へ補い、文字列以外の理由を拒否する。空候補の通信前拒否、schema失敗時のprovider provenance、Evaluator許可候補による独立groundingも追加検証し、Action SafetyとDecision Reliabilityのコメント・説明を初見でも意味が分かる表現へ直す。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 

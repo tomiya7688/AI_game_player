@@ -6,7 +6,8 @@ from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.evaluation_primitives import PrimitiveEvaluator
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.outcome_fusion import OutcomeDetector
+from ai_game_player.outcome_fusion import DeterministicOutcomeFusion, OutcomeDetector
+from ai_game_player.outcome_models import OutcomeEvidence
 
 
 def observation(
@@ -60,8 +61,46 @@ class OutcomeFusionTests(unittest.TestCase):
         evaluation = PrimitiveEvaluator().evaluate_event(event)
 
         self.assertEqual(event.status, "unchanged")
+        self.assertFalse(event.state_changed)
         self.assertEqual(evaluation.axes["progress"].value, 0.0)
         self.assertLessEqual(evaluation.axes["progress"].confidence, 0.5)
+
+    # {
+    #   責務: [終端成功Evidenceが状態変化の融合結果を上書きしないことを確認する]
+    #   処理: [1: 状態安定と画面変化の競合Evidenceを作る 2: 終端成功を追加する 3: 成功状態と融合済み状態変化を個別に検証する]
+    #   引数: []
+    #   戻り値: [None: OutcomeEventの状態を検証する]
+    #   エラー: []
+    # }
+    def test_terminal_result_preserves_fused_stability_state(self):
+        evidence = (
+            OutcomeEvidence("terminal", "terminal", "success", 0.9, 0.95, "test/terminal"),
+            OutcomeEvidence("state", "state_delta", "stable", 0.85, 0.9, "test/state"),
+            OutcomeEvidence("screen", "screen_diff", "changed", 1.0, 0.7, "test/screen"),
+        )
+
+        event = DeterministicOutcomeFusion().fuse("wait", evidence)
+
+        self.assertEqual(event.status, "success")
+        self.assertFalse(event.state_changed)
+
+    # {
+    #   責務: [終端成功Evidenceが融合済みの状態変化を保持することを確認する]
+    #   処理: [1: 終端成功と強い状態変化Evidenceを作る 2: Evidenceを融合する 3: 成功状態と状態変化フラグを個別に検証する]
+    #   引数: []
+    #   戻り値: [None: OutcomeEventの状態を検証する]
+    #   エラー: []
+    # }
+    def test_terminal_result_preserves_fused_change_state(self):
+        evidence = (
+            OutcomeEvidence("terminal", "terminal", "success", 0.9, 0.95, "test/terminal"),
+            OutcomeEvidence("state", "state_delta", "changed", 0.9, 0.95, "test/state"),
+        )
+
+        event = DeterministicOutcomeFusion().fuse("advance", evidence)
+
+        self.assertEqual(event.status, "success")
+        self.assertTrue(event.state_changed)
 
     def test_temporal_followups_confirm_persistent_visual_change(self):
         detector = OutcomeDetector()

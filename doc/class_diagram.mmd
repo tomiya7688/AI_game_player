@@ -542,6 +542,7 @@ classDiagram
     }
     class DeterministicOutcomeFusion {
         +fuse()
+        +_fuse_state_evidence()
         +_support()
         +_bounded_support()
         +_relative_confidence()
@@ -558,7 +559,6 @@ classDiagram
     }
     class OutcomeEvent {
         +__post_init__()
-        +has_state_change_evidence()
         +to_assessment()
         +to_evaluation_signals()
         +to_dict()

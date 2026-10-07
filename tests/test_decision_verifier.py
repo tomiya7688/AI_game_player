@@ -205,6 +205,50 @@ class DecisionVerifierTest(unittest.TestCase):
 
                 self.assertEqual(result.status, ReliabilityStatus.TRUST)
 
+    # {
+    #   責務: [長い別候補への否定を選択候補への否定として誤判定しないことを確認する]
+    #   処理: [1: 「終了」と「終了確認」を候補にする 2: 別候補を避けて選択候補を選ぶ理由は信頼する 3: 選択候補自体を避ける理由は拒否する]
+    #   引数: []
+    #   戻り値: [None: 信頼性判定の結果を検証する]
+    #   エラー: []
+    # }
+    def test_japanese_negation_of_longer_candidate_does_not_reject_selected_candidate(self):
+        selected = ActionCandidate("finish", "wait", "終了", confidence=0.9)
+        confirmation = ActionCandidate("finish-confirmation", "wait", "終了確認", confidence=0.9)
+        candidates = [selected, confirmation]
+        context = DecisionContextBuilder().build(self.observation, candidates, candidates)
+
+        for reason in (
+            "終了確認を避けるため終了を選択する",
+            "終了確認は避けるので終了を選択する",
+        ):
+            with self.subTest(reason=reason):
+                decision = ActionDecision(
+                    "finish",
+                    reason,
+                    "test-provider",
+                    context.snapshot_id,
+                    "menu",
+                    "menu-v1",
+                )
+                result = self.verifier.verify(decision, context, self.observation)
+
+                self.assertEqual(result.status, ReliabilityStatus.TRUST)
+
+        rejected = self.verifier.verify(
+            ActionDecision(
+                "finish",
+                "終了確認を避けるため終了を避ける",
+                "test-provider",
+                context.snapshot_id,
+                "menu",
+                "menu-v1",
+            ),
+            context,
+            self.observation,
+        )
+        self.assertEqual(rejected.status, ReliabilityStatus.REJECT)
+
     def test_rejects_negation_of_one_character_action(self):
         candidate = ActionCandidate("A", "wait", "A", confidence=0.9)
         context = DecisionContextBuilder().build(self.observation, [candidate], [candidate])
