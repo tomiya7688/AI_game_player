@@ -64,6 +64,12 @@ class GamePlayerEngine:
         self._previous_observation: ScreenObservation | None = None
         self._previous_action_id: str | None = None
         self._last_decision_trace_reference: tuple[str, str] | None = None
+        self._previous_action_trace_reference: tuple[str, str] | None = None
+        self._previous_action_state_before_last_decision: tuple[
+            ScreenObservation | None,
+            str | None,
+            tuple[str, str] | None,
+        ] | None = None
 
     # {
     #   責務: [
@@ -95,6 +101,12 @@ class GamePlayerEngine:
         purpose: str = "",
         personality: str = "",
     ) -> ActionDecision:
+        previous_action_state = (
+            self._previous_observation,
+            self._previous_action_id,
+            self._previous_action_trace_reference,
+        )
+        self._previous_action_state_before_last_decision = None
         allowed = self.evaluator.evaluate(observation, candidates)
         previous_outcome = self._assess_previous_outcome(observation)
         context = self.context_builder.build(
@@ -129,9 +141,12 @@ class GamePlayerEngine:
             raise ValueError("Decision output could not be normalized after verification")
         self.history.append(observation, decision)
         self.trace.append(context, decision, reliability=reliability.to_dict())
+        trace_reference = (context.snapshot_id, decision.action_id)
+        self._previous_action_state_before_last_decision = previous_action_state
         self._previous_observation = observation
         self._previous_action_id = decision.action_id
-        self._last_decision_trace_reference = (context.snapshot_id, decision.action_id)
+        self._last_decision_trace_reference = trace_reference
+        self._previous_action_trace_reference = trace_reference
         return decision
 
     # {
@@ -140,7 +155,8 @@ class GamePlayerEngine:
     #   ]
     #   処理: [
     #     1: 最新trace記録へ実行前停止の状態と理由を保存する
-    #     2: 次回Outcome評価に未実行操作を使わないよう前回操作参照を消す
+    #     2: 実行前停止した判断より前に実行した操作の参照へ戻す
+    #     3: 保存した操作状態を使って次回Outcome評価を継続する
     #   ]
     #   引数: [
     #     reason: 実行前に停止した理由
@@ -154,13 +170,19 @@ class GamePlayerEngine:
         trace_reference = self._last_decision_trace_reference
         if trace_reference is None:
             raise RuntimeError("実行前停止を記録する判断traceがありません")
+        previous_action_state = self._previous_action_state_before_last_decision
+        if previous_action_state is None:
+            raise RuntimeError("実行前停止の前に保持した操作状態がありません")
         snapshot_id, action_id = trace_reference
         if not self.trace.mark_action_not_executed(snapshot_id, action_id, reason):
             raise RuntimeError("実行前停止を記録する判断traceを更新できません")
         self._last_decision_trace_reference = None
-        if self._previous_action_id == action_id:
-            self._previous_observation = None
-            self._previous_action_id = None
+        self._previous_action_state_before_last_decision = None
+        (
+            self._previous_observation,
+            self._previous_action_id,
+            self._previous_action_trace_reference,
+        ) = previous_action_state
 
     # {
     #   責務: [
@@ -225,4 +247,8 @@ class GamePlayerEngine:
             observation,
         )
         self.last_outcome_event = event
+        if self._previous_action_trace_reference is not None:
+            outcome = event.to_dict()
+            outcome["state_changed"] = event.status == "changed"
+            self.trace.record_action_outcome(*self._previous_action_trace_reference, outcome)
         return event.to_assessment()

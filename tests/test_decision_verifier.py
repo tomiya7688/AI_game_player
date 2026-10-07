@@ -124,21 +124,36 @@ class DecisionVerifierTest(unittest.TestCase):
         self.assertEqual(result.status, ReliabilityStatus.TRUST)
 
     def test_does_not_match_english_prefixes_of_different_candidate_phrases(self):
-        for reason in (
-            "Avoid startup delay; select Start",
-            "Do not select Start Over; select Start",
-            "Do not click on Start Over; select Start",
-        ):
-            with self.subTest(reason=reason):
-                result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
+        longer_candidate = ActionCandidate("start-over", "wait", "Start Over", confidence=0.9)
+        candidate_sets = ([self.candidate, longer_candidate],)
+        for candidates in candidate_sets:
+            context = DecisionContextBuilder().build(self.observation, candidates, candidates)
+            for reason in (
+                "Avoid startup delay; select Start",
+                "Do not select Start Over; select Start",
+                "Do not click on Start Over; select Start",
+            ):
+                with self.subTest(reason=reason, candidate_count=len(candidates)):
+                    decision = ActionDecision(
+                        "start",
+                        reason,
+                        "test-provider",
+                        context.snapshot_id,
+                        "menu",
+                        "menu-v1",
+                    )
+                    result = self.verifier.verify(decision, context, self.observation)
 
-                self.assertEqual(result.status, ReliabilityStatus.TRUST)
+                    self.assertEqual(result.status, ReliabilityStatus.TRUST)
 
     def test_rejects_english_negation_with_ordinary_trailing_modifiers(self):
         for reason in (
             "Do not select Start now",
             "Do not select Start please",
             "Avoid Start at all costs",
+            "Do not press the Start button yet",
+            "Do not click on Start under any circumstances",
+            "Do not select Start Now; select Start",
         ):
             with self.subTest(reason=reason):
                 result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)

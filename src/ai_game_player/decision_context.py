@@ -444,6 +444,38 @@ class DecisionTraceStore:
         )
         self._write(entries)
 
+    # {
+    #   責務: [
+    #     record_action_outcome: 実行した操作に対する最新のOutcome結果をtraceへ保存する
+    #   ]
+    #   処理: [
+    #     1: snapshot IDと操作IDが一致する実行対象の判断記録を末尾から探す
+    #     2: 操作結果を判断記録へ追加する
+    #     3: 更新したtraceを保存する
+    #   ]
+    #   引数: [
+    #     snapshot_id: 結果を記録する判断時の画面snapshot ID
+    #     action_id: 結果を記録する操作ID
+    #     outcome: OutcomeDetectorが返した操作結果
+    #   ]
+    #   戻り値: [
+    #     bool: 対象の実行判断を更新できた場合True
+    #   ]
+    #   エラー: []
+    # }
+    def record_action_outcome(self, snapshot_id: str, action_id: str, outcome: dict[str, Any]) -> bool:
+        entries = self._read()
+        for entry in reversed(entries):
+            if (
+                entry.get("snapshot_id") == snapshot_id
+                and entry.get("action_id") == action_id
+                and _is_action_history_entry(entry)
+            ):
+                entry["action_outcome"] = outcome
+                self._write(entries)
+                return True
+        return False
+
     def recent(self, limit: int = 5) -> list[dict[str, Any]]:
         if limit < 0:
             raise ValueError("history limit must not be negative")
@@ -515,13 +547,20 @@ def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
 
 def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
     previous = entry.get("previous_outcome", {})
+    action_outcome = entry.get("action_outcome")
+    if isinstance(action_outcome, dict):
+        outcome_status = str(action_outcome.get("status", "unknown"))
+        state_changed = bool(action_outcome.get("state_changed", outcome_status == "changed"))
+    else:
+        outcome_status = str(previous.get("status", "unknown")) if isinstance(previous, dict) else "unknown"
+        state_changed = bool(previous.get("state_changed", False)) if isinstance(previous, dict) else False
     return {
         "snapshot_id": str(entry.get("snapshot_id", "")),
         "screen_id": str(entry.get("screen_id", "")),
         "state_signature": str(entry.get("state_signature", "")),
         "action_id": str(entry.get("action_id", "")),
-        "outcome": str(previous.get("status", "unknown")) if isinstance(previous, dict) else "unknown",
-        "state_changed": bool(previous.get("state_changed", False)) if isinstance(previous, dict) else False,
+        "outcome": outcome_status,
+        "state_changed": state_changed,
     }
 
 

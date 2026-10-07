@@ -111,6 +111,50 @@ class DecisionContextTest(unittest.TestCase):
             self.assertEqual(trace[1]["previous_outcome"]["status"], "ongoing")
             self.assertFalse(trace[1]["previous_outcome"]["state_changed"])
 
+    def test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context(self):
+        class SequentialProvider:
+            def __init__(self):
+                self.action_ids = iter(("advance", "blocked", "continue"))
+                self.contexts = []
+
+            def choose_context(self, context, personality=""):
+                self.contexts.append(context)
+                return ActionDecision(
+                    next(self.action_ids),
+                    "Choose a current allowed action",
+                    "test-provider",
+                    context.snapshot_id,
+                    context.state["screen_id"],
+                    context.state["signature"],
+                )
+
+        before = ScreenObservation("menu", 320, 200, features={"signature": "state-a", "state": {"progress": 1}})
+        after = ScreenObservation("menu", 320, 200, features={"signature": "state-b", "state": {"progress": 2}})
+        candidates = [
+            self.candidate("advance", "ADVANCE"),
+            self.candidate("blocked", "BLOCKED"),
+            self.candidate("continue", "CONTINUE"),
+        ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            provider = SequentialProvider()
+            engine = GamePlayerEngine(Path(directory), provider=provider)
+            engine.step(before, candidates)
+            engine.step(after, candidates)
+            engine.mark_last_decision_not_executed("verification required")
+
+            trace_after_block = engine.trace.recent()
+            history_after_block = engine.trace.recent_actions()
+            engine.step(after, candidates)
+            next_context = provider.contexts[-1]
+
+        self.assertEqual(trace_after_block[0]["action_outcome"]["status"], "changed")
+        self.assertEqual(trace_after_block[1]["execution_status"], "blocked")
+        self.assertEqual([entry["action_id"] for entry in history_after_block], ["advance"])
+        self.assertEqual(next_context.recent_history[0]["action_id"], "advance")
+        self.assertEqual(next_context.recent_history[0]["outcome"], "changed")
+        self.assertTrue(next_context.previous_outcome["state_changed"])
+
     def test_trace_binds_snapshot_decision_evaluations_and_knowledge(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

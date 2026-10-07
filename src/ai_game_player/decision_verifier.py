@@ -13,16 +13,10 @@ from ai_game_player.models import ActionDecision, ScreenObservation
 
 DETERMINISTIC_EVIDENCE_CONFIDENCE = 1.0
 JAPANESE_NEGATION_WINDOW_CHARS = 24
-ENGLISH_CLAUSE_CONTINUATION_PATTERN = (
-    r"because|since|as|unless|when|while|if|though|although|but|and|or|so|where|which|that|instead"
-)
 ENGLISH_ACTION_DIRECTIVE_PATTERN = r"choose|select|pick|use|click|double\s+click|press"
 ENGLISH_ACTION_PASSIVE_PATTERN = r"chosen|selected|picked|used|clicked|double\s+clicked|pressed"
 ENGLISH_ACTION_OBJECT_PREFIX_PATTERN = r"(?:(?:on\s+)?(?:the|a|an)\s+|on\s+)"
 ENGLISH_ACTION_OBJECT_SUFFIX_PATTERN = r"(?:\s+(?:button|key|option|control|item|action|menu|tab|link|icon))?"
-ENGLISH_ACTION_MODIFIER_PATTERN = (
-    r"now|please|immediately|again|today|later|first|right away|right now|at all costs|for now"
-)
 JAPANESE_NEGATION_CONTINUATION_PATTERN = (
     r"ではない|ではありません|じゃない|じゃありません|でない|ではなく|でなく|わけではない|"
     r"わけではありません|必要(?:は|が)?(?:ない|ありません)|べきではない|べきではありません|"
@@ -256,7 +250,11 @@ class DecisionVerifier:
         # Only explicit negation of the selected candidate is treated as contradiction.
         if not decision_fields.reason.strip():
             add_evidence("reason_action_consistency", "caution", "Decision reason is empty")
-        elif selected_candidate is not None and _reason_contradicts_action(decision_fields.reason, selected_candidate):
+        elif selected_candidate is not None and _reason_contradicts_action(
+            decision_fields.reason,
+            selected_candidate,
+            context.candidates,
+        ):
             add_evidence(
                 "reason_action_consistency",
                 "reject",
@@ -398,39 +396,74 @@ class DecisionVerifier:
 #   ]
 #   処理: [
 #     1: 理由・action ID・候補名の区切り文字を同じ形式へ正規化する
-#     2: 選択・クリック・ダブルクリック・押下を否定する日本語・英語の表現を照合する
+#     2: 選択候補より長い別候補名に一致する理由を区別する
+#     3: 後続修飾語の長さに制限を設けず、選択・入力を否定する日本語・英語表現を照合する
 #   ]
 #   引数: [
 #     reason: Providerが返した選択理由
 #     candidate: 選択された許可候補
+#     candidates: 同じ画面にある候補の一覧
 #   ]
 #   戻り値: [
 #     bool: 明示的な理由・Action矛盾があればTrue
 #   ]
 # }
-def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext) -> bool:
+def _reason_contradicts_action(
+    reason: str,
+    candidate: CandidateDecisionContext,
+    candidates: Sequence[CandidateDecisionContext],
+) -> bool:
     normalized_terms = {
         _normalize_contradiction_text(value)
         for value in (candidate.action_id, candidate.label)
         if value.strip()
     }
+    all_candidate_terms = {
+        _normalize_contradiction_text(value)
+        for item in candidates
+        for value in (item.action_id, item.label)
+        if value.strip()
+    }
     normalized_reason = _normalize_contradiction_text(reason)
+    display_reason = " ".join(reason.replace("_", " ").replace("-", " ").split())
     for term in normalized_terms:
         escaped_term = re.escape(term)
         bounded_english_term = rf"(?<!\w){escaped_term}(?!\w)"
-        passive_target = rf"{bounded_english_term}{ENGLISH_ACTION_OBJECT_SUFFIX_PATTERN}"
-        directive_target = (
+        english_target = (
             rf"(?:{ENGLISH_ACTION_OBJECT_PREFIX_PATTERN})?"
-            rf"{passive_target}"
-            rf"(?=(?:\s+(?:{ENGLISH_ACTION_MODIFIER_PATTERN}))*"
-            rf"(?:$|[.,;:!?)]|\s+(?:{ENGLISH_CLAUSE_CONTINUATION_PATTERN})\b))"
+            rf"(?P<candidate_term>{bounded_english_term})"
+            rf"{ENGLISH_ACTION_OBJECT_SUFFIX_PATTERN}"
         )
-        english_negation = (
-            rf"\b(?:do not|don't|should not|must not|not)\s+"
-            rf"(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?{directive_target}"
-            rf"|\b(?:avoid|reject)\s+(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?{directive_target}"
-            rf"|{passive_target}\s+(?:should|must)\s+not\s+be\s+(?:{ENGLISH_ACTION_PASSIVE_PATTERN})\b"
+        active_negation_prefixes = (
+            rf"\b(?:do not|don't|should not|must not|not)\s+(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?",
+            rf"\b(?:avoid|reject)\s+(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?",
         )
+        for prefix in active_negation_prefixes:
+            for match in re.finditer(prefix + english_target, display_reason, flags=re.IGNORECASE):
+                candidate_term_start = match.start("candidate_term")
+                if not _matches_longer_candidate_phrase(
+                    display_reason,
+                    candidate_term_start,
+                    term,
+                    all_candidate_terms,
+                ):
+                    return True
+
+        passive_negation = (
+            rf"(?P<candidate_term>{bounded_english_term})"
+            rf"{ENGLISH_ACTION_OBJECT_SUFFIX_PATTERN}"
+            rf"\s+(?:should|must)\s+not\s+be\s+(?:{ENGLISH_ACTION_PASSIVE_PATTERN})\b"
+        )
+        for match in re.finditer(passive_negation, display_reason, flags=re.IGNORECASE):
+            candidate_term_start = match.start("candidate_term")
+            if not _matches_longer_candidate_phrase(
+                display_reason,
+                candidate_term_start,
+                term,
+                all_candidate_terms,
+            ):
+                return True
+
         japanese_directive = (
             rf"(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
             rf".{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}{escaped_term}"
@@ -440,7 +473,41 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
         japanese_negation = (
             rf"(?:{japanese_directive})(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN})"
         )
-        if re.search(english_negation, normalized_reason) or re.search(japanese_negation, normalized_reason):
+        if re.search(japanese_negation, normalized_reason):
+            return True
+    return False
+
+
+# {
+#   責務: [
+#     _matches_longer_candidate_phrase: 選択候補名より長い別の候補名を理由が指しているか調べる
+#   ]
+#   処理: [
+#     1: 選択候補名の後ろに語が続く別候補名を探す
+#     2: 現在の候補一覧にある長い候補名と理由を照合する
+#     3: 理由が別候補名を指している場合Trueを返す
+#   ]
+#   引数: [
+#     reason: 区切りだけ正規化し大文字小文字を残した判断理由
+#     candidate_term_start: 候補名の照合開始位置
+#     selected_term: 選択候補の正規化済みIDまたは名称
+#     candidate_terms: 現在画面にある候補の正規化済みIDと名称
+#   ]
+#   戻り値: [
+#     bool: 別候補名全体との一致がある場合True
+#   ]
+# }
+def _matches_longer_candidate_phrase(
+    reason: str,
+    candidate_term_start: int,
+    selected_term: str,
+    candidate_terms: set[str],
+) -> bool:
+    remaining_reason = reason[candidate_term_start:]
+    for other_term in candidate_terms:
+        if not other_term.startswith(f"{selected_term} "):
+            continue
+        if re.match(rf"{re.escape(other_term)}(?!\w)", remaining_reason, flags=re.IGNORECASE):
             return True
     return False
 
