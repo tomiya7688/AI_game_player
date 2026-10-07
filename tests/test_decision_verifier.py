@@ -127,6 +127,7 @@ class DecisionVerifierTest(unittest.TestCase):
         for reason in (
             "Avoid startup delay; select Start",
             "Do not select Start Over; select Start",
+            "Do not click on Start Over; select Start",
         ):
             with self.subTest(reason=reason):
                 result = self.verifier.verify(self.decision(reason=reason), self.context, self.observation)
@@ -149,11 +150,15 @@ class DecisionVerifierTest(unittest.TestCase):
         context = DecisionContextBuilder().build(self.observation, [candidate], [candidate])
         for reason in (
             "Do not click Start",
+            "Do not click on Start",
             "Do not press Start",
+            "Do not press the Start button",
             "Do not double-click Start",
+            "Do not double-click the Start button",
             "Start should not be clicked",
             "Start must not be pressed",
             "Start should not be double-clicked",
+            "The Start button should not be clicked",
         ):
             with self.subTest(reason=reason):
                 decision = ActionDecision(

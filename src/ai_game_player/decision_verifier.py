@@ -18,6 +18,8 @@ ENGLISH_CLAUSE_CONTINUATION_PATTERN = (
 )
 ENGLISH_ACTION_DIRECTIVE_PATTERN = r"choose|select|pick|use|click|double\s+click|press"
 ENGLISH_ACTION_PASSIVE_PATTERN = r"chosen|selected|picked|used|clicked|double\s+clicked|pressed"
+ENGLISH_ACTION_OBJECT_PREFIX_PATTERN = r"(?:(?:on\s+)?(?:the|a|an)\s+|on\s+)"
+ENGLISH_ACTION_OBJECT_SUFFIX_PATTERN = r"(?:\s+(?:button|key|option|control|item|action|menu|tab|link|icon))?"
 ENGLISH_ACTION_MODIFIER_PATTERN = (
     r"now|please|immediately|again|today|later|first|right away|right now|at all costs|for now"
 )
@@ -416,8 +418,10 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
     for term in normalized_terms:
         escaped_term = re.escape(term)
         bounded_english_term = rf"(?<!\w){escaped_term}(?!\w)"
+        passive_target = rf"{bounded_english_term}{ENGLISH_ACTION_OBJECT_SUFFIX_PATTERN}"
         directive_target = (
-            rf"{bounded_english_term}"
+            rf"(?:{ENGLISH_ACTION_OBJECT_PREFIX_PATTERN})?"
+            rf"{passive_target}"
             rf"(?=(?:\s+(?:{ENGLISH_ACTION_MODIFIER_PATTERN}))*"
             rf"(?:$|[.,;:!?)]|\s+(?:{ENGLISH_CLAUSE_CONTINUATION_PATTERN})\b))"
         )
@@ -425,7 +429,7 @@ def _reason_contradicts_action(reason: str, candidate: CandidateDecisionContext)
             rf"\b(?:do not|don't|should not|must not|not)\s+"
             rf"(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?{directive_target}"
             rf"|\b(?:avoid|reject)\s+(?:(?:{ENGLISH_ACTION_DIRECTIVE_PATTERN})\s+)?{directive_target}"
-            rf"|{bounded_english_term}\s+(?:should|must)\s+not\s+be\s+(?:{ENGLISH_ACTION_PASSIVE_PATTERN})\b"
+            rf"|{passive_target}\s+(?:should|must)\s+not\s+be\s+(?:{ENGLISH_ACTION_PASSIVE_PATTERN})\b"
         )
         japanese_directive = (
             rf"(?:選ばない|選択しない|使わない|避ける|拒否する|不適切)"
