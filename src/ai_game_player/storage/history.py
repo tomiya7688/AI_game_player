@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from uuid import uuid4
-from ai_game_player.models import ActionDecision, ScreenObservation
+from ai_game_player.core.models import ActionDecision, ScreenObservation
 class HistoryStore:
     def __init__(self,path:Path): self.path=path
     def append(self,observation:ScreenObservation,decision:ActionDecision)->None:

@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from ai_game_player.experience import ArtifactReference
+from ai_game_player.storage.experience import ArtifactReference
 
 
 ARTIFACT_METADATA_SCHEMA_VERSION = 1

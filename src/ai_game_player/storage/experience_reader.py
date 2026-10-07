@@ -8,8 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ai_game_player.artifact_store import ArtifactStore
-from ai_game_player.experience import (
+from ai_game_player.storage.artifact_store import ArtifactStore
+from ai_game_player.storage.experience import (
     EXPERIENCE_SCHEMA_VERSION,
     ArtifactReference,
     ExperienceEpisode,

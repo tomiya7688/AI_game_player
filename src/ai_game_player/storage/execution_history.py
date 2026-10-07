@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from ai_game_player.action_executor import ExecutionResult
+from ai_game_player.execution.action_executor import ExecutionResult
 class ExecutionHistory:
     def __init__(self,path:Path): self.path=path
     def load(self)->list[ExecutionResult]:
