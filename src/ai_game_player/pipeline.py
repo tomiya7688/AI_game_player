@@ -114,7 +114,7 @@ class DecisionPipeline:
         expected_rearm_token: int | None = None,
     ) -> tuple[ActionDecision, list[ActionCandidate], ScreenObservation]:
         observation, candidates = self._read_candidates(ocr_texts)
-        decision = self.engine.step(
+        decision, _ = self.engine.step_with_candidate(
             observation,
             candidates,
             purpose,
@@ -146,11 +146,11 @@ class DecisionPipeline:
         return decision
 
     # {
-    #   責務: [run_and_execute: 停止・再開された推論結果を実入力へ進ませず候補を実行する]
-    #   処理: [開始世代を記録し、推論後と入力直前に実行許可を再検証して実入力中も同じ世代の停止状態を確認する]
-    #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
-    #   戻り値: [ExecutionResult: 候補の実行結果]
-    #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
+    #   責務: [run_and_execute: 同じ判断snapshotで許可された候補だけを停止確認後に実行する]
+    #   処理: [画面候補・判断・評価済み候補を固定し、実入力前に停止世代とSafety評価を再検証する]
+    #   引数: [ocr_texts: 判断へ追加するOCR候補, purpose: providerへ渡すゲーム目標, personality: providerへ渡す判断方針, expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
+    #   戻り値: [ExecutionResult: 選択した候補の実行結果]
+    #   エラー: [停止・再開で世代が失効した場合はExecutionCancelled、安全評価が拒否した場合はRuntimeError]
     # }
     def run_and_execute(
         self,
@@ -162,12 +162,18 @@ class DecisionPipeline:
         run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
         self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, candidates, observation = self._decide(ocr_texts, purpose, personality, run_token)
+        observation, candidates = self._read_candidates(ocr_texts)
+        _, selected = self.engine.step_with_candidate(
+            observation,
+            candidates,
+            purpose,
+            personality,
+            before_provider=lambda: self.controller.ensure_running(run_token),
+            commit_guard=lambda commit: self.controller.run_if_current(run_token, commit),
+        )
         self.controller.ensure_running(run_token)
-        selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
-        if selected is None:
-            raise RuntimeError("決定された候補が統合済み候補にありません")
 
+        # 評価・判断済みオブジェクトを維持し、後段で同じIDの別候補へ置き換えない。
         safety_context, snapshot_id = self._safety_context(selected.action_id, purpose)
         assessment = self.safety_evaluator.evaluate(observation, selected, safety_context)
         self.last_safety_result = assessment

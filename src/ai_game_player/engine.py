@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from contextvars import ContextVar
 from pathlib import Path
 
 from ai_game_player.atomic_json import StagedJsonWrite
@@ -11,6 +12,11 @@ from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.outcome_fusion import OutcomeDetector
 from ai_game_player.outcome_models import OutcomeEvent
 from ai_game_player.provider import RuleProvider
+
+
+_BEFORE_PROVIDER_CONTEXT: ContextVar[Callable[[], None] | None] = ContextVar("before_provider", default=None)
+_COMMIT_GUARD_CONTEXT: ContextVar[Callable[[Callable[[], None]], None] | None] = ContextVar("commit_guard", default=None)
+_ALLOWED_CANDIDATES_CONTEXT: ContextVar[tuple[ActionCandidate, ...] | None] = ContextVar("allowed_candidates", default=None)
 
 
 class GamePlayerEngine:
@@ -34,16 +40,9 @@ class GamePlayerEngine:
     # {
     #   責務: [step: 許可候補から判断し、停止確認後に判断履歴を確定する]
     #   処理: [provider応答を検証し、履歴JSONを事前準備してから世代guard内で公開する]
-    #   引数: [
-    #     observation: provider判断と履歴記録に使う画面観測
-    #     candidates: evaluatorが検査しproviderが選択できる操作候補
-    #     purpose: providerへ渡すゲーム目標
-    #     personality: providerへ渡す判断方針
-    #     before_provider: provider呼出し前に実行世代を検証する関数
-    #     commit_guard: 準備済み履歴とengine状態を世代guard内で公開する関数
-    #   ]
+    #   引数: [observation: 判断対象の画面観測, candidates: 評価する操作候補, purpose: providerへ渡すゲーム目標, personality: providerへ渡す判断方針]
     #   戻り値: [ActionDecision: 許可候補から選ばれた判断]
-    #   エラー: [ExecutionCancelled: commit前に実行世代が停止または失効した, OSError: 準備JSONの公開に失敗した]
+    #   エラー: [停止または再開で世代が失効した場合はExecutionCancelled、履歴JSONの公開に失敗した場合はOSError]
     # }
     def step(
         self,
@@ -51,12 +50,14 @@ class GamePlayerEngine:
         candidates: list[ActionCandidate],
         purpose: str = "",
         personality: str = "",
-        before_provider: Callable[[], None] | None = None,
-        commit_guard: Callable[[Callable[[], None]], None] | None = None,
     ) -> ActionDecision:
+        before_provider = _BEFORE_PROVIDER_CONTEXT.get()
+        commit_guard = _COMMIT_GUARD_CONTEXT.get()
         if before_provider is not None:
             before_provider()
-        allowed = self.evaluator.evaluate(observation, candidates)
+        candidate_snapshot = _ALLOWED_CANDIDATES_CONTEXT.get()
+        allowed_snapshot = tuple(candidate_snapshot) if candidate_snapshot is not None else tuple(self.evaluator.evaluate(observation, candidates))
+        allowed = list(allowed_snapshot)
         previous_outcome = self._assess_previous_outcome(observation)
         context = self.context_builder.build(
             observation,
@@ -72,7 +73,7 @@ class GamePlayerEngine:
             decision = self.provider.choose_context(context, personality)
         else:
             decision = self.provider.choose(allowed, observation, purpose, personality)
-        if decision.action_id not in {candidate.action_id for candidate in allowed}:
+        if not any(candidate.action_id == decision.action_id for candidate in allowed_snapshot):
             raise ValueError("Decision provider selected an action outside the allowed snapshot")
         staged_writes: list[StagedJsonWrite] = []
         try:
@@ -99,6 +100,44 @@ class GamePlayerEngine:
             for staged_write in staged_writes:
                 staged_write.discard()
         return decision
+
+    # {
+    #   責務: [step_with_candidate: 従来のstep拡張点を呼び、判断IDに対応する評価済み候補を返す]
+    #   処理: [providerへ渡す前に候補評価結果を固定し、停止guardを設定してからself.stepをdispatchする]
+    #   引数: [observation: 判断対象の画面観測, candidates: 評価する操作候補, purpose: providerへ渡すゲーム目標, personality: providerへ渡す判断方針, before_provider: provider呼出し前に実行世代を検証する関数, commit_guard: 履歴公開を有効な実行世代内に限定する関数]
+    #   戻り値: [decision: 拡張stepが返した判断, selected_candidate: 同じ評価snapshotから選んだ候補の実体]
+    #   エラー: [判断IDが許可snapshotにない場合はValueError、停止・再開後はExecutionCancelled]
+    # }
+    def step_with_candidate(
+        self,
+        observation: ScreenObservation,
+        candidates: list[ActionCandidate],
+        purpose: str = "",
+        personality: str = "",
+        before_provider: Callable[[], None] | None = None,
+        commit_guard: Callable[[Callable[[], None]], None] | None = None,
+    ) -> tuple[ActionDecision, ActionCandidate]:
+        allowed_snapshot = tuple(self.evaluator.evaluate(observation, candidates))
+        allowed_token = _ALLOWED_CANDIDATES_CONTEXT.set(allowed_snapshot)
+        provider_token = _BEFORE_PROVIDER_CONTEXT.set(before_provider)
+        commit_token = _COMMIT_GUARD_CONTEXT.set(commit_guard)
+        try:
+            if before_provider is not None:
+                before_provider()
+            decision = self.step(observation, candidates, purpose, personality)
+            if before_provider is not None:
+                before_provider()
+            selected_candidate = next(
+                (candidate for candidate in allowed_snapshot if candidate.action_id == decision.action_id),
+                None,
+            )
+            if selected_candidate is None:
+                raise ValueError("Decision provider selected an action outside the allowed snapshot")
+            return decision, selected_candidate
+        finally:
+            _COMMIT_GUARD_CONTEXT.reset(commit_token)
+            _BEFORE_PROVIDER_CONTEXT.reset(provider_token)
+            _ALLOWED_CANDIDATES_CONTEXT.reset(allowed_token)
 
     def _uses_context_api(self) -> bool:
         if not hasattr(self.provider, "choose_context"):

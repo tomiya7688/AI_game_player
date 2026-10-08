@@ -139,6 +139,29 @@ class SafetyContextEvaluator:
         previous_outcome: OutcomeAssessment,
     ) -> EvaluatorEvidence:
         report = self.evaluator.explain(observation, [candidate])[0]
+        return self._evidence_from_report(report)
+
+    # {
+    #   責務: [evaluate_batch: 同じ候補集合に対するSafety結果を候補ごとに返す]
+    #   処理: [全候補を一括評価し、重複action IDの拒否理由を候補単位の証拠へ変換する]
+    #   引数: [observation: 候補座標を検証する画面観測, candidates: 同一batchとして評価する候補集合]
+    #   戻り値: [list[EvaluatorEvidence]: 入力候補と同じ順序のSafety評価証拠]
+    # }
+    def evaluate_batch(
+        self,
+        observation: ScreenObservation,
+        candidates: list[ActionCandidate],
+    ) -> list[EvaluatorEvidence]:
+        reports = self.evaluator.explain(observation, candidates)
+        return [self._evidence_from_report(report) for report in reports]
+
+    # {
+    #   責務: [_evidence_from_report: ActionEvaluatorの1件分の報告をDecision Context用の証拠へ変換する]
+    #   処理: [許可状態をscoreへ、拒否理由を監査文字列へ対応付ける]
+    #   引数: [report: acceptedとreasonを含むActionEvaluatorの候補別報告]
+    #   戻り値: [EvaluatorEvidence: Decision Contextへ保存するSafety証拠]
+    # }
+    def _evidence_from_report(self, report: dict[str, object]) -> EvaluatorEvidence:
         accepted = bool(report["accepted"])
         return EvaluatorEvidence(
             self.name,
@@ -254,6 +277,12 @@ class DecisionContextBuilder:
         self.history_limit = history_limit
         self.knowledge = CandidateKnowledgeRetriever(knowledge_store, knowledge_limit)
 
+    # {
+    #   責務: [build: 観測・候補・評価・知識をDecision Provider向けsnapshotへまとめる]
+    #   処理: [Safety評価は同じ候補batchで一度行い、他の評価器は候補ごとに実行して証拠を統合する]
+    #   引数: [observation: 判断対象画面, candidates: SafetyとDecision Contextへ渡す全候補, allowed_candidates: 判断可能と確定した候補, recent_history: 直近の判断履歴, previous_outcome: 直前操作の結果, current_goal: 利用者の現在目標, short_term_goal: 次に達成する短期目標]
+    #   戻り値: [DecisionContext: Providerへ渡す圧縮済みの判断snapshot]
+    # }
     def build(
         self,
         observation: ScreenObservation,
@@ -268,10 +297,21 @@ class DecisionContextBuilder:
         history = list(recent_history or [])[-self.history_limit :] if self.history_limit else []
         outcome = previous_outcome or OutcomeAssessment("unknown", 0.0, "no previous action")
         allowed_ids = {candidate.action_id for candidate in allowed_candidates}
+        batch_safety_evidence = {
+            id(evaluator): evaluator.evaluate_batch(observation, candidates)
+            for evaluator in self.evaluators
+            if isinstance(evaluator, SafetyContextEvaluator)
+            and type(evaluator).evaluate is SafetyContextEvaluator.evaluate
+        }
         candidate_contexts: list[CandidateDecisionContext] = []
         global_uncertainty: list[str] = []
-        for candidate in candidates:
-            evaluations = [evaluator.evaluate(observation, candidate, history, outcome) for evaluator in self.evaluators]
+        for candidate_index, candidate in enumerate(candidates):
+            evaluations = [
+                batch_safety_evidence[id(evaluator)][candidate_index]
+                if id(evaluator) in batch_safety_evidence
+                else evaluator.evaluate(observation, candidate, history, outcome)
+                for evaluator in self.evaluators
+            ]
             score, confidence, conflict = self.fusion.fuse(evaluations)
             knowledge = self.knowledge.retrieve(candidate)
             uncertainty: list[str] = []

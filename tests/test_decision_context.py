@@ -78,6 +78,24 @@ class DecisionContextTest(unittest.TestCase):
         self.assertIn("evaluator_conflict", packaged.uncertainty)
         self.assertIn("candidate_evaluator_conflict", context.uncertainty)
 
+    def test_decision_context_records_batch_duplicate_rejection_reason(self):
+        duplicate_candidates = [
+            ActionCandidate("duplicate", "wait", "First"),
+            ActionCandidate("duplicate", "wait", "Second"),
+        ]
+
+        context = DecisionContextBuilder().build(
+            self.observation(),
+            duplicate_candidates,
+            [],
+        )
+
+        self.assertEqual([candidate.allowed for candidate in context.candidates], [False, False])
+        self.assertEqual(
+            [candidate.evaluations[0].evidence for candidate in context.candidates],
+            ["duplicate_action_id", "duplicate_action_id"],
+        )
+
     def test_candidate_knowledge_keeps_source_confidence_and_provenance(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "knowledge.json"

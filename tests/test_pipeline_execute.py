@@ -9,6 +9,8 @@ from ai_game_player.app import Application
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
+from ai_game_player.action_executor import ExecutionResult
+from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.run_control import ExecutionCancelled, RunController
 
 
@@ -90,6 +92,101 @@ class PipelineExecuteTest(unittest.TestCase):
 
         self.assertEqual(source.read_count, 1)
         self.assertEqual(result.action_id, "first-action")
+
+    def test_run_and_execute_passes_the_selected_candidate_instance_to_execution(self):
+        selected_candidate = ActionCandidate("selected", "wait", "Wait")
+        executed_candidates = []
+
+        class SingleCandidateSource:
+            def read(self):
+                return ScreenObservation("menu", 100, 80, []), [selected_candidate]
+
+        class Provider(RuleProvider):
+            def choose(self, candidates, observation, purpose="", personality=""):
+                return ActionDecision(candidates[0].action_id, "select exact candidate", "test")
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(SingleCandidateSource(), Path(directory), Provider())
+
+            def record_execution(candidate):
+                executed_candidates.append(candidate)
+                return ExecutionResult(candidate.action_id, False, "test", "recorded")
+
+            pipeline.executor.execute = record_execution
+            pipeline.run_and_execute()
+
+        self.assertEqual(len(executed_candidates), 1)
+        self.assertIs(executed_candidates[0], selected_candidate)
+
+    def test_run_and_execute_never_executes_a_candidate_from_an_ambiguous_id(self):
+        class DuplicateIdSource:
+            def read(self):
+                return ScreenObservation("menu", 100, 80, []), [
+                    ActionCandidate("duplicate", "click", "Outside", 200, 10, .9),
+                    ActionCandidate("duplicate", "wait", "Wait", confidence=.9),
+                ]
+
+        executed_candidates = []
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(DuplicateIdSource(), Path(directory))
+
+            def record_execution(candidate):
+                executed_candidates.append(candidate)
+                return ExecutionResult(candidate.action_id, False, "test", "recorded")
+
+            pipeline.executor.execute = record_execution
+            with self.assertRaises(ValueError):
+                pipeline.run_and_execute()
+
+        self.assertEqual(executed_candidates, [])
+
+    def test_run_and_execute_uses_original_candidate_after_provider_replaces_allowed_entry(self):
+        original_candidate = ActionCandidate("same-id", "wait", "Original")
+        replacement_candidate = ActionCandidate("same-id", "click", "Replacement", 90, 70, .9)
+        executed_candidates = []
+
+        class ReplacingProvider(RuleProvider):
+            def choose(self, candidates, observation, purpose="", personality=""):
+                candidates[0] = replacement_candidate
+                return ActionDecision("same-id", "select same ID", "test")
+
+        class OriginalSource:
+            def read(self):
+                return ScreenObservation("menu", 100, 80, []), [original_candidate]
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(OriginalSource(), Path(directory), ReplacingProvider())
+            pipeline.executor.execute = lambda candidate: executed_candidates.append(candidate) or ExecutionResult(candidate.action_id, False, "test", "recorded")
+
+            pipeline.run_and_execute()
+
+        self.assertEqual(len(executed_candidates), 1)
+        self.assertIs(executed_candidates[0], original_candidate)
+
+    def test_run_and_execute_dispatches_through_overridden_engine_step(self):
+        alternate_candidate = ActionCandidate("alternate", "wait", "Alternate")
+        executed_candidates = []
+
+        class AlternateEngine(GamePlayerEngine):
+            def step(self, observation, candidates, purpose="", personality=""):
+                return ActionDecision(alternate_candidate.action_id, "extension choice", "test")
+
+        class TwoCandidateSource:
+            def read(self):
+                return ScreenObservation("menu", 100, 80, []), [
+                    ActionCandidate("default", "wait", "Default"),
+                    alternate_candidate,
+                ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(TwoCandidateSource(), Path(directory))
+            pipeline.engine = AlternateEngine(Path(directory))
+            pipeline.executor.execute = lambda candidate: executed_candidates.append(candidate) or ExecutionResult(candidate.action_id, False, "test", "recorded")
+
+            pipeline.run_and_execute()
+
+        self.assertEqual(len(executed_candidates), 1)
+        self.assertIs(executed_candidates[0], alternate_candidate)
 
     # {
     #   責務: [test_stop_during_provider_wait_discards_result_before_live_input: 推論待ち中の停止を受理し旧結果を実入力へ進ませない]
