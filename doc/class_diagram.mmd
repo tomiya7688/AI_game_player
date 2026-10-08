@@ -53,13 +53,30 @@ classDiagram
     }
     class MemorySource {
         +__init__()
+        +update()
         +read()
+    }
+    class TkAfterScheduler {
+        +__init__()
+        +schedule()
+        +cancel()
     }
     class Application {
         +__init__()
         +_save_shell_state()
         +_set_status()
         +_refresh_execution_controls()
+        +_is_looping()
+        +_clear_loop_state()
+        +_loop_step()
+        +_continue_loop_with_assessment()
+        +_complete_session_step()
+        +_create_session_runtime()
+        +_perform_session_step()
+        +_observe_for_loop()
+        +_on_session_state_change()
+        +_on_session_error()
+        +_on_live_execution_changed()
         +_validate_live_execution()
         +_cursor_position()
         +_record_automated_cursor_position()
@@ -76,13 +93,12 @@ classDiagram
         +_run_is_current()
         +_poll_background_results()
         +start_loop()
-        +_loop_step()
-        +_continue_loop_with_assessment()
         +start()
-        +_clear_loop_state()
         +stop()
         +run_and_execute()
         +run()
+        +_run_session_step()
+        +close()
     }
     ValueError <|-- ArtifactIntegrityError
     class ArtifactIntegrityError {
@@ -367,6 +383,51 @@ classDiagram
     class FrameAnalyzer {
         +__init__()
         +analyze()
+    }
+    Protocol <|-- SessionRuntime
+    class SessionRuntime {
+        +close()
+    }
+    Protocol <|-- SessionScheduler
+    class SessionScheduler {
+        +schedule()
+        +cancel()
+    }
+    str <|-- SessionStatus
+    Enum <|-- SessionStatus
+    class SessionStatus {
+    }
+    class SessionStep {
+    }
+    class LoopObservation {
+    }
+    class SessionSnapshot {
+    }
+    class GameSessionController {
+        +__init__()
+        +status()
+        +snapshot()
+        +is_running()
+        +is_looping()
+        +has_pending_step()
+        +start()
+        +step()
+        +complete_step()
+        +start_loop()
+        +stop()
+        +ensure_running()
+        +rearm_token()
+        +_schedule_next()
+        +_run_loop_step()
+        +complete_loop_observation()
+        +_apply_loop_observation()
+        +_finish()
+        +_mark_shutdown_failed()
+        +_fail()
+        +_close_runtime()
+        +_cancel_scheduled()
+        +_notify_error()
+        +_notify()
     }
     class HistoryStore {
         +__init__()

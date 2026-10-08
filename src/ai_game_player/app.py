@@ -13,14 +13,14 @@ from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.execution_mode import execution_labels
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
-from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.outcome import OutcomeAssessment, OutcomeEvaluator
+from ai_game_player.game_session import GameSessionController, LoopObservation, SessionRuntime, SessionSnapshot, SessionStatus, SessionStep
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.runtime_log import RuntimeLog
-from ai_game_player.run_control import ExecutionCancelled, RunController
+from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.screen_capture import WindowsScreenCapture
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
@@ -38,12 +38,55 @@ WINDOWS_KEY_PRESSED_FLAG = 1
 
 
 class MemorySource:
-    def __init__(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None:
+    # {
+    #   責務: [MemorySource: UIが更新した最新の画面観測と候補をsession中のPipelineへ渡す]
+    #   フィールド: [observation: 最新の画面観測, candidates: 同じ観測から得た操作候補]
+    # }
+    def __init__(self) -> None:
+        self.observation: ScreenObservation | None = None
+        self.candidates: list[ActionCandidate] = []
+
+    # {
+    #   責務: [update: 次のstepでPipelineが読む画面観測と候補を保存する]
+    #   処理: [観測と候補を同じ取得stepの組として差し替える]
+    #   引数: [observation: 操作判断の対象となる画面, candidates: 画面から抽出した候補]
+    #   戻り値: []
+    # }
+    def update(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None:
         self.observation = observation
         self.candidates = candidates
 
     def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
+        if self.observation is None:
+            raise RuntimeError("画面観測をsessionへ登録してからPipelineを実行してください")
         return self.observation, self.candidates
+
+
+class TkAfterScheduler:
+    # {
+    #   責務: [TkAfterScheduler: Tkのafter予約をSessionScheduler契約へ変換する]
+    #   フィールド: [root: callbackを予約・取消するTkルート]
+    # }
+    def __init__(self, root: tk.Misc) -> None:
+        self.root = root
+
+    # {
+    #   責務: [schedule: 指定時間後にsession loop callbackをTk event loopへ登録する]
+    #   処理: [Tk afterの予約tokenをsession controllerへ返す]
+    #   引数: [delay_ms: callbackまで待つミリ秒, callback: UIスレッドで実行するloop処理]
+    #   戻り値: [object: 予約取消に使うTk token]
+    # }
+    def schedule(self, delay_ms: int, callback) -> object:
+        return self.root.after(delay_ms, callback)
+
+    # {
+    #   責務: [cancel: 予約済みsession loop callbackを取り消す]
+    #   処理: [Tk after_cancelへ予約tokenを渡す]
+    #   引数: [token: scheduleが返したTk予約token]
+    #   戻り値: []
+    # }
+    def cancel(self, token: object) -> None:
+        self.root.after_cancel(token)
 
 
 # {
@@ -87,12 +130,13 @@ class Application:
         config = config_store.load()
         self.root = root
         self.runtime_log = RuntimeLog()
-        self.controller = RunController()
+        self.memory_source = MemorySource()
+        self._session_dry_run = True
+        self._last_session_mode: tuple[SessionStatus, bool] | None = None
+        self._closing = False
         self.windows: list = []
         self.window_handles: dict[str, int] = {}
         self.window_process_ids: dict[str, int] = {}
-        self.loop_job: str | None = None
-        self._loop_active = False
         self._execution_in_progress = False
         self._background_task_counter = 0
         self._execution_task_id: int | None = None
@@ -105,7 +149,6 @@ class Application:
         self.outcome_evaluator = OutcomeEvaluator()
         self.previous_observation: ScreenObservation | None = None
         self.current_assessment = None
-        self.loop_guard = LoopGuard()
         root.title("AI Game Player - Decision Sandbox")
         root.geometry("1120x760")
         root.minsize(800, 600)
@@ -142,7 +185,7 @@ class Application:
         ttk.Entry(prompt_settings, textvariable=self.personality, width=20).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="目的").pack(side=tk.LEFT)
         ttk.Entry(prompt_settings, textvariable=self.purpose, width=34).pack(side=tk.LEFT, padx=5)
-        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution, command=self._refresh_execution_controls).pack(side=tk.LEFT, padx=5)
+        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution, command=self._on_live_execution_changed).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         window_settings = ttk.Frame(frame)
@@ -182,6 +225,16 @@ class Application:
         ttk.Label(frame, text="評価結果JSON").pack(anchor=tk.W)
         self.evaluation = tk.Text(frame, height=5)
         self.evaluation.pack(fill=tk.X)
+        self.session_controller = GameSessionController(
+            runtime_factory=self._create_session_runtime,
+            step_handler=self._perform_session_step,
+            scheduler=TkAfterScheduler(root),
+            loop_observer=self._observe_for_loop,
+            on_state_change=self._on_session_state_change,
+            on_error=self._on_session_error,
+        )
+        self.controller = self.session_controller.run_control
+        root.protocol("WM_DELETE_WINDOW", self.close)
         if config.provider == "Ollama":
             self.root.after(0, self.refresh_models)
         self.root.after(BACKGROUND_RESULT_POLL_INTERVAL_MS, self._poll_background_results)
@@ -204,6 +257,211 @@ class Application:
         self.execute_button.config(text=execute_label)
         self.loop_button.config(text=loop_label)
         self.live_status.config(text=status)
+
+    # {
+    #   責務: [_is_looping: Session controllerまたは互換テスト状態から連続実行状態を返す]
+    #   処理: [通常実行ではSessionの状態を使い、部分初期化されたApplicationでは旧loop flagを読む]
+    #   引数: []
+    #   戻り値: [bool: 連続実行中ならTrue]
+    # }
+    def _is_looping(self) -> bool:
+        session = getattr(self, "session_controller", None)
+        if session is not None:
+            return session.is_looping
+        return bool(getattr(self, "_loop_active", False))
+
+    # {
+    #   責務: [_clear_loop_state: 互換実行状態に残るloop予約を解除する]
+    #   処理: [旧callback tokenを取消し、連続実行flagとtokenを初期化する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def _clear_loop_state(self) -> None:
+        self._loop_active = False
+        token = getattr(self, "loop_job", None)
+        if token is not None:
+            try:
+                self.root.after_cancel(token)
+            except tk.TclError as exc:
+                self.runtime_log.write("error", str(exc), {"operation": "cancel_loop_callback"})
+        self.loop_job = None
+
+    # {
+    #   責務: [_loop_step: 互換実行環境で画面観測評価を開始する]
+    #   処理: [連続実行状態を確認し、画面観測を評価workerへ渡す]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def _loop_step(self) -> None:
+        self.loop_job = None
+        if not self._is_looping() or not self.controller.is_running:
+            return
+        run_token = self.controller.rearm_token
+        if os.name == "nt":
+            if self.capture_screen(loop_step=True) is None:
+                self.stop("capture_failure")
+            return
+        try:
+            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "loop_observation"})
+            self.stop("invalid_observation")
+            return
+        self._start_assessment_worker(observation, loop_step=True, run_token=run_token)
+
+    # {
+    #   責務: [_continue_loop_with_assessment: 互換loopの評価結果から次のstep可否を決める]
+    #   処理: [反復・terminal状態を確認し、継続時だけworker stepを開始する]
+    #   引数: [observation: 最新画面, assessment: 状態評価, run_token: 評価開始世代]
+    #   戻り値: []
+    # }
+    def _continue_loop_with_assessment(self, observation: ScreenObservation, assessment: OutcomeAssessment, run_token: int | None) -> None:
+        if not self._is_looping() or not self._run_is_current(run_token):
+            return
+        if self.loop_guard.observe(observation) or assessment.status in {"success", "failure"}:
+            self.stop("terminal_outcome" if assessment.status in {"success", "failure"} else "repeated_observation")
+            return
+        if not self.run_and_execute(loop_step=True, expected_rearm_token=run_token):
+            self.stop("pipeline_step_not_started")
+
+    # {
+    #   責務: [_complete_session_step: Sessionが存在する場合だけworker完了を通知する]
+    #   処理: [新しいSession controllerへ完了・失敗を渡し、旧部分初期化テストでは何もしない]
+    #   引数: [error: worker失敗時の例外または成功時None]
+    #   戻り値: []
+    # }
+    def _complete_session_step(self, error: Exception | None = None) -> None:
+        session = getattr(self, "session_controller", None)
+        if session is not None:
+            session.complete_step(error=error)
+
+    # {
+    #   責務: [_create_session_runtime: セッションで共有するpipelineを一度だけ構築する]
+    #   処理: [現在の実行設定と動的MemorySourceを使い、RunController共有のpipelineを返す]
+    #   引数: []
+    #   戻り値: [DecisionPipeline: セッションの終了まで保持するpipeline]
+    # }
+    def _create_session_runtime(self) -> DecisionPipeline:
+        self._validate_live_execution()
+        provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
+        return DecisionPipeline(
+            self.memory_source,
+            Path("data/games/sandbox"),
+            provider,
+            self.controller,
+            dry_run=self._session_dry_run,
+            window_handle=self.window_handles.get(self.window_choice.get()),
+            input_mode=self.input_mode.get(),
+            window_process_id=self.window_process_ids.get(self.window_choice.get()),
+            automated_cursor_position_callback=self._record_automated_cursor_position,
+        )
+
+    # {
+    #   責務: [_perform_session_step: pipeline stepをworkerへ渡してSessionへ完了待ちを返す]
+    #   処理: [execute commandは実行、それ以外は判断として非同期起動しdeferred結果を返す]
+    #   引数: [runtime: Sessionが所有するDecisionPipeline, command: executeまたはdecision]
+    #   戻り値: [SessionStep: worker完了後にSessionがstepを確定するためのdeferred結果]
+    # }
+    def _perform_session_step(self, runtime: SessionRuntime, command: str) -> SessionStep:
+        if self._session_dry_run is False:
+            if not self.live_execution.get():
+                return SessionStep(terminal_reason="live execution permission revoked")
+            try:
+                if not hasattr(self, "_validate_live_execution"):
+                    raise ValueError("実入力の許可状態を再検証できません")
+                self._validate_live_execution()
+            except ValueError:
+                return SessionStep(terminal_reason="live execution permission revoked")
+        if not isinstance(runtime, DecisionPipeline):
+            raise TypeError("セッションruntimeはDecisionPipelineである必要があります")
+        started = self._start_pipeline_worker(
+            runtime,
+            "execute" if command == "execute" else "decision",
+            self.purpose.get(),
+            self.personality.get(),
+            self.controller.rearm_token,
+            self.session_controller.is_looping,
+            close_pipeline_on_exit=False,
+        )
+        if not started:
+            raise RuntimeError("セッションstep workerを開始できません")
+        return SessionStep(deferred=True)
+
+    # {
+    #   責務: [_observe_for_loop: 連続実行の画面取得と非同期状態評価を開始する]
+    #   処理: [画面を取得し、loop世代付き評価workerを開始してSessionへ完了待ちを返す]
+    #   引数: []
+    #   戻り値: [LoopObservation: 非同期評価のためdeferred状態にした観測]
+    # }
+    def _observe_for_loop(self) -> LoopObservation:
+        try:
+            if os.name == "nt":
+                from ai_game_player.frame_analyzer import FrameAnalyzer
+                selected_handle = self.window_handles.get(self.window_choice.get())
+                observation = FrameAnalyzer(TesseractOcrRecognizer.optional()).analyze(
+                    WindowsScreenCapture().capture(selected_handle), "live"
+                )
+                self.obs.delete("1.0", tk.END)
+                self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
+            else:
+                observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "loop_observation"})
+            return LoopObservation(None, terminal_reason="capture failed")
+        self._start_assessment_worker(
+            observation,
+            loop_step=True,
+            run_token=self.controller.rearm_token,
+        )
+        return LoopObservation(observation, deferred=True)
+
+    # {
+    #   責務: [_on_session_state_change: Session状態をGUI表示とログへ反映する]
+    #   処理: [状態が変わったときだけ記録し、停止・完了・失敗の結果を表示する]
+    #   引数: [snapshot: Sessionの状態とstep数]
+    #   戻り値: []
+    # }
+    def _on_session_state_change(self, snapshot: SessionSnapshot) -> None:
+        current = (snapshot.status, snapshot.looping)
+        if current != self._last_session_mode:
+            self.runtime_log.write("session", snapshot.status.value, {"steps": snapshot.steps, "reason": snapshot.stop_reason})
+            self._last_session_mode = current
+        if snapshot.status is SessionStatus.FAILED:
+            self._set_status(f"セッション失敗: {snapshot.error or snapshot.stop_reason}")
+        elif snapshot.status is SessionStatus.COMPLETED:
+            self._set_status(f"セッション完了: {snapshot.stop_reason or 'terminal'}")
+        elif snapshot.status is SessionStatus.STOPPED and not self._execution_in_progress:
+            self._set_status(f"停止中（{snapshot.stop_reason or '停止'}）")
+        elif snapshot.looping:
+            self._set_status("連続実行中")
+
+    # {
+    #   責務: [_on_session_error: Session制御で発生した例外をGUI利用者へ通知する]
+    #   処理: [例外の詳細をログへ保存し、操作継続に必要なエラー表示を行う]
+    #   引数: [error: Session処理で発生した例外]
+    #   戻り値: []
+    # }
+    def _on_session_error(self, error: Exception) -> None:
+        self.runtime_log.write("error", str(error), {"operation": "game_session"})
+        if not self._closing:
+            messagebox.showerror("セッションエラー", str(error))
+
+    # {
+    #   責務: [_on_live_execution_changed: 実入力設定変更時にSessionの実行モードを同期する]
+    #   処理: [pending workerがない場合だけSession runtimeを停止し、表示と設定を更新する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def _on_live_execution_changed(self) -> None:
+        self._refresh_execution_controls()
+        if getattr(self.session_controller, "has_pending_step", False):
+            self.live_execution.set(not self.live_execution.get())
+            self._refresh_execution_controls()
+            self._set_status("実行中は実入力設定を変更できません")
+            return
+        if not self.live_execution.get() and not self._session_dry_run:
+            self._session_dry_run = True
+            self.session_controller.stop("live execution permission revoked")
 
     # {
     #   責務: [
@@ -273,7 +531,7 @@ class Application:
             self.stop("F12")
         current = self._cursor_position()
         automated_move = False
-        if self._loop_active and current is not None:
+        if self._is_looping() and current is not None:
             with self._automated_cursor_position_lock:
                 expected_position = self._automated_cursor_position
                 if current == expected_position and expected_position is not None:
@@ -287,7 +545,7 @@ class Application:
                 ):
                     automated_move = True
         if (
-            self._loop_active
+            self._is_looping()
             and not automated_move
             and current is not None
             and self._last_cursor_position is not None
@@ -453,9 +711,9 @@ class Application:
         self._background_results.put(("assessment", task_id, run_token, "assessment", assessment, error, loop_step, observation))
 
     # {
-    #   責務: [_start_pipeline_worker: 候補判断・安全検証・実行をUIスレッド外で開始する]
-    #   処理: [重複実行を防止し、開始時の実行世代をworkerへ固定する]
-    #   引数: [pipeline: 実行パイプライン, operation: 判断または実行, purpose: ゲームの目的, personality: 判断人格, run_token: 実行開始世代, loop_step: 連続実行由来]
+    #   責務: [_start_pipeline_worker: セッションpipelineのstepをUIスレッド外で開始する]
+    #   処理: [開始時の実行世代を固定し、使い捨てpipelineだけworker終了時に閉じる]
+    #   引数: [pipeline: 実行パイプライン, operation: 判断または実行, purpose: ゲームの目的, personality: 判断人格, run_token: 実行開始世代, loop_step: 連続実行由来, close_pipeline_on_exit: worker終了時にpipelineを閉じるか]
     #   戻り値: [bool: workerを開始したか]
     # }
     def _start_pipeline_worker(
@@ -466,9 +724,11 @@ class Application:
         personality: str,
         run_token: int,
         loop_step: bool,
+        close_pipeline_on_exit: bool = True,
     ) -> bool:
         if self._execution_in_progress:
-            pipeline.close()
+            if close_pipeline_on_exit:
+                pipeline.close()
             self._set_status("停止要求を反映中です。前の推論応答を待っています")
             return False
 
@@ -478,7 +738,7 @@ class Application:
         self._execution_in_progress = True
         worker = threading.Thread(
             target=self._run_pipeline_in_background,
-            args=(task_id, pipeline, operation, purpose, personality, run_token, loop_step),
+            args=(task_id, pipeline, operation, purpose, personality, run_token, loop_step, close_pipeline_on_exit),
             daemon=True,
         )
         try:
@@ -486,15 +746,16 @@ class Application:
         except Exception:
             self._execution_in_progress = False
             self._execution_task_id = None
-            pipeline.close()
+            if close_pipeline_on_exit:
+                pipeline.close()
             raise
         self._set_status("Ollama推論中" if self.provider.get() == "Ollama" else "判断・実行中")
         return True
 
     # {
     #   責務: [_run_pipeline_in_background: pipelineを実行し結果・例外・終了処理をqueueへ送る]
-    #   処理: [Tkを操作せず判断または実行を行い、pipelineを必ずcloseする]
-    #   引数: [task_id: worker識別子, pipeline: 対象pipeline, operation: 判断または実行, run_token: 実行世代]
+    #   処理: [Tkを操作せず判断または実行を行い、指定された場合だけ使い捨てpipelineをcloseする]
+    #   引数: [task_id: worker識別子, pipeline: 対象pipeline, operation: 判断または実行, run_token: 実行世代, close_pipeline_on_exit: セッション所有か使い捨てかを示す]
     #   戻り値: []
     # }
     def _run_pipeline_in_background(
@@ -506,6 +767,7 @@ class Application:
         personality: str,
         run_token: int,
         loop_step: bool,
+        close_pipeline_on_exit: bool,
     ) -> None:
         result: object | None = None
         error: Exception | None = None
@@ -525,11 +787,12 @@ class Application:
         except Exception as exc:
             error = exc
         finally:
-            try:
-                pipeline.close()
-            except Exception as exc:
-                if error is None:
-                    error = exc
+            if close_pipeline_on_exit:
+                try:
+                    pipeline.close()
+                except Exception as exc:
+                    if error is None:
+                        error = exc
         self._background_results.put(("pipeline", task_id, run_token, operation, result, error, loop_step, None))
 
     # {
@@ -568,17 +831,17 @@ class Application:
                             "latest_task_id": self._latest_assessment_task_id,
                         },
                     )
-                    if loop_step and self._loop_active and self._run_is_current(run_token):
+                    if loop_step and self._is_looping() and self._run_is_current(run_token):
                         self.stop("assessment_superseded")
                     continue
                 if error is not None:
                     self.runtime_log.write("error", str(error), {"operation": "outcome_assessment"})
-                    if loop_step and self._loop_active:
+                    if loop_step and self._is_looping():
                         self.stop("outcome_assessment_failed")
                     continue
                 if not isinstance(result, OutcomeAssessment) or observation is None:
                     self.runtime_log.write("error", "状態評価workerの結果形式が不正です", {"operation": "outcome_assessment"})
-                    if loop_step and self._loop_active:
+                    if loop_step and self._is_looping():
                         self.stop("invalid_outcome_assessment_result")
                     continue
                 self.previous_observation = observation
@@ -586,7 +849,20 @@ class Application:
                 self.outcome.config(text=f"状態: {result.status} ({result.confidence:.0%})")
                 self.runtime_log.write("outcome", result.reason, {"status": result.status, "confidence": result.confidence, "provider": self.provider.get()})
                 if loop_step:
-                    self._continue_loop_with_assessment(observation, result, run_token)
+                    if observation is not None:
+                        try:
+                            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
+                            self.memory_source.update(observation, candidates)
+                            evaluation = ActionEvaluator().explain(observation, candidates)
+                            self.evaluation.delete("1.0", tk.END)
+                            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
+                        except Exception as exc:
+                            self.stop(f"invalid_loop_candidates: {exc}")
+                            continue
+                    if hasattr(self, "session_controller"):
+                        self.session_controller.complete_loop_observation(LoopObservation(observation, result.status))
+                    else:
+                        self._continue_loop_with_assessment(observation, result, run_token)
                 continue
 
             if task_type != "pipeline" or task_id != self._execution_task_id:
@@ -599,16 +875,21 @@ class Application:
                     self.runtime_log.write("run_control", "inference_result_discarded", {"reason": reason, "operation": operation})
                     if self.controller.is_running:
                         self._set_status("停止要求後の推論応答を破棄しました")
-                    if loop_step and self._loop_active and self._run_is_current(run_token):
-                        self.stop(reason)
+                    self._complete_session_step(error)
+                    if getattr(self, "_closing", False) and not self.session_controller.has_pending_step:
+                        self.root.destroy()
                     continue
                 self.runtime_log.write("error", str(error), {"operation": operation})
                 messagebox.showerror("実行エラー" if operation == "execute" else "判断エラー", str(error))
-                if loop_step and self._loop_active:
-                    self.stop("pipeline_step_failed")
+                self._complete_session_step(error)
+                if getattr(self, "_closing", False) and not self.session_controller.has_pending_step:
+                    self.root.destroy()
                 continue
             if not self._run_is_current(run_token):
                 self.runtime_log.write("run_control", "inference_result_discarded", {"reason": self.controller.stop_reason or "実行世代が変更されました", "operation": operation})
+                self._complete_session_step()
+                if getattr(self, "_closing", False) and not self.session_controller.has_pending_step:
+                    self.root.destroy()
                 continue
 
             if operation == "execute" and isinstance(result, ExecutionResult):
@@ -622,8 +903,9 @@ class Application:
                 self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
                 self.runtime_log.write("decision", result.reason, {"action_id": result.action_id, "provider": self.provider.get()})
 
-            if loop_step and self._loop_active and self._run_is_current(run_token):
-                self.loop_job = self.root.after(LOOP_STEP_DELAY_MS, self._loop_step)
+            self._complete_session_step()
+            if getattr(self, "_closing", False) and not self.session_controller.has_pending_step:
+                self.root.destroy()
         self.root.after(BACKGROUND_RESULT_POLL_INTERVAL_MS, self._poll_background_results)
 
     # {
@@ -640,21 +922,17 @@ class Application:
     #   戻り値: []
     # }
     def start_loop(self) -> None:
-        if self._loop_active:
+        if self._is_looping():
             return
-        if self._execution_in_progress:
-            self._set_status("停止要求を反映中です。前の推論応答を待っています")
-            return
-        try:
-            self._validate_live_execution()
-        except ValueError as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
-            messagebox.showerror("連続実行エラー", str(exc))
-            self._set_status("連続実行を開始できません")
-            return
-
-        self.controller.start()
-        if self.loop_job is None:
+        if not hasattr(self, "session_controller"):
+            try:
+                self._validate_live_execution()
+            except ValueError as exc:
+                self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+                messagebox.showerror("連続実行エラー", str(exc))
+                self._set_status("連続実行を開始できません")
+                return
+            self.controller.start()
             self._loop_active = True
             self._record_automated_cursor_position(None, False)
             self._last_cursor_position = self._cursor_position()
@@ -662,60 +940,34 @@ class Application:
             self.runtime_log.write("run_control", "loop_started")
             self.loop_job = self.root.after(LOOP_STEP_DELAY_MS, self._loop_step)
             self._set_status("連続実行中")
-
-    # {
-    #   責務: [_loop_step: 画面観測を用意し、非同期状態評価を開始する]
-    #   処理: [開始世代を記録して観測し、結果処理を評価workerへ委譲する]
-    #   引数: []
-    #   戻り値: []
-    # }
-    def _loop_step(self) -> None:
-        self.loop_job = None
-        if not self._loop_active or not self.controller.is_running:
             return
-        if self._execution_in_progress:
-            self.runtime_log.write("run_control", "loop_stopped_by_overlapping_step")
-            self.stop("overlapping_step")
-            return
-
-        run_token = self.controller.rearm_token
-        if os.name == "nt":
-            if self.capture_screen(loop_step=True) is None:
-                self.runtime_log.write("run_control", "loop_stopped_by_capture_failure")
-                self.stop("capture_failure")
+        if self._execution_in_progress or getattr(getattr(self, "session_controller", None), "has_pending_step", False):
+            self._set_status("停止要求を反映中です。前の推論応答を待っています")
             return
         try:
-            current_observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+            self._validate_live_execution()
+            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
+            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
+            self.memory_source.update(observation, candidates)
+            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
+        except ValueError as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            messagebox.showerror("連続実行エラー", str(exc))
+            self._set_status("連続実行を開始できません")
+            return
         except Exception as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "loop_observation"})
-            self.stop("invalid_observation")
+            self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            messagebox.showerror("連続実行エラー", str(exc))
             return
-        self._start_assessment_worker(current_observation, loop_step=True, run_token=run_token)
 
-    # {
-    #   責務: [_continue_loop_with_assessment: 評価済み状態を検査して次の非同期実行を開始する]
-    #   処理: [世代・反復・成功失敗を確認し、安全な場合だけ1stepをworkerへ渡す]
-    #   引数: [observation: 現在観測, assessment: 状態評価, run_token: 連続実行の開始世代]
-    #   戻り値: []
-    # }
-    def _continue_loop_with_assessment(
-        self,
-        observation: ScreenObservation,
-        assessment: OutcomeAssessment,
-        run_token: int | None,
-    ) -> None:
-        if not self._loop_active or not self._run_is_current(run_token):
-            return
-        if self.loop_guard.observe(observation):
-            self.runtime_log.write("run_control", "loop_stopped_by_repeat")
-            self.stop("repeated_observation")
-            return
-        if assessment.status in {"success", "failure"}:
-            self.runtime_log.write("run_control", "loop_stopped_by_outcome", {"status": assessment.status})
-            self.stop(f"terminal_outcome:{assessment.status}")
-            return
-        if not self.run_and_execute(loop_step=True, expected_rearm_token=run_token):
-            self.stop("pipeline_step_not_started")
+        self._session_dry_run = not self.live_execution.get()
+        self._record_automated_cursor_position(None, False)
+        self._last_cursor_position = self._cursor_position()
+        try:
+            self.session_controller.start_loop("execute", LOOP_STEP_DELAY_MS)
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            messagebox.showerror("連続実行エラー", str(exc))
 
     # {
     #   責務: [start: 「再開」操作で実行世代を進め、停止状態を解除する]
@@ -724,28 +976,27 @@ class Application:
     #   戻り値: []
     # }
     def start(self) -> None:
-        if self._loop_active or self.loop_job is not None:
-            self._clear_loop_state()
-            self.runtime_log.write("run_control", "loop_stopped_by_rearm")
-        self.controller.start()
+        if not hasattr(self, "session_controller"):
+            if getattr(self, "_loop_active", False) or getattr(self, "loop_job", None) is not None:
+                self._clear_loop_state()
+                self.runtime_log.write("run_control", "loop_stopped_by_rearm")
+            self.controller.start()
+            self.runtime_log.write("run_control", "started")
+            self._set_status("実行可能")
+            return
+        if self.session_controller.has_pending_step:
+            self._set_status("停止要求を反映中です。前の推論応答を待っています")
+            return
+        if self.session_controller.status is SessionStatus.RUNNING:
+            self.session_controller.stop("rearmed")
+        try:
+            self.session_controller.start()
+        except Exception as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "start_session"})
+            messagebox.showerror("再開エラー", str(exc))
+            return
         self.runtime_log.write("run_control", "started")
         self._set_status("実行可能")
-
-    # {
-    #   責務: [_clear_loop_state: 連続実行状態と予約済みstep callbackを解除する]
-    #   処理: [_loop_activeをFalseにし、予約callbackを取消してloop_job参照を消す。取消失敗はログに記録する]
-    #   引数: []
-    #   戻り値: []
-    # }
-    def _clear_loop_state(self) -> None:
-        self._loop_active = False
-        if self.loop_job is None:
-            return
-        try:
-            self.root.after_cancel(self.loop_job)
-        except tk.TclError as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "cancel_loop_callback"})
-        self.loop_job = None
 
     # {
     #   責務: [stop: 停止要求を即時記録しloop予約と実入力許可を止める]
@@ -754,66 +1005,23 @@ class Application:
     #   戻り値: []
     # }
     def stop(self, reason: str = "ユーザー停止") -> None:
-        self.controller.stop(reason)
-        self._clear_loop_state()
+        if hasattr(self, "session_controller"):
+            self.session_controller.stop(reason)
+        else:
+            self.controller.stop(reason)
+            self._clear_loop_state()
         self.runtime_log.write("run_control", "stopped", {"reason": reason})
         status = f"停止要求を受け付けました（{reason}）。推論結果は破棄します" if self._execution_in_progress else f"停止中（{reason}）"
         self._set_status(status)
 
     # {
-    #   責務: [run_and_execute: 候補を準備し判断・安全検証・実行をworkerへ委譲する]
-    #   処理: [UI上の入力を検証して値を退避し、自動カーソル通知付きpipelineを開始世代付きで非同期起動する]
-    #   引数: [loop_step: 連続実行step由来, expected_rearm_token: 呼び出し元が保持する実行世代]
-    #   戻り値: [bool: workerを開始したか]
-    #   エラー: [入力・設定・pipeline構築に失敗した場合は記録しFalse]
+    #   責務: [run_and_execute: 現在の観測と候補を検証してSessionへ実行stepを依頼する]
+    #   処理: [設定を保存し、Session runtimeへ渡すデータを更新して非同期stepを開始する]
+    #   引数: []
+    #   戻り値: [bool: Sessionが実行stepを受け付けた場合はTrue]
     # }
-    # {
-    #   責務: [run_and_execute: 候補を準備し判断・安全検証・実行をworkerへ委譲する]
-    #   処理: [UI上の入力を検証して値を退避し、開始世代付きでpipelineを非同期起動する]
-    #   引数: [loop_step: 連続実行step由来, expected_rearm_token: 呼び出し元が保持する実行世代]
-    #   戻り値: [bool: workerを開始したか]
-    #   エラー: [入力・設定・pipeline構築に失敗した場合は記録しFalse]
-    # }
-    def run_and_execute(self, *, loop_step: bool = False, expected_rearm_token: int | None = None) -> bool:
-        if self._loop_active and not loop_step:
-            self._set_status("連続実行中は単独実行を開始できません")
-            return False
-        if self._execution_in_progress:
-            self._set_status("停止要求を反映中です。前の推論応答を待っています")
-            return False
-        pipeline: DecisionPipeline | None = None
-        try:
-            run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
-            self.controller.ensure_running(run_token)
-            self._validate_live_execution()
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
-            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            evaluation = ActionEvaluator().explain(observation, candidates)
-            self.evaluation.delete("1.0", tk.END)
-            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
-            provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(
-                MemorySource(observation, candidates),
-                Path("data/games/sandbox"),
-                provider,
-                self.controller,
-                dry_run=not self.live_execution.get(),
-                window_handle=self.window_handles.get(self.window_choice.get()),
-                input_mode=self.input_mode.get(),
-                window_process_id=self.window_process_ids.get(self.window_choice.get()),
-                automated_cursor_position_callback=self._record_automated_cursor_position,
-            )
-            started = self._start_pipeline_worker(pipeline, "execute", self.purpose.get(), self.personality.get(), run_token, loop_step)
-            pipeline = None
-            return started
-        except Exception as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "execution"})
-            messagebox.showerror("実行エラー", str(exc))
-            return False
-        finally:
-            if pipeline is not None:
-                pipeline.close()
+    def run_and_execute(self) -> bool:
+        return self._run_session_step("execute")
 
     # {
     #   責務: [run: 実入力を許可せず候補判断をworkerへ委譲する]
@@ -822,29 +1030,59 @@ class Application:
     #   戻り値: []
     # }
     def run(self) -> None:
-        if self._loop_active:
-            self._set_status("連続実行中は単独判断を開始できません")
-            return
-        if self._execution_in_progress:
+        self._run_session_step("decision")
+
+    # {
+    #   責務: [_run_session_step: UI入力を検証してSessionへ非同期stepを依頼する]
+    #   処理: [重複stepを拒否し、観測・候補・設定を更新した後にSession controllerを呼び出す]
+    #   引数: [command: executeなら安全評価後に実行し、decisionなら候補判断だけを行う]
+    #   戻り値: [bool: step要求を受け付けた場合はTrue]
+    # }
+    def _run_session_step(self, command: str) -> bool:
+        if not hasattr(self, "session_controller"):
+            try:
+                self._validate_live_execution()
+            except Exception as exc:
+                self.runtime_log.write("error", str(exc), {"operation": command})
+                messagebox.showerror("実行エラー", str(exc))
+                return False
+            return False
+        if self._is_looping():
+            self._set_status("連続実行中は単独stepを開始できません")
+            return False
+        if self.session_controller.has_pending_step or self._execution_in_progress:
             self._set_status("停止要求を反映中です。前の推論応答を待っています")
-            return
-        pipeline: DecisionPipeline | None = None
+            return False
         try:
-            run_token = self.controller.rearm_token
-            self.controller.ensure_running(run_token)
+            self._validate_live_execution()
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=True, window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get(), window_process_id=self.window_process_ids.get(self.window_choice.get()))
-            self._start_pipeline_worker(pipeline, "decision", self.purpose.get(), self.personality.get(), run_token, False)
-            pipeline = None
+            evaluation = ActionEvaluator().explain(observation, candidates)
+            self.evaluation.delete("1.0", tk.END)
+            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
+            self.memory_source.update(observation, candidates)
+            self._session_dry_run = command != "execute" or not self.live_execution.get()
+            if self.session_controller.status is SessionStatus.RUNNING:
+                self.session_controller.stop("new_step_configuration")
+            self.session_controller.step(command)
+            return True
         except Exception as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "decision"})
-            messagebox.showerror("判断エラー", str(exc))
-        finally:
-            if pipeline is not None:
-                pipeline.close()
+            self.runtime_log.write("error", str(exc), {"operation": command})
+            messagebox.showerror("実行エラー" if command == "execute" else "判断エラー", str(exc))
+            return False
+
+    # {
+    #   責務: [close: アプリ終了時にSessionを停止し、実行中workerの安全な終了を待つ]
+    #   処理: [loopを停止し、pending stepがあれば結果pollerに終了後のroot破棄を任せる]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def close(self) -> None:
+        self._closing = True
+        self.session_controller.stop("application_closed")
+        if not self.session_controller.has_pending_step:
+            self.root.destroy()
 
 
 def main() -> None:
