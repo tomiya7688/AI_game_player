@@ -386,6 +386,9 @@ classDiagram
     }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
+        +run()
+        +run_and_execute()
+        +assess_outcome()
         +close()
     }
     Protocol <|-- SessionScheduler
@@ -416,6 +419,7 @@ classDiagram
         +start_loop()
         +stop()
         +ensure_running()
+        +assess_outcome()
         +rearm_token()
         +_schedule_next()
         +_run_loop_step()
@@ -769,6 +773,23 @@ classDiagram
         +get()
         +names()
         +resolve()
+    }
+    class SessionRuntimeConfiguration {
+    }
+    class ManagedSessionRuntime {
+        +__init__()
+        +run()
+        +run_and_execute()
+        +assess_outcome()
+        +close()
+    }
+    class RuntimeComposition {
+        +__init__()
+        +create_session_runtime()
+        +assess_outcome()
+        +assess_locally()
+        +explain_actions()
+        +list_models()
     }
     class RuntimeLog {
         +__init__()

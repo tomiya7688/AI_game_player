@@ -88,6 +88,20 @@ class GameSessionControllerTests(unittest.TestCase):
         controller.stop()
         self.assertEqual(runtimes[0].close_count, 1)
 
+    def test_session_outcome_assessment_uses_the_owned_runtime(self):
+        class OutcomeRuntime(FakeRuntime):
+            def assess_outcome(self, observation, previous):
+                return (observation, previous)
+
+        runtime = OutcomeRuntime(1)
+        controller = GameSessionController(lambda: runtime, lambda _runtime, _command: SessionStep())
+        controller.start()
+        observation = ScreenObservation("current", 1, 1)
+        previous = ScreenObservation("previous", 1, 1)
+
+        self.assertEqual(controller.assess_outcome(observation, previous), (observation, previous))
+        controller.stop()
+
     def test_restart_creates_a_fresh_runtime_after_stop(self):
         controller, runtimes, calls = self.make_controller()
         controller.start()
