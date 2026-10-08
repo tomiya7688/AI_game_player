@@ -1,4 +1,5 @@
 import ctypes
+import queue
 import threading
 import unittest
 from types import SimpleNamespace
@@ -7,6 +8,7 @@ from unittest.mock import patch
 from ai_game_player import app as app_module
 from ai_game_player.app import Application
 from ai_game_player.models import ScreenObservation
+from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.run_control import RunController
 
 
@@ -217,6 +219,101 @@ class LiveExecutionValidationTests(unittest.TestCase):
         )
 
         self.assertEqual(stopped, [True])
+
+    def test_poll_background_results_discards_superseded_assessment(self):
+        application = Application.__new__(Application)
+        earlier_observation = ScreenObservation("earlier", 1280, 720, [])
+        latest_observation = ScreenObservation("latest", 1280, 720, [])
+        previous_observation = ScreenObservation("previous", 1280, 720, [])
+        earlier_assessment = OutcomeAssessment("failure", 0.9, "older result")
+        latest_assessment = OutcomeAssessment("ongoing", 0.4, "latest result")
+        displayed_statuses = []
+        application._background_results = queue.Queue()
+        application._latest_assessment_task_id = 2
+        application._loop_active = False
+        application.controller = SimpleNamespace(is_running=False, rearm_token=0, stop_reason=None)
+        application.runtime_log = RecordingLog()
+        application.provider = FakeVariable("Rule")
+        application.previous_observation = previous_observation
+        application.current_assessment = None
+        application.outcome = SimpleNamespace(config=lambda **values: displayed_statuses.append(values["text"]))
+        application.root = SimpleNamespace(after=lambda *_args: None)
+        application._background_results.put(("assessment", 2, None, "assessment", latest_assessment, None, False, latest_observation))
+        application._background_results.put(("assessment", 1, None, "assessment", earlier_assessment, None, False, earlier_observation))
+
+        application._poll_background_results()
+
+        self.assertIs(application.previous_observation, latest_observation)
+        self.assertIs(application.current_assessment, latest_assessment)
+        self.assertEqual(displayed_statuses, ["状態: ongoing (40%)"])
+        self.assertEqual(application.runtime_log.records[-1][1], "outcome_result_discarded")
+        self.assertEqual(application.runtime_log.records[-1][2]["task_id"], 1)
+        self.assertEqual(application.runtime_log.records[-1][2]["latest_task_id"], 2)
+
+    def test_start_assessment_worker_records_task_after_successful_start(self):
+        application = Application.__new__(Application)
+        application._background_task_counter = 5
+        application._latest_assessment_task_id = 4
+        application.previous_observation = None
+        application.provider = FakeVariable("Rule")
+        application.model = FakeVariable("")
+        application.endpoint = FakeVariable("")
+        worker = SimpleNamespace(start=lambda: None)
+
+        with patch.object(app_module.threading, "Thread", return_value=worker):
+            application._start_assessment_worker(
+                ScreenObservation("current", 1280, 720, []),
+                loop_step=False,
+                run_token=None,
+            )
+
+        self.assertEqual(application._background_task_counter, 6)
+        self.assertEqual(application._latest_assessment_task_id, 6)
+
+    def test_failed_assessment_worker_start_preserves_previous_latest_task(self):
+        application = Application.__new__(Application)
+        application._background_task_counter = 5
+        application._latest_assessment_task_id = 4
+        application.previous_observation = None
+        application.provider = FakeVariable("Rule")
+        application.model = FakeVariable("")
+        application.endpoint = FakeVariable("")
+        application.runtime_log = RecordingLog()
+        statuses = []
+        application._set_status = statuses.append
+
+        def fail_to_start():
+            raise RuntimeError("thread start failed")
+
+        worker = SimpleNamespace(start=fail_to_start)
+
+        with patch.object(app_module.threading, "Thread", return_value=worker):
+            application._start_assessment_worker(
+                ScreenObservation("current", 1280, 720, []),
+                loop_step=False,
+                run_token=None,
+            )
+
+        self.assertEqual(application._background_task_counter, 6)
+        self.assertEqual(application._latest_assessment_task_id, 4)
+        self.assertEqual(statuses, ["状態評価を開始できません"])
+
+    def test_poll_background_results_stops_loop_for_superseded_loop_assessment(self):
+        application = Application.__new__(Application)
+        application._background_results = queue.Queue()
+        application._latest_assessment_task_id = 2
+        application._loop_active = True
+        application.controller = SimpleNamespace(is_running=True, rearm_token=4, stop_reason=None)
+        application.runtime_log = RecordingLog()
+        application.root = SimpleNamespace(after=lambda *_args: None)
+        stopped_reasons = []
+        application.stop = stopped_reasons.append
+        application._background_results.put(("assessment", 1, 4, "assessment", None, None, True, ScreenObservation("old", 1280, 720, [])))
+
+        application._poll_background_results()
+
+        self.assertEqual(stopped_reasons, ["assessment_superseded"])
+        self.assertEqual(application.runtime_log.records[0][1], "outcome_result_discarded")
 
     # {
     #   責務: [test_poll_global_stop_ignores_automated_cursor_move: 自動クリック先への移動を手動停止と誤認しないことを検証する]

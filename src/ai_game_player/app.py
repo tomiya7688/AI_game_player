@@ -54,13 +54,15 @@ class MemorySource:
 #     window_handles: 表示名ごとのHWND
 #     window_process_ids: 表示名ごとの列挙時PID
 #     live_execution: 実入力の許可状態
+#     _latest_assessment_task_id: 結果を適用できる最新の画面評価worker ID
 #     _automated_cursor_position: 入力workerが通知した自動移動の予定座標と進行状態
 #   ]
 #   処理: [
 #     1: UI commandの入力を検証する
 #     2: 対象識別情報を実行パイプラインへ渡す
-#     3: 自動カーソル移動を停止監視へ通知する
-#     4: 実行結果と状態を画面へ表示する
+#     3: 画面評価結果の新旧を判定する
+#     4: 自動カーソル移動を停止監視へ通知する
+#     5: 実行結果と状態を画面へ表示する
 #   ]
 # }
 class Application:
@@ -71,8 +73,9 @@ class Application:
     #   処理: [
     #     1: 設定と実行制御を初期化する
     #     2: 対象ウィンドウの識別情報を保持する
-    #     3: 自動カーソル位置のworker/UI間同期を初期化する
-    #     4: UI commandと表示を接続する
+    #     3: worker結果と最新画面評価IDを初期化する
+    #     4: 自動カーソル位置のworker/UI間同期を初期化する
+    #     5: UI commandと表示を接続する
     #   ]
     #   引数: [
     #     root: Tkinterのルートウィンドウ
@@ -93,6 +96,7 @@ class Application:
         self._execution_in_progress = False
         self._background_task_counter = 0
         self._execution_task_id: int | None = None
+        self._latest_assessment_task_id: int | None = None
         self._background_results: queue.Queue[tuple[str, int, int | None, str, object | None, Exception | None, bool, ScreenObservation | None]] = queue.Queue()
         self._last_cursor_position: tuple[int, int] | None = None
         self._automated_cursor_position_lock = threading.Lock()
@@ -386,7 +390,7 @@ class Application:
 
     # {
     #   責務: [_start_assessment_worker: Ollamaを含む画面状態評価をUIスレッド外で開始する]
-    #   処理: [UI設定を値として退避し、結果をスレッドセーフなqueueへ送る]
+    #   処理: [UI設定をworkerへ渡し、起動成功後にその評価IDを最新IDとして記録する]
     #   引数: [observation: 評価対象, loop_step: 連続実行の継続判定か, run_token: 呼び出し時の実行世代]
     #   戻り値: []
     # }
@@ -415,6 +419,7 @@ class Application:
         )
         try:
             worker.start()
+            self._latest_assessment_task_id = task_id
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_outcome_assessment_worker"})
             if loop_step:
@@ -538,7 +543,7 @@ class Application:
 
     # {
     #   責務: [_poll_background_results: worker結果をGUIスレッドで適用する]
-    #   処理: [worker結果の世代を確認して有効結果を表示し、カーソル停止基準は監視処理だけで更新する]
+    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、カーソル停止基準は監視処理だけで更新する]
     #   引数: []
     #   戻り値: []
     # }
@@ -552,6 +557,19 @@ class Application:
             if task_type == "assessment":
                 if run_token is not None and not self._run_is_current(run_token):
                     self.runtime_log.write("run_control", "outcome_result_discarded", {"reason": self.controller.stop_reason or "execution generation changed"})
+                    continue
+                if task_id != self._latest_assessment_task_id:
+                    self.runtime_log.write(
+                        "run_control",
+                        "outcome_result_discarded",
+                        {
+                            "reason": "superseded by newer assessment",
+                            "task_id": task_id,
+                            "latest_task_id": self._latest_assessment_task_id,
+                        },
+                    )
+                    if loop_step and self._loop_active and self._run_is_current(run_token):
+                        self.stop("assessment_superseded")
                     continue
                 if error is not None:
                     self.runtime_log.write("error", str(error), {"operation": "outcome_assessment"})
