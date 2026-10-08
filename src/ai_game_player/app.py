@@ -718,15 +718,34 @@ class Application:
             self.stop("pipeline_step_not_started")
 
     # {
-    #   責務: [start: 実行世代を進めて停止状態から再開する]
-    #   処理: [RunControllerを再開し状態とログを更新する]
+    #   責務: [start: 「再開」操作で実行世代を進め、停止状態を解除する]
+    #   処理: [連続実行が有効なら旧loopと予約callbackを解除し、RunControllerを再開して状態とログを更新する]
     #   引数: []
     #   戻り値: []
     # }
     def start(self) -> None:
+        if self._loop_active or self.loop_job is not None:
+            self._clear_loop_state()
+            self.runtime_log.write("run_control", "loop_stopped_by_rearm")
         self.controller.start()
         self.runtime_log.write("run_control", "started")
         self._set_status("実行可能")
+
+    # {
+    #   責務: [_clear_loop_state: 連続実行状態と予約済みstep callbackを解除する]
+    #   処理: [_loop_activeをFalseにし、予約callbackを取消してloop_job参照を消す。取消失敗はログに記録する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def _clear_loop_state(self) -> None:
+        self._loop_active = False
+        if self.loop_job is None:
+            return
+        try:
+            self.root.after_cancel(self.loop_job)
+        except tk.TclError as exc:
+            self.runtime_log.write("error", str(exc), {"operation": "cancel_loop_callback"})
+        self.loop_job = None
 
     # {
     #   責務: [stop: 停止要求を即時記録しloop予約と実入力許可を止める]
@@ -736,13 +755,7 @@ class Application:
     # }
     def stop(self, reason: str = "ユーザー停止") -> None:
         self.controller.stop(reason)
-        self._loop_active = False
-        if self.loop_job is not None:
-            try:
-                self.root.after_cancel(self.loop_job)
-            except tk.TclError as exc:
-                self.runtime_log.write("error", str(exc), {"operation": "cancel_loop_callback"})
-            self.loop_job = None
+        self._clear_loop_state()
         self.runtime_log.write("run_control", "stopped", {"reason": reason})
         status = f"停止要求を受け付けました（{reason}）。推論結果は破棄します" if self._execution_in_progress else f"停止中（{reason}）"
         self._set_status(status)

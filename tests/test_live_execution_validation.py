@@ -9,7 +9,7 @@ from ai_game_player import app as app_module
 from ai_game_player.app import Application
 from ai_game_player.models import ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.run_control import RunController
+from ai_game_player.run_control import ExecutionCancelled, RunController
 
 
 # {
@@ -270,6 +270,60 @@ class LiveExecutionValidationTests(unittest.TestCase):
             application.start_loop()
 
         show_error.assert_called_once()
+
+    # {
+    #   責務: [test_rearm_clears_invalidated_loop_and_allows_restart: 再アームで旧loopを解除し、新しい連続実行を開始できることを検証する]
+    #   処理: [再アーム後に旧worker結果を破棄し、loop状態を残さずstart_loopが再予約できることを確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_rearm_clears_invalidated_loop_and_allows_restart(self):
+        application = Application.__new__(Application)
+        controller = RunController()
+        controller.start()
+        old_run_token = controller.rearm_token
+        cancelled_callbacks = []
+        scheduled_callbacks = []
+        statuses = []
+        application.controller = controller
+        application._loop_active = True
+        application.loop_job = "pending-loop-step"
+        application._execution_in_progress = True
+        application._execution_task_id = 7
+        application._background_results = queue.Queue()
+        application.runtime_log = RecordingLog()
+        application.root = SimpleNamespace(
+            after_cancel=cancelled_callbacks.append,
+            after=lambda delay, callback: scheduled_callbacks.append((delay, callback)) or f"callback-{len(scheduled_callbacks)}",
+        )
+        application._set_status = statuses.append
+
+        application.start()
+
+        self.assertEqual(cancelled_callbacks, ["pending-loop-step"])
+        self.assertFalse(application._loop_active)
+        self.assertIsNone(application.loop_job)
+        self.assertGreater(controller.rearm_token, old_run_token)
+        self.assertTrue(controller.is_running)
+
+        application._background_results.put(
+            ("pipeline", 7, old_run_token, "execute", None, ExecutionCancelled("再アーム"), True, None)
+        )
+        application._poll_background_results()
+
+        self.assertFalse(application._execution_in_progress)
+        self.assertFalse(application._loop_active)
+        self.assertTrue(controller.is_running)
+
+        application._validate_live_execution = lambda: None
+        application._record_automated_cursor_position = lambda *_args: None
+        application._cursor_position = lambda: (100, 200)
+        application.loop_guard = SimpleNamespace(reset=lambda: None)
+        application.start_loop()
+
+        self.assertTrue(application._loop_active)
+        self.assertEqual(application.loop_job, "callback-2")
+        self.assertEqual(application.runtime_log.records[0][1], "loop_stopped_by_rearm")
 
     # {
     #   責務: [test_loop_stops_when_step_fails: 評価後にstepを開始できなければ連続実行を止める]
