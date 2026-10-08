@@ -1,5 +1,6 @@
 import ctypes
 import os
+import threading
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -9,6 +10,7 @@ from ai_game_player import windows_input
 from ai_game_player.action_executor import ActionExecutor
 from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
+from ai_game_player.run_control import RunController
 from ai_game_player.windows_input import SPECIAL_KEYS, WindowsInputExecutor
 
 
@@ -19,6 +21,7 @@ from ai_game_player.windows_input import SPECIAL_KEYS, WindowsInputExecutor
 class FakeUser32:
     def __init__(self):
         self.cursor_positions = []
+        self.cursor_position_result = 1
         self.mouse_events = []
         self.key_events = []
         self.messages = []
@@ -58,7 +61,7 @@ class FakeUser32:
 
     def SetCursorPos(self, x, y):
         self.cursor_positions.append((x, y))
-        return 1
+        return self.cursor_position_result
 
     def mouse_event(self, flags, _x, _y, _data, _extra):
         self.mouse_events.append((flags, _x, _y))
@@ -91,6 +94,52 @@ class MemoryLedgerStore:
 #   フィールド: [各testがfake user32とActionCandidateを使う]
 # }
 class WindowsInputTest(unittest.TestCase):
+    def test_controller_stop_releases_key_during_live_hold(self):
+        controller = RunController()
+        key_pressed = threading.Event()
+
+        class TargetUser32(FakeUser32):
+            def GetWindowThreadProcessId(self, _handle, process_id_pointer):
+                ctypes.cast(process_id_pointer, ctypes.POINTER(ctypes.c_ulong)).contents.value = 456
+                return 1
+
+            def VkKeyScanW(self, character):
+                return character
+
+            def keybd_event(self, virtual_key, scan_code, flags, extra_info):
+                super().keybd_event(virtual_key, scan_code, flags, extra_info)
+                if flags == 0:
+                    key_pressed.set()
+
+        user32 = TargetUser32()
+        executor = WindowsInputExecutor(
+            window_handle=123,
+            window_process_id=456,
+            stop_checker=lambda: not controller.is_running,
+        )
+        candidate = ActionCandidate("hold-a", "key", "A", hold_seconds=1.0)
+        execution_errors = []
+
+        def execute_key_hold():
+            try:
+                executor.execute(candidate)
+            except RuntimeError as exc:
+                execution_errors.append(exc)
+
+        with patch.object(windows_input.os, "name", "nt"), patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
+            worker = threading.Thread(target=execute_key_hold)
+            worker.start()
+            self.assertTrue(key_pressed.wait(timeout=1))
+            controller.stop("Stop button")
+            worker.join(timeout=2)
+
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(len(execution_errors), 1)
+        self.assertIn("emergency stop interrupted Windows input", str(execution_errors[0]))
+        self.assertIn((0x41, 2), user32.key_events)
+
     def test_unsupported_input_mode_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "unsupported Windows input mode"):
             WindowsInputExecutor(input_mode="unknown")
@@ -152,6 +201,46 @@ class WindowsInputTest(unittest.TestCase):
 
         self.assertEqual(user32.cursor_positions, [(130, 245)])
         self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0)])
+
+    def test_mouse_input_reports_automated_cursor_position_before_moving(self):
+        user32 = FakeUser32()
+        notifications = []
+
+        def record_notification(position, move_in_progress):
+            notifications.append((position, move_in_progress))
+
+        executor = WindowsInputExecutor(
+            window_handle=123,
+            input_mode="mouse",
+            automated_cursor_position_callback=record_notification,
+        )
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
+
+        self.assertEqual(notifications, [((130, 245), True), ((130, 245), False)])
+        self.assertEqual(user32.cursor_positions, [(130, 245)])
+
+    def test_failed_automated_cursor_move_clears_stop_monitor_notification(self):
+        user32 = FakeUser32()
+        user32.cursor_position_result = 0
+        notifications = []
+
+        def record_notification(position, move_in_progress):
+            notifications.append((position, move_in_progress))
+
+        executor = WindowsInputExecutor(
+            window_handle=123,
+            input_mode="mouse",
+            automated_cursor_position_callback=record_notification,
+        )
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            with self.assertRaisesRegex(RuntimeError, "SetCursorPos failed"):
+                executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
+
+        self.assertEqual(notifications, [((130, 245), True), (None, False)])
+        self.assertEqual(user32.mouse_events, [])
 
     def test_window_message_translates_window_coordinates_to_client_lparam(self):
         user32 = FakeUser32()

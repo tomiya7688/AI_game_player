@@ -38,6 +38,7 @@ SPECIAL_KEYS = {
 #     window_handle: 選択済みウィンドウハンドル
 #     window_process_id: ウィンドウ選択時の所有PID
 #     input_mode: window_messageまたはグローバルmouse方式
+#     automated_cursor_position_callback: 自動カーソル移動の進行状態を通知する関数
 #   ]
 #   処理: [
 #     1: 入力対象の現行PIDを実行直前に検証する
@@ -54,7 +55,7 @@ class WindowsInputExecutor:
     #   ]
     #   処理: [
     #     1: HWND・入力方式・期待PIDを保存する
-    #     2: stop checkerとledgerを設定する
+    #     2: stop checker・ledger・カーソル移動通知関数を保持する
     #     3: 不正な入力方式とhold TTLを拒否する
     #   ]
     #   引数: [
@@ -63,6 +64,7 @@ class WindowsInputExecutor:
     #     window_process_id: 選択時の対象プロセスID
     #     stop_checker: 緊急停止状態を確認する関数
     #     input_ledger: held入力状態の記録先
+    #     automated_cursor_position_callback: 自動クリックの開始・完了を停止監視へ通知する関数
     #   ]
     #   戻り値: []
     #   エラー: [
@@ -78,6 +80,7 @@ class WindowsInputExecutor:
         stop_checker: Callable[[], bool] | None = None,
         input_ledger: InputLedger | None = None,
         hold_ttl_seconds: float | None = None,
+        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
     ) -> None:
         self.window_handle = window_handle
         if input_mode not in {"mouse", "window_message"}:
@@ -86,6 +89,7 @@ class WindowsInputExecutor:
         self.window_process_id = window_process_id
         self.stop_checker = stop_checker or (lambda: False)
         self.input_ledger = input_ledger
+        self.automated_cursor_position_callback = automated_cursor_position_callback
         self.hold_ttl_seconds = 1.0 if hold_ttl_seconds is None else float(hold_ttl_seconds)
         if self.hold_ttl_seconds <= 0:
             raise ValueError("hold TTL must be positive")
@@ -181,6 +185,13 @@ class WindowsInputExecutor:
         for button in tuple(self._held_mouse):
             self._mouse_up(button)
 
+    # {
+    #   責務: [_execute_click: 対象ウィンドウの座標を指定方式でクリックする]
+    #   処理: [window_message方式では対象へmessageを送り、mouse方式では移動先を停止監視へ通知してからクリックする]
+    #   引数: [candidate: 安全評価済みクリック候補とウィンドウ内座標]
+    #   戻り値: []
+    #   エラー: [座標欠落またはWin32座標・入力APIの失敗でValueErrorまたはRuntimeError]
+    # }
     def _execute_click(self, candidate: ActionCandidate) -> None:
         if candidate.x is None or candidate.y is None:
             raise ValueError("click action requires coordinates")
@@ -207,7 +218,17 @@ class WindowsInputExecutor:
             if not user32.GetWindowRect(self.window_handle, ctypes.byref(rect)):
                 raise RuntimeError("GetWindowRect failed")
             x, y = x + int(rect[0]), y + int(rect[1])
-        user32.SetCursorPos(x, y)
+        if self.automated_cursor_position_callback is not None:
+            self.automated_cursor_position_callback((x, y), True)
+        try:
+            if not user32.SetCursorPos(x, y):
+                raise RuntimeError("SetCursorPos failed")
+        except Exception:
+            if self.automated_cursor_position_callback is not None:
+                self.automated_cursor_position_callback(None, False)
+            raise
+        if self.automated_cursor_position_callback is not None:
+            self.automated_cursor_position_callback((x, y), False)
         self._mouse_down("left")
         try:
             self._mouse_up("left")

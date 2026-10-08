@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Callable
 
 from ai_game_player.action_executor import ActionExecutor, ExecutionResult
 from ai_game_player.action_safety import (
@@ -32,12 +33,15 @@ class DecisionPipeline:
     #   処理: [
     #     1: 候補生成と判断用componentを初期化する
     #     2: HWND・PID・入力方式をActionExecutorへ渡す
-    #     3: Session用履歴と安全評価を初期化する
+    #     3: RunControllerの停止状態を実入力の停止確認へ渡す
+    #     4: 自動カーソル通知関数をActionExecutorへ渡す
+    #     5: Session用履歴と安全評価を初期化する
     #   ]
     #   引数: [
     #     window_handle: 選択中の対象HWND
     #     window_process_id: 列挙時にHWNDを所有していたPID
     #     input_mode: OSマウスまたは対象ウィンドウmessage方式
+    #     automated_cursor_position_callback: 実入力workerが自動クリックの開始・完了を通知する関数
     #   ]
     #   戻り値: []
     # }
@@ -58,6 +62,7 @@ class DecisionPipeline:
         fail_safe_runtime: FailSafeRuntime | None = None,
         fail_safe_config: FailSafeConfig | None = None,
         external_watchdog: bool = True,
+        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
@@ -78,6 +83,8 @@ class DecisionPipeline:
             fail_safe_config=fail_safe_config,
             fail_safe_state_directory=game_directory / "fail_safe",
             external_watchdog=external_watchdog,
+            run_controller_stop_checker=lambda: not self.controller.is_running,
+            automated_cursor_position_callback=automated_cursor_position_callback,
         )
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
@@ -93,31 +100,70 @@ class DecisionPipeline:
         image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
         return observation, self.merger.merge(configured, detected, image)
 
+    # {
+    #   責務: [_decide: 候補を判断し、推論応答を履歴へ確定する前に停止状態を再検証する]
+    #   処理: [観測候補を取得してproviderを呼び、履歴公開をrun世代lock内で行うguardをengineへ渡す]
+    #   引数: [ocr_texts: 画面から認識したOCR候補, purpose: 判断providerへ渡すゲーム目標, personality: 判断方針, expected_rearm_token: 判断開始時の再開世代]
+    #   戻り値: [ActionDecision・候補・ScreenObservation: 同一snapshotの判断情報]
+    # }
     def _decide(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
         purpose: str = "",
         personality: str = "",
+        expected_rearm_token: int | None = None,
     ) -> tuple[ActionDecision, list[ActionCandidate], ScreenObservation]:
         observation, candidates = self._read_candidates(ocr_texts)
-        decision = self.engine.step(observation, candidates, purpose, personality)
+        decision = self.engine.step(
+            observation,
+            candidates,
+            purpose,
+            personality,
+            before_provider=lambda: self.controller.ensure_running(expected_rearm_token),
+            commit_guard=lambda commit: self.controller.run_if_current(expected_rearm_token, commit),
+        )
         return decision, candidates, observation
 
-    def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
-        self.controller.ensure_running()
+    # {
+    #   責務: [run: 実行世代を固定して判断し、停止後に返った推論結果を破棄する]
+    #   処理: [開始時の世代を検証し、判断後にも同世代の実行許可を確認する]
+    #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
+    #   戻り値: [ActionDecision: 有効な実行世代で得た判断]
+    #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
+    # }
+    def run(
+        self,
+        ocr_texts: list[dict[str, object]] | None = None,
+        purpose: str = "",
+        personality: str = "",
+        expected_rearm_token: int | None = None,
+    ) -> ActionDecision:
+        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, _, _ = self._decide(ocr_texts, purpose, personality)
+        decision, _, _ = self._decide(ocr_texts, purpose, personality, run_token)
+        self.controller.ensure_running(run_token)
         return decision
 
+    # {
+    #   責務: [run_and_execute: 停止・再開された推論結果を実入力へ進ませず候補を実行する]
+    #   処理: [開始世代を記録し、推論後と入力直前に実行許可を再検証して実入力中も同じ世代の停止状態を確認する]
+    #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
+    #   戻り値: [ExecutionResult: 候補の実行結果]
+    #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
+    # }
     def run_and_execute(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
         purpose: str = "",
         personality: str = "",
+        expected_rearm_token: int | None = None,
     ) -> ExecutionResult:
-        self.controller.ensure_running()
+        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, candidates, observation = self._decide(ocr_texts, purpose, personality)
+        decision, candidates, observation = self._decide(ocr_texts, purpose, personality, run_token)
+        self.controller.ensure_running(run_token)
         selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
         if selected is None:
             raise RuntimeError("決定された候補が統合済み候補にありません")
@@ -132,6 +178,8 @@ class DecisionPipeline:
             requests = ", ".join(assessment.verification_requests)
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
 
+        self.controller.ensure_running(run_token)
+        self._bind_execution_stop_checker(run_token)
         result = self.executor.execute(selected)
         self.execution_history.append(result)
         self.safety_audit.append_execution(assessment.assessment_id, result)
@@ -165,6 +213,17 @@ class DecisionPipeline:
             return
         self.executor.rearm_safety()
         self._seen_rearm_token = token
+
+    # {
+    #   責務: [_bind_execution_stop_checker: 現在の実入力をRunControllerの停止・再開世代へ結び付ける]
+    #   処理: [停止状態または開始後の世代変更を検出する確認関数をActionExecutorへ登録する]
+    #   引数: [run_token: 実入力stepの開始時に記録した再開世代]
+    #   戻り値: []
+    # }
+    def _bind_execution_stop_checker(self, run_token: int) -> None:
+        self.executor.run_controller_stop_checker = lambda: (
+            not self.controller.is_running or self.controller.rearm_token != run_token
+        )
 
     def _safety_context(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)

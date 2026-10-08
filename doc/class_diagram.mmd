@@ -62,15 +62,24 @@ classDiagram
         +_refresh_execution_controls()
         +_validate_live_execution()
         +_cursor_position()
+        +_record_automated_cursor_position()
         +_poll_global_stop()
         +check_ollama()
         +refresh_models()
         +refresh_windows()
         +_assess_observation()
         +capture_screen()
+        +_start_assessment_worker()
+        +_assess_observation_in_background()
+        +_start_pipeline_worker()
+        +_run_pipeline_in_background()
+        +_run_is_current()
+        +_poll_background_results()
         +start_loop()
         +_loop_step()
+        +_continue_loop_with_assessment()
         +start()
+        +_clear_loop_state()
         +stop()
         +run_and_execute()
         +run()
@@ -107,6 +116,10 @@ classDiagram
         +_iter_digests()
         +_write_staged_file()
         +_fsync_directory()
+    }
+    class StagedJsonWrite {
+        +publish()
+        +discard()
     }
     class BrightRegionDetector {
         +__init__()
@@ -181,9 +194,9 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +prepare_append()
         +recent()
         +_read()
-        +_write()
     }
     class GamePlayerEngine {
         +__init__()
@@ -355,6 +368,7 @@ classDiagram
     class HistoryStore {
         +__init__()
         +append()
+        +prepare_append()
     }
     class KnowledgeStore {
         +__init__()
@@ -554,6 +568,7 @@ classDiagram
         +rearm_safety()
         +close()
         +_sync_runtime_rearm()
+        +_bind_execution_stop_checker()
         +_safety_context()
     }
     class RuleProvider {
@@ -573,12 +588,19 @@ classDiagram
         +__init__()
         +detect()
     }
+    RuntimeError <|-- ExecutionCancelled
+    class ExecutionCancelled {
+        +__init__()
+    }
     class RunController {
         +__init__()
         +is_running()
         +rearm_token()
+        +stop_reason()
         +start()
         +stop()
+        +_validate_running_locked()
+        +run_if_current()
         +ensure_running()
     }
     class ResolutionFailure {

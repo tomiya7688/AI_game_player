@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 from ai_game_player.fail_safe_runtime import FailSafeCommand, FailSafeConfig, FailSafeRuntime, FailSafeState
 from ai_game_player.models import ActionCandidate
@@ -36,11 +36,13 @@ class LiveExecutor(Protocol):
 #     window_process_id: 選択時の対象PID
 #     input_mode: OS入力の送信方式
 #     dry_run: OS入力を無効にする状態
+#     automated_cursor_position_callback: 自動クリックの開始・完了をUI停止監視へ知らせる関数
 #   ]
 #   処理: [
 #     1: SafetyGuardを通す
 #     2: 対象が変化していないことを確認する
-#     3: 明示されたExecutorだけを呼び出す
+#     3: 自動カーソル通知をWindowsInputExecutorへ渡す
+#     4: 明示されたExecutorだけを呼び出す
 #   ]
 # }
 class ActionExecutor:
@@ -57,6 +59,8 @@ class ActionExecutor:
     #     window_handle: 対象HWND
     #     input_mode: 選択された入力方式
     #     window_process_id: 列挙時に対象HWNDを所有したPID
+    #     run_controller_stop_checker: RunControllerが停止済みならTrueを返す確認関数
+    #     automated_cursor_position_callback: 実入力workerが自動クリックの開始・完了を通知する関数
     #   ]
     #   戻り値: []
     # }
@@ -76,12 +80,16 @@ class ActionExecutor:
         fail_safe_config: FailSafeConfig | None = None,
         fail_safe_state_directory: Path | None = None,
         external_watchdog: bool = True,
+        run_controller_stop_checker: Callable[[], bool] | None = None,
+        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
     ) -> None:
         self.dry_run = dry_run
         self.live_executor = live_executor
         self.window_handle = window_handle
         self.input_mode = input_mode
         self.window_process_id = window_process_id
+        self.run_controller_stop_checker = run_controller_stop_checker or (lambda: False)
+        self.automated_cursor_position_callback = automated_cursor_position_callback
         production_live = not dry_run and live_executor is None
         if safety_guard is None:
             if safety_config is None:
@@ -187,6 +195,7 @@ class ActionExecutor:
                     self.input_mode,
                     window_process_id=self.window_process_id,
                     stop_checker=self._stop_requested,
+                    automated_cursor_position_callback=self.automated_cursor_position_callback,
                     input_ledger=runtime.ledger if runtime is not None else None,
                     hold_ttl_seconds=runtime.config.hold_ttl_seconds if runtime is not None else None,
                 )
@@ -242,9 +251,15 @@ class ActionExecutor:
         runtime = self.fail_safe_runtime
         return None if runtime is None else runtime.state
 
+    # {
+    #   責務: [_stop_requested: UI実行制御・EmergencyStop・FailSafeRuntimeの停止状態を統合する]
+    #   処理: [いずれかの停止状態が有効なら、OS入力の継続を禁止する]
+    #   引数: []
+    #   戻り値: [bool: 実入力を継続できない状態か]
+    # }
     def _stop_requested(self) -> bool:
         runtime = self.fail_safe_runtime
-        return self.emergency_stop.is_triggered() or (
+        return self.run_controller_stop_checker() or self.emergency_stop.is_triggered() or (
             runtime is not None and runtime.state != FailSafeState.ACTIVE
         )
 
