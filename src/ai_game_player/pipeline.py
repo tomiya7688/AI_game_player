@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Callable
 
 from ai_game_player.action_executor import ActionExecutor, ExecutionResult
 from ai_game_player.action_safety import (
@@ -33,12 +34,14 @@ class DecisionPipeline:
     #     1: 候補生成と判断用componentを初期化する
     #     2: HWND・PID・入力方式をActionExecutorへ渡す
     #     3: RunControllerの停止状態を実入力の停止確認へ渡す
-    #     4: Session用履歴と安全評価を初期化する
+    #     4: 自動カーソル通知関数をActionExecutorへ渡す
+    #     5: Session用履歴と安全評価を初期化する
     #   ]
     #   引数: [
     #     window_handle: 選択中の対象HWND
     #     window_process_id: 列挙時にHWNDを所有していたPID
     #     input_mode: OSマウスまたは対象ウィンドウmessage方式
+    #     automated_cursor_position_callback: 実入力workerが自動クリックの開始・完了を通知する関数
     #   ]
     #   戻り値: []
     # }
@@ -59,6 +62,7 @@ class DecisionPipeline:
         fail_safe_runtime: FailSafeRuntime | None = None,
         fail_safe_config: FailSafeConfig | None = None,
         external_watchdog: bool = True,
+        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
@@ -80,6 +84,7 @@ class DecisionPipeline:
             fail_safe_state_directory=game_directory / "fail_safe",
             external_watchdog=external_watchdog,
             run_controller_stop_checker=lambda: not self.controller.is_running,
+            automated_cursor_position_callback=automated_cursor_position_callback,
         )
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()

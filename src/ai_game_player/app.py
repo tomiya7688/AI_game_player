@@ -54,11 +54,13 @@ class MemorySource:
 #     window_handles: 表示名ごとのHWND
 #     window_process_ids: 表示名ごとの列挙時PID
 #     live_execution: 実入力の許可状態
+#     _automated_cursor_position: 入力workerが通知した自動移動の予定座標と進行状態
 #   ]
 #   処理: [
 #     1: UI commandの入力を検証する
 #     2: 対象識別情報を実行パイプラインへ渡す
-#     3: 実行結果と状態を画面へ表示する
+#     3: 自動カーソル移動を停止監視へ通知する
+#     4: 実行結果と状態を画面へ表示する
 #   ]
 # }
 class Application:
@@ -69,7 +71,8 @@ class Application:
     #   処理: [
     #     1: 設定と実行制御を初期化する
     #     2: 対象ウィンドウの識別情報を保持する
-    #     3: UI commandと表示を接続する
+    #     3: 自動カーソル位置のworker/UI間同期を初期化する
+    #     4: UI commandと表示を接続する
     #   ]
     #   引数: [
     #     root: Tkinterのルートウィンドウ
@@ -92,6 +95,9 @@ class Application:
         self._execution_task_id: int | None = None
         self._background_results: queue.Queue[tuple[str, int, int | None, str, object | None, Exception | None, bool, ScreenObservation | None]] = queue.Queue()
         self._last_cursor_position: tuple[int, int] | None = None
+        self._automated_cursor_position_lock = threading.Lock()
+        self._automated_cursor_position: tuple[int, int] | None = None
+        self._automated_cursor_move_in_progress = False
         self.outcome_evaluator = OutcomeEvaluator()
         self.previous_observation: ScreenObservation | None = None
         self.current_assessment = None
@@ -238,8 +244,23 @@ class Application:
         return int(point[0]), int(point[1])
 
     # {
-    #   責務: [_poll_global_stop: UIを塞がず緊急キーと手動マウス移動による停止を検出する]
-    #   処理: [F12または連続実行中のカーソル移動を検知して理由付き停止を要求する]
+    #   責務: [_record_automated_cursor_position: 実入力workerの自動移動予定と状態を停止監視へ通知する]
+    #   処理: [予定座標と移動中状態をlockで保護し、Noneなら未処理の自動移動記録を消去する]
+    #   引数: [position: SetCursorPosへ渡す画面座標または記録消去用None, move_in_progress: API呼び出し前はTrue、成功・失敗後はFalse]
+    #   戻り値: []
+    # }
+    def _record_automated_cursor_position(
+        self,
+        position: tuple[int, int] | None,
+        move_in_progress: bool,
+    ) -> None:
+        with self._automated_cursor_position_lock:
+            self._automated_cursor_position = position
+            self._automated_cursor_move_in_progress = move_in_progress
+
+    # {
+    #   責務: [_poll_global_stop: UIを塞がずF12と手動カーソル移動による停止を検出する]
+    #   処理: [F12を確認し、自動クリック先以外への連続実行中のカーソル移動で停止を要求する]
     #   引数: []
     #   戻り値: []
     # }
@@ -247,7 +268,27 @@ class Application:
         if os.name == "nt" and ctypes.windll.user32.GetAsyncKeyState(WINDOWS_F12_VIRTUAL_KEY_CODE) & WINDOWS_KEY_PRESSED_FLAG:
             self.stop("F12")
         current = self._cursor_position()
-        if self._loop_active and self._last_cursor_position is not None and current != self._last_cursor_position:
+        automated_move = False
+        if self._loop_active and current is not None:
+            with self._automated_cursor_position_lock:
+                expected_position = self._automated_cursor_position
+                if current == expected_position and expected_position is not None:
+                    self._last_cursor_position = current
+                    automated_move = True
+                    if not self._automated_cursor_move_in_progress:
+                        self._automated_cursor_position = None
+                elif (
+                    self._automated_cursor_move_in_progress
+                    and current == self._last_cursor_position
+                ):
+                    automated_move = True
+        if (
+            self._loop_active
+            and not automated_move
+            and current is not None
+            and self._last_cursor_position is not None
+            and current != self._last_cursor_position
+        ):
             self.runtime_log.write("run_control", "stopped_by_manual_mouse_move")
             self.stop("手動マウス移動")
         self.root.after(GLOBAL_STOP_POLL_INTERVAL_MS, self._poll_global_stop)
@@ -497,7 +538,7 @@ class Application:
 
     # {
     #   責務: [_poll_background_results: worker結果をGUIスレッドで適用する]
-    #   処理: [停止済みworkerの結果を破棄し、有効な評価・判断・実行結果だけを表示する]
+    #   処理: [worker結果の世代を確認して有効結果を表示し、カーソル停止基準は監視処理だけで更新する]
     #   引数: []
     #   戻り値: []
     # }
@@ -564,7 +605,6 @@ class Application:
                 self.runtime_log.write("decision", result.reason, {"action_id": result.action_id, "provider": self.provider.get()})
 
             if loop_step and self._loop_active and self._run_is_current(run_token):
-                self._last_cursor_position = self._cursor_position()
                 self.loop_job = self.root.after(LOOP_STEP_DELAY_MS, self._loop_step)
         self.root.after(BACKGROUND_RESULT_POLL_INTERVAL_MS, self._poll_background_results)
 
@@ -575,7 +615,8 @@ class Application:
     #   処理: [
     #     1: 実入力対象のHWNDとPIDを検証する
     #     2: 不正なら記録と通知を行い開始を拒否する
-    #     3: 正常ならcontrollerを開始し次stepを予約する
+    #     3: 古い自動移動記録を消去してカーソル基準位置を保存する
+    #     4: 正常ならcontrollerを開始し次stepを予約する
     #   ]
     #   引数: []
     #   戻り値: []
@@ -597,6 +638,7 @@ class Application:
         self.controller.start()
         if self.loop_job is None:
             self._loop_active = True
+            self._record_automated_cursor_position(None, False)
             self._last_cursor_position = self._cursor_position()
             self.loop_guard.reset()
             self.runtime_log.write("run_control", "loop_started")
@@ -689,7 +731,7 @@ class Application:
 
     # {
     #   責務: [run_and_execute: 候補を準備し判断・安全検証・実行をworkerへ委譲する]
-    #   処理: [UI上の入力を検証して値を退避し、開始世代付きでpipelineを非同期起動する]
+    #   処理: [UI上の入力を検証して値を退避し、自動カーソル通知付きpipelineを開始世代付きで非同期起動する]
     #   引数: [loop_step: 連続実行step由来, expected_rearm_token: 呼び出し元が保持する実行世代]
     #   戻り値: [bool: workerを開始したか]
     #   エラー: [入力・設定・pipeline構築に失敗した場合は記録しFalse]
@@ -720,7 +762,17 @@ class Application:
             self.evaluation.delete("1.0", tk.END)
             self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
             provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-            pipeline = DecisionPipeline(MemorySource(observation, candidates), Path("data/games/sandbox"), provider, self.controller, dry_run=not self.live_execution.get(), window_handle=self.window_handles.get(self.window_choice.get()), input_mode=self.input_mode.get(), window_process_id=self.window_process_ids.get(self.window_choice.get()))
+            pipeline = DecisionPipeline(
+                MemorySource(observation, candidates),
+                Path("data/games/sandbox"),
+                provider,
+                self.controller,
+                dry_run=not self.live_execution.get(),
+                window_handle=self.window_handles.get(self.window_choice.get()),
+                input_mode=self.input_mode.get(),
+                window_process_id=self.window_process_ids.get(self.window_choice.get()),
+                automated_cursor_position_callback=self._record_automated_cursor_position,
+            )
             started = self._start_pipeline_worker(pipeline, "execute", self.purpose.get(), self.personality.get(), run_token, loop_step)
             pipeline = None
             return started

@@ -1,4 +1,5 @@
 import ctypes
+import threading
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -216,6 +217,85 @@ class LiveExecutionValidationTests(unittest.TestCase):
         )
 
         self.assertEqual(stopped, [True])
+
+    # {
+    #   責務: [test_poll_global_stop_ignores_automated_cursor_move: 自動クリック先への移動を手動停止と誤認しないことを検証する]
+    #   処理: [自動移動先を通知した後に停止監視を呼び、停止せず基準位置を更新することを確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_poll_global_stop_ignores_automated_cursor_move(self):
+        application = self.make_application(live=False)
+        application._loop_active = True
+        application._last_cursor_position = (100, 200)
+        application._automated_cursor_position_lock = threading.Lock()
+        application._automated_cursor_position = None
+        application._automated_cursor_move_in_progress = False
+        application._cursor_position = lambda: (130, 245)
+        application.root = SimpleNamespace(after=lambda *_args: None)
+        application.runtime_log = RecordingLog()
+        stopped = []
+        application.stop = lambda reason: stopped.append(reason)
+
+        application._record_automated_cursor_position((130, 245), False)
+        application._poll_global_stop()
+
+        self.assertEqual(stopped, [])
+        self.assertEqual(application._last_cursor_position, (130, 245))
+        self.assertIsNone(application._automated_cursor_position)
+
+    def test_poll_global_stop_keeps_automated_move_pending_until_api_completes(self):
+        application = self.make_application(live=False)
+        application._loop_active = True
+        application._last_cursor_position = (100, 200)
+        application._automated_cursor_position_lock = threading.Lock()
+        application._automated_cursor_position = None
+        application._automated_cursor_move_in_progress = False
+        cursor = {"position": (100, 200)}
+        application._cursor_position = lambda: cursor["position"]
+        application.root = SimpleNamespace(after=lambda *_args: None)
+        application.runtime_log = RecordingLog()
+        stopped = []
+        application.stop = lambda reason: stopped.append(reason)
+
+        application._record_automated_cursor_position((130, 245), True)
+        application._poll_global_stop()
+
+        self.assertEqual(stopped, [])
+        self.assertEqual(application._automated_cursor_position, (130, 245))
+        self.assertTrue(application._automated_cursor_move_in_progress)
+
+        cursor["position"] = (130, 245)
+        application._record_automated_cursor_position((130, 245), False)
+        application._poll_global_stop()
+
+        self.assertEqual(stopped, [])
+        self.assertEqual(application._last_cursor_position, (130, 245))
+        self.assertIsNone(application._automated_cursor_position)
+
+    # {
+    #   責務: [test_poll_global_stop_stops_for_manual_cursor_move: 自動移動先と異なるカーソル移動で停止することを検証する]
+    #   処理: [未通知座標への移動を停止監視へ渡し、理由付き停止を確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_poll_global_stop_stops_for_manual_cursor_move(self):
+        application = self.make_application(live=False)
+        application._loop_active = True
+        application._last_cursor_position = (100, 200)
+        application._automated_cursor_position_lock = threading.Lock()
+        application._automated_cursor_position = None
+        application._automated_cursor_move_in_progress = False
+        application._cursor_position = lambda: (140, 250)
+        application.root = SimpleNamespace(after=lambda *_args: None)
+        application.runtime_log = RecordingLog()
+        stopped = []
+        application.stop = lambda reason: stopped.append(reason)
+
+        application._poll_global_stop()
+
+        self.assertEqual(stopped, ["手動マウス移動"])
+        self.assertEqual(application.runtime_log.records, [("run_control", "stopped_by_manual_mouse_move")])
 
     # {
     #   責務: [test_run_and_execute_validates_before_persisting_or_constructing_pipeline: 実行前検証が設定保存より先に行われることを検証する]

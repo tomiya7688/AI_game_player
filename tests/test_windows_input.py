@@ -21,6 +21,7 @@ from ai_game_player.windows_input import SPECIAL_KEYS, WindowsInputExecutor
 class FakeUser32:
     def __init__(self):
         self.cursor_positions = []
+        self.cursor_position_result = 1
         self.mouse_events = []
         self.key_events = []
         self.messages = []
@@ -60,7 +61,7 @@ class FakeUser32:
 
     def SetCursorPos(self, x, y):
         self.cursor_positions.append((x, y))
-        return 1
+        return self.cursor_position_result
 
     def mouse_event(self, flags, _x, _y, _data, _extra):
         self.mouse_events.append((flags, _x, _y))
@@ -200,6 +201,46 @@ class WindowsInputTest(unittest.TestCase):
 
         self.assertEqual(user32.cursor_positions, [(130, 245)])
         self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0)])
+
+    def test_mouse_input_reports_automated_cursor_position_before_moving(self):
+        user32 = FakeUser32()
+        notifications = []
+
+        def record_notification(position, move_in_progress):
+            notifications.append((position, move_in_progress))
+
+        executor = WindowsInputExecutor(
+            window_handle=123,
+            input_mode="mouse",
+            automated_cursor_position_callback=record_notification,
+        )
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
+
+        self.assertEqual(notifications, [((130, 245), True), ((130, 245), False)])
+        self.assertEqual(user32.cursor_positions, [(130, 245)])
+
+    def test_failed_automated_cursor_move_clears_stop_monitor_notification(self):
+        user32 = FakeUser32()
+        user32.cursor_position_result = 0
+        notifications = []
+
+        def record_notification(position, move_in_progress):
+            notifications.append((position, move_in_progress))
+
+        executor = WindowsInputExecutor(
+            window_handle=123,
+            input_mode="mouse",
+            automated_cursor_position_callback=record_notification,
+        )
+
+        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            with self.assertRaisesRegex(RuntimeError, "SetCursorPos failed"):
+                executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
+
+        self.assertEqual(notifications, [((130, 245), True), (None, False)])
+        self.assertEqual(user32.mouse_events, [])
 
     def test_window_message_translates_window_coordinates_to_client_lparam(self):
         user32 = FakeUser32()

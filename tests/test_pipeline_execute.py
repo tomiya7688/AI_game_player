@@ -27,6 +27,19 @@ class Source:
 
 
 class PipelineExecuteTest(unittest.TestCase):
+    def test_pipeline_passes_automated_cursor_notification_to_executor(self):
+        def callback(_position, _move_in_progress):
+            return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(
+                Source(),
+                Path(directory),
+                automated_cursor_position_callback=callback,
+            )
+
+        self.assertIs(pipeline.executor.automated_cursor_position_callback, callback)
+
     def test_stop_invalidates_executor_for_original_run_after_rearm(self):
         controller = RunController()
         with tempfile.TemporaryDirectory() as directory:
