@@ -368,8 +368,8 @@ class Application:
 
     # {
     #   責務: [capture_screen: Windows画面を観測へ変換し評価をバックグラウンドへ渡す]
-    #   処理: [画面とOCRを取得しUIへ表示した後、評価workerを開始する]
-    #   引数: [loop_step: 連続実行の評価結果として扱うか]
+    #   処理: [観測をUIへ表示し、loop評価だけを実行世代へ結び付けてworkerを開始する]
+    #   引数: [loop_step: Trueなら結果を現在の連続実行stepに限定し、Falseなら停止後も独立して評価する]
     #   戻り値: [ScreenObservation | None: 取得した観測または取得失敗]
     # }
     def capture_screen(self, *, loop_step: bool = False) -> ScreenObservation | None:
@@ -380,7 +380,7 @@ class Application:
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
-            run_token = self.controller.rearm_token
+            run_token = self.controller.rearm_token if loop_step else None
             self._start_assessment_worker(observation, loop_step=loop_step, run_token=run_token)
             return observation
         except Exception as exc:

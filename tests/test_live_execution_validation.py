@@ -143,6 +143,82 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application._validate_live_execution()
 
     # {
+    #   責務: [test_manual_capture_assessment_does_not_use_execution_generation: 手動画面取得の評価を実行停止状態から分離する]
+    #   処理: [停止中の手動取得では世代tokenを渡さず、連続実行stepでは現在tokenを渡す]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_manual_capture_assessment_does_not_use_execution_generation(self):
+        observation = ScreenObservation("live", 1280, 720, [])
+
+        for loop_step in (False, True):
+            with self.subTest(loop_step=loop_step):
+                application = Application.__new__(Application)
+                application.window_handles = {}
+                application.window_choice = FakeVariable("Game")
+                application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
+                application.runtime_log = RecordingLog()
+                application.controller = RunController()
+                if loop_step:
+                    application.controller.start()
+                    expected_token = application.controller.rearm_token
+                else:
+                    application.controller.start()
+                    application.controller.stop("manual")
+                    expected_token = None
+                started_assessments = []
+                application._start_assessment_worker = lambda captured_observation, **options: started_assessments.append(
+                    (captured_observation, options)
+                )
+
+                with (
+                    patch("ai_game_player.frame_analyzer.FrameAnalyzer") as analyzer_class,
+                    patch.object(app_module.WindowsScreenCapture, "capture", return_value=object()),
+                    patch.object(app_module.TesseractOcrRecognizer, "optional", return_value=None),
+                ):
+                    analyzer_class.return_value.analyze.return_value = observation
+                    captured_observation = application.capture_screen(loop_step=loop_step)
+
+                self.assertIs(captured_observation, observation)
+                self.assertEqual(
+                    started_assessments,
+                    [(observation, {"loop_step": loop_step, "run_token": expected_token})],
+                )
+
+    # {
+    #   責務: [test_standalone_assessment_updates_display_after_stop: 停止中に完了した手動評価を画面へ反映する]
+    #   処理: [tokenを持たないassessment結果が停止状態でも評価・前回観測を更新することを確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_standalone_assessment_updates_display_after_stop(self):
+        application = Application.__new__(Application)
+        previous_observation = ScreenObservation("previous", 1280, 720, [])
+        observation = ScreenObservation("captured", 1280, 720, [])
+        assessment = OutcomeAssessment("ongoing", 0.6, "ゲームは継続中です")
+        displayed_statuses = []
+        application._background_results = queue.Queue()
+        application._background_results.put(("assessment", 1, None, "assessment", assessment, None, False, observation))
+        application._latest_assessment_task_id = 1
+        application._loop_active = False
+        application.controller = RunController()
+        application.controller.start()
+        application.controller.stop("manual")
+        application.runtime_log = RecordingLog()
+        application.provider = FakeVariable("Rule")
+        application.previous_observation = previous_observation
+        application.current_assessment = None
+        application.outcome = SimpleNamespace(config=lambda **values: displayed_statuses.append(values["text"]))
+        application.root = SimpleNamespace(after=lambda *_args: None)
+
+        application._poll_background_results()
+
+        self.assertIs(application.previous_observation, observation)
+        self.assertIs(application.current_assessment, assessment)
+        self.assertEqual(displayed_statuses, ["状態: ongoing (60%)"])
+        self.assertEqual(application.runtime_log.records[-1][0:2], ("outcome", "ゲームは継続中です"))
+
+    # {
     #   責務: [test_lost_window_handle_is_rejected: 無効HWNDへの実入力を拒否することを検証する]
     #   処理: [IsWindowが無効を返す対象の検証結果を確認する]
     #   引数: []
