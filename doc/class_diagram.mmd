@@ -116,6 +116,10 @@ classDiagram
         +_write_staged_file()
         +_fsync_directory()
     }
+    class StagedJsonWrite {
+        +publish()
+        +discard()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
@@ -189,9 +193,9 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +prepare_append()
         +recent()
         +_read()
-        +_write()
     }
     class GamePlayerEngine {
         +__init__()
@@ -363,6 +367,7 @@ classDiagram
     class HistoryStore {
         +__init__()
         +append()
+        +prepare_append()
     }
     class KnowledgeStore {
         +__init__()
@@ -593,6 +598,8 @@ classDiagram
         +stop_reason()
         +start()
         +stop()
+        +_validate_running_locked()
+        +run_if_current()
         +ensure_running()
     }
     class ResolutionFailure {

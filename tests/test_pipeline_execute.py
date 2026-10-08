@@ -160,3 +160,48 @@ class PipelineExecuteTest(unittest.TestCase):
         self.assertFalse(application._execution_in_progress)
         self.assertIn("停止理由: 停止ボタン", str(logged_events[0]))
         self.assertIn("停止要求後の推論応答を破棄しました", statuses)
+
+    def test_stop_during_history_staging_discards_uncommitted_decision(self):
+        history_staged = threading.Event()
+        allow_staging_to_finish = threading.Event()
+        worker_errors = []
+
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RunController()
+            pipeline = DecisionPipeline(Source(), Path(directory), controller=controller)
+            original_prepare_append = pipeline.engine.history.prepare_append
+
+            def delayed_history_staging(observation, decision):
+                staged_write = original_prepare_append(observation, decision)
+                history_staged.set()
+                if not allow_staging_to_finish.wait(timeout=PROVIDER_RESPONSE_WAIT_SECONDS):
+                    raise TimeoutError("test did not release staged history")
+                return staged_write
+
+            pipeline.engine.history.prepare_append = delayed_history_staging
+            run_token = controller.rearm_token
+
+            def run_decision():
+                try:
+                    pipeline.run(expected_rearm_token=run_token)
+                except Exception as exc:
+                    worker_errors.append(exc)
+
+            worker = threading.Thread(target=run_decision, daemon=True)
+            worker.start()
+            self.assertTrue(history_staged.wait(timeout=PROVIDER_START_WAIT_SECONDS))
+
+            controller.stop("停止中の履歴準備")
+            self.assertFalse(controller.is_running)
+            allow_staging_to_finish.set()
+            worker.join(timeout=BACKGROUND_RESULT_WAIT_SECONDS)
+            pipeline.close()
+
+            self.assertFalse(worker.is_alive())
+            self.assertEqual(len(worker_errors), 1)
+            self.assertIsInstance(worker_errors[0], ExecutionCancelled)
+            self.assertFalse(pipeline.engine.history.path.exists())
+            self.assertFalse(pipeline.engine.trace.path.exists())
+            self.assertIsNone(pipeline.engine._previous_observation)
+            self.assertIsNone(pipeline.engine._previous_action_id)
+            self.assertEqual(list(Path(directory).glob("*.tmp")), [])

@@ -102,8 +102,8 @@ class DecisionPipeline:
 
     # {
     #   責務: [_decide: 候補を判断し、推論応答を履歴へ確定する前に停止状態を再検証する]
-    #   処理: [観測候補を取得してproviderを呼び、run世代の確認関数をengineへ渡す]
-    #   引数: [expected_rearm_token: 判断開始時の再開世代]
+    #   処理: [観測候補を取得してproviderを呼び、履歴公開をrun世代lock内で行うguardをengineへ渡す]
+    #   引数: [ocr_texts: 画面から認識したOCR候補, purpose: 判断providerへ渡すゲーム目標, personality: 判断方針, expected_rearm_token: 判断開始時の再開世代]
     #   戻り値: [ActionDecision・候補・ScreenObservation: 同一snapshotの判断情報]
     # }
     def _decide(
@@ -120,7 +120,7 @@ class DecisionPipeline:
             purpose,
             personality,
             before_provider=lambda: self.controller.ensure_running(expected_rearm_token),
-            before_commit=lambda: self.controller.ensure_running(expected_rearm_token),
+            commit_guard=lambda commit: self.controller.run_if_current(expected_rearm_token, commit),
         )
         return decision, candidates, observation
 

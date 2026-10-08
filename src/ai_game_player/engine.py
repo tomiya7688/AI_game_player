@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from pathlib import Path
 
+from ai_game_player.atomic_json import StagedJsonWrite
 from ai_game_player.decision_context import DecisionContextBuilder, DecisionTraceStore
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.history import HistoryStore
@@ -32,9 +33,17 @@ class GamePlayerEngine:
 
     # {
     #   責務: [step: 許可候補から判断し、停止確認後に判断履歴を確定する]
-    #   処理: [provider応答の候補を検証し、必要なら永続化前の実行状態確認を行う]
-    #   引数: [before_provider: LLM呼出し前の実行状態検証, before_commit: 履歴保存前の実行状態検証]
+    #   処理: [provider応答を検証し、履歴JSONを事前準備してから世代guard内で公開する]
+    #   引数: [
+    #     observation: provider判断と履歴記録に使う画面観測
+    #     candidates: evaluatorが検査しproviderが選択できる操作候補
+    #     purpose: providerへ渡すゲーム目標
+    #     personality: providerへ渡す判断方針
+    #     before_provider: provider呼出し前に実行世代を検証する関数
+    #     commit_guard: 準備済み履歴とengine状態を世代guard内で公開する関数
+    #   ]
     #   戻り値: [ActionDecision: 許可候補から選ばれた判断]
+    #   エラー: [ExecutionCancelled: commit前に実行世代が停止または失効した, OSError: 準備JSONの公開に失敗した]
     # }
     def step(
         self,
@@ -43,7 +52,7 @@ class GamePlayerEngine:
         purpose: str = "",
         personality: str = "",
         before_provider: Callable[[], None] | None = None,
-        before_commit: Callable[[], None] | None = None,
+        commit_guard: Callable[[Callable[[], None]], None] | None = None,
     ) -> ActionDecision:
         if before_provider is not None:
             before_provider()
@@ -65,12 +74,30 @@ class GamePlayerEngine:
             decision = self.provider.choose(allowed, observation, purpose, personality)
         if decision.action_id not in {candidate.action_id for candidate in allowed}:
             raise ValueError("Decision provider selected an action outside the allowed snapshot")
-        if before_commit is not None:
-            before_commit()
-        self.history.append(observation, decision)
-        self.trace.append(context, decision)
-        self._previous_observation = observation
-        self._previous_action_id = decision.action_id
+        staged_writes: list[StagedJsonWrite] = []
+        try:
+            staged_writes.append(self.history.prepare_append(observation, decision))
+            staged_writes.append(self.trace.prepare_append(context, decision))
+
+            # {
+            #   責務: [publish_commit: 準備済み履歴とengineの前回判断状態を公開する]
+            #   処理: [判断履歴・traceの一時JSONを置換し、同じ判断の観測とaction IDを保持する]
+            #   引数: []
+            #   戻り値: []
+            # }
+            def publish_commit() -> None:
+                for staged_write in staged_writes:
+                    staged_write.publish()
+                self._previous_observation = observation
+                self._previous_action_id = decision.action_id
+
+            if commit_guard is None:
+                publish_commit()
+            else:
+                commit_guard(publish_commit)
+        finally:
+            for staged_write in staged_writes:
+                staged_write.discard()
         return decision
 
     def _uses_context_api(self) -> bool:

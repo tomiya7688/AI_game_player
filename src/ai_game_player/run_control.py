@@ -1,4 +1,5 @@
 import threading
+from collections.abc import Callable
 
 
 # {
@@ -97,6 +98,36 @@ class RunController:
             self._stop_reason = reason
 
     # {
+    #   責務: [_validate_running_locked: 呼出側がロックを保持した状態で実行世代を検証する]
+    #   処理: [停止状態と期待世代を照合し、不一致なら停止理由付き例外を送出する]
+    #   引数: [expected_rearm_token: 対象処理が開始時に記録した再開世代]
+    #   戻り値: []
+    #   エラー: [ExecutionCancelled: 停止済みまたは旧世代]
+    # }
+    def _validate_running_locked(self, expected_rearm_token: int | None) -> None:
+        if not self._running:
+            raise ExecutionCancelled(self._stop_reason or "実行は停止されています")
+        if expected_rearm_token is not None and expected_rearm_token != self._rearm_token:
+            reason = self._stop_reason or "停止理由は記録されていません"
+            raise ExecutionCancelled(f"再開前に開始した推論結果を破棄しました。停止理由: {reason}")
+
+    # {
+    #   責務: [run_if_current: 現在有効な実行世代の短いcommit処理を停止と直列化する]
+    #   処理: [実行世代を検証し、RunControllerのlockを保持したままcommit callbackを実行する]
+    #   引数: [expected_rearm_token: commit対象の開始世代, commit: 準備済み状態を公開する処理]
+    #   戻り値: []
+    #   エラー: [ExecutionCancelled: 停止済みまたは旧世代, Exception: commit callbackで発生した例外]
+    # }
+    def run_if_current(
+        self,
+        expected_rearm_token: int | None,
+        commit: Callable[[], None],
+    ) -> None:
+        with self._lock:
+            self._validate_running_locked(expected_rearm_token)
+            commit()
+
+    # {
     #   責務: [ensure_running: 現在の実行状態と推論開始時の世代を検証する]
     #   処理: [停止済みまたは世代失効なら理由付きキャンセルを送出する]
     #   引数: [expected_rearm_token: 実行開始時の再開世代]
@@ -105,8 +136,4 @@ class RunController:
     # }
     def ensure_running(self, expected_rearm_token: int | None = None) -> None:
         with self._lock:
-            if not self._running:
-                raise ExecutionCancelled(self._stop_reason or "実行は停止されています")
-            if expected_rearm_token is not None and expected_rearm_token != self._rearm_token:
-                reason = self._stop_reason or "停止理由は記録されていません"
-                raise ExecutionCancelled(f"再開前に開始した推論結果を破棄しました。停止理由: {reason}")
+            self._validate_running_locked(expected_rearm_token)
