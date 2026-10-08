@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
+from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -317,13 +318,44 @@ class DecisionContextBuilder:
         )
 
 
+# {
+#   責務: [DecisionTraceStore: 判断snapshotと選択結果を結び付けた追記形式JSONを管理する]
+#   フィールド: [path: 判断traceを保存するJSONファイル]
+# }
 class DecisionTraceStore:
     """Append-only trace that binds one observation snapshot to context, decision and previous outcome."""
 
+    # {
+    #   責務: [__init__: 判断traceの保存先を設定する]
+    #   処理: [指定されたJSONファイルのパスを保持する]
+    #   引数: [path: 判断trace JSONの保存先]
+    #   戻り値: []
+    # }
     def __init__(self, path: Path) -> None:
         self.path = path
 
+    # {
+    #   責務: [append: contextと判断をtrace JSONへ確定する]
+    #   処理: [追記済みtraceを一時JSONに準備し、保存先へ原子的に置換する]
+    #   引数: [context: providerへ渡した判断context, decision: contextから選ばれた判断]
+    #   戻り値: []
+    #   エラー: [OSError: trace JSONを書込みまたは置換できない, ValueError: 既存trace JSONが配列ではない]
+    # }
     def append(self, context: DecisionContext, decision: ActionDecision) -> None:
+        staged_write = self.prepare_append(context, decision)
+        try:
+            staged_write.publish()
+        finally:
+            staged_write.discard()
+
+    # {
+    #   責務: [prepare_append: contextと判断を含む次のtrace JSONを未確定状態で準備する]
+    #   処理: [既存trace配列へsnapshot・判断・根拠を追加して同じ保存先ディレクトリに書く]
+    #   引数: [context: providerへ渡した判断context, decision: contextから選ばれた判断]
+    #   戻り値: [StagedJsonWrite: 実行世代を確認した後に公開する一時trace]
+    #   エラー: [OSError: trace JSONを読込みまたは一時JSONを書込めない, ValueError: 既存trace JSONが配列ではない]
+    # }
+    def prepare_append(self, context: DecisionContext, decision: ActionDecision) -> StagedJsonWrite:
         entries = self._read()
         entries.append(
             {
@@ -342,7 +374,7 @@ class DecisionTraceStore:
                 "context": context.to_dict(),
             }
         )
-        self._write(entries)
+        return stage_json_write(self.path, entries)
 
     def recent(self, limit: int = 5) -> list[dict[str, Any]]:
         if limit < 0:
@@ -356,13 +388,6 @@ class DecisionTraceStore:
         if not isinstance(value, list):
             raise ValueError("decision trace must contain an array")
         return [entry for entry in value if isinstance(entry, dict)]
-
-    def _write(self, entries: list[dict[str, Any]]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self.path.with_suffix(f".{uuid4().hex}.tmp")
-        temporary.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
-        temporary.replace(self.path)
-
 
 def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     features = observation.features

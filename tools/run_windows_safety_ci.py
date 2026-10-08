@@ -171,6 +171,7 @@ def main() -> int:
         executor = ActionExecutor(
             dry_run=False,
             window_handle=handle,
+            window_process_id=target.pid,
             input_mode="mouse",
             emergency_stop=emergency_stop,
             safety_config=SafetyGuardConfig(
