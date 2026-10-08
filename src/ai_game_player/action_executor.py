@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 from ai_game_player.fail_safe_runtime import FailSafeCommand, FailSafeConfig, FailSafeRuntime, FailSafeState
 from ai_game_player.models import ActionCandidate
@@ -57,6 +57,7 @@ class ActionExecutor:
     #     window_handle: 対象HWND
     #     input_mode: 選択された入力方式
     #     window_process_id: 列挙時に対象HWNDを所有したPID
+    #     run_controller_stop_checker: RunControllerが停止済みならTrueを返す確認関数
     #   ]
     #   戻り値: []
     # }
@@ -76,12 +77,14 @@ class ActionExecutor:
         fail_safe_config: FailSafeConfig | None = None,
         fail_safe_state_directory: Path | None = None,
         external_watchdog: bool = True,
+        run_controller_stop_checker: Callable[[], bool] | None = None,
     ) -> None:
         self.dry_run = dry_run
         self.live_executor = live_executor
         self.window_handle = window_handle
         self.input_mode = input_mode
         self.window_process_id = window_process_id
+        self.run_controller_stop_checker = run_controller_stop_checker or (lambda: False)
         production_live = not dry_run and live_executor is None
         if safety_guard is None:
             if safety_config is None:
@@ -242,9 +245,15 @@ class ActionExecutor:
         runtime = self.fail_safe_runtime
         return None if runtime is None else runtime.state
 
+    # {
+    #   責務: [_stop_requested: UI実行制御・EmergencyStop・FailSafeRuntimeの停止状態を統合する]
+    #   処理: [いずれかの停止状態が有効なら、OS入力の継続を禁止する]
+    #   引数: []
+    #   戻り値: [bool: 実入力を継続できない状態か]
+    # }
     def _stop_requested(self) -> bool:
         runtime = self.fail_safe_runtime
-        return self.emergency_stop.is_triggered() or (
+        return self.run_controller_stop_checker() or self.emergency_stop.is_triggered() or (
             runtime is not None and runtime.state != FailSafeState.ACTIVE
         )
 

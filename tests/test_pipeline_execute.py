@@ -27,6 +27,21 @@ class Source:
 
 
 class PipelineExecuteTest(unittest.TestCase):
+    def test_stop_invalidates_executor_for_original_run_after_rearm(self):
+        controller = RunController()
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(Source(), Path(directory), controller=controller)
+            original_run_token = controller.rearm_token
+            pipeline._bind_execution_stop_checker(original_run_token)
+
+            self.assertFalse(pipeline.executor._stop_requested())
+            controller.stop("Stop button")
+            self.assertTrue(pipeline.executor._stop_requested())
+            controller.start()
+            self.assertTrue(pipeline.executor._stop_requested())
+            pipeline._bind_execution_stop_checker(controller.rearm_token)
+            self.assertFalse(pipeline.executor._stop_requested())
+
     def test_run_and_execute_defaults_to_dry_run(self):
         with tempfile.TemporaryDirectory() as directory:
             result = DecisionPipeline(Source(), Path(directory)).run_and_execute()

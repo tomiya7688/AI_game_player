@@ -32,7 +32,8 @@ class DecisionPipeline:
     #   処理: [
     #     1: 候補生成と判断用componentを初期化する
     #     2: HWND・PID・入力方式をActionExecutorへ渡す
-    #     3: Session用履歴と安全評価を初期化する
+    #     3: RunControllerの停止状態を実入力の停止確認へ渡す
+    #     4: Session用履歴と安全評価を初期化する
     #   ]
     #   引数: [
     #     window_handle: 選択中の対象HWND
@@ -78,6 +79,7 @@ class DecisionPipeline:
             fail_safe_config=fail_safe_config,
             fail_safe_state_directory=game_directory / "fail_safe",
             external_watchdog=external_watchdog,
+            run_controller_stop_checker=lambda: not self.controller.is_running,
         )
         self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
@@ -140,7 +142,7 @@ class DecisionPipeline:
 
     # {
     #   責務: [run_and_execute: 停止・再開された推論結果を実入力へ進ませず候補を実行する]
-    #   処理: [開始世代を記録し、推論後と入力直前に実行許可を再検証する]
+    #   処理: [開始世代を記録し、推論後と入力直前に実行許可を再検証して実入力中も同じ世代の停止状態を確認する]
     #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
     #   戻り値: [ExecutionResult: 候補の実行結果]
     #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
@@ -172,6 +174,7 @@ class DecisionPipeline:
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
 
         self.controller.ensure_running(run_token)
+        self._bind_execution_stop_checker(run_token)
         result = self.executor.execute(selected)
         self.execution_history.append(result)
         self.safety_audit.append_execution(assessment.assessment_id, result)
@@ -205,6 +208,17 @@ class DecisionPipeline:
             return
         self.executor.rearm_safety()
         self._seen_rearm_token = token
+
+    # {
+    #   責務: [_bind_execution_stop_checker: 現在の実入力をRunControllerの停止・再開世代へ結び付ける]
+    #   処理: [停止状態または開始後の世代変更を検出する確認関数をActionExecutorへ登録する]
+    #   引数: [run_token: 実入力stepの開始時に記録した再開世代]
+    #   戻り値: []
+    # }
+    def _bind_execution_stop_checker(self, run_token: int) -> None:
+        self.executor.run_controller_stop_checker = lambda: (
+            not self.controller.is_running or self.controller.rearm_token != run_token
+        )
 
     def _safety_context(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)
