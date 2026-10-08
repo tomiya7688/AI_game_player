@@ -11,14 +11,12 @@ from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.execution_mode import execution_labels
-from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.metrics import MetricsCalculator
-from ai_game_player.outcome import OutcomeAssessment, OutcomeEvaluator
+from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.game_session import GameSessionController, LoopObservation, SessionRuntime, SessionSnapshot, SessionStatus, SessionStep
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.pipeline import DecisionPipeline
-from ai_game_player.provider import OllamaProvider, RuleProvider
+from ai_game_player.runtime.session_composition import RuntimeComposition, SessionRuntimeConfiguration
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
@@ -118,17 +116,19 @@ class Application:
     #     2: 対象ウィンドウの識別情報を保持する
     #     3: worker結果と最新画面評価IDを初期化する
     #     4: 自動カーソル位置のworker/UI間同期を初期化する
-    #     5: UI commandと表示を接続する
+    #     5: UI commandと表示を接続し、composition rootをsession制御へ注入する
     #   ]
     #   引数: [
     #     root: Tkinterのルートウィンドウ
+    #     runtime_composition: Provider・Evaluator・Pipelineを生成するcomposition root、未指定時は標準構成
     #   ]
     #   戻り値: []
     # }
-    def __init__(self, root: tk.Tk) -> None:
+    def __init__(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = None) -> None:
         config_store = ConfigStore(Path("data/config.json"))
         config = config_store.load()
         self.root = root
+        self.runtime_composition = runtime_composition or RuntimeComposition()
         self.runtime_log = RuntimeLog()
         self.memory_source = MemorySource()
         self._session_dry_run = True
@@ -146,7 +146,6 @@ class Application:
         self._automated_cursor_position_lock = threading.Lock()
         self._automated_cursor_position: tuple[int, int] | None = None
         self._automated_cursor_move_in_progress = False
-        self.outcome_evaluator = OutcomeEvaluator()
         self.previous_observation: ScreenObservation | None = None
         self.current_assessment = None
         root.title("AI Game Player - Decision Sandbox")
@@ -336,30 +335,34 @@ class Application:
             session.complete_step(error=error)
 
     # {
-    #   責務: [_create_session_runtime: セッションで共有するpipelineを一度だけ構築する]
-    #   処理: [現在の実行設定と動的MemorySourceを使い、RunController共有のpipelineを返す]
+    #   責務: [_create_session_runtime: composition rootからSession Controller用runtimeを構築する]
+    #   処理: [現在の実行設定を固定してComposition Rootへ渡し、同じProvider・Pipelineをsession終了まで保持する]
     #   引数: []
-    #   戻り値: [DecisionPipeline: セッションの終了まで保持するpipeline]
+    #   戻り値: [SessionRuntime: Session Controllerが終了まで保持するruntime]
     # }
-    def _create_session_runtime(self) -> DecisionPipeline:
+    def _create_session_runtime(self) -> SessionRuntime:
         self._validate_live_execution()
-        provider = OllamaProvider(self.model.get(), self.endpoint.get()) if self.provider.get() == "Ollama" else RuleProvider()
-        return DecisionPipeline(
-            self.memory_source,
-            Path("data/games/sandbox"),
-            provider,
-            self.controller,
+        configuration = SessionRuntimeConfiguration(
+            provider_name=self.provider.get(),
+            model=self.model.get(),
+            endpoint=self.endpoint.get(),
+            game_directory=Path("data/games/sandbox"),
             dry_run=self._session_dry_run,
             window_handle=self.window_handles.get(self.window_choice.get()),
             input_mode=self.input_mode.get(),
             window_process_id=self.window_process_ids.get(self.window_choice.get()),
+        )
+        return self.runtime_composition.create_session_runtime(
+            configuration,
+            source=self.memory_source,
+            controller=self.controller,
             automated_cursor_position_callback=self._record_automated_cursor_position,
         )
 
     # {
-    #   責務: [_perform_session_step: pipeline stepをworkerへ渡してSessionへ完了待ちを返す]
+    #   責務: [_perform_session_step: session runtimeをworkerへ渡してSessionへ完了待ちを返す]
     #   処理: [execute commandは実行、それ以外は判断として非同期起動しdeferred結果を返す]
-    #   引数: [runtime: Sessionが所有するDecisionPipeline, command: executeまたはdecision]
+    #   引数: [runtime: Session Controllerが所有するsession runtime, command: executeまたはdecision]
     #   戻り値: [SessionStep: worker完了後にSessionがstepを確定するためのdeferred結果]
     # }
     def _perform_session_step(self, runtime: SessionRuntime, command: str) -> SessionStep:
@@ -372,8 +375,6 @@ class Application:
                 self._validate_live_execution()
             except ValueError:
                 return SessionStep(terminal_reason="live execution permission revoked")
-        if not isinstance(runtime, DecisionPipeline):
-            raise TypeError("セッションruntimeはDecisionPipelineである必要があります")
         started = self._start_pipeline_worker(
             runtime,
             "execute" if command == "execute" else "decision",
@@ -557,7 +558,7 @@ class Application:
 
     def check_ollama(self) -> None:
         try:
-            models = OllamaProvider.list_models(self.endpoint.get())
+            models = self.runtime_composition.list_models(self.endpoint.get())
             self.model_combo["values"] = models
             self._set_status(f"Ollama接続OK: {len(models)}モデル")
         except Exception as exc:
@@ -566,7 +567,7 @@ class Application:
 
     def refresh_models(self) -> None:
         try:
-            models = OllamaProvider.list_models(self.endpoint.get())
+            models = self.runtime_composition.list_models(self.endpoint.get())
             self.model_combo["values"] = models
             if models and self.model.get() not in models:
                 self.model.set(models[0])
@@ -616,13 +617,15 @@ class Application:
         endpoint: str,
     ) -> OutcomeAssessment:
         try:
-            if provider_name == "Ollama":
-                return OllamaProvider(model, endpoint).assess_outcome(observation, previous)
-            else:
-                return self.outcome_evaluator.assess(observation)
+            session = getattr(self, "session_controller", None)
+            if session is not None and session.is_running:
+                return session.assess_outcome(observation, previous)
+            return self.runtime_composition.assess_outcome(
+                provider_name, model, endpoint, observation, previous
+            )
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "outcome_assessment"})
-            return self.outcome_evaluator.assess(observation)
+            return self.runtime_composition.assess_locally(observation)
 
     # {
     #   責務: [capture_screen: Windows画面を観測へ変換し評価をバックグラウンドへ渡す]
@@ -718,7 +721,7 @@ class Application:
     # }
     def _start_pipeline_worker(
         self,
-        pipeline: DecisionPipeline,
+        pipeline: SessionRuntime,
         operation: str,
         purpose: str,
         personality: str,
@@ -761,7 +764,7 @@ class Application:
     def _run_pipeline_in_background(
         self,
         task_id: int,
-        pipeline: DecisionPipeline,
+        pipeline: SessionRuntime,
         operation: str,
         purpose: str,
         personality: str,
@@ -853,7 +856,7 @@ class Application:
                         try:
                             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
                             self.memory_source.update(observation, candidates)
-                            evaluation = ActionEvaluator().explain(observation, candidates)
+                            evaluation = self.runtime_composition.explain_actions(observation, candidates)
                             self.evaluation.delete("1.0", tk.END)
                             self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
                         except Exception as exc:
@@ -1058,7 +1061,7 @@ class Application:
             self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
             observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
             candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            evaluation = ActionEvaluator().explain(observation, candidates)
+            evaluation = self.runtime_composition.explain_actions(observation, candidates)
             self.evaluation.delete("1.0", tk.END)
             self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
             self.memory_source.update(observation, candidates)

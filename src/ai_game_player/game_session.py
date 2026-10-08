@@ -2,14 +2,49 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Protocol
+from typing import Any, Callable, Protocol
 
+from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.loop_guard import LoopGuard
-from ai_game_player.models import ScreenObservation
+from ai_game_player.models import ActionDecision, ScreenObservation
+from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.run_control import RunController
 
 
+# {
+#   責務: [SessionRuntime: GameSessionControllerが操作するPipelineとsession-scoped Providerの公開契約]
+# }
 class SessionRuntime(Protocol):
+    # {
+    #   責務: [run: session内の判断処理を実行する]
+    #   引数: [arguments: Pipelineの判断用入力]
+    #   戻り値: [ActionDecision: Providerが選んだ許可候補]
+    # }
+    def run(self, **arguments: Any) -> ActionDecision: ...
+
+    # {
+    #   責務: [run_and_execute: session内の判断と候補実行を行う]
+    #   引数: [arguments: Pipelineの実行用入力]
+    #   戻り値: [ExecutionResult: 選択候補の実行結果]
+    # }
+    def run_and_execute(self, **arguments: Any) -> ExecutionResult: ...
+
+    # {
+    #   責務: [assess_outcome: session-scoped Providerで現在画面のterminal状態を評価する]
+    #   引数: [observation: 現在画面, previous: session中の直前画面]
+    #   戻り値: [OutcomeAssessment: success/failure/ongoing状態と根拠]
+    # }
+    def assess_outcome(
+        self,
+        observation: ScreenObservation,
+        previous: ScreenObservation | None,
+    ) -> OutcomeAssessment: ...
+
+    # {
+    #   責務: [close: Session終了時にruntimeが所有するresourceを解放する]
+    #   引数: []
+    #   戻り値: []
+    # }
     def close(self) -> None: ...
 
 
@@ -229,6 +264,23 @@ class GameSessionController:
     def ensure_running(self) -> None:
         """RunController-compatible safety check used by DecisionPipeline."""
         self.run_control.ensure_running()
+
+    # {
+    #   責務: [assess_outcome: Sessionが所有するProviderでloop中の画面状態を評価する]
+    #   処理: [active session runtimeへ現在画面と直前画面を渡し、session scoped Providerを再利用する]
+    #   引数: [observation: terminal判定する現在画面, previous: 直前の画面観測]
+    #   戻り値: [OutcomeAssessment: success/failure/ongoing状態と根拠]
+    #   エラー: [RuntimeError: Session runtimeが未作成または評価機能を持たない場合]
+    # }
+    def assess_outcome(
+        self,
+        observation: ScreenObservation,
+        previous: ScreenObservation | None,
+    ) -> OutcomeAssessment:
+        runtime = self._runtime
+        if runtime is None:
+            raise RuntimeError("A session runtime is not active")
+        return runtime.assess_outcome(observation, previous)
 
     @property
     def rearm_token(self) -> int:
