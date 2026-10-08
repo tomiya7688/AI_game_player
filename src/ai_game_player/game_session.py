@@ -30,6 +30,7 @@ class SessionStatus(str, Enum):
 @dataclass(frozen=True)
 class SessionStep:
     terminal_reason: str | None = None
+    deferred: bool = False
 
 
 @dataclass(frozen=True)
@@ -37,6 +38,7 @@ class LoopObservation:
     screen: ScreenObservation | None
     outcome_status: str = "ongoing"
     terminal_reason: str | None = None
+    deferred: bool = False
 
 
 @dataclass(frozen=True)
@@ -80,6 +82,9 @@ class GameSessionController:
         self._loop_command = "execute"
         self._loop_interval_ms = 1000
         self._loop_generation = 0
+        self._step_pending = False
+        self._observation_pending = False
+        self._pending_observation_generation: int | None = None
 
     @property
     def status(self) -> SessionStatus:
@@ -96,6 +101,16 @@ class GameSessionController:
     @property
     def is_looping(self) -> bool:
         return self._looping and self.is_running
+
+    # {
+    #   責務: [has_pending_step: 完了通知を待つstepがあるか返す]
+    #   処理: [非同期step handlerがdeferredを返した後、worker結果を受け取るまで保持する状態を返す]
+    #   引数: []
+    #   戻り値: [bool: complete_stepによる完了通知を待っている場合はTrue]
+    # }
+    @property
+    def has_pending_step(self) -> bool:
+        return self._step_pending
 
     def start(self) -> None:
         if self.is_running:
@@ -120,6 +135,8 @@ class GameSessionController:
     def step(self, command: str = "execute", *, from_loop: bool = False) -> SessionStep:
         if self.is_looping and not from_loop:
             raise RuntimeError("A continuous session already owns the step loop")
+        if self._step_pending:
+            raise RuntimeError("A previous session step has not completed")
         if not self.is_running:
             self.start()
         runtime = self._runtime
@@ -130,12 +147,49 @@ class GameSessionController:
         except Exception as exc:
             self._fail(exc)
             raise
+        if result.deferred:
+            self._step_pending = True
+            self._notify()
+            return result
         self._steps += 1
         if result.terminal_reason is not None:
             self._finish(SessionStatus.COMPLETED, result.terminal_reason)
         else:
             self._notify()
         return result
+
+    # {
+    #   責務: [complete_step: workerで実行したstepの完了・失敗をSession状態へ反映する]
+    #   処理: [停止済みstepはruntimeを解放し、実行中のstepはstep数を更新してloopを再予約する]
+    #   引数: [result: workerが返したterminal情報, error: workerで発生した例外]
+    #   戻り値: [bool: 対応するpending stepを完了できた場合はTrue]
+    # }
+    def complete_step(self, result: SessionStep | None = None, error: Exception | None = None) -> bool:
+        if not self._step_pending:
+            return False
+        self._step_pending = False
+
+        if not self.is_running:
+            close_error = self._close_runtime()
+            if close_error is not None:
+                self._mark_shutdown_failed(close_error)
+            else:
+                self._notify()
+            return True
+
+        if error is not None:
+            self._fail(error)
+            return True
+
+        completed = result or SessionStep()
+        self._steps += 1
+        if completed.terminal_reason is not None:
+            self._finish(SessionStatus.COMPLETED, completed.terminal_reason)
+        else:
+            self._notify()
+            if self.is_looping:
+                self._schedule_next(self._loop_generation)
+        return True
 
     def start_loop(self, command: str = "execute", interval_ms: int = 1000) -> None:
         if interval_ms <= 0:
@@ -158,7 +212,9 @@ class GameSessionController:
         self._looping = False
         self._cancel_scheduled()
         self.run_control.stop()
-        close_error = self._close_runtime()
+        self._observation_pending = False
+        self._pending_observation_generation = None
+        close_error = None if self._step_pending else self._close_runtime()
         if close_error is None:
             self._status = SessionStatus.STOPPED
             self._stop_reason = reason
@@ -190,6 +246,12 @@ class GameSessionController:
             self._fail(exc)
             raise
 
+    # {
+    #   責務: [_run_loop_step: loop timerから観測・評価・step開始を順に実行する]
+    #   処理: [世代を検証し、非同期観測ならpendingとして待ち、同期観測なら判定へ渡す]
+    #   引数: [generation: callback予約時のloop世代]
+    #   戻り値: []
+    # }
     def _run_loop_step(self, generation: int) -> None:
         self._scheduled_token = None
         if generation != self._loop_generation or not self.is_looping:
@@ -198,29 +260,75 @@ class GameSessionController:
             if self._loop_observer is None:
                 raise RuntimeError("The continuous observation source is unavailable")
             observation = self._loop_observer()
-            if observation.terminal_reason is not None:
-                self._finish(SessionStatus.COMPLETED, observation.terminal_reason)
+            if observation.deferred:
+                if generation != self._loop_generation or not self.is_looping:
+                    return
+                self._observation_pending = True
+                self._pending_observation_generation = generation
                 return
-            if observation.screen is None:
-                self._finish(SessionStatus.COMPLETED, "capture failed")
+            if not self._apply_loop_observation(observation, generation):
                 return
-            if self._loop_guard.observe(observation.screen):
-                self._finish(SessionStatus.COMPLETED, "repeated observation")
-                return
-            if observation.outcome_status in {"success", "failure"}:
-                self._finish(SessionStatus.COMPLETED, f"outcome: {observation.outcome_status}")
-                return
-            self.step(self._loop_command, from_loop=True)
         except Exception as exc:
             if self._status is not SessionStatus.FAILED:
                 self._fail(exc)
             return
-        if generation == self._loop_generation and self.is_looping:
-            self._schedule_next(generation)
 
+    # {
+    #   責務: [complete_loop_observation: 非同期状態評価結果を連続実行の判定へ反映する]
+    #   処理: [停止後・古いloop世代の結果を捨て、有効な観測だけをterminal/repeat検査へ渡す]
+    #   引数: [observation: workerで評価した画面状態とterminal結果]
+    #   戻り値: [bool: 現在のpending observationを適用した場合はTrue]
+    # }
+    def complete_loop_observation(self, observation: LoopObservation) -> bool:
+        generation = self._pending_observation_generation
+        if (
+            not self._observation_pending
+            or generation is None
+            or generation != self._loop_generation
+            or not self.is_looping
+        ):
+            return False
+        self._observation_pending = False
+        self._pending_observation_generation = None
+        return self._apply_loop_observation(observation, generation)
+
+    # {
+    #   責務: [_apply_loop_observation: 有効なloop観測から停止または次stepを決定する]
+    #   処理: [terminal・capture・反復状態を検査し、継続時だけstepを呼び出す]
+    #   引数: [observation: 画面と評価済み状態, generation: 観測開始時のloop世代]
+    #   戻り値: [bool: 現在のloopへ観測を適用した場合はTrue]
+    # }
+    def _apply_loop_observation(self, observation: LoopObservation, generation: int) -> bool:
+        if generation != self._loop_generation or not self.is_looping:
+            return False
+        if observation.terminal_reason is not None:
+            self._finish(SessionStatus.COMPLETED, observation.terminal_reason)
+            return True
+        if observation.screen is None:
+            self._finish(SessionStatus.COMPLETED, "capture failed")
+            return True
+        if self._loop_guard.observe(observation.screen):
+            self._finish(SessionStatus.COMPLETED, "repeated observation")
+            return True
+        if observation.outcome_status in {"success", "failure"}:
+            self._finish(SessionStatus.COMPLETED, f"outcome: {observation.outcome_status}")
+            return True
+        result = self.step(self._loop_command, from_loop=True)
+        if not result.deferred and generation == self._loop_generation and self.is_looping:
+            self._schedule_next(generation)
+        return True
+
+    # {
+    #   責務: [_finish: 正常停止・terminal終了時にloopとruntimeを閉じる]
+    #   処理: [古いcallbackを無効化し、runtime解放後に完了状態を通知する]
+    #   引数: [status: 完了または停止状態, reason: 停止・terminal理由]
+    #   戻り値: []
+    # }
     def _finish(self, status: SessionStatus, reason: str) -> None:
         self._loop_generation += 1
         self._looping = False
+        self._observation_pending = False
+        self._pending_observation_generation = None
         self._cancel_scheduled()
         self.run_control.stop()
         close_error = self._close_runtime()
@@ -235,9 +343,30 @@ class GameSessionController:
             self._error = None
         self._notify()
 
+    # {
+    #   責務: [_mark_shutdown_failed: 停止後のruntime解放失敗をFAILED状態へ記録する]
+    #   処理: [閉じられなかったruntimeの失敗理由を通知し、session再利用を止める]
+    #   引数: [error: runtime.closeで発生した例外]
+    #   戻り値: []
+    # }
+    def _mark_shutdown_failed(self, error: Exception) -> None:
+        self._status = SessionStatus.FAILED
+        self._stop_reason = "runtime shutdown failed"
+        self._error = str(error)
+        self._notify_error(error)
+        self._notify()
+
+    # {
+    #   責務: [_fail: startup・step失敗を記録してruntimeを解放する]
+    #   処理: [loop callbackを無効化し、例外とshutdown失敗をFAILED状態へ保存する]
+    #   引数: [error: 処理中に発生した例外, runtime_already_closed: runtime解放済みならTrue]
+    #   戻り値: []
+    # }
     def _fail(self, error: Exception, runtime_already_closed: bool = False) -> None:
         self._loop_generation += 1
         self._looping = False
+        self._observation_pending = False
+        self._pending_observation_generation = None
         self._cancel_scheduled()
         self.run_control.stop()
         close_error = None if runtime_already_closed else self._close_runtime()

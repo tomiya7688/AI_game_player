@@ -228,6 +228,84 @@ class GameSessionControllerTests(unittest.TestCase):
         self.assertEqual(str(errors[0]), "bad input")
         self.assertEqual(runtimes[0].close_count, 1)
 
+    def test_deferred_step_waits_for_worker_completion_before_counting_or_scheduling(self):
+        scheduler = FakeScheduler()
+        controller, runtimes, calls = self.make_controller(
+            step_handler=lambda runtime, command: (calls.append((runtime.name, command)), SessionStep(deferred=True))[1],
+            scheduler=scheduler,
+            loop_observer=lambda: LoopObservation(ScreenObservation("menu", 1, 1)),
+        )
+        controller.start_loop(interval_ms=7)
+        scheduler.run_next()
+
+        self.assertTrue(controller.has_pending_step)
+        self.assertEqual(controller.snapshot.steps, 0)
+        self.assertEqual(scheduler.delays, [7])
+
+        controller.stop("user stop")
+        self.assertEqual(runtimes[0].close_count, 0)
+        self.assertTrue(controller.complete_step())
+
+        self.assertFalse(controller.has_pending_step)
+        self.assertEqual(runtimes[0].close_count, 1)
+        self.assertEqual(controller.status, SessionStatus.STOPPED)
+        self.assertFalse(controller.complete_step())
+
+    def test_deferred_observation_waits_for_assessment_before_starting_step(self):
+        scheduler = FakeScheduler()
+        controller, runtimes, calls = self.make_controller(
+            scheduler=scheduler,
+            loop_observer=lambda: LoopObservation(ScreenObservation("menu", 1, 1), deferred=True),
+        )
+        controller.start_loop(interval_ms=5)
+        scheduler.run_next()
+
+        self.assertEqual(calls, [])
+        self.assertEqual(scheduler.delays, [5])
+        self.assertTrue(controller.complete_loop_observation(LoopObservation(ScreenObservation("menu", 1, 1))))
+
+        self.assertEqual(calls, [(1, "execute")])
+        self.assertEqual(scheduler.delays, [5, 5])
+        self.assertTrue(controller.is_looping)
+        self.assertEqual(runtimes[0].close_count, 0)
+
+        self.assertEqual(scheduler.delays, [5, 5])
+
+    def test_stale_deferred_observation_is_ignored_after_stop(self):
+        scheduler = FakeScheduler()
+        controller, runtimes, calls = self.make_controller(
+            scheduler=scheduler,
+            loop_observer=lambda: LoopObservation(ScreenObservation("menu", 1, 1), deferred=True),
+        )
+        controller.start_loop(interval_ms=1)
+        scheduler.run_next()
+        controller.stop("user stop")
+
+        self.assertFalse(controller.complete_loop_observation(LoopObservation(ScreenObservation("menu", 1, 1))))
+        self.assertEqual(calls, [])
+        self.assertEqual(runtimes[0].close_count, 1)
+
+    def test_observer_that_stops_session_before_returning_deferred_does_not_leave_pending_work(self):
+        scheduler = FakeScheduler()
+        controller_reference = {}
+
+        def stop_during_observation():
+            controller_reference["controller"].stop("capture worker failed")
+            return LoopObservation(ScreenObservation("menu", 1, 1), deferred=True)
+
+        controller, runtimes, _calls = self.make_controller(
+            scheduler=scheduler,
+            loop_observer=stop_during_observation,
+        )
+        controller_reference["controller"] = controller
+        controller.start_loop(interval_ms=1)
+        scheduler.run_next()
+
+        self.assertFalse(controller.has_pending_step)
+        self.assertFalse(controller.complete_loop_observation(LoopObservation(ScreenObservation("menu", 1, 1))))
+        self.assertEqual(runtimes[0].close_count, 1)
+        self.assertEqual(controller.snapshot.stop_reason, "capture worker failed")
+
     def test_runtime_creation_failure_does_not_leave_run_control_armed(self):
         errors = []
         controller = GameSessionController(

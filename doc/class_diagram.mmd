@@ -63,32 +63,42 @@ classDiagram
     }
     class Application {
         +__init__()
-        +_save_current_config()
-        +_update_memory_source()
-        +_create_session_runtime()
-        +_ensure_session()
-        +_observe_for_loop()
-        +_perform_session_step()
-        +_on_session_state_change()
-        +_on_session_error()
-        +close()
         +_save_shell_state()
         +_set_status()
         +_refresh_execution_controls()
+        +_is_looping()
+        +_clear_loop_state()
+        +_loop_step()
+        +_continue_loop_with_assessment()
+        +_complete_session_step()
+        +_create_session_runtime()
+        +_perform_session_step()
+        +_observe_for_loop()
+        +_on_session_state_change()
+        +_on_session_error()
         +_on_live_execution_changed()
         +_validate_live_execution()
         +_cursor_position()
+        +_record_automated_cursor_position()
         +_poll_global_stop()
         +check_ollama()
         +refresh_models()
         +refresh_windows()
         +_assess_observation()
         +capture_screen()
+        +_start_assessment_worker()
+        +_assess_observation_in_background()
+        +_start_pipeline_worker()
+        +_run_pipeline_in_background()
+        +_run_is_current()
+        +_poll_background_results()
         +start_loop()
         +start()
         +stop()
         +run_and_execute()
         +run()
+        +_run_session_step()
+        +close()
     }
     ValueError <|-- ArtifactIntegrityError
     class ArtifactIntegrityError {
@@ -122,6 +132,10 @@ classDiagram
         +_iter_digests()
         +_write_staged_file()
         +_fsync_directory()
+    }
+    class StagedJsonWrite {
+        +publish()
+        +discard()
     }
     class BrightRegionDetector {
         +__init__()
@@ -176,6 +190,8 @@ classDiagram
     class SafetyContextEvaluator {
         +__init__()
         +evaluate()
+        +evaluate_batch()
+        +_evidence_from_report()
     }
     class RepetitionContextEvaluator {
         +__init__()
@@ -196,13 +212,14 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +prepare_append()
         +recent()
         +_read()
-        +_write()
     }
     class GamePlayerEngine {
         +__init__()
         +step()
+        +step_with_candidate()
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
@@ -392,15 +409,20 @@ classDiagram
         +snapshot()
         +is_running()
         +is_looping()
+        +has_pending_step()
         +start()
         +step()
+        +complete_step()
         +start_loop()
         +stop()
         +ensure_running()
         +rearm_token()
         +_schedule_next()
         +_run_loop_step()
+        +complete_loop_observation()
+        +_apply_loop_observation()
         +_finish()
+        +_mark_shutdown_failed()
         +_fail()
         +_close_runtime()
         +_cancel_scheduled()
@@ -410,6 +432,7 @@ classDiagram
     class HistoryStore {
         +__init__()
         +append()
+        +prepare_append()
     }
     class KnowledgeStore {
         +__init__()
@@ -609,6 +632,7 @@ classDiagram
         +rearm_safety()
         +close()
         +_sync_runtime_rearm()
+        +_bind_execution_stop_checker()
         +_safety_context()
     }
     class RuleProvider {
@@ -628,12 +652,19 @@ classDiagram
         +__init__()
         +detect()
     }
+    RuntimeError <|-- ExecutionCancelled
+    class ExecutionCancelled {
+        +__init__()
+    }
     class RunController {
         +__init__()
         +is_running()
         +rearm_token()
+        +stop_reason()
         +start()
         +stop()
+        +_validate_running_locked()
+        +run_if_current()
         +ensure_running()
     }
     class ResolutionFailure {
@@ -1010,6 +1041,7 @@ classDiagram
     class WindowsInputExecutor {
         +__init__()
         +execute()
+        +_verify_target_identity()
         +release_all()
         +_execute_click()
         +_post_click()
