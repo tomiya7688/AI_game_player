@@ -107,15 +107,52 @@ class SessionCompositionTests(unittest.TestCase):
         )
         self.assertEqual(
             {key: build_arguments["keywords"][key] for key in (
-                "dry_run", "window_handle", "input_mode", "window_process_id"
+                "dry_run", "window_handle", "input_mode", "window_process_id", "migrate_legacy"
             )},
             {
                 "dry_run": True,
                 "window_handle": 12,
                 "input_mode": "window_message",
                 "window_process_id": 34,
+                "migrate_legacy": True,
             },
         )
+
+    # {
+    #   責務: [test_legacy_files_are_migrated_only_in_the_first_runtime_session: 旧保存記録を複数Sessionへ複製しない]
+    #   処理: [共有game directoryでruntimeを2回生成し、初回だけ旧記録移行を有効にする]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_legacy_files_are_migrated_only_in_the_first_runtime_session(self):
+        migration_values = []
+
+        class Pipeline:
+            event_journal = None
+
+            def close(self):
+                self.event_journal.close()
+
+            def load_execution_history(self):
+                return []
+
+        def build_pipeline(*_arguments, **keywords):
+            migration_values.append(keywords["migrate_legacy"])
+            pipeline = Pipeline()
+            pipeline.event_journal = keywords["event_journal"]
+            return pipeline
+
+        composition = RuntimeComposition(
+            provider_factories={"fake": lambda *_arguments: FakeProvider([])},
+            pipeline_factory=build_pipeline,
+        )
+        for _ in range(2):
+            runtime = composition.create_session_runtime(
+                self.configuration(), source=object(), controller=object()
+            )
+            runtime.close()
+
+        self.assertEqual([True, False], migration_values)
 
     def test_runtime_closes_pipeline_before_provider_and_retries_only_failed_cleanup(self):
         events = []

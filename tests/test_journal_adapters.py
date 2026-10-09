@@ -3,6 +3,7 @@ import sqlite3
 import tempfile
 import unittest
 from contextlib import closing
+from decimal import Decimal
 from pathlib import Path
 
 from ai_game_player.action_executor import ExecutionResult
@@ -19,7 +20,7 @@ def read_events(database_path: Path) -> list[EventEnvelope]:
         rows = connection.execute(
             "SELECT envelope_json FROM events ORDER BY sequence"
         ).fetchall()
-    return [EventEnvelope.from_dict(json.loads(row[0])) for row in rows]
+    return [EventEnvelope.from_dict(json.loads(row[0], parse_float=Decimal)) for row in rows]
 
 
 class LegacyEventAdapterTest(unittest.TestCase):
@@ -85,21 +86,60 @@ class LegacyEventAdapterTest(unittest.TestCase):
             self.assertEqual(original_text, legacy_path.read_text(encoding="utf-8"))
             self.assertEqual([{"action_id": "jump", "confidence": 0.75}], second_adapter.records)
 
+    # {
+    #   責務: [test_migration_preserves_decimal_tokens_in_json_and_jsonl: 旧recordのDecimal精度を保つ]
+    #   処理: [JSON arrayとJSONLの小数tokenをDecimalとして読み、Journal payloadの数値を比較する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_migration_preserves_decimal_tokens_in_json_and_jsonl(self):
+        precise_decimal = "0.1000000000000000000000000001"
+        for json_lines, file_name, content in (
+            (False, "legacy.json", "[{\"value\":" + precise_decimal + "}]"),
+            (True, "legacy.jsonl", '{"value": ' + precise_decimal + "}\n"),
+        ):
+            with self.subTest(json_lines=json_lines), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source_path = root / file_name
+                source_path.write_text(content, encoding="utf-8")
+                with EventJournal(root / "events.sqlite3", session_id="session-decimal") as journal:
+                    LegacyEventAdapter(
+                        journal,
+                        source_path,
+                        "legacy.numeric",
+                        json_lines=json_lines,
+                    )
+                event = read_events(root / "events.sqlite3")[0]
+                self.assertEqual(
+                    Decimal(precise_decimal),
+                    event.payload["legacy_record"]["value"],
+                )
+
     def test_rejects_reuse_of_event_id_for_different_content(self):
         with tempfile.TemporaryDirectory() as directory:
             journal_path = Path(directory) / "events.sqlite3"
             with EventJournal(journal_path, session_id="session-1") as journal:
                 saved = journal.append(
-                    "migration.record", event_id="legacy-event-1", payload={"value": 1}
+                    "migration.record",
+                    event_id="legacy-event-1",
+                    payload={"alpha": 1, "value": 1},
                 )
                 retried = journal.append(
-                    "migration.record", event_id="legacy-event-1", payload={"value": 1}
+                    "migration.record",
+                    event_id="legacy-event-1",
+                    payload={"alpha": 1, "value": 1},
                 )
                 self.assertEqual(saved, retried)
                 with self.assertRaisesRegex(EventJournalError, "different event"):
                     journal.append(
                         "migration.record", event_id="legacy-event-1", payload={"value": 2}
                     )
+                reordered_retry = journal.append(
+                    "migration.record",
+                    event_id="legacy-event-1",
+                    payload={"value": 1, "alpha": 1},
+                )
+                self.assertEqual(saved, reordered_retry)
                 self.assertEqual(1, journal.last_sequence)
 
     def test_execution_history_reads_legacy_records_and_appends_only_to_journal(self):

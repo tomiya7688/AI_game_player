@@ -48,6 +48,7 @@ class DecisionPipeline:
 #     automated_cursor_position_callback: 実入力workerが自動クリックの開始・完了を通知する関数
 #     event_journal: このruntime session専用のJournal、未指定なら既存storeを使う
 #     runtime_log: application log、Journal指定時は同じsessionへ複製する
+#     migrate_legacy: trueなら初回起動で既存保存記録をJournalへ移行する
     #   ]
     #   戻り値: []
     # }
@@ -71,6 +72,7 @@ class DecisionPipeline:
         automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
         event_journal: EventJournal | None = None,
         runtime_log: RuntimeLog | None = None,
+        migrate_legacy: bool = True,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
@@ -79,7 +81,12 @@ class DecisionPipeline:
         self.runtime_log = runtime_log
         self._runtime_log_detached = runtime_log is None or event_journal is None
         self._event_journal_closed = event_journal is None
-        self.engine = GamePlayerEngine(game_directory, provider, event_journal=event_journal)
+        self.engine = GamePlayerEngine(
+            game_directory,
+            provider,
+            event_journal=event_journal,
+            migrate_legacy=migrate_legacy,
+        )
         self.controller = controller or RunController()
         self._seen_rearm_token = 0
         self.executor = ActionExecutor(
@@ -101,19 +108,32 @@ class DecisionPipeline:
         execution_history_path = game_directory / "execution_history.json"
         self.execution_history = ExecutionHistory(
             execution_history_path,
-            LegacyEventAdapter(event_journal, execution_history_path, "execution.result")
+            LegacyEventAdapter(
+                event_journal,
+                execution_history_path,
+                "execution.result",
+                migrate_legacy=migrate_legacy,
+            )
             if event_journal is not None else None,
         )
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
         safety_audit_path = game_directory / "action_safety.json"
         self.safety_audit = ActionSafetyAuditLog(
             safety_audit_path,
-            LegacyEventAdapter(event_journal, safety_audit_path, "safety.audit")
+            LegacyEventAdapter(
+                event_journal,
+                safety_audit_path,
+                "safety.audit",
+                migrate_legacy=migrate_legacy,
+            )
             if event_journal is not None else None,
         )
         self.last_safety_result: ActionSafetyResult | None = None
         if self.event_journal is not None and self.runtime_log is not None:
-            self.runtime_log.attach_event_journal(self.event_journal)
+            self.runtime_log.attach_event_journal(
+                self.event_journal,
+                migrate_legacy=migrate_legacy,
+            )
 
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:
         observation, configured = self.source.read()

@@ -153,7 +153,7 @@ class RuntimeComposition:
 
     # {
     #   責務: [create_session_runtime: 1 Session用のProviderとPipelineを生成して所有関係を返す]
-    #   処理: [session設定からProviderと専用Journalを生成し、注入依存と一緒にPipeline factoryへ渡す]
+    #   処理: [session設定からProviderと専用Journalを生成し、未移行時だけ旧記録を取り込んでから完了markerを作る]
     #   引数: [configuration: Session開始時の確定設定, source: session中に更新されるObservation source, controller: 停止世代を共有するcontroller, automated_cursor_position_callback: 実入力カーソル位置の通知先, runtime_log: active Sessionへruntime eventを記録するapplication logger]
     #   戻り値: [ManagedSessionRuntime: closeでPipelineとProviderを順序付き解放するsession runtime]
     #   エラー: [ValueError: Provider factoryが未登録の場合, Exception: Pipeline初期化失敗]
@@ -173,7 +173,10 @@ class RuntimeComposition:
 
         provider = provider_factory(configuration.model, configuration.endpoint)
         session_id = uuid4().hex
+        migration_marker = configuration.game_directory / "session_events" / "legacy_migration_v1.complete"
+        migrate_legacy = not migration_marker.exists()
         event_journal: EventJournal | None = None
+        pipeline: DecisionPipeline | None = None
         try:
             event_journal = EventJournal(
                 configuration.game_directory / "session_events" / f"{session_id}.sqlite3",
@@ -191,16 +194,31 @@ class RuntimeComposition:
                 automated_cursor_position_callback=automated_cursor_position_callback,
                 event_journal=event_journal,
                 runtime_log=runtime_log,
+                migrate_legacy=migrate_legacy,
             )
+            if migrate_legacy:
+                migration_marker.parent.mkdir(parents=True, exist_ok=True)
+                migration_marker.touch(exist_ok=True)
         except Exception as initialization_error:
+            cleanup_errors: list[Exception] = []
+            if pipeline is not None:
+                try:
+                    pipeline.close()
+                except Exception as cleanup_error:
+                    cleanup_errors.append(cleanup_error)
             if event_journal is not None:
-                event_journal.close()
+                try:
+                    event_journal.close()
+                except Exception as cleanup_error:
+                    cleanup_errors.append(cleanup_error)
             try:
                 _close_provider(provider)
             except Exception as cleanup_error:
+                cleanup_errors.append(cleanup_error)
+            if cleanup_errors:
                 raise RuntimeError(
                     f"Session pipeline initialization failed ({initialization_error}); "
-                    f"provider cleanup also failed ({cleanup_error})"
+                    "cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
                 ) from initialization_error
             raise
         return ManagedSessionRuntime(pipeline, provider)

@@ -57,8 +57,8 @@ class StagedJournalAppend:
 class LegacyEventAdapter:
     # {
     #   責務: [__init__: 旧保存ファイルを検証し、既存recordを重複しないIDでJournalへ移行する]
-    #   処理: [JSON arrayまたはJSONLを読み、各recordの内容hashから安定event IDを作って移行再試行を冪等にする]
-    #   引数: [journal: event保存先, source_path: 旧形式JSONまたはJSONL, event_type: 移行先Envelopeの種類, json_lines: trueなら各行を1 objectとして読む, retain_records: falseなら読み込み後のlegacy recordを互換cacheに保持しない]
+    #   処理: [移行許可時にJSON arrayまたはJSONLを読み、内容hashによる安定IDで同じDB内の再試行を冪等にする]
+    #   引数: [journal: event保存先, source_path: 旧形式JSONまたはJSONL, event_type: 移行先Envelopeの種類, json_lines: trueなら各行を1 objectとして読む, retain_records: falseならrecordを互換cacheへ保持しない, migrate_legacy: falseなら旧ファイルを再読込しない]
     #   戻り値: []
     #   エラー: [OSError: 旧ファイルを読めない場合, ValueError: JSON形状またはrecordが不正な場合]
     # }
@@ -70,14 +70,17 @@ class LegacyEventAdapter:
         *,
         json_lines: bool = False,
         retain_records: bool = True,
+        migrate_legacy: bool = True,
     ) -> None:
         self.journal = journal
         self.source_path = Path(source_path)
         self.event_type = event_type
         self.json_lines = json_lines
         self.retain_records = retain_records
+        self.migrate_legacy = migrate_legacy
         self._records: list[dict[str, Any]] = []
-        for index, record in enumerate(self._read_legacy_records()):
+        legacy_records = self._read_legacy_records() if self.migrate_legacy else []
+        for index, record in enumerate(legacy_records):
             if self.retain_records:
                 self._records.append(record)
             self._append_record(record, self._legacy_event_id(index, record))
@@ -90,7 +93,10 @@ class LegacyEventAdapter:
     # }
     @property
     def records(self) -> list[dict[str, Any]]:
-        return deepcopy(self._records)
+        return [
+            _legacy_compatible_record(record)
+            for record in deepcopy(self._records)
+        ]
 
     # {
     #   責務: [prepare_append: legacy API用recordをcommit時まで保留したJournal appendへ変換する]
@@ -148,12 +154,12 @@ class LegacyEventAdapter:
         text = self.source_path.read_text(encoding="utf-8")
         if self.json_lines:
             values = [
-                json.loads(line)
+                json.loads(line, parse_float=Decimal)
                 for line in text.splitlines()
                 if line.strip()
             ]
         else:
-            values = json.loads(text)
+            values = json.loads(text, parse_float=Decimal)
             if not isinstance(values, list):
                 raise ValueError(f"{self.source_path.name} must contain an array")
         if not isinstance(values, list) or any(not isinstance(item, dict) for item in values):
@@ -199,3 +205,19 @@ def _decimal_json_default(value: Any) -> str:
     if isinstance(value, Decimal):
         return str(value)
     raise TypeError(f"cannot serialize legacy value of type {type(value).__name__}")
+
+
+# {
+#   責務: [_legacy_compatible_record: Decimal保持したJournal recordを旧JSON readerの型へ戻す]
+#   処理: [旧json.loadsが小数へ使っていたfloatへ変換し、nested objectとarrayを再帰的にcopyする]
+#   引数: [value: Journal payloadから取り出した旧形式record]
+#   戻り値: [dict[str, Any]: 旧readerと同じfloat互換のJSON record]
+# }
+def _legacy_compatible_record(value: Any) -> Any:
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, dict):
+        return {key: _legacy_compatible_record(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_legacy_compatible_record(item) for item in value]
+    return value

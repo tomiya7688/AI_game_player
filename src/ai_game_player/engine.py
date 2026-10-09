@@ -29,7 +29,7 @@ class GamePlayerEngine:
     # {
     #   責務: [__init__: 判断・履歴・Outcome componentをgame directoryと任意Journalへ接続する]
     #   処理: [旧history/trace JSONを指定Journalへ移行し、providerとcontext builderを初期化する]
-    #   引数: [game_directory: game固有のlegacy data保存先, provider: 判断provider, context_builder: 判断context生成器, outcome_detector: 直前操作を評価するdetector, event_journal: 現Sessionのevent保存先]
+    #   引数: [game_directory: game固有のlegacy data保存先, provider: 判断provider, context_builder: 判断context生成器, outcome_detector: 直前操作を評価するdetector, event_journal: 現Sessionのevent保存先, migrate_legacy: 初回sessionなら旧historyとtraceをJournalへ移行する]
     #   戻り値: []
     # }
     def __init__(
@@ -39,6 +39,7 @@ class GamePlayerEngine:
         context_builder: DecisionContextBuilder | None = None,
         outcome_detector: OutcomeDetector | None = None,
         event_journal: EventJournal | None = None,
+        migrate_legacy: bool = True,
     ) -> None:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
@@ -46,12 +47,22 @@ class GamePlayerEngine:
         trace_path = game_directory / "decision_trace.json"
         self.history = HistoryStore(
             history_path,
-            LegacyEventAdapter(event_journal, history_path, "decision.history")
+            LegacyEventAdapter(
+                event_journal,
+                history_path,
+                "decision.history",
+                migrate_legacy=migrate_legacy,
+            )
             if event_journal is not None else None,
         )
         self.trace = DecisionTraceStore(
             trace_path,
-            LegacyEventAdapter(event_journal, trace_path, "decision.trace")
+            LegacyEventAdapter(
+                event_journal,
+                trace_path,
+                "decision.trace",
+                migrate_legacy=migrate_legacy,
+            )
             if event_journal is not None else None,
         )
         self.context_builder = context_builder or DecisionContextBuilder(KnowledgeStore(game_directory / "knowledge.json"))

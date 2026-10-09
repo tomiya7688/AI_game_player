@@ -831,18 +831,49 @@ def _same_event_content(
         payload=payload,
         artifact_refs=artifact_refs,
     )
-    return _encode_json_record(candidate.to_dict()) == _encode_json_record(existing.to_dict())
+    return _encode_json_record(candidate.to_dict(), sort_keys=True) == _encode_json_record(
+        existing.to_dict(), sort_keys=True
+    )
 
 
 # {
 #   責務: [_encode_json_record: EventEnvelope recordをJSON textへ符号化する]
-#   処理: [compactなJSON数値表現を作り、Decimalの桁・指数を丸めずに保持し、NaN/Infinityを拒否する]
-#   引数: [record: schema検証済みeventを表すmapping]
+#   処理: [compactなJSON数値表現を作り、必要ならnested object key順を正規化し、Decimal精度を保ってNaN/Infinityを拒否する]
+#   引数: [record: schema検証済みeventを表すmapping, sort_keys: trueならkey順に依存しないretry比較を行う]
 #   戻り値: [str: SQLite envelope_json columnへ保存するJSON text]
 #   エラー: [ValueError: JSONにできない値または非有限数が含まれる場合]
 # }
-def _encode_json_record(record: Mapping[str, Any]) -> str:
+def _encode_json_record(record: Mapping[str, Any], *, sort_keys: bool = False) -> str:
+    if sort_keys:
+        record = _sort_json_mapping_keys(record)
     return _encode_json_value(record)
+
+
+# {
+#   責務: [_sort_json_mapping_keys: object key順に依存しないJSON比較用mappingを作る]
+#   処理: [nested mappingをkey名で並べ、listの順序とscalar値は保持する]
+#   引数: [value: key順比較するJSON mapping]
+#   戻り値: [dict[str, Any]: key順が正規化されたmapping]
+# }
+def _sort_json_mapping_keys(value: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        key: _sort_json_value(item)
+        for key, item in sorted(value.items(), key=lambda pair: pair[0])
+    }
+
+
+# {
+#   責務: [_sort_json_value: JSON値のnested object key順を再帰的に正規化する]
+#   処理: [mappingだけを再帰的にkey順化し、array順序とscalar値を変えない]
+#   引数: [value: 正規化対象のJSON値]
+#   戻り値: [Any: mapping key順が安定したJSON互換値]
+# }
+def _sort_json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return _sort_json_mapping_keys(value)
+    if isinstance(value, list):
+        return [_sort_json_value(item) for item in value]
+    return value
 
 
 # {

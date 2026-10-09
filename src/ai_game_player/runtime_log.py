@@ -25,18 +25,24 @@ class RuntimeLog:
 
     # {
     #   責務: [attach_event_journal: application logの旧JSONL recordをactive Session Journalへ移行する]
-    #   処理: [現在のSessionに限ってevent adapterを作り、以後のwriteをJournalへ送る]
-    #   引数: [journal: RuntimeLog eventの保存先となるactive Session Journal]
+    #   処理: [現在のSessionに限ってevent adapterを作り、必要な初回だけ旧JSONLを移行して以後のwriteをJournalへ送る]
+    #   引数: [journal: RuntimeLog eventの保存先となるactive Session Journal, migrate_legacy: falseなら過去JSONLの再取込を省く]
     #   戻り値: []
     #   エラー: [OSError: 旧JSONLを読めない場合, ValueError: 旧JSONLに不正な行がある場合]
     # }
-    def attach_event_journal(self, journal: EventJournal) -> None:
+    def attach_event_journal(
+        self,
+        journal: EventJournal,
+        *,
+        migrate_legacy: bool = True,
+    ) -> None:
         self._event_adapter = LegacyEventAdapter(
             journal,
             self.path,
             "runtime.log",
             json_lines=True,
             retain_records=False,
+            migrate_legacy=migrate_legacy,
         )
 
     # {
