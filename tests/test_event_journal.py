@@ -75,7 +75,9 @@ class EventEnvelopeTest(unittest.TestCase):
             {"schema_version": EVENT_ENVELOPE_SCHEMA_VERSION + 0.5},
             {"sequence": True},
             {"sequence": 0},
+            {"sequence": 9_223_372_036_854_775_808},
             {"monotonic_ns": -1},
+            {"monotonic_ns": 9_223_372_036_854_775_808},
             {"timestamp_utc": "2026-10-05T10:20:30"},
             {"timestamp_utc": "2026-10-05T12:20:30+02:00"},
             {"timestamp_utc": "2026-10-05T10:20:30+00:00"},
@@ -298,6 +300,48 @@ class EventJournalTest(unittest.TestCase):
 
             self.assertEqual(3, next_event.sequence)
 
+    def test_recovery_rejects_decimal_exponent_above_sqlite_integer_limit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "oversized-decimal-monotonic-time.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                journal.append("session.started")
+
+            with closing(sqlite3.connect(path)) as connection:
+                envelope_json = connection.execute(
+                    "SELECT envelope_json FROM events WHERE sequence=1"
+                ).fetchone()[0]
+                oversized_envelope_json = re.sub(
+                    r'("monotonic_ns":)[^,}]+',
+                    r'\g<1>1e1000000000',
+                    envelope_json,
+                    count=1,
+                )
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=1",
+                    (oversized_envelope_json,),
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "invalid complete event record"):
+                EventJournal(path)
+
+    def test_initializes_database_through_preexisting_dangling_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database_path = Path(directory) / "journal-link.sqlite3"
+            database_target = Path(directory) / "journal-target.sqlite3"
+            try:
+                database_path.symlink_to(database_target.name)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"the current platform cannot create a file symlink: {error}")
+
+            with EventJournal(database_path, session_id="session-1") as journal:
+                event = journal.append("session.started")
+
+            self.assertTrue(database_path.is_symlink())
+            self.assertTrue(database_target.is_file())
+            self.assertEqual("session-1", load_stored_events(database_path)[0].session_id)
+            self.assertEqual(1, event.sequence)
+
     def test_failed_first_open_removes_partial_database_for_retry(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "retryable.sqlite3"
@@ -327,7 +371,10 @@ class EventJournalTest(unittest.TestCase):
     def test_failed_first_open_preserves_preexisting_dangling_symlink(self):
         path = Path("dangling-link.sqlite3")
         with (
-            patch("ai_game_player.event_journal.os.path.lexists", return_value=True),
+            patch(
+                "ai_game_player.event_journal.os.path.lexists",
+                side_effect=lambda candidate: Path(candidate) == path,
+            ),
             patch.object(
                 sqlite3,
                 "connect",
@@ -338,7 +385,7 @@ class EventJournalTest(unittest.TestCase):
             with self.assertRaises(EventJournalError):
                 EventJournal(path, session_id="session-1")
 
-        remove_database.assert_not_called()
+        remove_database.assert_called_once_with(frozenset({path}))
 
     def test_rejects_unexpected_schema_objects_and_altered_table_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -654,6 +701,8 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         self.assertEqual("object", schema["type"])
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(EVENT_ENVELOPE_SCHEMA_VERSION, schema["properties"]["schema_version"]["const"])
+        self.assertEqual(9_223_372_036_854_775_807, schema["properties"]["sequence"]["maximum"])
+        self.assertEqual(9_223_372_036_854_775_807, schema["properties"]["monotonic_ns"]["maximum"])
         timestamp_pattern = schema["properties"]["timestamp_utc"]["pattern"]
         self.assertEqual("date-time", schema["properties"]["timestamp_utc"]["format"])
         self.assertIsNotNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30.123456Z"))

@@ -26,13 +26,13 @@
     "schema_version": { "const": 1 },
     "event_id": { "type": "string", "minLength": 1, "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]" },
     "session_id": { "type": "string", "minLength": 1, "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]" },
-    "sequence": { "type": "integer", "minimum": 1 },
+    "sequence": { "type": "integer", "minimum": 1, "maximum": 9223372036854775807 },
     "timestamp_utc": {
       "type": "string",
       "format": "date-time",
       "pattern": "^(?!0000-)(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:[02468][048]|[13579][26])00)-02-29|[0-9]{4}-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8])))T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?Z(?![\\s\\S])"
     },
-    "monotonic_ns": { "type": "integer", "minimum": 0 },
+    "monotonic_ns": { "type": "integer", "minimum": 0, "maximum": 9223372036854775807 },
     "monotonic_epoch_id": { "type": "string", "minLength": 1, "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]" },
     "event_type": { "type": "string", "minLength": 1, "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]" },
     "status": { "type": ["string", "null"], "minLength": 1, "pattern": "[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]" },
