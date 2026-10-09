@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 from uuid import uuid4
 
@@ -24,7 +25,7 @@ SQLITE_BUSY_TIMEOUT_MS = 5_000
 SQLITE_BUSY_TIMEOUT_SECONDS = SQLITE_BUSY_TIMEOUT_MS / 1_000
 _ENVELOPE_FIELDS = frozenset({
     "schema_version", "event_id", "session_id", "sequence", "timestamp_utc",
-    "monotonic_ns", "event_type", "status", "frame_id", "turn_id",
+    "monotonic_ns", "monotonic_epoch_id", "event_type", "status", "frame_id", "turn_id",
     "snapshot_id", "correlation_id", "payload", "artifact_refs",
 })
 # {
@@ -80,7 +81,7 @@ class EventJournalClosedError(EventJournalError):
 @dataclass(frozen=True)
 # {
 #   責務: [EventEnvelope: 1 Session内の事実をschema version・連番・時刻・関連ID・payload・artifact参照と一緒に表す]
-#   フィールド: [session_id/sequence: Session識別子と1から始まる連続番号, timestamp_utc/monotonic_ns: UTC表示時刻と経過時間比較用時刻, payload/artifact_refs: 小さなJSON値と別保存artifactへの参照]
+#   フィールド: [session_id/sequence: Session識別子と1から始まる連続番号, timestamp_utc: UTC時刻, monotonic_ns/monotonic_epoch_id: epoch内の経過時刻と比較可能範囲の識別子, payload/artifact_refs: 不変JSON値と別保存artifactへの参照]
 # }
 class EventEnvelope:
     schema_version: int
@@ -89,6 +90,7 @@ class EventEnvelope:
     sequence: int
     timestamp_utc: str
     monotonic_ns: int
+    monotonic_epoch_id: str
     event_type: str
     status: str | None = None
     frame_id: str | None = None
@@ -100,7 +102,7 @@ class EventEnvelope:
 
     # {
     #   責務: [__post_init__: Envelopeを永続化する前にschema・識別子・時刻・JSON payload・artifact参照を検証する]
-    #   処理: [integer-valued numberをintへ正規化し、UTC・文字列・payload・artifact refsを検証して保持する]
+    #   処理: [integer-valued numberをintへ正規化し、UTC・epoch ID・文字列・JSON payload・artifact refsを検証して保持する]
     #   引数: [self: 作成直後のSession event envelope]
     #   戻り値: [なし: 検証成功時は正規化したfieldを保持する]
     #   エラー: [ValueError: version・必須値・UTC時刻・JSON payload・artifact参照がcontractに合わない場合]
@@ -117,12 +119,15 @@ class EventEnvelope:
             _require_nonempty_text(getattr(self, field_name), field_name)
         sequence = _require_integer(self.sequence, "sequence", FIRST_EVENT_SEQUENCE)
         monotonic_ns = _require_integer(self.monotonic_ns, "monotonic_ns", 0)
+        _require_nonempty_text(self.monotonic_epoch_id, "monotonic_epoch_id")
         _validate_utc_timestamp(self.timestamp_utc)
         for field_name in ("status", "frame_id", "turn_id", "snapshot_id", "correlation_id"):
             _require_optional_text(getattr(self, field_name), field_name)
         if not isinstance(self.payload, Mapping):
             raise ValueError("payload must be an object")
-        normalized_payload = _json_compatible_copy(self.payload, "payload", set())
+        normalized_payload = _freeze_json_value(
+            _json_compatible_copy(self.payload, "payload", set())
+        )
         if not isinstance(self.artifact_refs, (tuple, list)):
             raise ValueError("artifact_refs must be an array")
         if any(not isinstance(reference, ArtifactReference) for reference in self.artifact_refs):
@@ -135,7 +140,7 @@ class EventEnvelope:
 
     # {
     #   責務: [to_dict: EventEnvelopeをJSONへ保存できるfield名と値の辞書に変換する]
-    #   処理: [payloadを新しい辞書にし、各ArtifactReferenceをJSON objectへ変換してevent fieldとまとめる]
+    #   処理: [不変payloadを独立した辞書・配列へ戻し、monotonic epochとArtifactReferenceを含む保存用recordを作る]
     #   引数: [self: JSONへ保存する検証済みevent]
     #   戻り値: [dict[str, Any]: schema fieldをすべて含みartifact_refsを辞書配列にした保存用record]
     # }
@@ -147,13 +152,14 @@ class EventEnvelope:
             "sequence": self.sequence,
             "timestamp_utc": self.timestamp_utc,
             "monotonic_ns": self.monotonic_ns,
+            "monotonic_epoch_id": self.monotonic_epoch_id,
             "event_type": self.event_type,
             "status": self.status,
             "frame_id": self.frame_id,
             "turn_id": self.turn_id,
             "snapshot_id": self.snapshot_id,
             "correlation_id": self.correlation_id,
-            "payload": dict(self.payload),
+            "payload": _thaw_json_value(self.payload),
             "artifact_refs": [reference.to_dict() for reference in self.artifact_refs],
         }
 
@@ -186,6 +192,9 @@ class EventEnvelope:
             sequence=_require_integer(value["sequence"], "sequence", FIRST_EVENT_SEQUENCE),
             timestamp_utc=_require_nonempty_text(value["timestamp_utc"], "timestamp_utc"),
             monotonic_ns=_require_integer(value["monotonic_ns"], "monotonic_ns", 0),
+            monotonic_epoch_id=_require_nonempty_text(
+                value["monotonic_epoch_id"], "monotonic_epoch_id"
+            ),
             event_type=_require_nonempty_text(value["event_type"], "event_type"),
             status=_require_optional_text(value["status"], "status"),
             frame_id=_require_optional_text(value["frame_id"], "frame_id"),
@@ -202,7 +211,7 @@ class EventEnvelope:
 
 # {
 #   責務: [EventJournal: 1 SessionのeventをSQLite WALへ連続番号付きで追記し、再open時に既存recordを検証する]
-#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence: 保存対象Sessionと次に割り当てる番号, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
+#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence: 保存対象Sessionと次に割り当てる番号, _monotonic_epoch_id: instance内の経過時刻比較範囲, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
 # }
 class EventJournal:
     """Single-session append-only SQLite WAL journal with atomic recovery.
@@ -213,7 +222,7 @@ class EventJournal:
 
     # {
     #   責務: [__init__: 1 Session専用のSQLite Journalを開き、schema・既存event・WAL modeを検証する]
-    #   処理: [SQLite接続をFULL synchronousで構成し、database metadataからSession IDを確定してevent連番を復旧する]
+    #   処理: [SQLite接続をFULL synchronousで構成し、新しいmonotonic epochを発行してdatabase metadataからSession IDと連番を復旧する]
     #   引数: [path: Session event databaseの保存先, session_id: 新規databaseに指定するSession ID、既存databaseを開く場合の照合値]
     #   戻り値: [なし: 検証済みSQLite接続と次のevent sequenceをinstanceに保持する]
     #   エラー: [EventJournalError: databaseへ接続できないかWALを開始できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
@@ -224,6 +233,7 @@ class EventJournal:
         self._closed = False
         self._write_failed = False
         self._event_ids: set[str] = set()
+        self._monotonic_epoch_id = uuid4().hex
         self._session_id = _require_optional_text(session_id, "session_id")
         self._next_sequence = FIRST_EVENT_SEQUENCE
         self._connection: sqlite3.Connection | None = None
@@ -308,6 +318,7 @@ class EventJournal:
                 sequence=self._next_sequence,
                 timestamp_utc=_current_utc_timestamp(),
                 monotonic_ns=time.monotonic_ns(),
+                monotonic_epoch_id=self._monotonic_epoch_id,
                 event_type=event_type,
                 status=status,
                 frame_id=frame_id,
@@ -606,11 +617,30 @@ def _encode_json_record(record: Mapping[str, Any]) -> str:
 
 # {
 #   責務: [_is_sqlite_access_error: database errorをアクセス失敗と保存record破損に分類する]
-#   処理: [SQLite OperationalErrorのうちopen/lock/busy/read-only/I/O/permissionの失敗文言だけを照合する]
+#   処理: [SQLite result codeのresource/access失敗を判定し、古いPythonでは既知のOperationalError文言へfallbackする]
 #   引数: [error: 初期化または接続で発生したSQLite database error]
 #   戻り値: [bool: database access由来ならTrue、それ以外ならFalse]
 # }
 def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
+    sqlite_error_code = getattr(error, "sqlite_errorcode", None)
+    if isinstance(sqlite_error_code, int):
+        primary_error_code = sqlite_error_code & 0xFF
+        access_error_codes = {
+            getattr(sqlite3, error_name, -1)
+            for error_name in (
+                "SQLITE_BUSY",
+                "SQLITE_LOCKED",
+                "SQLITE_READONLY",
+                "SQLITE_IOERR",
+                "SQLITE_FULL",
+                "SQLITE_CANTOPEN",
+                "SQLITE_PERM",
+                "SQLITE_AUTH",
+                "SQLITE_NOMEM",
+                "SQLITE_PROTOCOL",
+            )
+        }
+        return primary_error_code in access_error_codes
     if not isinstance(error, sqlite3.OperationalError):
         return False
     message = str(error).lower()
@@ -623,8 +653,38 @@ def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
             "readonly database",
             "disk i/o error",
             "permission denied",
+            "database or disk is full",
+            "out of memory",
         )
     )
+
+
+# {
+#   責務: [_freeze_json_value: 検証済みJSON containerをEventEnvelopeから変更できない形にする]
+#   処理: [mappingをread-only proxyへ、配列をtupleへ再帰変換し、JSON primitiveをそのまま保持する]
+#   引数: [value: _json_compatible_copyで検証したJSON互換値]
+#   戻り値: [Any: 外部参照から変更できないmapping・tuple・primitive]
+# }
+def _freeze_json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return MappingProxyType({key: _freeze_json_value(nested) for key, nested in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze_json_value(nested) for nested in value)
+    return value
+
+
+# {
+#   責務: [_thaw_json_value: 不変EventEnvelope payloadからJSON encoder向けの独立containerを作る]
+#   処理: [read-only mappingをdictへ、tupleをlistへ再帰変換し、EventEnvelopeの保持値を共有しない]
+#   引数: [value: EventEnvelopeが保持する凍結済みJSON値]
+#   戻り値: [Any: 呼び出し側が変更できるJSON primitive・dict・listの独立値]
+# }
+def _thaw_json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _thaw_json_value(nested) for key, nested in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw_json_value(nested) for nested in value]
+    return value
 
 
 # {

@@ -14,6 +14,7 @@ from ai_game_player.event_journal import (
     EventJournal,
     EventJournalClosedError,
     EventJournalCorruptionError,
+    _is_sqlite_access_error,
 )
 from ai_game_player.experience import ArtifactReference
 
@@ -43,6 +44,7 @@ class EventEnvelopeTest(unittest.TestCase):
             sequence=1,
             timestamp_utc="2026-10-05T10:20:30.123456Z",
             monotonic_ns=123456789,
+            monotonic_epoch_id="epoch-1",
             event_type="screen.observed",
             status="completed",
             frame_id="frame-1",
@@ -63,6 +65,7 @@ class EventEnvelopeTest(unittest.TestCase):
             "sequence": 1,
             "timestamp_utc": "2026-10-05T10:20:30Z",
             "monotonic_ns": 0,
+            "monotonic_epoch_id": "epoch-1",
             "event_type": "session.started",
         }
         invalid_fields = (
@@ -92,13 +95,36 @@ class EventEnvelopeTest(unittest.TestCase):
             sequence=1,
             timestamp_utc="2026-10-05T10:20:30Z",
             monotonic_ns=0,
+            monotonic_epoch_id="epoch-1",
             event_type="session.started",
             payload=payload,
         )
 
         payload["nested"]["values"].append(2)
 
-        self.assertEqual({"nested": {"values": [1]}}, event.payload)
+        self.assertEqual({"nested": {"values": (1,)}}, event.payload)
+
+    def test_payload_is_immutable_and_to_dict_returns_a_deep_independent_copy(self):
+        event = EventEnvelope(
+            schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
+            event_id="event-1",
+            session_id="session-1",
+            sequence=1,
+            timestamp_utc="2026-10-05T10:20:30Z",
+            monotonic_ns=0,
+            monotonic_epoch_id="epoch-1",
+            event_type="session.started",
+            payload={"nested": {"values": [1]}},
+        )
+
+        with self.assertRaises(TypeError):
+            event.payload["nested"]["new"] = True
+        with self.assertRaises(AttributeError):
+            event.payload["nested"]["values"].append(2)
+        exported_payload = event.to_dict()["payload"]
+        exported_payload["nested"]["values"].append(2)
+
+        self.assertEqual((1,), event.payload["nested"]["values"])
 
     def test_normalizes_integer_valued_json_numbers_to_runtime_integers(self):
         event = EventEnvelope(
@@ -108,6 +134,7 @@ class EventEnvelopeTest(unittest.TestCase):
             sequence=1,
             timestamp_utc="2026-10-05T10:20:30Z",
             monotonic_ns=0,
+            monotonic_epoch_id="epoch-1",
             event_type="session.started",
         )
         value = event.to_dict()
@@ -129,6 +156,7 @@ class EventEnvelopeTest(unittest.TestCase):
             sequence=1,
             timestamp_utc="2026-10-05T10:20:30Z",
             monotonic_ns=0,
+            monotonic_epoch_id="epoch-1",
             event_type="session.started",
         )
         value = event.to_dict()
@@ -140,6 +168,18 @@ class EventEnvelopeTest(unittest.TestCase):
 
 
 class EventJournalTest(unittest.TestCase):
+    def test_sqlite_full_is_classified_as_a_recoverable_access_failure(self):
+        disk_full_error = sqlite3.OperationalError("SQLite operation failed")
+        disk_full_error.sqlite_errorcode = getattr(sqlite3, "SQLITE_FULL", 13)
+        malformed_database_error = sqlite3.OperationalError("database is malformed")
+        malformed_database_error.sqlite_errorcode = getattr(sqlite3, "SQLITE_CORRUPT", 11)
+
+        self.assertTrue(_is_sqlite_access_error(disk_full_error))
+        self.assertTrue(_is_sqlite_access_error(
+            sqlite3.OperationalError("database or disk is full")
+        ))
+        self.assertFalse(_is_sqlite_access_error(malformed_database_error))
+
     def test_enables_wal_after_rejecting_an_unrecognized_existing_database(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "existing.sqlite3"
@@ -251,6 +291,7 @@ class EventJournalTest(unittest.TestCase):
             stored_events = load_stored_events(path)
             self.assertEqual(1, first_event.sequence)
             self.assertEqual(2, second_event.sequence)
+            self.assertNotEqual(first_event.monotonic_epoch_id, second_event.monotonic_epoch_id)
             self.assertEqual(original_record, stored_events[0])
             self.assertEqual([1, 2], [event.sequence for event in stored_events])
 
@@ -267,6 +308,7 @@ class EventJournalTest(unittest.TestCase):
                 sequence=2,
                 timestamp_utc="2026-10-05T10:20:30Z",
                 monotonic_ns=0,
+                monotonic_epoch_id="epoch-1",
                 event_type="session.uncommitted",
             )
             connection = sqlite3.connect(path)
@@ -410,7 +452,7 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         self.assertEqual("Z$", schema["properties"]["timestamp_utc"]["pattern"])
         for field_name in (
             "event_id", "session_id", "event_type", "status", "frame_id",
-            "turn_id", "snapshot_id", "correlation_id",
+            "turn_id", "snapshot_id", "correlation_id", "monotonic_epoch_id",
         ):
             with self.subTest(field_name=field_name):
                 pattern = schema["properties"][field_name]["pattern"]
@@ -419,4 +461,5 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
                 self.assertIsNotNone(re.search(pattern, " x "))
         self.assertIn("sequence", schema["required"])
         self.assertIn("monotonic_ns", schema["required"])
+        self.assertIn("monotonic_epoch_id", schema["required"])
         self.assertIn("correlation_id", schema["required"])
