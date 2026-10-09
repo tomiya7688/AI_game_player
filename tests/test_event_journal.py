@@ -1,4 +1,5 @@
 import json
+import re
 import sqlite3
 import tempfile
 import unittest
@@ -155,6 +156,20 @@ class EventJournalTest(unittest.TestCase):
                 connection.commit()
             with self.assertRaisesRegex(EventJournalCorruptionError, "table definitions"):
                 EventJournal(altered_path)
+
+    def test_rejects_non_integer_existing_metadata_schema_version(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-schema-version.sqlite3"
+            with EventJournal(path, session_id="session-1"):
+                pass
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute(
+                    "UPDATE journal_metadata SET journal_schema_version=1.5 WHERE singleton_id=1"
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "metadata is invalid"):
+                EventJournal(path)
 
     def test_appends_compact_records_with_generated_utc_monotonic_and_correlation_fields(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -356,6 +371,15 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(EVENT_ENVELOPE_SCHEMA_VERSION, schema["properties"]["schema_version"]["const"])
         self.assertEqual("Z$", schema["properties"]["timestamp_utc"]["pattern"])
+        for field_name in (
+            "event_id", "session_id", "event_type", "status", "frame_id",
+            "turn_id", "snapshot_id", "correlation_id",
+        ):
+            with self.subTest(field_name=field_name):
+                pattern = schema["properties"][field_name]["pattern"]
+                self.assertEqual("\\S", pattern)
+                self.assertIsNone(re.search(pattern, "  "))
+                self.assertIsNotNone(re.search(pattern, " x "))
         self.assertIn("sequence", schema["required"])
         self.assertIn("monotonic_ns", schema["required"])
         self.assertIn("correlation_id", schema["required"])

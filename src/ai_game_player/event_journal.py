@@ -429,7 +429,7 @@ class EventJournal:
 
     # {
     #   責務: [_initialize_database: SQLite databaseのschema versionとSession metadataを読み、新規作成または再利用を決める]
-    #   処理: [未知のobjectを持つversion 0 databaseを拒否し、version 1では必須table・schema・requested session_idを照合する]
+    #   処理: [未知のobjectを持つversion 0 databaseを拒否し、version 1では正確なtable定義・整数schema version・requested session_idを照合する]
     #   引数: [self: 初期化中のSession Journal]
     #   戻り値: [なし: 新規schemaを作成するか、既存Session IDをinstanceへ設定する]
     #   エラー: [EventJournalCorruptionError: schema version・table・metadata・requested Session IDが合わない場合]
@@ -469,7 +469,11 @@ class EventJournal:
             "SELECT journal_schema_version, session_id FROM journal_metadata WHERE singleton_id=?",
             (SQLITE_JOURNAL_METADATA_ID,),
         ).fetchone()
-        if metadata is None or int(metadata[0]) != SQLITE_JOURNAL_SCHEMA_VERSION:
+        if (
+            metadata is None
+            or not isinstance(metadata[0], int)
+            or metadata[0] != SQLITE_JOURNAL_SCHEMA_VERSION
+        ):
             raise EventJournalCorruptionError("SQLite event journal metadata is invalid")
         stored_session_id = _require_nonempty_text(metadata[1], "session_id")
         if self._session_id is not None and self._session_id != stored_session_id:
