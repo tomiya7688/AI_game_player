@@ -195,6 +195,14 @@ class EventJournalTest(unittest.TestCase):
                 current_journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
             self.assertEqual(original_journal_mode, current_journal_mode)
 
+    def test_rejects_a_preexisting_empty_database_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "truncated.sqlite3"
+            path.write_bytes(b"")
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "unrecognized SQLite database"):
+                EventJournal(path)
+
     def test_rejects_unexpected_schema_objects_and_altered_table_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
             triggered_path = Path(directory) / "unexpected-trigger.sqlite3"
@@ -357,6 +365,24 @@ class EventJournalTest(unittest.TestCase):
             with self.assertRaisesRegex(EventJournalCorruptionError, "does not match"):
                 EventJournal(path, session_id="another-session")
 
+    def test_rejects_duplicate_json_members_during_record_recovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "duplicate-json-member.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                event = journal.append("session.started")
+            encoded_event = json.dumps(event.to_dict(), separators=(",", ":"))
+            duplicate_session_id = encoded_event[:-1] + ',"session_id":"session-1"}'
+
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=1",
+                    (duplicate_session_id,),
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "invalid complete event record"):
+                EventJournal(path)
+
     def test_serializes_concurrent_appends_from_one_writer_in_sequence_order(self):
         event_count = 100
         with tempfile.TemporaryDirectory() as directory:
@@ -427,11 +453,12 @@ class EventJournalTest(unittest.TestCase):
     def test_context_exit_preserves_body_exception_when_checkpoint_fails(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "reader-blocked.sqlite3"
+            with EventJournal(path, session_id="session-1") as initial_journal:
+                initial_journal.append("session.started")
             reader = sqlite3.connect(path)
             try:
                 with self.assertRaisesRegex(ValueError, "original body failure"):
                     with EventJournal(path, session_id="session-1") as journal:
-                        journal.append("session.started")
                         reader.execute("BEGIN")
                         reader.execute("SELECT * FROM events").fetchall()
                         journal._require_connection().execute("PRAGMA busy_timeout=1")
@@ -446,10 +473,18 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         schema_path = Path(__file__).parents[1] / "config" / "session_event.schema.json"
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
+        self.assertEqual(
+            "https://json-schema.org/draft/2020-12/meta/format-assertion",
+            schema["$schema"],
+        )
         self.assertEqual("object", schema["type"])
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(EVENT_ENVELOPE_SCHEMA_VERSION, schema["properties"]["schema_version"]["const"])
-        self.assertEqual("Z$", schema["properties"]["timestamp_utc"]["pattern"])
+        timestamp_pattern = schema["properties"]["timestamp_utc"]["pattern"]
+        self.assertEqual("date-time", schema["properties"]["timestamp_utc"]["format"])
+        self.assertIsNotNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30.123456Z"))
+        self.assertIsNone(re.fullmatch(timestamp_pattern, "not-a-dateZ"))
+        self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T25:20:30Z"))
         for field_name in (
             "event_id", "session_id", "event_type", "status", "frame_id",
             "turn_id", "snapshot_id", "correlation_id", "monotonic_epoch_id",

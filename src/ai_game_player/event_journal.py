@@ -46,10 +46,11 @@ _ENVELOPE_FIELDS = frozenset({
 })
 # {
 #   責務: [_UTC_TIMESTAMP_PATTERN: v1 EventEnvelopeで受け付けるUTC timestampの文字列表現を制限する]
-#   処理: [秒までの年月日時分秒と任意小数部の後に大文字Zがある文字列だけを一致させる]
+#   処理: [月を01-12・日を01-31・時刻を24時間表記にし、任意小数部と大文字Zを続ける文字列だけを一致させる]
 # }
 _UTC_TIMESTAMP_PATTERN = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z"
+    r"[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])"
+    r"T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]+)?Z"
 )
 # {
 #   責務: [_JOURNAL_METADATA_TABLE_SQL: Journalの単一Session metadataを制約付きで保存するtable定義]
@@ -245,6 +246,7 @@ class EventJournal:
     # }
     def __init__(self, path: Path, *, session_id: str | None = None) -> None:
         self.path = Path(path)
+        database_path_existed = self.path.exists()
         self._lock = threading.RLock()
         self._closed = False
         self._write_failed = False
@@ -262,7 +264,7 @@ class EventJournal:
             )
             self._connection.execute(f"PRAGMA busy_timeout={SQLITE_BUSY_TIMEOUT_MS}")
             self._connection.execute("PRAGMA synchronous=FULL")
-            self._initialize_database()
+            self._initialize_database(database_path_existed)
             self._recover_existing_records()
             journal_mode = self._connection.execute("PRAGMA journal_mode=WAL").fetchone()
             if journal_mode is None or str(journal_mode[0]).lower() != "wal":
@@ -459,12 +461,12 @@ class EventJournal:
 
     # {
     #   責務: [_initialize_database: SQLite databaseのschema versionとSession metadataを読み、新規作成または再利用を決める]
-    #   処理: [未知のobjectを持つversion 0 databaseを拒否し、version 1では正確なtable定義・唯一のmetadata row・整数schema version・requested session_idを照合する]
-    #   引数: [self: 初期化中のSession Journal]
+    #   処理: [新規作成前から存在するschemaなしfileを拒否し、version 1では正確なtable定義・唯一のmetadata row・整数schema version・requested session_idを照合する]
+    #   引数: [self: 初期化中のSession Journal, database_path_existed: SQLite接続前にdatabase pathが存在したか]
     #   戻り値: [なし: 新規schemaを作成するか、既存Session IDをinstanceへ設定する]
     #   エラー: [EventJournalCorruptionError: schema version・table・metadata・requested Session IDが合わない場合]
     # }
-    def _initialize_database(self) -> None:
+    def _initialize_database(self, database_path_existed: bool) -> None:
         connection = self._require_connection()
         database_version = int(connection.execute("PRAGMA user_version").fetchone()[0])
         if database_version not in (0, SQLITE_JOURNAL_SCHEMA_VERSION):
@@ -479,7 +481,7 @@ class EventJournal:
             )
         )
         if database_version == 0:
-            if database_objects:
+            if database_path_existed or database_objects:
                 raise EventJournalCorruptionError("unrecognized SQLite database at the event journal path")
             self._create_database_schema()
             return
@@ -552,7 +554,7 @@ class EventJournal:
         ):
             try:
                 event = EventEnvelope.from_dict(_require_mapping(
-                    json.loads(encoded_event),
+                    json.loads(encoded_event, object_pairs_hook=_reject_duplicate_json_members),
                     "event envelope",
                 ))
             except (json.JSONDecodeError, RecursionError, TypeError, ValueError) as error:
@@ -703,8 +705,24 @@ def _current_utc_timestamp() -> str:
 
 
 # {
+#   責務: [_reject_duplicate_json_members: JSON object内で重複したproperty名を拒否する]
+#   処理: [json.loadsのobject_pairs_hookとして各objectのkeyを確認し、重複keyでValueErrorを送出する]
+#   引数: [member_pairs: JSON parserが読み取ったproperty name/valueの順序付き組]
+#   戻り値: [dict[str, Any]: 重複がないobjectの辞書]
+#   エラー: [ValueError: 同じJSON objectに同名propertyが複数ある場合]
+# }
+def _reject_duplicate_json_members(member_pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    decoded_object: dict[str, Any] = {}
+    for member_name, member_value in member_pairs:
+        if member_name in decoded_object:
+            raise ValueError(f"JSON object contains duplicate member: {member_name}")
+        decoded_object[member_name] = member_value
+    return decoded_object
+
+
+# {
 #   責務: [_validate_utc_timestamp: Envelope timestampがtimezone付きUTC時刻か検証する]
-    #   処理: [v1で許可する年月日T時分秒[小数]Z形式だけを受け付け、日付としてparseする]
+#   処理: [v1で許可する年月日T時分秒[小数]Z形式だけを受け付け、日付としてparseする]
 #   引数: [value: event envelopeのtimestamp_utc field]
 #   戻り値: [なし: UTC timestampとして受理できる場合に戻る]
 #   エラー: [ValueError: 空文字・不正なISO-8601値・timezoneなし・UTC以外のoffsetの場合]

@@ -1,7 +1,8 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/meta/format-assertion",
   "$id": "https://kadoka.dev/schemas/session-event-v1.schema.json",
   "title": "Kadoka Session Event Envelope",
+  "description": "Validators must assert the date-time format; validators without Draft 2020-12 format-assertion support must refuse this schema.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -26,7 +27,11 @@
     "event_id": { "type": "string", "minLength": 1, "pattern": "\\S" },
     "session_id": { "type": "string", "minLength": 1, "pattern": "\\S" },
     "sequence": { "type": "integer", "minimum": 1 },
-    "timestamp_utc": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?Z$"
+    },
     "monotonic_ns": { "type": "integer", "minimum": 0 },
     "monotonic_epoch_id": { "type": "string", "minLength": 1, "pattern": "\\S" },
     "event_type": { "type": "string", "minLength": 1, "pattern": "\\S" },
