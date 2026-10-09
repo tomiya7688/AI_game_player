@@ -9,6 +9,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -42,12 +43,14 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="ai-game-player-event-bench-") as temporary_directory:
         benchmark_root = Path(temporary_directory)
+        monotonic_epoch_id = uuid4().hex
         payload = {"sample": "x" * arguments.payload_bytes}
         jsonl_report = _benchmark_jsonl_reference(
             benchmark_root / "events.jsonl",
             arguments.events,
             arguments.jsonl_fsync_every,
             payload,
+            monotonic_epoch_id,
         )
         sqlite_report = _benchmark_sqlite_wal(
             benchmark_root / "events.sqlite3",
@@ -82,13 +85,14 @@ def _benchmark_jsonl_reference(
     event_count: int,
     fsync_batch_size: int,
     payload: dict[str, str],
+    monotonic_epoch_id: str,
 ) -> dict[str, float | int]:
     append_latencies_ns: list[int] = []
     write_started_ns = time.perf_counter_ns()
     with path.open("wb") as stream:
         for sequence in range(1, event_count + 1):
             event_started_ns = time.perf_counter_ns()
-            event = _create_benchmark_event(sequence, payload)
+            event = _create_benchmark_event(sequence, payload, monotonic_epoch_id)
             encoded_event = json.dumps(
                 event.to_dict(),
                 ensure_ascii=False,
@@ -167,7 +171,11 @@ def _benchmark_sqlite_wal(
     )
 
 
-def _create_benchmark_event(sequence: int, payload: dict[str, str]) -> EventEnvelope:
+def _create_benchmark_event(
+    sequence: int,
+    payload: dict[str, str],
+    monotonic_epoch_id: str,
+) -> EventEnvelope:
     return EventEnvelope(
         schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
         event_id=f"benchmark-event-{sequence}",
@@ -175,6 +183,7 @@ def _create_benchmark_event(sequence: int, payload: dict[str, str]) -> EventEnve
         sequence=sequence,
         timestamp_utc=_current_utc_timestamp(),
         monotonic_ns=time.monotonic_ns(),
+        monotonic_epoch_id=monotonic_epoch_id,
         event_type="benchmark.sample",
         status="ok",
         frame_id=f"frame-{sequence}",
