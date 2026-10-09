@@ -10,6 +10,7 @@ import time
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -583,7 +584,7 @@ class EventJournal:
                 continue
             try:
                 artifact_path.unlink(missing_ok=True)
-            except OSError:
+            except (OSError, ValueError):
                 continue
 
     # {
@@ -608,7 +609,11 @@ class EventJournal:
                 )
             try:
                 event = EventEnvelope.from_dict(_require_mapping(
-                    json.loads(encoded_event, object_pairs_hook=_reject_duplicate_json_members),
+                    json.loads(
+                        encoded_event,
+                        object_pairs_hook=_reject_duplicate_json_members,
+                        parse_float=Decimal,
+                    ),
                     "event envelope",
                 ))
             except (json.JSONDecodeError, RecursionError, TypeError, ValueError) as error:
@@ -717,6 +722,8 @@ def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
             "unable to open database file",
             "database is locked",
             "database is busy",
+            "database schema is locked",
+            "database table is locked",
             "readonly database",
             "disk i/o error",
             "permission denied",
@@ -801,7 +808,7 @@ def _validate_utc_timestamp(value: str) -> None:
 
 # {
 #   責務: [_require_integer: event fieldがboolではない整数値で下限を満たすか検証する]
-#   処理: [JSON Schemaの整数定義に合わせ、有限な整数値floatを受け入れてintへ変換する]
+#   処理: [JSON Schemaの整数定義に合わせ、有限な整数値float・Decimalを精度を落とさずintへ変換する]
 #   引数: [value: 検証対象field値, field_name: error messageに表示するfield名, minimum: 許可する最小値]
 #   戻り値: [int: 検証済み整数]
 #   エラー: [ValueError: bool・非整数・minimum未満の場合]
@@ -809,6 +816,8 @@ def _validate_utc_timestamp(value: str) -> None:
 def _require_integer(value: Any, field_name: str, minimum: int) -> int:
     is_integer_value = isinstance(value, int) or (
         isinstance(value, float) and math.isfinite(value) and value.is_integer()
+    ) or (
+        isinstance(value, Decimal) and value.is_finite() and value == value.to_integral_value()
     )
     if isinstance(value, bool) or not is_integer_value or value < minimum:
         raise ValueError(f"{field_name} must be an integer of at least {minimum}")
@@ -856,7 +865,7 @@ def _require_mapping(value: Any, field_name: str) -> Mapping[str, Any]:
 
 # {
 #   責務: [_json_compatible_copy: payloadをJSON保存可能な独立containerへ複製して不正値を拒否する]
-#   処理: [有限数・文字列key・list/tuple・mappingだけを再帰copyし、現在の探索経路で再登場するcontainerを循環参照として拒否する]
+#   処理: [有限数・文字列key・list/tuple・mappingだけを再帰copyし、DecimalはfiniteなJSON floatへ変換し、循環参照を拒否する]
 #   引数: [value: payload内の検証対象値, field_name: error位置を示すJSON field path, active_container_ids: 再帰経路上のcontainer ID集合]
 #   戻り値: [Any: JSON互換プリミティブ、dict、listから成る独立コピー]
 #   エラー: [ValueError: 非有限数・非文字列key・循環参照・未対応型を含む場合]
@@ -868,6 +877,13 @@ def _json_compatible_copy(value: Any, field_name: str, active_container_ids: set
         if not math.isfinite(value):
             raise ValueError(f"{field_name} must contain only finite numbers")
         return value
+    if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise ValueError(f"{field_name} must contain only finite numbers")
+        normalized_number = float(value)
+        if not math.isfinite(normalized_number):
+            raise ValueError(f"{field_name} must contain only finite numbers")
+        return normalized_number
     if isinstance(value, Mapping):
         container_id = id(value)
         if container_id in active_container_ids:

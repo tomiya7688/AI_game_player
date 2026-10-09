@@ -180,7 +180,20 @@ class EventJournalTest(unittest.TestCase):
         self.assertTrue(_is_sqlite_access_error(
             sqlite3.OperationalError("database or disk is full")
         ))
+        self.assertTrue(_is_sqlite_access_error(
+            sqlite3.OperationalError("database schema is locked: main")
+        ))
+        self.assertTrue(_is_sqlite_access_error(
+            sqlite3.OperationalError("database table is locked")
+        ))
         self.assertFalse(_is_sqlite_access_error(malformed_database_error))
+
+    def test_invalid_path_cleanup_preserves_journal_error_for_embedded_nul(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid\0journal.sqlite3"
+
+            with self.assertRaises(EventJournalError):
+                EventJournal(path)
 
     def test_enables_wal_after_rejecting_an_unrecognized_existing_database(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -248,6 +261,42 @@ class EventJournalTest(unittest.TestCase):
 
             with self.assertRaisesRegex(EventJournalCorruptionError, "monotonic_ns decreases"):
                 EventJournal(path)
+
+    def test_recovery_preserves_large_integer_from_decimal_json_token(self):
+        large_monotonic_ns = 9_007_199_254_740_993
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "large-decimal-monotonic-time.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                first_event = journal.append("session.started")
+                second_event = journal.append("session.continued")
+
+            first_record = first_event.to_dict()
+            first_record["monotonic_ns"] = large_monotonic_ns
+            second_record = second_event.to_dict()
+            second_record["monotonic_ns"] = large_monotonic_ns
+            encoded_first_record = json.dumps(first_record, separators=(",", ":"))
+            encoded_second_record = json.dumps(second_record, separators=(",", ":")).replace(
+                f'"monotonic_ns":{large_monotonic_ns}',
+                f'"monotonic_ns":{large_monotonic_ns}.0',
+                1,
+            )
+
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=1",
+                    (encoded_first_record,),
+                )
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=2",
+                    (encoded_second_record,),
+                )
+                connection.commit()
+
+            with EventJournal(path) as recovered_journal:
+                self.assertEqual(2, recovered_journal.last_sequence)
+                next_event = recovered_journal.append("session.resumed")
+
+            self.assertEqual(3, next_event.sequence)
 
     def test_failed_first_open_removes_partial_database_for_retry(self):
         with tempfile.TemporaryDirectory() as directory:

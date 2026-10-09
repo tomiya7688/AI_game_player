@@ -116,14 +116,27 @@ def _benchmark_jsonl_reference(
     recovery_started_ns = time.perf_counter_ns()
     recovered_count = 0
     expected_sequence = 1
+    recovered_event_ids: set[str] = set()
+    previous_monotonic_ns_by_epoch: dict[str, int] = {}
     with path.open("rb") as stream:
         stored_lines = stream.readlines()
     for line_number, stored_line in enumerate(stored_lines, start=1):
         if not stored_line.endswith(b"\n") and line_number == len(stored_lines):
             break
         event = EventEnvelope.from_dict(json.loads(stored_line.decode("utf-8")))
-        if event.session_id != BENCHMARK_SESSION_ID or event.sequence != expected_sequence:
+        if (
+            event.session_id != BENCHMARK_SESSION_ID
+            or event.sequence != expected_sequence
+            or event.event_id in recovered_event_ids
+        ):
             raise RuntimeError(f"JSONL reference recovered an invalid event at line {line_number}")
+        previous_monotonic_ns = previous_monotonic_ns_by_epoch.get(event.monotonic_epoch_id)
+        if previous_monotonic_ns is not None and event.monotonic_ns < previous_monotonic_ns:
+            raise RuntimeError(
+                f"JSONL reference recovered decreasing monotonic time at line {line_number}"
+            )
+        recovered_event_ids.add(event.event_id)
+        previous_monotonic_ns_by_epoch[event.monotonic_epoch_id] = event.monotonic_ns
         recovered_count += 1
         expected_sequence += 1
     recovery_duration_ns = time.perf_counter_ns() - recovery_started_ns
