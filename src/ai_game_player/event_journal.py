@@ -60,13 +60,14 @@ _UTC_TIMESTAMP_PATTERN = re.compile(
 )
 # {
 #   責務: [_JOURNAL_METADATA_TABLE_SQL: Journalの単一Session metadataを制約付きで保存するtable定義]
-#   処理: [singleton_idとschema versionとsession IDのcolumn、およびsingleton IDのCHECK制約を定義する]
+#   処理: [singleton_id・schema version・session ID・commit済みsequence高水位のcolumnと値域制約を定義する]
 # }
 _JOURNAL_METADATA_TABLE_SQL = (
     f"CREATE TABLE journal_metadata ("
     f"singleton_id INTEGER PRIMARY KEY CHECK(singleton_id={SQLITE_JOURNAL_METADATA_ID}), "
     "journal_schema_version INTEGER NOT NULL, "
-    "session_id TEXT NOT NULL)"
+    "session_id TEXT NOT NULL, "
+    "last_committed_sequence INTEGER NOT NULL CHECK(last_committed_sequence>=0))"
 )
 # {
 #   責務: [_EVENTS_TABLE_SQL: Journal eventを連番順に保持するtable定義]
@@ -234,7 +235,7 @@ class EventEnvelope:
 
 # {
 #   責務: [EventJournal: 1 SessionのeventをSQLite WALへ連続番号付きで追記し、再open時に既存recordを検証する]
-#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence: 保存対象Sessionと次に割り当てる番号, _monotonic_epoch_id: instance内の経過時刻比較範囲, _database_schema_created: 初期化中に新規schemaをcommit済みか, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
+#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence/_last_committed_sequence: 保存対象Session・次のevent番号・metadata上のcommit済み高水位値, _monotonic_epoch_id: instance内の経過時刻比較範囲, _database_schema_created: 初期化中に新規schemaをcommit済みか, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
 # }
 class EventJournal:
     """Single-session append-only SQLite WAL journal with atomic recovery.
@@ -270,6 +271,7 @@ class EventJournal:
         self._database_schema_created = False
         self._session_id: str | None = None
         self._next_sequence = FIRST_EVENT_SEQUENCE
+        self._last_committed_sequence = FIRST_EVENT_SEQUENCE - 1
         self._connection: sqlite3.Connection | None = None
         try:
             database_path_existed = self.path.exists()
@@ -402,6 +404,19 @@ class EventJournal:
                     "INSERT INTO events(sequence, event_id, envelope_json) VALUES (?, ?, ?)",
                     (event.sequence, event.event_id, encoded_record),
                 )
+                metadata_update = connection.execute(
+                    "UPDATE journal_metadata SET last_committed_sequence=? "
+                    "WHERE singleton_id=? AND last_committed_sequence=?",
+                    (
+                        event.sequence,
+                        SQLITE_JOURNAL_METADATA_ID,
+                        event.sequence - 1,
+                    ),
+                )
+                if metadata_update.rowcount != 1:
+                    raise EventJournalCorruptionError(
+                        "journal committed sequence metadata does not match the next event"
+                    )
                 connection.commit()
             except BaseException as error:
                 self._write_failed = True
@@ -412,6 +427,7 @@ class EventJournal:
                     ) from error
                 raise
             self._event_ids.add(event.event_id)
+            self._last_committed_sequence = event.sequence
             self._next_sequence += 1
             return event
 
@@ -507,7 +523,7 @@ class EventJournal:
 
     # {
     #   責務: [_initialize_database: SQLite databaseのschema versionとSession metadataを読み、新規作成または再利用を決める]
-    #   処理: [新規作成前から存在するschemaなしfileを拒否し、version 1では正確なtable定義・唯一のmetadata row・整数schema version・requested session_idを照合する]
+    #   処理: [新規作成前から存在するschemaなしfileを拒否し、version 1では正確なtable定義・唯一のmetadata row・schema version・Session ID・commit済み高水位を照合する]
     #   引数: [self: 初期化中のSession Journal, database_path_existed: SQLite接続前にdatabase pathのdirectory entryが存在したか。dangling symlinkも既存entryとして扱う]
     #   戻り値: [なし: 新規schemaを作成するか、既存Session IDをinstanceへ設定する]
     #   エラー: [EventJournalCorruptionError: schema version・table・metadata・requested Session IDが合わない場合]
@@ -544,7 +560,8 @@ class EventJournal:
                 "SQLite event journal schema objects or table definitions are unexpected"
             )
         metadata_rows = connection.execute(
-            "SELECT singleton_id, journal_schema_version, session_id FROM journal_metadata"
+            "SELECT singleton_id, journal_schema_version, session_id, last_committed_sequence "
+            "FROM journal_metadata"
         ).fetchall()
         if (
             len(metadata_rows) != 1
@@ -554,13 +571,21 @@ class EventJournal:
         ):
             raise EventJournalCorruptionError("SQLite event journal metadata is invalid")
         stored_session_id = _require_nonempty_text(metadata_rows[0][2], "session_id")
+        stored_last_committed_sequence = metadata_rows[0][3]
+        if (
+            not isinstance(stored_last_committed_sequence, int)
+            or stored_last_committed_sequence < FIRST_EVENT_SEQUENCE - 1
+            or stored_last_committed_sequence > SQLITE_INTEGER_MAX
+        ):
+            raise EventJournalCorruptionError("SQLite event journal committed sequence metadata is invalid")
         if self._session_id is not None and self._session_id != stored_session_id:
             raise EventJournalCorruptionError("journal session_id does not match the requested session")
         self._session_id = stored_session_id
+        self._last_committed_sequence = stored_last_committed_sequence
 
     # {
     #   責務: [_create_database_schema: 空のSQLite databaseへversion 1 metadataとevent tableをtransactionで作成する]
-    #   処理: [一意なSession IDと連続sequenceを保存するtableを作り、全schema作成を1 transactionでcommitする]
+    #   処理: [Session IDとcommit済みsequence高水位0をmetadataへ保存し、event tableと全schemaを1 transactionでcommitする]
     #   引数: [self: schemaを初期化するJournal]
     #   戻り値: [なし: 作成したSession IDをinstanceへ保存する]
     #   エラー: [EventJournalError: schema作成transactionが失敗した場合]
@@ -573,9 +598,15 @@ class EventJournal:
             connection.execute(_JOURNAL_METADATA_TABLE_SQL)
             connection.execute(_EVENTS_TABLE_SQL)
             connection.execute(
-                "INSERT INTO journal_metadata(singleton_id, journal_schema_version, session_id) "
-                "VALUES (?, ?, ?)",
-                (SQLITE_JOURNAL_METADATA_ID, SQLITE_JOURNAL_SCHEMA_VERSION, created_session_id),
+                "INSERT INTO journal_metadata("
+                "singleton_id, journal_schema_version, session_id, last_committed_sequence) "
+                "VALUES (?, ?, ?, ?)",
+                (
+                    SQLITE_JOURNAL_METADATA_ID,
+                    SQLITE_JOURNAL_SCHEMA_VERSION,
+                    created_session_id,
+                    FIRST_EVENT_SEQUENCE - 1,
+                ),
             )
             connection.execute(f"PRAGMA user_version={SQLITE_JOURNAL_SCHEMA_VERSION}")
             connection.commit()
@@ -618,10 +649,10 @@ class EventJournal:
 
     # {
     #   責務: [_recover_existing_records: 保存済みeventを全件検証して連番・Session・一意IDの復旧状態を作る]
-    #   処理: [SQLite TEXT storageと重複propertyのないJSONを確認し、sequence・session・event ID・epoch内monotonic順を照合して次のsequenceを決める]
+    #   処理: [SQLite TEXT storageと重複propertyのないJSONを確認し、sequence・session・event ID・epoch内monotonic順とmetadata高水位を照合して次のsequenceを決める]
     #   引数: [self: 保存済みrecordsを検査するJournal]
     #   戻り値: [なし: event ID集合とnext sequenceをinstanceへ保存する]
-    #   エラー: [EventJournalCorruptionError: JSON・Envelope・sequence・session ID・event ID・epoch内monotonic順のいずれかが不正な場合]
+    #   エラー: [EventJournalCorruptionError: JSON・Envelope・sequence・session ID・event ID・epoch内monotonic順・metadata高水位のいずれかが不正な場合]
     # }
     def _recover_existing_records(self) -> None:
         connection = self._require_connection()
@@ -673,6 +704,11 @@ class EventJournal:
             self._event_ids.add(event.event_id)
             previous_monotonic_ns_by_epoch[event.monotonic_epoch_id] = event.monotonic_ns
             expected_sequence += 1
+        recovered_last_sequence = expected_sequence - 1
+        if recovered_last_sequence != self._last_committed_sequence:
+            raise EventJournalCorruptionError(
+                "journal committed sequence metadata does not match the stored events"
+            )
         self._next_sequence = expected_sequence
 
     # {

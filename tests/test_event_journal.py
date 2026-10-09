@@ -303,6 +303,27 @@ class EventJournalTest(unittest.TestCase):
             with self.assertRaisesRegex(EventJournalCorruptionError, "monotonic_ns decreases"):
                 EventJournal(path)
 
+    def test_recovery_rejects_events_missing_below_committed_sequence_high_water(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "missing-committed-tail.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                journal.append("session.started")
+                journal.append("session.continued")
+
+            with closing(sqlite3.connect(path)) as connection:
+                high_water_sequence = connection.execute(
+                    "SELECT last_committed_sequence FROM journal_metadata WHERE singleton_id=1"
+                ).fetchone()[0]
+                connection.execute("DELETE FROM events WHERE sequence=2")
+                connection.commit()
+
+            self.assertEqual(2, high_water_sequence)
+            with self.assertRaisesRegex(
+                EventJournalCorruptionError,
+                "committed sequence metadata does not match the stored events",
+            ):
+                EventJournal(path)
+
     def test_recovery_preserves_large_integer_from_decimal_json_token(self):
         large_monotonic_ns = 9_007_199_254_740_993
         with tempfile.TemporaryDirectory() as directory:
@@ -536,8 +557,9 @@ class EventJournalTest(unittest.TestCase):
             with closing(sqlite3.connect(path)) as connection:
                 connection.execute("PRAGMA ignore_check_constraints=ON")
                 connection.execute(
-                    "INSERT INTO journal_metadata(singleton_id, journal_schema_version, session_id) "
-                    "VALUES (2, 1, 'conflicting-session')"
+                    "INSERT INTO journal_metadata("
+                    "singleton_id, journal_schema_version, session_id, last_committed_sequence) "
+                    "VALUES (2, 1, 'conflicting-session', 0)"
                 )
                 connection.commit()
 
