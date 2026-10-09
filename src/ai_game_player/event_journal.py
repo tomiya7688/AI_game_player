@@ -401,17 +401,16 @@ class EventJournal:
 
     # {
     #   責務: [__exit__: with block終了時にJournalをcloseし、block内の例外を外へ伝える]
-    #   処理: [成功・例外のどちらでもcloseを実行し、block内例外があればclose失敗を注記して元の例外を保つ]
+    #   処理: [成功・例外のどちらでもcloseを実行し、block内例外があればclose失敗で元の例外を置き換えない]
     #   引数: [self: 解放するSession Journal, exception_type/exception/traceback: block内で発生した例外情報]
     #   戻り値: [bool: 常にFalseを返しblock内例外の伝播を許可する]
     # }
     def __exit__(self, exception_type: Any, exception: Any, traceback: Any) -> bool:
         try:
             self.close()
-        except Exception as close_error:
+        except Exception:
             if exception is None:
                 raise
-            exception.add_note(f"Event Journal cleanup also failed: {close_error}")
         return False
 
     # {

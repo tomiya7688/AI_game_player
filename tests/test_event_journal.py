@@ -335,7 +335,7 @@ class EventJournalTest(unittest.TestCase):
             path = Path(directory) / "reader-blocked.sqlite3"
             reader = sqlite3.connect(path)
             try:
-                with self.assertRaisesRegex(ValueError, "original body failure") as raised:
+                with self.assertRaisesRegex(ValueError, "original body failure"):
                     with EventJournal(path, session_id="session-1") as journal:
                         journal.append("session.started")
                         reader.execute("BEGIN")
@@ -343,9 +343,7 @@ class EventJournalTest(unittest.TestCase):
                         journal._require_connection().execute("PRAGMA busy_timeout=1")
                         journal.append("session.continued")
                         raise ValueError("original body failure")
-                self.assertTrue(any(
-                    "cleanup also failed" in note for note in raised.exception.__notes__
-                ))
+                self.assertTrue(journal._closed)
             finally:
                 reader.close()
 
