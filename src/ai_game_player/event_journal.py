@@ -28,19 +28,32 @@ _ENVELOPE_FIELDS = frozenset({
 })
 
 
+# {
+#   責務: [EventJournalError: SQLite Event Journalの操作が完了しなかったことを呼び出し元へ伝える]
+# }
 class EventJournalError(RuntimeError):
     """Base error for session event journal operations."""
 
 
+# {
+#   責務: [EventJournalCorruptionError: 保存済みJournalが定義済みschemaまたはevent contractに違反したことを示す]
+# }
 class EventJournalCorruptionError(EventJournalError):
     """The journal contains a complete record that violates the v1 contract."""
 
 
+# {
+#   責務: [EventJournalClosedError: close後または接続消失後のJournal操作を拒否したことを示す]
+# }
 class EventJournalClosedError(EventJournalError):
     """An operation was attempted after the journal was closed."""
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [EventEnvelope: 1 Session内の事実をschema version・連番・時刻・関連ID・payload・artifact参照と一緒に表す]
+#   フィールド: [session_id/sequence: Session識別子と1から始まる連続番号, timestamp_utc/monotonic_ns: UTC表示時刻と経過時間比較用時刻, payload/artifact_refs: 小さなJSON値と別保存artifactへの参照]
+# }
 class EventEnvelope:
     schema_version: int
     event_id: str
@@ -57,6 +70,13 @@ class EventEnvelope:
     payload: Mapping[str, Any] = field(default_factory=dict)
     artifact_refs: tuple[ArtifactReference, ...] = ()
 
+    # {
+    #   責務: [__post_init__: Envelopeを永続化する前にschema・識別子・時刻・JSON payload・artifact参照を検証する]
+    #   処理: [UTC timezoneと必須文字列を確認し、payloadを有限JSON値へ複製してartifact_refsをtupleへ正規化する]
+    #   引数: [self: 作成直後のSession event envelope]
+    #   戻り値: [なし: 検証成功時は正規化したfieldを保持する]
+    #   エラー: [ValueError: version・必須値・UTC時刻・JSON payload・artifact参照がcontractに合わない場合]
+    # }
     def __post_init__(self) -> None:
         schema_version = _require_integer(
             self.schema_version,
@@ -82,6 +102,12 @@ class EventEnvelope:
         object.__setattr__(self, "payload", normalized_payload)
         object.__setattr__(self, "artifact_refs", tuple(self.artifact_refs))
 
+    # {
+    #   責務: [to_dict: EventEnvelopeをJSONへ保存できるfield名と値の辞書に変換する]
+    #   処理: [payloadを新しい辞書にし、各ArtifactReferenceをJSON objectへ変換してevent fieldとまとめる]
+    #   引数: [self: JSONへ保存する検証済みevent]
+    #   戻り値: [dict[str, Any]: schema fieldをすべて含みartifact_refsを辞書配列にした保存用record]
+    # }
     def to_dict(self) -> dict[str, Any]:
         return {
             "schema_version": self.schema_version,
@@ -101,6 +127,13 @@ class EventEnvelope:
         }
 
     @classmethod
+    # {
+    #   責務: [from_dict: JSON由来の辞書からcontract検証済みEventEnvelopeを復元する]
+    #   処理: [必須field・未知field・artifact配列を確認し、各値とArtifactReferenceを検証してEnvelopeを構築する]
+    #   引数: [cls: 生成するEnvelope型, value: JSON parser等が返したevent object]
+    #   戻り値: [EventEnvelope: schema version 1に適合する復元済みevent]
+    #   エラー: [ValueError: objectのshapeまたはfield値がevent contractに違反する場合]
+    # }
     def from_dict(cls, value: Mapping[str, Any]) -> EventEnvelope:
         if not isinstance(value, Mapping):
             raise ValueError("event envelope must be an object")
@@ -136,6 +169,10 @@ class EventEnvelope:
         )
 
 
+# {
+#   責務: [EventJournal: 1 SessionのeventをSQLite WALへ連続番号付きで追記し、再open時に既存recordを検証する]
+#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence: 保存対象Sessionと次に割り当てる番号, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
+# }
 class EventJournal:
     """Single-session append-only SQLite WAL journal with atomic recovery.
 
@@ -143,6 +180,13 @@ class EventJournal:
     concurrent callers; multiple writer instances must not share the same path.
     """
 
+    # {
+    #   責務: [__init__: 1 Session専用のSQLite Journalを開き、schema・既存event・WAL modeを検証する]
+    #   処理: [SQLite接続をFULL synchronousで構成し、database metadataからSession IDを確定してevent連番を復旧する]
+    #   引数: [path: Session event databaseの保存先, session_id: 新規databaseに指定するSession ID、既存databaseを開く場合の照合値]
+    #   戻り値: [なし: 検証済みSQLite接続と次のevent sequenceをinstanceに保持する]
+    #   エラー: [EventJournalError: databaseへ接続できないかWALを開始できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
+    # }
     def __init__(self, path: Path, *, session_id: str | None = None) -> None:
         self.path = Path(path)
         self._lock = threading.RLock()
@@ -182,16 +226,36 @@ class EventJournal:
             raise EventJournalError(f"cannot open event journal database: {self.path}") from error
 
     @property
+    # {
+    #   責務: [session_id: Journalが記録するSessionの識別子を返す]
+    #   処理: [database metadataから初期化したSession IDを読み出す]
+    #   引数: [self: Session Journal]
+    #   戻り値: [str: 全event envelopeに使うSession ID]
+    #   エラー: [EventJournalError: Session IDが初期化されていない場合]
+    # }
     def session_id(self) -> str:
         if self._session_id is None:
             raise EventJournalError("event journal session metadata was not initialized")
         return self._session_id
 
     @property
+    # {
+    #   責務: [last_sequence: 最後にcommit済みのevent sequenceを返す]
+    #   処理: [次のsequenceから1を引き、event未記録なら0を返す]
+    #   引数: [self: Session Journal]
+    #   戻り値: [int: commit済みeventの最後の連番。未記録時は0]
+    # }
     def last_sequence(self) -> int:
         with self._lock:
             return self._next_sequence - 1
 
+    # {
+    #   責務: [append: Session eventにID・UTC/monotonic時刻・連番を割り当て、SQLite transactionで1 recordを永続化する]
+    #   処理: [event fieldを検証し、BEGIN IMMEDIATEからINSERTとcommitを行う。失敗した接続は不健全として以後の書込みを拒否する]
+    #   引数: [event_type: eventの種類, status/frame_id/turn_id/snapshot_id/correlation_id: 必要に応じて関連付ける状態とID, payload: 小さなJSON data object, artifact_refs: 大きなdataを別保存した場合の参照]
+    #   戻り値: [EventEnvelope: SQLiteにcommitしたsequence付きevent]
+    #   エラー: [EventJournalClosedError: Journalがclose済みの場合, EventJournalError: 入力contract違反またはtransaction失敗の場合]
+    # }
     def append(
         self,
         event_type: str,
@@ -241,6 +305,13 @@ class EventJournal:
             self._next_sequence += 1
             return event
 
+    # {
+    #   責務: [flush: commit済みeventを含むWALをfull checkpointしてdatabase本体へ反映する]
+    #   処理: [未完transactionをcommitし、busy timeout内にcheckpointが完了したか検証する]
+    #   引数: [self: flush対象のSession Journal]
+    #   戻り値: [なし: checkpoint完了時に戻る]
+    #   エラー: [EventJournalError: Journalが利用不可、SQLite flush失敗、またはcheckpointがbusyの場合]
+    # }
     def flush(self) -> None:
         """Flush buffered bytes and request durable storage for the session log."""
         with self._lock:
@@ -255,6 +326,13 @@ class EventJournal:
             if checkpoint is not None and int(checkpoint[0]) != 0:
                 raise EventJournalError("event journal WAL checkpoint is busy; committed events remain available")
 
+    # {
+    #   責務: [close: Session Journalの接続を閉じ、終了前にWAL checkpointを試みる]
+    #   処理: [commit・checkpointを試し、checkpoint失敗も記録して接続を必ず閉じる。再度のcloseは何もしない]
+    #   引数: [self: 解放するSession Journal]
+    #   戻り値: [なし: 接続を切り離してclosed状態にする]
+    #   エラー: [EventJournalError: 接続を閉じてもcheckpointまたはcloseの失敗が残る場合]
+    # }
     def close(self) -> None:
         with self._lock:
             if self._closed:
@@ -280,13 +358,32 @@ class EventJournal:
             if failure is not None:
                 raise EventJournalError("event journal close could not checkpoint all data") from failure
 
+    # {
+    #   責務: [__enter__: with blockで利用するopen済みSession Journalを返す]
+    #   処理: [Journal接続やSession状態を変えずにselfを返す]
+    #   引数: [self: with blockへ渡すJournal]
+    #   戻り値: [EventJournal: context managerとして利用する同じJournal]
+    # }
     def __enter__(self) -> EventJournal:
         return self
 
+    # {
+    #   責務: [__exit__: with block終了時にJournalをcloseし、block内の例外を外へ伝える]
+    #   処理: [成功・例外のどちらでもcloseを実行し、context managerに例外を抑止させない]
+    #   引数: [self: 解放するSession Journal, exception_type/exception/traceback: block内で発生した例外情報]
+    #   戻り値: [bool: 常にFalseを返しblock内例外の伝播を許可する]
+    # }
     def __exit__(self, exception_type: Any, exception: Any, traceback: Any) -> bool:
         self.close()
         return False
 
+    # {
+    #   責務: [_ensure_writable: append/flush前にJournalが書込み可能か確認する]
+    #   処理: [closed・write failure・connection lossを順に検査し、不健全なconnectionを使わせない]
+    #   引数: [self: 書込み要求を受けたSession Journal]
+    #   戻り値: [なし: 書込み可能なら正常終了する]
+    #   エラー: [EventJournalClosedError: Journalやconnectionがclose済みの場合, EventJournalError: 前回のwrite failureが残る場合]
+    # }
     def _ensure_writable(self) -> None:
         if self._closed:
             raise EventJournalClosedError("event journal is closed")
@@ -294,6 +391,13 @@ class EventJournal:
             raise EventJournalError("event journal is unhealthy; close and reopen for recovery")
         self._require_connection()
 
+    # {
+    #   責務: [_initialize_database: SQLite databaseのschema versionとSession metadataを読み、新規作成または再利用を決める]
+    #   処理: [未知のobjectを持つversion 0 databaseを拒否し、version 1では必須table・schema・requested session_idを照合する]
+    #   引数: [self: 初期化中のSession Journal]
+    #   戻り値: [なし: 新規schemaを作成するか、既存Session IDをinstanceへ設定する]
+    #   エラー: [EventJournalCorruptionError: schema version・table・metadata・requested Session IDが合わない場合]
+    # }
     def _initialize_database(self) -> None:
         connection = self._require_connection()
         database_version = int(connection.execute("PRAGMA user_version").fetchone()[0])
@@ -330,6 +434,13 @@ class EventJournal:
             raise EventJournalCorruptionError("journal session_id does not match the requested session")
         self._session_id = stored_session_id
 
+    # {
+    #   責務: [_create_database_schema: 空のSQLite databaseへversion 1 metadataとevent tableをtransactionで作成する]
+    #   処理: [一意なSession IDと連続sequenceを保存するtableを作り、全schema作成を1 transactionでcommitする]
+    #   引数: [self: schemaを初期化するJournal]
+    #   戻り値: [なし: 作成したSession IDをinstanceへ保存する]
+    #   エラー: [EventJournalError: schema作成transactionが失敗した場合]
+    # }
     def _create_database_schema(self) -> None:
         connection = self._require_connection()
         created_session_id = self._session_id or uuid4().hex
@@ -359,6 +470,13 @@ class EventJournal:
             raise EventJournalError("cannot create SQLite event journal schema") from error
         self._session_id = created_session_id
 
+    # {
+    #   責務: [_recover_existing_records: 保存済みeventを全件検証して連番・Session・一意IDの復旧状態を作る]
+    #   処理: [sequence順にJSON recordをdecodeしEnvelope contractとindexを照合して、次に使うsequenceを決める]
+    #   引数: [self: 保存済みrecordsを検査するJournal]
+    #   戻り値: [なし: event ID集合とnext sequenceをinstanceへ保存する]
+    #   エラー: [EventJournalCorruptionError: JSON・Envelope・sequence・session ID・event IDのいずれかが不正な場合]
+    # }
     def _recover_existing_records(self) -> None:
         connection = self._require_connection()
         expected_sequence = FIRST_EVENT_SEQUENCE
@@ -389,11 +507,24 @@ class EventJournal:
             expected_sequence += 1
         self._next_sequence = expected_sequence
 
+    # {
+    #   責務: [_require_connection: SQLiteへ操作を渡す前にopen connectionを取得する]
+    #   処理: [instanceが保持するconnectionの有無を調べ、未接続ならclosed errorを返す]
+    #   引数: [self: database connectionを要求するJournal]
+    #   戻り値: [sqlite3.Connection: SQLを実行できるopen connection]
+    #   エラー: [EventJournalClosedError: connectionが未作成またはclose済みの場合]
+    # }
     def _require_connection(self) -> sqlite3.Connection:
         if self._connection is None:
             raise EventJournalClosedError("event journal database is not open")
         return self._connection
 
+    # {
+    #   責務: [_rollback_open_transaction: 失敗したSQLite書込みtransactionの未commit変更を破棄する]
+    #   処理: [接続が残っていればrollbackし、rollback自体のSQLite errorは元の失敗処理を妨げないよう無視する]
+    #   引数: [self: transactionを巻き戻すSession Journal]
+    #   戻り値: [なし]
+    # }
     def _rollback_open_transaction(self) -> None:
         if self._connection is None:
             return
@@ -402,6 +533,12 @@ class EventJournal:
         except sqlite3.Error:
             return
 
+    # {
+    #   責務: [_discard_connection: 初期化に失敗したJournalからSQLite connectionを切り離す]
+    #   処理: [接続があればcloseを試し、close errorの有無にかかわらずinstance参照をNoneにする]
+    #   引数: [self: 初期化を中止するSession Journal]
+    #   戻り値: [なし]
+    # }
     def _discard_connection(self) -> None:
         if self._connection is None:
             return
@@ -412,6 +549,13 @@ class EventJournal:
         self._connection = None
 
 
+# {
+#   責務: [_encode_json_record: EventEnvelope recordを有限値・空白なしのJSON textへ符号化する]
+#   処理: [Unicodeをescapeし、recordのサイズを抑え、NaN/Infinityを拒否する]
+#   引数: [record: schema検証済みeventを表すmapping]
+#   戻り値: [str: SQLite envelope_json columnへ保存するJSON text]
+#   エラー: [ValueError: JSONにできない値または非有限数が含まれる場合]
+# }
 def _encode_json_record(record: Mapping[str, Any]) -> str:
     return json.dumps(
         record,
@@ -421,6 +565,12 @@ def _encode_json_record(record: Mapping[str, Any]) -> str:
     )
 
 
+# {
+#   責務: [_is_sqlite_access_error: database errorをアクセス失敗と保存record破損に分類する]
+#   処理: [SQLite OperationalErrorのうちopen/lock/busy/read-only/I/O/permissionの失敗文言だけを照合する]
+#   引数: [error: 初期化または接続で発生したSQLite database error]
+#   戻り値: [bool: database access由来ならTrue、それ以外ならFalse]
+# }
 def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
     if not isinstance(error, sqlite3.OperationalError):
         return False
@@ -438,10 +588,23 @@ def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
     )
 
 
+# {
+#   責務: [_current_utc_timestamp: 新しいeventへ保存するUTC時刻を固定形式で作る]
+#   処理: [現在時刻をUTCへ変換し、microsecond精度のISO-8601文字列末尾をZにする]
+#   引数: []
+#   戻り値: [str: timezoneをZで表したISO-8601 UTC timestamp]
+# }
 def _current_utc_timestamp() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
+# {
+#   責務: [_validate_utc_timestamp: Envelope timestampがtimezone付きUTC時刻か検証する]
+#   処理: [ISO-8601形式としてparseし、timezone offsetが0であることを確認する]
+#   引数: [value: event envelopeのtimestamp_utc field]
+#   戻り値: [なし: UTC timestampとして受理できる場合に戻る]
+#   エラー: [ValueError: 空文字・不正なISO-8601値・timezoneなし・UTC以外のoffsetの場合]
+# }
 def _validate_utc_timestamp(value: str) -> None:
     _require_nonempty_text(value, "timestamp_utc")
     try:
@@ -452,30 +615,65 @@ def _validate_utc_timestamp(value: str) -> None:
         raise ValueError("timestamp_utc must include the UTC timezone")
 
 
+# {
+#   責務: [_require_integer: event fieldがboolではない整数で下限を満たすか検証する]
+#   処理: [Pythonではboolがintの派生型のためboolを明示拒否し、整数型とminimumを確認する]
+#   引数: [value: 検証対象field値, field_name: error messageに表示するfield名, minimum: 許可する最小値]
+#   戻り値: [int: 検証済み整数]
+#   エラー: [ValueError: bool・非整数・minimum未満の場合]
+# }
 def _require_integer(value: Any, field_name: str, minimum: int) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
         raise ValueError(f"{field_name} must be an integer of at least {minimum}")
     return value
 
 
+# {
+#   責務: [_require_nonempty_text: 必須event fieldが空白だけではない文字列か検証する]
+#   処理: [str型とstrip後の非空状態を確認し、元の文字列を保持する]
+#   引数: [value: 検証対象field値, field_name: error messageに表示するfield名]
+#   戻り値: [str: 空白だけではない検証済み文字列]
+#   エラー: [ValueError: 文字列以外または空白のみの場合]
+# }
 def _require_nonempty_text(value: Any, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field_name} must be non-empty text")
     return value
 
 
+# {
+#   責務: [_require_optional_text: 任意event fieldをNoneまたは非空文字列に制限する]
+#   処理: [Noneは未指定値としてそのまま許可し、それ以外は必須文字列検証へ渡す]
+#   引数: [value: 検証対象field値, field_name: error messageに表示するfield名]
+#   戻り値: [str | None: 未指定のNoneまたは検証済み文字列]
+#   エラー: [ValueError: Noneでも文字列でもない値、または空白だけの文字列の場合]
+# }
 def _require_optional_text(value: Any, field_name: str) -> str | None:
     if value is None:
         return None
     return _require_nonempty_text(value, field_name)
 
 
+# {
+#   責務: [_require_mapping: event objectがmapping型か検証する]
+#   処理: [Mapping contractを満たすことを確認し、値を変換せず返す]
+#   引数: [value: JSON decode等で得たobject, field_name: error messageに表示するfield名]
+#   戻り値: [Mapping[str, Any]: object fieldの参照用mapping]
+#   エラー: [ValueError: objectがmapping型ではない場合]
+# }
 def _require_mapping(value: Any, field_name: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise ValueError(f"{field_name} must be an object")
     return value
 
 
+# {
+#   責務: [_json_compatible_copy: payloadをJSON保存可能な独立containerへ複製して不正値を拒否する]
+#   処理: [有限数・文字列key・list/tuple・mappingだけを再帰copyし、現在の探索経路で再登場するcontainerを循環参照として拒否する]
+#   引数: [value: payload内の検証対象値, field_name: error位置を示すJSON field path, active_container_ids: 再帰経路上のcontainer ID集合]
+#   戻り値: [Any: JSON互換プリミティブ、dict、listから成る独立コピー]
+#   エラー: [ValueError: 非有限数・非文字列key・循環参照・未対応型を含む場合]
+# }
 def _json_compatible_copy(value: Any, field_name: str, active_container_ids: set[int]) -> Any:
     if value is None or isinstance(value, (str, bool, int)):
         return value

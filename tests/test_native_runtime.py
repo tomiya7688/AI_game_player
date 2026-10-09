@@ -1,5 +1,6 @@
 import ctypes
 import os
+import random
 import sys
 import tempfile
 import threading
@@ -7,8 +8,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from ai_game_player.bright_region_detector import BGRA_BYTES_PER_PIXEL, BrightRegionDetector
+from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.runtime import native as abi
 from ai_game_player.runtime import RuntimeCapability, RuntimeRegistry
+from ai_game_player.screen_capture import ScreenFrame
 
 
 class FakeFunction:
@@ -37,11 +41,19 @@ class FakeLibrary:
         self.batch_status = 0
         self.corrupt_result = {}
         self.requests = []
+        self.frame_regions = []
+        self.frame_mean = (0, 0, 0, 0)
+        self.frame_hash = 0
+        self.frame_capacities = []
+        self.frame_input_copy_count = 0
+        self.frame_input_copy_bytes = 0
+        self.frame_corrupt_result = {}
         self.kadoka_runtime_abi_version = FakeFunction(lambda: self.version)
         self.kadoka_runtime_query = FakeFunction(self.query)
         self.kadoka_runtime_init = FakeFunction(self.init)
         self.kadoka_runtime_shutdown = FakeFunction(self.shutdown)
         self.kadoka_runtime_process_batch = FakeFunction(self.batch)
+        self.kadoka_runtime_preprocess_frame = FakeFunction(self.preprocess_frame)
 
     def query(self, pointer):
         info = ctypes.cast(pointer, ctypes.POINTER(abi._Info)).contents
@@ -84,6 +96,33 @@ class FakeLibrary:
             result.status = self.batch_status
             for field, value in self.corrupt_result.items():
                 setattr(result, field, value)
+        return self.batch_status
+
+    def preprocess_frame(self, handle, input_pointer, result_pointer):
+        assert handle.value == 0x12345678
+        frame_input = ctypes.cast(input_pointer, ctypes.POINTER(abi._FrameInput)).contents
+        frame_result = ctypes.cast(result_pointer, ctypes.POINTER(abi._FrameResult)).contents
+        self.frame_capacities.append(frame_result.region_capacity)
+        frame_result.abi_version = 1
+        frame_result.mean_red, frame_result.mean_green, frame_result.mean_blue, frame_result.mean_brightness = self.frame_mean
+        frame_result.perceptual_hash = self.frame_hash
+        frame_result.region_count = len(self.frame_regions)
+        frame_result.input_frame_bytes_processed = (
+            frame_input.width * frame_input.height * BGRA_BYTES_PER_PIXEL
+        )
+        frame_result.output_bytes_written = 0
+        frame_result.input_copy_count = self.frame_input_copy_count
+        frame_result.input_copy_bytes = self.frame_input_copy_bytes
+        frame_result.processing_ns = 123
+        if frame_result.region_capacity < len(self.frame_regions):
+            for field, value in self.frame_corrupt_result.items():
+                setattr(frame_result, field, value)
+            return abi.NativeStatus.BUFFER_TOO_SMALL
+        for index, region in enumerate(self.frame_regions):
+            frame_result.regions[index] = region
+        frame_result.output_bytes_written = len(self.frame_regions) * ctypes.sizeof(abi._FrameRegion)
+        for field, value in self.frame_corrupt_result.items():
+            setattr(frame_result, field, value)
         return self.batch_status
 
 
@@ -135,6 +174,117 @@ class NativeRuntimeTest(unittest.TestCase):
         with abi.NativeRuntime(library) as runtime:
             self.assertEqual(library.capabilities, runtime.info.capability_bits)
             self.assertEqual(frozenset(RuntimeCapability), runtime.descriptor.capabilities)
+
+    def test_fast_cv_capability_requires_and_binds_frame_preprocessing(self):
+        library = FakeLibrary()
+        library.capabilities = 4 | 8
+        with abi.NativeRuntime(library):
+            self.assertEqual(
+                [
+                    ctypes.c_void_p,
+                    ctypes.POINTER(abi._FrameInput),
+                    ctypes.POINTER(abi._FrameResult),
+                ],
+                library.kadoka_runtime_preprocess_frame.argtypes,
+            )
+            self.assertIs(ctypes.c_int32, library.kadoka_runtime_preprocess_frame.restype)
+        del library.kadoka_runtime_preprocess_frame
+        with self.assertRaisesRegex(abi.NativeABIError, "preprocess_frame"):
+            abi.NativeRuntime(library)
+
+    def test_native_frame_preprocessing_maps_the_batch_and_bright_regions(self):
+        library = FakeLibrary()
+        library.capabilities = 4 | 8
+        library.frame_mean = (76, 76, 76, 76)
+        library.frame_hash = 0x1234
+        library.frame_regions = [abi._FrameRegion(2, 1, 3, 3, 0, 9)]
+        frame = ScreenFrame(6, 5, bytes(6 * 5 * 4))
+
+        with abi.NativeRuntime(library) as runtime:
+            result = runtime.preprocess(frame)
+
+        self.assertEqual({"r": 76, "g": 76, "b": 76}, result.mean_rgb)
+        self.assertEqual(76, result.mean_brightness)
+        self.assertEqual("0000000000001234", result.perceptual_hash)
+        self.assertEqual((2, 1, 3, 3), result.detected_elements[0].bbox)
+        self.assertEqual(0.7, result.detected_elements[0].confidence)
+        self.assertEqual(123, result.processing_ns)
+        self.assertEqual(len(frame.bgra), result.input_frame_bytes_processed)
+        self.assertEqual(ctypes.sizeof(abi._FrameRegion), result.output_bytes_written)
+        self.assertEqual(0, result.input_copy_count)
+        self.assertEqual(0, result.input_copy_bytes)
+        self.assertEqual([3], library.frame_capacities)
+
+    def test_native_frame_preprocessor_retries_with_exact_region_capacity(self):
+        library = FakeLibrary()
+        library.capabilities = 4 | 8
+        library.frame_regions = [abi._FrameRegion(0, 0, 3, 3, 0, 9) for _ in range(257)]
+        frame = ScreenFrame(300, 300, bytes(300 * 300 * 4))
+        library.frame_input_copy_count = 2
+        library.frame_input_copy_bytes = len(frame.bgra)
+
+        with abi.NativeRuntime(library) as runtime:
+            result = runtime.preprocess(frame)
+
+        self.assertEqual(
+            [abi.INITIAL_REGION_BUFFER_CAPACITY, abi.INITIAL_REGION_BUFFER_CAPACITY + 1],
+            library.frame_capacities,
+        )
+        self.assertEqual(257, len(result.detected_elements))
+        self.assertEqual(246, result.processing_ns)
+        self.assertEqual(2 * len(frame.bgra), result.input_frame_bytes_processed)
+        self.assertEqual(257 * ctypes.sizeof(abi._FrameRegion), result.output_bytes_written)
+        self.assertEqual(4, result.input_copy_count)
+        self.assertEqual(2 * len(frame.bgra), result.input_copy_bytes)
+
+    def test_native_frame_preprocessor_rejects_invalid_frame_before_ffi(self):
+        library = FakeLibrary()
+        library.capabilities = 4 | 8
+        with abi.NativeRuntime(library) as runtime:
+            for frame in (ScreenFrame(0, 1, b""), ScreenFrame(1, 1, b"x")):
+                with self.subTest(frame=frame), self.assertRaises(ValueError):
+                    runtime.preprocess(frame)
+        self.assertEqual(0, library.kadoka_runtime_preprocess_frame.calls)
+
+    def test_corrupted_native_frame_results_invalidate_runtime(self):
+        frame = ScreenFrame(6, 5, bytes(6 * 5 * BGRA_BYTES_PER_PIXEL))
+        corruption_cases = (
+            ({"abi_version": 2}, []),
+            ({"mean_red": 256}, []),
+            ({"input_frame_bytes_processed": 1}, []),
+            ({"output_bytes_written": 1}, []),
+            ({"reserved": 1}, []),
+            ({}, [abi._FrameRegion(4, 3, 3, 3, 0, 9)]),
+        )
+
+        for corruption, frame_regions in corruption_cases:
+            with self.subTest(corruption=corruption, frame_regions=frame_regions):
+                library = FakeLibrary()
+                library.capabilities = 4 | 8
+                library.frame_corrupt_result = corruption
+                library.frame_regions = frame_regions
+                runtime = abi.NativeRuntime(library)
+                self.addCleanup(runtime.close)
+
+                with self.assertRaises(abi.NativeContractError):
+                    runtime.preprocess(frame)
+
+                self.assertFalse(runtime.is_healthy())
+
+    def test_corrupted_buffer_too_small_result_invalidates_runtime(self):
+        library = FakeLibrary()
+        library.capabilities = 4 | 8
+        library.frame_regions = [
+            abi._FrameRegion(0, 0, 3, 3, 0, 9)
+            for _ in range(abi.INITIAL_REGION_BUFFER_CAPACITY + 1)
+        ]
+        library.frame_corrupt_result = {"input_frame_bytes_processed": 1}
+        frame = ScreenFrame(300, 300, bytes(300 * 300 * BGRA_BYTES_PER_PIXEL))
+
+        with abi.NativeRuntime(library) as runtime:
+            with self.assertRaises(abi.NativeContractError):
+                runtime.preprocess(frame)
+            self.assertFalse(runtime.is_healthy())
 
     def test_prototypes_set_before_calls(self):
         library = FakeLibrary()
@@ -371,7 +521,10 @@ class NativeRuntimeIntegrationTest(unittest.TestCase):
         self.addCleanup(runtime.close)
         with abi.NativeRuntime.load(os.environ["KADOKA_NATIVE_RUNTIME"]) as independent:
             self.assertEqual(1, runtime.info.abi_version)
-            self.assertEqual(frozenset({RuntimeCapability.SAFETY}), runtime.descriptor.capabilities)
+            self.assertEqual(
+                frozenset({RuntimeCapability.SAFETY, RuntimeCapability.FAST_CV}),
+                runtime.descriptor.capabilities,
+            )
             registry = RuntimeRegistry()
             registry.register(runtime)
             self.assertIs(runtime, registry.resolve({RuntimeCapability.SAFETY}))
@@ -385,6 +538,61 @@ class NativeRuntimeIntegrationTest(unittest.TestCase):
             self.assertFalse(runtime.is_healthy())
             with self.assertRaises(LookupError):
                 registry.resolve({RuntimeCapability.SAFETY})
+
+    def test_real_frame_preprocessing_matches_python_frame_analyzer(self):
+        pixels = bytearray(6 * 5 * 4)
+        for index in range(3, len(pixels), 4):
+            pixels[index] = 255
+        for y in range(1, 4):
+            for x in range(2, 5):
+                offset = (y * 6 + x) * 4
+                pixels[offset : offset + 4] = bytes([255, 255, 255, 255])
+        frame = ScreenFrame(6, 5, bytes(pixels))
+        result = abi.discover_native_runtime()
+        self.assertEqual(abi.NativeLoadStatus.AVAILABLE, result.status, result.reason)
+        runtime = result.runtime
+        self.assertIsNotNone(runtime)
+        self.addCleanup(runtime.close)
+
+        native = FrameAnalyzer(frame_preprocessor=runtime).analyze(frame, "native")
+        python = FrameAnalyzer().analyze(frame, "python")
+
+        for key in ("mean_rgb", "mean_brightness", "signature", "perceptual_hash", "image_candidates", "detected_elements"):
+            self.assertEqual(python.features[key], native.features[key], key)
+
+    def test_real_frame_preprocessing_matches_python_for_varied_dimensions_and_thresholds(self):
+        result = abi.discover_native_runtime()
+        self.assertEqual(abi.NativeLoadStatus.AVAILABLE, result.status, result.reason)
+        runtime = result.runtime
+        self.assertIsNotNone(runtime)
+        self.addCleanup(runtime.close)
+        frame_specs = ((1, 1, 4), (2, 9, 5), (9, 8, 6), (31, 19, 7), (32, 24, 8))
+
+        for width, height, seed in frame_specs:
+            rng = random.Random(seed)
+            pixels = bytearray(width * height * 4)
+            for index in range(width * height):
+                offset = index * 4
+                is_white_patch = width >= 5 and height >= 5 and width // 3 <= index % width < width // 3 + 3 and height // 3 <= index // width < height // 3 + 3
+                if is_white_patch or rng.random() < 0.28:
+                    pixels[offset : offset + 3] = bytes([255, 255, 255])
+                else:
+                    pixels[offset : offset + 3] = bytes([rng.randrange(256) for _ in range(3)])
+                pixels[offset + 3] = rng.randrange(256)
+            frame = ScreenFrame(width, height, bytes(pixels))
+
+            for detector in (
+                BrightRegionDetector(),
+                BrightRegionDetector(brightness_threshold=128, min_pixels=4),
+            ):
+                with self.subTest(width=width, height=height, detector=detector):
+                    native = FrameAnalyzer(
+                        bright_region_detector=detector,
+                        frame_preprocessor=runtime,
+                    ).analyze(frame, "native")
+                    python = FrameAnalyzer(bright_region_detector=detector).analyze(frame, "python")
+                    for key in ("mean_rgb", "mean_brightness", "signature", "perceptual_hash", "image_candidates", "detected_elements"):
+                        self.assertEqual(python.features[key], native.features[key], key)
 
     def test_real_context_releases_on_exception(self):
         runtime = abi.NativeRuntime.load(os.environ["KADOKA_NATIVE_RUNTIME"])

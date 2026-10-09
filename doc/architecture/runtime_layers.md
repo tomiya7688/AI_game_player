@@ -35,6 +35,10 @@ The boundary is capability-based rather than language-based. A backend may provi
 6. Safety-critical stop/release behavior must remain available even when the upper AI layer is unhealthy.
 7. Optional providers must not become required dependencies of the minimal runtime unless they are safety-required.
 
+## FAST_CV frame preprocessing
+
+The optional `FAST_CV` capability exposes a coarse frame-preprocessing operation through C ABI v1. The caller lends a BGRA frame synchronously; the native runtime returns RGB/brightness summaries, a perceptual sample hash, and filtered bright-region bounds in caller-owned output buffers. If the region buffer is too small, the caller retries with the reported required capacity. The result reports elapsed time, logical frame-payload bytes processed, region-payload bytes written, and input-copy count/bytes; frame-payload bytes exclude row padding, and the current implementation borrows the input and reports zero copies. The Python binding accepts provider-reported copy metrics and sums them across buffer-capacity retries. This is an explicit runtime API only: `FrameAnalyzer` keeps the Python reference implementation as its default fallback, and applications must inject a native preprocessor deliberately.
+
 ## Repository ownership
 
 - `src/ai_game_player/`: application and high-level AI/orchestration code.

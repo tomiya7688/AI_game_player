@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
+from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -138,6 +139,29 @@ class SafetyContextEvaluator:
         previous_outcome: OutcomeAssessment,
     ) -> EvaluatorEvidence:
         report = self.evaluator.explain(observation, [candidate])[0]
+        return self._evidence_from_report(report)
+
+    # {
+    #   責務: [evaluate_batch: 同じ候補集合に対するSafety結果を候補ごとに返す]
+    #   処理: [全候補を一括評価し、重複action IDの拒否理由を候補単位の証拠へ変換する]
+    #   引数: [observation: 候補座標を検証する画面観測, candidates: 同一batchとして評価する候補集合]
+    #   戻り値: [list[EvaluatorEvidence]: 入力候補と同じ順序のSafety評価証拠]
+    # }
+    def evaluate_batch(
+        self,
+        observation: ScreenObservation,
+        candidates: list[ActionCandidate],
+    ) -> list[EvaluatorEvidence]:
+        reports = self.evaluator.explain(observation, candidates)
+        return [self._evidence_from_report(report) for report in reports]
+
+    # {
+    #   責務: [_evidence_from_report: ActionEvaluatorの1件分の報告をDecision Context用の証拠へ変換する]
+    #   処理: [許可状態をscoreへ、拒否理由を監査文字列へ対応付ける]
+    #   引数: [report: acceptedとreasonを含むActionEvaluatorの候補別報告]
+    #   戻り値: [EvaluatorEvidence: Decision Contextへ保存するSafety証拠]
+    # }
+    def _evidence_from_report(self, report: dict[str, object]) -> EvaluatorEvidence:
         accepted = bool(report["accepted"])
         return EvaluatorEvidence(
             self.name,
@@ -253,6 +277,12 @@ class DecisionContextBuilder:
         self.history_limit = history_limit
         self.knowledge = CandidateKnowledgeRetriever(knowledge_store, knowledge_limit)
 
+    # {
+    #   責務: [build: 観測・候補・評価・知識をDecision Provider向けsnapshotへまとめる]
+    #   処理: [Safety評価は同じ候補batchで一度行い、他の評価器は候補ごとに実行して証拠を統合する]
+    #   引数: [observation: 判断対象画面, candidates: SafetyとDecision Contextへ渡す全候補, allowed_candidates: 判断可能と確定した候補, recent_history: 直近の判断履歴, previous_outcome: 直前操作の結果, current_goal: 利用者の現在目標, short_term_goal: 次に達成する短期目標]
+    #   戻り値: [DecisionContext: Providerへ渡す圧縮済みの判断snapshot]
+    # }
     def build(
         self,
         observation: ScreenObservation,
@@ -267,10 +297,21 @@ class DecisionContextBuilder:
         history = list(recent_history or [])[-self.history_limit :] if self.history_limit else []
         outcome = previous_outcome or OutcomeAssessment("unknown", 0.0, "no previous action")
         allowed_ids = {candidate.action_id for candidate in allowed_candidates}
+        batch_safety_evidence = {
+            id(evaluator): evaluator.evaluate_batch(observation, candidates)
+            for evaluator in self.evaluators
+            if isinstance(evaluator, SafetyContextEvaluator)
+            and type(evaluator).evaluate is SafetyContextEvaluator.evaluate
+        }
         candidate_contexts: list[CandidateDecisionContext] = []
         global_uncertainty: list[str] = []
-        for candidate in candidates:
-            evaluations = [evaluator.evaluate(observation, candidate, history, outcome) for evaluator in self.evaluators]
+        for candidate_index, candidate in enumerate(candidates):
+            evaluations = [
+                batch_safety_evidence[id(evaluator)][candidate_index]
+                if id(evaluator) in batch_safety_evidence
+                else evaluator.evaluate(observation, candidate, history, outcome)
+                for evaluator in self.evaluators
+            ]
             score, confidence, conflict = self.fusion.fuse(evaluations)
             knowledge = self.knowledge.retrieve(candidate)
             uncertainty: list[str] = []
@@ -317,13 +358,44 @@ class DecisionContextBuilder:
         )
 
 
+# {
+#   責務: [DecisionTraceStore: 判断snapshotと選択結果を結び付けた追記形式JSONを管理する]
+#   フィールド: [path: 判断traceを保存するJSONファイル]
+# }
 class DecisionTraceStore:
     """Append-only trace that binds one observation snapshot to context, decision and previous outcome."""
 
+    # {
+    #   責務: [__init__: 判断traceの保存先を設定する]
+    #   処理: [指定されたJSONファイルのパスを保持する]
+    #   引数: [path: 判断trace JSONの保存先]
+    #   戻り値: []
+    # }
     def __init__(self, path: Path) -> None:
         self.path = path
 
+    # {
+    #   責務: [append: contextと判断をtrace JSONへ確定する]
+    #   処理: [追記済みtraceを一時JSONに準備し、保存先へ原子的に置換する]
+    #   引数: [context: providerへ渡した判断context, decision: contextから選ばれた判断]
+    #   戻り値: []
+    #   エラー: [OSError: trace JSONを書込みまたは置換できない, ValueError: 既存trace JSONが配列ではない]
+    # }
     def append(self, context: DecisionContext, decision: ActionDecision) -> None:
+        staged_write = self.prepare_append(context, decision)
+        try:
+            staged_write.publish()
+        finally:
+            staged_write.discard()
+
+    # {
+    #   責務: [prepare_append: contextと判断を含む次のtrace JSONを未確定状態で準備する]
+    #   処理: [既存trace配列へsnapshot・判断・根拠を追加して同じ保存先ディレクトリに書く]
+    #   引数: [context: providerへ渡した判断context, decision: contextから選ばれた判断]
+    #   戻り値: [StagedJsonWrite: 実行世代を確認した後に公開する一時trace]
+    #   エラー: [OSError: trace JSONを読込みまたは一時JSONを書込めない, ValueError: 既存trace JSONが配列ではない]
+    # }
+    def prepare_append(self, context: DecisionContext, decision: ActionDecision) -> StagedJsonWrite:
         entries = self._read()
         entries.append(
             {
@@ -342,7 +414,7 @@ class DecisionTraceStore:
                 "context": context.to_dict(),
             }
         )
-        self._write(entries)
+        return stage_json_write(self.path, entries)
 
     def recent(self, limit: int = 5) -> list[dict[str, Any]]:
         if limit < 0:
@@ -356,13 +428,6 @@ class DecisionTraceStore:
         if not isinstance(value, list):
             raise ValueError("decision trace must contain an array")
         return [entry for entry in value if isinstance(entry, dict)]
-
-    def _write(self, entries: list[dict[str, Any]]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self.path.with_suffix(f".{uuid4().hex}.tmp")
-        temporary.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
-        temporary.replace(self.path)
-
 
 def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     features = observation.features

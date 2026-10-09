@@ -12,6 +12,7 @@
 - Session Event Envelope v1とSQLite WAL Journal（UTC/monotonic、連番、correlation、未コミットtransactionの復旧）
 - ExperienceからDecision/OCR/UI/Embedding/Evaluator向けのTraining Datasetを生成・重複排除・固定seed分割・JSON export
 - Native Runtime C ABI v1の任意ロード、version検証、instance初期化／終了とstatus変換
+- FAST_CV対応Native RuntimeをFrameAnalyzerへ明示注入した場合、BGRA統計・perceptual hash・bright-regionをC++でbatch処理できます。未注入時はPython実装を使います。
 
 ## 制約
 
@@ -21,4 +22,4 @@
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。
 - Session Event JournalはまだGameSessionControllerへ未接続で、旧RuntimeLog/Trace/History移行やquery APIも未実装です。
 - 長期目的、知識埋め込み、複数人格比較は未実装です。
-- Native Runtimeのbatch処理はメタデータ契約のみで`NOT_IMPLEMENTED`を返します。capture/inputや画素bufferは未実装で、GUIの実行経路も自動切替しません。
+- Native Runtimeの汎用batch処理はメタデータ契約のみで`NOT_IMPLEMENTED`を返します。専用Frame Preprocess API以外のcapture/input画素処理は未実装で、GUI実行経路もNativeへ自動切替しません。
