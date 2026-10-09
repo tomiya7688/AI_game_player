@@ -144,8 +144,8 @@ def _benchmark_sqlite_wal(
     payload: dict[str, str],
 ) -> dict[str, float | int]:
     append_latencies_ns: list[int] = []
-    journal = EventJournal(path, session_id=BENCHMARK_SESSION_ID)
     write_started_ns = time.perf_counter_ns()
+    journal = EventJournal(path, session_id=BENCHMARK_SESSION_ID)
     try:
         for sequence in range(1, event_count + 1):
             event_started_ns = time.perf_counter_ns()

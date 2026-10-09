@@ -53,7 +53,7 @@ _UTC_TIMESTAMP_PATTERN = re.compile(
     r"|(?:[02468][048]|[13579][26])00)-02-29|[0-9]{4}-(?:"
     r"(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])"
     r"|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8])))"
-    r"T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]+)?Z"
+    r"T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]+)?Z(?![\s\S])"
 )
 # {
 #   責務: [_JOURNAL_METADATA_TABLE_SQL: Journalの単一Session metadataを制約付きで保存するtable定義]
@@ -320,7 +320,7 @@ class EventJournal:
 
     # {
     #   責務: [append: Session eventにID・UTC/monotonic時刻・連番を割り当て、SQLite transactionで1 recordを永続化する]
-    #   処理: [event fieldを検証し、BEGIN IMMEDIATEからINSERTとcommitを行う。失敗した接続は不健全として以後の書込みを拒否する]
+    #   処理: [BEGIN前にEnvelope入力を検証し、BEGIN IMMEDIATEからINSERTとcommitを行う。transaction失敗時だけconnectionを不健全として以後の書込みを拒否する]
     #   引数: [event_type: eventの種類, status/frame_id/turn_id/snapshot_id/correlation_id: 必要に応じて関連付ける状態とID, payload: 小さなJSON data object, artifact_refs: 大きなdataを別保存した場合の参照]
     #   戻り値: [EventEnvelope: SQLiteにcommitしたsequence付きevent]
     #   エラー: [EventJournalClosedError: Journalがclose済みの場合, EventJournalError: 入力contract違反またはtransaction失敗の場合]
@@ -339,23 +339,26 @@ class EventJournal:
     ) -> EventEnvelope:
         with self._lock:
             self._ensure_writable()
-            event = EventEnvelope(
-                schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
-                event_id=uuid4().hex,
-                session_id=self.session_id,
-                sequence=self._next_sequence,
-                timestamp_utc=_current_utc_timestamp(),
-                monotonic_ns=time.monotonic_ns(),
-                monotonic_epoch_id=self._monotonic_epoch_id,
-                event_type=event_type,
-                status=status,
-                frame_id=frame_id,
-                turn_id=turn_id,
-                snapshot_id=snapshot_id,
-                correlation_id=correlation_id,
-                payload={} if payload is None else payload,
-                artifact_refs=artifact_refs,
-            )
+            try:
+                event = EventEnvelope(
+                    schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
+                    event_id=uuid4().hex,
+                    session_id=self.session_id,
+                    sequence=self._next_sequence,
+                    timestamp_utc=_current_utc_timestamp(),
+                    monotonic_ns=time.monotonic_ns(),
+                    monotonic_epoch_id=self._monotonic_epoch_id,
+                    event_type=event_type,
+                    status=status,
+                    frame_id=frame_id,
+                    turn_id=turn_id,
+                    snapshot_id=snapshot_id,
+                    correlation_id=correlation_id,
+                    payload={} if payload is None else payload,
+                    artifact_refs=artifact_refs,
+                )
+            except (TypeError, ValueError) as error:
+                raise EventJournalError("event data does not satisfy the envelope contract") from error
             if event.event_id in self._event_ids:
                 raise EventJournalError("duplicate event_id generated for journal append")
             encoded_record = _encode_json_record(event.to_dict())

@@ -312,6 +312,19 @@ class EventJournalTest(unittest.TestCase):
             self.assertEqual("correlation-1", restored_event.correlation_id)
             self.assertTrue(restored_event.artifact_refs[0].sensitive)
 
+    def test_invalid_append_data_uses_journal_error_without_poisoning_writer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-append.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                with self.assertRaises(EventJournalError):
+                    journal.append(" ")
+                with self.assertRaises(EventJournalError):
+                    journal.append("event.validated", payload={"value": float("nan")})
+
+                valid_event = journal.append("event.validated")
+
+            self.assertEqual(1, valid_event.sequence)
+
     def test_reopens_existing_session_and_continues_sequence_without_rewriting_prior_records(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "session.sqlite3"
@@ -531,6 +544,8 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T25:20:30Z"))
         self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-02-29T10:20:30Z"))
         self.assertIsNone(re.fullmatch(timestamp_pattern, "0000-02-29T10:20:30Z"))
+        self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30Z\n"))
+        self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30Z\r\n"))
         for field_name in (
             "event_id", "session_id", "event_type", "status", "frame_id",
             "turn_id", "snapshot_id", "correlation_id", "monotonic_epoch_id",
