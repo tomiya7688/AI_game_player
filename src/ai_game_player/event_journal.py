@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import sqlite3
 import threading
 import time
@@ -26,6 +27,33 @@ _ENVELOPE_FIELDS = frozenset({
     "monotonic_ns", "event_type", "status", "frame_id", "turn_id",
     "snapshot_id", "correlation_id", "payload", "artifact_refs",
 })
+# {
+#   責務: [_UTC_TIMESTAMP_PATTERN: v1 EventEnvelopeで受け付けるUTC timestampの文字列表現を制限する]
+#   処理: [秒までの年月日時分秒と任意小数部の後に大文字Zがある文字列だけを一致させる]
+# }
+_UTC_TIMESTAMP_PATTERN = re.compile(
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z"
+)
+# {
+#   責務: [_JOURNAL_METADATA_TABLE_SQL: Journalの単一Session metadataを制約付きで保存するtable定義]
+#   処理: [singleton_idとschema versionとsession IDのcolumn、およびsingleton IDのCHECK制約を定義する]
+# }
+_JOURNAL_METADATA_TABLE_SQL = (
+    f"CREATE TABLE journal_metadata ("
+    f"singleton_id INTEGER PRIMARY KEY CHECK(singleton_id={SQLITE_JOURNAL_METADATA_ID}), "
+    "journal_schema_version INTEGER NOT NULL, "
+    "session_id TEXT NOT NULL)"
+)
+# {
+#   責務: [_EVENTS_TABLE_SQL: Journal eventを連番順に保持するtable定義]
+#   処理: [sequenceをprimary key、event_idをunique、JSON envelopeを必須columnとして定義する]
+# }
+_EVENTS_TABLE_SQL = (
+    "CREATE TABLE events ("
+    "sequence INTEGER PRIMARY KEY, "
+    "event_id TEXT NOT NULL UNIQUE, "
+    "envelope_json TEXT NOT NULL)"
+)
 
 
 # {
@@ -297,10 +325,14 @@ class EventJournal:
                     (event.sequence, event.event_id, encoded_record),
                 )
                 connection.commit()
-            except sqlite3.Error as error:
+            except BaseException as error:
                 self._write_failed = True
                 self._rollback_open_transaction()
-                raise EventJournalError("event journal transaction failed; reopen to recover") from error
+                if isinstance(error, sqlite3.Error):
+                    raise EventJournalError(
+                        "event journal transaction failed; reopen to recover"
+                    ) from error
+                raise
             self._event_ids.add(event.event_id)
             self._next_sequence += 1
             return event
@@ -369,12 +401,17 @@ class EventJournal:
 
     # {
     #   責務: [__exit__: with block終了時にJournalをcloseし、block内の例外を外へ伝える]
-    #   処理: [成功・例外のどちらでもcloseを実行し、context managerに例外を抑止させない]
+    #   処理: [成功・例外のどちらでもcloseを実行し、block内例外があればclose失敗を注記して元の例外を保つ]
     #   引数: [self: 解放するSession Journal, exception_type/exception/traceback: block内で発生した例外情報]
     #   戻り値: [bool: 常にFalseを返しblock内例外の伝播を許可する]
     # }
     def __exit__(self, exception_type: Any, exception: Any, traceback: Any) -> bool:
-        self.close()
+        try:
+            self.close()
+        except Exception as close_error:
+            if exception is None:
+                raise
+            exception.add_note(f"Event Journal cleanup also failed: {close_error}")
         return False
 
     # {
@@ -406,23 +443,29 @@ class EventJournal:
                 f"unsupported SQLite journal schema version: {database_version}"
             )
         database_objects = tuple(
-            (str(row[0]), str(row[1]))
+            (str(row[0]), str(row[1]), None if row[2] is None else str(row[2]))
             for row in connection.execute(
-                "SELECT type, name FROM sqlite_master "
+                "SELECT type, name, sql FROM sqlite_master "
                 "WHERE type IN ('table', 'view', 'trigger', 'index') AND name NOT LIKE 'sqlite_%'"
             )
         )
-        existing_tables = {
-            object_name for object_type, object_name in database_objects if object_type == "table"
-        }
-        required_tables = {"journal_metadata", "events"}
         if database_version == 0:
             if database_objects:
                 raise EventJournalCorruptionError("unrecognized SQLite database at the event journal path")
             self._create_database_schema()
             return
-        if not required_tables.issubset(existing_tables):
-            raise EventJournalCorruptionError("SQLite event journal is missing required tables")
+        expected_schema_objects = {
+            ("table", "journal_metadata"): _JOURNAL_METADATA_TABLE_SQL,
+            ("table", "events"): _EVENTS_TABLE_SQL,
+        }
+        actual_schema_objects = {
+            (object_type, object_name): sql
+            for object_type, object_name, sql in database_objects
+        }
+        if actual_schema_objects != expected_schema_objects:
+            raise EventJournalCorruptionError(
+                "SQLite event journal schema objects or table definitions are unexpected"
+            )
         metadata = connection.execute(
             "SELECT journal_schema_version, session_id FROM journal_metadata WHERE singleton_id=?",
             (SQLITE_JOURNAL_METADATA_ID,),
@@ -446,18 +489,8 @@ class EventJournal:
         created_session_id = self._session_id or uuid4().hex
         try:
             connection.execute("BEGIN IMMEDIATE")
-            connection.execute(
-                "CREATE TABLE journal_metadata ("
-                f"singleton_id INTEGER PRIMARY KEY CHECK(singleton_id={SQLITE_JOURNAL_METADATA_ID}), "
-                "journal_schema_version INTEGER NOT NULL, "
-                "session_id TEXT NOT NULL)"
-            )
-            connection.execute(
-                "CREATE TABLE events ("
-                "sequence INTEGER PRIMARY KEY, "
-                "event_id TEXT NOT NULL UNIQUE, "
-                "envelope_json TEXT NOT NULL)"
-            )
+            connection.execute(_JOURNAL_METADATA_TABLE_SQL)
+            connection.execute(_EVENTS_TABLE_SQL)
             connection.execute(
                 "INSERT INTO journal_metadata(singleton_id, journal_schema_version, session_id) "
                 "VALUES (?, ?, ?)",
@@ -600,15 +633,17 @@ def _current_utc_timestamp() -> str:
 
 # {
 #   責務: [_validate_utc_timestamp: Envelope timestampがtimezone付きUTC時刻か検証する]
-#   処理: [ISO-8601形式としてparseし、timezone offsetが0であることを確認する]
+    #   処理: [v1で許可する年月日T時分秒[小数]Z形式だけを受け付け、日付としてparseする]
 #   引数: [value: event envelopeのtimestamp_utc field]
 #   戻り値: [なし: UTC timestampとして受理できる場合に戻る]
 #   エラー: [ValueError: 空文字・不正なISO-8601値・timezoneなし・UTC以外のoffsetの場合]
 # }
 def _validate_utc_timestamp(value: str) -> None:
     _require_nonempty_text(value, "timestamp_utc")
+    if _UTC_TIMESTAMP_PATTERN.fullmatch(value) is None:
+        raise ValueError("timestamp_utc must use the v1 UTC date-time format ending in Z")
     try:
-        timestamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        timestamp = datetime.fromisoformat(value[:-1] + "+00:00")
     except ValueError as error:
         raise ValueError("timestamp_utc must be an ISO-8601 timestamp") from error
     if timestamp.tzinfo is None or timestamp.utcoffset() != timedelta(0):

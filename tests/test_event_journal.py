@@ -5,6 +5,7 @@ import unittest
 from contextlib import closing
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest.mock import patch
 
 from ai_game_player.event_journal import (
     EVENT_ENVELOPE_SCHEMA_VERSION,
@@ -71,6 +72,9 @@ class EventEnvelopeTest(unittest.TestCase):
             {"monotonic_ns": -1},
             {"timestamp_utc": "2026-10-05T10:20:30"},
             {"timestamp_utc": "2026-10-05T12:20:30+02:00"},
+            {"timestamp_utc": "2026-10-05T10:20:30+00:00"},
+            {"timestamp_utc": "2026-10-05 10:20:30Z"},
+            {"timestamp_utc": "2026-W41-1T10:20:30Z"},
             {"payload": {"not-json": float("nan")}},
             {"payload": {1: "non-string key"}},
         )
@@ -128,6 +132,29 @@ class EventJournalTest(unittest.TestCase):
             with closing(sqlite3.connect(path)) as connection:
                 current_journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
             self.assertEqual(original_journal_mode, current_journal_mode)
+
+    def test_rejects_unexpected_schema_objects_and_altered_table_definitions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            triggered_path = Path(directory) / "unexpected-trigger.sqlite3"
+            with EventJournal(triggered_path, session_id="session-1"):
+                pass
+            with closing(sqlite3.connect(triggered_path)) as connection:
+                connection.execute(
+                    "CREATE TRIGGER delete_inserted_event AFTER INSERT ON events "
+                    "BEGIN DELETE FROM events WHERE sequence=NEW.sequence; END"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(EventJournalCorruptionError, "schema objects"):
+                EventJournal(triggered_path)
+
+            altered_path = Path(directory) / "altered-table.sqlite3"
+            with EventJournal(altered_path, session_id="session-1"):
+                pass
+            with closing(sqlite3.connect(altered_path)) as connection:
+                connection.execute("ALTER TABLE events ADD COLUMN unexpected TEXT")
+                connection.commit()
+            with self.assertRaisesRegex(EventJournalCorruptionError, "table definitions"):
+                EventJournal(altered_path)
 
     def test_appends_compact_records_with_generated_utc_monotonic_and_correlation_fields(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -275,6 +302,52 @@ class EventJournalTest(unittest.TestCase):
 
             with self.assertRaises(EventJournalClosedError):
                 journal.append("session.after_close")
+
+    def test_interrupted_append_rolls_back_and_marks_writer_unhealthy(self):
+        class InterruptOnCommit:
+            def __init__(self, connection):
+                self.connection = connection
+
+            def execute(self, *args, **kwargs):
+                return self.connection.execute(*args, **kwargs)
+
+            def commit(self):
+                raise KeyboardInterrupt("append interrupted before commit")
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "interrupted.sqlite3"
+            journal = EventJournal(path, session_id="session-1")
+            interrupting_connection = InterruptOnCommit(journal._require_connection())
+            with patch.object(
+                journal,
+                "_require_connection",
+                return_value=interrupting_connection,
+            ):
+                with self.assertRaisesRegex(KeyboardInterrupt, "append interrupted"):
+                    journal.append("session.interrupted")
+
+            self.assertEqual(0, journal.last_sequence)
+            journal.close()
+            self.assertEqual([], load_stored_events(path))
+
+    def test_context_exit_preserves_body_exception_when_checkpoint_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "reader-blocked.sqlite3"
+            reader = sqlite3.connect(path)
+            try:
+                with self.assertRaisesRegex(ValueError, "original body failure") as raised:
+                    with EventJournal(path, session_id="session-1") as journal:
+                        journal.append("session.started")
+                        reader.execute("BEGIN")
+                        reader.execute("SELECT * FROM events").fetchall()
+                        journal._require_connection().execute("PRAGMA busy_timeout=1")
+                        journal.append("session.continued")
+                        raise ValueError("original body failure")
+                self.assertTrue(any(
+                    "cleanup also failed" in note for note in raised.exception.__notes__
+                ))
+            finally:
+                reader.close()
 
 class EventEnvelopeSchemaTest(unittest.TestCase):
     def test_schema_matches_supported_version_and_required_session_fields(self):
