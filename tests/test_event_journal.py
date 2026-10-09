@@ -14,6 +14,7 @@ from ai_game_player.event_journal import (
     EventJournal,
     EventJournalClosedError,
     EventJournalCorruptionError,
+    EventJournalError,
     _is_sqlite_access_error,
 )
 from ai_game_player.experience import ArtifactReference
@@ -202,6 +203,32 @@ class EventJournalTest(unittest.TestCase):
 
             with self.assertRaisesRegex(EventJournalCorruptionError, "unrecognized SQLite database"):
                 EventJournal(path)
+
+    def test_failed_first_open_removes_partial_database_for_retry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "retryable.sqlite3"
+            with patch.object(
+                EventJournal,
+                "_create_database_schema",
+                side_effect=EventJournalError("disk full"),
+            ):
+                with self.assertRaisesRegex(EventJournalError, "disk full"):
+                    EventJournal(path, session_id="session-1")
+
+            self.assertFalse(path.exists())
+            with EventJournal(path, session_id="session-1") as journal:
+                event = journal.append("session.started")
+            self.assertEqual(1, event.sequence)
+
+            interrupted_path = Path(directory) / "interrupted.sqlite3"
+            with patch.object(
+                EventJournal,
+                "_create_database_schema",
+                side_effect=KeyboardInterrupt("initialization interrupted"),
+            ):
+                with self.assertRaisesRegex(KeyboardInterrupt, "initialization interrupted"):
+                    EventJournal(interrupted_path, session_id="session-1")
+            self.assertFalse(interrupted_path.exists())
 
     def test_rejects_unexpected_schema_objects_and_altered_table_definitions(self):
         with tempfile.TemporaryDirectory() as directory:

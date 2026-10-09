@@ -231,7 +231,7 @@ class EventEnvelope:
 
 # {
 #   責務: [EventJournal: 1 SessionのeventをSQLite WALへ連続番号付きで追記し、再open時に既存recordを検証する]
-#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence: 保存対象Sessionと次に割り当てる番号, _monotonic_epoch_id: instance内の経過時刻比較範囲, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
+#   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence: 保存対象Sessionと次に割り当てる番号, _monotonic_epoch_id: instance内の経過時刻比較範囲, _database_schema_created: 初期化中に新規schemaをcommit済みか, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
 # }
 class EventJournal:
     """Single-session append-only SQLite WAL journal with atomic recovery.
@@ -242,7 +242,7 @@ class EventJournal:
 
     # {
     #   責務: [__init__: 1 Session専用のSQLite Journalを開き、schema・既存event・WAL modeを検証する]
-    #   処理: [SQLite接続をFULL synchronousで構成し、新しいmonotonic epochを発行してdatabase metadataからSession IDと連番を復旧する]
+    #   処理: [SQLite接続をFULL synchronousで構成し、新しいmonotonic epochを発行してmetadataからSession IDと連番を復旧し、新規schema作成失敗時は不完全databaseを除去する]
     #   引数: [path: Session event databaseの保存先, session_id: 新規databaseに指定するSession ID、既存databaseを開く場合の照合値]
     #   戻り値: [なし: 検証済みSQLite接続と次のevent sequenceをinstanceに保持する]
     #   エラー: [EventJournalError: databaseへ接続できないかWALを開始できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
@@ -255,6 +255,7 @@ class EventJournal:
         self._write_failed = False
         self._event_ids: set[str] = set()
         self._monotonic_epoch_id = uuid4().hex
+        self._database_schema_created = False
         self._session_id = _require_optional_text(session_id, "session_id")
         self._next_sequence = FIRST_EVENT_SEQUENCE
         self._connection: sqlite3.Connection | None = None
@@ -286,6 +287,12 @@ class EventJournal:
         except (OSError, sqlite3.Error) as error:
             self._discard_connection()
             raise EventJournalError(f"cannot open event journal database: {self.path}") from error
+        except BaseException:
+            self._discard_connection()
+            raise
+        finally:
+            if not database_path_existed and not self._database_schema_created:
+                self._remove_incomplete_new_database()
 
     @property
     # {
@@ -540,6 +547,26 @@ class EventJournal:
             self._rollback_open_transaction()
             raise EventJournalError("cannot create SQLite event journal schema") from error
         self._session_id = created_session_id
+        self._database_schema_created = True
+
+    # {
+    #   責務: [_remove_incomplete_new_database: 新規作成に失敗したschemaなしdatabaseとSQLite sidecarを除去する]
+    #   処理: [初期化前に存在しなかったpathのdatabase・journal・WAL・SHM fileをunlinkし、cleanup errorで初回例外を置き換えない]
+    #   引数: [self: schema commit前に初期化が失敗したSession Journal]
+    #   戻り値: [なし: 作成途中のSQLite fileが残らない状態を試みる]
+    # }
+    def _remove_incomplete_new_database(self) -> None:
+        database_artifacts = (
+            self.path,
+            Path(f"{self.path}-journal"),
+            Path(f"{self.path}-wal"),
+            Path(f"{self.path}-shm"),
+        )
+        for artifact_path in database_artifacts:
+            try:
+                artifact_path.unlink(missing_ok=True)
+            except OSError:
+                continue
 
     # {
     #   責務: [_recover_existing_records: 保存済みeventを全件検証して連番・Session・一意IDの復旧状態を作る]

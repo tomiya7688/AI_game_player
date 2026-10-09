@@ -88,6 +88,7 @@ def _benchmark_jsonl_reference(
     monotonic_epoch_id: str,
 ) -> dict[str, float | int]:
     append_latencies_ns: list[int] = []
+    pending_event_started_ns: list[int] = []
     write_started_ns = time.perf_counter_ns()
     with path.open("wb") as stream:
         for sequence in range(1, event_count + 1):
@@ -100,12 +101,16 @@ def _benchmark_jsonl_reference(
                 allow_nan=False,
             ).encode("utf-8")
             stream.write(encoded_event + b"\n")
-            append_latencies_ns.append(time.perf_counter_ns() - event_started_ns)
+            append_latencies_ns.append(0)
+            pending_event_started_ns.append(event_started_ns)
             if sequence % fsync_batch_size == 0 or sequence == event_count:
-                sync_started_ns = time.perf_counter_ns()
                 stream.flush()
                 os.fsync(stream.fileno())
-                append_latencies_ns[-1] += time.perf_counter_ns() - sync_started_ns
+                durable_at_ns = time.perf_counter_ns()
+                batch_start_index = len(append_latencies_ns) - len(pending_event_started_ns)
+                for batch_offset, event_started_ns in enumerate(pending_event_started_ns):
+                    append_latencies_ns[batch_start_index + batch_offset] = durable_at_ns - event_started_ns
+                pending_event_started_ns.clear()
     write_duration_ns = time.perf_counter_ns() - write_started_ns
 
     recovery_started_ns = time.perf_counter_ns()
