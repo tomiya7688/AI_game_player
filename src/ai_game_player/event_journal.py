@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import sqlite3
 import threading
@@ -242,14 +243,14 @@ class EventJournal:
 
     # {
     #   責務: [__init__: 1 Session専用のSQLite Journalを開き、schema・既存event・WAL modeを検証する]
-    #   処理: [SQLite接続をFULL synchronousで構成し、新しいmonotonic epochを発行してmetadataからSession IDと連番を復旧し、新規schema作成失敗時は不完全databaseを除去する]
+    #   処理: [SQLite接続前にdatabase pathのentryをsymlinkも含めて確認し、metadataからSession IDと連番を復旧し、新規schema作成失敗時だけ作成済みdatabaseを除去する]
     #   引数: [path: Session event databaseの保存先, session_id: 新規databaseに指定するSession ID、既存databaseを開く場合の照合値]
     #   戻り値: [なし: 検証済みSQLite接続と次のevent sequenceをinstanceに保持する]
     #   エラー: [EventJournalError: databaseへ接続できないかWALを開始できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
     # }
     def __init__(self, path: Path, *, session_id: str | None = None) -> None:
         self.path = Path(path)
-        database_path_existed = self.path.exists()
+        database_path_existed = os.path.lexists(self.path)
         self._lock = threading.RLock()
         self._closed = False
         self._write_failed = False
@@ -475,7 +476,7 @@ class EventJournal:
     # {
     #   責務: [_initialize_database: SQLite databaseのschema versionとSession metadataを読み、新規作成または再利用を決める]
     #   処理: [新規作成前から存在するschemaなしfileを拒否し、version 1では正確なtable定義・唯一のmetadata row・整数schema version・requested session_idを照合する]
-    #   引数: [self: 初期化中のSession Journal, database_path_existed: SQLite接続前にdatabase pathが存在したか]
+    #   引数: [self: 初期化中のSession Journal, database_path_existed: SQLite接続前にdatabase pathのdirectory entryが存在したか。dangling symlinkも既存entryとして扱う]
     #   戻り値: [なし: 新規schemaを作成するか、既存Session IDをinstanceへ設定する]
     #   エラー: [EventJournalCorruptionError: schema version・table・metadata・requested Session IDが合わない場合]
     # }

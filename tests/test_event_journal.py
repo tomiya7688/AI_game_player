@@ -231,6 +231,22 @@ class EventJournalTest(unittest.TestCase):
                     EventJournal(interrupted_path, session_id="session-1")
             self.assertFalse(interrupted_path.exists())
 
+    def test_failed_first_open_preserves_preexisting_dangling_symlink(self):
+        path = Path("dangling-link.sqlite3")
+        with (
+            patch("ai_game_player.event_journal.os.path.lexists", return_value=True),
+            patch.object(
+                sqlite3,
+                "connect",
+                side_effect=sqlite3.OperationalError("unable to open database file"),
+            ),
+            patch.object(EventJournal, "_remove_incomplete_new_database") as remove_database,
+        ):
+            with self.assertRaises(EventJournalError):
+                EventJournal(path, session_id="session-1")
+
+        remove_database.assert_not_called()
+
     def test_rejects_unexpected_schema_objects_and_altered_table_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
             triggered_path = Path(directory) / "unexpected-trigger.sqlite3"
@@ -566,15 +582,39 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
                 field_pattern = artifact_properties[field_name]["pattern"]
                 self.assertIsNotNone(re.fullmatch(field_pattern, valid_value))
                 self.assertIsNone(re.fullmatch(field_pattern, valid_value + "\n"))
+        python_whitespace_characters = "".join(
+            chr(codepoint)
+            for codepoint in (
+                *range(0x0009, 0x000E),
+                *range(0x001C, 0x0021),
+                0x0085,
+                0x00A0,
+                0x1680,
+                *range(0x2000, 0x200B),
+                0x2028,
+                0x2029,
+                0x202F,
+                0x205F,
+                0x3000,
+            )
+        )
+        self.assertTrue(all(character.isspace() for character in python_whitespace_characters))
         for field_name in (
             "event_id", "session_id", "event_type", "status", "frame_id",
             "turn_id", "snapshot_id", "correlation_id", "monotonic_epoch_id",
         ):
             with self.subTest(field_name=field_name):
                 pattern = schema["properties"][field_name]["pattern"]
-                self.assertEqual("\\S", pattern)
-                self.assertIsNone(re.search(pattern, "  "))
+                for whitespace_character in python_whitespace_characters:
+                    with self.subTest(field_name=field_name, whitespace=ord(whitespace_character)):
+                        self.assertIsNone(re.search(pattern, whitespace_character))
                 self.assertIsNotNone(re.search(pattern, " x "))
+                self.assertIsNotNone(re.search(pattern, "\ufeff"))
+        media_type_pattern = artifact_properties["media_type"]["pattern"]
+        self.assertIsNotNone(re.fullmatch(media_type_pattern, "image/png"))
+        for whitespace_character in python_whitespace_characters:
+            with self.subTest(media_type_whitespace=ord(whitespace_character)):
+                self.assertIsNone(re.fullmatch(media_type_pattern, f"image/{whitespace_character}png"))
         self.assertIn("sequence", schema["required"])
         self.assertIn("monotonic_ns", schema["required"])
         self.assertIn("monotonic_epoch_id", schema["required"])
