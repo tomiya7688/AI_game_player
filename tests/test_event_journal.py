@@ -208,11 +208,46 @@ class EventJournalTest(unittest.TestCase):
     def test_invalid_requested_session_id_uses_journal_error_without_creating_database(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "invalid-session-id.sqlite3"
+            preexisting_sidecars = {
+                Path(f"{path}-journal"): b"existing rollback journal",
+                Path(f"{path}-wal"): b"existing write-ahead log",
+                Path(f"{path}-shm"): b"existing shared memory file",
+            }
+            for sidecar_path, content in preexisting_sidecars.items():
+                sidecar_path.write_bytes(content)
 
             with self.assertRaisesRegex(EventJournalError, "requested session_id"):
                 EventJournal(path, session_id=" ")
 
             self.assertFalse(path.exists())
+            for sidecar_path, content in preexisting_sidecars.items():
+                with self.subTest(sidecar=sidecar_path.suffix):
+                    self.assertEqual(content, sidecar_path.read_bytes())
+
+    def test_recovery_rejects_decreasing_monotonic_time_within_epoch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "decreasing-monotonic-time.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                first_event = journal.append("session.started")
+                second_event = journal.append("session.continued")
+
+            first_record = first_event.to_dict()
+            second_record = second_event.to_dict()
+            first_record["monotonic_ns"] = 10
+            second_record["monotonic_ns"] = 9
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=1",
+                    (json.dumps(first_record, separators=(",", ":")),),
+                )
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=2",
+                    (json.dumps(second_record, separators=(",", ":")),),
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "monotonic_ns decreases"):
+                EventJournal(path)
 
     def test_failed_first_open_removes_partial_database_for_retry(self):
         with tempfile.TemporaryDirectory() as directory:

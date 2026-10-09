@@ -243,7 +243,7 @@ class EventJournal:
 
     # {
     #   責務: [__init__: 1 Session専用のSQLite Journalを開き、schema・既存event・WAL modeを検証する]
-    #   処理: [SQLite接続前にdatabase pathのentryをsymlinkも含めて確認し、metadataからSession IDと連番を復旧し、新規schema作成失敗時だけ作成済みdatabaseを除去する]
+    #   処理: [SQLite接続前にdatabaseとsidecarのentryをsymlinkも含めて記録し、metadataからSession IDと連番を復旧し、新規schema作成失敗時は今回作成したfileだけを除去する]
     #   引数: [path: Session event databaseの保存先, session_id: 新規databaseに指定するSession ID、既存databaseを開く場合の照合値]
     #   戻り値: [なし: 検証済みSQLite接続と次のevent sequenceをinstanceに保持する]
     #   エラー: [EventJournalError: requested session_idが不正かdatabaseへ接続できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
@@ -251,6 +251,14 @@ class EventJournal:
     def __init__(self, path: Path, *, session_id: str | None = None) -> None:
         self.path = Path(path)
         database_path_existed = os.path.lexists(self.path)
+        database_sidecars = (
+            Path(f"{self.path}-journal"),
+            Path(f"{self.path}-wal"),
+            Path(f"{self.path}-shm"),
+        )
+        preexisting_sidecars = frozenset(
+            sidecar_path for sidecar_path in database_sidecars if os.path.lexists(sidecar_path)
+        )
         self._lock = threading.RLock()
         self._closed = False
         self._write_failed = False
@@ -297,7 +305,7 @@ class EventJournal:
             raise
         finally:
             if not database_path_existed and not self._database_schema_created:
-                self._remove_incomplete_new_database()
+                self._remove_incomplete_new_database(preexisting_sidecars)
 
     @property
     # {
@@ -558,12 +566,12 @@ class EventJournal:
         self._database_schema_created = True
 
     # {
-    #   責務: [_remove_incomplete_new_database: 新規作成に失敗したschemaなしdatabaseとSQLite sidecarを除去する]
-    #   処理: [初期化前に存在しなかったpathのdatabase・journal・WAL・SHM fileをunlinkし、cleanup errorで初回例外を置き換えない]
-    #   引数: [self: schema commit前に初期化が失敗したSession Journal]
+    #   責務: [_remove_incomplete_new_database: 新規作成に失敗したschemaなしdatabaseと今回生成したSQLite sidecarを除去する]
+    #   処理: [初期化前から存在したsidecarを残し、新規databaseと今回生成したsidecarだけをunlinkし、cleanup errorで初回例外を置き換えない]
+    #   引数: [self: schema commit前に初期化が失敗したSession Journal, preexisting_sidecars: 初期化前に存在したSQLite sidecar path集合]
     #   戻り値: [なし: 作成途中のSQLite fileが残らない状態を試みる]
     # }
-    def _remove_incomplete_new_database(self) -> None:
+    def _remove_incomplete_new_database(self, preexisting_sidecars: frozenset[Path]) -> None:
         database_artifacts = (
             self.path,
             Path(f"{self.path}-journal"),
@@ -571,6 +579,8 @@ class EventJournal:
             Path(f"{self.path}-shm"),
         )
         for artifact_path in database_artifacts:
+            if artifact_path in preexisting_sidecars:
+                continue
             try:
                 artifact_path.unlink(missing_ok=True)
             except OSError:
@@ -578,15 +588,16 @@ class EventJournal:
 
     # {
     #   責務: [_recover_existing_records: 保存済みeventを全件検証して連番・Session・一意IDの復旧状態を作る]
-    #   処理: [SQLite TEXT storageと重複propertyのないJSONを確認し、sequence順にEnvelope contractとindexを照合して次のsequenceを決める]
+    #   処理: [SQLite TEXT storageと重複propertyのないJSONを確認し、sequence・session・event ID・epoch内monotonic順を照合して次のsequenceを決める]
     #   引数: [self: 保存済みrecordsを検査するJournal]
     #   戻り値: [なし: event ID集合とnext sequenceをinstanceへ保存する]
-    #   エラー: [EventJournalCorruptionError: JSON・Envelope・sequence・session ID・event IDのいずれかが不正な場合]
+    #   エラー: [EventJournalCorruptionError: JSON・Envelope・sequence・session ID・event ID・epoch内monotonic順のいずれかが不正な場合]
     # }
     def _recover_existing_records(self) -> None:
         connection = self._require_connection()
         expected_sequence = FIRST_EVENT_SEQUENCE
         journal_session_id = self.session_id
+        previous_monotonic_ns_by_epoch: dict[str, int] = {}
         for stored_sequence, stored_event_id, encoded_event, envelope_storage_class in connection.execute(
             "SELECT sequence, event_id, envelope_json, typeof(envelope_json) "
             "FROM events ORDER BY sequence"
@@ -610,11 +621,17 @@ class EventJournal:
                 )
             if event.session_id != journal_session_id:
                 raise EventJournalCorruptionError("event session_id does not match journal metadata")
+            previous_monotonic_ns = previous_monotonic_ns_by_epoch.get(event.monotonic_epoch_id)
+            if previous_monotonic_ns is not None and event.monotonic_ns < previous_monotonic_ns:
+                raise EventJournalCorruptionError(
+                    f"monotonic_ns decreases within epoch at sequence {expected_sequence}"
+                )
             if event.event_id != stored_event_id or event.event_id in self._event_ids:
                 raise EventJournalCorruptionError(
                     f"event_id does not match its index or is duplicated at sequence {expected_sequence}"
                 )
             self._event_ids.add(event.event_id)
+            previous_monotonic_ns_by_epoch[event.monotonic_epoch_id] = event.monotonic_ns
             expected_sequence += 1
         self._next_sequence = expected_sequence
 
