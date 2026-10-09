@@ -326,6 +326,9 @@ class EventJournalTest(unittest.TestCase):
                     deeply_nested_payload = {"nested": deeply_nested_payload}
                 with self.assertRaises(EventJournalError):
                     journal.append("event.validated", payload=deeply_nested_payload)
+                with patch.object(EventEnvelope, "to_dict", side_effect=RecursionError("serialization depth")):
+                    with self.assertRaises(EventJournalError):
+                        journal.append("event.validated")
 
                 valid_event = journal.append("event.validated")
 

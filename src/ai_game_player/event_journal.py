@@ -320,7 +320,7 @@ class EventJournal:
 
     # {
     #   責務: [append: Session eventにID・UTC/monotonic時刻・連番を割り当て、SQLite transactionで1 recordを永続化する]
-    #   処理: [BEGIN前にEnvelope入力を検証し、BEGIN IMMEDIATEからINSERTとcommitを行う。transaction失敗時だけconnectionを不健全として以後の書込みを拒否する]
+    #   処理: [BEGIN前にEnvelope入力の検証とJSON serializationを行い、transaction失敗時だけconnectionを不健全として以後の書込みを拒否する]
     #   引数: [event_type: eventの種類, status/frame_id/turn_id/snapshot_id/correlation_id: 必要に応じて関連付ける状態とID, payload: 小さなJSON data object, artifact_refs: 大きなdataを別保存した場合の参照]
     #   戻り値: [EventEnvelope: SQLiteにcommitしたsequence付きevent]
     #   エラー: [EventJournalClosedError: Journalがclose済みの場合, EventJournalError: 入力contract違反またはtransaction失敗の場合]
@@ -357,11 +357,11 @@ class EventJournal:
                     payload={} if payload is None else payload,
                     artifact_refs=artifact_refs,
                 )
+                if event.event_id in self._event_ids:
+                    raise EventJournalError("duplicate event_id generated for journal append")
+                encoded_record = _encode_json_record(event.to_dict())
             except (RecursionError, TypeError, ValueError) as error:
                 raise EventJournalError("event data does not satisfy the envelope contract") from error
-            if event.event_id in self._event_ids:
-                raise EventJournalError("duplicate event_id generated for journal append")
-            encoded_record = _encode_json_record(event.to_dict())
             try:
                 connection = self._require_connection()
                 connection.execute("BEGIN IMMEDIATE")
