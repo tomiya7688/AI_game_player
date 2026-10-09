@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from contextlib import closing
 from concurrent.futures import ThreadPoolExecutor
+from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
 
@@ -58,6 +59,44 @@ class EventEnvelopeTest(unittest.TestCase):
         )
 
         self.assertEqual(event, EventEnvelope.from_dict(event.to_dict()))
+
+    def test_round_trips_payload_decimals_without_binary_float_rounding(self):
+        event = EventEnvelope(
+            schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
+            event_id="event-1",
+            session_id="session-1",
+            sequence=1,
+            timestamp_utc="2026-10-05T10:20:30Z",
+            monotonic_ns=0,
+            monotonic_epoch_id="epoch-1",
+            event_type="session.started",
+            payload={
+                "outside_binary64": Decimal("1e400"),
+                "high_precision": Decimal("0.1000000000000000000000000001"),
+                "underflow": Decimal("1e-10000"),
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "decimal-payload.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                stored_event = journal.append("session.started", payload=event.payload)
+            with EventJournal(path) as recovered_journal:
+                self.assertEqual(stored_event.sequence, recovered_journal.last_sequence)
+            with closing(sqlite3.connect(path)) as connection:
+                encoded_event = connection.execute(
+                    "SELECT envelope_json FROM events WHERE sequence=1"
+                ).fetchone()[0]
+            recovered_event = EventEnvelope.from_dict(
+                json.loads(encoded_event, parse_float=Decimal)
+            )
+
+        self.assertEqual(Decimal("1e400"), recovered_event.payload["outside_binary64"])
+        self.assertEqual(
+            Decimal("0.1000000000000000000000000001"),
+            recovered_event.payload["high_precision"],
+        )
+        self.assertEqual(Decimal("1e-10000"), recovered_event.payload["underflow"])
 
     def test_rejects_unsupported_versions_invalid_timestamps_sequences_and_payloads(self):
         base_fields = {

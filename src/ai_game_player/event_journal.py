@@ -104,7 +104,7 @@ class EventJournalClosedError(EventJournalError):
 @dataclass(frozen=True)
 # {
 #   責務: [EventEnvelope: 1 Session内の事実をschema version・連番・時刻・関連ID・payload・artifact参照と一緒に表す]
-#   フィールド: [session_id/sequence: Session識別子と1から始まる連続番号, timestamp_utc: UTC時刻, monotonic_ns/monotonic_epoch_id: epoch内の経過時刻と比較可能範囲の識別子, payload/artifact_refs: 不変JSON値と別保存artifactへの参照]
+#   フィールド: [session_id/sequence: Session識別子と1から始まる連続番号, timestamp_utc: UTC時刻, monotonic_ns/monotonic_epoch_id: epoch内の経過時刻と比較可能範囲の識別子, payload/artifact_refs: 不変JSON値（小数tokenはDecimalで精度を保持）と別保存artifactへの参照]
 # }
 class EventEnvelope:
     schema_version: int
@@ -125,7 +125,7 @@ class EventEnvelope:
 
     # {
     #   責務: [__post_init__: Envelopeを永続化する前にschema・識別子・時刻・JSON payload・artifact参照を検証する]
-    #   処理: [integer-valued numberをintへ正規化し、UTC・epoch ID・文字列・JSON payload・artifact refsを検証して保持する]
+    #   処理: [integer-valued numberをintへ正規化し、小数Decimalの精度を保ち、UTC・epoch ID・文字列・JSON payload・artifact refsを検証して保持する]
     #   引数: [self: 作成直後のSession event envelope]
     #   戻り値: [なし: 検証成功時は正規化したfieldを保持する]
     #   エラー: [ValueError: version・必須値・UTC時刻・JSON payload・artifact参照がcontractに合わない場合]
@@ -162,10 +162,10 @@ class EventEnvelope:
         object.__setattr__(self, "monotonic_ns", monotonic_ns)
 
     # {
-    #   責務: [to_dict: EventEnvelopeをJSONへ保存できるfield名と値の辞書に変換する]
-    #   処理: [不変payloadを独立した辞書・配列へ戻し、monotonic epochとArtifactReferenceを含む保存用recordを作る]
+    #   責務: [to_dict: EventEnvelopeをJSON Journal encoderへ渡すfield名と値の辞書に変換する]
+    #   処理: [不変payloadを独立した辞書・配列へ戻し、小数Decimalを保った保存用recordを作る]
     #   引数: [self: JSONへ保存する検証済みevent]
-    #   戻り値: [dict[str, Any]: schema fieldをすべて含みartifact_refsを辞書配列にした保存用record]
+    #   戻り値: [dict[str, Any]: schema fieldをすべて含むrecord。payload内のDecimalを保持し、Journal encoderがJSON数値として正確に出力する]
     # }
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -718,19 +718,48 @@ class EventJournal:
 
 
 # {
-#   責務: [_encode_json_record: EventEnvelope recordを有限値・空白なしのJSON textへ符号化する]
-#   処理: [Unicodeをescapeし、recordのサイズを抑え、NaN/Infinityを拒否する]
+#   責務: [_encode_json_record: EventEnvelope recordをJSON textへ符号化する]
+#   処理: [compactなJSON数値表現を作り、Decimalの桁・指数を丸めずに保持し、NaN/Infinityを拒否する]
 #   引数: [record: schema検証済みeventを表すmapping]
 #   戻り値: [str: SQLite envelope_json columnへ保存するJSON text]
 #   エラー: [ValueError: JSONにできない値または非有限数が含まれる場合]
 # }
 def _encode_json_record(record: Mapping[str, Any]) -> str:
-    return json.dumps(
-        record,
-        ensure_ascii=True,
-        separators=(",", ":"),
-        allow_nan=False,
-    )
+    return _encode_json_value(record)
+
+
+# {
+#   責務: [_encode_json_value: JSON互換値を数値精度を保ったJSON token列へ変換する]
+#   処理: [文字列を標準encoderでescapeし、finiteなfloatとDecimalをJSON数値として出力し、mappingと配列を再帰的に連結する]
+#   引数: [value: EventEnvelope内のJSON互換primitive・mapping・配列]
+#   戻り値: [str: valueを表すcompactなJSON text]
+#   エラー: [TypeError: JSONに対応しない型の場合, ValueError: 非有限数または不正なJSON数値の場合]
+# }
+def _encode_json_value(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=True)
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, float):
+        return json.dumps(value, ensure_ascii=True, allow_nan=False)
+    if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise ValueError("JSON numbers must be finite")
+        return str(value)
+    if isinstance(value, Mapping):
+        encoded_members = (
+            f"{_encode_json_value(key)}:{_encode_json_value(nested_value)}"
+            for key, nested_value in value.items()
+        )
+        return "{" + ",".join(encoded_members) + "}"
+    if isinstance(value, (list, tuple)):
+        encoded_items = (_encode_json_value(item) for item in value)
+        return "[" + ",".join(encoded_items) + "]"
+    raise TypeError(f"value of type {type(value).__name__} is not JSON serializable")
 
 
 # {
@@ -770,9 +799,9 @@ def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
 
 # {
 #   責務: [_freeze_json_value: 検証済みJSON containerをEventEnvelopeから変更できない形にする]
-#   処理: [mappingをread-only proxyへ、配列をtupleへ再帰変換し、JSON primitiveをそのまま保持する]
-#   引数: [value: _json_compatible_copyで検証したJSON互換値]
-#   戻り値: [Any: 外部参照から変更できないmapping・tuple・primitive]
+#   処理: [mappingをread-only proxyへ、配列をtupleへ再帰変換し、string・number・bool・nullをそのまま保持する]
+#   引数: [value: _json_compatible_copyで検証したJSON値とDecimal]
+#   戻り値: [Any: 外部参照から変更できないmapping・tuple・数値・primitive]
 # }
 def _freeze_json_value(value: Any) -> Any:
     if isinstance(value, Mapping):
@@ -784,9 +813,9 @@ def _freeze_json_value(value: Any) -> Any:
 
 # {
 #   責務: [_thaw_json_value: 不変EventEnvelope payloadからJSON encoder向けの独立containerを作る]
-#   処理: [read-only mappingをdictへ、tupleをlistへ再帰変換し、EventEnvelopeの保持値を共有しない]
+#   処理: [read-only mappingをdictへ、tupleをlistへ再帰変換し、Decimalを含むEventEnvelopeの保持値を共有しない]
 #   引数: [value: EventEnvelopeが保持する凍結済みJSON値]
-#   戻り値: [Any: 呼び出し側が変更できるJSON primitive・dict・listの独立値]
+#   戻り値: [Any: 呼び出し側が変更できるdict・list・JSON primitive・Decimalの独立値]
 # }
 def _thaw_json_value(value: Any) -> Any:
     if isinstance(value, Mapping):
@@ -907,9 +936,9 @@ def _require_mapping(value: Any, field_name: str) -> Mapping[str, Any]:
 
 # {
 #   責務: [_json_compatible_copy: payloadをJSON保存可能な独立containerへ複製して不正値を拒否する]
-#   処理: [有限数・文字列key・list/tuple・mappingだけを再帰copyし、DecimalはfiniteなJSON floatへ変換し、循環参照を拒否する]
+#   処理: [有限数・文字列key・list/tuple・mappingだけを再帰copyし、finiteなDecimalは精度を保って保持し、循環参照を拒否する]
 #   引数: [value: payload内の検証対象値, field_name: error位置を示すJSON field path, active_container_ids: 再帰経路上のcontainer ID集合]
-#   戻り値: [Any: JSON互換プリミティブ、dict、listから成る独立コピー]
+#   戻り値: [Any: JSON primitive・Decimal・dict・listから成る独立コピー]
 #   エラー: [ValueError: 非有限数・非文字列key・循環参照・未対応型を含む場合]
 # }
 def _json_compatible_copy(value: Any, field_name: str, active_container_ids: set[int]) -> Any:
@@ -922,10 +951,7 @@ def _json_compatible_copy(value: Any, field_name: str, active_container_ids: set
     if isinstance(value, Decimal):
         if not value.is_finite():
             raise ValueError(f"{field_name} must contain only finite numbers")
-        normalized_number = float(value)
-        if not math.isfinite(normalized_number):
-            raise ValueError(f"{field_name} must contain only finite numbers")
-        return normalized_number
+        return value
     if isinstance(value, Mapping):
         container_id = id(value)
         if container_id in active_container_ids:
