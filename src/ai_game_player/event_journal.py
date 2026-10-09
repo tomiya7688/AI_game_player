@@ -10,7 +10,7 @@ import time
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -252,16 +252,16 @@ class EventJournal:
     # }
     def __init__(self, path: Path, *, session_id: str | None = None) -> None:
         self.path = Path(path)
-        database_path_existed = self.path.exists()
+        database_path_existed = False
+        initialization_paths_inspected = False
+        database_path_was_dangling_symlink = False
         database_sidecars = (
             Path(f"{self.path}-journal"),
             Path(f"{self.path}-wal"),
             Path(f"{self.path}-shm"),
         )
         database_artifacts = (self.path, *database_sidecars)
-        preexisting_database_artifacts = frozenset(
-            artifact_path for artifact_path in database_artifacts if os.path.lexists(artifact_path)
-        )
+        preexisting_database_artifacts: frozenset[Path] = frozenset()
         self._lock = threading.RLock()
         self._closed = False
         self._write_failed = False
@@ -272,6 +272,16 @@ class EventJournal:
         self._next_sequence = FIRST_EVENT_SEQUENCE
         self._connection: sqlite3.Connection | None = None
         try:
+            database_path_existed = self.path.exists()
+            preexisting_database_artifacts = frozenset(
+                artifact_path
+                for artifact_path in database_artifacts
+                if os.path.lexists(artifact_path)
+            )
+            database_path_was_dangling_symlink = (
+                self.path.is_symlink() and not database_path_existed
+            )
+            initialization_paths_inspected = True
             try:
                 self._session_id = _require_optional_text(session_id, "session_id")
             except ValueError as error:
@@ -307,8 +317,15 @@ class EventJournal:
             self._discard_connection()
             raise
         finally:
-            if not database_path_existed and not self._database_schema_created:
-                self._remove_incomplete_new_database(preexisting_database_artifacts)
+            if (
+                initialization_paths_inspected
+                and not database_path_existed
+                and not self._database_schema_created
+            ):
+                self._remove_incomplete_new_database(
+                    preexisting_database_artifacts,
+                    cleanup_dangling_symlink_target=database_path_was_dangling_symlink,
+                )
 
     @property
     # {
@@ -571,10 +588,20 @@ class EventJournal:
     # {
     #   責務: [_remove_incomplete_new_database: 新規作成に失敗したschemaなしdatabaseと今回生成したSQLite sidecarを除去する]
     #   処理: [初期化前から存在したdatabase entryまたはsidecarを残し、今回生成したfileだけをunlinkし、cleanup errorで初回例外を置き換えない]
-    #   引数: [self: schema commit前に初期化が失敗したSession Journal, preexisting_artifacts: 初期化前に存在したdatabase・sidecar path集合]
+    #   引数: [self: schema commit前に初期化が失敗したSession Journal, preexisting_artifacts: 初期化前に存在したdatabase・sidecar path集合, cleanup_dangling_symlink_target: 初期化前に参照先がなかった既存symlinkのtargetを今回生成分として除去するか]
     #   戻り値: [なし: 作成途中のSQLite fileが残らない状態を試みる]
     # }
-    def _remove_incomplete_new_database(self, preexisting_artifacts: frozenset[Path]) -> None:
+    def _remove_incomplete_new_database(
+        self,
+        preexisting_artifacts: frozenset[Path],
+        *,
+        cleanup_dangling_symlink_target: bool = False,
+    ) -> None:
+        if cleanup_dangling_symlink_target:
+            try:
+                self.path.resolve(strict=False).unlink(missing_ok=True)
+            except (OSError, RuntimeError, ValueError):
+                pass
         database_artifacts = (
             self.path,
             Path(f"{self.path}-journal"),
@@ -618,7 +645,13 @@ class EventJournal:
                     ),
                     "event envelope",
                 ))
-            except (json.JSONDecodeError, RecursionError, TypeError, ValueError) as error:
+            except (
+                InvalidOperation,
+                json.JSONDecodeError,
+                RecursionError,
+                TypeError,
+                ValueError,
+            ) as error:
                 raise EventJournalCorruptionError(
                     f"invalid complete event record at sequence {expected_sequence}"
                 ) from error

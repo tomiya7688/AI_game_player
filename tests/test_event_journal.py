@@ -325,6 +325,31 @@ class EventJournalTest(unittest.TestCase):
             with self.assertRaisesRegex(EventJournalCorruptionError, "invalid complete event record"):
                 EventJournal(path)
 
+    def test_recovery_wraps_decimal_parser_exponent_errors_as_corruption(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-decimal-exponent.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                journal.append("session.started")
+
+            with closing(sqlite3.connect(path)) as connection:
+                envelope_json = connection.execute(
+                    "SELECT envelope_json FROM events WHERE sequence=1"
+                ).fetchone()[0]
+                invalid_exponent_json = re.sub(
+                    r'("monotonic_ns":)[^,}]+',
+                    r'\g<1>1e999999999999999999999999999999999999',
+                    envelope_json,
+                    count=1,
+                )
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=1",
+                    (invalid_exponent_json,),
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "invalid complete event record"):
+                EventJournal(path)
+
     def test_initializes_database_through_preexisting_dangling_symlink(self):
         with tempfile.TemporaryDirectory() as directory:
             database_path = Path(directory) / "journal-link.sqlite3"
@@ -380,12 +405,52 @@ class EventJournalTest(unittest.TestCase):
                 "connect",
                 side_effect=sqlite3.OperationalError("unable to open database file"),
             ),
+            patch.object(
+                Path,
+                "is_symlink",
+                autospec=True,
+                side_effect=lambda candidate: Path(candidate) == path,
+            ),
             patch.object(EventJournal, "_remove_incomplete_new_database") as remove_database,
         ):
             with self.assertRaises(EventJournalError):
                 EventJournal(path, session_id="session-1")
 
-        remove_database.assert_called_once_with(frozenset({path}))
+        remove_database.assert_called_once_with(
+            frozenset({path}),
+            cleanup_dangling_symlink_target=True,
+        )
+
+    def test_failed_first_open_removes_target_without_removing_symlink_entry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "journal-link.sqlite3"
+            target = Path(directory) / "journal-target.sqlite3"
+            path.write_text("pre-existing symlink entry placeholder", encoding="utf-8")
+            target.write_bytes(b"new incomplete database")
+            journal = EventJournal.__new__(EventJournal)
+            journal.path = path
+
+            with patch.object(
+                Path,
+                "resolve",
+                autospec=True,
+                side_effect=lambda candidate, strict=False: (
+                    target if Path(candidate) == path else Path(candidate).absolute()
+                ),
+            ):
+                journal._remove_incomplete_new_database(
+                    frozenset({path}),
+                    cleanup_dangling_symlink_target=True,
+                )
+
+            self.assertTrue(path.is_file())
+            self.assertFalse(target.exists())
+
+    def test_path_probe_permission_error_uses_journal_error_contract(self):
+        path = Path("inaccessible-directory") / "journal.sqlite3"
+        with patch.object(Path, "exists", autospec=True, side_effect=PermissionError("denied")):
+            with self.assertRaisesRegex(EventJournalError, "cannot open event journal database"):
+                EventJournal(path, session_id="session-1")
 
     def test_rejects_unexpected_schema_objects_and_altered_table_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
