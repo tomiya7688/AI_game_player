@@ -23,6 +23,22 @@ SQLITE_JOURNAL_METADATA_ID = 1
 FIRST_EVENT_SEQUENCE = 1
 SQLITE_BUSY_TIMEOUT_MS = 5_000
 SQLITE_BUSY_TIMEOUT_SECONDS = SQLITE_BUSY_TIMEOUT_MS / 1_000
+# {
+#   責務: [_SQLITE_ACCESS_ERROR_CODES: access・resource failureとして扱うSQLite primary result codeを列挙する]
+#   処理: [各tupleはPythonのsqlite3 moduleに公開名がない版でも判定できる標準primary code値を保持する]
+# }
+_SQLITE_ACCESS_ERROR_CODES = (
+    ("SQLITE_BUSY", 5),
+    ("SQLITE_LOCKED", 6),
+    ("SQLITE_READONLY", 8),
+    ("SQLITE_IOERR", 10),
+    ("SQLITE_FULL", 13),
+    ("SQLITE_CANTOPEN", 14),
+    ("SQLITE_PERM", 3),
+    ("SQLITE_AUTH", 23),
+    ("SQLITE_NOMEM", 7),
+    ("SQLITE_PROTOCOL", 15),
+)
 _ENVELOPE_FIELDS = frozenset({
     "schema_version", "event_id", "session_id", "sequence", "timestamp_utc",
     "monotonic_ns", "monotonic_epoch_id", "event_type", "status", "frame_id", "turn_id",
@@ -626,19 +642,8 @@ def _is_sqlite_access_error(error: sqlite3.DatabaseError) -> bool:
     if isinstance(sqlite_error_code, int):
         primary_error_code = sqlite_error_code & 0xFF
         access_error_codes = {
-            getattr(sqlite3, error_name, -1)
-            for error_name in (
-                "SQLITE_BUSY",
-                "SQLITE_LOCKED",
-                "SQLITE_READONLY",
-                "SQLITE_IOERR",
-                "SQLITE_FULL",
-                "SQLITE_CANTOPEN",
-                "SQLITE_PERM",
-                "SQLITE_AUTH",
-                "SQLITE_NOMEM",
-                "SQLITE_PROTOCOL",
-            )
+            getattr(sqlite3, error_name, fallback_code)
+            for error_name, fallback_code in _SQLITE_ACCESS_ERROR_CODES
         }
         return primary_error_code in access_error_codes
     if not isinstance(error, sqlite3.OperationalError):
