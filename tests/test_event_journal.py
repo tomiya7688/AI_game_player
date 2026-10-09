@@ -552,6 +552,17 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         self.assertIsNone(re.fullmatch(timestamp_pattern, "0000-02-29T10:20:30Z"))
         self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30Z\n"))
         self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30Z\r\n"))
+        artifact_properties = schema["properties"]["artifact_refs"]["items"]["properties"]
+        valid_artifact_fields = {
+            "artifact_id": "frame.initial",
+            "sha256": "0" * 64,
+            "media_type": "image/png",
+        }
+        for field_name, valid_value in valid_artifact_fields.items():
+            with self.subTest(artifact_field=field_name):
+                field_pattern = artifact_properties[field_name]["pattern"]
+                self.assertIsNotNone(re.fullmatch(field_pattern, valid_value))
+                self.assertIsNone(re.fullmatch(field_pattern, valid_value + "\n"))
         for field_name in (
             "event_id", "session_id", "event_type", "status", "frame_id",
             "turn_id", "snapshot_id", "correlation_id", "monotonic_epoch_id",

@@ -48,9 +48,9 @@
         "additionalProperties": false,
         "required": ["artifact_id", "sha256", "media_type", "sensitive"],
         "properties": {
-          "artifact_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
-          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-          "media_type": { "type": "string", "pattern": "^[^\\s/]+/[^\\s/]+$" },
+          "artifact_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*(?![\\s\\S])" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}(?![\\s\\S])" },
+          "media_type": { "type": "string", "pattern": "^[^\\s/]+/[^\\s/]+(?![\\s\\S])" },
           "sensitive": { "type": "boolean" }
         }
       }

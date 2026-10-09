@@ -183,7 +183,7 @@ def _create_benchmark_event(
 ) -> EventEnvelope:
     return EventEnvelope(
         schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
-        event_id=f"benchmark-event-{sequence}",
+        event_id=uuid4().hex,
         session_id=BENCHMARK_SESSION_ID,
         sequence=sequence,
         timestamp_utc=_current_utc_timestamp(),
