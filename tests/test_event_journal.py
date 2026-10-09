@@ -67,7 +67,7 @@ class EventEnvelopeTest(unittest.TestCase):
         }
         invalid_fields = (
             {"schema_version": EVENT_ENVELOPE_SCHEMA_VERSION + 1},
-            {"schema_version": float(EVENT_ENVELOPE_SCHEMA_VERSION)},
+            {"schema_version": EVENT_ENVELOPE_SCHEMA_VERSION + 0.5},
             {"sequence": True},
             {"sequence": 0},
             {"monotonic_ns": -1},
@@ -99,6 +99,27 @@ class EventEnvelopeTest(unittest.TestCase):
         payload["nested"]["values"].append(2)
 
         self.assertEqual({"nested": {"values": [1]}}, event.payload)
+
+    def test_normalizes_integer_valued_json_numbers_to_runtime_integers(self):
+        event = EventEnvelope(
+            schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
+            event_id="event-1",
+            session_id="session-1",
+            sequence=1,
+            timestamp_utc="2026-10-05T10:20:30Z",
+            monotonic_ns=0,
+            event_type="session.started",
+        )
+        value = event.to_dict()
+        value["schema_version"] = 1.0
+        value["sequence"] = 1.0
+        value["monotonic_ns"] = 0.0
+
+        restored_event = EventEnvelope.from_dict(value)
+
+        self.assertIs(type(restored_event.schema_version), int)
+        self.assertIs(type(restored_event.sequence), int)
+        self.assertIs(type(restored_event.monotonic_ns), int)
 
     def test_rejects_missing_and_unknown_persisted_fields(self):
         event = EventEnvelope(
@@ -165,6 +186,22 @@ class EventJournalTest(unittest.TestCase):
             with closing(sqlite3.connect(path)) as connection:
                 connection.execute(
                     "UPDATE journal_metadata SET journal_schema_version=1.5 WHERE singleton_id=1"
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "metadata is invalid"):
+                EventJournal(path)
+
+    def test_rejects_additional_metadata_rows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "duplicate-metadata.sqlite3"
+            with EventJournal(path, session_id="session-1"):
+                pass
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute("PRAGMA ignore_check_constraints=ON")
+                connection.execute(
+                    "INSERT INTO journal_metadata(singleton_id, journal_schema_version, session_id) "
+                    "VALUES (2, 1, 'conflicting-session')"
                 )
                 connection.commit()
 

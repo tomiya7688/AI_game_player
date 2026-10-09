@@ -100,7 +100,7 @@ class EventEnvelope:
 
     # {
     #   責務: [__post_init__: Envelopeを永続化する前にschema・識別子・時刻・JSON payload・artifact参照を検証する]
-    #   処理: [UTC timezoneと必須文字列を確認し、payloadを有限JSON値へ複製してartifact_refsをtupleへ正規化する]
+    #   処理: [integer-valued numberをintへ正規化し、UTC・文字列・payload・artifact refsを検証して保持する]
     #   引数: [self: 作成直後のSession event envelope]
     #   戻り値: [なし: 検証成功時は正規化したfieldを保持する]
     #   エラー: [ValueError: version・必須値・UTC時刻・JSON payload・artifact参照がcontractに合わない場合]
@@ -115,8 +115,8 @@ class EventEnvelope:
             raise ValueError(f"unsupported event envelope schema version: {self.schema_version}")
         for field_name in ("event_id", "session_id", "event_type"):
             _require_nonempty_text(getattr(self, field_name), field_name)
-        _require_integer(self.sequence, "sequence", FIRST_EVENT_SEQUENCE)
-        _require_integer(self.monotonic_ns, "monotonic_ns", 0)
+        sequence = _require_integer(self.sequence, "sequence", FIRST_EVENT_SEQUENCE)
+        monotonic_ns = _require_integer(self.monotonic_ns, "monotonic_ns", 0)
         _validate_utc_timestamp(self.timestamp_utc)
         for field_name in ("status", "frame_id", "turn_id", "snapshot_id", "correlation_id"):
             _require_optional_text(getattr(self, field_name), field_name)
@@ -129,6 +129,9 @@ class EventEnvelope:
             raise ValueError("artifact_refs must contain ArtifactReference values")
         object.__setattr__(self, "payload", normalized_payload)
         object.__setattr__(self, "artifact_refs", tuple(self.artifact_refs))
+        object.__setattr__(self, "schema_version", schema_version)
+        object.__setattr__(self, "sequence", sequence)
+        object.__setattr__(self, "monotonic_ns", monotonic_ns)
 
     # {
     #   責務: [to_dict: EventEnvelopeをJSONへ保存できるfield名と値の辞書に変換する]
@@ -429,7 +432,7 @@ class EventJournal:
 
     # {
     #   責務: [_initialize_database: SQLite databaseのschema versionとSession metadataを読み、新規作成または再利用を決める]
-    #   処理: [未知のobjectを持つversion 0 databaseを拒否し、version 1では正確なtable定義・整数schema version・requested session_idを照合する]
+    #   処理: [未知のobjectを持つversion 0 databaseを拒否し、version 1では正確なtable定義・唯一のmetadata row・整数schema version・requested session_idを照合する]
     #   引数: [self: 初期化中のSession Journal]
     #   戻り値: [なし: 新規schemaを作成するか、既存Session IDをinstanceへ設定する]
     #   エラー: [EventJournalCorruptionError: schema version・table・metadata・requested Session IDが合わない場合]
@@ -465,17 +468,17 @@ class EventJournal:
             raise EventJournalCorruptionError(
                 "SQLite event journal schema objects or table definitions are unexpected"
             )
-        metadata = connection.execute(
-            "SELECT journal_schema_version, session_id FROM journal_metadata WHERE singleton_id=?",
-            (SQLITE_JOURNAL_METADATA_ID,),
-        ).fetchone()
+        metadata_rows = connection.execute(
+            "SELECT singleton_id, journal_schema_version, session_id FROM journal_metadata"
+        ).fetchall()
         if (
-            metadata is None
-            or not isinstance(metadata[0], int)
-            or metadata[0] != SQLITE_JOURNAL_SCHEMA_VERSION
+            len(metadata_rows) != 1
+            or metadata_rows[0][0] != SQLITE_JOURNAL_METADATA_ID
+            or not isinstance(metadata_rows[0][1], int)
+            or metadata_rows[0][1] != SQLITE_JOURNAL_SCHEMA_VERSION
         ):
             raise EventJournalCorruptionError("SQLite event journal metadata is invalid")
-        stored_session_id = _require_nonempty_text(metadata[1], "session_id")
+        stored_session_id = _require_nonempty_text(metadata_rows[0][2], "session_id")
         if self._session_id is not None and self._session_id != stored_session_id:
             raise EventJournalCorruptionError("journal session_id does not match the requested session")
         self._session_id = stored_session_id
@@ -654,16 +657,19 @@ def _validate_utc_timestamp(value: str) -> None:
 
 
 # {
-#   責務: [_require_integer: event fieldがboolではない整数で下限を満たすか検証する]
-#   処理: [Pythonではboolがintの派生型のためboolを明示拒否し、整数型とminimumを確認する]
+#   責務: [_require_integer: event fieldがboolではない整数値で下限を満たすか検証する]
+#   処理: [JSON Schemaの整数定義に合わせ、有限な整数値floatを受け入れてintへ変換する]
 #   引数: [value: 検証対象field値, field_name: error messageに表示するfield名, minimum: 許可する最小値]
 #   戻り値: [int: 検証済み整数]
 #   エラー: [ValueError: bool・非整数・minimum未満の場合]
 # }
 def _require_integer(value: Any, field_name: str, minimum: int) -> int:
-    if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+    is_integer_value = isinstance(value, int) or (
+        isinstance(value, float) and math.isfinite(value) and value.is_integer()
+    )
+    if isinstance(value, bool) or not is_integer_value or value < minimum:
         raise ValueError(f"{field_name} must be an integer of at least {minimum}")
-    return value
+    return int(value)
 
 
 # {
