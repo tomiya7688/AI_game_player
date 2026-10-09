@@ -6,15 +6,18 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.evaluator import ActionEvaluator
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment, OutcomeEvaluator
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
+from ai_game_player.runtime_log import RuntimeLog
 
 
 @dataclass(frozen=True)
@@ -67,6 +70,14 @@ class ManagedSessionRuntime:
     # }
     def run_and_execute(self, **arguments: Any) -> ExecutionResult:
         return self.pipeline.run_and_execute(**arguments)
+
+    # {
+    #   責務: [load_execution_history: 同一Session Pipelineが保有する実行履歴を返す]
+    #   引数: [なし]
+    #   戻り値: [list[ExecutionResult]: 旧保存分と現在Journalへ追加した実行結果]
+    # }
+    def load_execution_history(self) -> list[ExecutionResult]:
+        return self.pipeline.load_execution_history()
 
     # {
     #   責務: [assess_outcome: session Providerを再利用して現在画面のterminal状態を評価する]
@@ -142,8 +153,8 @@ class RuntimeComposition:
 
     # {
     #   責務: [create_session_runtime: 1 Session用のProviderとPipelineを生成して所有関係を返す]
-    #   処理: [session設定からProviderを生成し、同じProviderと注入依存をPipeline factoryへ渡す]
-    #   引数: [configuration: Session開始時の確定設定, source: session中に更新されるObservation source, controller: 停止世代を共有するcontroller, automated_cursor_position_callback: 実入力カーソル位置の通知先]
+    #   処理: [session設定からProviderと専用Journalを生成し、注入依存と一緒にPipeline factoryへ渡す]
+    #   引数: [configuration: Session開始時の確定設定, source: session中に更新されるObservation source, controller: 停止世代を共有するcontroller, automated_cursor_position_callback: 実入力カーソル位置の通知先, runtime_log: active Sessionへruntime eventを記録するapplication logger]
     #   戻り値: [ManagedSessionRuntime: closeでPipelineとProviderを順序付き解放するsession runtime]
     #   エラー: [ValueError: Provider factoryが未登録の場合, Exception: Pipeline初期化失敗]
     # }
@@ -154,13 +165,20 @@ class RuntimeComposition:
         source: ObservationSource,
         controller: RunController,
         automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        runtime_log: RuntimeLog | None = None,
     ) -> ManagedSessionRuntime:
         provider_factory = self._provider_factories.get(configuration.provider_name)
         if provider_factory is None:
             raise ValueError(f"Unsupported decision provider: {configuration.provider_name}")
 
         provider = provider_factory(configuration.model, configuration.endpoint)
+        session_id = uuid4().hex
+        event_journal: EventJournal | None = None
         try:
+            event_journal = EventJournal(
+                configuration.game_directory / "session_events" / f"{session_id}.sqlite3",
+                session_id=session_id,
+            )
             pipeline = self._pipeline_factory(
                 source,
                 configuration.game_directory,
@@ -171,8 +189,12 @@ class RuntimeComposition:
                 input_mode=configuration.input_mode,
                 window_process_id=configuration.window_process_id,
                 automated_cursor_position_callback=automated_cursor_position_callback,
+                event_journal=event_journal,
+                runtime_log=runtime_log,
             )
         except Exception as initialization_error:
+            if event_journal is not None:
+                event_journal.close()
             try:
                 _close_provider(provider)
             except Exception as cleanup_error:

@@ -30,6 +30,13 @@ class SessionRuntime(Protocol):
     def run_and_execute(self, **arguments: Any) -> ExecutionResult: ...
 
     # {
+    #   責務: [load_execution_history: 現Session runtimeが管理する互換履歴を読み込む]
+    #   引数: [なし]
+    #   戻り値: [list[ExecutionResult]: 旧履歴と現在Sessionの実行結果を時系列で返す]
+    # }
+    def load_execution_history(self) -> list[ExecutionResult]: ...
+
+    # {
     #   責務: [assess_outcome: session-scoped Providerで現在画面のterminal状態を評価する]
     #   引数: [observation: 現在画面, previous: session中の直前画面]
     #   戻り値: [OutcomeAssessment: success/failure/ongoing状態と根拠]

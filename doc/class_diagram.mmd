@@ -274,6 +274,7 @@ classDiagram
         +session_id()
         +last_sequence()
         +append()
+        +_read_event_by_id()
         +flush()
         +close()
         +__enter__()
@@ -430,6 +431,7 @@ classDiagram
     class SessionRuntime {
         +run()
         +run_and_execute()
+        +load_execution_history()
         +assess_outcome()
         +close()
     }
@@ -479,6 +481,19 @@ classDiagram
         +__init__()
         +append()
         +prepare_append()
+    }
+    class StagedJournalAppend {
+        +__init__()
+        +publish()
+        +discard()
+    }
+    class LegacyEventAdapter {
+        +__init__()
+        +records()
+        +prepare_append()
+        +_append_record()
+        +_read_legacy_records()
+        +_legacy_event_id()
     }
     class KnowledgeStore {
         +__init__()
@@ -673,6 +688,7 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
         +rearm_safety()
@@ -833,6 +849,7 @@ classDiagram
         +__init__()
         +run()
         +run_and_execute()
+        +load_execution_history()
         +assess_outcome()
         +close()
     }
@@ -846,6 +863,8 @@ classDiagram
     }
     class RuntimeLog {
         +__init__()
+        +attach_event_journal()
+        +detach_event_journal()
         +write()
     }
     str <|-- SafetyState

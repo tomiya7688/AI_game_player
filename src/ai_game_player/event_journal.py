@@ -355,15 +355,16 @@ class EventJournal:
 
     # {
     #   責務: [append: Session eventにID・UTC/monotonic時刻・連番を割り当て、SQLite transactionで1 recordを永続化する]
-    #   処理: [BEGIN前にEnvelope入力の検証とJSON serializationを行い、transaction失敗時だけconnectionを不健全として以後の書込みを拒否する]
-    #   引数: [event_type: eventの種類, status/frame_id/turn_id/snapshot_id/correlation_id: 必要に応じて関連付ける状態とID, payload: 小さなJSON data object, artifact_refs: 大きなdataを別保存した場合の参照]
-    #   戻り値: [EventEnvelope: SQLiteにcommitしたsequence付きevent]
-    #   エラー: [EventJournalClosedError: Journalがclose済みの場合, EventJournalError: 入力contract違反またはtransaction失敗の場合]
+    #   処理: [BEGIN前にEnvelope入力とJSON serializationを検証し、event_id指定時は同じevent内容の再送を既存recordへ解決する]
+    #   引数: [event_type: eventの種類, event_id: 移行再試行で使用する任意の安定ID, status/frame_id/turn_id/snapshot_id/correlation_id: 関連付ける状態とID, payload: 小さなJSON data object, artifact_refs: 大きなdataを別保存した場合の参照]
+    #   戻り値: [EventEnvelope: 新規commitしたeventまたは同一内容で既にcommit済みのevent]
+    #   エラー: [EventJournalClosedError: Journalがclose済みの場合, EventJournalError: 入力contract違反・event ID内容衝突・transaction失敗の場合]
     # }
     def append(
         self,
         event_type: str,
         *,
+        event_id: str | None = None,
         status: str | None = None,
         frame_id: str | None = None,
         turn_id: str | None = None,
@@ -375,9 +376,28 @@ class EventJournal:
         with self._lock:
             self._ensure_writable()
             try:
+                if event_id is not None:
+                    _require_nonempty_text(event_id, "event_id")
+                    existing_event = self._read_event_by_id(event_id)
+                    if existing_event is not None:
+                        if not _same_event_content(
+                            existing_event,
+                            event_type=event_type,
+                            status=status,
+                            frame_id=frame_id,
+                            turn_id=turn_id,
+                            snapshot_id=snapshot_id,
+                            correlation_id=correlation_id,
+                            payload={} if payload is None else payload,
+                            artifact_refs=artifact_refs,
+                        ):
+                            raise EventJournalError(
+                                "event_id already belongs to a different event"
+                            )
+                        return existing_event
                 event = EventEnvelope(
                     schema_version=EVENT_ENVELOPE_SCHEMA_VERSION,
-                    event_id=uuid4().hex,
+                    event_id=event_id or uuid4().hex,
                     session_id=self.session_id,
                     sequence=self._next_sequence,
                     timestamp_utc=_current_utc_timestamp(),
@@ -430,6 +450,29 @@ class EventJournal:
             self._last_committed_sequence = event.sequence
             self._next_sequence += 1
             return event
+
+    # {
+    #   責務: [_read_event_by_id: migrationで再送されたevent IDが既に保存済みか確認する]
+    #   処理: [event IDをunique keyで検索し、保存済みJSONをv1 Envelopeとして検証して返す]
+    #   引数: [event_id: 重複確認するeventの安定識別子]
+    #   戻り値: [EventEnvelope: 保存済みevent、未登録の場合はNone]
+    #   エラー: [EventJournalCorruptionError: 保存済みrecordがEnvelope契約に違反する場合]
+    # }
+    def _read_event_by_id(self, event_id: str) -> EventEnvelope | None:
+        connection = self._require_connection()
+        row = connection.execute(
+            "SELECT envelope_json FROM events WHERE event_id=?", (event_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        try:
+            return EventEnvelope.from_dict(
+                json.loads(row[0], parse_float=Decimal)
+            )
+        except (IndexError, KeyError, RecursionError, TypeError, ValueError) as error:
+            raise EventJournalCorruptionError(
+                "saved event ID resolves to an invalid envelope"
+            ) from error
 
     # {
     #   責務: [flush: commit済みeventを含むWALをfull checkpointしてdatabase本体へ反映する]
@@ -751,6 +794,44 @@ class EventJournal:
         except sqlite3.Error:
             pass
         self._connection = None
+
+
+# {
+#   責務: [_same_event_content: retry eventが保存済みevent IDと同じ内容か検証する]
+#   処理: [保存済み時刻・sequence・session IDを保ったcandidate Envelopeを作り、event payloadと関連fieldを比較する]
+#   引数: [existing: Journalから復元したevent, event_type/status/frame_id/turn_id/snapshot_id/correlation_id/payload/artifact_refs: retry要求の内容]
+#   戻り値: [bool: event ID以外の内容が一致する場合はTrue]
+# }
+def _same_event_content(
+    existing: EventEnvelope,
+    *,
+    event_type: str,
+    status: str | None,
+    frame_id: str | None,
+    turn_id: str | None,
+    snapshot_id: str | None,
+    correlation_id: str | None,
+    payload: Mapping[str, Any],
+    artifact_refs: tuple[ArtifactReference, ...],
+) -> bool:
+    candidate = EventEnvelope(
+        schema_version=existing.schema_version,
+        event_id=existing.event_id,
+        session_id=existing.session_id,
+        sequence=existing.sequence,
+        timestamp_utc=existing.timestamp_utc,
+        monotonic_ns=existing.monotonic_ns,
+        monotonic_epoch_id=existing.monotonic_epoch_id,
+        event_type=event_type,
+        status=status,
+        frame_id=frame_id,
+        turn_id=turn_id,
+        snapshot_id=snapshot_id,
+        correlation_id=correlation_id,
+        payload=payload,
+        artifact_refs=artifact_refs,
+    )
+    return _encode_json_record(candidate.to_dict()) == _encode_json_record(existing.to_dict())
 
 
 # {

@@ -9,7 +9,6 @@ from tkinter import messagebox, ttk
 
 from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.config import AppConfig, ConfigStore
-from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.execution_mode import execution_labels
 from ai_game_player.metrics import MetricsCalculator
 from ai_game_player.outcome import OutcomeAssessment
@@ -336,9 +335,9 @@ class Application:
 
     # {
     #   責務: [_create_session_runtime: composition rootからSession Controller用runtimeを構築する]
-    #   処理: [現在の実行設定を固定してComposition Rootへ渡し、同じProvider・Pipelineをsession終了まで保持する]
+    #   処理: [現在の実行設定を固定してComposition Rootへ渡し、Journalとruntime logを含む同じProvider・Pipelineをsession終了まで保持する]
     #   引数: []
-    #   戻り値: [SessionRuntime: Session Controllerが終了まで保持するruntime]
+    #   戻り値: [SessionRuntime: Session Controllerが終了まで保持するJournal付きruntime]
     # }
     def _create_session_runtime(self) -> SessionRuntime:
         self._validate_live_execution()
@@ -357,6 +356,7 @@ class Application:
             source=self.memory_source,
             controller=self.controller,
             automated_cursor_position_callback=self._record_automated_cursor_position,
+            runtime_log=self.runtime_log,
         )
 
     # {
@@ -711,7 +711,7 @@ class Application:
             assessment = self._assess_observation(observation, previous, provider_name, model, endpoint)
         except Exception as exc:
             error = exc
-        self._background_results.put(("assessment", task_id, run_token, "assessment", assessment, error, loop_step, observation))
+        self._background_results.put(("assessment", task_id, run_token, "assessment", assessment, error, loop_step, observation, None))
 
     # {
     #   責務: [_start_pipeline_worker: セッションpipelineのstepをUIスレッド外で開始する]
@@ -773,6 +773,7 @@ class Application:
         close_pipeline_on_exit: bool,
     ) -> None:
         result: object | None = None
+        execution_records = None
         error: Exception | None = None
         try:
             if operation == "execute":
@@ -787,6 +788,7 @@ class Application:
                     personality=personality,
                     expected_rearm_token=run_token,
                 )
+            execution_records = pipeline.load_execution_history()
         except Exception as exc:
             error = exc
         finally:
@@ -796,7 +798,7 @@ class Application:
                 except Exception as exc:
                     if error is None:
                         error = exc
-        self._background_results.put(("pipeline", task_id, run_token, operation, result, error, loop_step, None))
+        self._background_results.put(("pipeline", task_id, run_token, operation, result, error, loop_step, None, execution_records))
 
     # {
     #   責務: [_run_is_current: worker結果が現在も有効な実行世代か判定する]
@@ -816,7 +818,7 @@ class Application:
     def _poll_background_results(self) -> None:
         while True:
             try:
-                task_type, task_id, run_token, operation, result, error, loop_step, observation = self._background_results.get_nowait()
+                task_type, task_id, run_token, operation, result, error, loop_step, observation, execution_records = self._background_results.get_nowait()
             except queue.Empty:
                 break
 
@@ -895,15 +897,15 @@ class Application:
                     self.root.destroy()
                 continue
 
+            if execution_records is not None:
+                metrics = MetricsCalculator().calculate(execution_records)
+                self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
+
             if operation == "execute" and isinstance(result, ExecutionResult):
                 self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
-                metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
-                self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
                 self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
             elif operation == "decision" and isinstance(result, ActionDecision):
                 self._set_status(f"選択: {result.action_id} / {result.reason}")
-                metrics = MetricsCalculator().calculate(ExecutionHistory(Path("data/games/sandbox/execution_history.json")).load())
-                self.metrics.config(text=f"指標: total={metrics.total}, dry-run={metrics.dry_run}, executed={metrics.executed}, failed={metrics.failed}")
                 self.runtime_log.write("decision", result.reason, {"action_id": result.action_id, "provider": self.provider.get()})
 
             self._complete_session_step()

@@ -1,3 +1,4 @@
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -28,6 +29,8 @@ class FakePipeline:
     def __init__(self, events, close_error=None):
         self.events = events
         self.close_error = close_error
+        self.event_journal = None
+        self.journal_closed = False
 
     def run(self, **_arguments):
         return ActionDecision("start", "fake decision", "fake")
@@ -37,17 +40,26 @@ class FakePipeline:
 
     def close(self):
         self.events.append("pipeline.close")
+        if self.event_journal is not None and not self.journal_closed:
+            self.event_journal.close()
+            self.journal_closed = True
         if self.close_error is not None:
             raise self.close_error
 
 
 class SessionCompositionTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary_directory = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.temporary_directory.cleanup()
+
     def configuration(self, **changes):
         values = {
             "provider_name": "fake",
             "model": "model-a",
             "endpoint": "http://localhost",
-            "game_directory": Path("data/games/test"),
+            "game_directory": Path(self.temporary_directory.name) / "game",
             "dry_run": True,
             "window_handle": 12,
             "input_mode": "window_message",
@@ -65,6 +77,7 @@ class SessionCompositionTests(unittest.TestCase):
         def build_pipeline(*arguments, **keywords):
             build_arguments["arguments"] = arguments
             build_arguments["keywords"] = keywords
+            pipeline.event_journal = keywords["event_journal"]
             return pipeline
 
         composition = RuntimeComposition(
@@ -87,7 +100,11 @@ class SessionCompositionTests(unittest.TestCase):
         self.assertEqual(events[0], ("model-a", "http://localhost"))
         self.assertEqual(events[1][0], "provider.assess")
         self.assertIsNone(events[1][2])
-        self.assertEqual(build_arguments["arguments"], (source, Path("data/games/test"), provider, controller))
+        runtime.close()
+        self.assertEqual(
+            build_arguments["arguments"],
+            (source, self.configuration().game_directory, provider, controller),
+        )
         self.assertEqual(
             {key: build_arguments["keywords"][key] for key in (
                 "dry_run", "window_handle", "input_mode", "window_process_id"
@@ -104,9 +121,14 @@ class SessionCompositionTests(unittest.TestCase):
         events = []
         pipeline = FakePipeline(events, RuntimeError("pipeline close failed"))
         provider = FakeProvider(events)
+
+        def build_pipeline(*_arguments, **keywords):
+            pipeline.event_journal = keywords["event_journal"]
+            return pipeline
+
         runtime = RuntimeComposition(
             provider_factories={"fake": lambda _model, _endpoint: provider},
-            pipeline_factory=lambda *_args, **_kwargs: pipeline,
+            pipeline_factory=build_pipeline,
         ).create_session_runtime(self.configuration(), source=object(), controller=object())
 
         with self.assertRaisesRegex(RuntimeError, "pipeline close failed"):

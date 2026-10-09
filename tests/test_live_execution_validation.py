@@ -198,7 +198,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         assessment = OutcomeAssessment("ongoing", 0.6, "ゲームは継続中です")
         displayed_statuses = []
         application._background_results = queue.Queue()
-        application._background_results.put(("assessment", 1, None, "assessment", assessment, None, False, observation))
+        application._background_results.put(("assessment", 1, None, "assessment", assessment, None, False, observation, None))
         application._latest_assessment_task_id = 1
         application._loop_active = False
         application.controller = RunController()
@@ -307,7 +307,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertTrue(controller.is_running)
 
         application._background_results.put(
-            ("pipeline", 7, old_run_token, "execute", None, ExecutionCancelled("再アーム"), True, None)
+            ("pipeline", 7, old_run_token, "execute", None, ExecutionCancelled("再アーム"), True, None, None)
         )
         application._poll_background_results()
 
@@ -368,8 +368,8 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application.current_assessment = None
         application.outcome = SimpleNamespace(config=lambda **values: displayed_statuses.append(values["text"]))
         application.root = SimpleNamespace(after=lambda *_args: None)
-        application._background_results.put(("assessment", 2, None, "assessment", latest_assessment, None, False, latest_observation))
-        application._background_results.put(("assessment", 1, None, "assessment", earlier_assessment, None, False, earlier_observation))
+        application._background_results.put(("assessment", 2, None, "assessment", latest_assessment, None, False, latest_observation, None))
+        application._background_results.put(("assessment", 1, None, "assessment", earlier_assessment, None, False, earlier_observation, None))
 
         application._poll_background_results()
 
@@ -438,7 +438,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application.root = SimpleNamespace(after=lambda *_args: None)
         stopped_reasons = []
         application.stop = stopped_reasons.append
-        application._background_results.put(("assessment", 1, 4, "assessment", None, None, True, ScreenObservation("old", 1280, 720, [])))
+        application._background_results.put(("assessment", 1, 4, "assessment", None, None, True, ScreenObservation("old", 1280, 720, []), None))
 
         application._poll_background_results()
 

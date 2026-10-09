@@ -6,6 +6,7 @@ from typing import Any, Protocol
 from uuid import uuid4
 
 from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
+from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -360,25 +361,26 @@ class DecisionContextBuilder:
 
 # {
 #   責務: [DecisionTraceStore: 判断snapshotと選択結果を結び付けた追記形式JSONを管理する]
-#   フィールド: [path: 判断traceを保存するJSONファイル]
+#   フィールド: [path: 旧判断traceのJSON移行元, event_adapter: 現SessionのJournal writerと互換reader]
 # }
 class DecisionTraceStore:
     """Append-only trace that binds one observation snapshot to context, decision and previous outcome."""
 
     # {
     #   責務: [__init__: 判断traceの保存先を設定する]
-    #   処理: [指定されたJSONファイルのパスを保持する]
-    #   引数: [path: 判断trace JSONの保存先]
+    #   処理: [旧判断traceのJSON pathと、指定された場合はJournal移行adapterを保持する]
+    #   引数: [path: 判断trace JSONの旧保存先, event_adapter: Journalへ移行して以後のappendに使うadapter]
     #   戻り値: []
     # }
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, event_adapter: LegacyEventAdapter | None = None) -> None:
         self.path = path
+        self.event_adapter = event_adapter
 
     # {
     #   責務: [append: contextと判断をtrace JSONへ確定する]
-    #   処理: [追記済みtraceを一時JSONに準備し、保存先へ原子的に置換する]
+    #   処理: [Journal adapterがあればSQLite appendを遅延し、未指定なら旧trace JSONを原子的に置換する]
     #   引数: [context: providerへ渡した判断context, decision: contextから選ばれた判断]
-    #   戻り値: []
+    #   戻り値: [なし: Journalまたは旧JSONへtraceを確定する]
     #   エラー: [OSError: trace JSONを書込みまたは置換できない, ValueError: 既存trace JSONが配列ではない]
     # }
     def append(self, context: DecisionContext, decision: ActionDecision) -> None:
@@ -390,30 +392,35 @@ class DecisionTraceStore:
 
     # {
     #   責務: [prepare_append: contextと判断を含む次のtrace JSONを未確定状態で準備する]
-    #   処理: [既存trace配列へsnapshot・判断・根拠を追加して同じ保存先ディレクトリに書く]
+    #   処理: [snapshot・判断・根拠recordを作り、Journal adapterまたは同じ保存先の一時JSONへ渡す]
     #   引数: [context: providerへ渡した判断context, decision: contextから選ばれた判断]
-    #   戻り値: [StagedJsonWrite: 実行世代を確認した後に公開する一時trace]
+    #   戻り値: [StagedJsonWrite | StagedJournalAppend: 実行世代を確認した後に公開するtrace]
     #   エラー: [OSError: trace JSONを読込みまたは一時JSONを書込めない, ValueError: 既存trace JSONが配列ではない]
     # }
-    def prepare_append(self, context: DecisionContext, decision: ActionDecision) -> StagedJsonWrite:
+    def prepare_append(
+        self,
+        context: DecisionContext,
+        decision: ActionDecision,
+    ) -> StagedJsonWrite | StagedJournalAppend:
+        entry = {
+            "snapshot_id": context.snapshot_id,
+            "screen_id": context.state.get("screen_id", ""),
+            "state_signature": context.state.get("signature", ""),
+            "action_id": decision.action_id,
+            "decision": decision.to_dict(),
+            "previous_outcome": context.previous_outcome,
+            "used_evidence_ids": [
+                evidence.evidence_id
+                for candidate in context.candidates
+                if candidate.action_id == decision.action_id
+                for evidence in candidate.knowledge
+            ],
+            "context": context.to_dict(),
+        }
+        if self.event_adapter is not None:
+            return self.event_adapter.prepare_append(entry)
         entries = self._read()
-        entries.append(
-            {
-                "snapshot_id": context.snapshot_id,
-                "screen_id": context.state.get("screen_id", ""),
-                "state_signature": context.state.get("signature", ""),
-                "action_id": decision.action_id,
-                "decision": decision.to_dict(),
-                "previous_outcome": context.previous_outcome,
-                "used_evidence_ids": [
-                    evidence.evidence_id
-                    for candidate in context.candidates
-                    if candidate.action_id == decision.action_id
-                    for evidence in candidate.knowledge
-                ],
-                "context": context.to_dict(),
-            }
-        )
+        entries.append(entry)
         return stage_json_write(self.path, entries)
 
     def recent(self, limit: int = 5) -> list[dict[str, Any]]:
@@ -422,6 +429,8 @@ class DecisionTraceStore:
         return self._read()[-limit:] if limit else []
 
     def _read(self) -> list[dict[str, Any]]:
+        if self.event_adapter is not None:
+            return self.event_adapter.records
         if not self.path.exists():
             return []
         value = json.loads(self.path.read_text(encoding="utf-8"))

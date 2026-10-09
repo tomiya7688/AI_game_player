@@ -238,7 +238,7 @@ class PipelineExecuteTest(unittest.TestCase):
             controller.start()
             allow_provider_to_return.set()
 
-            task_type, task_id, result_token, operation, _result, error, _loop_step, _observation = application._background_results.get(timeout=BACKGROUND_RESULT_WAIT_SECONDS)
+            task_type, task_id, result_token, operation, _result, error, _loop_step, _observation, execution_records = application._background_results.get(timeout=BACKGROUND_RESULT_WAIT_SECONDS)
 
             logged_events = []
             application._execution_task_id = task_id
@@ -246,7 +246,7 @@ class PipelineExecuteTest(unittest.TestCase):
             application.root = SimpleNamespace(after=lambda *_args: None)
             statuses = []
             application._set_status = statuses.append
-            application._background_results.put((task_type, task_id, result_token, operation, _result, error, _loop_step, _observation))
+            application._background_results.put((task_type, task_id, result_token, operation, _result, error, _loop_step, _observation, execution_records))
             application._poll_background_results()
 
         self.assertEqual(task_type, "pipeline")
