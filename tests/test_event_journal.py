@@ -596,6 +596,10 @@ class EventJournalTest(unittest.TestCase):
             self.assertTrue(restored_event.artifact_refs[0].sensitive)
 
     def test_invalid_append_data_uses_journal_error_without_poisoning_writer(self):
+        class MisleadingInteger(int):
+            def __str__(self) -> str:
+                return "not-json"
+
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "invalid-append.sqlite3"
             with EventJournal(path, session_id="session-1") as journal:
@@ -603,6 +607,11 @@ class EventJournalTest(unittest.TestCase):
                     journal.append(" ")
                 with self.assertRaises(EventJournalError):
                     journal.append("event.validated", payload={"value": float("nan")})
+                with self.assertRaisesRegex(EventJournalError, "event data does not satisfy"):
+                    journal.append(
+                        "event.validated",
+                        payload={"value": MisleadingInteger(7)},
+                    )
                 deeply_nested_payload: dict[str, object] = {}
                 for _ in range(sys.getrecursionlimit() + 20):
                     deeply_nested_payload = {"nested": deeply_nested_payload}

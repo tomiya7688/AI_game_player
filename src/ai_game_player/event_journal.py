@@ -972,19 +972,19 @@ def _require_mapping(value: Any, field_name: str) -> Mapping[str, Any]:
 
 # {
 #   責務: [_json_compatible_copy: payloadをJSON保存可能な独立containerへ複製して不正値を拒否する]
-#   処理: [有限数・文字列key・list/tuple・mappingだけを再帰copyし、finiteなDecimalは精度を保って保持し、循環参照を拒否する]
+#   処理: [builtin JSON primitiveだけを受け付け、finiteなDecimalは精度を保って保持し、文字列key・list/tuple・mappingを再帰copyして循環参照を拒否する]
 #   引数: [value: payload内の検証対象値, field_name: error位置を示すJSON field path, active_container_ids: 再帰経路上のcontainer ID集合]
 #   戻り値: [Any: JSON primitive・Decimal・dict・listから成る独立コピー]
 #   エラー: [ValueError: 非有限数・非文字列key・循環参照・未対応型を含む場合]
 # }
 def _json_compatible_copy(value: Any, field_name: str, active_container_ids: set[int]) -> Any:
-    if value is None or isinstance(value, (str, bool, int)):
+    if value is None or type(value) in (str, bool, int):
         return value
-    if isinstance(value, float):
+    if type(value) is float:
         if not math.isfinite(value):
             raise ValueError(f"{field_name} must contain only finite numbers")
         return value
-    if isinstance(value, Decimal):
+    if type(value) is Decimal:
         if not value.is_finite():
             raise ValueError(f"{field_name} must contain only finite numbers")
         return value
