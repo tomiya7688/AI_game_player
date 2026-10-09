@@ -1,8 +1,8 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/meta/format-assertion",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kadoka.dev/schemas/session-event-v1.schema.json",
   "title": "Kadoka Session Event Envelope",
-  "description": "Validators must assert the date-time format; validators without Draft 2020-12 format-assertion support must refuse this schema.",
+  "description": "The timestamp pattern asserts a Gregorian UTC date-time ending in Z, including when date-time format is treated only as an annotation.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -30,7 +30,7 @@
     "timestamp_utc": {
       "type": "string",
       "format": "date-time",
-      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?Z$"
+      "pattern": "^(?!0000-)(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:[02468][048]|[13579][26])00)-02-29|[0-9]{4}-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8])))T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?Z$"
     },
     "monotonic_ns": { "type": "integer", "minimum": 0 },
     "monotonic_epoch_id": { "type": "string", "minLength": 1, "pattern": "\\S" },

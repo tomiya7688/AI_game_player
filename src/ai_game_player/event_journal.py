@@ -49,7 +49,10 @@ _ENVELOPE_FIELDS = frozenset({
 #   処理: [月を01-12・日を01-31・時刻を24時間表記にし、任意小数部と大文字Zを続ける文字列だけを一致させる]
 # }
 _UTC_TIMESTAMP_PATTERN = re.compile(
-    r"[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])"
+    r"(?!0000-)(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])"
+    r"|(?:[02468][048]|[13579][26])00)-02-29|[0-9]{4}-(?:"
+    r"(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])"
+    r"|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8])))"
     r"T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]+)?Z"
 )
 # {
@@ -540,7 +543,7 @@ class EventJournal:
 
     # {
     #   責務: [_recover_existing_records: 保存済みeventを全件検証して連番・Session・一意IDの復旧状態を作る]
-    #   処理: [sequence順にJSON recordをdecodeしEnvelope contractとindexを照合して、次に使うsequenceを決める]
+    #   処理: [SQLite TEXT storageと重複propertyのないJSONを確認し、sequence順にEnvelope contractとindexを照合して次のsequenceを決める]
     #   引数: [self: 保存済みrecordsを検査するJournal]
     #   戻り値: [なし: event ID集合とnext sequenceをinstanceへ保存する]
     #   エラー: [EventJournalCorruptionError: JSON・Envelope・sequence・session ID・event IDのいずれかが不正な場合]
@@ -549,9 +552,14 @@ class EventJournal:
         connection = self._require_connection()
         expected_sequence = FIRST_EVENT_SEQUENCE
         journal_session_id = self.session_id
-        for stored_sequence, stored_event_id, encoded_event in connection.execute(
-            "SELECT sequence, event_id, envelope_json FROM events ORDER BY sequence"
+        for stored_sequence, stored_event_id, encoded_event, envelope_storage_class in connection.execute(
+            "SELECT sequence, event_id, envelope_json, typeof(envelope_json) "
+            "FROM events ORDER BY sequence"
         ):
+            if envelope_storage_class != "text":
+                raise EventJournalCorruptionError(
+                    f"event envelope at sequence {expected_sequence} is not stored as SQLite TEXT"
+                )
             try:
                 event = EventEnvelope.from_dict(_require_mapping(
                     json.loads(encoded_event, object_pairs_hook=_reject_duplicate_json_members),

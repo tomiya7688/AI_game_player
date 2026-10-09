@@ -383,6 +383,22 @@ class EventJournalTest(unittest.TestCase):
             with self.assertRaisesRegex(EventJournalCorruptionError, "invalid complete event record"):
                 EventJournal(path)
 
+    def test_rejects_blob_envelope_storage_during_record_recovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "blob-envelope.sqlite3"
+            with EventJournal(path, session_id="session-1") as journal:
+                journal.append("session.started")
+
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute(
+                    "UPDATE events SET envelope_json=? WHERE sequence=1",
+                    (b'{"schema_version":1}',),
+                )
+                connection.commit()
+
+            with self.assertRaisesRegex(EventJournalCorruptionError, "not stored as SQLite TEXT"):
+                EventJournal(path)
+
     def test_serializes_concurrent_appends_from_one_writer_in_sequence_order(self):
         event_count = 100
         with tempfile.TemporaryDirectory() as directory:
@@ -474,7 +490,7 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
         self.assertEqual(
-            "https://json-schema.org/draft/2020-12/meta/format-assertion",
+            "https://json-schema.org/draft/2020-12/schema",
             schema["$schema"],
         )
         self.assertEqual("object", schema["type"])
@@ -483,8 +499,11 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         timestamp_pattern = schema["properties"]["timestamp_utc"]["pattern"]
         self.assertEqual("date-time", schema["properties"]["timestamp_utc"]["format"])
         self.assertIsNotNone(re.fullmatch(timestamp_pattern, "2026-10-05T10:20:30.123456Z"))
+        self.assertIsNotNone(re.fullmatch(timestamp_pattern, "2024-02-29T23:59:59Z"))
         self.assertIsNone(re.fullmatch(timestamp_pattern, "not-a-dateZ"))
         self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-10-05T25:20:30Z"))
+        self.assertIsNone(re.fullmatch(timestamp_pattern, "2026-02-29T10:20:30Z"))
+        self.assertIsNone(re.fullmatch(timestamp_pattern, "0000-02-29T10:20:30Z"))
         for field_name in (
             "event_id", "session_id", "event_type", "status", "frame_id",
             "turn_id", "snapshot_id", "correlation_id", "monotonic_epoch_id",
