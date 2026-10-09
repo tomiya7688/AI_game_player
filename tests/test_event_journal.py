@@ -1,6 +1,7 @@
 import json
 import re
 import sqlite3
+import sys
 import tempfile
 import unittest
 from contextlib import closing
@@ -320,6 +321,11 @@ class EventJournalTest(unittest.TestCase):
                     journal.append(" ")
                 with self.assertRaises(EventJournalError):
                     journal.append("event.validated", payload={"value": float("nan")})
+                deeply_nested_payload: dict[str, object] = {}
+                for _ in range(sys.getrecursionlimit() + 20):
+                    deeply_nested_payload = {"nested": deeply_nested_payload}
+                with self.assertRaises(EventJournalError):
+                    journal.append("event.validated", payload=deeply_nested_payload)
 
                 valid_event = journal.append("event.validated")
 

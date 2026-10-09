@@ -357,7 +357,7 @@ class EventJournal:
                     payload={} if payload is None else payload,
                     artifact_refs=artifact_refs,
                 )
-            except (TypeError, ValueError) as error:
+            except (RecursionError, TypeError, ValueError) as error:
                 raise EventJournalError("event data does not satisfy the envelope contract") from error
             if event.event_id in self._event_ids:
                 raise EventJournalError("duplicate event_id generated for journal append")
