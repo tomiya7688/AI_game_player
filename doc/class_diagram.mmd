@@ -255,6 +255,38 @@ classDiagram
         +evaluate()
         +_rejection_reason()
     }
+    RuntimeError <|-- EventJournalError
+    class EventJournalError {
+    }
+    EventJournalError <|-- EventJournalCorruptionError
+    class EventJournalCorruptionError {
+    }
+    EventJournalError <|-- EventJournalClosedError
+    class EventJournalClosedError {
+    }
+    class EventEnvelope {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class EventJournal {
+        +__init__()
+        +session_id()
+        +last_sequence()
+        +append()
+        +flush()
+        +close()
+        +__enter__()
+        +__exit__()
+        +_ensure_writable()
+        +_initialize_database()
+        +_create_database_schema()
+        +_remove_incomplete_new_database()
+        +_recover_existing_records()
+        +_require_connection()
+        +_rollback_open_transaction()
+        +_discard_connection()
+    }
     class ExecutionHistory {
         +__init__()
         +load()
