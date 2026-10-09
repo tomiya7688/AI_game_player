@@ -205,6 +205,15 @@ class EventJournalTest(unittest.TestCase):
             with self.assertRaisesRegex(EventJournalCorruptionError, "unrecognized SQLite database"):
                 EventJournal(path)
 
+    def test_invalid_requested_session_id_uses_journal_error_without_creating_database(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-session-id.sqlite3"
+
+            with self.assertRaisesRegex(EventJournalError, "requested session_id"):
+                EventJournal(path, session_id=" ")
+
+            self.assertFalse(path.exists())
+
     def test_failed_first_open_removes_partial_database_for_retry(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "retryable.sqlite3"

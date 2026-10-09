@@ -246,7 +246,7 @@ class EventJournal:
     #   処理: [SQLite接続前にdatabase pathのentryをsymlinkも含めて確認し、metadataからSession IDと連番を復旧し、新規schema作成失敗時だけ作成済みdatabaseを除去する]
     #   引数: [path: Session event databaseの保存先, session_id: 新規databaseに指定するSession ID、既存databaseを開く場合の照合値]
     #   戻り値: [なし: 検証済みSQLite接続と次のevent sequenceをinstanceに保持する]
-    #   エラー: [EventJournalError: databaseへ接続できないかWALを開始できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
+    #   エラー: [EventJournalError: requested session_idが不正かdatabaseへ接続できない場合, EventJournalCorruptionError: schema・metadata・保存eventが不正な場合]
     # }
     def __init__(self, path: Path, *, session_id: str | None = None) -> None:
         self.path = Path(path)
@@ -257,10 +257,14 @@ class EventJournal:
         self._event_ids: set[str] = set()
         self._monotonic_epoch_id = uuid4().hex
         self._database_schema_created = False
-        self._session_id = _require_optional_text(session_id, "session_id")
+        self._session_id: str | None = None
         self._next_sequence = FIRST_EVENT_SEQUENCE
         self._connection: sqlite3.Connection | None = None
         try:
+            try:
+                self._session_id = _require_optional_text(session_id, "session_id")
+            except ValueError as error:
+                raise EventJournalError("requested session_id does not satisfy the journal contract") from error
             self.path.parent.mkdir(parents=True, exist_ok=True)
             self._connection = sqlite3.connect(
                 self.path,
