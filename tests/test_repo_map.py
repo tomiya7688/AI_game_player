@@ -49,6 +49,8 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             "    value: int\n"
             "class Phase(Enum):\n"
             "    READY = 1\n"
+            "class FactoryPlugin(factory('base-secret')):\n"
+            "    pass\n"
             "class Reader(Protocol[str]):\n"
             "    def read(self, key: str) -> str: ...\n"
             "@register(token=f'token-{secret}', enabled=True)\n"
@@ -92,6 +94,7 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         self.assertEqual("class", symbols_by_name["Snapshot"]["kind"])
         self.assertEqual({"dataclass": True, "enum": False, "protocol": False}, symbols_by_name["Snapshot"]["data_model"])
         self.assertTrue(symbols_by_name["Phase"]["data_model"]["enum"])
+        self.assertEqual(["factory(REDACTED)"], symbols_by_name["FactoryPlugin"]["bases"])
         self.assertTrue(symbols_by_name["Reader"]["data_model"]["protocol"])
         self.assertEqual(
             ["register(token=f'REDACTED{secret}', enabled=True)"],
@@ -116,6 +119,7 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         self.assertEqual(6, symbols_by_name["Snapshot"]["source_location"]["start_line"])
         self.assertNotIn("must not be copied", json.dumps(repository_map, ensure_ascii=False))
         self.assertNotIn("secret-value", json.dumps(repository_map, ensure_ascii=False))
+        self.assertNotIn("base-secret", json.dumps(repository_map, ensure_ascii=False))
         self.assertNotIn("ignored", modules_by_name)
         self.assertNotIn("sample_pkg.generated.nested.also_ignored", modules_by_name)
         self.assertIn("tools.helper", modules_by_name)

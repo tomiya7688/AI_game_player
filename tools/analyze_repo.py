@@ -336,7 +336,7 @@ class RepositoryMapGenerator:
     ) -> dict[str, Any]:
         if isinstance(node, ast.ClassDef):
             kind = "class"
-            bases = [ast.unparse(base) for base in node.bases]
+            bases = [cls._render_expression_with_redacted_literals(base) for base in node.bases]
             data_model = {
                 "dataclass": any(cls._terminal_name(decorator) == "dataclass" for decorator in node.decorator_list),
                 "enum": any(cls._terminal_name(base) in {"Enum", "IntEnum", "StrEnum", "Flag", "IntFlag"} for base in node.bases),
