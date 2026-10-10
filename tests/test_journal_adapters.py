@@ -303,7 +303,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             runtime.close()
 
             self.assertFalse(
-                (game_directory / "session_events" / "runtime_log_migration_v1.complete").exists()
+                logger.path.with_name(
+                    logger.path.name + ".session-event-migration-v1.complete"
+                ).exists()
             )
             logger.write("after-session", "legacy factory left logger detached")
 
@@ -341,6 +343,168 @@ class LegacyEventAdapterTest(unittest.TestCase):
 
             executor_factory.assert_not_called()
 
+    def test_interrupted_migration_discards_partial_journal_and_retries_sources(self):
+        class Provider:
+            def close(self):
+                return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            game_directory = root / "game"
+            session_events_directory = game_directory / "session_events"
+            session_events_directory.mkdir(parents=True)
+            history_path = game_directory / "history.json"
+            history_path.write_text('[{"legacy":"history"}]', encoding="utf-8")
+            interrupted_journal_path = session_events_directory / "interrupted.sqlite3"
+            with EventJournal(interrupted_journal_path, session_id="interrupted") as journal:
+                journal.append(
+                    "decision.history",
+                    event_id="interrupted-history-import",
+                    payload={"legacy_record": {"legacy": "history"}},
+                )
+            pending_path = session_events_directory / "legacy_migration_v1.pending"
+            pending_path.write_text(
+                json.dumps({
+                    "journal_name": interrupted_journal_path.name,
+                    "game_history": True,
+                    "runtime_log": False,
+                    "runtime_log_source": None,
+                }),
+                encoding="utf-8",
+            )
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=game_directory,
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+
+            runtime = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()}
+            ).create_session_runtime(
+                configuration,
+                source=object(),
+                controller=RunController(),
+            )
+            recovered_journal_path = runtime.pipeline.event_journal.path
+            runtime.close()
+
+            self.assertNotEqual(interrupted_journal_path, recovered_journal_path)
+            self.assertFalse(interrupted_journal_path.exists())
+            self.assertFalse(pending_path.exists())
+            history_events = [
+                event for event in read_events(recovered_journal_path)
+                if event.event_type == "decision.history"
+            ]
+            self.assertEqual(1, len(history_events))
+
+    def test_runtime_log_migration_marker_is_scoped_to_source_across_games(self):
+        class Provider:
+            def close(self):
+                return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runtime_log_path = root / "runtime.jsonl"
+            runtime_log_path.write_text(
+                '{"event":"original-source","message":"kept","context":{}}\n',
+                encoding="utf-8",
+            )
+            composition = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()}
+            )
+
+            def configuration_for(game_name):
+                return SessionRuntimeConfiguration(
+                    provider_name="fake",
+                    model="model",
+                    endpoint="http://localhost",
+                    game_directory=root / game_name,
+                    dry_run=True,
+                    window_handle=None,
+                    input_mode="window_message",
+                    window_process_id=None,
+                )
+
+            first = composition.create_session_runtime(
+                configuration_for("game-one"),
+                source=object(),
+                controller=RunController(),
+                runtime_log=RuntimeLog(runtime_log_path),
+            )
+            first.close()
+            shared_source = composition.create_session_runtime(
+                configuration_for("game-two"),
+                source=object(),
+                controller=RunController(),
+                runtime_log=RuntimeLog(runtime_log_path),
+            )
+            shared_source_path = shared_source.pipeline.event_journal.path
+            self.assertEqual(0, shared_source.pipeline.event_journal.last_sequence)
+            shared_source.close()
+
+            second_source_path = root / "runtime-second.jsonl"
+            second_source_path.write_text(
+                '{"event":"second-source","message":"new","context":{}}\n',
+                encoding="utf-8",
+            )
+            changed_source = composition.create_session_runtime(
+                configuration_for("game-two"),
+                source=object(),
+                controller=RunController(),
+                runtime_log=RuntimeLog(second_source_path),
+            )
+            changed_source_journal_path = changed_source.pipeline.event_journal.path
+            changed_source.close()
+
+            self.assertEqual(0, len(read_events(shared_source_path)))
+            self.assertEqual(
+                "second-source",
+                read_events(changed_source_journal_path)[0].payload["legacy_record"]["event"],
+            )
+
+    def test_provider_is_closed_when_migration_lock_cannot_be_acquired(self):
+        class Provider:
+            def __init__(self):
+                self.closed = False
+
+            def close(self):
+                self.closed = True
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            provider = Provider()
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=root / "game",
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            composition = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: provider}
+            )
+
+            with patch(
+                "ai_game_player.runtime.session_composition._legacy_migration_lock",
+                side_effect=OSError("migration directory is unavailable"),
+            ):
+                with self.assertRaisesRegex(OSError, "migration directory"):
+                    composition.create_session_runtime(
+                        configuration,
+                        source=object(),
+                        controller=RunController(),
+                    )
+
+            self.assertTrue(provider.closed)
+
     def test_shutdown_failure_records_failed_status_before_journal_closes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -366,6 +530,36 @@ class LegacyEventAdapterTest(unittest.TestCase):
             self.assertEqual(
                 "failed",
                 failure_events[0].payload["legacy_record"]["context"]["status"],
+            )
+
+    def test_journal_checkpoint_failure_is_logged_before_runtime_log_detaches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal_path = root / "session.sqlite3"
+            journal = EventJournal(journal_path, session_id="session-checkpoint-failed")
+            pipeline = DecisionPipeline(
+                object(),
+                root,
+                event_journal=journal,
+                runtime_log=RuntimeLog(root / "runtime.jsonl"),
+            )
+            with patch.object(
+                journal,
+                "flush",
+                side_effect=EventJournalError("injected checkpoint failure"),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "injected checkpoint failure"):
+                    pipeline.close()
+
+            failure_events = [
+                event for event in read_events(journal_path)
+                if event.event_type == "runtime.log"
+                and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
+            ]
+            self.assertEqual(1, len(failure_events))
+            self.assertEqual(
+                "event_journal_checkpoint",
+                failure_events[0].payload["legacy_record"]["context"]["resource"],
             )
 
     def test_managed_runtime_records_provider_shutdown_failure_in_journal(self):

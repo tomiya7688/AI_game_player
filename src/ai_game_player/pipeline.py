@@ -326,18 +326,31 @@ class DecisionPipeline:
 
     # {
     #   責務: [close_event_journal: RuntimeLogのSession bindingとSession Journalを閉じる]
-    #   処理: [executorとProvider終了が完了した後でRuntimeLogをdetachしSQLite接続を閉じる]
+    #   処理: [RuntimeLog bindingを保持したまま事前checkpointし、失敗を記録してからJournalを閉じ最後にdetachする]
     #   引数: [なし]
     #   戻り値: []
     #   エラー: [Exception: SQLite checkpointまたは接続closeに失敗した場合]
     # }
     def close_event_journal(self) -> None:
-        if not self._runtime_log_detached and self.runtime_log is not None:
-            if self._runtime_log_attachment_token is not None:
-                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
-            self._runtime_log_detached = True
         close_error: Exception | None = None
         if not self._event_journal_closed and self.event_journal is not None:
+            try:
+                self.event_journal.flush()
+            except Exception as error:
+                close_error = error
+                if self.runtime_log is not None:
+                    try:
+                        self.runtime_log.write(
+                            "session.shutdown_failed",
+                            "Session Event Journal checkpoint failed before close",
+                            {
+                                "status": "failed",
+                                "resource": "event_journal_checkpoint",
+                                "error": str(error),
+                            },
+                        )
+                    except Exception:
+                        pass
             try:
                 self.event_journal.close()
                 self._event_journal_closed = True
@@ -348,11 +361,19 @@ class DecisionPipeline:
                     try:
                         self.runtime_log.write(
                             "session.shutdown_failed",
-                            "Session Event Journal cleanup failed",
-                            {"resource": "event_journal", "error": str(error)},
+                            "Session Event Journal close failed",
+                            {
+                                "status": "failed",
+                                "resource": "event_journal_close",
+                                "error": str(error),
+                            },
                         )
                     except Exception:
                         pass
+        if not self._runtime_log_detached and self.runtime_log is not None:
+            if self._runtime_log_attachment_token is not None:
+                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
+            self._runtime_log_detached = True
         if close_error is not None:
             raise close_error
 
