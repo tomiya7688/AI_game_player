@@ -8,9 +8,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 try:
+    from .analyze_repo import RepositoryMapGenerator
     from .generate_class_diagram import render_class_diagram
     from .generate_sequence_diagram import render_sequence_diagram
 except ImportError:  # Direct execution: python tools/generate_docs.py
+    from analyze_repo import RepositoryMapGenerator
     from generate_class_diagram import render_class_diagram
     from generate_sequence_diagram import render_sequence_diagram
 
@@ -50,6 +52,15 @@ def generated_documents(root: Path, config: dict) -> list[GeneratedDocument]:
                     sequence["class_name"],
                     sequence["method_name"],
                 ),
+            )
+        )
+    repository_map_config = config.get("repository_map")
+    if repository_map_config is not None:
+        generator = RepositoryMapGenerator(root, Path(repository_map_config["config"]))
+        documents.append(
+            GeneratedDocument(
+                generator.output_path(),
+                generator.render(),
             )
         )
     return documents

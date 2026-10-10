@@ -11,6 +11,12 @@ class GenerateDocsTest(unittest.TestCase):
             root = Path(directory)
             source = root / "src" / "ai_game_player"
             source.mkdir(parents=True)
+            repository_config = root / "config" / "repo_map.json"
+            repository_config.parent.mkdir()
+            repository_config.write_text(
+                '{"schema_version":1,"include":["src/**/*.py"],"exclude":[],"output":"generated/repo_map.json"}',
+                encoding="utf-8",
+            )
             (source / "pipeline.py").write_text(
                 "class DecisionPipeline:\n    def run_and_execute(self):\n        self.engine.step()\n",
                 encoding="utf-8",
@@ -27,16 +33,22 @@ class GenerateDocsTest(unittest.TestCase):
                     "class_name": "DecisionPipeline",
                     "method_name": "run_and_execute",
                 },
+                "repository_map": {"config": "config/repo_map.json"},
             }
             documents = generated_documents(root, config)
             self.assertEqual(stale_documents(documents), [document.path for document in documents])
             write_documents(documents)
             self.assertEqual(stale_documents(documents), [])
+            self.assertTrue((root / "generated" / "repo_map.json").is_file())
             (source / "pipeline.py").write_text(
                 "class DecisionPipeline:\n    def run_and_execute(self):\n        self.source.read()\n\n    def retry(self):\n        pass\n",
                 encoding="utf-8",
             )
             self.assertEqual(
                 stale_documents(generated_documents(root, config)),
-                [root / "doc" / "class_diagram.mmd", root / "doc" / "sequence_diagram.mmd"],
+                [
+                    root / "doc" / "class_diagram.mmd",
+                    root / "doc" / "sequence_diagram.mmd",
+                    root / "generated" / "repo_map.json",
+                ],
             )
