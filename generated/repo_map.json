@@ -47797,7 +47797,7 @@
       "module": "tests.test_issue_context",
       "path": "tests/test_issue_context.py",
       "source_location": {
-        "end_line": 121,
+        "end_line": 596,
         "start_line": 1
       },
       "symbols": [
@@ -47860,7 +47860,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 117,
+            "end_line": 592,
             "start_line": 17
           }
         },
@@ -47975,7 +47975,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 63,
+            "end_line": 65,
             "start_line": 55
           }
         },
@@ -47998,8 +47998,330 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 71,
-            "start_line": 65
+            "end_line": 75,
+            "start_line": 67
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_context_pack_uses_git_paths_repository_map_and_explained_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_context_pack_uses_git_paths_repository_map_and_explained_candidates",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_git_status_collection_reads_paths_without_file_contents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_git_status_collection_reads_paths_without_file_contents",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_natural_language_terms_match_snake_case_module_and_test_paths",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_natural_language_terms_match_snake_case_module_and_test_paths",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 158,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_symbol_match_uses_map_dependencies_for_descriptive_test_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_terminal_symbol_match_uses_map_dependencies_for_descriptive_test_names",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exact_test_filename_ranks_above_broad_dependency_matches",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_exact_test_filename_ranks_above_broad_dependency_matches",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 236,
+            "start_line": 191
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_issue_named_test_ranks_above_broad_dependency_matches",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_issue_named_test_ranks_above_broad_dependency_matches",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 238
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repository_package_terms_do_not_create_unrelated_module_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_repository_package_terms_do_not_create_unrelated_module_candidates",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 339,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_test_candidates_inherit_source_relevance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_test_candidates_inherit_source_relevance",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 380,
+            "start_line": 341
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_evidence_limit_preserves_test_candidates_and_required_check",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_evidence_limit_preserves_test_candidates_and_required_check",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 412,
+            "start_line": 382
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_compact_evidence_keeps_long_candidate_paths_intact",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_compact_evidence_keeps_long_candidate_paths_intact",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 440,
+            "start_line": 414
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_minimum_evidence_budget_uses_compact_form",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_minimum_evidence_budget_uses_compact_form",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 454,
+            "start_line": 442
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_context_pack_uses_actual_remaining_evidence_budget",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_context_pack_uses_actual_remaining_evidence_budget",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 470,
+            "start_line": 456
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repository_map_loader_rejects_unknown_schema",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_repository_map_loader_rejects_unknown_schema",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 518,
+            "start_line": 472
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_malformed_repository_map_refreshes_context_without_map_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_malformed_repository_map_refreshes_context_without_map_candidates",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 546,
+            "start_line": 520
           }
         },
         {
@@ -48021,8 +48343,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 83,
-            "start_line": 73
+            "end_line": 558,
+            "start_line": 548
           }
         },
         {
@@ -48044,8 +48366,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 85
+            "end_line": 563,
+            "start_line": 560
           }
         },
         {
@@ -48067,8 +48389,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 105,
-            "start_line": 90
+            "end_line": 580,
+            "start_line": 565
           }
         },
         {
@@ -48090,8 +48412,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 110,
-            "start_line": 107
+            "end_line": 585,
+            "start_line": 582
           }
         },
         {
@@ -48113,8 +48435,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 112
+            "end_line": 592,
+            "start_line": 587
           }
         }
       ]
@@ -68630,7 +68952,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 148,
+        "end_line": 550,
         "start_line": 1
       },
       "symbols": [
@@ -68653,8 +68975,8 @@
           "signature": "(args)",
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 30
+            "end_line": 38,
+            "start_line": 34
           }
         },
         {
@@ -68669,8 +68991,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 53,
-            "start_line": 37
+            "end_line": 57,
+            "start_line": 41
           }
         },
         {
@@ -68692,8 +69014,318 @@
           "signature": "(number)",
           "source_location": {
             "column": 0,
-            "end_line": 61,
-            "start_line": 56
+            "end_line": 65,
+            "start_line": 60
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fetch_worktree_paths",
+          "parameters": [],
+          "qualified_name": "fetch_worktree_paths",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 89,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_repository_map",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "load_repository_map",
+          "return_annotation": null,
+          "signature": "(path = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 126,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_search_terms",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_search_terms",
+          "return_annotation": null,
+          "signature": "(value)",
+          "source_location": {
+            "column": 0,
+            "end_line": 135,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_contains_identifier",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "identifier"
+            }
+          ],
+          "qualified_name": "_contains_identifier",
+          "return_annotation": null,
+          "signature": "(text, identifier)",
+          "source_location": {
+            "column": 0,
+            "end_line": 144,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_contains_module_identifier",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_name"
+            }
+          ],
+          "qualified_name": "_contains_module_identifier",
+          "return_annotation": null,
+          "signature": "(text, module_name)",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_rank_module_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "issue"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repository_map"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "changed_paths"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "tests_only"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "related_sources"
+            }
+          ],
+          "qualified_name": "_rank_module_candidates",
+          "return_annotation": null,
+          "signature": "(issue, repository_map, changed_paths, *, tests_only, related_sources = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 246,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_rank_symbol_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "issue"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repository_map"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "modules"
+            }
+          ],
+          "qualified_name": "_rank_symbol_candidates",
+          "return_annotation": null,
+          "signature": "(issue, repository_map, modules)",
+          "source_location": {
+            "column": 0,
+            "end_line": 287,
+            "start_line": 249
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "render_repository_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "issue"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repository_map"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "changed_paths"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "map_error"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "max_chars"
+            }
+          ],
+          "qualified_name": "render_repository_evidence",
+          "return_annotation": null,
+          "signature": "(issue, repository_map, changed_paths, map_error = …, max_chars = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 428,
+            "start_line": 290
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "compose_evidence",
+          "parameters": [],
+          "qualified_name": "render_repository_evidence.compose_evidence",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 4,
+            "end_line": 343,
+            "start_line": 328
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "compact_candidate_line",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "render_repository_evidence.compact_candidate_line",
+          "return_annotation": null,
+          "signature": "(line, label)",
+          "source_location": {
+            "column": 12,
+            "end_line": 380,
+            "start_line": 352
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "compose_compact_evidence",
+          "parameters": [],
+          "qualified_name": "render_repository_evidence.compose_compact_evidence",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 12,
+            "end_line": 394,
+            "start_line": 389
           }
         },
         {
@@ -68715,8 +69347,8 @@
           "signature": "(issue)",
           "source_location": {
             "column": 0,
-            "end_line": 65,
-            "start_line": 63
+            "end_line": 432,
+            "start_line": 430
           }
         },
         {
@@ -68738,8 +69370,8 @@
           "signature": "(issues)",
           "source_location": {
             "column": 0,
-            "end_line": 74,
-            "start_line": 67
+            "end_line": 441,
+            "start_line": 434
           }
         },
         {
@@ -68760,15 +69392,33 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "max_chars"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "repository_map"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "changed_paths"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "map_error"
             }
           ],
           "qualified_name": "render_context",
           "return_annotation": null,
-          "signature": "(issue, max_chars = …)",
+          "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 77
+            "end_line": 511,
+            "start_line": 444
           }
         },
         {
@@ -68790,8 +69440,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 145,
-            "start_line": 120
+            "end_line": 547,
+            "start_line": 514
           }
         }
       ]

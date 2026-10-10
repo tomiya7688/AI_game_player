@@ -76,6 +76,8 @@ Do not duplicate these mechanisms:
 - Task selection/context pack: `start_task.bat` + `tools/issue_context.py`
 - Automatic selection reads all open Issue metadata (no bodies/discussions), skips policy/parent Issues, and orders P0-P5. Explicit `--issue` bypasses selection.
 - Packs preserve Markdown headings, default to at most 8000 characters (`--max-chars 2000..16000`), and mark truncation. Character limits are not token counts. Unloaded comments and truncated requirements require original-Issue lookup when relevant; failed refresh means an old pack must not be used.
+- Packs include changed repository path/status evidence from `git status` without reading diff contents, then rank module/symbol and test candidates from the current `generated/repo_map.json`. Each candidate includes its evidence and a heuristic confidence score; the score is not a probability or proof of a dependency. `finish_task.bat` remains the required project check, and the original Issue plus source/tests remain authoritative.
+- If Git status cannot be read, the pack refresh fails. If the Repository Map is absent or invalid, the pack reports that limitation and omits map-based candidates; regenerate it with `python tools/analyze_repo.py` before relying on those candidates.
 - Task/source/doc routing: `AGENTS.md`
 - Repository State generation is implemented by `tools/analyze_repo.py` and `generated/repo_map.json` (Issue #142). Task Context Pack and Test Impact remain Issues #143/#144 under parent #27.
 - Completion checks: `finish_task.bat`
