@@ -257,7 +257,10 @@ class RepositoryMapGenerator:
         for node in ast.walk(syntax_tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    local_dependencies = [alias.name] if alias.name in module_names else []
+                    local_dependencies = RepositoryMapGenerator._module_dependencies(
+                        alias.name,
+                        module_names,
+                    )
                     imports.append({
                         "kind": "import",
                         "module": alias.name,
@@ -277,7 +280,13 @@ class RepositoryMapGenerator:
                         base_parts = package_parts[:-parent_count]
                 resolved_module = ".".join([*base_parts, *(node.module.split(".") if node.module else [])])
                 names = [{"name": alias.name, "alias": alias.asname} for alias in node.names]
+                resolved_parts = resolved_module.split(".") if resolved_module else []
                 possible_dependencies = {resolved_module} if resolved_module else set()
+                if resolved_module:
+                    possible_dependencies.update(
+                        ".".join(resolved_parts[:prefix_length])
+                        for prefix_length in range(1, len(resolved_parts))
+                    )
                 possible_dependencies.update(
                     f"{resolved_module}.{alias.name}" if resolved_module else alias.name
                     for alias in node.names
@@ -293,6 +302,15 @@ class RepositoryMapGenerator:
                     "local_dependencies": local_dependencies,
                 })
         return sorted(imports, key=lambda item: (item["line"], item["kind"], item["module"] or ""))
+
+    @staticmethod
+    def _module_dependencies(module_name: str, module_names: set[str]) -> list[str]:
+        module_parts = module_name.split(".")
+        return sorted(
+            ".".join(module_parts[:prefix_length])
+            for prefix_length in range(1, len(module_parts) + 1)
+            if ".".join(module_parts[:prefix_length]) in module_names
+        )
 
     @classmethod
     def _collect_symbols(cls, syntax_tree: ast.Module, source: str) -> list[dict[str, Any]]:

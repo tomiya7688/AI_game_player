@@ -14,6 +14,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.app",
         "ai_game_player.fail_safe_runtime"
       ],
@@ -62,6 +63,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.app"
           ],
           "module": "ai_game_player.app",
@@ -77,6 +79,7 @@
           "level": 0,
           "line": 21,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -92,6 +95,7 @@
           "level": 0,
           "line": 36,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.app"
           ],
           "module": "ai_game_player.app",
@@ -162,6 +166,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.fail_safe_runtime",
         "ai_game_player.models",
         "ai_game_player.safety_guard",
@@ -216,6 +221,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -243,6 +249,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -258,6 +265,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -297,6 +305,7 @@
           "level": 0,
           "line": 191,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.windows_input"
           ],
           "module": "ai_game_player.windows_input",
@@ -810,6 +819,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.journal_adapters",
         "ai_game_player.models"
       ],
@@ -910,6 +920,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -925,6 +936,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -1657,6 +1669,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.config",
         "ai_game_player.execution_mode",
@@ -1667,9 +1680,11 @@
         "ai_game_player.ocr_recognizer",
         "ai_game_player.outcome",
         "ai_game_player.run_control",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.session_composition",
         "ai_game_player.runtime_log",
         "ai_game_player.screen_capture",
+        "ai_game_player.ui",
         "ai_game_player.ui.shell",
         "ai_game_player.window_selector"
       ],
@@ -1787,6 +1802,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -1802,6 +1818,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.config"
           ],
           "module": "ai_game_player.config",
@@ -1821,6 +1838,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.execution_mode"
           ],
           "module": "ai_game_player.execution_mode",
@@ -1836,6 +1854,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.metrics"
           ],
           "module": "ai_game_player.metrics",
@@ -1851,6 +1870,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -1866,6 +1886,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.game_session"
           ],
           "module": "ai_game_player.game_session",
@@ -1901,6 +1922,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ocr_recognizer"
           ],
           "module": "ai_game_player.ocr_recognizer",
@@ -1916,6 +1938,7 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -1939,6 +1962,8 @@
           "level": 0,
           "line": 18,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.session_composition"
           ],
           "module": "ai_game_player.runtime.session_composition",
@@ -1958,6 +1983,7 @@
           "level": 0,
           "line": 19,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime_log"
           ],
           "module": "ai_game_player.runtime_log",
@@ -1973,6 +1999,7 @@
           "level": 0,
           "line": 20,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -1988,6 +2015,7 @@
           "level": 0,
           "line": 21,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.window_selector"
           ],
           "module": "ai_game_player.window_selector",
@@ -2003,6 +2031,7 @@
           "level": 0,
           "line": 22,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -2018,6 +2047,8 @@
           "level": 0,
           "line": 23,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ui",
             "ai_game_player.ui.shell"
           ],
           "module": "ai_game_player.ui.shell",
@@ -2041,6 +2072,7 @@
           "level": 0,
           "line": 400,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -2056,6 +2088,7 @@
           "level": 0,
           "line": 638,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -3506,6 +3539,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.data",
         "ai_game_player.applications.quality.data.report_processing"
       ],
       "imports": [
@@ -3527,6 +3564,10 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.data",
             "ai_game_player.applications.quality.data.report_processing"
           ],
           "module": "ai_game_player.applications.quality.data.report_processing",
@@ -3578,6 +3619,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.data",
         "ai_game_player.applications.quality.data.quality_commander"
       ],
       "imports": [
@@ -3599,6 +3644,10 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.data",
             "ai_game_player.applications.quality.data.quality_commander"
           ],
           "module": "ai_game_player.applications.quality.data.quality_commander",
@@ -4088,6 +4137,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.candidate_merger",
         "ai_game_player.decision_context",
         "ai_game_player.frame_analyzer",
@@ -4153,6 +4203,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.candidate_merger"
           ],
           "module": "ai_game_player.candidate_merger",
@@ -4168,6 +4219,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.decision_context"
           ],
           "module": "ai_game_player.decision_context",
@@ -4183,6 +4235,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -4198,6 +4251,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -4217,6 +4271,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -4240,6 +4295,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -4434,6 +4490,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.process",
         "ai_game_player.applications.quality.process.bug_processing",
         "ai_game_player.applications.quality.process.performance_processing",
         "ai_game_player.applications.quality.process.quality_messenger"
@@ -4457,6 +4517,10 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.process",
             "ai_game_player.applications.quality.process.bug_processing"
           ],
           "module": "ai_game_player.applications.quality.process.bug_processing",
@@ -4472,6 +4536,10 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.process",
             "ai_game_player.applications.quality.process.performance_processing"
           ],
           "module": "ai_game_player.applications.quality.process.performance_processing",
@@ -4487,6 +4555,10 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.process",
             "ai_game_player.applications.quality.process.quality_messenger"
           ],
           "module": "ai_game_player.applications.quality.process.quality_messenger",
@@ -4567,6 +4639,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.data",
         "ai_game_player.applications.quality.data.quality_messenger"
       ],
       "imports": [
@@ -4588,6 +4664,10 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.data",
             "ai_game_player.applications.quality.data.quality_messenger"
           ],
           "module": "ai_game_player.applications.quality.data.quality_messenger",
@@ -4639,6 +4719,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.experience"
       ],
       "imports": [
@@ -4823,6 +4904,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -5848,6 +5930,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_capture"
       ],
@@ -5870,6 +5953,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -5885,6 +5969,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -6108,6 +6193,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -6129,6 +6215,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -6449,6 +6536,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.frame_analyzer",
         "ai_game_player.models",
         "ai_game_player.screen_capture"
@@ -6472,6 +6560,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -6487,6 +6576,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -6506,6 +6596,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -7056,6 +7147,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.evaluator",
         "ai_game_player.journal_adapters",
@@ -7151,6 +7243,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.atomic_json"
           ],
           "module": "ai_game_player.atomic_json",
@@ -7170,6 +7263,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -7189,6 +7283,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.evaluator"
           ],
           "module": "ai_game_player.evaluator",
@@ -7204,6 +7299,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.knowledge"
           ],
           "module": "ai_game_player.knowledge",
@@ -7219,6 +7315,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -7242,6 +7339,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -8390,6 +8488,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.loop_guard",
         "ai_game_player.models",
         "ai_game_player.pipeline"
@@ -8452,6 +8551,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.loop_guard"
           ],
           "module": "ai_game_player.loop_guard",
@@ -8467,6 +8567,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -8482,6 +8583,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -8692,6 +8794,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.decision_context",
         "ai_game_player.evaluator",
@@ -8750,6 +8853,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.atomic_json"
           ],
           "module": "ai_game_player.atomic_json",
@@ -8765,6 +8869,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.decision_context"
           ],
           "module": "ai_game_player.decision_context",
@@ -8784,6 +8889,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -8799,6 +8905,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.evaluator"
           ],
           "module": "ai_game_player.evaluator",
@@ -8814,6 +8921,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.history"
           ],
           "module": "ai_game_player.history",
@@ -8829,6 +8937,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -8848,6 +8957,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.knowledge"
           ],
           "module": "ai_game_player.knowledge",
@@ -8863,6 +8973,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -8886,6 +8997,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -8901,6 +9013,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_fusion"
           ],
           "module": "ai_game_player.outcome_fusion",
@@ -8916,6 +9029,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_models"
           ],
           "module": "ai_game_player.outcome_models",
@@ -8931,6 +9045,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.provider"
           ],
           "module": "ai_game_player.provider",
@@ -9229,6 +9344,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.outcome",
         "ai_game_player.outcome_models"
       ],
@@ -9316,6 +9432,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -9331,6 +9448,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_models"
           ],
           "module": "ai_game_player.outcome_models",
@@ -9987,6 +10105,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -10008,6 +10127,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -10165,6 +10285,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.experience"
       ],
       "imports": [
@@ -10397,6 +10518,7 @@
           "level": 0,
           "line": 19,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -11564,6 +11686,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.journal_adapters"
       ],
@@ -11599,6 +11722,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -11614,6 +11738,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -12991,6 +13116,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store",
         "ai_game_player.experience"
       ],
@@ -13112,6 +13238,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.artifact_store"
           ],
           "module": "ai_game_player.artifact_store",
@@ -13127,6 +13254,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -13625,6 +13753,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.cross_process_lock"
       ],
       "imports": [
@@ -13802,6 +13931,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.cross_process_lock"
           ],
           "module": "ai_game_player.cross_process_lock",
@@ -15662,6 +15792,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.bright_region_detector",
         "ai_game_player.frame_preprocessor",
         "ai_game_player.models",
@@ -15687,6 +15818,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.bright_region_detector"
           ],
           "module": "ai_game_player.bright_region_detector",
@@ -15706,6 +15838,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_preprocessor"
           ],
           "module": "ai_game_player.frame_preprocessor",
@@ -15725,6 +15858,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -15740,6 +15874,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.perceptual_hasher"
           ],
           "module": "ai_game_player.perceptual_hasher",
@@ -15755,6 +15890,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -15879,6 +16015,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.bright_region_detector",
         "ai_game_player.models",
         "ai_game_player.perceptual_hasher",
@@ -15916,6 +16053,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.bright_region_detector"
           ],
           "module": "ai_game_player.bright_region_detector",
@@ -15947,6 +16085,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -15962,6 +16101,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.perceptual_hasher"
           ],
           "module": "ai_game_player.perceptual_hasher",
@@ -15977,6 +16117,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -16180,6 +16321,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.loop_guard",
         "ai_game_player.models",
@@ -16239,6 +16381,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -16254,6 +16397,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.loop_guard"
           ],
           "module": "ai_game_player.loop_guard",
@@ -16269,6 +16413,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -16288,6 +16433,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -16303,6 +16449,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -17436,6 +17583,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.journal_adapters",
         "ai_game_player.models"
@@ -17472,6 +17620,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.atomic_json"
           ],
           "module": "ai_game_player.atomic_json",
@@ -17491,6 +17640,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -17510,6 +17660,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -17661,6 +17812,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.event_journal"
       ],
       "imports": [
@@ -17777,6 +17929,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -19106,6 +19259,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.experience",
         "ai_game_player.learning"
       ],
@@ -19210,6 +19364,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -19241,6 +19396,7 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.learning"
           ],
           "module": "ai_game_player.learning",
@@ -20102,6 +20258,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_similarity"
       ],
@@ -20124,6 +20281,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -20139,6 +20297,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_similarity"
           ],
           "module": "ai_game_player.screen_similarity",
@@ -20268,6 +20427,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor"
       ],
       "imports": [
@@ -20315,6 +20475,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -20798,6 +20959,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -20845,6 +21007,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -20988,6 +21151,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -21009,6 +21173,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -21090,6 +21255,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_capture"
       ],
@@ -21168,6 +21334,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -21183,6 +21350,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -22243,6 +22411,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.screen_capture"
       ],
       "imports": [
@@ -22264,6 +22433,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -22415,6 +22585,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -22436,6 +22607,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -22564,6 +22736,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.outcome_models"
       ],
@@ -22616,6 +22789,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -22631,6 +22805,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_models"
           ],
           "module": "ai_game_player.outcome_models",
@@ -23064,6 +23239,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.outcome",
         "ai_game_player.outcome_detectors",
@@ -23101,6 +23277,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -23116,6 +23293,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -23131,6 +23309,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_detectors"
           ],
           "module": "ai_game_player.outcome_detectors",
@@ -23158,6 +23337,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_models"
           ],
           "module": "ai_game_player.outcome_models",
@@ -23570,6 +23750,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.outcome"
       ],
       "imports": [
@@ -23621,6 +23802,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -23850,6 +24032,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.screen_capture"
       ],
       "imports": [
@@ -23858,6 +24041,7 @@
           "level": 0,
           "line": 1,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -24034,6 +24218,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.action_safety",
         "ai_game_player.candidate_merger",
@@ -24098,6 +24283,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -24117,6 +24303,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_safety"
           ],
           "module": "ai_game_player.action_safety",
@@ -24148,6 +24335,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.candidate_merger"
           ],
           "module": "ai_game_player.candidate_merger",
@@ -24163,6 +24351,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.engine"
           ],
           "module": "ai_game_player.engine",
@@ -24178,6 +24367,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.execution_history"
           ],
           "module": "ai_game_player.execution_history",
@@ -24193,6 +24383,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -24208,6 +24399,7 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -24231,6 +24423,7 @@
           "level": 0,
           "line": 18,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -24246,6 +24439,7 @@
           "level": 0,
           "line": 19,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -24269,6 +24463,7 @@
           "level": 0,
           "line": 20,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.observation_source"
           ],
           "module": "ai_game_player.observation_source",
@@ -24284,6 +24479,7 @@
           "level": 0,
           "line": 21,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ocr_detector"
           ],
           "module": "ai_game_player.ocr_detector",
@@ -24299,6 +24495,7 @@
           "level": 0,
           "line": 22,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -24314,6 +24511,7 @@
           "level": 0,
           "line": 23,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -24337,6 +24535,7 @@
           "level": 0,
           "line": 24,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime_log"
           ],
           "module": "ai_game_player.runtime_log",
@@ -24999,6 +25198,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.decision_context",
         "ai_game_player.models",
         "ai_game_player.outcome"
@@ -25039,6 +25239,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.decision_context"
           ],
           "module": "ai_game_player.decision_context",
@@ -25054,6 +25255,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -25077,6 +25279,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -25092,6 +25295,7 @@
           "level": 0,
           "line": 54,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -25495,6 +25699,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -25529,6 +25734,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -25633,6 +25839,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.safety_guard"
       ],
       "imports": [
@@ -25667,6 +25874,7 @@
           "level": 0,
           "line": 82,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -26003,6 +26211,8 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.composition",
         "ai_game_player.runtime.contracts",
         "ai_game_player.runtime.manifest",
@@ -26015,6 +26225,8 @@
           "level": 0,
           "line": 1,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.contracts"
           ],
           "module": "ai_game_player.runtime.contracts",
@@ -26042,6 +26254,8 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.registry"
           ],
           "module": "ai_game_player.runtime.registry",
@@ -26057,6 +26271,8 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.native"
           ],
           "module": "ai_game_player.runtime.native",
@@ -26116,6 +26332,8 @@
           "level": 0,
           "line": 22,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.manifest"
           ],
           "module": "ai_game_player.runtime.manifest",
@@ -26143,6 +26361,8 @@
           "level": 0,
           "line": 28,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.composition"
           ],
           "module": "ai_game_player.runtime.composition",
@@ -26176,6 +26396,8 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.manifest"
       ],
       "imports": [
@@ -26240,6 +26462,8 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.manifest"
           ],
           "module": "ai_game_player.runtime.manifest",
@@ -26930,6 +27154,8 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.contracts"
       ],
       "imports": [
@@ -27024,6 +27250,8 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.contracts"
           ],
           "module": "ai_game_player.runtime.contracts",
@@ -27501,9 +27729,11 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.bright_region_detector",
         "ai_game_player.frame_preprocessor",
         "ai_game_player.models",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.contracts",
         "ai_game_player.screen_capture"
       ],
@@ -27647,6 +27877,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.bright_region_detector"
           ],
           "module": "ai_game_player.bright_region_detector",
@@ -27690,6 +27921,7 @@
           "level": 0,
           "line": 25,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_preprocessor"
           ],
           "module": "ai_game_player.frame_preprocessor",
@@ -27705,6 +27937,7 @@
           "level": 0,
           "line": 26,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -27720,6 +27953,8 @@
           "level": 0,
           "line": 27,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.contracts"
           ],
           "module": "ai_game_player.runtime.contracts",
@@ -27739,6 +27974,7 @@
           "level": 0,
           "line": 28,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -28612,6 +28848,8 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.contracts"
       ],
       "imports": [
@@ -28633,6 +28871,8 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.contracts"
           ],
           "module": "ai_game_player.runtime.contracts",
@@ -28818,6 +29058,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.atomic_json",
         "ai_game_player.evaluator",
@@ -28995,6 +29236,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -29010,6 +29252,7 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.atomic_json"
           ],
           "module": "ai_game_player.atomic_json",
@@ -29025,6 +29268,7 @@
           "level": 0,
           "line": 18,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.evaluator"
           ],
           "module": "ai_game_player.evaluator",
@@ -29040,6 +29284,7 @@
           "level": 0,
           "line": 19,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -29055,6 +29300,7 @@
           "level": 0,
           "line": 20,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -29078,6 +29324,7 @@
           "level": 0,
           "line": 21,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -29097,6 +29344,7 @@
           "level": 0,
           "line": 22,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.observation_source"
           ],
           "module": "ai_game_player.observation_source",
@@ -29112,6 +29360,7 @@
           "level": 0,
           "line": 23,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -29127,6 +29376,7 @@
           "level": 0,
           "line": 24,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.provider"
           ],
           "module": "ai_game_player.provider",
@@ -29146,6 +29396,7 @@
           "level": 0,
           "line": 25,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -29161,6 +29412,7 @@
           "level": 0,
           "line": 26,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime_log"
           ],
           "module": "ai_game_player.runtime_log",
@@ -29893,6 +30145,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.event_journal",
         "ai_game_player.journal_adapters"
       ],
@@ -29975,6 +30228,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -29990,6 +30244,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -30166,6 +30421,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -30342,6 +30598,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -32071,6 +32328,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.perceptual_hasher"
       ],
@@ -32080,6 +32338,7 @@
           "level": 0,
           "line": 1,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -32095,6 +32354,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.perceptual_hasher"
           ],
           "module": "ai_game_player.perceptual_hasher",
@@ -32930,6 +33190,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_capture",
         "ai_game_player.ui_recognition"
@@ -33039,6 +33300,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -33054,6 +33316,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -33069,6 +33332,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ui_recognition"
           ],
           "module": "ai_game_player.ui_recognition",
@@ -34663,6 +34927,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_capture"
       ],
@@ -34767,6 +35032,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -34782,6 +35048,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -36779,6 +37046,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.fail_safe_runtime",
         "ai_game_player.models"
@@ -36858,6 +37126,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -36873,6 +37142,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -36888,6 +37158,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -36903,6 +37174,7 @@
           "level": 0,
           "line": 120,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -37433,6 +37705,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.models"
       ],
@@ -37455,6 +37728,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -37470,6 +37744,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -37560,6 +37835,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.action_safety",
         "ai_game_player.models",
@@ -37610,6 +37886,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -37625,6 +37902,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_safety"
           ],
           "module": "ai_game_player.action_safety",
@@ -37652,6 +37930,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -37671,6 +37950,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -38175,6 +38455,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.app"
       ],
       "imports": [
@@ -38196,6 +38477,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.app"
           ],
           "module": "ai_game_player.app",
@@ -38531,6 +38813,8 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.ui",
         "ai_game_player.ui.shell"
       ],
       "imports": [
@@ -38604,6 +38888,8 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ui",
             "ai_game_player.ui.shell"
           ],
           "module": "ai_game_player.ui.shell",
@@ -38892,6 +39178,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store"
       ],
       "imports": [
@@ -38978,6 +39265,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.artifact_store"
           ],
           "module": "ai_game_player.artifact_store",
@@ -39271,6 +39559,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.event_journal",
         "tools",
         "tools.benchmark_event_journal"
@@ -39333,6 +39622,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -39478,6 +39768,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.bright_region_detector",
         "ai_game_player.models",
         "ai_game_player.screen_capture"
@@ -39501,6 +39792,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.bright_region_detector"
           ],
           "module": "ai_game_player.bright_region_detector",
@@ -39516,6 +39808,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -39531,6 +39824,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -39621,6 +39915,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.process",
         "ai_game_player.applications.quality.process.bug_processing"
       ],
       "imports": [
@@ -39668,6 +39966,10 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.process",
             "ai_game_player.applications.quality.process.bug_processing"
           ],
           "module": "ai_game_player.applications.quality.process.bug_processing",
@@ -39781,6 +40083,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.candidate_merger",
         "ai_game_player.models"
       ],
@@ -39803,6 +40106,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.candidate_merger"
           ],
           "module": "ai_game_player.candidate_merger",
@@ -39818,6 +40122,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -40027,6 +40332,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.runtime"
       ],
       "imports": [
@@ -40074,6 +40380,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime"
           ],
           "module": "ai_game_player.runtime",
@@ -40441,6 +40748,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.captured_source",
         "ai_game_player.screen_capture"
       ],
@@ -40463,6 +40771,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.captured_source"
           ],
           "module": "ai_game_player.captured_source",
@@ -40478,6 +40787,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -40588,6 +40898,7 @@
     },
     {
       "dependencies": [
+        "tools",
         "tools.generate_class_diagram"
       ],
       "imports": [
@@ -40635,6 +40946,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "tools",
             "tools.generate_class_diagram"
           ],
           "module": "tools.generate_class_diagram",
@@ -40702,6 +41014,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.runtime"
       ],
       "imports": [
@@ -40723,6 +41036,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime"
           ],
           "module": "ai_game_player.runtime",
@@ -41118,6 +41432,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.config"
       ],
       "imports": [
@@ -41178,6 +41493,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.config"
           ],
           "module": "ai_game_player.config",
@@ -41295,6 +41611,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.engine",
         "ai_game_player.models"
       ],
@@ -41356,6 +41673,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.engine"
           ],
           "module": "ai_game_player.engine",
@@ -41371,6 +41689,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -41442,6 +41761,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.decision_context",
         "ai_game_player.engine",
         "ai_game_player.knowledge",
@@ -41506,6 +41826,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.decision_context"
           ],
           "module": "ai_game_player.decision_context",
@@ -41529,6 +41850,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.engine"
           ],
           "module": "ai_game_player.engine",
@@ -41544,6 +41866,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.knowledge"
           ],
           "module": "ai_game_player.knowledge",
@@ -41559,6 +41882,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -41578,6 +41902,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -41967,6 +42292,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.e2e_runner",
         "ai_game_player.loop_guard",
         "ai_game_player.models"
@@ -42029,6 +42355,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.e2e_runner"
           ],
           "module": "ai_game_player.e2e_runner",
@@ -42044,6 +42371,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.loop_guard"
           ],
           "module": "ai_game_player.loop_guard",
@@ -42059,6 +42387,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -42517,6 +42846,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.evaluation_primitives",
         "ai_game_player.outcome"
       ],
@@ -42578,6 +42908,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.evaluation_primitives"
           ],
           "module": "ai_game_player.evaluation_primitives",
@@ -42597,6 +42928,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -42779,6 +43111,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.evaluator",
         "ai_game_player.models"
       ],
@@ -42801,6 +43134,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.evaluator"
           ],
           "module": "ai_game_player.evaluator",
@@ -42816,6 +43150,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -42910,6 +43245,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.event_journal",
         "ai_game_player.experience"
       ],
@@ -43062,6 +43398,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -43101,6 +43438,7 @@
           "level": 0,
           "line": 22,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -44254,6 +44592,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.execution_history"
       ],
@@ -44315,6 +44654,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -44330,6 +44670,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.execution_history"
           ],
           "module": "ai_game_player.execution_history",
@@ -44397,6 +44738,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.execution_mode"
       ],
       "imports": [
@@ -44418,6 +44760,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.execution_mode"
           ],
           "module": "ai_game_player.execution_mode",
@@ -44485,6 +44828,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store",
         "ai_game_player.experience",
         "ai_game_player.experience_reader"
@@ -44560,6 +44904,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -44599,6 +44944,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.artifact_store"
           ],
           "module": "ai_game_player.artifact_store",
@@ -44614,6 +44960,7 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience_reader"
           ],
           "module": "ai_game_player.experience_reader",
@@ -45003,6 +45350,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.fail_safe_runtime"
       ],
       "imports": [
@@ -45089,6 +45437,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -45180,6 +45529,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.fail_safe_runtime",
         "ai_game_player.models",
@@ -45243,6 +45593,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -45258,6 +45609,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -45301,6 +45653,7 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -45316,6 +45669,7 @@
           "level": 0,
           "line": 18,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -46022,6 +46376,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.frame_analyzer",
         "ai_game_player.frame_preprocessor",
         "ai_game_player.screen_capture"
@@ -46058,6 +46413,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -46073,6 +46429,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_preprocessor"
           ],
           "module": "ai_game_player.frame_preprocessor",
@@ -46088,6 +46445,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -46247,6 +46605,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.game_session",
         "ai_game_player.models"
       ],
@@ -46282,6 +46641,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.game_session"
           ],
           "module": "ai_game_player.game_session",
@@ -46309,6 +46669,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -47197,6 +47558,7 @@
     },
     {
       "dependencies": [
+        "tools",
         "tools.generate_docs"
       ],
       "imports": [
@@ -47257,6 +47619,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "tools",
             "tools.generate_docs"
           ],
           "module": "tools.generate_docs",
@@ -47758,6 +48121,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.event_journal",
         "ai_game_player.execution_history",
@@ -47765,6 +48129,7 @@
         "ai_game_player.models",
         "ai_game_player.pipeline",
         "ai_game_player.run_control",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.session_composition",
         "ai_game_player.runtime_log"
       ],
@@ -47882,6 +48247,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -47897,6 +48263,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -47920,6 +48287,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.execution_history"
           ],
           "module": "ai_game_player.execution_history",
@@ -47935,6 +48303,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.journal_adapters"
           ],
           "module": "ai_game_player.journal_adapters",
@@ -47950,6 +48319,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -47969,6 +48339,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -47984,6 +48355,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime_log"
           ],
           "module": "ai_game_player.runtime_log",
@@ -47999,6 +48371,8 @@
           "level": 0,
           "line": 17,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.session_composition"
           ],
           "module": "ai_game_player.runtime.session_composition",
@@ -48026,6 +48400,7 @@
           "level": 0,
           "line": 23,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -49770,6 +50145,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.knowledge"
       ],
       "imports": [
@@ -49817,6 +50193,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.knowledge"
           ],
           "module": "ai_game_player.knowledge",
@@ -49884,6 +50261,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.learning"
       ],
       "imports": [
@@ -49931,6 +50309,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.learning"
           ],
           "module": "ai_game_player.learning",
@@ -50167,6 +50546,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.experience",
         "ai_game_player.learning",
         "ai_game_player.learning_dataset"
@@ -50229,6 +50609,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.experience"
           ],
           "module": "ai_game_player.experience",
@@ -50264,6 +50645,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.learning"
           ],
           "module": "ai_game_player.learning",
@@ -50279,6 +50661,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.learning_dataset"
           ],
           "module": "ai_game_player.learning_dataset",
@@ -50693,6 +51076,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.app"
           ],
           "module": "ai_game_player.app",
@@ -50708,6 +51092,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -50723,6 +51108,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -50738,6 +51124,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -51569,6 +51956,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.loop_guard",
         "ai_game_player.models"
       ],
@@ -51591,6 +51979,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.loop_guard"
           ],
           "module": "ai_game_player.loop_guard",
@@ -51606,6 +51995,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -51696,6 +52086,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.metrics"
       ],
@@ -51718,6 +52109,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -51733,6 +52125,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.metrics"
           ],
           "module": "ai_game_player.metrics",
@@ -51800,6 +52193,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -51821,6 +52215,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -51938,6 +52333,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -51959,6 +52355,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -52099,6 +52496,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.bright_region_detector",
         "ai_game_player.frame_analyzer",
         "ai_game_player.runtime",
@@ -52228,6 +52626,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.bright_region_detector"
           ],
           "module": "ai_game_player.bright_region_detector",
@@ -52247,6 +52646,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -52262,6 +52662,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime",
             "ai_game_player.runtime.native"
           ],
@@ -52278,6 +52679,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime"
           ],
           "module": "ai_game_player.runtime",
@@ -52297,6 +52699,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -53497,6 +53900,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.observation_source"
       ],
       "imports": [
@@ -53557,6 +53961,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.observation_source"
           ],
           "module": "ai_game_player.observation_source",
@@ -53624,6 +54029,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.ocr_detector"
       ],
@@ -53646,6 +54052,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -53665,6 +54072,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ocr_detector"
           ],
           "module": "ai_game_player.ocr_detector",
@@ -53755,6 +54163,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.frame_analyzer",
         "ai_game_player.ocr_provider",
         "ai_game_player.screen_capture"
@@ -53778,6 +54187,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -53793,6 +54203,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ocr_provider"
           ],
           "module": "ai_game_player.ocr_provider",
@@ -53824,6 +54235,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -54278,6 +54690,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.ocr_recognizer",
         "ai_game_player.screen_capture"
       ],
@@ -54300,6 +54713,7 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ocr_recognizer"
           ],
           "module": "ai_game_player.ocr_recognizer",
@@ -54315,6 +54729,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -54502,6 +54917,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.outcome"
       ],
@@ -54524,6 +54940,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -54539,6 +54956,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -54629,6 +55047,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.engine",
         "ai_game_player.evaluation_primitives",
         "ai_game_player.models",
@@ -54680,6 +55099,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.engine"
           ],
           "module": "ai_game_player.engine",
@@ -54695,6 +55115,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.evaluation_primitives"
           ],
           "module": "ai_game_player.evaluation_primitives",
@@ -54710,6 +55131,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -54729,6 +55151,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -54744,6 +55167,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome_fusion"
           ],
           "module": "ai_game_player.outcome_fusion",
@@ -55120,6 +55544,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.pipeline"
       ],
@@ -55168,6 +55593,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -55187,6 +55613,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -55363,6 +55790,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.app",
         "ai_game_player.engine",
@@ -55455,6 +55883,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.app"
           ],
           "module": "ai_game_player.app",
@@ -55470,6 +55899,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -55493,6 +55923,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -55508,6 +55939,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.provider"
           ],
           "module": "ai_game_player.provider",
@@ -55523,6 +55955,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -55538,6 +55971,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.engine"
           ],
           "module": "ai_game_player.engine",
@@ -55553,6 +55987,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -56741,6 +57176,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.provider"
       ],
       "imports": [
@@ -56788,6 +57224,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.provider"
           ],
           "module": "ai_game_player.provider",
@@ -56958,6 +57395,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.provider"
       ],
@@ -57006,6 +57444,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -57021,6 +57460,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.provider"
           ],
           "module": "ai_game_player.provider",
@@ -57226,6 +57666,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.region_detector"
       ],
@@ -57287,6 +57728,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -57302,6 +57744,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.region_detector"
           ],
           "module": "ai_game_player.region_detector",
@@ -57369,6 +57812,7 @@
     },
     {
       "dependencies": [
+        "tools",
         "tools.analyze_repo"
       ],
       "imports": [
@@ -57442,6 +57886,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "tools",
             "tools.analyze_repo"
           ],
           "module": "tools.analyze_repo",
@@ -57460,7 +57905,7 @@
       "module": "tests.test_repo_map",
       "path": "tests/test_repo_map.py",
       "source_location": {
-        "end_line": 253,
+        "end_line": 274,
         "start_line": 1
       },
       "symbols": [
@@ -57482,7 +57927,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 249,
+            "end_line": 270,
             "start_line": 10
           }
         },
@@ -57592,7 +58037,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 77,
+            "end_line": 87,
             "start_line": 30
           }
         },
@@ -57615,8 +58060,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 79
+            "end_line": 146,
+            "start_line": 89
           }
         },
         {
@@ -57638,8 +58083,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 127
+            "end_line": 160,
+            "start_line": 148
           }
         },
         {
@@ -57661,8 +58106,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 159,
-            "start_line": 141
+            "end_line": 180,
+            "start_line": 162
           }
         },
         {
@@ -57684,8 +58129,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 161
+            "end_line": 193,
+            "start_line": 182
           }
         },
         {
@@ -57707,8 +58152,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 174
+            "end_line": 211,
+            "start_line": 195
           }
         },
         {
@@ -57730,8 +58175,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 192
+            "end_line": 219,
+            "start_line": 213
           }
         },
         {
@@ -57753,8 +58198,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 206,
-            "start_line": 200
+            "end_line": 227,
+            "start_line": 221
           }
         },
         {
@@ -57776,8 +58221,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 208
+            "end_line": 241,
+            "start_line": 229
           }
         },
         {
@@ -57799,8 +58244,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 222
+            "end_line": 254,
+            "start_line": 243
           }
         },
         {
@@ -57822,14 +58267,15 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 235
+            "end_line": 270,
+            "start_line": 256
           }
         }
       ]
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.run_control"
       ],
       "imports": [
@@ -57864,6 +58310,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -58013,6 +58460,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.runtime_log"
       ],
       "imports": [
@@ -58112,6 +58560,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime_log"
           ],
           "module": "ai_game_player.runtime_log",
@@ -58609,6 +59058,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.runtime"
       ],
       "imports": [
@@ -58643,6 +59093,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.runtime"
           ],
           "module": "ai_game_player.runtime",
@@ -58809,6 +59260,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.models",
         "ai_game_player.safety_guard"
@@ -58936,6 +59388,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -58951,6 +59404,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -58966,6 +59420,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -58981,6 +59436,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -60150,6 +60606,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.screen_capture"
       ],
       "imports": [
@@ -60210,6 +60667,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -61146,6 +61604,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_similarity"
       ],
@@ -61168,6 +61627,7 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -61183,6 +61643,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_similarity"
           ],
           "module": "ai_game_player.screen_similarity",
@@ -61279,6 +61740,7 @@
     },
     {
       "dependencies": [
+        "tools",
         "tools.generate_sequence_diagram"
       ],
       "imports": [
@@ -61326,6 +61788,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "tools",
             "tools.generate_sequence_diagram"
           ],
           "module": "tools.generate_sequence_diagram",
@@ -61393,8 +61856,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.outcome",
+        "ai_game_player.runtime",
         "ai_game_player.runtime.session_composition"
       ],
       "imports": [
@@ -61511,6 +61976,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -61526,6 +61992,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -61541,6 +62008,8 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
             "ai_game_player.runtime.session_composition"
           ],
           "module": "ai_game_player.runtime.session_composition",
@@ -62546,6 +63015,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_capture",
         "ai_game_player.ui_embedding",
@@ -62596,6 +63066,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -62611,6 +63082,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -62626,6 +63098,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ui_embedding"
           ],
           "module": "ai_game_player.ui_embedding",
@@ -62677,6 +63150,7 @@
           "level": 0,
           "line": 19,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ui_recognition"
           ],
           "module": "ai_game_player.ui_recognition",
@@ -63190,6 +63664,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.bright_region_detector",
         "ai_game_player.models",
         "ai_game_player.screen_capture",
@@ -63240,6 +63715,7 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.bright_region_detector"
           ],
           "module": "ai_game_player.bright_region_detector",
@@ -63255,6 +63731,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -63270,6 +63747,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -63285,6 +63763,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.ui_recognition"
           ],
           "module": "ai_game_player.ui_recognition",
@@ -63691,6 +64170,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.window_selector"
       ],
       "imports": [
@@ -63725,6 +64205,7 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.window_selector"
           ],
           "module": "ai_game_player.window_selector",
@@ -63819,6 +64300,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.captured_source",
         "ai_game_player.screen_capture",
         "ai_game_player.window_selector"
@@ -63881,6 +64363,7 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.captured_source"
           ],
           "module": "ai_game_player.captured_source",
@@ -63896,6 +64379,7 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -63911,6 +64395,7 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.window_selector"
           ],
           "module": "ai_game_player.window_selector",
@@ -64314,6 +64799,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -64329,6 +64815,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -64344,6 +64831,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -64359,6 +64847,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
@@ -64374,6 +64863,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.windows_input"
           ],
           "module": "ai_game_player.windows_input",
@@ -65699,7 +66189,7 @@
       "module": "tools.analyze_repo",
       "path": "tools/analyze_repo.py",
       "source_location": {
-        "end_line": 503,
+        "end_line": 521,
         "start_line": 1
       },
       "symbols": [
@@ -65741,7 +66231,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 479,
+            "end_line": 497,
             "start_line": 26
           }
         },
@@ -66219,8 +66709,39 @@
           "signature": "(syntax_tree: ast.Module, current_module: str, module_names: set[str], *, is_package_initializer: bool) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 295,
+            "end_line": 304,
             "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_module_dependencies",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_name"
+            },
+            {
+              "annotation": "set[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_names"
+            }
+          ],
+          "qualified_name": "RepositoryMapGenerator._module_dependencies",
+          "return_annotation": "list[str]",
+          "signature": "(module_name: str, module_names: set[str]) -> list[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 313,
+            "start_line": 307
           }
         },
         {
@@ -66256,8 +66777,8 @@
           "signature": "(cls, syntax_tree: ast.Module, source: str) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 315,
-            "start_line": 298
+            "end_line": 333,
+            "start_line": 316
           }
         },
         {
@@ -66291,8 +66812,8 @@
           "signature": "(statements: list[ast.stmt], parent_names: list[str], parent_is_class: bool) -> None",
           "source_location": {
             "column": 8,
-            "end_line": 312,
-            "start_line": 301
+            "end_line": 330,
+            "start_line": 319
           }
         },
         {
@@ -66322,8 +66843,8 @@
           "signature": "(cls, statements: list[ast.stmt]) -> list[ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]",
           "source_location": {
             "column": 4,
-            "end_line": 327,
-            "start_line": 318
+            "end_line": 345,
+            "start_line": 336
           }
         },
         {
@@ -66371,8 +66892,8 @@
           "signature": "(cls, node: ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef, source: str, qualified_name: str, parent_is_class: bool) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 372,
-            "start_line": 330
+            "end_line": 390,
+            "start_line": 348
           }
         },
         {
@@ -66396,8 +66917,8 @@
           "signature": "(expression: ast.expr) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 381
+            "end_line": 416,
+            "start_line": 399
           }
         },
         {
@@ -66418,8 +66939,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 395,
-            "start_line": 382
+            "end_line": 413,
+            "start_line": 400
           }
         },
         {
@@ -66447,8 +66968,8 @@
           "signature": "(self, node: ast.JoinedStr) -> ast.expr",
           "source_location": {
             "column": 12,
-            "end_line": 390,
-            "start_line": 383
+            "end_line": 408,
+            "start_line": 401
           }
         },
         {
@@ -66476,8 +66997,8 @@
           "signature": "(self, node: ast.Constant) -> ast.expr",
           "source_location": {
             "column": 12,
-            "end_line": 395,
-            "start_line": 392
+            "end_line": 413,
+            "start_line": 410
           }
         },
         {
@@ -66507,8 +67028,8 @@
           "signature": "(cls, decorator: ast.expr) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 408,
-            "start_line": 407
+            "end_line": 426,
+            "start_line": 425
           }
         },
         {
@@ -66532,8 +67053,8 @@
           "signature": "(node: ast.expr) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 420,
-            "start_line": 411
+            "end_line": 438,
+            "start_line": 429
           }
         },
         {
@@ -66563,8 +67084,8 @@
           "signature": "(cls, node: ast.FunctionDef | ast.AsyncFunctionDef) -> tuple[str, list[dict[str, Any]], str | None]",
           "source_location": {
             "column": 4,
-            "end_line": 457,
-            "start_line": 423
+            "end_line": 475,
+            "start_line": 441
           }
         },
         {
@@ -66606,8 +67127,8 @@
           "signature": "(cls, argument: ast.arg, kind: str, has_default: bool) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 470,
-            "start_line": 460
+            "end_line": 488,
+            "start_line": 478
           }
         },
         {
@@ -66637,8 +67158,8 @@
           "signature": "(argument: ast.arg, has_default: bool) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 479,
-            "start_line": 473
+            "end_line": 497,
+            "start_line": 491
           }
         },
         {
@@ -66660,8 +67181,8 @@
           "signature": "(argv: list[str] | None = …) -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 488,
-            "start_line": 482
+            "end_line": 506,
+            "start_line": 500
           }
         },
         {
@@ -66683,14 +67204,15 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 499,
-            "start_line": 491
+            "end_line": 517,
+            "start_line": 509
           }
         }
       ]
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store"
       ],
       "imports": [
@@ -66790,6 +67312,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.artifact_store"
           ],
           "module": "ai_game_player.artifact_store",
@@ -66828,6 +67351,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.event_journal"
       ],
       "imports": [
@@ -66983,6 +67507,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -67232,6 +67757,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.process",
         "ai_game_player.applications.quality.process.quality_commander"
       ],
       "imports": [
@@ -67292,6 +67821,10 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.process",
             "ai_game_player.applications.quality.process.quality_commander"
           ],
           "module": "ai_game_player.applications.quality.process.quality_commander",
@@ -67589,6 +68122,7 @@
     },
     {
       "dependencies": [
+        "tools",
         "tools.analyze_repo",
         "tools.generate_class_diagram",
         "tools.generate_sequence_diagram"
@@ -67677,6 +68211,7 @@
           "level": 1,
           "line": 12,
           "local_dependencies": [
+            "tools",
             "tools.analyze_repo"
           ],
           "module": "analyze_repo",
@@ -67692,6 +68227,7 @@
           "level": 1,
           "line": 13,
           "local_dependencies": [
+            "tools",
             "tools.generate_class_diagram"
           ],
           "module": "generate_class_diagram",
@@ -67707,6 +68243,7 @@
           "level": 1,
           "line": 14,
           "local_dependencies": [
+            "tools",
             "tools.generate_sequence_diagram"
           ],
           "module": "generate_sequence_diagram",
@@ -68261,6 +68798,10 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.applications",
+        "ai_game_player.applications.quality",
+        "ai_game_player.applications.quality.process",
         "ai_game_player.applications.quality.process.quality_commander"
       ],
       "imports": [
@@ -68334,6 +68875,10 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.applications",
+            "ai_game_player.applications.quality",
+            "ai_game_player.applications.quality.process",
             "ai_game_player.applications.quality.process.quality_commander"
           ],
           "module": "ai_game_player.applications.quality.process.quality_commander",
@@ -68372,6 +68917,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.fail_safe_runtime"
       ],
       "imports": [
@@ -68471,6 +69017,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.fail_safe_runtime"
           ],
           "module": "ai_game_player.fail_safe_runtime",
@@ -68862,6 +69409,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.e2e_runner",
         "ai_game_player.frame_analyzer",
         "ai_game_player.models",
@@ -68967,6 +69515,7 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.e2e_runner"
           ],
           "module": "ai_game_player.e2e_runner",
@@ -68982,6 +69531,7 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.frame_analyzer"
           ],
           "module": "ai_game_player.frame_analyzer",
@@ -68997,6 +69547,7 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -69012,6 +69563,7 @@
           "level": 0,
           "line": 12,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -69027,6 +69579,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.provider"
           ],
           "module": "ai_game_player.provider",
@@ -69042,6 +69595,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -69057,6 +69611,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.window_selector"
           ],
           "module": "ai_game_player.window_selector",
@@ -69223,6 +69778,7 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.models",
         "ai_game_player.safety_guard",
@@ -69364,6 +69920,7 @@
           "level": 0,
           "line": 13,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.action_executor"
           ],
           "module": "ai_game_player.action_executor",
@@ -69379,6 +69936,7 @@
           "level": 0,
           "line": 14,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -69394,6 +69952,7 @@
           "level": 0,
           "line": 15,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.safety_guard"
           ],
           "module": "ai_game_player.safety_guard",
@@ -69417,6 +69976,7 @@
           "level": 0,
           "line": 16,
           "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.window_selector"
           ],
           "module": "ai_game_player.window_selector",

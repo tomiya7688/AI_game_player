@@ -37,6 +37,16 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         (package / "consumer.py").write_text(
             "from sample_pkg.models import Snapshot\n", encoding="utf-8"
         )
+        runtime_package = package / "runtime"
+        runtime_package.mkdir()
+        (runtime_package / "__init__.py").write_text("from . import session\n", encoding="utf-8")
+        (runtime_package / "session.py").write_text("class Session: pass\n", encoding="utf-8")
+        (package / "runtime_consumer.py").write_text(
+            "from sample_pkg.runtime.session import Session\n", encoding="utf-8"
+        )
+        (package / "runtime_import_consumer.py").write_text(
+            "import sample_pkg.runtime.session\n", encoding="utf-8"
+        )
         (package / "attribute_consumer.py").write_text("from . import CONSTANT\n", encoding="utf-8")
         (package / "star_consumer.py").write_text("from . import *\n", encoding="utf-8")
         (package / "models.py").write_text(
@@ -88,7 +98,18 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         self.assertEqual(1, repository_map["schema_version"])
         self.assertEqual(["sample_pkg", "sample_pkg.models"], sample_package["dependencies"])
         self.assertEqual(["sample_pkg", "sample_pkg.helpers"], sample_models["dependencies"])
-        self.assertEqual(["sample_pkg.models"], modules_by_name["sample_pkg.consumer"]["dependencies"])
+        self.assertEqual(
+            ["sample_pkg", "sample_pkg.models"],
+            modules_by_name["sample_pkg.consumer"]["dependencies"],
+        )
+        self.assertEqual(
+            ["sample_pkg", "sample_pkg.runtime", "sample_pkg.runtime.session"],
+            modules_by_name["sample_pkg.runtime_consumer"]["dependencies"],
+        )
+        self.assertEqual(
+            ["sample_pkg", "sample_pkg.runtime", "sample_pkg.runtime.session"],
+            modules_by_name["sample_pkg.runtime_import_consumer"]["dependencies"],
+        )
         self.assertEqual(["sample_pkg"], modules_by_name["sample_pkg.attribute_consumer"]["dependencies"])
         self.assertEqual(["sample_pkg"], modules_by_name["sample_pkg.star_consumer"]["dependencies"])
         self.assertEqual("class", symbols_by_name["Snapshot"]["kind"])
