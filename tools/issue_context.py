@@ -10,7 +10,7 @@ REPO = "tomiya7688/AI_game_player"
 OUT = Path(".codex/next_issue.md")
 REPO_MAP = Path("generated/repo_map.json")
 RANK = {f"p{i}": i for i in range(6)}
-CODE_SUFFIXES = {".bat", ".cpp", ".h", ".hpp", ".json", ".md", ".py", ".ps1", ".toml", ".txt", ".yml", ".yaml"}
+CODE_SUFFIXES = {".bat", ".c", ".cpp", ".h", ".hpp", ".json", ".md", ".py", ".ps1", ".toml", ".txt", ".yml", ".yaml"}
 GENERIC_SYMBOLS = {"check", "config", "error", "issue", "map", "module", "name", "path", "repo", "result", "run", "source", "state", "symbol", "task", "test", "value"}
 GENERIC_SYMBOL_TERMS = GENERIC_SYMBOLS | {"candidate", "confidence", "file", "input", "output", "pack", "repository", "text"}
 QUERY = """
@@ -201,18 +201,10 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
                 module_dependencies.update(imported_module.get("local_dependencies", []))
             for source_module in related_sources or []:
                 if source_module.get("module") in module_dependencies:
-                    confidence = 0.92
+                    confidence = max(confidence, 0.92)
                     reasons.append(
                         f"Repository Map dependency connects this test to `{source_module['module']}`"
                     )
-            if reasons:
-                candidates.append({
-                    "path": path,
-                    "module": module_name,
-                    "confidence": confidence,
-                    "reason": "; ".join(dict.fromkeys(reasons)),
-                })
-                continue
             test_stem = Path(path).stem.removeprefix("test_")
             for source_module in related_sources or []:
                 source_path = source_module.get("path", "")
@@ -221,9 +213,17 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
                     and not source_path.startswith("tests/")
                     and Path(source_path).stem == test_stem
                 ):
-                    confidence = 0.88
+                    confidence = max(confidence, 0.96)
                     reasons.append(f"test filename matches `{source_path}`")
                     break
+            if reasons:
+                candidates.append({
+                    "path": path,
+                    "module": module_name,
+                    "confidence": confidence,
+                    "reason": "; ".join(dict.fromkeys(reasons)),
+                })
+                continue
         if confidence:
             candidates.append({
                 "path": path,
@@ -340,7 +340,7 @@ def render_repository_evidence(issue, repository_map, changed_paths, map_error=N
             def compact_candidate_line(line, label):
                 path_match = re.search(r"`([^`]+)`", line)
                 if path_match is None:
-                    if "Repository Map unavailable" in line:
+                    if "Repository Map" in line:
                         return f"- {label}: map unavailable"
                     return f"- {label}: none"
                 candidate_path = path_match.group(1)

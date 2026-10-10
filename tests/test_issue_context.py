@@ -119,12 +119,13 @@ class IssueContextTests(unittest.TestCase):
         with patch.object(
             context.subprocess,
             "check_output",
-            return_value=b" M tools/issue_context.py\0?? tests/new_fixture.py\0?? .codex/next_issue.md\0",
+            return_value=b" M native/tests/c_abi_test.c\0 M tools/issue_context.py\0?? tests/new_fixture.py\0?? .codex/next_issue.md\0",
         ) as command:
             paths = context.fetch_worktree_paths()
 
         self.assertEqual(
             [
+                {"path": "native/tests/c_abi_test.c", "status": "M"},
                 {"path": "tests/new_fixture.py", "status": "??"},
                 {"path": "tools/issue_context.py", "status": "M"},
             ],
@@ -187,6 +188,53 @@ class IssueContextTests(unittest.TestCase):
         self.assertIn("Test candidate `tests/test_pipeline_execute.py` — confidence 0.92", evidence)
         self.assertIn("Repository Map dependency connects this test", evidence)
 
+    def test_exact_test_filename_ranks_above_broad_dependency_matches(self):
+        selected = issue(143, title="Improve screen capture reliability")
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": "ai_game_player.screen_capture",
+                    "path": "src/ai_game_player/screen_capture.py",
+                    "dependencies": [],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_bright_region_detector",
+                    "path": "tests/test_bright_region_detector.py",
+                    "dependencies": ["ai_game_player.screen_capture"],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_screen_capture",
+                    "path": "tests/test_screen_capture.py",
+                    "dependencies": ["ai_game_player.screen_capture"],
+                    "imports": [],
+                    "symbols": [],
+                },
+            ],
+        }
+
+        modules = context._rank_module_candidates(
+            selected,
+            repository_map,
+            [],
+            tests_only=False,
+        )
+        tests = context._rank_module_candidates(
+            selected,
+            repository_map,
+            [],
+            tests_only=True,
+            related_sources=modules,
+        )
+
+        self.assertEqual("tests/test_screen_capture.py", tests[0]["path"])
+        self.assertEqual(0.96, tests[0]["confidence"])
+
     def test_evidence_limit_preserves_test_candidates_and_required_check(self):
         selected = issue(143, title="Improve screen capture reliability")
         modules = []
@@ -248,13 +296,18 @@ class IssueContextTests(unittest.TestCase):
         self.assertNotIn(long_test_path[:70] + "…", evidence)
 
     def test_minimum_evidence_budget_uses_compact_form(self):
-        evidence = context.render_repository_evidence(
-            issue(143, title="Unmatched task"), None, [], map_error="Repository Map unavailable", max_chars=250
-        )
+        for map_error in (
+            "Repository Map unavailable: file does not exist",
+            "Repository Map has an unsupported format or schema version.",
+        ):
+            with self.subTest(map_error=map_error):
+                evidence = context.render_repository_evidence(
+                    issue(143, title="Unmatched task"), None, [], map_error=map_error, max_chars=250
+                )
 
-        self.assertLessEqual(len(evidence), 250)
-        self.assertIn("map unavailable", evidence)
-        self.assertIn("finish_task.bat", evidence)
+                self.assertLessEqual(len(evidence), 250)
+                self.assertIn("map unavailable", evidence)
+                self.assertIn("finish_task.bat", evidence)
 
     def test_repository_map_loader_rejects_unknown_schema(self):
         with tempfile.TemporaryDirectory() as directory:
