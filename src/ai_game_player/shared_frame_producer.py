@@ -86,8 +86,8 @@ class SharedFrameProducer:
         max_pending: int = 8,
     ) -> FrameSubscriber:
         with self._lock:
-            if self._terminal:
-                raise RuntimeError("Cannot subscribe after the frame producer has stopped")
+            if self._terminal or self._stop_event.is_set():
+                raise RuntimeError("Cannot subscribe after the frame producer has stopped or is stopping")
             subscriber = FrameSubscriber(mode, max_pending, self._remove_subscriber)
             self._subscribers.add(subscriber)
             return subscriber
@@ -132,8 +132,8 @@ class SharedFrameProducer:
         if not callable(getattr(capture_source, "capture", None)):
             raise ValueError("capture_source must provide capture()")
         with self._lock:
-            if self._terminal:
-                raise RuntimeError("Cannot replace a source after the frame producer has stopped")
+            if self._terminal or self._stop_event.is_set():
+                raise RuntimeError("Cannot replace a source after the frame producer has stopped or is stopping")
             self._capture_source = capture_source
             self._source_generation += 1
             generation = self._source_generation

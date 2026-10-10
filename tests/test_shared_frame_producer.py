@@ -285,6 +285,10 @@ class SharedFrameProducerTest(unittest.TestCase):
         self.assertTrue(capture.started.wait(timeout=1.0))
 
         self.assertFalse(producer.stop(timeout=0.001))
+        with self.assertRaisesRegex(RuntimeError, "stopped or is stopping"):
+            producer.subscribe()
+        with self.assertRaisesRegex(RuntimeError, "stopped or is stopping"):
+            producer.replace_source(CountingCapture())
         capture.release.set()
         self.assertTrue(producer.stop(timeout=1.0))
 
