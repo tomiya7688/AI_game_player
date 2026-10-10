@@ -15,6 +15,7 @@ from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.runtime.session_composition import (
+    ManagedSessionRuntime,
     RuntimeComposition,
     SessionRuntimeConfiguration,
 )
@@ -402,6 +403,101 @@ class LegacyEventAdapterTest(unittest.TestCase):
             ]
             self.assertEqual(1, len(history_events))
 
+    def test_completed_shared_log_marker_keeps_database_when_game_marker_is_missing(self):
+        class Provider:
+            def close(self):
+                return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            game_directory = root / "game"
+            session_events_directory = game_directory / "session_events"
+            session_events_directory.mkdir(parents=True)
+            runtime_log_path = root / "runtime.jsonl"
+            runtime_log_path.write_text("", encoding="utf-8")
+            runtime_marker = runtime_log_path.with_name(
+                runtime_log_path.name + ".session-event-migration-v1.complete"
+            )
+            runtime_marker.touch()
+            interrupted_journal_path = session_events_directory / "interrupted.sqlite3"
+            with EventJournal(interrupted_journal_path, session_id="interrupted") as journal:
+                journal.append("runtime.log", event_id="runtime-import", payload={"event": "old"})
+            pending_path = session_events_directory / "legacy_migration_v1.pending"
+            pending_path.write_text(
+                json.dumps({
+                    "journal_name": interrupted_journal_path.name,
+                    "game_history": True,
+                    "runtime_log": True,
+                    "runtime_log_source": str(runtime_log_path.resolve()),
+                }),
+                encoding="utf-8",
+            )
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=game_directory,
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+
+            runtime = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()}
+            ).create_session_runtime(
+                configuration,
+                source=object(),
+                controller=RunController(),
+                runtime_log=RuntimeLog(runtime_log_path),
+            )
+            runtime.close()
+
+            self.assertTrue(interrupted_journal_path.exists())
+            self.assertTrue(runtime_marker.exists())
+            self.assertTrue((session_events_directory / "legacy_migration_v1.complete").exists())
+            self.assertFalse(pending_path.exists())
+            self.assertEqual(1, len(read_events(interrupted_journal_path)))
+
+    def test_pending_recovery_record_remains_when_partial_cleanup_fails(self):
+        class Provider:
+            def close(self):
+                return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            game_directory = root / "game"
+            game_directory.mkdir()
+            (game_directory / "execution_history.json").write_text("invalid JSON", encoding="utf-8")
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=game_directory,
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            composition = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()}
+            )
+
+            with patch(
+                "ai_game_player.runtime.session_composition._remove_partial_journal_files",
+                side_effect=OSError("database is locked by another process"),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "cleanup also failed"):
+                    composition.create_session_runtime(
+                        configuration,
+                        source=object(),
+                        controller=RunController(),
+                    )
+
+            self.assertTrue(
+                (game_directory / "session_events" / "legacy_migration_v1.pending").exists()
+            )
+
     def test_runtime_log_migration_marker_is_scoped_to_source_across_games(self):
         class Provider:
             def close(self):
@@ -561,6 +657,30 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 "event_journal_checkpoint",
                 failure_events[0].payload["legacy_record"]["context"]["resource"],
             )
+
+    def test_managed_runtime_does_not_retry_closed_journal_after_close_error(self):
+        class Provider:
+            def close(self):
+                return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal = EventJournal(root / "session.sqlite3", session_id="close-error")
+            pipeline = DecisionPipeline(object(), root, event_journal=journal)
+            runtime = ManagedSessionRuntime(pipeline, Provider())
+            close_journal = journal.close
+
+            def close_then_report_checkpoint_failure():
+                close_journal()
+                raise EventJournalError("final checkpoint failed after connection close")
+
+            with patch.object(journal, "close", side_effect=close_then_report_checkpoint_failure):
+                with self.assertRaisesRegex(RuntimeError, "final checkpoint failed"):
+                    runtime.close()
+                self.assertTrue(pipeline._event_journal_closed)
+                runtime.close()
+
+            self.assertTrue(runtime._pipeline_closed)
 
     def test_managed_runtime_records_provider_shutdown_failure_in_journal(self):
         class Provider:

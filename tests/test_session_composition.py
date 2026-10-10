@@ -1,14 +1,18 @@
 import tempfile
+import sys
 import threading
 import time
+from types import SimpleNamespace
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from ai_game_player.models import ActionDecision
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.runtime.session_composition import (
     RuntimeComposition,
     SessionRuntimeConfiguration,
+    _windows_migration_lock,
 )
 
 
@@ -97,6 +101,7 @@ class SessionCompositionTests(unittest.TestCase):
         self.assertIs(runtime.pipeline, pipeline)
         self.assertEqual(runtime.run().action_id, "start")
         self.assertEqual(runtime.run_and_execute(), "executed")
+        self.assertEqual([], runtime.load_execution_history())
         assessment = runtime.assess_outcome(object(), None)
         self.assertEqual(assessment.reason, "fake assessment")
         self.assertEqual(events[0], ("model-a", "http://localhost"))
@@ -270,6 +275,31 @@ class SessionCompositionTests(unittest.TestCase):
         self.assertEqual([True, False], migration_values)
         for runtime in runtimes:
             runtime.close()
+
+    def test_windows_migration_lock_stops_retrying_after_deadline(self):
+        fake_msvcrt = SimpleNamespace(
+            LK_NBLCK=1,
+            LK_UNLCK=2,
+            locking=Mock(side_effect=OSError("permanent handle error")),
+        )
+        lock_path = Path(self.temporary_directory.name) / "migration.lock"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        with lock_path.open("a+b") as lock_file:
+            with (
+                patch.dict(sys.modules, {"msvcrt": fake_msvcrt}),
+                patch(
+                    "ai_game_player.runtime.session_composition.MIGRATION_LOCK_TIMEOUT_SECONDS",
+                    0.01,
+                ),
+                patch(
+                    "ai_game_player.runtime.session_composition.MIGRATION_LOCK_RETRY_INTERVAL_SECONDS",
+                    0.001,
+                ),
+            ):
+                with self.assertRaisesRegex(TimeoutError, "migration.lock"):
+                    with _windows_migration_lock(lock_file, lock_path):
+                        self.fail("permanent lock errors must not acquire the lock")
+        self.assertGreater(fake_msvcrt.locking.call_count, 0)
 
     def test_pipeline_initialization_failure_releases_created_provider(self):
         events = []

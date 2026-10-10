@@ -326,7 +326,7 @@ class DecisionPipeline:
 
     # {
     #   責務: [close_event_journal: RuntimeLogのSession bindingとSession Journalを閉じる]
-    #   処理: [RuntimeLog bindingを保持したまま事前checkpointし、失敗を記録してからJournalを閉じ最後にdetachする]
+    #   処理: [RuntimeLog bindingを保持したまま事前checkpointし、失敗を記録してからJournalを閉じ最後にdetachする。closeがcheckpoint errorを送出してもJournalはclosedとして扱う]
     #   引数: [なし]
     #   戻り値: []
     #   エラー: [Exception: SQLite checkpointまたは接続closeに失敗した場合]
@@ -353,7 +353,6 @@ class DecisionPipeline:
                         pass
             try:
                 self.event_journal.close()
-                self._event_journal_closed = True
             except Exception as error:
                 if close_error is None:
                     close_error = error
@@ -370,6 +369,9 @@ class DecisionPipeline:
                         )
                     except Exception:
                         pass
+            finally:
+                # EventJournalは最終checkpoint失敗時もconnectionを解放してclosed状態になる。
+                self._event_journal_closed = True
         if not self._runtime_log_detached and self.runtime_log is not None:
             if self._runtime_log_attachment_token is not None:
                 self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)

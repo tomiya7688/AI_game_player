@@ -6,11 +6,11 @@ import inspect
 import json
 import os
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 from uuid import uuid4
 
 from ai_game_player.action_executor import ExecutionResult
@@ -25,38 +25,24 @@ from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
 from ai_game_player.runtime_log import RuntimeLog
 
+MIGRATION_LOCK_RETRY_INTERVAL_SECONDS = 0.05
+MIGRATION_LOCK_TIMEOUT_SECONDS = 30.0
+
 
 # {
 #   責務: [_legacy_migration_lock: 複数プロセスによる同時legacy移行をOS file lockで直列化する]
-#   処理: [Windowsではmsvcrt byte-range lockを、他OSではfcntl flockを保持してmigration完了まで別Sessionを待たせる]
+#   処理: [Windows byte-range lockの競合を有限時間だけ再試行し、期限後はerrorを返す。他OSはfcntl flockで待つ]
 #   引数: [lock_path: game directory内のmigration lock file]
 #   戻り値: [Iterator[None]: lock保持中のcontext]
-#   エラー: [OSError: lock fileを作成またはlockできない場合]
+#   エラー: [OSError: lock fileを作成またはunlockできない場合, TimeoutError: Windows lockを30秒以内に取得できない場合]
 # }
 @contextmanager
-def _legacy_migration_lock(lock_path: Path):
+def _legacy_migration_lock(lock_path: Path) -> Iterator[None]:
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     with lock_path.open("a+b") as lock_file:
         if os.name == "nt":
-            import msvcrt
-
-            lock_file.seek(0, os.SEEK_END)
-            if lock_file.tell() == 0:
-                lock_file.write(b"0")
-                lock_file.flush()
-            lock_file.seek(0)
-            while True:
-                lock_file.seek(0)
-                try:
-                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
-                    break
-                except OSError:
-                    time.sleep(0.05)
-            try:
+            with _windows_migration_lock(lock_file, lock_path):
                 yield
-            finally:
-                lock_file.seek(0)
-                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
         else:
             import fcntl
 
@@ -65,6 +51,41 @@ def _legacy_migration_lock(lock_path: Path):
                 yield
             finally:
                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
+# {
+#   責務: [_windows_migration_lock: Windows file handleのbyte range lockを有限時間だけ取得する]
+#   処理: [非blocking lockをretry deadlineまで試し、deadlineを過ぎたらTimeoutErrorを送出して取得済みlockだけを解放する]
+#   引数: [lock_file: 共有区間を保持するopen file handle, lock_path: timeout errorへ表示するlockの保存先]
+#   戻り値: [Iterator[None]: Windows lock保持中のcontext]
+#   エラー: [OSError: lock file書込またはunlock失敗, TimeoutError: lock取得が期限内に完了しない場合]
+# }
+@contextmanager
+def _windows_migration_lock(lock_file: BinaryIO, lock_path: Path) -> Iterator[None]:
+    import msvcrt
+
+    lock_file.seek(0, os.SEEK_END)
+    if lock_file.tell() == 0:
+        lock_file.write(b"0")
+        lock_file.flush()
+    deadline = time.monotonic() + MIGRATION_LOCK_TIMEOUT_SECONDS
+    while True:
+        lock_file.seek(0)
+        try:
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+            break
+        except OSError as error:
+            remaining_seconds = deadline - time.monotonic()
+            if remaining_seconds <= 0:
+                raise TimeoutError(
+                    f"Timed out waiting for migration lock: {lock_path}"
+                ) from error
+            time.sleep(min(MIGRATION_LOCK_RETRY_INTERVAL_SECONDS, remaining_seconds))
+    try:
+        yield
+    finally:
+        lock_file.seek(0)
+        msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 # {
@@ -133,7 +154,7 @@ def _runtime_log_migration_paths(runtime_log: RuntimeLog) -> tuple[Path, Path]:
 
 # {
 #   責務: [_recover_interrupted_migration: 前回processが完了markerを公開する前に停止したmigrationを破棄する]
-#   処理: [atomic pending recordが指すsession-owned databaseと今回予定したmarkerだけを検証して削除し、残ったlegacy sourceから次回migrationを許可する]
+#   処理: [completion markerが一つでも存在すればfactoryが全migrationを完了した証拠として残りのmarkerを確定し、markerがなければpartial databaseを破棄して再試行する]
 #   引数: [pending_path: migration中にatomic作成するjournal名とsource情報, session_events_directory: session journalを所有するdirectory]
 #   戻り値: []
 #   エラー: [ValueErrorまたはOSError: pending recordが不正かmigration artifactを破棄できない場合]
@@ -161,12 +182,15 @@ def _recover_interrupted_migration(
             runtime_marker = source_path.with_name(
                 source_path.name + ".session-event-migration-v1.complete"
             )
-    marker_paths = []
+    marker_paths: list[Path] = []
     if pending.get("game_history") is True:
         marker_paths.append(game_history_marker)
     if pending.get("runtime_log") is True and runtime_marker is not None:
         marker_paths.append(runtime_marker)
-    if marker_paths and all(marker.exists() for marker in marker_paths):
+    if any(marker.exists() for marker in marker_paths):
+        for marker in marker_paths:
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            marker.touch(exist_ok=True)
         pending_path.unlink()
         return
     _remove_partial_journal_files(session_events_directory / journal_name)
@@ -244,12 +268,15 @@ class ManagedSessionRuntime:
         return self.pipeline.run_and_execute(**arguments)
 
     # {
-    #   責務: [load_execution_history: 同一Session Pipelineが保有する実行履歴を返す]
+    #   責務: [load_execution_history: Pipelineが提供するSession実行履歴を返し、旧factoryにmetrics APIがなければ空履歴を返す]
     #   引数: [なし]
-    #   戻り値: [list[ExecutionResult]: 旧保存分と現在Journalへ追加した実行結果]
+    #   戻り値: [list[ExecutionResult]: Pipelineが提供する履歴、または旧factory互換の空一覧]
     # }
     def load_execution_history(self) -> list[ExecutionResult]:
-        return self.pipeline.load_execution_history()
+        load_history = getattr(self.pipeline, "load_execution_history", None)
+        if not callable(load_history):
+            return []
+        return load_history()
 
     # {
     #   責務: [assess_outcome: session Providerを再利用して現在画面のterminal状態を評価する]
@@ -465,14 +492,14 @@ class RuntimeComposition:
                     )
                     if journal_pipeline is None:
                         raise RuntimeError("Journal-aware pipeline factory returned no Session runtime")
-                    if migrate_runtime_log and runtime_log_marker is not None:
-                        runtime_log_marker.parent.mkdir(parents=True, exist_ok=True)
-                        runtime_log_marker.touch(exist_ok=True)
-                        newly_created_markers.append(runtime_log_marker)
                     if migrate_legacy:
                         migration_marker.parent.mkdir(parents=True, exist_ok=True)
                         migration_marker.touch(exist_ok=True)
                         newly_created_markers.append(migration_marker)
+                    if migrate_runtime_log and runtime_log_marker is not None:
+                        runtime_log_marker.parent.mkdir(parents=True, exist_ok=True)
+                        runtime_log_marker.touch(exist_ok=True)
+                        newly_created_markers.append(runtime_log_marker)
                     if pending_write_created:
                         pending_path.unlink(missing_ok=True)
                 except Exception as initialization_error:
@@ -487,17 +514,13 @@ class RuntimeComposition:
                             event_journal.close()
                         except Exception as cleanup_error:
                             cleanup_errors.append(cleanup_error)
-                    try:
-                        _remove_partial_journal_files(session_journal_path)
-                    except Exception as cleanup_error:
-                        cleanup_errors.append(cleanup_error)
                     for created_marker in newly_created_markers:
                         try:
                             created_marker.unlink(missing_ok=True)
                         except Exception as cleanup_error:
                             cleanup_errors.append(cleanup_error)
                     try:
-                        pending_path.unlink(missing_ok=True)
+                        _remove_partial_journal_files(session_journal_path)
                     except Exception as cleanup_error:
                         cleanup_errors.append(cleanup_error)
                     if cleanup_errors:
@@ -505,6 +528,7 @@ class RuntimeComposition:
                             f"Session pipeline initialization failed ({initialization_error}); "
                             "cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
                         ) from initialization_error
+                    pending_path.unlink(missing_ok=True)
                     raise
         except Exception as initialization_error:
             try:
