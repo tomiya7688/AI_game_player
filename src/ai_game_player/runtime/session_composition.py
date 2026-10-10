@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
+import os
 from pathlib import Path
+import time
 from typing import Any
 from uuid import uuid4
 
@@ -18,6 +21,47 @@ from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
 from ai_game_player.runtime_log import RuntimeLog
+
+
+# {
+#   責務: [_legacy_migration_lock: 複数プロセスによる同時legacy移行をOS file lockで直列化する]
+#   処理: [Windowsではmsvcrt byte-range lockを、他OSではfcntl flockを保持してmigration完了まで別Sessionを待たせる]
+#   引数: [lock_path: game directory内のmigration lock file]
+#   戻り値: [Iterator[None]: lock保持中のcontext]
+#   エラー: [OSError: lock fileを作成またはlockできない場合]
+# }
+@contextmanager
+def _legacy_migration_lock(lock_path: Path):
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a+b") as lock_file:
+        if os.name == "nt":
+            import msvcrt
+
+            lock_file.seek(0, os.SEEK_END)
+            if lock_file.tell() == 0:
+                lock_file.write(b"0")
+                lock_file.flush()
+            lock_file.seek(0)
+            while True:
+                lock_file.seek(0)
+                try:
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError:
+                    time.sleep(0.05)
+            try:
+                yield
+            finally:
+                lock_file.seek(0)
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
 @dataclass(frozen=True)
@@ -97,14 +141,24 @@ class ManagedSessionRuntime:
 
     # {
     #   責務: [close: session終了時にPipelineとProviderのresourceを解放する]
-    #   処理: [Pipelineを先に閉じ、失敗したresourceの状態だけを残して再試行可能にする]
+    #   処理: [実入力executorを止め、Provider終了失敗を記録した後でJournalを閉じ、失敗resourceを再試行可能にする]
     #   引数: []
     #   戻り値: []
     #   エラー: [RuntimeError: いずれかのresource解放に失敗した場合]
     # }
     def close(self) -> None:
         errors: list[Exception] = []
-        if not self._pipeline_closed:
+        close_execution_resources = getattr(self.pipeline, "close_execution_resources", None)
+        close_event_journal = getattr(self.pipeline, "close_event_journal", None)
+        staged_pipeline_cleanup = callable(close_execution_resources) and callable(close_event_journal)
+        execution_resources_closed = True
+        if not self._pipeline_closed and staged_pipeline_cleanup:
+            try:
+                close_execution_resources()
+            except Exception as exc:
+                errors.append(exc)
+                execution_resources_closed = False
+        elif not self._pipeline_closed:
             try:
                 self.pipeline.close()
                 self._pipeline_closed = True
@@ -114,6 +168,18 @@ class ManagedSessionRuntime:
             try:
                 _close_provider(self._provider)
                 self._provider_closed = True
+            except Exception as exc:
+                errors.append(exc)
+                record_failure = getattr(self.pipeline, "record_shutdown_failure", None)
+                if callable(record_failure):
+                    try:
+                        record_failure("provider", exc)
+                    except Exception as logging_error:
+                        errors.append(logging_error)
+        if not self._pipeline_closed and staged_pipeline_cleanup:
+            try:
+                close_event_journal()
+                self._pipeline_closed = execution_resources_closed
             except Exception as exc:
                 errors.append(exc)
         if errors:
@@ -174,53 +240,55 @@ class RuntimeComposition:
         provider = provider_factory(configuration.model, configuration.endpoint)
         session_id = uuid4().hex
         migration_marker = configuration.game_directory / "session_events" / "legacy_migration_v1.complete"
-        migrate_legacy = not migration_marker.exists()
-        event_journal: EventJournal | None = None
-        pipeline: DecisionPipeline | None = None
-        try:
-            event_journal = EventJournal(
-                configuration.game_directory / "session_events" / f"{session_id}.sqlite3",
-                session_id=session_id,
-            )
-            pipeline = self._pipeline_factory(
-                source,
-                configuration.game_directory,
-                provider,
-                controller,
-                dry_run=configuration.dry_run,
-                window_handle=configuration.window_handle,
-                input_mode=configuration.input_mode,
-                window_process_id=configuration.window_process_id,
-                automated_cursor_position_callback=automated_cursor_position_callback,
-                event_journal=event_journal,
-                runtime_log=runtime_log,
-                migrate_legacy=migrate_legacy,
-            )
-            if migrate_legacy:
-                migration_marker.parent.mkdir(parents=True, exist_ok=True)
-                migration_marker.touch(exist_ok=True)
-        except Exception as initialization_error:
-            cleanup_errors: list[Exception] = []
-            if pipeline is not None:
-                try:
-                    pipeline.close()
-                except Exception as cleanup_error:
-                    cleanup_errors.append(cleanup_error)
-            if event_journal is not None:
-                try:
-                    event_journal.close()
-                except Exception as cleanup_error:
-                    cleanup_errors.append(cleanup_error)
+        migration_lock = migration_marker.with_suffix(".lock")
+        with _legacy_migration_lock(migration_lock):
+            migrate_legacy = not migration_marker.exists()
+            event_journal: EventJournal | None = None
+            pipeline: DecisionPipeline | None = None
             try:
-                _close_provider(provider)
-            except Exception as cleanup_error:
-                cleanup_errors.append(cleanup_error)
-            if cleanup_errors:
-                raise RuntimeError(
-                    f"Session pipeline initialization failed ({initialization_error}); "
-                    "cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
-                ) from initialization_error
-            raise
+                event_journal = EventJournal(
+                    configuration.game_directory / "session_events" / f"{session_id}.sqlite3",
+                    session_id=session_id,
+                )
+                pipeline = self._pipeline_factory(
+                    source,
+                    configuration.game_directory,
+                    provider,
+                    controller,
+                    dry_run=configuration.dry_run,
+                    window_handle=configuration.window_handle,
+                    input_mode=configuration.input_mode,
+                    window_process_id=configuration.window_process_id,
+                    automated_cursor_position_callback=automated_cursor_position_callback,
+                    event_journal=event_journal,
+                    runtime_log=runtime_log,
+                    migrate_legacy=migrate_legacy,
+                )
+                if migrate_legacy:
+                    migration_marker.parent.mkdir(parents=True, exist_ok=True)
+                    migration_marker.touch(exist_ok=True)
+            except Exception as initialization_error:
+                cleanup_errors: list[Exception] = []
+                if pipeline is not None:
+                    try:
+                        pipeline.close()
+                    except Exception as cleanup_error:
+                        cleanup_errors.append(cleanup_error)
+                if event_journal is not None:
+                    try:
+                        event_journal.close()
+                    except Exception as cleanup_error:
+                        cleanup_errors.append(cleanup_error)
+                try:
+                    _close_provider(provider)
+                except Exception as cleanup_error:
+                    cleanup_errors.append(cleanup_error)
+                if cleanup_errors:
+                    raise RuntimeError(
+                        f"Session pipeline initialization failed ({initialization_error}); "
+                        "cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
+                    ) from initialization_error
+                raise
         return ManagedSessionRuntime(pipeline, provider)
 
     # {

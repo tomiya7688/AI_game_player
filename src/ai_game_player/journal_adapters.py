@@ -57,8 +57,8 @@ class StagedJournalAppend:
 class LegacyEventAdapter:
     # {
     #   責務: [__init__: 旧保存ファイルを検証し、既存recordを重複しないIDでJournalへ移行する]
-    #   処理: [移行許可時にJSON arrayまたはJSONLを読み、内容hashによる安定IDで同じDB内の再試行を冪等にする]
-    #   引数: [journal: event保存先, source_path: 旧形式JSONまたはJSONL, event_type: 移行先Envelopeの種類, json_lines: trueなら各行を1 objectとして読む, retain_records: falseならrecordを互換cacheへ保持しない, migrate_legacy: falseなら旧ファイルを再読込しない]
+    #   処理: [JSON arrayまたはJSONLを互換cache用に読み、移行許可時だけ内容hashによる安定IDでJournalへ保存する]
+    #   引数: [journal: event保存先, source_path: 旧形式JSONまたはJSONL, event_type: 移行先Envelopeの種類, json_lines: trueなら各行を1 objectとして読む, retain_records: falseならrecordを互換cacheへ保持しない, migrate_legacy: falseなら旧recordをJournalへ再移行しない]
     #   戻り値: []
     #   エラー: [OSError: 旧ファイルを読めない場合, ValueError: JSON形状またはrecordが不正な場合]
     # }
@@ -79,11 +79,12 @@ class LegacyEventAdapter:
         self.retain_records = retain_records
         self.migrate_legacy = migrate_legacy
         self._records: list[dict[str, Any]] = []
-        legacy_records = self._read_legacy_records() if self.migrate_legacy else []
+        legacy_records = self._read_legacy_records()
         for index, record in enumerate(legacy_records):
             if self.retain_records:
                 self._records.append(record)
-            self._append_record(record, self._legacy_event_id(index, record))
+            if self.migrate_legacy:
+                self._append_record(record, self._legacy_event_id(index, record))
 
     # {
     #   責務: [records: 旧readerと同じrecord形状で旧・現Sessionの記録を返す]

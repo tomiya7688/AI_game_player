@@ -13,6 +13,11 @@ from ai_game_player.journal_adapters import LegacyEventAdapter
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.runtime_log import RuntimeLog
+from ai_game_player.runtime.session_composition import (
+    RuntimeComposition,
+    SessionRuntimeConfiguration,
+)
+from ai_game_player.run_control import RunController
 
 
 def read_events(database_path: Path) -> list[EventEnvelope]:
@@ -158,6 +163,26 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 self.assertEqual(["old", "new"], [result.action_id for result in history.load()])
             self.assertEqual(original_text, legacy_path.read_text(encoding="utf-8"))
 
+    def test_later_session_reads_legacy_cache_without_replaying_events(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            legacy_path = root / "execution_history.json"
+            legacy_path.write_text(
+                '[{"action_id":"old","executed":true,"mode":"mouse"}]',
+                encoding="utf-8",
+            )
+            journal_path = root / "later-session.sqlite3"
+            with EventJournal(journal_path, session_id="session-2") as journal:
+                adapter = LegacyEventAdapter(
+                    journal,
+                    legacy_path,
+                    "execution.result",
+                    migrate_legacy=False,
+                )
+                history = ExecutionHistory(legacy_path, adapter)
+                self.assertEqual(["old"], [entry.action_id for entry in history.load()])
+                self.assertEqual(0, journal.last_sequence)
+
     def test_runtime_log_migrates_old_jsonl_and_keeps_append_compatibility(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -179,6 +204,78 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 [event.payload["legacy_record"]["event"] for event in events],
             )
             self.assertEqual(2, len(legacy_path.read_text(encoding="utf-8").splitlines()))
+
+    def test_shutdown_failure_records_failed_status_before_journal_closes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal_path = root / "session.sqlite3"
+            journal = EventJournal(journal_path, session_id="session-failed")
+            runtime_log = RuntimeLog(root / "runtime.jsonl")
+            pipeline = DecisionPipeline(
+                object(),
+                root,
+                event_journal=journal,
+                runtime_log=runtime_log,
+            )
+
+            pipeline.record_shutdown_failure("provider", RuntimeError("close failed"))
+            pipeline.close()
+
+            failure_events = [
+                event for event in read_events(journal_path)
+                if event.event_type == "runtime.log"
+                and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
+            ]
+            self.assertEqual(1, len(failure_events))
+            self.assertEqual(
+                "failed",
+                failure_events[0].payload["legacy_record"]["context"]["status"],
+            )
+
+    def test_managed_runtime_records_provider_shutdown_failure_in_journal(self):
+        class Provider:
+            def close(self):
+                raise RuntimeError("provider close failed")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=root / "game",
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            runtime = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()}
+            ).create_session_runtime(
+                configuration,
+                source=object(),
+                controller=RunController(),
+                runtime_log=RuntimeLog(root / "runtime.jsonl"),
+            )
+            journal_path = runtime.pipeline.event_journal.path
+
+            with self.assertRaisesRegex(RuntimeError, "provider close failed"):
+                runtime.close()
+
+            failure_events = [
+                event for event in read_events(journal_path)
+                if event.event_type == "runtime.log"
+                and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
+            ]
+            self.assertEqual(1, len(failure_events))
+            self.assertEqual(
+                "provider",
+                failure_events[0].payload["legacy_record"]["context"]["resource"],
+            )
+            self.assertEqual(
+                "failed",
+                failure_events[0].payload["legacy_record"]["context"]["status"],
+            )
 
 
 if __name__ == "__main__":

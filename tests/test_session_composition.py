@@ -1,4 +1,6 @@
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 
@@ -175,6 +177,65 @@ class SessionCompositionTests(unittest.TestCase):
         pipeline.close_error = None
         runtime.close()
         self.assertEqual(events, ["pipeline.close", "provider.close", "pipeline.close"])
+
+    def test_migration_lock_serializes_first_session_creation(self):
+        migration_values = []
+        first_pipeline_started = threading.Event()
+        allow_first_pipeline_to_finish = threading.Event()
+
+        class Pipeline:
+            event_journal = None
+
+            def close(self):
+                self.event_journal.close()
+
+            def load_execution_history(self):
+                return []
+
+        def build_pipeline(*_arguments, **keywords):
+            migration_values.append(keywords["migrate_legacy"])
+            if len(migration_values) == 1:
+                first_pipeline_started.set()
+                if not allow_first_pipeline_to_finish.wait(timeout=5):
+                    raise TimeoutError("test did not release first pipeline")
+            pipeline = Pipeline()
+            pipeline.event_journal = keywords["event_journal"]
+            return pipeline
+
+        composition = RuntimeComposition(
+            provider_factories={"fake": lambda *_arguments: FakeProvider([])},
+            pipeline_factory=build_pipeline,
+        )
+        runtimes = []
+        errors = []
+
+        def create_runtime():
+            try:
+                runtimes.append(
+                    composition.create_session_runtime(
+                        self.configuration(), source=object(), controller=object()
+                    )
+                )
+            except Exception as error:
+                errors.append(error)
+
+        first = threading.Thread(target=create_runtime)
+        second = threading.Thread(target=create_runtime)
+        first.start()
+        self.assertTrue(first_pipeline_started.wait(timeout=5))
+        second.start()
+        time.sleep(0.1)
+        self.assertEqual([True], migration_values)
+        allow_first_pipeline_to_finish.set()
+        first.join(timeout=5)
+        second.join(timeout=5)
+
+        self.assertFalse(first.is_alive())
+        self.assertFalse(second.is_alive())
+        self.assertEqual([], errors)
+        self.assertEqual([True, False], migration_values)
+        for runtime in runtimes:
+            runtime.close()
 
     def test_pipeline_initialization_failure_releases_created_provider(self):
         events = []

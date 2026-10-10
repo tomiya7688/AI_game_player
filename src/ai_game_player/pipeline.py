@@ -81,6 +81,7 @@ class DecisionPipeline:
         self.runtime_log = runtime_log
         self._runtime_log_detached = runtime_log is None or event_journal is None
         self._event_journal_closed = event_journal is None
+        self._executor_closed = False
         self.engine = GamePlayerEngine(
             game_directory,
             provider,
@@ -261,20 +262,58 @@ class DecisionPipeline:
 
     # {
     #   責務: [close: 入力executor・runtime log binding・Session Journalを終了する]
-    #   処理: [executor closeを試み、必ずlogをdetachしてSQLite接続を閉じる]
+    #   処理: [executor・runtime log・Journalを順番に閉じ、各cleanup errorを集めて送出する]
     #   引数: [self: 終了するDecisionPipeline]
     #   戻り値: []
     #   エラー: [executorまたはJournal closeで発生した終了errorを呼出元へ送る]
     # }
     def close(self) -> None:
-        close_error: Exception | None = None
+        close_errors: list[Exception] = []
+        try:
+            self.close_execution_resources()
+        except Exception as error:
+            close_errors.append(error)
+        try:
+            self.close_event_journal()
+        except Exception as error:
+            close_errors.append(error)
+        if close_errors:
+            raise RuntimeError("Pipeline cleanup failed: " + "; ".join(map(str, close_errors))) from close_errors[0]
+
+    # {
+    #   責務: [close_execution_resources: 実入力executorを停止し失敗をJournalへ記録する]
+    #   処理: [executor終了後もJournalを開いたままにして、後続Provider終了失敗を保存できるようにする]
+    #   引数: [なし]
+    #   戻り値: []
+    #   エラー: [Exception: executor終了またはJournalへの失敗記録に失敗した場合]
+    # }
+    def close_execution_resources(self) -> None:
+        if self._executor_closed:
+            return
         try:
             self.executor.close()
+            self._executor_closed = True
         except Exception as error:
-            close_error = error
+            try:
+                self.record_shutdown_failure("executor", error)
+            except Exception as logging_error:
+                raise RuntimeError(
+                    f"Executor shutdown failed ({error}); failure logging also failed ({logging_error})"
+                ) from error
+            raise
+
+    # {
+    #   責務: [close_event_journal: RuntimeLogのSession bindingとSession Journalを閉じる]
+    #   処理: [executorとProvider終了が完了した後でRuntimeLogをdetachしSQLite接続を閉じる]
+    #   引数: [なし]
+    #   戻り値: []
+    #   エラー: [Exception: SQLite checkpointまたは接続closeに失敗した場合]
+    # }
+    def close_event_journal(self) -> None:
         if not self._runtime_log_detached and self.runtime_log is not None:
             self.runtime_log.detach_event_journal()
             self._runtime_log_detached = True
+        close_error: Exception | None = None
         if not self._event_journal_closed and self.event_journal is not None:
             try:
                 self.event_journal.close()
@@ -282,8 +321,33 @@ class DecisionPipeline:
             except Exception as error:
                 if close_error is None:
                     close_error = error
+                if self.runtime_log is not None:
+                    try:
+                        self.runtime_log.write(
+                            "session.shutdown_failed",
+                            "Session Event Journal cleanup failed",
+                            {"resource": "event_journal", "error": str(error)},
+                        )
+                    except Exception:
+                        pass
         if close_error is not None:
             raise close_error
+
+    # {
+    #   責務: [record_shutdown_failure: Provider・executorの終了失敗をJournalへ記録する]
+    #   処理: [Journalを閉じる前にruntime logへresource名と例外内容を追記する]
+    #   引数: [resource: 終了に失敗したresource名, error: resource closeが送出した例外]
+    #   戻り値: []
+    #   エラー: [OSErrorまたはEventJournalError: JSONLまたはJournalへ失敗記録を書けない場合]
+    # }
+    def record_shutdown_failure(self, resource: str, error: Exception) -> None:
+        if self.runtime_log is None:
+            return
+        self.runtime_log.write(
+            "session.shutdown_failed",
+            f"Session shutdown failed while closing {resource}",
+            {"status": "failed", "resource": resource, "error": str(error)},
+        )
 
     def _sync_runtime_rearm(self) -> None:
         runtime = self.executor.fail_safe_runtime
