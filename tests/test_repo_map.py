@@ -37,6 +37,8 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         (package / "consumer.py").write_text(
             "from sample_pkg.models import Snapshot\n", encoding="utf-8"
         )
+        (package / "attribute_consumer.py").write_text("from . import CONSTANT\n", encoding="utf-8")
+        (package / "star_consumer.py").write_text("from . import *\n", encoding="utf-8")
         (package / "models.py").write_text(
             "from dataclasses import dataclass\n"
             "from enum import Enum\n"
@@ -49,6 +51,8 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             "    READY = 1\n"
             "class Reader(Protocol[str]):\n"
             "    def read(self, key: str) -> str: ...\n"
+            "@register(token='secret-value', enabled=True)\n"
+            "def decorated(value: int): return value\n"
             "class Calculator:\n"
             "    def compute(self, value: int, /, scale: float = 1.0, *, enabled: bool = True) -> str:\n"
             "        def normalize(text: str = 'private default') -> str:\n"
@@ -79,13 +83,19 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         symbols_by_name = {symbol["qualified_name"]: symbol for symbol in sample_models["symbols"]}
 
         self.assertEqual(1, repository_map["schema_version"])
-        self.assertEqual(["sample_pkg.models"], sample_package["dependencies"])
-        self.assertEqual(["sample_pkg.helpers"], sample_models["dependencies"])
+        self.assertEqual(["sample_pkg", "sample_pkg.models"], sample_package["dependencies"])
+        self.assertEqual(["sample_pkg", "sample_pkg.helpers"], sample_models["dependencies"])
         self.assertEqual(["sample_pkg.models"], modules_by_name["sample_pkg.consumer"]["dependencies"])
+        self.assertEqual(["sample_pkg"], modules_by_name["sample_pkg.attribute_consumer"]["dependencies"])
+        self.assertEqual(["sample_pkg"], modules_by_name["sample_pkg.star_consumer"]["dependencies"])
         self.assertEqual("class", symbols_by_name["Snapshot"]["kind"])
         self.assertEqual({"dataclass": True, "enum": False, "protocol": False}, symbols_by_name["Snapshot"]["data_model"])
         self.assertTrue(symbols_by_name["Phase"]["data_model"]["enum"])
         self.assertTrue(symbols_by_name["Reader"]["data_model"]["protocol"])
+        self.assertEqual(
+            ["register(token=REDACTED, enabled=True)"],
+            symbols_by_name["decorated"]["decorators"],
+        )
         self.assertEqual("async_function", symbols_by_name["load_snapshot"]["kind"])
         self.assertEqual("(path: str) -> Snapshot", symbols_by_name["load_snapshot"]["signature"])
 
@@ -100,6 +110,7 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         self.assertNotIn("normalize", symbols_by_name)
         self.assertEqual(6, symbols_by_name["Snapshot"]["source_location"]["start_line"])
         self.assertNotIn("must not be copied", json.dumps(repository_map, ensure_ascii=False))
+        self.assertNotIn("secret-value", json.dumps(repository_map, ensure_ascii=False))
         self.assertNotIn("ignored", modules_by_name)
         self.assertNotIn("sample_pkg.generated.nested.also_ignored", modules_by_name)
         self.assertIn("tools.helper", modules_by_name)
@@ -117,6 +128,26 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         output.write_text("stale output", encoding="utf-8")
         self.assertFalse(generator.write(check=True))
         self.assertEqual("stale output", output.read_text(encoding="utf-8"))
+
+    def test_output_cannot_overwrite_a_source_config_or_existing_non_map_file(self):
+        self.write_source_fixture()
+        generator = RepositoryMapGenerator(self.root, self.config_path)
+        source_path = self.root / "src" / "sample_pkg" / "models.py"
+        original_source = source_path.read_text(encoding="utf-8")
+        with self.assertRaisesRegex(RepositoryMapError, "selected Python source"):
+            generator.write(output_path=Path("src/sample_pkg/models.py"))
+        self.assertEqual(original_source, source_path.read_text(encoding="utf-8"))
+
+        with self.assertRaisesRegex(RepositoryMapError, "configuration file"):
+            generator.write(output_path=Path("config/repo_map.json"))
+        self.assertTrue(self.config_path.is_file())
+
+        existing_document = self.root / "doc" / "versions.md"
+        existing_document.parent.mkdir()
+        existing_document.write_text("release history", encoding="utf-8")
+        with self.assertRaisesRegex(RepositoryMapError, "not a previous repository map"):
+            generator.write(output_path=Path("doc/versions.md"))
+        self.assertEqual("release history", existing_document.read_text(encoding="utf-8"))
 
     def test_parse_failure_preserves_the_previous_repository_map(self):
         self.write_source_fixture()
@@ -178,6 +209,19 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
 
         self.assertEqual("Legacy", modules_by_name["sample.latin"]["symbols"][0]["name"])
         self.assertEqual("Utf8Bom", modules_by_name["sample.bom"]["symbols"][0]["name"])
+
+    def test_source_paths_are_sorted_case_sensitively_and_independently_of_the_host(self):
+        package = self.root / "src" / "pkg"
+        package.mkdir(parents=True)
+        (package / "B.py").write_text("class Upper: pass\n", encoding="utf-8")
+        (package / "a.py").write_text("class Lower: pass\n", encoding="utf-8")
+
+        repository_map = RepositoryMapGenerator(self.root, self.config_path).build()
+
+        self.assertEqual(
+            ["src/pkg/B.py", "src/pkg/a.py"],
+            [module["path"] for module in repository_map["modules"]],
+        )
 
     def test_source_symlink_outside_repository_is_rejected(self):
         self.write_source_fixture()

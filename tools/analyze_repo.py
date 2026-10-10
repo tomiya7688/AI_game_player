@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import copy
 import fnmatch
 import json
 import os
@@ -73,7 +74,7 @@ class RepositoryMapGenerator:
             selected.update(self.repository_root.glob(pattern))
         root = self.repository_root
         safe_paths: list[Path] = []
-        for path in sorted(selected):
+        for path in sorted(selected, key=lambda item: item.relative_to(root).as_posix()):
             if not path.is_file() or path.suffix != ".py":
                 continue
             resolved = path.resolve()
@@ -123,6 +124,7 @@ class RepositoryMapGenerator:
 
     def publish(self, content: str, output_path: Path | None = None) -> None:
         destination = self.output_path(output_path)
+        self._validate_output_destination(destination)
         destination.parent.mkdir(parents=True, exist_ok=True)
         temporary_path: Path | None = None
         try:
@@ -142,6 +144,27 @@ class RepositoryMapGenerator:
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)
             raise RepositoryMapError(f"cannot publish repository map {destination}: {error}") from error
+
+    def _validate_output_destination(self, destination: Path) -> None:
+        if destination == self.config_path:
+            raise RepositoryMapError("repository-map output cannot overwrite its configuration file")
+        if any(source.resolve() == destination for source in self._selected_source_paths()):
+            raise RepositoryMapError("repository-map output cannot overwrite a selected Python source file")
+        if not destination.exists():
+            return
+        try:
+            existing_map = json.loads(destination.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            existing_map = None
+        if (
+            not isinstance(existing_map, dict)
+            or existing_map.get("format") != "kadoka-repository-map"
+            or type(existing_map.get("schema_version")) is not int
+            or existing_map.get("schema_version") != SCHEMA_VERSION
+        ):
+            raise RepositoryMapError(
+                f"repository-map output already exists and is not a previous repository map: {destination}"
+            )
 
     @staticmethod
     def _matches_path_pattern(path: PurePosixPath, pattern: str) -> bool:
@@ -254,7 +277,7 @@ class RepositoryMapGenerator:
                         base_parts = package_parts[:-parent_count]
                 resolved_module = ".".join([*base_parts, *(node.module.split(".") if node.module else [])])
                 names = [{"name": alias.name, "alias": alias.asname} for alias in node.names]
-                possible_dependencies = {resolved_module} if resolved_module and node.module else set()
+                possible_dependencies = {resolved_module} if resolved_module else set()
                 possible_dependencies.update(
                     f"{resolved_module}.{alias.name}" if resolved_module else alias.name
                     for alias in node.names
@@ -337,7 +360,7 @@ class RepositoryMapGenerator:
                 "end_line": node.end_lineno or node.lineno,
                 "column": node.col_offset,
             },
-            "decorators": [ast.unparse(decorator) for decorator in node.decorator_list],
+            "decorators": [cls._render_decorator(decorator) for decorator in node.decorator_list],
             "signature": signature,
             "parameters": parameters,
             "return_annotation": return_annotation,
@@ -347,6 +370,17 @@ class RepositoryMapGenerator:
         if source and node.end_lineno is None:
             record["source_location"]["end_line"] = node.lineno
         return record
+
+    @staticmethod
+    def _render_decorator(decorator: ast.expr) -> str:
+        class LiteralRedactor(ast.NodeTransformer):
+            def visit_Constant(self, node: ast.Constant) -> ast.expr:
+                if node.value is None or type(node.value) is bool or node.value is Ellipsis:
+                    return node
+                return ast.copy_location(ast.Name(id="REDACTED", ctx=ast.Load()), node)
+
+        redacted_decorator = LiteralRedactor().visit(copy.deepcopy(decorator))
+        return ast.unparse(redacted_decorator)
 
     @staticmethod
     def _terminal_name(node: ast.expr) -> str:

@@ -45149,7 +45149,7 @@
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch('ai_game_player.fail_safe_runtime._windows_target_matches', return_value=True)"
+            "patch(REDACTED, return_value=True)"
           ],
           "kind": "method",
           "name": "test_rearm_allows_initial_observation_grace_without_granting_input",
@@ -53387,7 +53387,7 @@
             "protocol": false
           },
           "decorators": [
-            "unittest.skipUnless(os.environ.get('KADOKA_NATIVE_RUNTIME'), 'built Native Runtime not configured')"
+            "unittest.skipUnless(os.environ.get(REDACTED), REDACTED)"
           ],
           "kind": "class",
           "name": "NativeRuntimeIntegrationTest",
@@ -56927,7 +56927,7 @@
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch('ai_game_player.provider.urlopen', return_value=FakeResponse())"
+            "patch(REDACTED, return_value=FakeResponse())"
           ],
           "kind": "method",
           "name": "test_lists_model_names",
@@ -57164,7 +57164,7 @@
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch('ai_game_player.provider.urlopen', side_effect=AssertionError('RuleProvider must not access the network'))"
+            "patch(REDACTED, side_effect=AssertionError(REDACTED))"
           ],
           "kind": "method",
           "name": "test_rule_provider_assesses_outcome_without_network_access",
@@ -57195,7 +57195,7 @@
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch('ai_game_player.provider.urlopen', return_value=FakeResponse())"
+            "patch(REDACTED, return_value=FakeResponse())"
           ],
           "kind": "method",
           "name": "test_assesses_outcome",
@@ -57460,7 +57460,7 @@
       "module": "tests.test_repo_map",
       "path": "tests/test_repo_map.py",
       "source_location": {
-        "end_line": 200,
+        "end_line": 244,
         "start_line": 1
       },
       "symbols": [
@@ -57482,7 +57482,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 196,
+            "end_line": 240,
             "start_line": 10
           }
         },
@@ -57592,7 +57592,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 70,
+            "end_line": 74,
             "start_line": 30
           }
         },
@@ -57615,8 +57615,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 105,
-            "start_line": 72
+            "end_line": 116,
+            "start_line": 76
           }
         },
         {
@@ -57638,8 +57638,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 119,
-            "start_line": 107
+            "end_line": 130,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_output_cannot_overwrite_a_source_config_or_existing_non_map_file",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositoryMapGeneratorTests.test_output_cannot_overwrite_a_source_config_or_existing_non_map_file",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 132
           }
         },
         {
@@ -57661,8 +57684,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 132,
-            "start_line": 121
+            "end_line": 163,
+            "start_line": 152
           }
         },
         {
@@ -57684,8 +57707,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 134
+            "end_line": 181,
+            "start_line": 165
           }
         },
         {
@@ -57707,8 +57730,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 158,
-            "start_line": 152
+            "end_line": 189,
+            "start_line": 183
           }
         },
         {
@@ -57730,8 +57753,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 166,
-            "start_line": 160
+            "end_line": 197,
+            "start_line": 191
           }
         },
         {
@@ -57753,8 +57776,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 168
+            "end_line": 211,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_source_paths_are_sorted_case_sensitively_and_independently_of_the_host",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositoryMapGeneratorTests.test_source_paths_are_sorted_case_sensitively_and_independently_of_the_host",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 224,
+            "start_line": 213
           }
         },
         {
@@ -57776,8 +57822,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 196,
-            "start_line": 182
+            "end_line": 240,
+            "start_line": 226
           }
         }
       ]
@@ -59604,7 +59650,7 @@
           "bases": [],
           "data_model": null,
           "decorators": [
-            "unittest.skipUnless(os.environ.get('KADOKA_NATIVE_RUNTIME'), 'requires the native Safety CI library')"
+            "unittest.skipUnless(os.environ.get(REDACTED), REDACTED)"
           ],
           "kind": "method",
           "name": "test_native_safety_validator_loads_built_library_and_validates_actions",
@@ -63893,7 +63939,7 @@
             "protocol": false
           },
           "decorators": [
-            "unittest.skipUnless(os.name == 'nt', 'requires the Windows desktop capture API')"
+            "unittest.skipUnless(os.name == REDACTED, REDACTED)"
           ],
           "kind": "class",
           "name": "WindowsCaptureIntegrationTest",
@@ -65533,6 +65579,19 @@
           "level": 0,
           "line": 7,
           "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "copy"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
           "module": "fnmatch",
           "names": [
             {
@@ -65544,7 +65603,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "json",
           "names": [
@@ -65557,7 +65616,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "os",
           "names": [
@@ -65570,7 +65629,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -65583,7 +65642,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "tokenize",
           "names": [
@@ -65596,7 +65655,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [],
           "module": "functools",
           "names": [
@@ -65609,7 +65668,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -65626,7 +65685,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -65640,7 +65699,7 @@
       "module": "tools.analyze_repo",
       "path": "tools/analyze_repo.py",
       "source_location": {
-        "end_line": 436,
+        "end_line": 470,
         "start_line": 1
       },
       "symbols": [
@@ -65662,8 +65721,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 21
+            "end_line": 23,
+            "start_line": 22
           }
         },
         {
@@ -65682,8 +65741,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 412,
-            "start_line": 25
+            "end_line": 446,
+            "start_line": 26
           }
         },
         {
@@ -65717,8 +65776,8 @@
           "signature": "(self, repository_root: Path, config_path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 31,
-            "start_line": 28
+            "end_line": 32,
+            "start_line": 29
           }
         },
         {
@@ -65746,8 +65805,8 @@
           "signature": "(self, path: Path) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 38,
-            "start_line": 33
+            "end_line": 39,
+            "start_line": 34
           }
         },
         {
@@ -65769,8 +65828,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 40
+            "end_line": 69,
+            "start_line": 41
           }
         },
         {
@@ -65792,8 +65851,8 @@
           "signature": "(self) -> list[Path]",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 70
+            "end_line": 89,
+            "start_line": 71
           }
         },
         {
@@ -65815,8 +65874,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 108,
-            "start_line": 90
+            "end_line": 109,
+            "start_line": 91
           }
         },
         {
@@ -65850,8 +65909,8 @@
           "signature": "(self, output_path: Path | None = …, *, check: bool = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 122,
-            "start_line": 110
+            "end_line": 123,
+            "start_line": 111
           }
         },
         {
@@ -65885,8 +65944,37 @@
           "signature": "(self, content: str, output_path: Path | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 124
+            "end_line": 146,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_validate_output_destination",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "destination"
+            }
+          ],
+          "qualified_name": "RepositoryMapGenerator._validate_output_destination",
+          "return_annotation": "None",
+          "signature": "(self, destination: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 167,
+            "start_line": 148
           }
         },
         {
@@ -65916,8 +66004,8 @@
           "signature": "(path: PurePosixPath, pattern: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 147
+            "end_line": 188,
+            "start_line": 170
           }
         },
         {
@@ -65947,8 +66035,8 @@
           "signature": "(path_index: int, pattern_index: int) -> bool",
           "source_location": {
             "column": 8,
-            "end_line": 163,
-            "start_line": 152
+            "end_line": 186,
+            "start_line": 175
           }
         },
         {
@@ -65976,8 +66064,8 @@
           "signature": "(self, override: Path | None = …) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 167
+            "end_line": 192,
+            "start_line": 190
           }
         },
         {
@@ -65999,8 +66087,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 171
+            "end_line": 195,
+            "start_line": 194
           }
         },
         {
@@ -66024,8 +66112,8 @@
           "signature": "(repository_map: dict[str, Any]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 175
+            "end_line": 199,
+            "start_line": 198
           }
         },
         {
@@ -66059,8 +66147,8 @@
           "signature": "(self, path: Path, module_names: set[str]) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 208,
-            "start_line": 178
+            "end_line": 231,
+            "start_line": 201
           }
         },
         {
@@ -66088,8 +66176,8 @@
           "signature": "(self, path: Path) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 221,
-            "start_line": 210
+            "end_line": 244,
+            "start_line": 233
           }
         },
         {
@@ -66131,8 +66219,8 @@
           "signature": "(syntax_tree: ast.Module, current_module: str, module_names: set[str], *, is_package_initializer: bool) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 272,
-            "start_line": 224
+            "end_line": 295,
+            "start_line": 247
           }
         },
         {
@@ -66168,8 +66256,8 @@
           "signature": "(cls, syntax_tree: ast.Module, source: str) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 292,
-            "start_line": 275
+            "end_line": 315,
+            "start_line": 298
           }
         },
         {
@@ -66203,8 +66291,8 @@
           "signature": "(statements: list[ast.stmt], parent_names: list[str], parent_is_class: bool) -> None",
           "source_location": {
             "column": 8,
-            "end_line": 289,
-            "start_line": 278
+            "end_line": 312,
+            "start_line": 301
           }
         },
         {
@@ -66234,8 +66322,8 @@
           "signature": "(cls, statements: list[ast.stmt]) -> list[ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 295
+            "end_line": 327,
+            "start_line": 318
           }
         },
         {
@@ -66283,8 +66371,84 @@
           "signature": "(cls, node: ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef, source: str, qualified_name: str, parent_is_class: bool) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 349,
-            "start_line": 307
+            "end_line": 372,
+            "start_line": 330
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_render_decorator",
+          "parameters": [
+            {
+              "annotation": "ast.expr",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "decorator"
+            }
+          ],
+          "qualified_name": "RepositoryMapGenerator._render_decorator",
+          "return_annotation": "str",
+          "signature": "(decorator: ast.expr) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 383,
+            "start_line": 375
+          }
+        },
+        {
+          "bases": [
+            "ast.NodeTransformer"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LiteralRedactor",
+          "parameters": [],
+          "qualified_name": "RepositoryMapGenerator._render_decorator.LiteralRedactor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 380,
+            "start_line": 376
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "visit_Constant",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ast.Constant",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "node"
+            }
+          ],
+          "qualified_name": "RepositoryMapGenerator._render_decorator.LiteralRedactor.visit_Constant",
+          "return_annotation": "ast.expr",
+          "signature": "(self, node: ast.Constant) -> ast.expr",
+          "source_location": {
+            "column": 12,
+            "end_line": 380,
+            "start_line": 377
           }
         },
         {
@@ -66308,8 +66472,8 @@
           "signature": "(node: ast.expr) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 361,
-            "start_line": 352
+            "end_line": 395,
+            "start_line": 386
           }
         },
         {
@@ -66339,8 +66503,8 @@
           "signature": "(cls, node: ast.FunctionDef | ast.AsyncFunctionDef) -> tuple[str, list[dict[str, Any]], str | None]",
           "source_location": {
             "column": 4,
-            "end_line": 394,
-            "start_line": 364
+            "end_line": 428,
+            "start_line": 398
           }
         },
         {
@@ -66382,8 +66546,8 @@
           "signature": "(cls, argument: ast.arg, kind: str, has_default: bool) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 403,
-            "start_line": 397
+            "end_line": 437,
+            "start_line": 431
           }
         },
         {
@@ -66413,8 +66577,8 @@
           "signature": "(argument: ast.arg, has_default: bool) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 412,
-            "start_line": 406
+            "end_line": 446,
+            "start_line": 440
           }
         },
         {
@@ -66436,8 +66600,8 @@
           "signature": "(argv: list[str] | None = …) -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 421,
-            "start_line": 415
+            "end_line": 455,
+            "start_line": 449
           }
         },
         {
@@ -66459,8 +66623,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 432,
-            "start_line": 424
+            "end_line": 466,
+            "start_line": 458
           }
         }
       ]

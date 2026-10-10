@@ -24,6 +24,8 @@ python tools/analyze_repo.py --check
 
 別のcheckoutや一時fixtureを解析するときは `--root` でRepository Mapのルートを、`--config` でルート相対の設定ファイルを指定します。`--output` は設定ファイルの出力先をルート相対パスで上書きします。Generatorはルート外を指す設定パス・出力パス・source symlinkを拒否します。
 
+Repository Map Generatorは出力先が設定ファイルまたは選択済みPythonソースと一致すると生成を拒否します。出力先に既存ファイルがある場合、同じ形式・schema versionのRepository Mapだけを置き換えます。Markdownや設定ファイルなど別用途の既存ファイルを誤ってJSONで上書きしないためです。
+
 ## 入力範囲を設定する
 
 `config/repo_map.json` はversion 1のJSON設定です。`include` は解析するPythonファイルのPOSIX glob、`exclude` は選択後に除外するPOSIX glob、`output` は生成先です。初期設定は `src/`、`tools/`、`tests/` のPythonファイルを含み、`__pycache__`、生成コード、`.venv` 下のファイルを除外します。
@@ -34,7 +36,9 @@ python tools/analyze_repo.py --check
 
 `config/repo_map.schema.json` は出力契約のJSON Schemaです。生成ファイルの `format` は `kadoka-repository-map`、`schema_version` は `1` です。schema変更時は互換性を確認してversionを上げます。
 
-各module recordはルート相対のsource path、Python module名、source行範囲、宣言されたimport、同じRepository Map内で対応付けられたローカルmodule dependency、class/function/method symbolを持ちます。Symbol recordはqualname、宣言行、signature、parameter kind、annotation、decorator、class baseを保持します。Classの `data_model` は構文上確認できたdataclass、Enum、Protocol継承だけをbooleanで示します。
+各module recordはルート相対のsource path、Python module名、source行範囲、宣言されたimport、同じRepository Map内で対応付けられたローカルmodule dependency、class/function/method symbolを持ちます。Module recordはルート相対POSIX path、symbolはsource行とqualified nameの順で出力するため、WindowsとLinuxで同じ並びになります。`from . import name` のようにpackageから属性を読み込むimportは、package moduleもdependency候補に含めます。
+
+Symbol recordはqualname、宣言行、signature、parameter kind、annotation、decorator、class baseを保持します。Decorator内のstring・数値などのliteral値は `REDACTED` に置き換え、`True`、`False`、`None` など構造を示す値は残します。Classの `data_model` は構文上確認できたdataclass、Enum、Protocol継承だけをbooleanで示します。
 
 Repository Mapのdependencyはimport文と解析対象module名の一致から作る静的関係です。実行時import、条件付きimportの有効性、動的生成、関数呼び出し、型の意味、継承先の実体を保証しません。解析不能なPythonファイルを黙って省略せず、ファイル名・行・列を付けたエラーで生成を止めます。
 
