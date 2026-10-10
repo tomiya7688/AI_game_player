@@ -77,11 +77,11 @@ Do not duplicate these mechanisms:
 - Automatic selection reads all open Issue metadata (no bodies/discussions), skips policy/parent Issues, and orders P0-P5. Explicit `--issue` bypasses selection.
 - Packs preserve Markdown headings, default to at most 8000 characters (`--max-chars 2000..16000`), and mark truncation. Character limits are not token counts. Unloaded comments and truncated requirements require original-Issue lookup when relevant; failed refresh means an old pack must not be used.
 - Task/source/doc routing: `AGENTS.md`
-- Repository State / Test Impact future work: Issue #27
+- Repository State generation is implemented by `tools/analyze_repo.py` and `generated/repo_map.json` (Issue #142). Task Context Pack and Test Impact remain Issues #143/#144 under parent #27.
 - Completion checks: `finish_task.bat`
 - Git/PR workflow: `finish_pr.bat`
 
 ## Adoption Source
 This project follows the applicable principles from `tomiya7688/ai-context-reducer` without taking it as a runtime dependency. The reducer repository is guidance; this file and `AGENTS.md` define the local application of those principles.
 
-Reviewed upstream: `7d7fa11bca671c40768825f951102750e3d580b7` (2026-10-04). Adopted Core, metadata-first Task Routing, bounded packs, and Remote Delta First. Existing completion/policy checks are reused. Source Structure Index / detailed Test Impact remain Issues #142/#144; no new toolchain or summary cache is needed for this change.
+Reviewed upstream: `7d7fa11bca671c40768825f951102750e3d580b7` (2026-10-04). Adopted Core, metadata-first Task Routing, bounded packs, and Remote Delta First. Existing completion/policy checks are reused. The Source Structure Index is Issue #142; Task Context Pack / detailed Test Impact remain Issues #143/#144. No new toolchain or summary cache is required for this change.

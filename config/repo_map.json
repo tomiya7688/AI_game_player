@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "include": [
+    "src/**/*.py",
+    "tools/**/*.py",
+    "tests/**/*.py"
+  ],
+  "exclude": [
+    "**/__pycache__/**",
+    "**/generated/**",
+    "**/.venv/**"
+  ],
+  "output": "generated/repo_map.json"
+}

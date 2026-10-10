@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schemas/repository-map-v1.schema.json",
+  "title": "Kadoka Repository Map v1",
+  "description": "A deterministic index of Python modules, declared imports, statically known local dependencies, and lexical symbols. The map contains structure, not source bodies or inferred runtime behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "schema_version", "modules"],
+  "properties": {
+    "format": { "const": "kadoka-repository-map" },
+    "schema_version": { "const": 1 },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["module", "path", "source_location", "imports", "dependencies", "symbols"],
+        "properties": {
+          "module": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "source_location": { "$ref": "#/$defs/moduleLocation" },
+          "imports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "module", "level", "names", "line", "local_dependencies"],
+              "properties": {
+                "kind": { "enum": ["import", "from"] },
+                "module": { "type": ["string", "null"] },
+                "level": { "type": "integer", "minimum": 0 },
+                "names": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["name", "alias"],
+                    "properties": {
+                      "name": { "type": "string", "minLength": 1 },
+                      "alias": { "type": ["string", "null"] }
+                    }
+                  }
+                },
+                "line": { "type": "integer", "minimum": 1 },
+                "local_dependencies": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+              }
+            }
+          },
+          "dependencies": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "symbols": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "qualified_name", "kind", "source_location", "decorators", "signature", "parameters", "return_annotation", "bases", "data_model"],
+              "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "qualified_name": { "type": "string", "minLength": 1 },
+                "kind": { "enum": ["class", "function", "method", "async_function", "async_method"] },
+                "source_location": { "$ref": "#/$defs/symbolLocation" },
+                "decorators": { "type": "array", "items": { "type": "string" } },
+                "signature": { "type": ["string", "null"] },
+                "parameters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["name", "kind", "annotation", "has_default"],
+                    "properties": {
+                      "name": { "type": "string", "minLength": 1 },
+                      "kind": { "enum": ["positional_only", "positional_or_keyword", "var_positional", "keyword_only", "var_keyword"] },
+                      "annotation": { "type": ["string", "null"] },
+                      "has_default": { "type": "boolean" }
+                    }
+                  }
+                },
+                "return_annotation": { "type": ["string", "null"] },
+                "bases": { "type": "array", "items": { "type": "string" } },
+                "data_model": {
+                  "oneOf": [
+                    { "type": "null" },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["dataclass", "enum", "protocol"],
+                      "properties": {
+                        "dataclass": { "type": "boolean" },
+                        "enum": { "type": "boolean" },
+                        "protocol": { "type": "boolean" }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "moduleLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_line", "end_line"],
+      "properties": {
+        "start_line": { "const": 1 },
+        "end_line": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "symbolLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_line", "end_line", "column"],
+      "properties": {
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
