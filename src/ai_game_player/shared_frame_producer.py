@@ -199,6 +199,7 @@ class SharedFrameProducer:
                     if (
                         type(frame.width) is not int
                         or type(frame.height) is not int
+                        or not isinstance(frame.bgra, bytes)
                         or frame.width <= 0
                         or frame.height <= 0
                         or len(frame.bgra) != frame.width * frame.height * 4

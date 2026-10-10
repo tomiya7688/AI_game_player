@@ -35,7 +35,7 @@ class InvalidFrameCapture:
         return ScreenFrame(0, 1, b"")
 
 
-class InvalidDimensionsCapture:
+class CustomFrameCapture:
     def __init__(self, width, height, bgra):
         self.frame = ScreenFrame(width, height, bgra)
 
@@ -282,7 +282,20 @@ class SharedFrameProducerTest(unittest.TestCase):
         )
         for width, height, bgra in invalid_dimensions:
             with self.subTest(width=width, height=height):
-                producer = SharedFrameProducer(InvalidDimensionsCapture(width, height, bgra))
+                producer = SharedFrameProducer(CustomFrameCapture(width, height, bgra))
+                subscriber = producer.subscribe()
+                producer.start()
+
+                with self.assertRaisesRegex(FrameProducerError, "invalid BGRA frame or timestamp"):
+                    subscriber.get(timeout=1.0)
+
+                self.assertEqual(producer.metrics.captured_frames, 0)
+
+    def test_non_bytes_bgra_buffers_are_rejected(self):
+        invalid_buffers = ("abcd", bytearray(b"abcd"), memoryview(b"abcd"), [0, 0, 0, 0])
+        for bgra in invalid_buffers:
+            with self.subTest(buffer_type=type(bgra).__name__):
+                producer = SharedFrameProducer(CustomFrameCapture(1, 1, bgra))
                 subscriber = producer.subscribe()
                 producer.start()
 

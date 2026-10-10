@@ -33185,7 +33185,7 @@
       "module": "ai_game_player.shared_frame_producer",
       "path": "src/ai_game_player/shared_frame_producer.py",
       "source_location": {
-        "end_line": 262,
+        "end_line": 263,
         "start_line": 1
       },
       "symbols": [
@@ -33205,7 +33205,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 262,
+            "end_line": 263,
             "start_line": 34
           }
         },
@@ -33503,7 +33503,7 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 262,
+            "end_line": 263,
             "start_line": 188
           }
         }
@@ -64411,7 +64411,7 @@
       "module": "tests.test_shared_frame_producer",
       "path": "tests/test_shared_frame_producer.py",
       "source_location": {
-        "end_line": 333,
+        "end_line": 346,
         "start_line": 1
       },
       "symbols": [
@@ -64588,9 +64588,9 @@
           },
           "decorators": [],
           "kind": "class",
-          "name": "InvalidDimensionsCapture",
+          "name": "CustomFrameCapture",
           "parameters": [],
-          "qualified_name": "InvalidDimensionsCapture",
+          "qualified_name": "CustomFrameCapture",
           "return_annotation": null,
           "signature": null,
           "source_location": {
@@ -64631,7 +64631,7 @@
               "name": "bgra"
             }
           ],
-          "qualified_name": "InvalidDimensionsCapture.__init__",
+          "qualified_name": "CustomFrameCapture.__init__",
           "return_annotation": null,
           "signature": "(self, width, height, bgra)",
           "source_location": {
@@ -64654,7 +64654,7 @@
               "name": "self"
             }
           ],
-          "qualified_name": "InvalidDimensionsCapture.capture",
+          "qualified_name": "CustomFrameCapture.capture",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
@@ -64957,7 +64957,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 329,
+            "end_line": 342,
             "start_line": 93
           }
         },
@@ -65306,6 +65306,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_non_bytes_bgra_buffers_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_non_bytes_bgra_buffers_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 305,
+            "start_line": 294
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_capture_timestamps_must_not_move_backwards",
           "parameters": [
             {
@@ -65320,8 +65343,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 294
+            "end_line": 317,
+            "start_line": 307
           }
         },
         {
@@ -65343,8 +65366,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 319,
-            "start_line": 306
+            "end_line": 332,
+            "start_line": 319
           }
         },
         {
@@ -65366,8 +65389,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 329,
-            "start_line": 321
+            "end_line": 342,
+            "start_line": 334
           }
         }
       ]
