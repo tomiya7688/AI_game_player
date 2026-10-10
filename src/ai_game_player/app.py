@@ -788,7 +788,9 @@ class Application:
                     personality=personality,
                     expected_rearm_token=run_token,
                 )
-            execution_records = pipeline.load_execution_history()
+            load_execution_history = getattr(pipeline, "load_execution_history", None)
+            if callable(load_execution_history):
+                execution_records = load_execution_history()
         except Exception as exc:
             error = exc
         finally:
