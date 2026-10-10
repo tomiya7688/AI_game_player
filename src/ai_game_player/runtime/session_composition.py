@@ -90,7 +90,7 @@ def _windows_migration_lock(lock_file: BinaryIO, lock_path: Path) -> Iterator[No
 
 # {
 #   責務: [_supports_session_journal: pipeline factoryが移行制御付きSession Journalを受け取れるか判定する]
-#   処理: [明示parameterまたは**kwargsでevent_journal・migrate_legacy・migrate_runtime_logを受け取るfactoryだけをJournal対応とみなす]
+#   処理: [各migration parameterがkeywordで受け取れるfactoryだけをJournal対応とみなし、同名のPOSITIONAL_ONLY parameterがあるfactoryは除外する]
 #   引数: [pipeline_factory: RuntimeCompositionへ注入されたfactory]
 #   戻り値: [bool: 新旧保存データの移行制御を安全に指定できる場合はTrue]
 # }
@@ -99,7 +99,7 @@ def _supports_session_journal(pipeline_factory: Callable[..., Any]) -> bool:
         parameters = inspect.signature(pipeline_factory).parameters.values()
     except (TypeError, ValueError):
         return True
-    parameter_names = {parameter.name for parameter in parameters}
+    parameters_by_name = {parameter.name: parameter for parameter in parameters}
     accepts_arbitrary_keywords = any(
         parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in parameters
     )
@@ -108,7 +108,18 @@ def _supports_session_journal(pipeline_factory: Callable[..., Any]) -> bool:
         "migrate_legacy",
         "migrate_runtime_log",
     }
-    return accepts_arbitrary_keywords or required_migration_arguments.issubset(parameter_names)
+    if any(
+        parameter_name in parameters_by_name
+        and parameters_by_name[parameter_name].kind == inspect.Parameter.POSITIONAL_ONLY
+        for parameter_name in required_migration_arguments
+    ):
+        return False
+    keyword_parameters = {
+        parameter.name
+        for parameter in parameters
+        if parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+    }
+    return accepts_arbitrary_keywords or required_migration_arguments.issubset(keyword_parameters)
 
 
 # {

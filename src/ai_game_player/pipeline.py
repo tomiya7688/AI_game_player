@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Callable
 
 from ai_game_player.action_executor import ActionExecutor, ExecutionResult
@@ -381,19 +382,31 @@ class DecisionPipeline:
 
     # {
     #   責務: [record_shutdown_failure: Provider・executorの終了失敗をJournalへ記録する]
-    #   処理: [Journalを閉じる前にruntime logへresource名と例外内容を追記する]
+    #   処理: [Journalを閉じる前にruntime logへ追記し、runtime logがなければ同じrecordをSession Journalへ直接appendする]
     #   引数: [resource: 終了に失敗したresource名, error: resource closeが送出した例外]
     #   戻り値: []
-    #   エラー: [OSErrorまたはEventJournalError: JSONLまたはJournalへ失敗記録を書けない場合]
+    #   エラー: [OSErrorまたはEventJournalError: 保存先が一つだけ失敗した場合の元の例外, RuntimeError: JSONLとJournalの両方が失敗した場合]
     # }
     def record_shutdown_failure(self, resource: str, error: Exception) -> None:
-        if self.runtime_log is None:
+        event_name = "session.shutdown_failed"
+        message = f"Session shutdown failed while closing {resource}"
+        context = {"status": "failed", "resource": resource, "error": str(error)}
+        if self.runtime_log is not None:
+            self.runtime_log.write(event_name, message, context)
             return
-        self.runtime_log.write(
-            "session.shutdown_failed",
-            f"Session shutdown failed while closing {resource}",
-            {"status": "failed", "resource": resource, "error": str(error)},
-        )
+        if self.event_journal is not None:
+            self.event_journal.append(
+                "runtime.log",
+                status="failed",
+                payload={
+                    "legacy_record": {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "event": event_name,
+                        "message": message,
+                        "context": context,
+                    }
+                },
+            )
 
     def _sync_runtime_rearm(self) -> None:
         runtime = self.executor.fail_safe_runtime

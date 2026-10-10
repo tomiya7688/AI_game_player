@@ -735,6 +735,80 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 failure_events[0].payload["legacy_record"]["context"]["status"],
             )
 
+    def test_shutdown_failure_records_failed_status_without_runtime_log(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal_path = root / "session.sqlite3"
+            pipeline = DecisionPipeline(
+                object(),
+                root,
+                event_journal=EventJournal(journal_path, session_id="session-no-runtime-log"),
+            )
+
+            pipeline.record_shutdown_failure("provider", RuntimeError("close failed"))
+            pipeline.close()
+
+            failure_events = [
+                event for event in read_events(journal_path)
+                if event.event_type == "runtime.log"
+                and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
+            ]
+            self.assertEqual(1, len(failure_events))
+            self.assertEqual("failed", failure_events[0].status)
+            self.assertEqual("provider", failure_events[0].payload["legacy_record"]["context"]["resource"])
+
+    def test_positional_only_journal_factory_uses_legacy_pipeline_path(self):
+        class Provider:
+            def close(self):
+                return None
+
+        class Pipeline:
+            def __init__(self, event_journal):
+                self.event_journal = event_journal
+
+            def close(self):
+                return None
+
+        received_journal = []
+
+        def positional_only_factory(
+            _source,
+            _game_directory,
+            _provider,
+            _controller,
+            event_journal=None,
+            migrate_legacy=True,
+            migrate_runtime_log=True,
+            /,
+        ):
+            received_journal.append(event_journal)
+            return Pipeline(event_journal)
+
+        with tempfile.TemporaryDirectory() as directory:
+            game_directory = Path(directory) / "game"
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=game_directory,
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            runtime = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()},
+                pipeline_factory=positional_only_factory,
+            ).create_session_runtime(
+                configuration,
+                source=object(),
+                controller=RunController(),
+            )
+            runtime.close()
+
+            self.assertEqual([None], received_journal)
+            self.assertFalse((game_directory / "session_events").exists())
+
     def test_journal_checkpoint_failure_is_logged_before_runtime_log_detaches(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
