@@ -280,6 +280,49 @@ class IssueContextTests(unittest.TestCase):
         self.assertEqual(0.99, tests[0]["confidence"])
         self.assertIn("Issue text names this test path", tests[0]["reason"])
 
+    def test_repository_package_terms_do_not_create_unrelated_module_candidates(self):
+        selected = issue(143, title="Update src/ai_game_player/app.py")
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": "ai_game_player.app",
+                    "path": "src/ai_game_player/app.py",
+                    "dependencies": [],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "ai_game_player.bright_region_detector",
+                    "path": "src/ai_game_player/bright_region_detector.py",
+                    "dependencies": [],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_app_session_safety",
+                    "path": "tests/test_app_session_safety.py",
+                    "dependencies": ["ai_game_player.app"],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_bright_region_detector",
+                    "path": "tests/test_bright_region_detector.py",
+                    "dependencies": ["ai_game_player.bright_region_detector"],
+                    "imports": [],
+                    "symbols": [],
+                },
+            ],
+        }
+
+        evidence = context.render_repository_evidence(selected, repository_map, [])
+
+        self.assertIn("`src/ai_game_player/app.py`", evidence)
+        self.assertIn("Test candidate `tests/test_app_session_safety.py`", evidence)
+        self.assertNotIn("bright_region_detector", evidence)
+
     def test_evidence_limit_preserves_test_candidates_and_required_check(self):
         selected = issue(143, title="Improve screen capture reliability")
         modules = []
@@ -353,6 +396,22 @@ class IssueContextTests(unittest.TestCase):
                 self.assertLessEqual(len(evidence), 250)
                 self.assertIn("map unavailable", evidence)
                 self.assertIn("finish_task.bat", evidence)
+
+    def test_context_pack_uses_actual_remaining_evidence_budget(self):
+        selected = issue(143, title="T" * 100)
+        selected["labels"] = [{"name": "L" * 50} for _ in range(20)]
+
+        pack = context.render_context(
+            selected,
+            max_chars=2000,
+            repository_map=None,
+            map_error="Repository Map has an unsupported format or schema version.",
+        )
+
+        self.assertLessEqual(len(pack), 2000)
+        self.assertIn("labels omitted", pack)
+        self.assertIn("Repository Map has an unsupported format or schema version", pack)
+        self.assertIn("finish_task.bat", pack)
 
     def test_repository_map_loader_rejects_unknown_schema(self):
         with tempfile.TemporaryDirectory() as directory:

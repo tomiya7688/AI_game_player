@@ -191,7 +191,7 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
             candidate_terms = _search_terms(f"{path} {module_name}")
             matched_terms = sorted(
                 (issue_terms & candidate_terms)
-                - {"and", "for", "from", "h", "hpp", "py", "src", "test", "tests", "the", "tools", "with", "cpp"}
+                - {"ai", "ai_game_player", "and", "for", "from", "game", "h", "hpp", "player", "py", "src", "test", "tests", "the", "tools", "with", "cpp"}
                 - GENERIC_SYMBOL_TERMS
             )
             if matched_terms:
@@ -400,11 +400,15 @@ def render_repository_evidence(issue, repository_map, changed_paths, map_error=N
                         ]
                         break
                 else:
-                    evidence = (
-                        "## Repository evidence\n"
-                        "- Candidates omitted to fit the evidence character limit.\n"
-                        "- Required check: `finish_task.bat`."
+                    map_unavailable = any(
+                        "map unavailable" in line.lower()
+                        for _, candidate_lines in compact_sections
+                        for line in candidate_lines
                     )
+                    if map_unavailable:
+                        evidence = "Map unavailable; `finish_task.bat`"
+                    else:
+                        evidence = "No candidate fits; `finish_task.bat`"
                     if len(evidence) > max_chars:
                         raise ValueError("Context limit cannot fit the required project check.")
                     break
@@ -430,6 +434,20 @@ def select_issue(issues):
 def render_context(issue, max_chars=8000, repository_map=None, changed_paths=None, map_error=None):
     labels = [x["name"] for x in issue.get("labels", [])]
     low = {x.lower() for x in labels}
+    labels_text = ", ".join(labels) or "(none)"
+    if len(labels_text) > 180:
+        visible_labels = []
+        for label in labels:
+            omitted_count = len(labels) - len(visible_labels) - 1
+            omission_note = f", … ({omitted_count} labels omitted)" if omitted_count else ""
+            proposed_labels = ", ".join([*visible_labels, label]) + omission_note
+            if len(proposed_labels) > 180:
+                break
+            visible_labels.append(label)
+        omitted_count = len(labels) - len(visible_labels)
+        labels_text = ", ".join(visible_labels)
+        if omitted_count:
+            labels_text += f", … ({omitted_count} labels omitted)" if labels_text else f"{omitted_count} labels omitted"
     docs = []
     for label, paths in DOCS.items():
         if label in low:
@@ -441,7 +459,7 @@ def render_context(issue, max_chars=8000, repository_map=None, changed_paths=Non
         "",
         f"Issue: #{issue['number']} — {issue['title']}",
         f"Priority: {priority}",
-        f"Labels: {', '.join(labels) or '(none)'}",
+        f"Labels: {labels_text}",
         f"Source of Truth: {issue['url']}",
         "",
         "## Requirements excerpt (not a replacement for the Issue)",
@@ -462,7 +480,12 @@ def render_context(issue, max_chars=8000, repository_map=None, changed_paths=Non
     ])
     marker = "\n\n[TRUNCATED: read the original Issue for omitted requirements.]"
     body = (issue.get("body") or "No description provided; clarify requirements before implementation.").strip()
-    evidence_budget = min(900, max(250, max_chars - len(prefix) - len(suffix) - len(marker) - 180))
+    evidence_budget = min(
+        900,
+        max_chars - len(prefix) - len(suffix) - len(marker) - 2,
+    )
+    if evidence_budget <= 0:
+        raise ValueError("Context limit cannot fit the issue pointers and truncation marker.")
     evidence = render_repository_evidence(
         issue,
         repository_map,
