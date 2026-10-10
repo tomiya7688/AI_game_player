@@ -56,7 +56,9 @@ class IssueContextTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / ".codex/next_issue.md"
             with patch.object(context, "OUT", output), patch.object(context, "fetch_issues") as listing, \
-                    patch.object(context, "fetch_issue", return_value=issue(27, title="[Codex Parent]")) as fetch:
+                    patch.object(context, "fetch_issue", return_value=issue(27, title="[Codex Parent]")) as fetch, \
+                    patch.object(context, "fetch_worktree_paths", return_value=[]), \
+                    patch.object(context, "load_repository_map", return_value=(None, "map unavailable")):
                 self.assertEqual(context.main(["--issue", "27"]), 0)
                 listing.assert_not_called()
                 fetch.assert_called_once_with(27)
@@ -66,9 +68,97 @@ class IssueContextTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(context, "OUT", Path(directory) / "pack.md"), \
                     patch.object(context, "fetch_issues", return_value=[issue(5), issue(1, "P0")]), \
-                    patch.object(context, "fetch_issue", return_value=issue(1, "P0")) as fetch:
+                    patch.object(context, "fetch_issue", return_value=issue(1, "P0")) as fetch, \
+                    patch.object(context, "fetch_worktree_paths", return_value=[]), \
+                    patch.object(context, "load_repository_map", return_value=(None, "map unavailable")):
                 self.assertEqual(context.main([]), 0)
                 fetch.assert_called_once_with(1)
+
+    def test_context_pack_uses_git_paths_repository_map_and_explained_candidates(self):
+        selected = issue(143, title="Update tools/issue_context.py and render_context")
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": "tools.issue_context",
+                    "path": "tools/issue_context.py",
+                    "symbols": [{"name": "render_context", "qualified_name": "render_context"}],
+                },
+                {
+                    "module": "tests.test_issue_context",
+                    "path": "tests/test_issue_context.py",
+                    "symbols": [{"name": "IssueContextTests", "qualified_name": "IssueContextTests"}],
+                },
+                {"module": "tools.unrelated", "path": "tools/unrelated.py", "symbols": []},
+                {
+                    "module": "tests.test_unrelated",
+                    "path": "tests/test_unrelated.py",
+                    "symbols": [{"name": "Source", "qualified_name": "Source"}],
+                },
+            ],
+        }
+        pack = context.render_context(
+            selected,
+            max_chars=3000,
+            repository_map=repository_map,
+            changed_paths=[{"path": "tools/issue_context.py", "status": "M"}],
+        )
+
+        self.assertIn("`tools/issue_context.py` — confidence 0.98", pack)
+        self.assertIn("working tree marks this path M", pack)
+        self.assertIn("symbol(s): render_context", pack)
+        self.assertIn("`tools.issue_context.render_context` — confidence 0.84", pack)
+        self.assertIn("Test candidate `tests/test_issue_context.py`", pack)
+        self.assertIn("Required project check: `finish_task.bat`", pack)
+        self.assertIn("not a probability", pack)
+        self.assertNotIn("tools/unrelated.py", pack)
+        self.assertNotIn("tests/test_unrelated.py", pack)
+
+    def test_git_status_collection_reads_paths_without_file_contents(self):
+        with patch.object(
+            context.subprocess,
+            "check_output",
+            return_value=b" M tools/issue_context.py\0?? tests/new_fixture.py\0?? .codex/next_issue.md\0",
+        ) as command:
+            paths = context.fetch_worktree_paths()
+
+        self.assertEqual(
+            [
+                {"path": "tests/new_fixture.py", "status": "??"},
+                {"path": "tools/issue_context.py", "status": "M"},
+            ],
+            paths,
+        )
+        self.assertIn("--porcelain=v1", command.call_args.args[0])
+        self.assertIn("-z", command.call_args.args[0])
+
+    def test_repository_map_loader_rejects_unknown_schema(self):
+        with tempfile.TemporaryDirectory() as directory:
+            map_path = Path(directory) / "repo_map.json"
+            map_path.write_text(
+                json.dumps({"format": "kadoka-repository-map", "schema_version": 1, "modules": []}),
+                encoding="utf-8",
+            )
+            loaded_map, error = context.load_repository_map(map_path)
+            self.assertEqual([], loaded_map["modules"])
+            self.assertIsNone(error)
+
+            map_path.write_text(
+                json.dumps({"format": "kadoka-repository-map", "schema_version": True, "modules": []}),
+                encoding="utf-8",
+            )
+            loaded_map, error = context.load_repository_map(map_path)
+            self.assertIsNone(loaded_map)
+            self.assertIn("unsupported format or schema version", error)
+
+            map_path.write_text(
+                json.dumps({"format": "kadoka-repository-map", "schema_version": 1, "modules": ["bad"]}),
+                encoding="utf-8",
+            )
+            loaded_map, error = context.load_repository_map(map_path)
+            self.assertIsNone(loaded_map)
+            self.assertIn("unsupported format or schema version", error)
 
     def test_bounded_pack_preserves_headings_and_marks_truncation(self):
         selected = issue(1, body="## Goal\n" + "あ" * 10000)
