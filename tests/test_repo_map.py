@@ -42,7 +42,7 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         (package / "models.py").write_text(
             "from dataclasses import dataclass\n"
             "from enum import Enum\n"
-            "from typing import Protocol\n"
+            "from typing import Literal, Protocol\n"
             "from . import helpers\n"
             "@dataclass(frozen=True)\n"
             "class Snapshot:\n"
@@ -51,8 +51,9 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             "    READY = 1\n"
             "class Reader(Protocol[str]):\n"
             "    def read(self, key: str) -> str: ...\n"
-            "@register(token='secret-value', enabled=True)\n"
-            "def decorated(value: int): return value\n"
+            "@register(token=f'token-{secret}', enabled=True)\n"
+            "def decorated(value: Literal['annotation-secret']) -> Literal['return-secret']:\n"
+            "    return value\n"
             "class Calculator:\n"
             "    def compute(self, value: int, /, scale: float = 1.0, *, enabled: bool = True) -> str:\n"
             "        def normalize(text: str = 'private default') -> str:\n"
@@ -93,9 +94,13 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         self.assertTrue(symbols_by_name["Phase"]["data_model"]["enum"])
         self.assertTrue(symbols_by_name["Reader"]["data_model"]["protocol"])
         self.assertEqual(
-            ["register(token=REDACTED, enabled=True)"],
+            ["register(token=f'REDACTED{secret}', enabled=True)"],
             symbols_by_name["decorated"]["decorators"],
         )
+        self.assertEqual("Literal[REDACTED]", symbols_by_name["decorated"]["parameters"][0]["annotation"])
+        self.assertEqual("Literal[REDACTED]", symbols_by_name["decorated"]["return_annotation"])
+        self.assertIn("value: Literal[REDACTED]", symbols_by_name["decorated"]["signature"])
+        self.assertIn("-> Literal[REDACTED]", symbols_by_name["decorated"]["signature"])
         self.assertEqual("async_function", symbols_by_name["load_snapshot"]["kind"])
         self.assertEqual("(path: str) -> Snapshot", symbols_by_name["load_snapshot"]["signature"])
 

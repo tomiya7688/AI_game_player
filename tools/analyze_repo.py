@@ -371,16 +371,41 @@ class RepositoryMapGenerator:
             record["source_location"]["end_line"] = node.lineno
         return record
 
+    # {
+    #   責務: [_render_expression_with_redacted_literals: Python式の文字列化時にリテラル値を伏せる]
+    #   処理: [f文字列の構造を保ち、式内の文字列・数値などのリテラルをREDACTEDへ置き換える]
+    #   引数: [expression: ソースから解析したデコレーターまたは型注釈の式]
+    #   戻り値: [str: リテラル値を含まないPython式の表現]
+    # }
     @staticmethod
-    def _render_decorator(decorator: ast.expr) -> str:
+    def _render_expression_with_redacted_literals(expression: ast.expr) -> str:
         class LiteralRedactor(ast.NodeTransformer):
+            def visit_JoinedStr(self, node: ast.JoinedStr) -> ast.expr:
+                node.values = [
+                    ast.copy_location(ast.Constant(value="REDACTED"), value)
+                    if isinstance(value, ast.Constant) and isinstance(value.value, str)
+                    else self.visit(value)
+                    for value in node.values
+                ]
+                return node
+
             def visit_Constant(self, node: ast.Constant) -> ast.expr:
                 if node.value is None or type(node.value) is bool or node.value is Ellipsis:
                     return node
                 return ast.copy_location(ast.Name(id="REDACTED", ctx=ast.Load()), node)
 
-        redacted_decorator = LiteralRedactor().visit(copy.deepcopy(decorator))
-        return ast.unparse(redacted_decorator)
+        redacted_expression = LiteralRedactor().visit(copy.deepcopy(expression))
+        return ast.unparse(redacted_expression)
+
+    # {
+    #   責務: [_render_decorator: デコレーターをRepository Mapへ記録する]
+    #   処理: [デコレーターの構造を保ち、埋め込まれたリテラル値を伏せて文字列化する]
+    #   引数: [decorator: Python関数またはクラスに付いたデコレーター式]
+    #   戻り値: [str: リテラル値を含まないデコレーター表現]
+    # }
+    @classmethod
+    def _render_decorator(cls, decorator: ast.expr) -> str:
+        return cls._render_expression_with_redacted_literals(decorator)
 
     @staticmethod
     def _terminal_name(node: ast.expr) -> str:
@@ -423,7 +448,11 @@ class RepositoryMapGenerator:
         if arguments.kwarg is not None:
             parameters.append(cls._parameter_record(arguments.kwarg, "var_keyword", False))
             rendered.append(f"**{cls._render_parameter(arguments.kwarg, False)}")
-        return_annotation = ast.unparse(node.returns) if node.returns is not None else None
+        return_annotation = (
+            cls._render_expression_with_redacted_literals(node.returns)
+            if node.returns is not None
+            else None
+        )
         suffix = f" -> {return_annotation}" if return_annotation else ""
         return f"({', '.join(rendered)}){suffix}", parameters, return_annotation
 
@@ -432,7 +461,11 @@ class RepositoryMapGenerator:
         return {
             "name": argument.arg,
             "kind": kind,
-            "annotation": ast.unparse(argument.annotation) if argument.annotation is not None else None,
+            "annotation": (
+                cls._render_expression_with_redacted_literals(argument.annotation)
+                if argument.annotation is not None
+                else None
+            ),
             "has_default": has_default,
         }
 
@@ -440,7 +473,7 @@ class RepositoryMapGenerator:
     def _render_parameter(argument: ast.arg, has_default: bool) -> str:
         rendered = argument.arg
         if argument.annotation is not None:
-            rendered += f": {ast.unparse(argument.annotation)}"
+            rendered += f": {RepositoryMapGenerator._render_expression_with_redacted_literals(argument.annotation)}"
         if has_default:
             rendered += " = …"
         return rendered
