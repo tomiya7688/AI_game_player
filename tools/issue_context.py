@@ -166,8 +166,10 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
             confidence = 0.98
             reasons.append(f"working tree marks this path {changed_by_path[path]}")
         if _contains_identifier(issue_text, path):
-            confidence = max(confidence, 0.92)
-            reasons.append("Issue text names this source path")
+            path_confidence = 0.99 if tests_only else 0.92
+            confidence = max(confidence, path_confidence)
+            path_description = "test" if tests_only else "source"
+            reasons.append(f"Issue text names this {path_description} path")
         if _contains_identifier(issue_text, module_name):
             confidence = max(confidence, 0.86)
             reasons.append("Issue text names this module")
@@ -195,7 +197,7 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
             if matched_terms:
                 confidence = max(confidence, min(0.68, 0.34 + 0.08 * len(matched_terms)))
                 reasons.append("shared identifier(s): " + ", ".join(matched_terms[:3]))
-        if tests_only and not reasons:
+        if tests_only:
             module_dependencies = set(module.get("dependencies", []))
             for imported_module in module.get("imports", []):
                 module_dependencies.update(imported_module.get("local_dependencies", []))

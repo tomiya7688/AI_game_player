@@ -47797,7 +47797,7 @@
       "module": "tests.test_issue_context",
       "path": "tests/test_issue_context.py",
       "source_location": {
-        "end_line": 436,
+        "end_line": 481,
         "start_line": 1
       },
       "symbols": [
@@ -47860,7 +47860,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 432,
+            "end_line": 477,
             "start_line": 17
           }
         },
@@ -48122,6 +48122,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_issue_named_test_ranks_above_broad_dependency_matches",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_issue_named_test_ranks_above_broad_dependency_matches",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 238
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_evidence_limit_preserves_test_candidates_and_required_check",
           "parameters": [
             {
@@ -48136,8 +48159,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 268,
-            "start_line": 238
+            "end_line": 313,
+            "start_line": 283
           }
         },
         {
@@ -48159,8 +48182,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 296,
-            "start_line": 270
+            "end_line": 341,
+            "start_line": 315
           }
         },
         {
@@ -48182,8 +48205,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 310,
-            "start_line": 298
+            "end_line": 355,
+            "start_line": 343
           }
         },
         {
@@ -48205,8 +48228,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 358,
-            "start_line": 312
+            "end_line": 403,
+            "start_line": 357
           }
         },
         {
@@ -48228,8 +48251,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 386,
-            "start_line": 360
+            "end_line": 431,
+            "start_line": 405
           }
         },
         {
@@ -48251,8 +48274,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 388
+            "end_line": 443,
+            "start_line": 433
           }
         },
         {
@@ -48274,8 +48297,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 403,
-            "start_line": 400
+            "end_line": 448,
+            "start_line": 445
           }
         },
         {
@@ -48297,8 +48320,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 420,
-            "start_line": 405
+            "end_line": 465,
+            "start_line": 450
           }
         },
         {
@@ -48320,8 +48343,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 425,
-            "start_line": 422
+            "end_line": 470,
+            "start_line": 467
           }
         },
         {
@@ -48343,8 +48366,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 432,
-            "start_line": 427
+            "end_line": 477,
+            "start_line": 472
           }
         }
       ]
@@ -68860,7 +68883,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 515,
+        "end_line": 517,
         "start_line": 1
       },
       "symbols": [
@@ -69060,7 +69083,7 @@
           "signature": "(issue, repository_map, changed_paths, *, tests_only, related_sources = …)",
           "source_location": {
             "column": 0,
-            "end_line": 234,
+            "end_line": 236,
             "start_line": 147
           }
         },
@@ -69095,8 +69118,8 @@
           "signature": "(issue, repository_map, modules)",
           "source_location": {
             "column": 0,
-            "end_line": 275,
-            "start_line": 237
+            "end_line": 277,
+            "start_line": 239
           }
         },
         {
@@ -69142,8 +69165,8 @@
           "signature": "(issue, repository_map, changed_paths, map_error = …, max_chars = …)",
           "source_location": {
             "column": 0,
-            "end_line": 412,
-            "start_line": 278
+            "end_line": 414,
+            "start_line": 280
           }
         },
         {
@@ -69158,8 +69181,8 @@
           "signature": "()",
           "source_location": {
             "column": 4,
-            "end_line": 331,
-            "start_line": 316
+            "end_line": 333,
+            "start_line": 318
           }
         },
         {
@@ -69187,8 +69210,8 @@
           "signature": "(line, label)",
           "source_location": {
             "column": 12,
-            "end_line": 368,
-            "start_line": 340
+            "end_line": 370,
+            "start_line": 342
           }
         },
         {
@@ -69203,8 +69226,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 382,
-            "start_line": 377
+            "end_line": 384,
+            "start_line": 379
           }
         },
         {
@@ -69226,8 +69249,8 @@
           "signature": "(issue)",
           "source_location": {
             "column": 0,
-            "end_line": 416,
-            "start_line": 414
+            "end_line": 418,
+            "start_line": 416
           }
         },
         {
@@ -69249,8 +69272,8 @@
           "signature": "(issues)",
           "source_location": {
             "column": 0,
-            "end_line": 425,
-            "start_line": 418
+            "end_line": 427,
+            "start_line": 420
           }
         },
         {
@@ -69296,8 +69319,8 @@
           "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 476,
-            "start_line": 428
+            "end_line": 478,
+            "start_line": 430
           }
         },
         {
@@ -69319,8 +69342,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 512,
-            "start_line": 479
+            "end_line": 514,
+            "start_line": 481
           }
         }
       ]

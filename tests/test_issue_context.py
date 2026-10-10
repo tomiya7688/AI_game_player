@@ -235,6 +235,51 @@ class IssueContextTests(unittest.TestCase):
         self.assertEqual("tests/test_screen_capture.py", tests[0]["path"])
         self.assertEqual(0.96, tests[0]["confidence"])
 
+    def test_issue_named_test_ranks_above_broad_dependency_matches(self):
+        selected = issue(
+            143,
+            title="Improve screen capture reliability",
+            body="Update `tests/test_screen_capture.py` for the capture flow.",
+        )
+        source_module = {
+            "module": "ai_game_player.screen_capture",
+            "path": "src/ai_game_player/screen_capture.py",
+        }
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [source_module] + [
+                {
+                    "module": f"tests.test_{test_name}",
+                    "path": f"tests/test_{test_name}.py",
+                    "dependencies": ["ai_game_player.screen_capture"],
+                    "imports": [],
+                    "symbols": [],
+                }
+                for test_name in (
+                    "a_capture_adapter",
+                    "b_capture_state",
+                    "c_capture_window",
+                    "screen_capture",
+                )
+            ],
+        }
+        related_sources = context._rank_module_candidates(
+            selected, repository_map, [], tests_only=False
+        )
+
+        tests = context._rank_module_candidates(
+            selected,
+            repository_map,
+            [],
+            tests_only=True,
+            related_sources=related_sources,
+        )
+
+        self.assertEqual("tests/test_screen_capture.py", tests[0]["path"])
+        self.assertEqual(0.99, tests[0]["confidence"])
+        self.assertIn("Issue text names this test path", tests[0]["reason"])
+
     def test_evidence_limit_preserves_test_candidates_and_required_check(self):
         selected = issue(143, title="Improve screen capture reliability")
         modules = []
