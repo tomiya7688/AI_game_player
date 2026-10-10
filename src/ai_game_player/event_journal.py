@@ -378,7 +378,13 @@ class EventJournal:
             try:
                 if event_id is not None:
                     _require_nonempty_text(event_id, "event_id")
-                    existing_event = self._read_event_by_id(event_id)
+                    try:
+                        existing_event = self._read_event_by_id(event_id)
+                    except sqlite3.Error as error:
+                        self._write_failed = True
+                        raise EventJournalError(
+                            "event journal retry lookup failed; reopen to recover"
+                        ) from error
                     if existing_event is not None:
                         if not _same_event_content(
                             existing_event,

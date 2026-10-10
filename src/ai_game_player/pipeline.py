@@ -42,13 +42,26 @@ class DecisionPipeline:
     #     5: Session用履歴と安全評価を初期化する
     #   ]
     #   引数: [
-    #     window_handle: 選択中の対象HWND
-    #     window_process_id: 列挙時にHWNDを所有していたPID
-    #     input_mode: OSマウスまたは対象ウィンドウmessage方式
-#     automated_cursor_position_callback: 実入力workerが自動クリックの開始・完了を通知する関数
-#     event_journal: このruntime session専用のJournal、未指定なら既存storeを使う
-#     runtime_log: application log、Journal指定時は同じsessionへ複製する
-#     migrate_legacy: trueなら初回起動で既存保存記録をJournalへ移行する
+    #     source: 判断対象の画面観測と操作候補を提供する入力元
+    #     game_directory: ゲーム固有の履歴・安全状態を保存するdirectory
+    #     provider: 操作候補から次の判断を選ぶProvider
+    #     controller: stop/rearm世代を共有するRunController
+    #     dry_run: trueなら入力を送らず実行内容だけを記録する設定
+    #     window_handle: 入力対象のHWND
+    #     input_mode: OS mouseまたはwindow messageの入力方式
+    #     window_process_id: 対象HWNDを所有するprocess ID
+    #     safety_evaluator: 操作候補のリスクを評価するoptional evaluator
+    #     safety_guard: 実入力を監視するoptional SafetyGuard
+    #     safety_guard_config: SafetyGuardの閾値と制限
+    #     emergency_stop: OS入力を停止するoptional emergency stop
+    #     fail_safe_runtime: persistent fail-safe状態を管理するoptional runtime
+    #     fail_safe_config: fail-safeの制限と復旧設定
+    #     external_watchdog: trueなら外部watchdog processを起動する設定
+    #     automated_cursor_position_callback: 自動入力workerの開始・完了位置を通知する関数
+    #     event_journal: このSession専用のevent保存先。未指定ならSession Journalを使わない
+    #     runtime_log: application log。Journal指定時はeventを同じSessionへ複製する
+    #     migrate_legacy: trueなら旧history・trace・execution・safety記録をJournalへ移行する
+    #     migrate_runtime_log: trueなら旧RuntimeLog JSONLをJournalへ移行する
     #   ]
     #   戻り値: []
     # }
@@ -73,6 +86,7 @@ class DecisionPipeline:
         event_journal: EventJournal | None = None,
         runtime_log: RuntimeLog | None = None,
         migrate_legacy: bool = True,
+        migrate_runtime_log: bool = True,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
@@ -133,7 +147,7 @@ class DecisionPipeline:
         if self.event_journal is not None and self.runtime_log is not None:
             self.runtime_log.attach_event_journal(
                 self.event_journal,
-                migrate_legacy=migrate_legacy,
+                migrate_legacy=migrate_runtime_log,
             )
 
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:

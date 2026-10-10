@@ -109,7 +109,7 @@ class SessionCompositionTests(unittest.TestCase):
         )
         self.assertEqual(
             {key: build_arguments["keywords"][key] for key in (
-                "dry_run", "window_handle", "input_mode", "window_process_id", "migrate_legacy"
+                "dry_run", "window_handle", "input_mode", "window_process_id", "migrate_legacy", "migrate_runtime_log"
             )},
             {
                 "dry_run": True,
@@ -117,8 +117,42 @@ class SessionCompositionTests(unittest.TestCase):
                 "input_mode": "window_message",
                 "window_process_id": 34,
                 "migrate_legacy": True,
+                "migrate_runtime_log": False,
             },
         )
+
+    def test_legacy_pipeline_factory_signature_still_creates_a_session(self):
+        events = []
+        pipeline = FakePipeline(events)
+
+        def legacy_pipeline_factory(
+            source,
+            game_directory,
+            provider,
+            controller,
+            *,
+            dry_run,
+            window_handle,
+            input_mode,
+            window_process_id,
+            automated_cursor_position_callback=None,
+            runtime_log=None,
+        ):
+            events.append((source, game_directory, provider, controller, dry_run, window_handle, input_mode, window_process_id))
+            return pipeline
+
+        provider = FakeProvider(events)
+        runtime = RuntimeComposition(
+            provider_factories={"fake": lambda *_arguments: provider},
+            pipeline_factory=legacy_pipeline_factory,
+        ).create_session_runtime(
+            self.configuration(), source="source", controller="controller"
+        )
+
+        self.assertIs(runtime.pipeline, pipeline)
+        self.assertEqual("source", events[0][0])
+        self.assertFalse(self.configuration().game_directory.joinpath("session_events").exists())
+        runtime.close()
 
     # {
     #   責務: [test_legacy_files_are_migrated_only_in_the_first_runtime_session: 旧保存記録を複数Sessionへ複製しない]

@@ -79,7 +79,8 @@ class LegacyEventAdapter:
         self.retain_records = retain_records
         self.migrate_legacy = migrate_legacy
         self._records: list[dict[str, Any]] = []
-        legacy_records = self._read_legacy_records()
+        should_read_legacy = self.retain_records or self.migrate_legacy
+        legacy_records = self._read_legacy_records() if should_read_legacy else []
         for index, record in enumerate(legacy_records):
             if self.retain_records:
                 self._records.append(record)

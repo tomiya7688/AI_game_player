@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import inspect
+import os
+import time
 from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
-import os
 from pathlib import Path
-import time
 from typing import Any
 from uuid import uuid4
 
@@ -62,6 +63,46 @@ def _legacy_migration_lock(lock_path: Path):
                 yield
             finally:
                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
+# {
+#   責務: [_supports_session_journal: pipeline factoryが移行制御付きSession Journalを受け取れるか判定する]
+#   処理: [明示parameterまたは**kwargsでevent_journal・migrate_legacy・migrate_runtime_logを受け取るfactoryだけをJournal対応とみなす]
+#   引数: [pipeline_factory: RuntimeCompositionへ注入されたfactory]
+#   戻り値: [bool: 新旧保存データの移行制御を安全に指定できる場合はTrue]
+# }
+def _supports_session_journal(pipeline_factory: Callable[..., Any]) -> bool:
+    try:
+        parameters = inspect.signature(pipeline_factory).parameters.values()
+    except (TypeError, ValueError):
+        return True
+    parameter_names = {parameter.name for parameter in parameters}
+    accepts_arbitrary_keywords = any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in parameters
+    )
+    required_migration_arguments = {
+        "event_journal",
+        "migrate_legacy",
+        "migrate_runtime_log",
+    }
+    return accepts_arbitrary_keywords or required_migration_arguments.issubset(parameter_names)
+
+
+# {
+#   責務: [_remove_partial_journal_files: 初期化に失敗したSession専用SQLite databaseとsidecarを削除する]
+#   処理: [呼出元が今回生成したdatabase pathに対応するSQLite本体・journal・WAL・SHM entryだけをunlinkする]
+#   引数: [database_path: 初期化失敗Sessionが所有する新規SQLite database path]
+#   戻り値: []
+#   エラー: [OSError: 失敗Sessionのdatabase artifactを削除できない場合]
+# }
+def _remove_partial_journal_files(database_path: Path) -> None:
+    for artifact_path in (
+        database_path,
+        Path(f"{database_path}-journal"),
+        Path(f"{database_path}-wal"),
+        Path(f"{database_path}-shm"),
+    ):
+        artifact_path.unlink(missing_ok=True)
 
 
 @dataclass(frozen=True)
@@ -219,7 +260,7 @@ class RuntimeComposition:
 
     # {
     #   責務: [create_session_runtime: 1 Session用のProviderとPipelineを生成して所有関係を返す]
-    #   処理: [session設定からProviderと専用Journalを生成し、未移行時だけ旧記録を取り込んでから完了markerを作る]
+    #   処理: [factoryがJournal移行制御を受け取れる場合に限り専用Journalを生成し、game historyとRuntimeLogの完了markerを別々に管理する]
     #   引数: [configuration: Session開始時の確定設定, source: session中に更新されるObservation source, controller: 停止世代を共有するcontroller, automated_cursor_position_callback: 実入力カーソル位置の通知先, runtime_log: active Sessionへruntime eventを記録するapplication logger]
     #   戻り値: [ManagedSessionRuntime: closeでPipelineとProviderを順序付き解放するsession runtime]
     #   エラー: [ValueError: Provider factoryが未登録の場合, Exception: Pipeline初期化失敗]
@@ -239,34 +280,74 @@ class RuntimeComposition:
 
         provider = provider_factory(configuration.model, configuration.endpoint)
         session_id = uuid4().hex
-        migration_marker = configuration.game_directory / "session_events" / "legacy_migration_v1.complete"
-        migration_lock = migration_marker.with_suffix(".lock")
-        with _legacy_migration_lock(migration_lock):
-            migrate_legacy = not migration_marker.exists()
-            event_journal: EventJournal | None = None
-            pipeline: DecisionPipeline | None = None
+        pipeline_arguments = {
+            "dry_run": configuration.dry_run,
+            "window_handle": configuration.window_handle,
+            "input_mode": configuration.input_mode,
+            "window_process_id": configuration.window_process_id,
+            "automated_cursor_position_callback": automated_cursor_position_callback,
+            "runtime_log": runtime_log,
+        }
+        if not _supports_session_journal(self._pipeline_factory):
             try:
-                event_journal = EventJournal(
-                    configuration.game_directory / "session_events" / f"{session_id}.sqlite3",
-                    session_id=session_id,
-                )
+                accepted_names = inspect.signature(self._pipeline_factory).parameters
+            except (TypeError, ValueError):
+                pass
+            else:
+                pipeline_arguments = {
+                    name: value
+                    for name, value in pipeline_arguments.items()
+                    if name in accepted_names
+                }
+            try:
                 pipeline = self._pipeline_factory(
                     source,
                     configuration.game_directory,
                     provider,
                     controller,
-                    dry_run=configuration.dry_run,
-                    window_handle=configuration.window_handle,
-                    input_mode=configuration.input_mode,
-                    window_process_id=configuration.window_process_id,
-                    automated_cursor_position_callback=automated_cursor_position_callback,
-                    event_journal=event_journal,
-                    runtime_log=runtime_log,
-                    migrate_legacy=migrate_legacy,
+                    **pipeline_arguments,
                 )
+            except Exception as initialization_error:
+                try:
+                    _close_provider(provider)
+                except Exception as cleanup_error:
+                    raise RuntimeError(
+                        f"Pipeline initialization failed ({initialization_error}); "
+                        f"provider cleanup also failed ({cleanup_error})"
+                    ) from initialization_error
+                raise
+            return ManagedSessionRuntime(pipeline, provider)
+
+        migration_marker = configuration.game_directory / "session_events" / "legacy_migration_v1.complete"
+        runtime_log_marker = configuration.game_directory / "session_events" / "runtime_log_migration_v1.complete"
+        migration_lock = migration_marker.with_suffix(".lock")
+        with _legacy_migration_lock(migration_lock):
+            migrate_legacy = not migration_marker.exists()
+            migrate_runtime_log = runtime_log is not None and not runtime_log_marker.exists()
+            session_journal_path = configuration.game_directory / "session_events" / f"{session_id}.sqlite3"
+            event_journal: EventJournal | None = None
+            pipeline: DecisionPipeline | None = None
+            newly_created_markers: list[Path] = []
+            try:
+                event_journal = EventJournal(session_journal_path, session_id=session_id)
+                pipeline = self._pipeline_factory(
+                    source,
+                    configuration.game_directory,
+                    provider,
+                    controller,
+                    **pipeline_arguments,
+                    event_journal=event_journal,
+                    migrate_legacy=migrate_legacy,
+                    migrate_runtime_log=migrate_runtime_log,
+                )
+                if migrate_runtime_log:
+                    runtime_log_marker.parent.mkdir(parents=True, exist_ok=True)
+                    runtime_log_marker.touch(exist_ok=True)
+                    newly_created_markers.append(runtime_log_marker)
                 if migrate_legacy:
                     migration_marker.parent.mkdir(parents=True, exist_ok=True)
                     migration_marker.touch(exist_ok=True)
+                    newly_created_markers.append(migration_marker)
             except Exception as initialization_error:
                 cleanup_errors: list[Exception] = []
                 if pipeline is not None:
@@ -277,6 +358,15 @@ class RuntimeComposition:
                 if event_journal is not None:
                     try:
                         event_journal.close()
+                    except Exception as cleanup_error:
+                        cleanup_errors.append(cleanup_error)
+                try:
+                    _remove_partial_journal_files(session_journal_path)
+                except Exception as cleanup_error:
+                    cleanup_errors.append(cleanup_error)
+                for created_marker in newly_created_markers:
+                    try:
+                        created_marker.unlink(missing_ok=True)
                     except Exception as cleanup_error:
                         cleanup_errors.append(cleanup_error)
                 try:
