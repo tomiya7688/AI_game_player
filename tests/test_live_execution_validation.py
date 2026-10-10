@@ -143,6 +143,47 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application._validate_live_execution()
 
     # {
+    #   責務: [test_pipeline_failure_completes_session_step_when_logging_fails: ログ障害がpipeline stepの完了を妨げないことを検証する]
+    #   処理: [RuntimeLog.writeが例外を送出するworker失敗を処理し、step完了・利用者通知・次回poll登録を確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_pipeline_failure_completes_session_step_when_logging_fails(self):
+        class FailingLog:
+            def write(self, *_record):
+                raise RuntimeError("Session Journal is unhealthy")
+
+        application = Application.__new__(Application)
+        application.controller = RunController()
+        application.controller.start()
+        run_token = application.controller.rearm_token
+        application._execution_in_progress = True
+        application._execution_task_id = 7
+        application._background_results = queue.Queue()
+        error = RuntimeError("pipeline failed")
+        application._background_results.put(
+            ("pipeline", 7, run_token, "execute", None, error, False, None, None)
+        )
+        application.runtime_log = FailingLog()
+        statuses = []
+        scheduled = []
+        application._set_status = statuses.append
+        application.root = SimpleNamespace(after=lambda *_args: scheduled.append(True))
+        application._closing = False
+        completions = []
+        application._complete_session_step = lambda result=None: completions.append(result)
+
+        with patch.object(app_module.messagebox, "showerror") as show_error:
+            application._poll_background_results()
+
+        self.assertEqual([error], completions)
+        self.assertEqual([True], scheduled)
+        self.assertFalse(application._execution_in_progress)
+        self.assertIsNone(application._execution_task_id)
+        self.assertTrue(any("記録に失敗しました" in status for status in statuses))
+        show_error.assert_called_once_with("実行エラー", "pipeline failed")
+
+    # {
     #   責務: [test_manual_capture_assessment_does_not_use_execution_generation: 手動画面取得の評価を実行停止状態から分離する]
     #   処理: [停止中の手動取得では世代tokenを渡さず、連続実行stepでは現在tokenを渡す]
     #   引数: []

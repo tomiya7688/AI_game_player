@@ -327,7 +327,7 @@ class DecisionPipeline:
 
     # {
     #   責務: [close_event_journal: RuntimeLogのSession bindingとSession Journalを閉じる]
-    #   処理: [RuntimeLog bindingを保持したまま事前checkpointし、失敗を記録してからJournalを閉じ最後にdetachする。closeがcheckpoint errorを送出してもJournalはclosedとして扱う]
+    #   処理: [RuntimeLog bindingを保持したまま事前checkpointし、失敗をRuntimeLogまたは未閉鎖Journalへ記録してからJournalを閉じ最後にdetachする。closeがcheckpoint errorを送出してもJournalはclosedとして扱う]
     #   引数: [なし]
     #   戻り値: []
     #   エラー: [Exception: SQLite checkpointまたは接続closeに失敗した場合]
@@ -339,37 +339,19 @@ class DecisionPipeline:
                 self.event_journal.flush()
             except Exception as error:
                 close_error = error
-                if self.runtime_log is not None:
-                    try:
-                        self.runtime_log.write(
-                            "session.shutdown_failed",
-                            "Session Event Journal checkpoint failed before close",
-                            {
-                                "status": "failed",
-                                "resource": "event_journal_checkpoint",
-                                "error": str(error),
-                            },
-                        )
-                    except Exception:
-                        pass
+                try:
+                    self.record_shutdown_failure("event_journal_checkpoint", error)
+                except Exception:
+                    pass
             try:
                 self.event_journal.close()
             except Exception as error:
                 if close_error is None:
                     close_error = error
-                if self.runtime_log is not None:
-                    try:
-                        self.runtime_log.write(
-                            "session.shutdown_failed",
-                            "Session Event Journal close failed",
-                            {
-                                "status": "failed",
-                                "resource": "event_journal_close",
-                                "error": str(error),
-                            },
-                        )
-                    except Exception:
-                        pass
+                try:
+                    self.record_shutdown_failure("event_journal_close", error)
+                except Exception:
+                    pass
             finally:
                 # EventJournalは最終checkpoint失敗時もconnectionを解放してclosed状態になる。
                 self._event_journal_closed = True

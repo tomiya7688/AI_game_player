@@ -813,7 +813,7 @@ class Application:
 
     # {
     #   責務: [_poll_background_results: worker結果をGUIスレッドで適用する]
-    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、カーソル停止基準は監視処理だけで更新する]
+    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する]
     #   引数: []
     #   戻り値: []
     # }
@@ -877,20 +877,25 @@ class Application:
             self._execution_in_progress = False
             self._execution_task_id = None
             if error is not None:
-                if isinstance(error, ExecutionCancelled) or not self._run_is_current(run_token):
-                    reason = error.reason if isinstance(error, ExecutionCancelled) else self.controller.stop_reason or "実行世代が変更されました"
-                    self.runtime_log.write("run_control", "inference_result_discarded", {"reason": reason, "operation": operation})
-                    if self.controller.is_running:
-                        self._set_status("停止要求後の推論応答を破棄しました")
+                try:
+                    if isinstance(error, ExecutionCancelled) or not self._run_is_current(run_token):
+                        reason = error.reason if isinstance(error, ExecutionCancelled) else self.controller.stop_reason or "実行世代が変更されました"
+                        try:
+                            self.runtime_log.write("run_control", "inference_result_discarded", {"reason": reason, "operation": operation})
+                        except Exception as logging_error:
+                            self._set_status(f"停止結果の記録に失敗しました: {logging_error}")
+                        if self.controller.is_running:
+                            self._set_status("停止要求後の推論応答を破棄しました")
+                    else:
+                        try:
+                            self.runtime_log.write("error", str(error), {"operation": operation})
+                        except Exception as logging_error:
+                            self._set_status(f"実行エラーの記録に失敗しました: {logging_error}")
+                        messagebox.showerror("実行エラー" if operation == "execute" else "判断エラー", str(error))
+                finally:
                     self._complete_session_step(error)
                     if getattr(self, "_closing", False) and not self.session_controller.has_pending_step:
                         self.root.destroy()
-                    continue
-                self.runtime_log.write("error", str(error), {"operation": operation})
-                messagebox.showerror("実行エラー" if operation == "execute" else "判断エラー", str(error))
-                self._complete_session_step(error)
-                if getattr(self, "_closing", False) and not self.session_controller.has_pending_step:
-                    self.root.destroy()
                 continue
             if not self._run_is_current(run_token):
                 self.runtime_log.write("run_control", "inference_result_discarded", {"reason": self.controller.stop_reason or "実行世代が変更されました", "operation": operation})

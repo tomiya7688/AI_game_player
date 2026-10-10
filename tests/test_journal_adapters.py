@@ -839,6 +839,31 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 failure_events[0].payload["legacy_record"]["context"]["resource"],
             )
 
+    def test_journal_checkpoint_failure_is_recorded_without_runtime_log(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal_path = root / "session.sqlite3"
+            journal = EventJournal(journal_path, session_id="session-checkpoint-no-log")
+            pipeline = DecisionPipeline(object(), root, event_journal=journal)
+            with patch.object(
+                journal,
+                "flush",
+                side_effect=EventJournalError("injected checkpoint failure"),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "injected checkpoint failure"):
+                    pipeline.close()
+
+            failure_events = [
+                event for event in read_events(journal_path)
+                if event.event_type == "runtime.log"
+                and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
+            ]
+            self.assertEqual(1, len(failure_events))
+            self.assertEqual(
+                "event_journal_checkpoint",
+                failure_events[0].payload["legacy_record"]["context"]["resource"],
+            )
+
     def test_managed_runtime_does_not_retry_closed_journal_after_close_error(self):
         class Provider:
             def close(self):
