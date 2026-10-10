@@ -153,6 +153,20 @@ class SharedFrameProducer:
             self._dropped_frames += dropped_frames
 
     # {
+    #   責務: [_notify_finished_subscribers: 終了理由をconsumerへ伝え、終了で捨てたqueue数を集計する]
+    #   引数: [subscribers: 終了通知を受け取るconsumer, error: capture失敗時の元例外。正常停止ではNone]
+    #   戻り値: []
+    # }
+    def _notify_finished_subscribers(
+        self,
+        subscribers: list[FrameSubscriber],
+        error: Exception | None,
+    ) -> None:
+        dropped = sum(subscriber._finish(error) for subscriber in subscribers)
+        with self._lock:
+            self._dropped_frames += dropped
+
+    # {
     #   責務: [_finish_locked: producerをterminal状態にし、登録consumerを終了通知対象として取り出す]
     #   引数: [error: capture失敗時の元例外。正常停止ではNone]
     #   戻り値: [list[FrameSubscriber]: 終了通知を受け取るconsumer]
@@ -178,36 +192,69 @@ class SharedFrameProducer:
                 with self._lock:
                     capture_source = self._capture_source
                     source_generation = self._source_generation
-                frame = capture_source.capture()
-                if not isinstance(frame, ScreenFrame):
-                    raise TypeError("capture() must return ScreenFrame")
-                if (
-                    frame.width <= 0
-                    or frame.height <= 0
-                    or len(frame.bgra) != frame.width * frame.height * 4
-                    or not isfinite(frame.captured_at)
-                ):
-                    raise ValueError("capture() returned an invalid BGRA frame or timestamp")
+                try:
+                    frame = capture_source.capture()
+                    if not isinstance(frame, ScreenFrame):
+                        raise TypeError("capture() must return ScreenFrame")
+                    if (
+                        frame.width <= 0
+                        or frame.height <= 0
+                        or len(frame.bgra) != frame.width * frame.height * 4
+                        or not isfinite(frame.captured_at)
+                    ):
+                        raise ValueError("capture() returned an invalid BGRA frame or timestamp")
+                except Exception as capture_error:
+                    with self._lock:
+                        discard_error = (
+                            source_generation != self._source_generation
+                            or self._stop_event.is_set()
+                        )
+                        if discard_error:
+                            self._dropped_frames += 1
+                        else:
+                            error = capture_error
+                            subscribers = self._finish_locked(error)
+                    if discard_error:
+                        continue
+                    self._notify_finished_subscribers(subscribers, error)
+                    return
                 with self._lock:
-                    if self._last_captured_at is not None and frame.captured_at < self._last_captured_at:
-                        raise ValueError("capture() timestamps must use a non-decreasing monotonic clock")
-                    self._last_captured_at = frame.captured_at
                     self._captured_frames += 1
                     self._last_frame_id += 1
                     frame_id = self._last_frame_id
-                    if source_generation != self._source_generation or self._stop_event.is_set():
+                    discard_frame = (
+                        source_generation != self._source_generation
+                        or self._stop_event.is_set()
+                    )
+                    if discard_frame:
                         self._dropped_frames += 1
+                        timestamp_error = None
+                    elif (
+                        self._last_captured_at is not None
+                        and frame.captured_at < self._last_captured_at
+                    ):
+                        timestamp_error = ValueError(
+                            "capture() timestamps must use a non-decreasing monotonic clock"
+                        )
+                        error = timestamp_error
+                        subscribers = self._finish_locked(error)
                     else:
+                        timestamp_error = None
+                        self._last_captured_at = frame.captured_at
                         packet = FramePacket(frame_id, source_generation, frame)
                         for subscriber in self._subscribers:
                             published, dropped = subscriber._publish(packet)
                             self._published_frames += int(published)
                             self._dropped_frames += dropped
+                if timestamp_error is not None:
+                    self._notify_finished_subscribers(subscribers, error)
+                    return
+                if discard_frame:
+                    continue
                 self._stop_event.wait(self.interval_seconds)
         except Exception as capture_error:
             error = capture_error
         finally:
             with self._lock:
                 subscribers = self._finish_locked(error)
-            for subscriber in subscribers:
-                subscriber._finish(error)
+            self._notify_finished_subscribers(subscribers, error)

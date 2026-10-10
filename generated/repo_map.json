@@ -33185,7 +33185,7 @@
       "module": "ai_game_player.shared_frame_producer",
       "path": "src/ai_game_player/shared_frame_producer.py",
       "source_location": {
-        "end_line": 213,
+        "end_line": 260,
         "start_line": 1
       },
       "symbols": [
@@ -33205,7 +33205,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 213,
+            "end_line": 260,
             "start_line": 34
           }
         },
@@ -33425,6 +33425,41 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "_notify_finished_subscribers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[FrameSubscriber]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "subscribers"
+            },
+            {
+              "annotation": "Exception | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer._notify_finished_subscribers",
+          "return_annotation": "None",
+          "signature": "(self, subscribers: list[FrameSubscriber], error: Exception | None) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 167,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "_finish_locked",
           "parameters": [
             {
@@ -33445,8 +33480,8 @@
           "signature": "(self, error: Exception | None) -> list[FrameSubscriber]",
           "source_location": {
             "column": 4,
-            "end_line": 167,
-            "start_line": 160
+            "end_line": 181,
+            "start_line": 174
           }
         },
         {
@@ -33468,8 +33503,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 213,
-            "start_line": 174
+            "end_line": 260,
+            "start_line": 188
           }
         }
       ]
@@ -64376,7 +64411,7 @@
       "module": "tests.test_shared_frame_producer",
       "path": "tests/test_shared_frame_producer.py",
       "source_location": {
-        "end_line": 240,
+        "end_line": 303,
         "start_line": 1
       },
       "symbols": [
@@ -64619,9 +64654,9 @@
           },
           "decorators": [],
           "kind": "class",
-          "name": "BlockingCapture",
+          "name": "CaptureThenFail",
           "parameters": [],
-          "qualified_name": "BlockingCapture",
+          "qualified_name": "CaptureThenFail",
           "return_annotation": null,
           "signature": null,
           "source_location": {
@@ -64644,13 +64679,157 @@
               "name": "self"
             }
           ],
+          "qualified_name": "CaptureThenFail.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureThenFail.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ObsoleteCapture",
+          "parameters": [],
+          "qualified_name": "ObsoleteCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "fail"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "malformed"
+            }
+          ],
+          "qualified_name": "ObsoleteCapture.__init__",
+          "return_annotation": null,
+          "signature": "(self, *, fail = …, malformed = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ObsoleteCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BlockingCapture",
+          "parameters": [],
+          "qualified_name": "BlockingCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 82,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
           "qualified_name": "BlockingCapture.__init__",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 49,
-            "start_line": 47
+            "end_line": 77,
+            "start_line": 75
           }
         },
         {
@@ -64672,8 +64851,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 51
+            "end_line": 82,
+            "start_line": 79
           }
         },
         {
@@ -64694,8 +64873,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 236,
-            "start_line": 57
+            "end_line": 299,
+            "start_line": 85
           }
         },
         {
@@ -64735,8 +64914,8 @@
           "signature": "(self, producer, count, timeout = …)",
           "source_location": {
             "column": 4,
-            "end_line": 62,
-            "start_line": 58
+            "end_line": 90,
+            "start_line": 86
           }
         },
         {
@@ -64758,8 +64937,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 78,
-            "start_line": 64
+            "end_line": 106,
+            "start_line": 92
           }
         },
         {
@@ -64781,8 +64960,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 80
+            "end_line": 116,
+            "start_line": 108
           }
         },
         {
@@ -64804,8 +64983,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 90
+            "end_line": 130,
+            "start_line": 118
           }
         },
         {
@@ -64827,8 +65006,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 104
+            "end_line": 141,
+            "start_line": 132
           }
         },
         {
@@ -64850,8 +65029,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 129,
-            "start_line": 115
+            "end_line": 157,
+            "start_line": 143
           }
         },
         {
@@ -64873,8 +65052,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 131
+            "end_line": 191,
+            "start_line": 159
           }
         },
         {
@@ -64896,8 +65075,8 @@
           "signature": "(packet)",
           "source_location": {
             "column": 8,
-            "end_line": 142,
-            "start_line": 139
+            "end_line": 170,
+            "start_line": 167
           }
         },
         {
@@ -64919,8 +65098,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 179,
-            "start_line": 165
+            "end_line": 207,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_source_replacement_ignores_obsolete_capture_failures_and_invalid_frames",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_source_replacement_ignores_obsolete_capture_failures_and_invalid_frames",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 228,
+            "start_line": 209
           }
         },
         {
@@ -64942,8 +65144,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 181
+            "end_line": 242,
+            "start_line": 230
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_failure_counts_queued_packets_discarded_from_metrics",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_capture_failure_counts_queued_packets_discarded_from_metrics",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 256,
+            "start_line": 244
           }
         },
         {
@@ -64965,8 +65190,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 195
+            "end_line": 266,
+            "start_line": 258
           }
         },
         {
@@ -64988,8 +65213,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 205
+            "end_line": 278,
+            "start_line": 268
           }
         },
         {
@@ -65011,8 +65236,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 226,
-            "start_line": 217
+            "end_line": 289,
+            "start_line": 280
           }
         },
         {
@@ -65034,8 +65259,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 236,
-            "start_line": 228
+            "end_line": 299,
+            "start_line": 291
           }
         }
       ]

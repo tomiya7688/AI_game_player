@@ -43,6 +43,34 @@ class DecreasingTimestampCapture:
         return ScreenFrame(1, 1, bytes([0, 0, 0, 255]), captured_at=next(self.timestamps))
 
 
+class CaptureThenFail:
+    def __init__(self):
+        self.capture_count = 0
+
+    def capture(self):
+        self.capture_count += 1
+        if self.capture_count > 1:
+            raise RuntimeError("capture source disappeared")
+        return ScreenFrame(1, 1, bytes([0, 0, 0, 255]))
+
+
+class ObsoleteCapture:
+    def __init__(self, *, fail=False, malformed=False):
+        self.fail = fail
+        self.malformed = malformed
+        self.started = threading.Event()
+        self.release = threading.Event()
+
+    def capture(self):
+        self.started.set()
+        self.release.wait()
+        if self.fail:
+            raise RuntimeError("obsolete source disappeared")
+        if self.malformed:
+            return ScreenFrame(0, 1, b"")
+        return ScreenFrame(1, 1, bytes([0, 0, 0, 255]))
+
+
 class BlockingCapture:
     def __init__(self):
         self.started = threading.Event()
@@ -178,6 +206,27 @@ class SharedFrameProducerTest(unittest.TestCase):
         self.assertGreaterEqual(producer.metrics.dropped_frames, 1)
         self.assertTrue(producer.stop(timeout=1.0))
 
+    def test_source_replacement_ignores_obsolete_capture_failures_and_invalid_frames(self):
+        for old_source in (
+            ObsoleteCapture(fail=True),
+            ObsoleteCapture(malformed=True),
+        ):
+            with self.subTest(failure=old_source.fail, malformed=old_source.malformed):
+                producer = SharedFrameProducer(old_source, interval_seconds=0.001)
+                subscriber = producer.subscribe()
+                producer.start()
+                self.assertTrue(old_source.started.wait(timeout=1.0))
+
+                generation = producer.replace_source(CountingCapture(2, 3))
+                old_source.release.set()
+                packet = subscriber.get(timeout=1.0)
+
+                self.assertEqual(packet.source_generation, generation)
+                self.assertEqual((packet.frame.width, packet.frame.height), (2, 3))
+                self.assertIsNone(producer.metrics.error_message)
+                self.assertGreaterEqual(producer.metrics.dropped_frames, 1)
+                self.assertTrue(producer.stop(timeout=1.0))
+
     def test_capture_failure_reaches_subscriber_and_stops_producer(self):
         producer = SharedFrameProducer(FailingCapture())
         subscriber = producer.subscribe()
@@ -191,6 +240,20 @@ class SharedFrameProducerTest(unittest.TestCase):
         self.assertIn("ValueError", producer.metrics.error_message)
         with self.assertRaisesRegex(RuntimeError, "started once"):
             producer.start()
+
+    def test_capture_failure_counts_queued_packets_discarded_from_metrics(self):
+        producer = SharedFrameProducer(CaptureThenFail(), interval_seconds=0.01)
+        subscriber = producer.subscribe()
+        producer.start()
+        deadline = time.monotonic() + 1.0
+        while producer.metrics.error_message is None and time.monotonic() < deadline:
+            time.sleep(0.001)
+
+        with self.assertRaisesRegex(FrameProducerError, "capture source disappeared"):
+            subscriber.get(timeout=0.1)
+        self.assertEqual(producer.metrics.published_frames, 1)
+        self.assertEqual(producer.metrics.dropped_frames, 1)
+        self.assertEqual(subscriber.dropped_frames, 1)
 
     def test_malformed_frame_is_rejected_and_reported(self):
         producer = SharedFrameProducer(InvalidFrameCapture())
@@ -212,7 +275,7 @@ class SharedFrameProducerTest(unittest.TestCase):
         with self.assertRaisesRegex(FrameProducerError, "non-decreasing monotonic clock"):
             subscriber.get(timeout=1.0)
 
-        self.assertEqual(producer.metrics.captured_frames, 1)
+        self.assertEqual(producer.metrics.captured_frames, 2)
 
     def test_stop_timeout_does_not_wait_forever_for_blocked_capture(self):
         capture = BlockingCapture()

@@ -42,7 +42,7 @@ class FramePacket:
 
 # {
 #   責務: [FrameProducerMetrics: producerのcapture・配送・破棄とlifecycle状態を読み取り専用で示す]
-#   フィールド: [captured_frames: backendが成功して返したframe数, published_frames: subscriber queueへ追加したpacket数, dropped_frames: source切替・停止要求・queue満杯で破棄した配送数, source_generation: 現在のsource世代, last_frame_id: 最後に取得したframe ID, is_running: capture threadの実行状態, error_message: capture失敗時の型名と説明]
+#   フィールド: [captured_frames: backendがScreenFrameを返した回数, published_frames: subscriber queueへ追加したpacket数, dropped_frames: source切替・停止要求・queue方針・capture失敗通知で破棄したframe数, source_generation: 現在のsource世代, last_frame_id: 最後に取得したframe ID, is_running: capture threadの実行状態, error_message: capture失敗時の型名と説明]
 # }
 @dataclass(frozen=True)
 class FrameProducerMetrics:
