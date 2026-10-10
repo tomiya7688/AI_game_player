@@ -197,7 +197,9 @@ class SharedFrameProducer:
                     if not isinstance(frame, ScreenFrame):
                         raise TypeError("capture() must return ScreenFrame")
                     if (
-                        frame.width <= 0
+                        type(frame.width) is not int
+                        or type(frame.height) is not int
+                        or frame.width <= 0
                         or frame.height <= 0
                         or len(frame.bgra) != frame.width * frame.height * 4
                         or not isfinite(frame.captured_at)

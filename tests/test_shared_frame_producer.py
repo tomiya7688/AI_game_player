@@ -35,6 +35,14 @@ class InvalidFrameCapture:
         return ScreenFrame(0, 1, b"")
 
 
+class InvalidDimensionsCapture:
+    def __init__(self, width, height, bgra):
+        self.frame = ScreenFrame(width, height, bgra)
+
+    def capture(self):
+        return self.frame
+
+
 class DecreasingTimestampCapture:
     def __init__(self):
         self.timestamps = iter((2.0, 1.0))
@@ -264,6 +272,24 @@ class SharedFrameProducerTest(unittest.TestCase):
             subscriber.get(timeout=1.0)
 
         self.assertEqual(producer.metrics.captured_frames, 0)
+
+    def test_non_integer_and_boolean_frame_dimensions_are_rejected(self):
+        invalid_dimensions = (
+            (1.5, 1, bytes(6)),
+            (1, 1.5, bytes(6)),
+            (True, 1, bytes(4)),
+            (1, False, b""),
+        )
+        for width, height, bgra in invalid_dimensions:
+            with self.subTest(width=width, height=height):
+                producer = SharedFrameProducer(InvalidDimensionsCapture(width, height, bgra))
+                subscriber = producer.subscribe()
+                producer.start()
+
+                with self.assertRaisesRegex(FrameProducerError, "invalid BGRA frame or timestamp"):
+                    subscriber.get(timeout=1.0)
+
+                self.assertEqual(producer.metrics.captured_frames, 0)
 
     def test_capture_timestamps_must_not_move_backwards(self):
         producer = SharedFrameProducer(DecreasingTimestampCapture(), interval_seconds=0.001)
