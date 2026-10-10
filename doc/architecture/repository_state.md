@@ -51,3 +51,5 @@ Repository Mapには関数本文、docstring、定数値、デフォルト値の
 候補のconfidenceは、根拠の強さを示す0から1までのヒューリスティック値です。値は確率でも依存関係の保証でもありません。変更パスとの一致は0.98、Issue本文中のpath一致は0.92、module名一致は0.86、symbol名一致は0.84、識別子の部分一致は一致数に応じて0.34から0.68です。symbol候補の部分一致は0.36から0.68です。英語の識別子はunderscoreで分割するため、Issue本文の「screen capture」はmodule名 `screen_capture` と照合できます。各候補には一致理由を併記します。利用者は候補を探索の入口として扱い、Issueの要求と実装・テストで関係を確認してください。
 
 Task Context Packは最大文字数の範囲でIssue本文を先に保持し、長い本文には省略位置を示します。候補証拠が上限に近づいた場合、低順位の候補から省略しますが、test候補または候補なしの説明と必須確認コマンドは残します。Repository Mapを読み込めない場合は理由を出し、mapに基づく候補を出しません。Task Context Packは候補test pathと必須確認コマンド `finish_task.bat` を示しますが、候補testの成功や機能動作を保証しません。実装者は変更後に該当testと `finish_task.bat` を実行してください。
+
+Symbol名は `Class.method` 形式だけでなく、Issue本文に記載されたterminal method名とも照合します。Test候補はRepository Mapに記録されたsource module dependencyを先に使い、依存情報が一致しない場合にsourceとtestのファイル名stemを比較します。Dependency一致のconfidenceは0.92、filename stem一致は0.88です。

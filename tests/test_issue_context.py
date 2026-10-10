@@ -156,6 +156,37 @@ class IssueContextTests(unittest.TestCase):
         self.assertIn("`src/ai_game_player/screen_capture.py` — confidence 0.50", evidence)
         self.assertIn("Test candidate `tests/test_screen_capture.py`", evidence)
 
+    def test_terminal_symbol_match_uses_map_dependencies_for_descriptive_test_names(self):
+        selected = issue(143, title="Review run_and_execute behavior")
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": "ai_game_player.pipeline",
+                    "path": "src/ai_game_player/pipeline.py",
+                    "dependencies": [],
+                    "symbols": [{
+                        "name": "run_and_execute",
+                        "qualified_name": "DecisionPipeline.run_and_execute",
+                    }],
+                },
+                {
+                    "module": "tests.test_pipeline_execute",
+                    "path": "tests/test_pipeline_execute.py",
+                    "dependencies": ["ai_game_player.pipeline"],
+                    "imports": [],
+                    "symbols": [],
+                },
+            ],
+        }
+        evidence = context.render_repository_evidence(selected, repository_map, [])
+
+        self.assertIn("`src/ai_game_player/pipeline.py` — confidence 0.84", evidence)
+        self.assertIn("DecisionPipeline.run_and_execute` — confidence 0.84", evidence)
+        self.assertIn("Test candidate `tests/test_pipeline_execute.py` — confidence 0.92", evidence)
+        self.assertIn("Repository Map dependency connects this test", evidence)
+
     def test_evidence_limit_preserves_test_candidates_and_required_check(self):
         selected = issue(143, title="Improve screen capture reliability")
         modules = []

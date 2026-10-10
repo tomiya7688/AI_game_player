@@ -164,7 +164,10 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
             if (
                 isinstance(symbol_name, str)
                 and symbol_name.rsplit(".", 1)[-1].lower() not in GENERIC_SYMBOLS
-                and _contains_identifier(issue_text, symbol_name)
+                and (
+                    _contains_identifier(issue_text, symbol_name)
+                    or _contains_identifier(issue_text, symbol_name.rsplit(".", 1)[-1])
+                )
             ):
                 matched_symbols.append(symbol_name)
         if matched_symbols:
@@ -181,6 +184,23 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
                 confidence = max(confidence, min(0.68, 0.34 + 0.08 * len(matched_terms)))
                 reasons.append("shared identifier(s): " + ", ".join(matched_terms[:3]))
         if tests_only and not reasons:
+            module_dependencies = set(module.get("dependencies", []))
+            for imported_module in module.get("imports", []):
+                module_dependencies.update(imported_module.get("local_dependencies", []))
+            for source_module in related_sources or []:
+                if source_module.get("module") in module_dependencies:
+                    confidence = 0.92
+                    reasons.append(
+                        f"Repository Map dependency connects this test to `{source_module['module']}`"
+                    )
+            if reasons:
+                candidates.append({
+                    "path": path,
+                    "module": module_name,
+                    "confidence": confidence,
+                    "reason": "; ".join(dict.fromkeys(reasons)),
+                })
+                continue
             test_stem = Path(path).stem.removeprefix("test_")
             for source_module in related_sources or []:
                 source_path = source_module.get("path", "")
@@ -218,11 +238,14 @@ def _rank_symbol_candidates(issue, repository_map, modules):
             terminal_name = symbol_name.rsplit(".", 1)[-1]
             if terminal_name.lower() in GENERIC_SYMBOLS:
                 continue
-            if _contains_identifier(issue_text, symbol_name):
+            if (
+                _contains_identifier(issue_text, symbol_name)
+                or _contains_identifier(issue_text, terminal_name)
+            ):
                 candidates.append({
                     "name": f"{module_candidate['module']}.{symbol_name}",
                     "confidence": 0.84,
-                    "reason": "Issue text names this symbol",
+                    "reason": "Issue text names this qualified or terminal symbol",
                 })
                 continue
             symbol_terms = {
