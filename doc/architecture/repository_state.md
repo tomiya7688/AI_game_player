@@ -48,6 +48,6 @@ Repository Mapには関数本文、docstring、定数値、デフォルト値の
 
 利用者はリポジトリのルートで `start_task.bat --issue NUMBER` を実行すると、指定Issueの本文と現在の作業ツリーに基づく `.codex/next_issue.md` を作成できます。Issue番号を省略すると、既存の優先順位規則で選ばれたIssueを使います。Task Context Packは、`git status` から変更パスと状態だけを読み、ファイル内容やdiff hunksは読みません。Repository Mapが有効なら、Issue本文と変更パスに一致するmodule、symbol、testの候補を追加します。
 
-候補のconfidenceは、根拠の強さを示す0から1までのヒューリスティック値です。値は確率でも依存関係の保証でもありません。変更パスとの一致は0.98、Issue本文中のpath一致は0.92、module名一致は0.86、symbol名一致は0.84、識別子の部分一致は一致数に応じて0.34から0.68です。symbol候補の部分一致は0.36から0.68です。各候補には一致理由を併記します。利用者は候補を探索の入口として扱い、Issueの要求と実装・テストで関係を確認してください。
+候補のconfidenceは、根拠の強さを示す0から1までのヒューリスティック値です。値は確率でも依存関係の保証でもありません。変更パスとの一致は0.98、Issue本文中のpath一致は0.92、module名一致は0.86、symbol名一致は0.84、識別子の部分一致は一致数に応じて0.34から0.68です。symbol候補の部分一致は0.36から0.68です。英語の識別子はunderscoreで分割するため、Issue本文の「screen capture」はmodule名 `screen_capture` と照合できます。各候補には一致理由を併記します。利用者は候補を探索の入口として扱い、Issueの要求と実装・テストで関係を確認してください。
 
-Task Context Packは最大文字数の範囲でIssue本文を先に保持し、長い本文には省略位置を示します。Repository Mapを読み込めない場合は理由を出し、mapに基づく候補を出しません。Task Context Packは候補test pathと必須確認コマンド `finish_task.bat` を示しますが、候補testの成功や機能動作を保証しません。実装者は変更後に該当testと `finish_task.bat` を実行してください。
+Task Context Packは最大文字数の範囲でIssue本文を先に保持し、長い本文には省略位置を示します。候補証拠が上限に近づいた場合、低順位の候補から省略しますが、test候補または候補なしの説明と必須確認コマンドは残します。Repository Mapを読み込めない場合は理由を出し、mapに基づく候補を出しません。Task Context Packは候補test pathと必須確認コマンド `finish_task.bat` を示しますが、候補testの成功や機能動作を保証しません。実装者は変更後に該当testと `finish_task.bat` を実行してください。

@@ -115,10 +115,12 @@ def load_repository_map(path=REPO_MAP):
 
 
 def _search_terms(value):
-    return {
-        term.lower()
-        for term in re.findall(r"[A-Za-z_][A-Za-z0-9_]*|[ぁ-んァ-ヶ一-龠]{2,}", value)
-    }
+    terms = set()
+    for match in re.findall(r"[A-Za-z_][A-Za-z0-9_]*|[ぁ-んァ-ヶ一-龠]{2,}", value):
+        normalized = match.lower()
+        terms.add(normalized)
+        terms.update(part for part in normalized.split("_") if part)
+    return terms
 
 
 def _contains_identifier(text, identifier):
@@ -171,7 +173,9 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
         if not tests_only:
             candidate_terms = _search_terms(f"{path} {module_name}")
             matched_terms = sorted(
-                (issue_terms & candidate_terms) - {"src", "tools", "tests", "test", "py", "cpp", "h", "hpp"}
+                (issue_terms & candidate_terms)
+                - {"and", "for", "from", "h", "hpp", "py", "src", "test", "tests", "the", "tools", "with", "cpp"}
+                - GENERIC_SYMBOL_TERMS
             )
             if matched_terms:
                 confidence = max(confidence, min(0.68, 0.34 + 0.08 * len(matched_terms)))
@@ -238,38 +242,27 @@ def _rank_symbol_candidates(issue, repository_map, modules):
 
 def render_repository_evidence(issue, repository_map, changed_paths, map_error=None, max_chars=900):
     """Render bounded, evidence-backed source and test candidates."""
-    lines = ["## Working-tree paths"]
-    if changed_paths:
-        lines.extend(f"- `{item['path']}` ({item['status']})" for item in changed_paths[:4])
-        if len(changed_paths) > 4:
-            lines.append(f"- {len(changed_paths) - 4} additional changed path(s) omitted")
-    else:
-        lines.append("- No relevant changed or untracked repository paths were reported by Git.")
-    lines.extend([
-        "",
-        "## Related module and symbol candidates",
-        "Confidence is a heuristic match strength, not a probability or a verified dependency.",
-    ])
+    working_lines = [
+        f"- `{item['path']}` ({item['status']})" for item in changed_paths[:4]
+    ] or ["- No relevant changed or untracked repository paths were reported by Git."]
     modules = _rank_module_candidates(issue, repository_map, changed_paths, tests_only=False)
     if modules:
-        lines.extend(
+        module_lines = [
             f"- `{item['path']}` — confidence {item['confidence']:.2f}; {item['reason']}"
             for item in modules[:4]
-        )
+        ]
     elif map_error:
-        lines.append(f"- {map_error}; inspect the Issue's named files or regenerate the map.")
+        module_lines = [f"- {map_error}; inspect the Issue's named files or regenerate the map."]
     else:
-        lines.append("- No module matched the Issue text or Git working-tree paths.")
+        module_lines = ["- No module matched the Issue text or Git working-tree paths."]
     symbols = _rank_symbol_candidates(issue, repository_map, modules)
-    lines.append("Symbol candidates:")
     if symbols:
-        lines.extend(
+        symbol_lines = [
             f"- `{item['name']}` — confidence {item['confidence']:.2f}; {item['reason']}"
             for item in symbols[:3]
-        )
+        ]
     else:
-        lines.append("- No declaration matched a specific Issue identifier; inspect the listed module declarations.")
-    lines.extend(["", "## Candidate tests and checks"])
+        symbol_lines = ["- No declaration matched a specific Issue identifier; inspect the listed module declarations."]
     tests = _rank_module_candidates(
         issue,
         repository_map,
@@ -278,18 +271,44 @@ def render_repository_evidence(issue, repository_map, changed_paths, map_error=N
         related_sources=modules,
     )
     if tests:
-        lines.extend(
+        test_lines = [
             f"- Test candidate `{item['path']}` — confidence {item['confidence']:.2f}; {item['reason']}"
             for item in tests[:3]
-        )
+        ]
     else:
-        lines.append("- No test module matched the current evidence; identify a fixture after reading the candidate source.")
-    lines.append("- Required project check: `finish_task.bat`.")
-    lines.append("- Treat candidate paths as navigation hints; confirm behavior in source and tests.")
-    evidence = "\n".join(lines)
-    if len(evidence) > max_chars:
-        evidence = evidence[: max_chars - 46].rsplit("\n", 1)[0]
-        evidence += "\n- Additional candidates omitted by the pack size limit."
+        test_lines = ["- No test module matched; identify a fixture after reading the candidate source."]
+
+    def compose_evidence():
+        return "\n".join([
+            "## Working-tree paths",
+            *working_lines,
+            "",
+            "## Related module and symbol candidates",
+            "Confidence is a heuristic match strength, not a probability or a verified dependency.",
+            *module_lines,
+            "Symbol candidates:",
+            *symbol_lines,
+            "",
+            "## Candidate tests and checks",
+            *test_lines,
+            "- Required project check: `finish_task.bat`.",
+            "- Treat candidate paths as navigation hints; confirm behavior in source and tests.",
+        ])
+
+    evidence = compose_evidence()
+    while len(evidence) > max_chars:
+        for candidate_lines in (symbol_lines, module_lines, working_lines, test_lines):
+            if len(candidate_lines) > 1:
+                candidate_lines.pop()
+                break
+        else:
+            for candidate_lines in (working_lines, module_lines, symbol_lines, test_lines):
+                candidate_lines[:] = [line[:100] + "…" if len(line) > 101 else line for line in candidate_lines]
+            evidence = compose_evidence()
+            if len(evidence) > max_chars:
+                raise ValueError("Context limit cannot fit the required candidate sections and project check.")
+            break
+        evidence = compose_evidence()
     return evidence
 
 def key(issue):

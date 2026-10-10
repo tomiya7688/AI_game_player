@@ -133,6 +133,61 @@ class IssueContextTests(unittest.TestCase):
         self.assertIn("--porcelain=v1", command.call_args.args[0])
         self.assertIn("-z", command.call_args.args[0])
 
+    def test_natural_language_terms_match_snake_case_module_and_test_paths(self):
+        selected = issue(143, title="Improve screen capture reliability")
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": "ai_game_player.screen_capture",
+                    "path": "src/ai_game_player/screen_capture.py",
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_screen_capture",
+                    "path": "tests/test_screen_capture.py",
+                    "symbols": [],
+                },
+            ],
+        }
+        evidence = context.render_repository_evidence(selected, repository_map, [])
+
+        self.assertIn("`src/ai_game_player/screen_capture.py` — confidence 0.50", evidence)
+        self.assertIn("Test candidate `tests/test_screen_capture.py`", evidence)
+
+    def test_evidence_limit_preserves_test_candidates_and_required_check(self):
+        selected = issue(143, title="Improve screen capture reliability")
+        modules = []
+        for index in range(12):
+            modules.extend([
+                {
+                    "module": f"ai_game_player.screen_capture.feature_{index}",
+                    "path": f"src/ai_game_player/screen_capture/feature_{index}.py",
+                    "symbols": [{
+                        "name": f"ScreenCaptureFeatureHandler{index}",
+                        "qualified_name": f"ScreenCaptureFeatureHandler{index}",
+                    }],
+                },
+                {
+                    "module": f"tests.test_feature_{index}",
+                    "path": f"tests/test_feature_{index}.py",
+                    "symbols": [],
+                },
+            ])
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": modules,
+        }
+
+        evidence = context.render_repository_evidence(selected, repository_map, [], max_chars=900)
+
+        self.assertLessEqual(len(evidence), 900)
+        self.assertIn("## Candidate tests and checks", evidence)
+        self.assertIn("Test candidate `tests/test_feature_0.py`", evidence)
+        self.assertIn("Required project check: `finish_task.bat`", evidence)
+
     def test_repository_map_loader_rejects_unknown_schema(self):
         with tempfile.TemporaryDirectory() as directory:
             map_path = Path(directory) / "repo_map.json"

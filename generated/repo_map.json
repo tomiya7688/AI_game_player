@@ -47797,7 +47797,7 @@
       "module": "tests.test_issue_context",
       "path": "tests/test_issue_context.py",
       "source_location": {
-        "end_line": 211,
+        "end_line": 266,
         "start_line": 1
       },
       "symbols": [
@@ -47860,7 +47860,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 207,
+            "end_line": 262,
             "start_line": 17
           }
         },
@@ -48053,6 +48053,52 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_natural_language_terms_match_snake_case_module_and_test_paths",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_natural_language_terms_match_snake_case_module_and_test_paths",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_evidence_limit_preserves_test_candidates_and_required_check",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_evidence_limit_preserves_test_candidates_and_required_check",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_repository_map_loader_rejects_unknown_schema",
           "parameters": [
             {
@@ -48067,8 +48113,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 136
+            "end_line": 216,
+            "start_line": 191
           }
         },
         {
@@ -48090,8 +48136,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 173,
-            "start_line": 163
+            "end_line": 228,
+            "start_line": 218
           }
         },
         {
@@ -48113,8 +48159,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 178,
-            "start_line": 175
+            "end_line": 233,
+            "start_line": 230
           }
         },
         {
@@ -48136,8 +48182,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 195,
-            "start_line": 180
+            "end_line": 250,
+            "start_line": 235
           }
         },
         {
@@ -48159,8 +48205,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 197
+            "end_line": 255,
+            "start_line": 252
           }
         },
         {
@@ -48182,8 +48228,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 202
+            "end_line": 262,
+            "start_line": 257
           }
         }
       ]
@@ -68699,7 +68745,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 396,
+        "end_line": 415,
         "start_line": 1
       },
       "symbols": [
@@ -68823,7 +68869,7 @@
           "signature": "(value)",
           "source_location": {
             "column": 0,
-            "end_line": 121,
+            "end_line": 123,
             "start_line": 117
           }
         },
@@ -68852,8 +68898,8 @@
           "signature": "(text, identifier)",
           "source_location": {
             "column": 0,
-            "end_line": 130,
-            "start_line": 124
+            "end_line": 132,
+            "start_line": 126
           }
         },
         {
@@ -68899,8 +68945,8 @@
           "signature": "(issue, repository_map, changed_paths, *, tests_only, related_sources = …)",
           "source_location": {
             "column": 0,
-            "end_line": 198,
-            "start_line": 133
+            "end_line": 202,
+            "start_line": 135
           }
         },
         {
@@ -68934,8 +68980,8 @@
           "signature": "(issue, repository_map, modules)",
           "source_location": {
             "column": 0,
-            "end_line": 236,
-            "start_line": 201
+            "end_line": 240,
+            "start_line": 205
           }
         },
         {
@@ -68981,8 +69027,24 @@
           "signature": "(issue, repository_map, changed_paths, map_error = …, max_chars = …)",
           "source_location": {
             "column": 0,
-            "end_line": 293,
-            "start_line": 239
+            "end_line": 312,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "compose_evidence",
+          "parameters": [],
+          "qualified_name": "render_repository_evidence.compose_evidence",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 4,
+            "end_line": 296,
+            "start_line": 281
           }
         },
         {
@@ -69004,8 +69066,8 @@
           "signature": "(issue)",
           "source_location": {
             "column": 0,
-            "end_line": 297,
-            "start_line": 295
+            "end_line": 316,
+            "start_line": 314
           }
         },
         {
@@ -69027,8 +69089,8 @@
           "signature": "(issues)",
           "source_location": {
             "column": 0,
-            "end_line": 306,
-            "start_line": 299
+            "end_line": 325,
+            "start_line": 318
           }
         },
         {
@@ -69074,8 +69136,8 @@
           "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 357,
-            "start_line": 309
+            "end_line": 376,
+            "start_line": 328
           }
         },
         {
@@ -69097,8 +69159,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 393,
-            "start_line": 360
+            "end_line": 412,
+            "start_line": 379
           }
         }
       ]
