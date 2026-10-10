@@ -6,6 +6,8 @@
 
 - Issue #143: start_task.batが取得したIssue本文、Git statusの変更パス、Repository Mapを使い、関連module/symbolとtest候補を理由・ヒューリスティックconfidence付きで`.codex/next_issue.md`へ追加する。ファイル本文やdiff hunksは読まず、既存の文字数上限とIssue本文優先の切り詰め、必須`finish_task.bat`確認を維持する。
 
+- Issue #258: 1つのcapture backendから得た`ScreenFrame`を複数のconsumerへ配るShared Frame Producerを追加。`frame_id`とsource世代を付け、BGRA寸法・monotonic timestampを検証する。最新frame置換と順序維持のbounded queue、drop metrics、source切替、停止とcapture失敗通知をfake backendで検証する。
+
 - Issue #262: legacy History・DecisionTrace・Execution・Safety・RuntimeLogをSession Event Journalへ接続。旧JSON/JSONLを削除せず、recordをstable event ID付きで移行し、decision/execution/safetyの配列JSON全体を書き直さずにSession内Journalへ追記する。
 
 - Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。

@@ -154,10 +154,6 @@ classDiagram
         +_normalize_text()
         +_iou()
     }
-    Protocol <|-- FrameCapture
-    class FrameCapture {
-        +capture()
-    }
     class CapturedObservationSource {
         +__init__()
         +read()
@@ -426,6 +422,31 @@ classDiagram
     class PythonFramePreprocessor {
         +__init__()
         +preprocess()
+    }
+    Protocol <|-- FrameCapture
+    class FrameCapture {
+        +capture()
+    }
+    Enum <|-- FrameDeliveryMode
+    class FrameDeliveryMode {
+    }
+    class FramePacket {
+    }
+    class FrameProducerMetrics {
+    }
+    RuntimeError <|-- FrameProducerError
+    class FrameProducerError {
+    }
+    class FrameSubscriber {
+        +__init__()
+        +dropped_frames()
+        +pending_frames()
+        +is_closed()
+        +get()
+        +_publish()
+        +_discard_pending()
+        +_finish()
+        +close()
     }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
@@ -952,6 +973,17 @@ classDiagram
         +compare()
         +_fallback_similarity()
         +_result()
+    }
+    class SharedFrameProducer {
+        +__init__()
+        +metrics()
+        +subscribe()
+        +start()
+        +stop()
+        +replace_source()
+        +_remove_subscriber()
+        +_finish_locked()
+        +_capture_loop()
     }
     class ShellState {
         +__post_init__()

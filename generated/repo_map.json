@@ -6538,27 +6538,14 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.frame_analyzer",
-        "ai_game_player.models",
-        "ai_game_player.screen_capture"
+        "ai_game_player.frame_stream",
+        "ai_game_player.models"
       ],
       "imports": [
         {
           "kind": "from",
           "level": 0,
           "line": 1,
-          "local_dependencies": [],
-          "module": "typing",
-          "names": [
-            {
-              "alias": null,
-              "name": "Protocol"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 2,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -6574,7 +6561,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 3,
+          "line": 2,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -6594,16 +6581,16 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 3,
           "local_dependencies": [
             "ai_game_player",
-            "ai_game_player.screen_capture"
+            "ai_game_player.frame_stream"
           ],
-          "module": "ai_game_player.screen_capture",
+          "module": "ai_game_player.frame_stream",
           "names": [
             {
               "alias": null,
-              "name": "ScreenFrame"
+              "name": "FrameCapture"
             }
           ]
         }
@@ -6611,55 +6598,10 @@
       "module": "ai_game_player.captured_source",
       "path": "src/ai_game_player/captured_source.py",
       "source_location": {
-        "end_line": 12,
+        "end_line": 8,
         "start_line": 1
       },
       "symbols": [
-        {
-          "bases": [
-            "Protocol"
-          ],
-          "data_model": {
-            "dataclass": false,
-            "enum": false,
-            "protocol": true
-          },
-          "decorators": [],
-          "kind": "class",
-          "name": "FrameCapture",
-          "parameters": [],
-          "qualified_name": "FrameCapture",
-          "return_annotation": null,
-          "signature": null,
-          "source_location": {
-            "column": 0,
-            "end_line": 7,
-            "start_line": 6
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "capture",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "FrameCapture.capture",
-          "return_annotation": "ScreenFrame",
-          "signature": "(self) -> ScreenFrame",
-          "source_location": {
-            "column": 4,
-            "end_line": 7,
-            "start_line": 7
-          }
-        },
         {
           "bases": [],
           "data_model": {
@@ -6676,8 +6618,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 12,
-            "start_line": 9
+            "end_line": 8,
+            "start_line": 5
           }
         },
         {
@@ -6711,8 +6653,8 @@
           "signature": "(self, capture: FrameCapture, screen_id: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 10,
-            "start_line": 10
+            "end_line": 6,
+            "start_line": 6
           }
         },
         {
@@ -6734,8 +6676,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 12,
-            "start_line": 11
+            "end_line": 8,
+            "start_line": 7
           }
         }
       ]
@@ -16315,6 +16257,603 @@
             "column": 4,
             "end_line": 89,
             "start_line": 58
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.screen_capture"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Protocol"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.frame_stream",
+      "path": "src/ai_game_player/frame_stream.py",
+      "source_location": {
+        "end_line": 63,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FrameCapture",
+          "parameters": [],
+          "qualified_name": "FrameCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 20,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameCapture.capture",
+          "return_annotation": "ScreenFrame",
+          "signature": "(self) -> ScreenFrame",
+          "source_location": {
+            "column": 4,
+            "end_line": 20,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FrameDeliveryMode",
+          "parameters": [],
+          "qualified_name": "FrameDeliveryMode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 29,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "FramePacket",
+          "parameters": [],
+          "qualified_name": "FramePacket",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 40,
+            "start_line": 37
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "FrameProducerMetrics",
+          "parameters": [],
+          "qualified_name": "FrameProducerMetrics",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 55,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FrameProducerError",
+          "parameters": [],
+          "qualified_name": "FrameProducerError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 63,
+            "start_line": 62
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.frame_stream"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "deque"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "Condition"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "monotonic"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_stream"
+          ],
+          "module": "ai_game_player.frame_stream",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameDeliveryMode"
+            },
+            {
+              "alias": null,
+              "name": "FramePacket"
+            },
+            {
+              "alias": null,
+              "name": "FrameProducerError"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.frame_subscriber",
+      "path": "src/ai_game_player/frame_subscriber.py",
+      "source_location": {
+        "end_line": 149,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FrameSubscriber",
+          "parameters": [],
+          "qualified_name": "FrameSubscriber",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 149,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FrameDeliveryMode",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mode"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "max_pending"
+            },
+            {
+              "annotation": "Callable[[FrameSubscriber, int], None]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "on_close"
+            }
+          ],
+          "qualified_name": "FrameSubscriber.__init__",
+          "return_annotation": "None",
+          "signature": "(self, mode: FrameDeliveryMode, max_pending: int, on_close: Callable[[FrameSubscriber, int], None]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "dropped_frames",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameSubscriber.dropped_frames",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "pending_frames",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameSubscriber.pending_frames",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 59,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "is_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameSubscriber.is_closed",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "get",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "FrameSubscriber.get",
+          "return_annotation": "FramePacket | None",
+          "signature": "(self, timeout: float | None = …) -> FramePacket | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_publish",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FramePacket",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "packet"
+            }
+          ],
+          "qualified_name": "FrameSubscriber._publish",
+          "return_annotation": "tuple[bool, int]",
+          "signature": "(self, packet: FramePacket) -> tuple[bool, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_discard_pending",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameSubscriber._discard_pending",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_finish",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Exception | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "discard_pending"
+            }
+          ],
+          "qualified_name": "FrameSubscriber._finish",
+          "return_annotation": "int",
+          "signature": "(self, error: Exception | None, *, discard_pending: bool = …) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 141,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameSubscriber.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 147
           }
         }
       ]
@@ -32519,6 +33058,418 @@
             "column": 4,
             "end_line": 38,
             "start_line": 29
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.frame_stream",
+        "ai_game_player.frame_subscriber",
+        "ai_game_player.screen_capture"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "Event"
+            },
+            {
+              "alias": null,
+              "name": "Lock"
+            },
+            {
+              "alias": null,
+              "name": "Thread"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_stream"
+          ],
+          "module": "ai_game_player.frame_stream",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameCapture"
+            },
+            {
+              "alias": null,
+              "name": "FrameDeliveryMode"
+            },
+            {
+              "alias": null,
+              "name": "FramePacket"
+            },
+            {
+              "alias": null,
+              "name": "FrameProducerError"
+            },
+            {
+              "alias": null,
+              "name": "FrameProducerMetrics"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_subscriber"
+          ],
+          "module": "ai_game_player.frame_subscriber",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameSubscriber"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.shared_frame_producer",
+      "path": "src/ai_game_player/shared_frame_producer.py",
+      "source_location": {
+        "end_line": 213,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SharedFrameProducer",
+          "parameters": [],
+          "qualified_name": "SharedFrameProducer",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 213,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FrameCapture",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "capture_source"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "interval_seconds"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer.__init__",
+          "return_annotation": "None",
+          "signature": "(self, capture_source: FrameCapture, interval_seconds: float = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 59,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "metrics",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer.metrics",
+          "return_annotation": "FrameProducerMetrics",
+          "signature": "(self) -> FrameProducerMetrics",
+          "source_location": {
+            "column": 4,
+            "end_line": 76,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "subscribe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FrameDeliveryMode",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "mode"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "max_pending"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer.subscribe",
+          "return_annotation": "FrameSubscriber",
+          "signature": "(self, mode: FrameDeliveryMode = …, max_pending: int = …) -> FrameSubscriber",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 83
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer.start",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer.stop",
+          "return_annotation": "bool",
+          "signature": "(self, timeout: float | None = …) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 112
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "replace_source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FrameCapture",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "capture_source"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer.replace_source",
+          "return_annotation": "int",
+          "signature": "(self, capture_source: FrameCapture) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 143,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_remove_subscriber",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FrameSubscriber",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "subscriber"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "dropped_frames"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer._remove_subscriber",
+          "return_annotation": "None",
+          "signature": "(self, subscriber: FrameSubscriber, dropped_frames: int) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_finish_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Exception | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer._finish_locked",
+          "return_annotation": "list[FrameSubscriber]",
+          "signature": "(self, error: Exception | None) -> list[FrameSubscriber]",
+          "source_location": {
+            "column": 4,
+            "end_line": 167,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_capture_loop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducer._capture_loop",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 213,
+            "start_line": 174
           }
         }
       ]
@@ -63331,6 +64282,760 @@
             "column": 4,
             "end_line": 348,
             "start_line": 337
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.screen_capture",
+        "ai_game_player.shared_frame_producer"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.shared_frame_producer"
+          ],
+          "module": "ai_game_player.shared_frame_producer",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameDeliveryMode"
+            },
+            {
+              "alias": null,
+              "name": "FrameProducerError"
+            },
+            {
+              "alias": null,
+              "name": "SharedFrameProducer"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_shared_frame_producer",
+      "path": "tests/test_shared_frame_producer.py",
+      "source_location": {
+        "end_line": 240,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CountingCapture",
+          "parameters": [],
+          "qualified_name": "CountingCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "width"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "height"
+            }
+          ],
+          "qualified_name": "CountingCapture.__init__",
+          "return_annotation": null,
+          "signature": "(self, width = …, height = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 18,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CountingCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FailingCapture",
+          "parameters": [],
+          "qualified_name": "FailingCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 30,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailingCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 30,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "InvalidFrameCapture",
+          "parameters": [],
+          "qualified_name": "InvalidFrameCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InvalidFrameCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 35,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DecreasingTimestampCapture",
+          "parameters": [],
+          "qualified_name": "DecreasingTimestampCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 43,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecreasingTimestampCapture.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecreasingTimestampCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BlockingCapture",
+          "parameters": [],
+          "qualified_name": "BlockingCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 54,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BlockingCapture.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 49,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BlockingCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SharedFrameProducerTest",
+          "parameters": [],
+          "qualified_name": "SharedFrameProducerTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 236,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wait_for_capture_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "producer"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "count"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.wait_for_capture_count",
+          "return_annotation": null,
+          "signature": "(self, producer, count, timeout = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_two_subscribers_receive_the_same_capture_packet",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_two_subscribers_receive_the_same_capture_packet",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_timeout_and_normal_end_are_distinguished_by_subscription_state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_timeout_and_normal_end_are_distinguished_by_subscription_state",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_latest_subscriber_replaces_unread_frames_and_reports_drops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_latest_subscriber_replaces_unread_frames_and_reports_drops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ordered_subscriber_keeps_old_frames_and_drops_new_frames_when_full",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_ordered_subscriber_keeps_old_frames_and_drops_new_frames_when_full",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 104
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_source_replacement_changes_generation_and_frame_dimensions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_source_replacement_changes_generation_and_frame_dimensions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 129,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_source_replacement_waits_for_inflight_publication_then_flushes_old_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_source_replacement_waits_for_inflight_publication_then_flushes_old_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "pause_publication",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "packet"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_source_replacement_waits_for_inflight_publication_then_flushes_old_frame.pause_publication",
+          "return_annotation": null,
+          "signature": "(packet)",
+          "source_location": {
+            "column": 8,
+            "end_line": 142,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_source_replacement_discards_capture_already_running_on_old_source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_source_replacement_discards_capture_already_running_on_old_source",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 179,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_failure_reaches_subscriber_and_stops_producer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_capture_failure_reaches_subscriber_and_stops_producer",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 193,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_malformed_frame_is_rejected_and_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_malformed_frame_is_rejected_and_reported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 203,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_timestamps_must_not_move_backwards",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_capture_timestamps_must_not_move_backwards",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stop_timeout_does_not_wait_forever_for_blocked_capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_stop_timeout_does_not_wait_forever_for_blocked_capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_cadence_and_queue_capacity_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SharedFrameProducerTest.test_invalid_cadence_and_queue_capacity_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 236,
+            "start_line": 228
           }
         }
       ]
