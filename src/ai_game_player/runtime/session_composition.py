@@ -154,7 +154,7 @@ def _runtime_log_migration_paths(runtime_log: RuntimeLog) -> tuple[Path, Path]:
 
 # {
 #   責務: [_recover_interrupted_migration: 前回processが完了markerを公開する前に停止したmigrationを破棄する]
-#   処理: [completion markerが一つでも存在すればfactoryが全migrationを完了した証拠として残りのmarkerを確定し、markerがなければpartial databaseを破棄して再試行する]
+#   処理: [pending record自身のfactory完了記録、または旧形式pendingに対応するgame history markerだけを完了証拠として扱い、共有RuntimeLog markerだけではpartial databaseを確定しない]
 #   引数: [pending_path: migration中にatomic作成するjournal名とsource情報, session_events_directory: session journalを所有するdirectory]
 #   戻り値: []
 #   エラー: [ValueErrorまたはOSError: pending recordが不正かmigration artifactを破棄できない場合]
@@ -187,7 +187,13 @@ def _recover_interrupted_migration(
         marker_paths.append(game_history_marker)
     if pending.get("runtime_log") is True and runtime_marker is not None:
         marker_paths.append(runtime_marker)
-    if any(marker.exists() for marker in marker_paths):
+    factory_completed = pending.get("factory_completed") is True
+    legacy_game_history_completed = (
+        pending.get("factory_completed") is None
+        and pending.get("game_history") is True
+        and game_history_marker.exists()
+    )
+    if factory_completed or legacy_game_history_completed:
         for marker in marker_paths:
             marker.parent.mkdir(parents=True, exist_ok=True)
             marker.touch(exist_ok=True)
@@ -374,7 +380,7 @@ class RuntimeComposition:
 
     # {
     #   責務: [create_session_runtime: 1 Session用のProviderとPipelineを生成して所有関係を返す]
-    #   処理: [factoryがJournal移行制御を受け取れる場合に限り専用Journalを生成し、game historyとRuntimeLogの完了markerを別々に管理する]
+    #   処理: [factoryがJournal移行制御を受け取れる場合に限り専用Journalを生成し、factory完了をpendingに記録してからgame historyとRuntimeLogのmarkerを公開する]
     #   引数: [configuration: Session開始時の確定設定, source: session中に更新されるObservation source, controller: 停止世代を共有するcontroller, automated_cursor_position_callback: 実入力カーソル位置の通知先, runtime_log: active Sessionへruntime eventを記録するapplication logger]
     #   戻り値: [ManagedSessionRuntime: closeでPipelineとProviderを順序付き解放するsession runtime]
     #   エラー: [ValueError: Provider factoryが未登録の場合, Exception: Pipeline初期化失敗]
@@ -437,6 +443,9 @@ class RuntimeComposition:
         if runtime_log is not None and accepts_runtime_log:
             runtime_log_marker, runtime_log_lock = _runtime_log_migration_paths(runtime_log)
         pending_path = session_events_directory / "legacy_migration_v1.pending"
+        event_journal: EventJournal | None = None
+        journal_pipeline: Any | None = None
+        pipeline_cleanup_attempted = False
         try:
             with ExitStack() as migration_locks:
                 migration_locks.enter_context(_legacy_migration_lock(migration_lock))
@@ -450,24 +459,24 @@ class RuntimeComposition:
                     and not runtime_log_marker.exists()
                 )
                 session_journal_path = session_events_directory / f"{session_id}.sqlite3"
-                event_journal: EventJournal | None = None
-                journal_pipeline: Any | None = None
                 newly_created_markers: list[Path] = []
                 pending_write_created = migrate_legacy or migrate_runtime_log
+                pending_record = {
+                    "journal_name": session_journal_path.name,
+                    "game_history": migrate_legacy,
+                    "runtime_log": migrate_runtime_log,
+                    "runtime_log_source": (
+                        str(runtime_log.path.resolve())
+                        if migrate_runtime_log and runtime_log is not None
+                        else None
+                    ),
+                    "factory_completed": False,
+                }
                 try:
                     if pending_write_created:
                         staged_pending = stage_json_write(
                             pending_path,
-                            {
-                                "journal_name": session_journal_path.name,
-                                "game_history": migrate_legacy,
-                                "runtime_log": migrate_runtime_log,
-                                "runtime_log_source": (
-                                    str(runtime_log.path.resolve())
-                                    if migrate_runtime_log and runtime_log is not None
-                                    else None
-                                ),
-                            },
+                            pending_record,
                         )
                         try:
                             staged_pending.publish()
@@ -492,6 +501,13 @@ class RuntimeComposition:
                     )
                     if journal_pipeline is None:
                         raise RuntimeError("Journal-aware pipeline factory returned no Session runtime")
+                    if pending_write_created:
+                        pending_record["factory_completed"] = True
+                        staged_pending = stage_json_write(pending_path, pending_record)
+                        try:
+                            staged_pending.publish()
+                        finally:
+                            staged_pending.discard()
                     if migrate_legacy:
                         migration_marker.parent.mkdir(parents=True, exist_ok=True)
                         migration_marker.touch(exist_ok=True)
@@ -503,6 +519,7 @@ class RuntimeComposition:
                     if pending_write_created:
                         pending_path.unlink(missing_ok=True)
                 except Exception as initialization_error:
+                    pipeline_cleanup_attempted = True
                     cleanup_errors: list[Exception] = []
                     if journal_pipeline is not None:
                         try:
@@ -531,12 +548,26 @@ class RuntimeComposition:
                     pending_path.unlink(missing_ok=True)
                     raise
         except Exception as initialization_error:
+            cleanup_errors: list[Exception] = []
+            if not pipeline_cleanup_attempted:
+                if journal_pipeline is not None:
+                    try:
+                        journal_pipeline.close()
+                    except Exception as cleanup_error:
+                        cleanup_errors.append(cleanup_error)
+                if event_journal is not None:
+                    try:
+                        event_journal.close()
+                    except Exception as cleanup_error:
+                        cleanup_errors.append(cleanup_error)
             try:
                 _close_provider(provider)
-            except Exception as cleanup_error:
+            except Exception as provider_cleanup_error:
+                cleanup_errors.append(provider_cleanup_error)
+            if cleanup_errors:
                 raise RuntimeError(
                     f"Session setup failed ({initialization_error}); "
-                    f"provider cleanup also failed ({cleanup_error})"
+                    "resource cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
                 ) from initialization_error
             raise
         return ManagedSessionRuntime(journal_pipeline, provider)

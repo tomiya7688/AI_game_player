@@ -2,7 +2,7 @@ import json
 import sqlite3
 import tempfile
 import unittest
-from contextlib import closing
+from contextlib import closing, contextmanager
 from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
@@ -18,6 +18,7 @@ from ai_game_player.runtime.session_composition import (
     ManagedSessionRuntime,
     RuntimeComposition,
     SessionRuntimeConfiguration,
+    _recover_interrupted_migration,
 )
 from ai_game_player.run_control import RunController
 
@@ -403,7 +404,7 @@ class LegacyEventAdapterTest(unittest.TestCase):
             ]
             self.assertEqual(1, len(history_events))
 
-    def test_completed_shared_log_marker_keeps_database_when_game_marker_is_missing(self):
+    def test_shared_log_marker_does_not_complete_unrelated_pending_migration(self):
         class Provider:
             def close(self):
                 return None
@@ -429,6 +430,7 @@ class LegacyEventAdapterTest(unittest.TestCase):
                     "game_history": True,
                     "runtime_log": True,
                     "runtime_log_source": str(runtime_log_path.resolve()),
+                    "factory_completed": False,
                 }),
                 encoding="utf-8",
             )
@@ -453,11 +455,47 @@ class LegacyEventAdapterTest(unittest.TestCase):
             )
             runtime.close()
 
-            self.assertTrue(interrupted_journal_path.exists())
+            self.assertFalse(interrupted_journal_path.exists())
             self.assertTrue(runtime_marker.exists())
             self.assertTrue((session_events_directory / "legacy_migration_v1.complete").exists())
             self.assertFalse(pending_path.exists())
-            self.assertEqual(1, len(read_events(interrupted_journal_path)))
+
+    def test_factory_completed_pending_record_finishes_its_own_markers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            session_events_directory = root / "game" / "session_events"
+            session_events_directory.mkdir(parents=True)
+            runtime_log_path = root / "runtime.jsonl"
+            runtime_marker = runtime_log_path.with_name(
+                runtime_log_path.name + ".session-event-migration-v1.complete"
+            )
+            runtime_marker.touch()
+            journal_path = session_events_directory / "completed.sqlite3"
+            with EventJournal(journal_path, session_id="completed") as journal:
+                journal.append(
+                    "runtime.log",
+                    event_id="completed-log-import",
+                    payload={"event": "old"},
+                )
+            pending_path = session_events_directory / "legacy_migration_v1.pending"
+            pending_path.write_text(
+                json.dumps({
+                    "journal_name": journal_path.name,
+                    "game_history": True,
+                    "runtime_log": True,
+                    "runtime_log_source": str(runtime_log_path.resolve()),
+                    "factory_completed": True,
+                }),
+                encoding="utf-8",
+            )
+
+            _recover_interrupted_migration(pending_path, session_events_directory)
+
+            self.assertTrue(journal_path.exists())
+            self.assertTrue((session_events_directory / "legacy_migration_v1.complete").exists())
+            self.assertTrue(runtime_marker.exists())
+            self.assertFalse(pending_path.exists())
+            self.assertEqual(1, len(read_events(journal_path)))
 
     def test_pending_recovery_record_remains_when_partial_cleanup_fails(self):
         class Provider:
@@ -600,6 +638,75 @@ class LegacyEventAdapterTest(unittest.TestCase):
                     )
 
             self.assertTrue(provider.closed)
+
+    def test_pipeline_and_journal_are_closed_when_migration_lock_release_fails(self):
+        class Provider:
+            def __init__(self):
+                self.closed = False
+
+            def close(self):
+                self.closed = True
+
+        class Pipeline:
+            def __init__(self, event_journal):
+                self.event_journal = event_journal
+                self.closed = False
+
+            def close(self):
+                self.closed = True
+                self.event_journal.close()
+
+        provider = Provider()
+        pipeline_holder = {}
+
+        def pipeline_factory(
+            _source,
+            _game_directory,
+            _provider,
+            _controller,
+            *,
+            event_journal,
+            migrate_legacy,
+            migrate_runtime_log,
+        ):
+            pipeline = Pipeline(event_journal)
+            pipeline_holder["pipeline"] = pipeline
+            return pipeline
+
+        @contextmanager
+        def lock_that_fails_to_release(_lock_path):
+            yield
+            raise OSError("migration lock release failed")
+
+        with tempfile.TemporaryDirectory() as directory:
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=Path(directory) / "game",
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            composition = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: provider},
+                pipeline_factory=pipeline_factory,
+            )
+            with patch(
+                "ai_game_player.runtime.session_composition._legacy_migration_lock",
+                side_effect=lock_that_fails_to_release,
+            ):
+                with self.assertRaisesRegex(OSError, "migration lock release failed"):
+                    composition.create_session_runtime(
+                        configuration,
+                        source=object(),
+                        controller=RunController(),
+                    )
+
+        self.assertTrue(pipeline_holder["pipeline"].closed)
+        self.assertIsNone(pipeline_holder["pipeline"].event_journal._connection)
+        self.assertTrue(provider.closed)
 
     def test_shutdown_failure_records_failed_status_before_journal_closes(self):
         with tempfile.TemporaryDirectory() as directory:

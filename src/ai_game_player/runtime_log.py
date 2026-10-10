@@ -74,16 +74,30 @@ class RuntimeLog:
 
     # {
     #   責務: [write: runtime eventをJSONLへ追記し、active SessionがあればJournalへも記録する]
-    #   処理: [timestamp・event名・message・contextを1 recordにし、旧JSONLをappendしてからJournalへ渡す]
+    #   処理: [timestamp・event名・message・contextを1 recordにし、旧JSONLとactive Journalへのappendを独立して試す]
     #   引数: [event: event種別, message: 利用者/開発者向け説明, context: eventに付随する構造化data]
     #   戻り値: []
-    #   エラー: [OSError: JSONLまたはJournal保存先へ書けない場合]
+    #   エラー: [OSError等: 保存先が一つだけ失敗した場合は元の例外, RuntimeError: JSONLとJournalの両方が失敗した場合は両方の理由]
     # }
     def write(self, event: str, message: str = "", context: Mapping[str, Any] | None = None) -> None:
         with self._lock:
             record = {"timestamp": datetime.now(timezone.utc).isoformat(), "event": str(event), "message": str(message), "context": dict(context or {})}
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            with self.path.open("a", encoding="utf-8") as stream:
-                stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+            destination_errors: list[tuple[str, Exception]] = []
+            try:
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                with self.path.open("a", encoding="utf-8") as stream:
+                    stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+            except Exception as error:
+                destination_errors.append(("JSONL", error))
             if self._event_adapter is not None:
-                self._event_adapter.prepare_append(record).publish()
+                try:
+                    self._event_adapter.prepare_append(record).publish()
+                except Exception as error:
+                    destination_errors.append(("Session Journal", error))
+            if len(destination_errors) == 1:
+                raise destination_errors[0][1]
+            if destination_errors:
+                failure_details = "; ".join(
+                    f"{destination}: {error}" for destination, error in destination_errors
+                )
+                raise RuntimeError(f"Runtime event could not be saved: {failure_details}") from destination_errors[0][1]
