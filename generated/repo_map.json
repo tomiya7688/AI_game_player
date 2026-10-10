@@ -47797,7 +47797,7 @@
       "module": "tests.test_issue_context",
       "path": "tests/test_issue_context.py",
       "source_location": {
-        "end_line": 540,
+        "end_line": 596,
         "start_line": 1
       },
       "symbols": [
@@ -47860,7 +47860,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 536,
+            "end_line": 592,
             "start_line": 17
           }
         },
@@ -48159,8 +48159,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 324,
+            "end_line": 339,
             "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_test_candidates_inherit_source_relevance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_test_candidates_inherit_source_relevance",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 380,
+            "start_line": 341
           }
         },
         {
@@ -48182,8 +48205,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 356,
-            "start_line": 326
+            "end_line": 412,
+            "start_line": 382
           }
         },
         {
@@ -48205,8 +48228,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 384,
-            "start_line": 358
+            "end_line": 440,
+            "start_line": 414
           }
         },
         {
@@ -48228,8 +48251,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 386
+            "end_line": 454,
+            "start_line": 442
           }
         },
         {
@@ -48251,8 +48274,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 414,
-            "start_line": 400
+            "end_line": 470,
+            "start_line": 456
           }
         },
         {
@@ -48274,8 +48297,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 462,
-            "start_line": 416
+            "end_line": 518,
+            "start_line": 472
           }
         },
         {
@@ -48297,8 +48320,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 490,
-            "start_line": 464
+            "end_line": 546,
+            "start_line": 520
           }
         },
         {
@@ -48320,8 +48343,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 502,
-            "start_line": 492
+            "end_line": 558,
+            "start_line": 548
           }
         },
         {
@@ -48343,8 +48366,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 507,
-            "start_line": 504
+            "end_line": 563,
+            "start_line": 560
           }
         },
         {
@@ -48366,8 +48389,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 524,
-            "start_line": 509
+            "end_line": 580,
+            "start_line": 565
           }
         },
         {
@@ -48389,8 +48412,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 529,
-            "start_line": 526
+            "end_line": 585,
+            "start_line": 582
           }
         },
         {
@@ -48412,8 +48435,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 536,
-            "start_line": 531
+            "end_line": 592,
+            "start_line": 587
           }
         }
       ]
@@ -68929,7 +68952,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 540,
+        "end_line": 550,
         "start_line": 1
       },
       "symbols": [
@@ -69091,6 +69114,35 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
+          "name": "_contains_module_identifier",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_name"
+            }
+          ],
+          "qualified_name": "_contains_module_identifier",
+          "return_annotation": null,
+          "signature": "(text, module_name)",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
           "name": "_rank_module_candidates",
           "parameters": [
             {
@@ -69129,8 +69181,8 @@
           "signature": "(issue, repository_map, changed_paths, *, tests_only, related_sources = …)",
           "source_location": {
             "column": 0,
-            "end_line": 236,
-            "start_line": 147
+            "end_line": 246,
+            "start_line": 156
           }
         },
         {
@@ -69164,8 +69216,8 @@
           "signature": "(issue, repository_map, modules)",
           "source_location": {
             "column": 0,
-            "end_line": 277,
-            "start_line": 239
+            "end_line": 287,
+            "start_line": 249
           }
         },
         {
@@ -69211,8 +69263,8 @@
           "signature": "(issue, repository_map, changed_paths, map_error = …, max_chars = …)",
           "source_location": {
             "column": 0,
-            "end_line": 418,
-            "start_line": 280
+            "end_line": 428,
+            "start_line": 290
           }
         },
         {
@@ -69227,8 +69279,8 @@
           "signature": "()",
           "source_location": {
             "column": 4,
-            "end_line": 333,
-            "start_line": 318
+            "end_line": 343,
+            "start_line": 328
           }
         },
         {
@@ -69256,8 +69308,8 @@
           "signature": "(line, label)",
           "source_location": {
             "column": 12,
-            "end_line": 370,
-            "start_line": 342
+            "end_line": 380,
+            "start_line": 352
           }
         },
         {
@@ -69272,8 +69324,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 384,
-            "start_line": 379
+            "end_line": 394,
+            "start_line": 389
           }
         },
         {
@@ -69295,8 +69347,8 @@
           "signature": "(issue)",
           "source_location": {
             "column": 0,
-            "end_line": 422,
-            "start_line": 420
+            "end_line": 432,
+            "start_line": 430
           }
         },
         {
@@ -69318,8 +69370,8 @@
           "signature": "(issues)",
           "source_location": {
             "column": 0,
-            "end_line": 431,
-            "start_line": 424
+            "end_line": 441,
+            "start_line": 434
           }
         },
         {
@@ -69365,8 +69417,8 @@
           "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 501,
-            "start_line": 434
+            "end_line": 511,
+            "start_line": 444
           }
         },
         {
@@ -69388,8 +69440,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 537,
-            "start_line": 504
+            "end_line": 547,
+            "start_line": 514
           }
         }
       ]

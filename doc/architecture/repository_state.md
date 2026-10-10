@@ -52,4 +52,4 @@ Repository Mapには関数本文、docstring、定数値、デフォルト値の
 
 Task Context Packは最大文字数の範囲でIssue本文を先に保持し、長い本文には省略位置を示します。候補証拠が上限に近づいた場合、低順位の候補から省略しますが、test候補または候補なしの説明と必須確認コマンドは残します。Repository Mapを読み込めない場合は理由を出し、mapに基づく候補を出しません。Task Context Packは候補test pathと必須確認コマンド `finish_task.bat` を示しますが、候補testの成功や機能動作を保証しません。実装者は変更後に該当testと `finish_task.bat` を実行してください。
 
-Symbol名は `Class.method` 形式だけでなく、Issue本文に記載されたterminal method名とも照合します。Test候補はRepository Mapに記録されたsource module dependencyを先に使い、依存情報が一致しない場合にsourceとtestのファイル名stemを比較します。Dependency一致のconfidenceは0.92、filename stem一致は0.88です。
+Symbol名は `Class.method` 形式だけでなく、Issue本文に記載されたterminal method名とも照合します。Test候補は、表示対象に選ばれた上位4件のsource候補を基準に評価します。Repository Mapのdependency一致はsource候補のconfidenceに0.03を加算し、0.95を上限にします。sourceとtestのファイル名stem一致はsource候補のconfidenceに0.04を加算し、0.99を上限にします。両方の根拠があるtestでは高い方のconfidenceを使います。Issue本文がtest pathを直接指定した場合はconfidenceを0.99にします。

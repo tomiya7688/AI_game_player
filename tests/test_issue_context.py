@@ -185,7 +185,7 @@ class IssueContextTests(unittest.TestCase):
 
         self.assertIn("`src/ai_game_player/pipeline.py` — confidence 0.84", evidence)
         self.assertIn("DecisionPipeline.run_and_execute` — confidence 0.84", evidence)
-        self.assertIn("Test candidate `tests/test_pipeline_execute.py` — confidence 0.92", evidence)
+        self.assertIn("Test candidate `tests/test_pipeline_execute.py` — confidence 0.87", evidence)
         self.assertIn("Repository Map dependency connects this test", evidence)
 
     def test_exact_test_filename_ranks_above_broad_dependency_matches(self):
@@ -233,7 +233,7 @@ class IssueContextTests(unittest.TestCase):
         )
 
         self.assertEqual("tests/test_screen_capture.py", tests[0]["path"])
-        self.assertEqual(0.96, tests[0]["confidence"])
+        self.assertEqual(0.54, tests[0]["confidence"])
 
     def test_issue_named_test_ranks_above_broad_dependency_matches(self):
         selected = issue(
@@ -287,6 +287,13 @@ class IssueContextTests(unittest.TestCase):
             "schema_version": 1,
             "modules": [
                 {
+                    "module": "ai_game_player",
+                    "path": "src/ai_game_player/__init__.py",
+                    "dependencies": [],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
                     "module": "ai_game_player.app",
                     "path": "src/ai_game_player/app.py",
                     "dependencies": [],
@@ -303,7 +310,14 @@ class IssueContextTests(unittest.TestCase):
                 {
                     "module": "tests.test_app_session_safety",
                     "path": "tests/test_app_session_safety.py",
-                    "dependencies": ["ai_game_player.app"],
+                    "dependencies": ["ai_game_player", "ai_game_player.app"],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_action_executor",
+                    "path": "tests/test_action_executor.py",
+                    "dependencies": ["ai_game_player"],
                     "imports": [],
                     "symbols": [],
                 },
@@ -321,7 +335,49 @@ class IssueContextTests(unittest.TestCase):
 
         self.assertIn("`src/ai_game_player/app.py`", evidence)
         self.assertIn("Test candidate `tests/test_app_session_safety.py`", evidence)
+        self.assertNotIn("test_action_executor.py", evidence)
         self.assertNotIn("bright_region_detector", evidence)
+
+    def test_test_candidates_inherit_source_relevance(self):
+        selected = issue(143, title="Update tools/issue_context.py")
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": "tools.issue_context",
+                    "path": "tools/issue_context.py",
+                    "dependencies": [],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "ai_game_player.decision_context",
+                    "path": "src/ai_game_player/decision_context.py",
+                    "dependencies": [],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_decision_context",
+                    "path": "tests/test_decision_context.py",
+                    "dependencies": ["ai_game_player.decision_context"],
+                    "imports": [],
+                    "symbols": [],
+                },
+                {
+                    "module": "tests.test_issue_context",
+                    "path": "tests/test_issue_context.py",
+                    "dependencies": ["tools.issue_context"],
+                    "imports": [],
+                    "symbols": [],
+                },
+            ],
+        }
+        evidence = context.render_repository_evidence(selected, repository_map, [])
+
+        self.assertIn("Test candidate `tests/test_issue_context.py` — confidence 0.96", evidence)
+        self.assertNotIn("Test candidate `tests/test_decision_context.py` — confidence 0.46", evidence)
 
     def test_evidence_limit_preserves_test_candidates_and_required_check(self):
         selected = issue(143, title="Improve screen capture reliability")

@@ -144,6 +144,15 @@ def _contains_identifier(text, identifier):
     ) is not None
 
 
+def _contains_module_identifier(text, module_name):
+    if not module_name:
+        return False
+    return re.search(
+        rf"(?<![A-Za-z0-9_\\/]){re.escape(module_name.lower())}(?![A-Za-z0-9_\\/])",
+        text.lower(),
+    ) is not None
+
+
 def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only, related_sources=None):
     if repository_map is None:
         return []
@@ -170,7 +179,7 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
             confidence = max(confidence, path_confidence)
             path_description = "test" if tests_only else "source"
             reasons.append(f"Issue text names this {path_description} path")
-        if _contains_identifier(issue_text, module_name):
+        if _contains_module_identifier(issue_text, module_name):
             confidence = max(confidence, 0.86)
             reasons.append("Issue text names this module")
         for symbol in module.get("symbols", []):
@@ -203,7 +212,8 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
                 module_dependencies.update(imported_module.get("local_dependencies", []))
             for source_module in related_sources or []:
                 if source_module.get("module") in module_dependencies:
-                    confidence = max(confidence, 0.92)
+                    dependency_confidence = min(0.95, source_module.get("confidence", 0.0) + 0.03)
+                    confidence = max(confidence, dependency_confidence)
                     reasons.append(
                         f"Repository Map dependency connects this test to `{source_module['module']}`"
                     )
@@ -215,9 +225,9 @@ def _rank_module_candidates(issue, repository_map, changed_paths, *, tests_only,
                     and not source_path.startswith("tests/")
                     and Path(source_path).stem == test_stem
                 ):
-                    confidence = max(confidence, 0.96)
+                    filename_confidence = min(0.99, source_module.get("confidence", 0.0) + 0.04)
+                    confidence = max(confidence, filename_confidence)
                     reasons.append(f"test filename matches `{source_path}`")
-                    break
             if reasons:
                 candidates.append({
                     "path": path,
@@ -305,7 +315,7 @@ def render_repository_evidence(issue, repository_map, changed_paths, map_error=N
         repository_map,
         changed_paths,
         tests_only=True,
-        related_sources=modules,
+        related_sources=modules[:4],
     )
     if tests:
         test_lines = [
