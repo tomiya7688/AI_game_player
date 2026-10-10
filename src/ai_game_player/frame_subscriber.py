@@ -124,12 +124,19 @@ class FrameSubscriber:
             return dropped
 
     # {
-    #   責務: [_finish: producer終了状態と失敗理由をconsumerへ通知する]
+    #   責務: [_finish: 最初に確定した終了状態を保ち、必要なら未読packetを破棄する]
     #   引数: [error: capture失敗時の元例外。正常停止ではNone, discard_pending: 終了時に未読queueを破棄するか]
     #   戻り値: [int: 終了通知時に破棄したframe数]
     # }
     def _finish(self, error: Exception | None, *, discard_pending: bool = False) -> int:
         with self._condition:
+            if self._closed:
+                if not discard_pending:
+                    return 0
+                dropped = len(self._frames)
+                self._frames.clear()
+                self._dropped_frames += dropped
+                return dropped
             dropped = 0
             if error is not None or discard_pending:
                 dropped = len(self._frames)

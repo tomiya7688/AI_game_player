@@ -30,6 +30,19 @@ class FailingCapture:
         raise ValueError("capture backend rejected the source")
 
 
+class GatedFailureNotificationProducer(SharedFrameProducer):
+    def __init__(self, capture_source):
+        self.notification_started = threading.Event()
+        self.allow_notification = threading.Event()
+        super().__init__(capture_source)
+
+    def _notify_finished_subscribers(self, subscribers, error):
+        if error is not None and subscribers:
+            self.notification_started.set()
+            self.allow_notification.wait()
+        super()._notify_finished_subscribers(subscribers, error)
+
+
 class InvalidFrameCapture:
     def capture(self):
         return ScreenFrame(0, 1, b"")
@@ -248,6 +261,19 @@ class SharedFrameProducerTest(unittest.TestCase):
         self.assertIn("ValueError", producer.metrics.error_message)
         with self.assertRaisesRegex(RuntimeError, "started once"):
             producer.start()
+
+    def test_explicit_close_wins_against_late_capture_failure_notification(self):
+        producer = GatedFailureNotificationProducer(FailingCapture())
+        subscriber = producer.subscribe()
+        producer.start()
+        self.assertTrue(producer.notification_started.wait(timeout=1.0))
+
+        subscriber.close()
+        producer.allow_notification.set()
+        self.assertTrue(producer.stop(timeout=1.0))
+
+        self.assertTrue(subscriber.is_closed)
+        self.assertIsNone(subscriber.get(timeout=0.0))
 
     def test_capture_failure_counts_queued_packets_discarded_from_metrics(self):
         producer = SharedFrameProducer(CaptureThenFail(), interval_seconds=0.01)
