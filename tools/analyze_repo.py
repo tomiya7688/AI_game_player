@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import argparse
 import ast
+import fnmatch
 import json
 import os
 import tempfile
+from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -77,7 +79,7 @@ class RepositoryMapGenerator:
             if not resolved.is_relative_to(root):
                 raise RepositoryMapError(f"Python source symlink escapes the repository: {path}")
             relative_path = PurePosixPath(path.relative_to(root).as_posix())
-            if any(relative_path.match(pattern) for pattern in self.config["exclude"]):
+            if any(self._matches_path_pattern(relative_path, pattern) for pattern in self.config["exclude"]):
                 continue
             safe_paths.append(path)
         if not safe_paths:
@@ -114,6 +116,12 @@ class RepositoryMapGenerator:
                 return False
             print("repository map is current")
             return True
+        self.publish(content, destination)
+        print(f"generated {destination.relative_to(self.repository_root).as_posix()} ({len(repository_map['modules'])} modules)")
+        return True
+
+    def publish(self, content: str, output_path: Path | None = None) -> None:
+        destination = self.output_path(output_path)
         destination.parent.mkdir(parents=True, exist_ok=True)
         temporary_path: Path | None = None
         try:
@@ -133,8 +141,27 @@ class RepositoryMapGenerator:
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)
             raise RepositoryMapError(f"cannot publish repository map {destination}: {error}") from error
-        print(f"generated {destination.relative_to(self.repository_root).as_posix()} ({len(repository_map['modules'])} modules)")
-        return True
+
+    @staticmethod
+    def _matches_path_pattern(path: PurePosixPath, pattern: str) -> bool:
+        path_parts = path.parts
+        pattern_parts = PurePosixPath(pattern).parts
+
+        @lru_cache(maxsize=None)
+        def match(path_index: int, pattern_index: int) -> bool:
+            if pattern_index == len(pattern_parts):
+                return path_index == len(path_parts)
+            if pattern_parts[pattern_index] == "**":
+                return match(path_index, pattern_index + 1) or (
+                    path_index < len(path_parts) and match(path_index + 1, pattern_index)
+                )
+            return (
+                path_index < len(path_parts)
+                and fnmatch.fnmatchcase(path_parts[path_index], pattern_parts[pattern_index])
+                and match(path_index + 1, pattern_index + 1)
+            )
+
+        return match(0, 0)
 
     def output_path(self, override: Path | None = None) -> Path:
         configured_path = override if override is not None else Path(self.config["output"])
@@ -212,8 +239,9 @@ class RepositoryMapGenerator:
                         "local_dependencies": local_dependencies,
                     })
             elif isinstance(node, ast.ImportFrom):
-                base_parts = package_parts
+                base_parts: list[str] = []
                 if node.level:
+                    base_parts = package_parts
                     parent_count = node.level - 1
                     if parent_count >= len(package_parts):
                         base_parts = []
@@ -266,7 +294,6 @@ class RepositoryMapGenerator:
             node = pending.pop()
             if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 definitions.append(node)
-                pending.extend(reversed(node.body))
             else:
                 pending.extend(reversed(list(ast.iter_child_nodes(node))))
         return definitions
@@ -322,6 +349,8 @@ class RepositoryMapGenerator:
             return node.id
         if isinstance(node, ast.Attribute):
             return node.attr
+        if isinstance(node, ast.Subscript):
+            return RepositoryMapGenerator._terminal_name(node.value)
         if isinstance(node, ast.Call):
             return RepositoryMapGenerator._terminal_name(node.func)
         return ""

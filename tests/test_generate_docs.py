@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from tools.generate_docs import generated_documents, stale_documents, write_documents
@@ -37,6 +38,11 @@ class GenerateDocsTest(unittest.TestCase):
             }
             documents = generated_documents(root, config)
             self.assertEqual(stale_documents(documents), [document.path for document in documents])
+            repository_map_document = next(document for document in documents if document.path.name == "repo_map.json")
+            self.assertIsNotNone(repository_map_document.publisher)
+            with patch.object(Path, "write_text", side_effect=AssertionError("repository map must publish atomically")):
+                write_documents([repository_map_document])
+            self.assertEqual(stale_documents([repository_map_document]), [])
             write_documents(documents)
             self.assertEqual(stale_documents(documents), [])
             self.assertTrue((root / "generated" / "repo_map.json").is_file())

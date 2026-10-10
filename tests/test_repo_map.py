@@ -33,6 +33,9 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         generated.mkdir()
         (package / "__init__.py").write_text("from . import models\n", encoding="utf-8")
         (package / "helpers.py").write_text("def convert(value): return value\n", encoding="utf-8")
+        (package / "consumer.py").write_text(
+            "from sample_pkg.models import Snapshot\n", encoding="utf-8"
+        )
         (package / "models.py").write_text(
             "from dataclasses import dataclass\n"
             "from enum import Enum\n"
@@ -43,7 +46,7 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             "    value: int\n"
             "class Phase(Enum):\n"
             "    READY = 1\n"
-            "class Reader(Protocol):\n"
+            "class Reader(Protocol[str]):\n"
             "    def read(self, key: str) -> str: ...\n"
             "class Calculator:\n"
             "    def compute(self, value: int, /, scale: float = 1.0, *, enabled: bool = True) -> str:\n"
@@ -56,6 +59,9 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             encoding="utf-8",
         )
         (generated / "ignored.py").write_text("class Hidden: pass\n", encoding="utf-8")
+        nested_generated = generated / "nested"
+        nested_generated.mkdir()
+        (nested_generated / "also_ignored.py").write_text("class AlsoHidden: pass\n", encoding="utf-8")
         tests = self.root / "tests" / "fixtures"
         tests.mkdir(parents=True)
         (tests / "ignored.py").write_text("class FixtureOnly: pass\n", encoding="utf-8")
@@ -74,6 +80,7 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
         self.assertEqual(1, repository_map["schema_version"])
         self.assertEqual(["sample_pkg.models"], sample_package["dependencies"])
         self.assertEqual(["sample_pkg.helpers"], sample_models["dependencies"])
+        self.assertEqual(["sample_pkg.models"], modules_by_name["sample_pkg.consumer"]["dependencies"])
         self.assertEqual("class", symbols_by_name["Snapshot"]["kind"])
         self.assertEqual({"dataclass": True, "enum": False, "protocol": False}, symbols_by_name["Snapshot"]["data_model"])
         self.assertTrue(symbols_by_name["Phase"]["data_model"]["enum"])
@@ -89,9 +96,11 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             [parameter["kind"] for parameter in compute["parameters"]],
         )
         self.assertEqual("function", symbols_by_name["Calculator.compute.normalize"]["kind"])
+        self.assertNotIn("normalize", symbols_by_name)
         self.assertEqual(6, symbols_by_name["Snapshot"]["source_location"]["start_line"])
         self.assertNotIn("must not be copied", json.dumps(repository_map, ensure_ascii=False))
         self.assertNotIn("ignored", modules_by_name)
+        self.assertNotIn("sample_pkg.generated.nested.also_ignored", modules_by_name)
         self.assertIn("tools.helper", modules_by_name)
 
     def test_write_is_deterministic_and_check_does_not_rewrite_stale_output(self):

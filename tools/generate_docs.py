@@ -6,6 +6,7 @@ import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 try:
     from .analyze_repo import RepositoryMapGenerator
@@ -21,6 +22,7 @@ except ImportError:  # Direct execution: python tools/generate_docs.py
 class GeneratedDocument:
     path: Path
     content: str
+    publisher: Callable[[str], None] | None = None
 
 
 def project_root() -> Path:
@@ -61,6 +63,7 @@ def generated_documents(root: Path, config: dict) -> list[GeneratedDocument]:
             GeneratedDocument(
                 generator.output_path(),
                 generator.render(),
+                generator.publish,
             )
         )
     return documents
@@ -69,7 +72,10 @@ def generated_documents(root: Path, config: dict) -> list[GeneratedDocument]:
 def write_documents(documents: list[GeneratedDocument]) -> None:
     for document in documents:
         document.path.parent.mkdir(parents=True, exist_ok=True)
-        document.path.write_text(document.content, encoding="utf-8")
+        if document.publisher is None:
+            document.path.write_text(document.content, encoding="utf-8")
+        else:
+            document.publisher(document.content)
 
 
 def stale_documents(documents: list[GeneratedDocument]) -> list[Path]:
