@@ -8,6 +8,7 @@ import fnmatch
 import json
 import os
 import tempfile
+import tokenize
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -177,8 +178,9 @@ class RepositoryMapGenerator:
     def _read_module(self, path: Path, module_names: set[str]) -> dict[str, Any]:
         relative_path = path.relative_to(self.repository_root).as_posix()
         try:
-            source = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as error:
+            with tokenize.open(path) as source_file:
+                source = source_file.read()
+        except (OSError, SyntaxError, UnicodeDecodeError, LookupError) as error:
             raise RepositoryMapError(f"cannot read Python source {relative_path}: {error}") from error
         try:
             syntax_tree = ast.parse(source, filename=relative_path, feature_version=(3, 10))
@@ -213,6 +215,9 @@ class RepositoryMapGenerator:
             parts.pop()
         elif parts and parts[-1].endswith(".py"):
             parts[-1] = parts[-1][:-3]
+        if not parts:
+            relative_path = path.relative_to(self.repository_root).as_posix()
+            raise RepositoryMapError(f"Python source {relative_path} has no importable module name")
         return ".".join(parts)
 
     @staticmethod

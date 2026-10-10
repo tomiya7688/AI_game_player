@@ -1,3 +1,4 @@
+import codecs
 import json
 import tempfile
 import unittest
@@ -155,6 +156,28 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
 
         with self.assertRaisesRegex(RepositoryMapError, "is ambiguous"):
             RepositoryMapGenerator(self.root, self.config_path).build()
+
+    def test_source_initializer_without_a_module_name_is_rejected(self):
+        self.write_source_fixture()
+        (self.root / "src" / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
+        self.write_config(include=["src/*.py", "src/**/*.py"])
+
+        with self.assertRaisesRegex(RepositoryMapError, "src/__init__.py has no importable module name"):
+            RepositoryMapGenerator(self.root, self.config_path).build()
+
+    def test_source_uses_python_encoding_cookie_and_utf8_bom_detection(self):
+        package = self.root / "src" / "sample"
+        package.mkdir(parents=True)
+        (package / "latin.py").write_bytes(b"# coding: cp1252\nclass Legacy: pass  # caf\xe9\n")
+        (package / "bom.py").write_bytes(codecs.BOM_UTF8 + b"class Utf8Bom: pass\n")
+
+        modules_by_name = {
+            module["module"]: module
+            for module in RepositoryMapGenerator(self.root, self.config_path).build()["modules"]
+        }
+
+        self.assertEqual("Legacy", modules_by_name["sample.latin"]["symbols"][0]["name"])
+        self.assertEqual("Utf8Bom", modules_by_name["sample.bom"]["symbols"][0]["name"])
 
     def test_source_symlink_outside_repository_is_rejected(self):
         self.write_source_fixture()
