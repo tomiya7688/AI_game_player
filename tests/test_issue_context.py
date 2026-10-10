@@ -246,6 +246,55 @@ class IssueContextTests(unittest.TestCase):
             self.assertIsNone(loaded_map)
             self.assertIn("unsupported format or schema version", error)
 
+            malformed_modules = [
+                {"module": "tools.bad", "path": "tools/bad.py", "symbols": [], "dependencies": [],
+                 "imports": ["bad"]},
+                {"module": "tools.bad", "path": "tools/bad.py", "symbols": [], "dependencies": [None],
+                 "imports": []},
+                {"module": "tools.bad", "path": "tools/bad.py", "symbols": [], "dependencies": [],
+                 "imports": [{"local_dependencies": [None]}]},
+            ]
+            for malformed_module in malformed_modules:
+                map_path.write_text(
+                    json.dumps({
+                        "format": "kadoka-repository-map",
+                        "schema_version": 1,
+                        "modules": [malformed_module],
+                    }),
+                    encoding="utf-8",
+                )
+                loaded_map, error = context.load_repository_map(map_path)
+                self.assertIsNone(loaded_map)
+                self.assertIn("unsupported format or schema version", error)
+
+    def test_malformed_repository_map_refreshes_context_without_map_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            map_path = Path(directory) / "repo_map.json"
+            output = Path(directory) / "next_issue.md"
+            output.write_text("stale context", encoding="utf-8")
+            map_path.write_text(json.dumps({
+                "format": "kadoka-repository-map",
+                "schema_version": 1,
+                "modules": [{
+                    "module": "tests.test_issue_context",
+                    "path": "tests/test_issue_context.py",
+                    "symbols": [],
+                    "dependencies": [],
+                    "imports": ["bad"],
+                }],
+            }), encoding="utf-8")
+            load_map = context.load_repository_map
+            with patch.object(context, "OUT", output), \
+                    patch.object(context, "fetch_issue", return_value=issue(143)), \
+                    patch.object(context, "fetch_worktree_paths", return_value=[]), \
+                    patch.object(context, "load_repository_map", side_effect=lambda: load_map(map_path)):
+                self.assertEqual(context.main(["--issue", "143"]), 0)
+
+            refreshed_pack = output.read_text(encoding="utf-8")
+            self.assertNotEqual("stale context", refreshed_pack)
+            self.assertIn("Repository Map has an unsupported format or schema version", refreshed_pack)
+            self.assertNotIn("Test candidate `tests/test_issue_context.py`", refreshed_pack)
+
     def test_bounded_pack_preserves_headings_and_marks_truncation(self):
         selected = issue(1, body="## Goal\n" + "あ" * 10000)
         selected["labels"].append({"name": "spec:execution"})

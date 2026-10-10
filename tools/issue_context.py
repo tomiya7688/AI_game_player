@@ -107,6 +107,18 @@ def load_repository_map(path=REPO_MAP):
             or not isinstance(module.get("path"), str)
             or not isinstance(module.get("symbols"), list)
             or any(not isinstance(symbol, dict) for symbol in module.get("symbols", []))
+            or not isinstance(module.get("dependencies"), list)
+            or any(not isinstance(dependency, str) for dependency in module.get("dependencies", []))
+            or not isinstance(module.get("imports"), list)
+            or any(
+                not isinstance(imported_module, dict)
+                or not isinstance(imported_module.get("local_dependencies"), list)
+                or any(
+                    not isinstance(dependency, str)
+                    for dependency in imported_module.get("local_dependencies", [])
+                )
+                for imported_module in module.get("imports", [])
+            )
             for module in repository_map["modules"]
         )
     ):
