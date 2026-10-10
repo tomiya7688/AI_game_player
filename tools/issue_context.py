@@ -337,11 +337,76 @@ def render_repository_evidence(issue, repository_map, changed_paths, map_error=N
                 candidate_lines.pop()
                 break
         else:
-            for candidate_lines in (working_lines, module_lines, symbol_lines, test_lines):
-                candidate_lines[:] = [line[:100] + "…" if len(line) > 101 else line for line in candidate_lines]
-            evidence = compose_evidence()
-            if len(evidence) > max_chars:
-                raise ValueError("Context limit cannot fit the required candidate sections and project check.")
+            def compact_candidate_line(line, label):
+                path_match = re.search(r"`([^`]+)`", line)
+                if path_match is None:
+                    if "Repository Map unavailable" in line:
+                        return f"- {label}: map unavailable"
+                    return f"- {label}: none"
+                candidate_path = path_match.group(1)
+                confidence_match = re.search(r"confidence ([0-9.]+)", line)
+                confidence = f" ({confidence_match.group(1)})" if confidence_match else ""
+                if "working tree marks" in line:
+                    reason = "Git status"
+                elif "Issue text names this source path" in line:
+                    reason = "Issue path"
+                elif "Issue text names this module" in line:
+                    reason = "Issue module"
+                elif "Issue text names symbol" in line:
+                    reason = "Issue symbol"
+                elif "shared identifier(s):" in line:
+                    reason = "shared terms"
+                elif "Repository Map dependency connects" in line:
+                    reason = "map dependency"
+                elif "test filename matches" in line:
+                    reason = "filename match"
+                elif confidence_match:
+                    reason = "heuristic match"
+                else:
+                    reason = ""
+                suffix = f"; {reason}" if reason else ""
+                return f"- {label}: `{candidate_path}`{confidence}{suffix}"
+
+            compact_sections = [
+                ("Changed", working_lines),
+                ("Module", module_lines),
+                ("Symbol", symbol_lines),
+                ("Test", test_lines),
+            ]
+
+            def compose_compact_evidence():
+                compact_lines = ["## Repository evidence"]
+                for _, candidate_lines in compact_sections:
+                    compact_lines.extend(candidate_lines)
+                compact_lines.append("- Required check: `finish_task.bat`.")
+                return "\n".join(compact_lines)
+
+            for label, candidate_lines in compact_sections:
+                candidate_lines[:] = [
+                    compact_candidate_line(line, label) for line in candidate_lines
+                ]
+            evidence = compose_compact_evidence()
+            while len(evidence) > max_chars:
+                for _, candidate_lines in (
+                    compact_sections[2], compact_sections[1], compact_sections[0], compact_sections[3]
+                ):
+                    if any(": `" in line for line in candidate_lines):
+                        candidate_lines[:] = [
+                            line.split(": `", 1)[0] + ": none"
+                            if ": `" in line else line
+                            for line in candidate_lines
+                        ]
+                        break
+                else:
+                    evidence = (
+                        "## Repository evidence\n"
+                        "- Candidates omitted to fit the evidence character limit.\n"
+                        "- Required check: `finish_task.bat`."
+                    )
+                    if len(evidence) > max_chars:
+                        raise ValueError("Context limit cannot fit the required project check.")
+                    break
+                evidence = compose_compact_evidence()
             break
         evidence = compose_evidence()
     return evidence

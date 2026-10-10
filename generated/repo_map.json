@@ -47797,7 +47797,7 @@
       "module": "tests.test_issue_context",
       "path": "tests/test_issue_context.py",
       "source_location": {
-        "end_line": 346,
+        "end_line": 383,
         "start_line": 1
       },
       "symbols": [
@@ -47860,7 +47860,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 342,
+            "end_line": 379,
             "start_line": 17
           }
         },
@@ -48122,6 +48122,52 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_compact_evidence_keeps_long_candidate_paths_intact",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_compact_evidence_keeps_long_candidate_paths_intact",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 248,
+            "start_line": 222
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_minimum_evidence_budget_uses_compact_form",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextTests.test_minimum_evidence_budget_uses_compact_form",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 250
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_repository_map_loader_rejects_unknown_schema",
           "parameters": [
             {
@@ -48136,8 +48182,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 268,
-            "start_line": 222
+            "end_line": 305,
+            "start_line": 259
           }
         },
         {
@@ -48159,8 +48205,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 296,
-            "start_line": 270
+            "end_line": 333,
+            "start_line": 307
           }
         },
         {
@@ -48182,8 +48228,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 308,
-            "start_line": 298
+            "end_line": 345,
+            "start_line": 335
           }
         },
         {
@@ -48205,8 +48251,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 310
+            "end_line": 350,
+            "start_line": 347
           }
         },
         {
@@ -48228,8 +48274,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 330,
-            "start_line": 315
+            "end_line": 367,
+            "start_line": 352
           }
         },
         {
@@ -48251,8 +48297,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 335,
-            "start_line": 332
+            "end_line": 372,
+            "start_line": 369
           }
         },
         {
@@ -48274,8 +48320,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 342,
-            "start_line": 337
+            "end_line": 379,
+            "start_line": 374
           }
         }
       ]
@@ -68791,7 +68837,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 450,
+        "end_line": 515,
         "start_line": 1
       },
       "symbols": [
@@ -69073,7 +69119,7 @@
           "signature": "(issue, repository_map, changed_paths, map_error = …, max_chars = …)",
           "source_location": {
             "column": 0,
-            "end_line": 347,
+            "end_line": 412,
             "start_line": 278
           }
         },
@@ -69098,6 +69144,51 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
+          "name": "compact_candidate_line",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "render_repository_evidence.compact_candidate_line",
+          "return_annotation": null,
+          "signature": "(line, label)",
+          "source_location": {
+            "column": 12,
+            "end_line": 368,
+            "start_line": 340
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "compose_compact_evidence",
+          "parameters": [],
+          "qualified_name": "render_repository_evidence.compose_compact_evidence",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 12,
+            "end_line": 382,
+            "start_line": 377
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
           "name": "key",
           "parameters": [
             {
@@ -69112,8 +69203,8 @@
           "signature": "(issue)",
           "source_location": {
             "column": 0,
-            "end_line": 351,
-            "start_line": 349
+            "end_line": 416,
+            "start_line": 414
           }
         },
         {
@@ -69135,8 +69226,8 @@
           "signature": "(issues)",
           "source_location": {
             "column": 0,
-            "end_line": 360,
-            "start_line": 353
+            "end_line": 425,
+            "start_line": 418
           }
         },
         {
@@ -69182,8 +69273,8 @@
           "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 411,
-            "start_line": 363
+            "end_line": 476,
+            "start_line": 428
           }
         },
         {
@@ -69205,8 +69296,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 447,
-            "start_line": 414
+            "end_line": 512,
+            "start_line": 479
           }
         }
       ]

@@ -219,6 +219,43 @@ class IssueContextTests(unittest.TestCase):
         self.assertIn("Test candidate `tests/test_feature_0.py`", evidence)
         self.assertIn("Required project check: `finish_task.bat`", evidence)
 
+    def test_compact_evidence_keeps_long_candidate_paths_intact(self):
+        selected = issue(143, title="Improve screen capture reliability")
+        long_test_path = "tests/" + "capture_reliability_details_" * 4 + "screen_capture.py"
+        repository_map = {
+            "format": "kadoka-repository-map",
+            "schema_version": 1,
+            "modules": [
+                {
+                    "module": f"ai_game_player.screen_capture.feature_{index}",
+                    "path": f"src/screen_capture/{'long_capture_feature_' * 5}{index}.py",
+                    "symbols": [],
+                }
+                for index in range(4)
+            ] + [{
+                "module": "tests.test_screen_capture",
+                "path": long_test_path,
+                "dependencies": ["ai_game_player.screen_capture.feature_0"],
+                "symbols": [],
+            }],
+        }
+
+        evidence = context.render_repository_evidence(selected, repository_map, [], max_chars=500)
+
+        self.assertLessEqual(len(evidence), 500)
+        self.assertIn(f"`{long_test_path}`", evidence)
+        self.assertIn("finish_task.bat", evidence)
+        self.assertNotIn(long_test_path[:70] + "…", evidence)
+
+    def test_minimum_evidence_budget_uses_compact_form(self):
+        evidence = context.render_repository_evidence(
+            issue(143, title="Unmatched task"), None, [], map_error="Repository Map unavailable", max_chars=250
+        )
+
+        self.assertLessEqual(len(evidence), 250)
+        self.assertIn("map unavailable", evidence)
+        self.assertIn("finish_task.bat", evidence)
+
     def test_repository_map_loader_rejects_unknown_schema(self):
         with tempfile.TemporaryDirectory() as directory:
             map_path = Path(directory) / "repo_map.json"
