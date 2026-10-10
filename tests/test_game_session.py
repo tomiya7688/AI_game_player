@@ -228,6 +228,29 @@ class GameSessionControllerTests(unittest.TestCase):
         self.assertEqual(controller.snapshot.stop_reason, "manual stop")
         self.assertEqual(runtimes[0].close_count, 1)
 
+    # {
+    #   責務: [test_terminal_status_is_notified_before_runtime_close: terminal statusをJournalが開いている間に通知する]
+    #   処理: [status callbackが呼ばれた時点のruntime close countを記録し、STOPPED通知がclose前か確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_terminal_status_is_notified_before_runtime_close(self):
+        runtime_states = []
+        runtime = FakeRuntime(1)
+
+        controller = GameSessionController(
+            lambda: runtime,
+            lambda _runtime, _command: SessionStep(),
+            on_state_change=lambda snapshot: runtime_states.append(
+                (snapshot.status, runtime.close_count)
+            ),
+        )
+        controller.start()
+        controller.stop("user stop")
+
+        self.assertIn((SessionStatus.STOPPED, 0), runtime_states)
+        self.assertEqual(runtime.close_count, 1)
+
     def test_step_error_transitions_to_failed_and_releases_runtime(self):
         errors = []
         def fail(_runtime, _command):

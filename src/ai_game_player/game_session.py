@@ -30,6 +30,13 @@ class SessionRuntime(Protocol):
     def run_and_execute(self, **arguments: Any) -> ExecutionResult: ...
 
     # {
+    #   責務: [load_execution_history: 現Session runtimeが管理する互換履歴を読み込む]
+    #   引数: [なし]
+    #   戻り値: [list[ExecutionResult]: 旧履歴と現在Sessionの実行結果を時系列で返す]
+    # }
+    def load_execution_history(self) -> list[ExecutionResult]: ...
+
+    # {
     #   責務: [assess_outcome: session-scoped Providerで現在画面のterminal状態を評価する]
     #   引数: [observation: 現在画面, previous: session中の直前画面]
     #   戻り値: [OutcomeAssessment: success/failure/ongoing状態と根拠]
@@ -208,8 +215,6 @@ class GameSessionController:
             close_error = self._close_runtime()
             if close_error is not None:
                 self._mark_shutdown_failed(close_error)
-            else:
-                self._notify()
             return True
 
         if error is not None:
@@ -249,17 +254,17 @@ class GameSessionController:
         self.run_control.stop()
         self._observation_pending = False
         self._pending_observation_generation = None
+        self._status = SessionStatus.STOPPED
+        self._stop_reason = reason
+        self._error = None
+        self._notify()
         close_error = None if self._step_pending else self._close_runtime()
-        if close_error is None:
-            self._status = SessionStatus.STOPPED
-            self._stop_reason = reason
-            self._error = None
-        else:
+        if close_error is not None:
             self._status = SessionStatus.FAILED
             self._stop_reason = "runtime shutdown failed"
             self._error = str(close_error)
             self._notify_error(close_error)
-        self._notify()
+            self._notify()
 
     def ensure_running(self) -> None:
         """RunController-compatible safety check used by DecisionPipeline."""
@@ -372,7 +377,7 @@ class GameSessionController:
 
     # {
     #   責務: [_finish: 正常停止・terminal終了時にloopとruntimeを閉じる]
-    #   処理: [古いcallbackを無効化し、runtime解放後に完了状態を通知する]
+    #   処理: [古いcallbackを無効化し、Journalを持つruntimeが有効な間にterminal状態を記録してからresourceを解放する]
     #   引数: [status: 完了または停止状態, reason: 停止・terminal理由]
     #   戻り値: []
     # }
@@ -383,6 +388,10 @@ class GameSessionController:
         self._pending_observation_generation = None
         self._cancel_scheduled()
         self.run_control.stop()
+        self._status = status
+        self._stop_reason = reason
+        self._error = None
+        self._notify()
         close_error = self._close_runtime()
         if close_error is not None:
             self._status = SessionStatus.FAILED
@@ -393,6 +402,7 @@ class GameSessionController:
             self._status = status
             self._stop_reason = reason
             self._error = None
+            return
         self._notify()
 
     # {
@@ -421,15 +431,17 @@ class GameSessionController:
         self._pending_observation_generation = None
         self._cancel_scheduled()
         self.run_control.stop()
-        close_error = None if runtime_already_closed else self._close_runtime()
         detail = str(error)
-        if close_error is not None:
-            detail += f"; runtime shutdown failed: {close_error}"
         self._status = SessionStatus.FAILED
         self._stop_reason = "step or startup failed"
         self._error = detail
         self._notify_error(error)
         self._notify()
+        close_error = None if runtime_already_closed else self._close_runtime()
+        if close_error is not None:
+            detail += f"; runtime shutdown failed: {close_error}"
+            self._error = detail
+            self._notify()
 
     def _close_runtime(self) -> Exception | None:
         runtime = self._runtime

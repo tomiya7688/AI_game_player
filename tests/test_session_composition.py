@@ -1,11 +1,18 @@
+import tempfile
+import sys
+import threading
+import time
+from types import SimpleNamespace
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from ai_game_player.models import ActionDecision
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.runtime.session_composition import (
     RuntimeComposition,
     SessionRuntimeConfiguration,
+    _windows_migration_lock,
 )
 
 
@@ -28,6 +35,8 @@ class FakePipeline:
     def __init__(self, events, close_error=None):
         self.events = events
         self.close_error = close_error
+        self.event_journal = None
+        self.journal_closed = False
 
     def run(self, **_arguments):
         return ActionDecision("start", "fake decision", "fake")
@@ -37,17 +46,26 @@ class FakePipeline:
 
     def close(self):
         self.events.append("pipeline.close")
+        if self.event_journal is not None and not self.journal_closed:
+            self.event_journal.close()
+            self.journal_closed = True
         if self.close_error is not None:
             raise self.close_error
 
 
 class SessionCompositionTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary_directory = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.temporary_directory.cleanup()
+
     def configuration(self, **changes):
         values = {
             "provider_name": "fake",
             "model": "model-a",
             "endpoint": "http://localhost",
-            "game_directory": Path("data/games/test"),
+            "game_directory": Path(self.temporary_directory.name) / "game",
             "dry_run": True,
             "window_handle": 12,
             "input_mode": "window_message",
@@ -65,6 +83,7 @@ class SessionCompositionTests(unittest.TestCase):
         def build_pipeline(*arguments, **keywords):
             build_arguments["arguments"] = arguments
             build_arguments["keywords"] = keywords
+            pipeline.event_journal = keywords["event_journal"]
             return pipeline
 
         composition = RuntimeComposition(
@@ -82,31 +101,112 @@ class SessionCompositionTests(unittest.TestCase):
         self.assertIs(runtime.pipeline, pipeline)
         self.assertEqual(runtime.run().action_id, "start")
         self.assertEqual(runtime.run_and_execute(), "executed")
+        self.assertEqual([], runtime.load_execution_history())
         assessment = runtime.assess_outcome(object(), None)
         self.assertEqual(assessment.reason, "fake assessment")
         self.assertEqual(events[0], ("model-a", "http://localhost"))
         self.assertEqual(events[1][0], "provider.assess")
         self.assertIsNone(events[1][2])
-        self.assertEqual(build_arguments["arguments"], (source, Path("data/games/test"), provider, controller))
+        runtime.close()
+        self.assertEqual(
+            build_arguments["arguments"],
+            (source, self.configuration().game_directory, provider, controller),
+        )
         self.assertEqual(
             {key: build_arguments["keywords"][key] for key in (
-                "dry_run", "window_handle", "input_mode", "window_process_id"
+                "dry_run", "window_handle", "input_mode", "window_process_id", "migrate_legacy", "migrate_runtime_log"
             )},
             {
                 "dry_run": True,
                 "window_handle": 12,
                 "input_mode": "window_message",
                 "window_process_id": 34,
+                "migrate_legacy": True,
+                "migrate_runtime_log": False,
             },
         )
+
+    def test_legacy_pipeline_factory_signature_still_creates_a_session(self):
+        events = []
+        pipeline = FakePipeline(events)
+
+        def legacy_pipeline_factory(
+            source,
+            game_directory,
+            provider,
+            controller,
+            *,
+            dry_run,
+            window_handle,
+            input_mode,
+            window_process_id,
+            automated_cursor_position_callback=None,
+            runtime_log=None,
+        ):
+            events.append((source, game_directory, provider, controller, dry_run, window_handle, input_mode, window_process_id))
+            return pipeline
+
+        provider = FakeProvider(events)
+        runtime = RuntimeComposition(
+            provider_factories={"fake": lambda *_arguments: provider},
+            pipeline_factory=legacy_pipeline_factory,
+        ).create_session_runtime(
+            self.configuration(), source="source", controller="controller"
+        )
+
+        self.assertIs(runtime.pipeline, pipeline)
+        self.assertEqual("source", events[0][0])
+        self.assertFalse(self.configuration().game_directory.joinpath("session_events").exists())
+        runtime.close()
+
+    # {
+    #   責務: [test_legacy_files_are_migrated_only_in_the_first_runtime_session: 旧保存記録を複数Sessionへ複製しない]
+    #   処理: [共有game directoryでruntimeを2回生成し、初回だけ旧記録移行を有効にする]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_legacy_files_are_migrated_only_in_the_first_runtime_session(self):
+        migration_values = []
+
+        class Pipeline:
+            event_journal = None
+
+            def close(self):
+                self.event_journal.close()
+
+            def load_execution_history(self):
+                return []
+
+        def build_pipeline(*_arguments, **keywords):
+            migration_values.append(keywords["migrate_legacy"])
+            pipeline = Pipeline()
+            pipeline.event_journal = keywords["event_journal"]
+            return pipeline
+
+        composition = RuntimeComposition(
+            provider_factories={"fake": lambda *_arguments: FakeProvider([])},
+            pipeline_factory=build_pipeline,
+        )
+        for _ in range(2):
+            runtime = composition.create_session_runtime(
+                self.configuration(), source=object(), controller=object()
+            )
+            runtime.close()
+
+        self.assertEqual([True, False], migration_values)
 
     def test_runtime_closes_pipeline_before_provider_and_retries_only_failed_cleanup(self):
         events = []
         pipeline = FakePipeline(events, RuntimeError("pipeline close failed"))
         provider = FakeProvider(events)
+
+        def build_pipeline(*_arguments, **keywords):
+            pipeline.event_journal = keywords["event_journal"]
+            return pipeline
+
         runtime = RuntimeComposition(
             provider_factories={"fake": lambda _model, _endpoint: provider},
-            pipeline_factory=lambda *_args, **_kwargs: pipeline,
+            pipeline_factory=build_pipeline,
         ).create_session_runtime(self.configuration(), source=object(), controller=object())
 
         with self.assertRaisesRegex(RuntimeError, "pipeline close failed"):
@@ -116,6 +216,90 @@ class SessionCompositionTests(unittest.TestCase):
         pipeline.close_error = None
         runtime.close()
         self.assertEqual(events, ["pipeline.close", "provider.close", "pipeline.close"])
+
+    def test_migration_lock_serializes_first_session_creation(self):
+        migration_values = []
+        first_pipeline_started = threading.Event()
+        allow_first_pipeline_to_finish = threading.Event()
+
+        class Pipeline:
+            event_journal = None
+
+            def close(self):
+                self.event_journal.close()
+
+            def load_execution_history(self):
+                return []
+
+        def build_pipeline(*_arguments, **keywords):
+            migration_values.append(keywords["migrate_legacy"])
+            if len(migration_values) == 1:
+                first_pipeline_started.set()
+                if not allow_first_pipeline_to_finish.wait(timeout=5):
+                    raise TimeoutError("test did not release first pipeline")
+            pipeline = Pipeline()
+            pipeline.event_journal = keywords["event_journal"]
+            return pipeline
+
+        composition = RuntimeComposition(
+            provider_factories={"fake": lambda *_arguments: FakeProvider([])},
+            pipeline_factory=build_pipeline,
+        )
+        runtimes = []
+        errors = []
+
+        def create_runtime():
+            try:
+                runtimes.append(
+                    composition.create_session_runtime(
+                        self.configuration(), source=object(), controller=object()
+                    )
+                )
+            except Exception as error:
+                errors.append(error)
+
+        first = threading.Thread(target=create_runtime)
+        second = threading.Thread(target=create_runtime)
+        first.start()
+        self.assertTrue(first_pipeline_started.wait(timeout=5))
+        second.start()
+        time.sleep(0.1)
+        self.assertEqual([True], migration_values)
+        allow_first_pipeline_to_finish.set()
+        first.join(timeout=5)
+        second.join(timeout=5)
+
+        self.assertFalse(first.is_alive())
+        self.assertFalse(second.is_alive())
+        self.assertEqual([], errors)
+        self.assertEqual([True, False], migration_values)
+        for runtime in runtimes:
+            runtime.close()
+
+    def test_windows_migration_lock_stops_retrying_after_deadline(self):
+        fake_msvcrt = SimpleNamespace(
+            LK_NBLCK=1,
+            LK_UNLCK=2,
+            locking=Mock(side_effect=OSError("permanent handle error")),
+        )
+        lock_path = Path(self.temporary_directory.name) / "migration.lock"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        with lock_path.open("a+b") as lock_file:
+            with (
+                patch.dict(sys.modules, {"msvcrt": fake_msvcrt}),
+                patch(
+                    "ai_game_player.runtime.session_composition.MIGRATION_LOCK_TIMEOUT_SECONDS",
+                    0.01,
+                ),
+                patch(
+                    "ai_game_player.runtime.session_composition.MIGRATION_LOCK_RETRY_INTERVAL_SECONDS",
+                    0.001,
+                ),
+            ):
+                with self.assertRaisesRegex(TimeoutError, "migration.lock"):
+                    with _windows_migration_lock(lock_file, lock_path):
+                        self.fail("permanent lock errors must not acquire the lock")
+        self.assertGreater(fake_msvcrt.locking.call_count, 0)
 
     def test_pipeline_initialization_failure_releases_created_provider(self):
         events = []

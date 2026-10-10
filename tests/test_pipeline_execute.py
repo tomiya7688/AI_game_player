@@ -29,6 +29,28 @@ class Source:
 
 
 class PipelineExecuteTest(unittest.TestCase):
+    def test_legacy_pipeline_without_metrics_does_not_turn_success_into_failure(self):
+        class LegacyPipeline:
+            def run(self, **_arguments):
+                return ActionDecision("start", "legacy pipeline", "test")
+
+        application = Application.__new__(Application)
+        application._background_results = queue.Queue()
+        application._run_pipeline_in_background(
+            1,
+            LegacyPipeline(),
+            "decision",
+            "",
+            "",
+            1,
+            False,
+            False,
+        )
+
+        task = application._background_results.get_nowait()
+        self.assertIsNone(task[5])
+        self.assertIsNone(task[8])
+
     def test_pipeline_passes_automated_cursor_notification_to_executor(self):
         def callback(_position, _move_in_progress):
             return None
@@ -238,7 +260,7 @@ class PipelineExecuteTest(unittest.TestCase):
             controller.start()
             allow_provider_to_return.set()
 
-            task_type, task_id, result_token, operation, _result, error, _loop_step, _observation = application._background_results.get(timeout=BACKGROUND_RESULT_WAIT_SECONDS)
+            task_type, task_id, result_token, operation, _result, error, _loop_step, _observation, execution_records = application._background_results.get(timeout=BACKGROUND_RESULT_WAIT_SECONDS)
 
             logged_events = []
             application._execution_task_id = task_id
@@ -246,7 +268,7 @@ class PipelineExecuteTest(unittest.TestCase):
             application.root = SimpleNamespace(after=lambda *_args: None)
             statuses = []
             application._set_status = statuses.append
-            application._background_results.put((task_type, task_id, result_token, operation, _result, error, _loop_step, _observation))
+            application._background_results.put((task_type, task_id, result_token, operation, _result, error, _loop_step, _observation, execution_records))
             application._poll_background_results()
 
         self.assertEqual(task_type, "pipeline")

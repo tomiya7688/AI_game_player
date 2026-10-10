@@ -4,8 +4,10 @@ from pathlib import Path
 
 from ai_game_player.atomic_json import StagedJsonWrite
 from ai_game_player.decision_context import DecisionContextBuilder, DecisionTraceStore
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.history import HistoryStore
+from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
@@ -19,18 +21,50 @@ _COMMIT_GUARD_CONTEXT: ContextVar[Callable[[Callable[[], None]], None] | None] =
 _ALLOWED_CANDIDATES_CONTEXT: ContextVar[tuple[ActionCandidate, ...] | None] = ContextVar("allowed_candidates", default=None)
 
 
+# {
+#   責務: [GamePlayerEngine: Observation・候補・判断・Outcomeを接続し、履歴をSession Journalへ保存する]
+#   フィールド: [history/trace: 旧reader互換の判断履歴adapter, event_journal: 任意のSession event保存先]
+# }
 class GamePlayerEngine:
+    # {
+    #   責務: [__init__: 判断・履歴・Outcome componentをgame directoryと任意Journalへ接続する]
+    #   処理: [旧history/trace JSONを指定Journalへ移行し、providerとcontext builderを初期化する]
+    #   引数: [game_directory: game固有のlegacy data保存先, provider: 判断provider, context_builder: 判断context生成器, outcome_detector: 直前操作を評価するdetector, event_journal: 現Sessionのevent保存先, migrate_legacy: 初回sessionなら旧historyとtraceをJournalへ移行する]
+    #   戻り値: []
+    # }
     def __init__(
         self,
         game_directory: Path,
         provider=None,
         context_builder: DecisionContextBuilder | None = None,
         outcome_detector: OutcomeDetector | None = None,
+        event_journal: EventJournal | None = None,
+        migrate_legacy: bool = True,
     ) -> None:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
-        self.history = HistoryStore(game_directory / "history.json")
-        self.trace = DecisionTraceStore(game_directory / "decision_trace.json")
+        history_path = game_directory / "history.json"
+        trace_path = game_directory / "decision_trace.json"
+        self.history = HistoryStore(
+            history_path,
+            LegacyEventAdapter(
+                event_journal,
+                history_path,
+                "decision.history",
+                migrate_legacy=migrate_legacy,
+            )
+            if event_journal is not None else None,
+        )
+        self.trace = DecisionTraceStore(
+            trace_path,
+            LegacyEventAdapter(
+                event_journal,
+                trace_path,
+                "decision.trace",
+                migrate_legacy=migrate_legacy,
+            )
+            if event_journal is not None else None,
+        )
         self.context_builder = context_builder or DecisionContextBuilder(KnowledgeStore(game_directory / "knowledge.json"))
         self.outcome_detector = outcome_detector or OutcomeDetector(self._semantic_outcome_provider())
         self.last_outcome_event: OutcomeEvent | None = None
@@ -75,7 +109,7 @@ class GamePlayerEngine:
             decision = self.provider.choose(allowed, observation, purpose, personality)
         if not any(candidate.action_id == decision.action_id for candidate in allowed_snapshot):
             raise ValueError("Decision provider selected an action outside the allowed snapshot")
-        staged_writes: list[StagedJsonWrite] = []
+        staged_writes: list[StagedJsonWrite | StagedJournalAppend] = []
         try:
             staged_writes.append(self.history.prepare_append(observation, decision))
             staged_writes.append(self.trace.prepare_append(context, decision))

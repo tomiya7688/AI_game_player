@@ -20,6 +20,6 @@
 - 実入力は既定で無効です。
 - OCRは`Pillow`と`pytesseract`の任意依存で、未導入時は手入力候補のみです。ゲーム固有の成功条件は追加調整が必要です。
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。
-- Session Event JournalはまだGameSessionControllerへ未接続で、旧RuntimeLog/Trace/History移行やquery APIも未実装です。
+- GameSessionControllerの各SessionはSession Event Journalへ判断・実行・Safety・RuntimeLog eventを記録し、初回Sessionで旧JSON/JSONL履歴を移行します。Session Journalをまたぐ検索APIとTimeline/Video/Learningからの横断参照はIssue #263で対応します。
 - 長期目的、知識埋め込み、複数人格比較は未実装です。
 - Native Runtimeの汎用batch処理はメタデータ契約のみで`NOT_IMPLEMENTED`を返します。専用Frame Preprocess API以外のcapture/input画素処理は未実装で、GUI実行経路もNativeへ自動切替しません。

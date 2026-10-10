@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from ai_game_player.journal_adapters import LegacyEventAdapter
 from ai_game_player.models import ActionCandidate, ScreenObservation
 
 
@@ -341,12 +342,29 @@ class ActionSafetyEvaluator:
         return any(term in goal for term in terms.get(intent, ()))
 
 
+# {
+#   責務: [ActionSafetyAuditLog: safety評価・実行・最終Outcomeを旧形式readerまたはJournalへ保存する]
+#   フィールド: [path: 旧JSON配列の移行元, event_adapter: 現SessionのJournal writerと互換cache]
+# }
 class ActionSafetyAuditLog:
     """Append-only audit events linking assessment, execution, and eventual outcome."""
 
-    def __init__(self, path: Path) -> None:
+    # {
+    #   責務: [__init__: safety監査recordの旧JSON pathと任意Journal adapterを設定する]
+    #   処理: [adapterが指定された場合は保存済みJSON配列をSession Journalへ移行する]
+    #   引数: [path: action_safety.jsonの旧保存先, event_adapter: Session Journalへ移行・追記するadapter]
+    #   戻り値: []
+    # }
+    def __init__(self, path: Path, event_adapter: LegacyEventAdapter | None = None) -> None:
         self.path = path
+        self.event_adapter = event_adapter
 
+    # {
+    #   責務: [append_evaluation: 候補のSafety評価と対象snapshotを監査履歴へ記録する]
+    #   処理: [評価結果・目標・snapshot IDをevent recordにまとめる]
+    #   引数: [result: ActionSafetyEvaluatorの判定, snapshot_id: 判断に使った画面snapshot, goal: providerへ渡した目標]
+    #   戻り値: []
+    # }
     def append_evaluation(self, result: ActionSafetyResult, *, snapshot_id: str = "", goal: str = "") -> None:
         self._append(
             {
@@ -359,6 +377,13 @@ class ActionSafetyAuditLog:
             }
         )
 
+    # {
+    #   責務: [append_execution: Safety評価IDに対応する実行結果を監査履歴へ記録する]
+    #   処理: [action ID・実行可否・入力方式・詳細を1 eventへまとめる]
+    #   引数: [assessment_id: 実行を許可したSafety評価ID, execution: 実際のActionExecutor結果]
+    #   戻り値: []
+    #   エラー: [ValueError: assessment_idが空の場合]
+    # }
     def append_execution(self, assessment_id: str, execution: Any) -> None:
         if not assessment_id.strip():
             raise ValueError("assessment_id must not be empty")
@@ -373,6 +398,13 @@ class ActionSafetyAuditLog:
             }
         )
 
+    # {
+    #   責務: [append_outcome: 実行後に観測したOutcomeをSafety評価IDへ関連付ける]
+    #   処理: [許可状態・信頼度・根拠を検証してactual_outcome eventにする]
+    #   引数: [assessment_id: Outcomeの対象となるSafety評価ID, status: success/failure/ongoing/unknown, confidence: 評価信頼度, evidence: statusを支える観測根拠]
+    #   戻り値: []
+    #   エラー: [ValueError: ID・status・confidenceが契約を満たさない場合]
+    # }
     def append_outcome(self, assessment_id: str, status: str, confidence: float, evidence: str = "") -> None:
         if not assessment_id.strip():
             raise ValueError("assessment_id must not be empty")
@@ -390,10 +422,25 @@ class ActionSafetyAuditLog:
             }
         )
 
+    # {
+    #   責務: [entries: 旧Safety audit readerと同じrecord形状で監査履歴を返す]
+    #   処理: [Journal adapter cacheまたは既存JSON配列からrecordを取得する]
+    #   引数: [self: Safety監査store]
+    #   戻り値: [list[dict[str, Any]]: evaluation/execution/actual_outcome record列]
+    # }
     def entries(self) -> list[dict[str, Any]]:
         return self._read()
 
+    # {
+    #   責務: [_append: 監査recordをJournalまたは旧JSON保存先へ追加する]
+    #   処理: [Journal adapterがあればappendし、未指定時は一時JSONを原子的に置換する]
+    #   引数: [event: 旧reader互換形式のSafety監査record]
+    #   戻り値: []
+    # }
     def _append(self, event: dict[str, Any]) -> None:
+        if self.event_adapter is not None:
+            self.event_adapter.prepare_append(event).publish()
+            return
         entries = self._read()
         entries.append(event)
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -401,7 +448,16 @@ class ActionSafetyAuditLog:
         temporary.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
         temporary.replace(self.path)
 
+    # {
+    #   責務: [_read: 旧JSON保存先から監査recordを非破壊で読む]
+    #   処理: [Journal adapterの互換cacheまたはJSON arrayを返し、他形式を拒否する]
+    #   引数: [self: Safety監査store]
+    #   戻り値: [list[dict[str, Any]]: 監査record列]
+    #   エラー: [OSError: JSON読込に失敗, ValueError: JSONが配列ではない場合]
+    # }
     def _read(self) -> list[dict[str, Any]]:
+        if self.event_adapter is not None:
+            return self.event_adapter.records
         if not self.path.exists():
             return []
         value = json.loads(self.path.read_text(encoding="utf-8"))
