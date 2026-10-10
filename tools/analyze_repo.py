@@ -150,6 +150,19 @@ class RepositoryMapGenerator:
             raise RepositoryMapError("repository-map output cannot overwrite its configuration file")
         if any(source.resolve() == destination for source in self._selected_source_paths()):
             raise RepositoryMapError("repository-map output cannot overwrite a selected Python source file")
+        relative_path = PurePosixPath(destination.relative_to(self.repository_root).as_posix())
+        included_as_source = destination.suffix == ".py" and any(
+            self._matches_path_pattern(relative_path, pattern)
+            for pattern in self.config["include"]
+        )
+        excluded_from_sources = any(
+            self._matches_path_pattern(relative_path, pattern)
+            for pattern in self.config["exclude"]
+        )
+        if included_as_source and not excluded_from_sources:
+            raise RepositoryMapError(
+                "repository-map output cannot match the configured Python source patterns"
+            )
         if not destination.exists():
             return
         try:

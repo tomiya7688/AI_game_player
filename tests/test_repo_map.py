@@ -168,6 +168,11 @@ class RepositoryMapGeneratorTests(unittest.TestCase):
             generator.write(output_path=Path("src/sample_pkg/models.py"))
         self.assertEqual(original_source, source_path.read_text(encoding="utf-8"))
 
+        future_source_output = self.root / "src" / "sample_pkg" / "future_map.py"
+        with self.assertRaisesRegex(RepositoryMapError, "configured Python source patterns"):
+            generator.write(output_path=Path("src/sample_pkg/future_map.py"))
+        self.assertFalse(future_source_output.exists())
+
         with self.assertRaisesRegex(RepositoryMapError, "configuration file"):
             generator.write(output_path=Path("config/repo_map.json"))
         self.assertTrue(self.config_path.is_file())
