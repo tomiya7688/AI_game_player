@@ -89,6 +89,33 @@ def _supports_session_journal(pipeline_factory: Callable[..., Any]) -> bool:
 
 
 # {
+#   責務: [_accepted_pipeline_arguments: 注入されたpipeline factoryが宣言するkeywordだけを選ぶ]
+#   処理: [**kwargs factoryには全argumentを渡し、明示signatureではPOSITIONAL_ONLY以外の宣言parameterだけを渡す]
+#   引数: [pipeline_factory: RuntimeCompositionへ注入されたfactory, arguments: Session設定から組み立てたkeyword値]
+#   戻り値: [dict[str, Any]: factoryが受け取れるkeyword]
+# }
+def _accepted_pipeline_arguments(
+    pipeline_factory: Callable[..., Any],
+    arguments: Mapping[str, Any],
+) -> dict[str, Any]:
+    try:
+        parameters = inspect.signature(pipeline_factory).parameters
+    except (TypeError, ValueError):
+        return dict(arguments)
+    if any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD
+        for parameter in parameters.values()
+    ):
+        return dict(arguments)
+    return {
+        name: value
+        for name, value in arguments.items()
+        if name in parameters
+        and parameters[name].kind != inspect.Parameter.POSITIONAL_ONLY
+    }
+
+
+# {
 #   責務: [_remove_partial_journal_files: 初期化に失敗したSession専用SQLite databaseとsidecarを削除する]
 #   処理: [呼出元が今回生成したdatabase pathに対応するSQLite本体・journal・WAL・SHM entryだけをunlinkする]
 #   引数: [database_path: 初期化失敗Sessionが所有する新規SQLite database path]
@@ -289,16 +316,10 @@ class RuntimeComposition:
             "runtime_log": runtime_log,
         }
         if not _supports_session_journal(self._pipeline_factory):
-            try:
-                accepted_names = inspect.signature(self._pipeline_factory).parameters
-            except (TypeError, ValueError):
-                pass
-            else:
-                pipeline_arguments = {
-                    name: value
-                    for name, value in pipeline_arguments.items()
-                    if name in accepted_names
-                }
+            pipeline_arguments = _accepted_pipeline_arguments(
+                self._pipeline_factory,
+                pipeline_arguments,
+            )
             try:
                 pipeline = self._pipeline_factory(
                     source,
@@ -323,22 +344,35 @@ class RuntimeComposition:
         migration_lock = migration_marker.with_suffix(".lock")
         with _legacy_migration_lock(migration_lock):
             migrate_legacy = not migration_marker.exists()
-            migrate_runtime_log = runtime_log is not None and not runtime_log_marker.exists()
+            accepts_runtime_log = "runtime_log" in _accepted_pipeline_arguments(
+                self._pipeline_factory, {"runtime_log": None}
+            )
+            migrate_runtime_log = (
+                runtime_log is not None
+                and accepts_runtime_log
+                and not runtime_log_marker.exists()
+            )
             session_journal_path = configuration.game_directory / "session_events" / f"{session_id}.sqlite3"
             event_journal: EventJournal | None = None
             pipeline: DecisionPipeline | None = None
             newly_created_markers: list[Path] = []
             try:
                 event_journal = EventJournal(session_journal_path, session_id=session_id)
+                journal_pipeline_arguments = {
+                    **pipeline_arguments,
+                    "event_journal": event_journal,
+                    "migrate_legacy": migrate_legacy,
+                    "migrate_runtime_log": migrate_runtime_log,
+                }
                 pipeline = self._pipeline_factory(
                     source,
                     configuration.game_directory,
                     provider,
                     controller,
-                    **pipeline_arguments,
-                    event_journal=event_journal,
-                    migrate_legacy=migrate_legacy,
-                    migrate_runtime_log=migrate_runtime_log,
+                    **_accepted_pipeline_arguments(
+                        self._pipeline_factory,
+                        journal_pipeline_arguments,
+                    ),
                 )
                 if migrate_runtime_log:
                     runtime_log_marker.parent.mkdir(parents=True, exist_ok=True)

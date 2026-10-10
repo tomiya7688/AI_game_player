@@ -43,11 +43,13 @@ class RuntimeLogTest(unittest.TestCase):
             logger = RuntimeLog(Path(directory) / "runtime.jsonl")
             adapter = BlockingAdapter()
             logger._event_adapter = adapter
+            attachment_token = object()
+            logger._attachment_token = attachment_token
             writer = threading.Thread(target=lambda: logger.write("assessment"))
             detached = threading.Event()
 
             def detach():
-                logger.detach_event_journal()
+                logger.detach_event_journal(attachment_token)
                 detached.set()
 
             writer.start()

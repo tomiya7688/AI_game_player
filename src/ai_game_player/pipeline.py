@@ -27,7 +27,7 @@ from ai_game_player.runtime_log import RuntimeLog
 #   責務: [DecisionPipeline: 画面観測から候補判断・安全評価・実行までを接続する]
 #   フィールド: [source: 観測入力, executor: 安全な候補実行境界, controller: 実行制御]
 #   処理: [対象識別情報を実行境界まで引き継ぎ、実行結果と履歴を管理する]
-#   フィールド: [event_journal: session eventのappend先, runtime_log: active Journalへruntime eventを複製するoptional logger]
+#   フィールド: [event_journal: session eventのappend先, runtime_log: active Journalへruntime eventを複製するoptional logger, _runtime_log_attachment_token: このPipelineだけがbindingを解除する所有token]
 # }
 class DecisionPipeline:
     # {
@@ -39,7 +39,8 @@ class DecisionPipeline:
     #     2: HWND・PID・入力方式をActionExecutorへ渡す
     #     3: RunControllerの停止状態を実入力の停止確認へ渡す
     #     4: 自動カーソル通知関数をActionExecutorへ渡す
-    #     5: Session用履歴と安全評価を初期化する
+    #     5: Session履歴・安全評価・RuntimeLog bindingを先に初期化し、失敗時にexecutorを残さない
+    #     6: すべての履歴adapter初期化後にActionExecutorを生成する
     #   ]
     #   引数: [
     #     source: 判断対象の画面観測と操作候補を提供する入力元
@@ -93,6 +94,7 @@ class DecisionPipeline:
         self.merger = CandidateMerger()
         self.event_journal = event_journal
         self.runtime_log = runtime_log
+        self._runtime_log_attachment_token: object | None = None
         self._runtime_log_detached = runtime_log is None or event_journal is None
         self._event_journal_closed = event_journal is None
         self._executor_closed = False
@@ -104,22 +106,6 @@ class DecisionPipeline:
         )
         self.controller = controller or RunController()
         self._seen_rearm_token = 0
-        self.executor = ActionExecutor(
-            dry_run,
-            window_handle=window_handle,
-            window_process_id=window_process_id,
-            input_mode=input_mode,
-            safety_guard=safety_guard,
-            safety_config=safety_guard_config,
-            safety_log_path=game_directory / "safety_guard.jsonl",
-            emergency_stop=emergency_stop,
-            fail_safe_runtime=fail_safe_runtime,
-            fail_safe_config=fail_safe_config,
-            fail_safe_state_directory=game_directory / "fail_safe",
-            external_watchdog=external_watchdog,
-            run_controller_stop_checker=lambda: not self.controller.is_running,
-            automated_cursor_position_callback=automated_cursor_position_callback,
-        )
         execution_history_path = game_directory / "execution_history.json"
         self.execution_history = ExecutionHistory(
             execution_history_path,
@@ -145,10 +131,32 @@ class DecisionPipeline:
         )
         self.last_safety_result: ActionSafetyResult | None = None
         if self.event_journal is not None and self.runtime_log is not None:
-            self.runtime_log.attach_event_journal(
+            self._runtime_log_attachment_token = self.runtime_log.attach_event_journal(
                 self.event_journal,
                 migrate_legacy=migrate_runtime_log,
             )
+        try:
+            self.executor = ActionExecutor(
+                dry_run,
+                window_handle=window_handle,
+                window_process_id=window_process_id,
+                input_mode=input_mode,
+                safety_guard=safety_guard,
+                safety_config=safety_guard_config,
+                safety_log_path=game_directory / "safety_guard.jsonl",
+                emergency_stop=emergency_stop,
+                fail_safe_runtime=fail_safe_runtime,
+                fail_safe_config=fail_safe_config,
+                fail_safe_state_directory=game_directory / "fail_safe",
+                external_watchdog=external_watchdog,
+                run_controller_stop_checker=lambda: not self.controller.is_running,
+                automated_cursor_position_callback=automated_cursor_position_callback,
+            )
+        except Exception:
+            if self._runtime_log_attachment_token is not None and self.runtime_log is not None:
+                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
+                self._runtime_log_detached = True
+            raise
 
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:
         observation, configured = self.source.read()
@@ -325,7 +333,8 @@ class DecisionPipeline:
     # }
     def close_event_journal(self) -> None:
         if not self._runtime_log_detached and self.runtime_log is not None:
-            self.runtime_log.detach_event_journal()
+            if self._runtime_log_attachment_token is not None:
+                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
             self._runtime_log_detached = True
         close_error: Exception | None = None
         if not self._event_journal_closed and self.event_journal is not None:

@@ -222,17 +222,124 @@ class LegacyEventAdapterTest(unittest.TestCase):
             )
             with EventJournal(root / "events.sqlite3", session_id="session-1") as journal:
                 logger = RuntimeLog(legacy_path)
-                logger.attach_event_journal(journal)
+                attachment_token = logger.attach_event_journal(journal)
                 logger.write("new", "recorded", {"step": 2})
                 self.assertEqual(2, journal.last_sequence)
                 self.assertEqual([], logger._event_adapter.records)
-                logger.detach_event_journal()
+                logger.detach_event_journal(attachment_token)
                 events = read_events(root / "events.sqlite3")
             self.assertEqual(
                 ["old", "new"],
                 [event.payload["legacy_record"]["event"] for event in events],
             )
             self.assertEqual(2, len(legacy_path.read_text(encoding="utf-8").splitlines()))
+
+    def test_runtime_log_rejects_overlapping_sessions_and_stale_detach(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            logger = RuntimeLog(root / "runtime.jsonl")
+            with EventJournal(root / "first.sqlite3", session_id="first") as first_journal:
+                with EventJournal(root / "second.sqlite3", session_id="second") as second_journal:
+                    first_token = logger.attach_event_journal(first_journal)
+                    with self.assertRaisesRegex(RuntimeError, "already attached"):
+                        logger.attach_event_journal(second_journal)
+                    with self.assertRaisesRegex(RuntimeError, "does not own"):
+                        logger.detach_event_journal(object())
+                    logger.write("first-session", "still attached")
+                    self.assertEqual(1, first_journal.last_sequence)
+                    self.assertEqual(0, second_journal.last_sequence)
+                    logger.detach_event_journal(first_token)
+                    self.assertIsNone(logger._event_adapter)
+
+    def test_journal_factory_without_runtime_log_parameter_does_not_mark_log_migrated(self):
+        class Provider:
+            def close(self):
+                return None
+
+        def journal_pipeline_factory(
+            source,
+            game_directory,
+            provider,
+            controller,
+            *,
+            event_journal,
+            migrate_legacy,
+            migrate_runtime_log,
+        ):
+            return DecisionPipeline(
+                source,
+                game_directory,
+                provider,
+                controller,
+                event_journal=event_journal,
+                migrate_legacy=migrate_legacy,
+                migrate_runtime_log=migrate_runtime_log,
+            )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            game_directory = root / "game"
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=game_directory,
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            logger = RuntimeLog(root / "runtime.jsonl")
+            runtime = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()},
+                pipeline_factory=journal_pipeline_factory,
+            ).create_session_runtime(
+                configuration,
+                source=object(),
+                controller=RunController(),
+                runtime_log=logger,
+            )
+
+            runtime.close()
+
+            self.assertFalse(
+                (game_directory / "session_events" / "runtime_log_migration_v1.complete").exists()
+            )
+            logger.write("after-session", "legacy factory left logger detached")
+
+    def test_invalid_execution_history_fails_before_executor_is_created(self):
+        class Provider:
+            def close(self):
+                return None
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            game_directory = root / "game"
+            game_directory.mkdir()
+            (game_directory / "execution_history.json").write_text("not valid JSON", encoding="utf-8")
+            configuration = SessionRuntimeConfiguration(
+                provider_name="fake",
+                model="model",
+                endpoint="http://localhost",
+                game_directory=game_directory,
+                dry_run=True,
+                window_handle=None,
+                input_mode="window_message",
+                window_process_id=None,
+            )
+            composition = RuntimeComposition(
+                provider_factories={"fake": lambda *_arguments: Provider()}
+            )
+
+            with patch("ai_game_player.pipeline.ActionExecutor") as executor_factory:
+                with self.assertRaises(ValueError):
+                    composition.create_session_runtime(
+                        configuration,
+                        source=object(),
+                        controller=RunController(),
+                    )
+
+            executor_factory.assert_not_called()
 
     def test_shutdown_failure_records_failed_status_before_journal_closes(self):
         with tempfile.TemporaryDirectory() as directory:
