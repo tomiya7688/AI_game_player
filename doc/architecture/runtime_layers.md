@@ -35,6 +35,23 @@ The boundary is capability-based rather than language-based. A backend may provi
 6. Safety-critical stop/release behavior must remain available even when the upper AI layer is unhealthy.
 7. Optional providers must not become required dependencies of the minimal runtime unless they are safety-required.
 
+## Application workflow boundaries
+
+This section is for developers changing how the desktop UI captures a game screen, prepares a decision, or starts a session. Tkinter is Python's desktop UI toolkit. The `Application` class owns Tkinter controls, reads the current screen and candidate JSON fields, checks live-input permission, and displays results. The `Application` class delegates screen capture and frame analysis to `LiveObservationService`; that service returns a `ScreenObservation` and does not read or update Tkinter widgets.
+
+The `Application` class delegates provider, outcome, runtime-construction, settings-persistence, candidate-parsing, and candidate-evaluation work to `ApplicationWorkflowService`. The workflow service receives ordinary Python values and injected `ConfigStore`, `RuntimeComposition`, and `MemorySource` dependencies, so tests can exercise those operations without creating a Tk window. A `ScreenObservation` contains the screen ID, pixel dimensions, recognized text, and visual features. A successful candidate evaluation updates `MemorySource`; the next `SessionRuntime` reads the same observation and candidate list.
+
+The capture button currently writes the returned `ScreenObservation` into the editable observation JSON field. The decision and execution commands read that field together with the separate editable candidate JSON field. Automatic generation of action candidates from a captured screen is not part of these service boundaries; Issue #337 tracks that integration.
+
+```text
+Tkinter Application
+  -> LiveObservationService -> ScreenObservation
+  -> ApplicationWorkflowService -> ConfigStore / MemorySource / RuntimeComposition
+  -> GameSessionController -> SessionRuntime
+```
+
+`GameSessionController` owns start, step, loop, stop, and session-resource lifetime. `RuntimeComposition` creates the provider and decision pipeline that make up each `SessionRuntime`. The `Application` class displays controller state and delivers user commands; it does not assemble provider or pipeline dependencies directly.
+
 ## FAST_CV frame preprocessing
 
 The optional `FAST_CV` capability exposes a coarse frame-preprocessing operation through C ABI v1. The caller lends a BGRA frame synchronously; the native runtime returns RGB/brightness summaries, a perceptual sample hash, and filtered bright-region bounds in caller-owned output buffers. If the region buffer is too small, the caller retries with the reported required capacity. The result reports elapsed time, logical frame-payload bytes processed, region-payload bytes written, and input-copy count/bytes; frame-payload bytes exclude row padding, and the current implementation borrows the input and reports zero copies. The Python binding accepts provider-reported copy metrics and sums them across buffer-capacity retries. This is an explicit runtime API only: `FrameAnalyzer` keeps the Python reference implementation as its default fallback, and applications must inject a native preprocessor deliberately.

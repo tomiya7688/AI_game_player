@@ -1671,19 +1671,18 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.action_executor",
+        "ai_game_player.application_workflow",
         "ai_game_player.config",
         "ai_game_player.execution_mode",
-        "ai_game_player.frame_analyzer",
         "ai_game_player.game_session",
         "ai_game_player.metrics",
         "ai_game_player.models",
-        "ai_game_player.ocr_recognizer",
+        "ai_game_player.observation_service",
         "ai_game_player.outcome",
         "ai_game_player.run_control",
         "ai_game_player.runtime",
         "ai_game_player.runtime.session_composition",
         "ai_game_player.runtime_log",
-        "ai_game_player.screen_capture",
         "ai_game_player.ui",
         "ai_game_player.ui.shell",
         "ai_game_player.window_selector"
@@ -1819,14 +1818,34 @@
           "line": 11,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.application_workflow"
+          ],
+          "module": "ai_game_player.application_workflow",
+          "names": [
+            {
+              "alias": null,
+              "name": "ApplicationSettings"
+            },
+            {
+              "alias": null,
+              "name": "ApplicationWorkflowService"
+            },
+            {
+              "alias": null,
+              "name": "MemorySource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.config"
           ],
           "module": "ai_game_player.config",
           "names": [
-            {
-              "alias": null,
-              "name": "AppConfig"
-            },
             {
               "alias": null,
               "name": "ConfigStore"
@@ -1836,7 +1855,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.execution_mode"
@@ -1852,7 +1871,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.metrics"
@@ -1868,7 +1887,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -1884,7 +1903,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 20,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_session"
@@ -1920,33 +1939,13 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.ocr_recognizer"
-          ],
-          "module": "ai_game_player.ocr_recognizer",
-          "names": [
-            {
-              "alias": null,
-              "name": "TesseractOcrRecognizer"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 17,
+          "line": 21,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
           "names": [
-            {
-              "alias": null,
-              "name": "ActionCandidate"
-            },
             {
               "alias": null,
               "name": "ActionDecision"
@@ -1960,7 +1959,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.observation_service"
+          ],
+          "module": "ai_game_player.observation_service",
+          "names": [
+            {
+              "alias": null,
+              "name": "LiveObservationService"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -1971,17 +1986,13 @@
             {
               "alias": null,
               "name": "RuntimeComposition"
-            },
-            {
-              "alias": null,
-              "name": "SessionRuntimeConfiguration"
             }
           ]
         },
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 24,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime_log"
@@ -1997,7 +2008,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 25,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -2013,7 +2024,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 26,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.window_selector"
@@ -2029,23 +2040,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.screen_capture"
-          ],
-          "module": "ai_game_player.screen_capture",
-          "names": [
-            {
-              "alias": null,
-              "name": "WindowsScreenCapture"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 23,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ui",
@@ -2066,148 +2061,15 @@
               "name": "ShellStateStore"
             }
           ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 400,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.frame_analyzer"
-          ],
-          "module": "ai_game_player.frame_analyzer",
-          "names": [
-            {
-              "alias": null,
-              "name": "FrameAnalyzer"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 638,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.frame_analyzer"
-          ],
-          "module": "ai_game_player.frame_analyzer",
-          "names": [
-            {
-              "alias": null,
-              "name": "FrameAnalyzer"
-            }
-          ]
         }
       ],
       "module": "ai_game_player.app",
       "path": "src/ai_game_player/app.py",
       "source_location": {
-        "end_line": 1107,
+        "end_line": 1117,
         "start_line": 1
       },
       "symbols": [
-        {
-          "bases": [],
-          "data_model": {
-            "dataclass": false,
-            "enum": false,
-            "protocol": false
-          },
-          "decorators": [],
-          "kind": "class",
-          "name": "MemorySource",
-          "parameters": [],
-          "qualified_name": "MemorySource",
-          "return_annotation": null,
-          "signature": null,
-          "source_location": {
-            "column": 0,
-            "end_line": 59,
-            "start_line": 37
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "__init__",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "MemorySource.__init__",
-          "return_annotation": "None",
-          "signature": "(self) -> None",
-          "source_location": {
-            "column": 4,
-            "end_line": 44,
-            "start_line": 42
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "update",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            },
-            {
-              "annotation": "ScreenObservation",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "observation"
-            },
-            {
-              "annotation": "list[ActionCandidate]",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "candidates"
-            }
-          ],
-          "qualified_name": "MemorySource.update",
-          "return_annotation": "None",
-          "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None",
-          "source_location": {
-            "column": 4,
-            "end_line": 54,
-            "start_line": 52
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "read",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "MemorySource.read",
-          "return_annotation": "tuple[ScreenObservation, list[ActionCandidate]]",
-          "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
-          "source_location": {
-            "column": 4,
-            "end_line": 59,
-            "start_line": 56
-          }
-        },
         {
           "bases": [],
           "data_model": {
@@ -2224,8 +2086,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 86,
-            "start_line": 62
+            "end_line": 65,
+            "start_line": 41
           }
         },
         {
@@ -2253,8 +2115,8 @@
           "signature": "(self, root: tk.Misc) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 67
+            "end_line": 47,
+            "start_line": 46
           }
         },
         {
@@ -2288,8 +2150,8 @@
           "signature": "(self, delay_ms: int, callback) -> object",
           "source_location": {
             "column": 4,
-            "end_line": 77,
-            "start_line": 76
+            "end_line": 56,
+            "start_line": 55
           }
         },
         {
@@ -2317,8 +2179,8 @@
           "signature": "(self, token: object) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 85
+            "end_line": 65,
+            "start_line": 64
           }
         },
         {
@@ -2337,8 +2199,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1097,
-            "start_line": 108
+            "end_line": 1107,
+            "start_line": 87
           }
         },
         {
@@ -2365,15 +2227,21 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "runtime_composition"
+            },
+            {
+              "annotation": "LiveObservationService | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "observation_service"
             }
           ],
           "qualified_name": "Application.__init__",
           "return_annotation": "None",
-          "signature": "(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = …) -> None",
+          "signature": "(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = …, observation_service: LiveObservationService | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 241,
-            "start_line": 126
+            "end_line": 231,
+            "start_line": 106
           }
         },
         {
@@ -2401,8 +2269,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 243
+            "end_line": 237,
+            "start_line": 233
           }
         },
         {
@@ -2430,8 +2298,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 251,
-            "start_line": 249
+            "end_line": 241,
+            "start_line": 239
           }
         },
         {
@@ -2453,8 +2321,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 257,
-            "start_line": 253
+            "end_line": 247,
+            "start_line": 243
           }
         },
         {
@@ -2476,8 +2344,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 269,
-            "start_line": 265
+            "end_line": 259,
+            "start_line": 255
           }
         },
         {
@@ -2499,8 +2367,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 285,
-            "start_line": 277
+            "end_line": 275,
+            "start_line": 267
           }
         },
         {
@@ -2522,8 +2390,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 308,
-            "start_line": 293
+            "end_line": 298,
+            "start_line": 283
           }
         },
         {
@@ -2563,8 +2431,8 @@
           "signature": "(self, observation: ScreenObservation, assessment: OutcomeAssessment, run_token: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 323,
-            "start_line": 316
+            "end_line": 313,
+            "start_line": 306
           }
         },
         {
@@ -2592,8 +2460,8 @@
           "signature": "(self, error: Exception | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 334,
-            "start_line": 331
+            "end_line": 324,
+            "start_line": 321
           }
         },
         {
@@ -2615,8 +2483,8 @@
           "signature": "(self) -> SessionRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 360,
-            "start_line": 342
+            "end_line": 344,
+            "start_line": 332
           }
         },
         {
@@ -2650,8 +2518,8 @@
           "signature": "(self, runtime: SessionRuntime, command: str) -> SessionStep",
           "source_location": {
             "column": 4,
-            "end_line": 389,
-            "start_line": 368
+            "end_line": 373,
+            "start_line": 352
           }
         },
         {
@@ -2673,8 +2541,8 @@
           "signature": "(self) -> LoopObservation",
           "source_location": {
             "column": 4,
-            "end_line": 417,
-            "start_line": 397
+            "end_line": 398,
+            "start_line": 381
           }
         },
         {
@@ -2702,8 +2570,8 @@
           "signature": "(self, snapshot: SessionSnapshot) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 437,
-            "start_line": 425
+            "end_line": 418,
+            "start_line": 406
           }
         },
         {
@@ -2731,8 +2599,8 @@
           "signature": "(self, error: Exception) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 448,
-            "start_line": 445
+            "end_line": 429,
+            "start_line": 426
           }
         },
         {
@@ -2754,8 +2622,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 465,
-            "start_line": 456
+            "end_line": 446,
+            "start_line": 437
           }
         },
         {
@@ -2777,8 +2645,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 499,
-            "start_line": 482
+            "end_line": 480,
+            "start_line": 463
           }
         },
         {
@@ -2800,8 +2668,8 @@
           "signature": "(self) -> tuple[int, int] | None",
           "source_location": {
             "column": 4,
-            "end_line": 507,
-            "start_line": 501
+            "end_line": 488,
+            "start_line": 482
           }
         },
         {
@@ -2835,8 +2703,8 @@
           "signature": "(self, position: tuple[int, int] | None, move_in_progress: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 522,
-            "start_line": 515
+            "end_line": 503,
+            "start_line": 496
           }
         },
         {
@@ -2858,8 +2726,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 557,
-            "start_line": 530
+            "end_line": 538,
+            "start_line": 511
           }
         },
         {
@@ -2881,8 +2749,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 566,
-            "start_line": 559
+            "end_line": 547,
+            "start_line": 540
           }
         },
         {
@@ -2904,8 +2772,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 576,
-            "start_line": 568
+            "end_line": 557,
+            "start_line": 549
           }
         },
         {
@@ -2927,8 +2795,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 603,
-            "start_line": 593
+            "end_line": 584,
+            "start_line": 574
           }
         },
         {
@@ -2980,8 +2848,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 628,
-            "start_line": 611
+            "end_line": 609,
+            "start_line": 592
           }
         },
         {
@@ -3009,8 +2877,8 @@
           "signature": "(self, *, loop_step: bool = …) -> ScreenObservation | None",
           "source_location": {
             "column": 4,
-            "end_line": 650,
-            "start_line": 636
+            "end_line": 630,
+            "start_line": 617
           }
         },
         {
@@ -3050,8 +2918,8 @@
           "signature": "(self, observation: ScreenObservation, *, loop_step: bool, run_token: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 689,
-            "start_line": 658
+            "end_line": 669,
+            "start_line": 638
           }
         },
         {
@@ -3121,8 +2989,8 @@
           "signature": "(self, task_id: int, run_token: int | None, loop_step: bool, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 714,
-            "start_line": 697
+            "end_line": 694,
+            "start_line": 677
           }
         },
         {
@@ -3186,8 +3054,8 @@
           "signature": "(self, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 756,
-            "start_line": 722
+            "end_line": 736,
+            "start_line": 702
           }
         },
         {
@@ -3257,8 +3125,8 @@
           "signature": "(self, task_id: int, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 803,
-            "start_line": 764
+            "end_line": 783,
+            "start_line": 744
           }
         },
         {
@@ -3286,8 +3154,8 @@
           "signature": "(self, run_token: int | None) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 812,
-            "start_line": 811
+            "end_line": 792,
+            "start_line": 791
           }
         },
         {
@@ -3309,8 +3177,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 921,
-            "start_line": 820
+            "end_line": 901,
+            "start_line": 800
           }
         },
         {
@@ -3332,8 +3200,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 982,
-            "start_line": 936
+            "end_line": 965,
+            "start_line": 916
           }
         },
         {
@@ -3355,8 +3223,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1011,
-            "start_line": 990
+            "end_line": 994,
+            "start_line": 973
           }
         },
         {
@@ -3384,8 +3252,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1027,
-            "start_line": 1019
+            "end_line": 1010,
+            "start_line": 1002
           }
         },
         {
@@ -3407,8 +3275,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1036,
-            "start_line": 1035
+            "end_line": 1019,
+            "start_line": 1018
           }
         },
         {
@@ -3430,8 +3298,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1045,
-            "start_line": 1044
+            "end_line": 1028,
+            "start_line": 1027
           }
         },
         {
@@ -3459,8 +3327,60 @@
           "signature": "(self, command: str) -> bool",
           "source_location": {
             "column": 4,
+            "end_line": 1068,
+            "start_line": 1036
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_application_settings",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Application._application_settings",
+          "return_annotation": "ApplicationSettings",
+          "signature": "(self) -> ApplicationSettings",
+          "source_location": {
+            "column": 4,
             "end_line": 1085,
-            "start_line": 1053
+            "start_line": 1076
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_display_step_evaluation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[dict[str, object]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evaluation"
+            }
+          ],
+          "qualified_name": "Application._display_step_evaluation",
+          "return_annotation": "None",
+          "signature": "(self, evaluation: list[dict[str, object]]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1095,
+            "start_line": 1093
           }
         },
         {
@@ -3482,8 +3402,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1097,
-            "start_line": 1093
+            "end_line": 1107,
+            "start_line": 1103
           }
         },
         {
@@ -3498,8 +3418,700 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 1103,
-            "start_line": 1100
+            "end_line": 1113,
+            "start_line": 1110
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.config",
+        "ai_game_player.game_session",
+        "ai_game_player.models",
+        "ai_game_player.outcome",
+        "ai_game_player.run_control",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.session_composition",
+        "ai_game_player.runtime_log"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.config"
+          ],
+          "module": "ai_game_player.config",
+          "names": [
+            {
+              "alias": null,
+              "name": "AppConfig"
+            },
+            {
+              "alias": null,
+              "name": "ConfigStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_session"
+          ],
+          "module": "ai_game_player.game_session",
+          "names": [
+            {
+              "alias": null,
+              "name": "SessionRuntime"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.outcome"
+          ],
+          "module": "ai_game_player.outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "OutcomeAssessment"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.session_composition"
+          ],
+          "module": "ai_game_player.runtime.session_composition",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeComposition"
+            },
+            {
+              "alias": null,
+              "name": "SessionRuntimeConfiguration"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_log"
+          ],
+          "module": "ai_game_player.runtime_log",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeLog"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "RunController"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.application_workflow",
+      "path": "src/ai_game_player/application_workflow.py",
+      "source_location": {
+        "end_line": 249,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MemorySource",
+          "parameters": [],
+          "qualified_name": "MemorySource",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MemorySource.__init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "update",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ScreenObservation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": "list[ActionCandidate]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            }
+          ],
+          "qualified_name": "MemorySource.update",
+          "return_annotation": "None",
+          "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MemorySource.read",
+          "return_annotation": "tuple[ScreenObservation, list[ActionCandidate]]",
+          "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "ApplicationSettings",
+          "parameters": [],
+          "qualified_name": "ApplicationSettings",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 65,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PreparedObservation",
+          "parameters": [],
+          "qualified_name": "PreparedObservation",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 76,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PreparedSessionStep",
+          "parameters": [],
+          "qualified_name": "PreparedSessionStep",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 88,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ApplicationWorkflowService",
+          "parameters": [],
+          "qualified_name": "ApplicationWorkflowService",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 249,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ConfigStore",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config_store"
+            },
+            {
+              "annotation": "RuntimeComposition",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime_composition"
+            },
+            {
+              "annotation": "MemorySource",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "memory_source"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.__init__",
+          "return_annotation": "None",
+          "signature": "(self, config_store: ConfigStore, runtime_composition: RuntimeComposition, memory_source: MemorySource) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 110,
+            "start_line": 102
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "assess_outcome",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider_name"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "model"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "endpoint"
+            },
+            {
+              "annotation": "ScreenObservation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": "ScreenObservation | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "previous"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.assess_outcome",
+          "return_annotation": "OutcomeAssessment",
+          "signature": "(self, provider_name: str, model: str, endpoint: str, observation: ScreenObservation, previous: ScreenObservation | None) -> OutcomeAssessment",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "assess_locally",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ScreenObservation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.assess_locally",
+          "return_annotation": "OutcomeAssessment",
+          "signature": "(self, observation: ScreenObservation) -> OutcomeAssessment",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "list_models",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "endpoint"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.list_models",
+          "return_annotation": "list[str]",
+          "signature": "(self, endpoint: str) -> list[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "create_session_runtime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ApplicationSettings",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "settings"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "game_directory"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "dry_run"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "window_handle"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "window_process_id"
+            },
+            {
+              "annotation": "RunController",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "controller"
+            },
+            {
+              "annotation": "Callable[[tuple[int, int] | None, bool], None]",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "cursor_callback"
+            },
+            {
+              "annotation": "RuntimeLog",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "runtime_log"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.create_session_runtime",
+          "return_annotation": "SessionRuntime",
+          "signature": "(self, settings: ApplicationSettings, *, game_directory: Path, dry_run: bool, window_handle: int | None, window_process_id: int | None, controller: RunController, cursor_callback: Callable[[tuple[int, int] | None, bool], None], runtime_log: RuntimeLog) -> SessionRuntime",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "prepare_step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ApplicationSettings",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "settings"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation_json"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates_json"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "command"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.prepare_step",
+          "return_annotation": "PreparedSessionStep",
+          "signature": "(self, settings: ApplicationSettings, observation_json: str, candidates_json: str, command: str) -> PreparedSessionStep",
+          "source_location": {
+            "column": 4,
+            "end_line": 225,
+            "start_line": 197
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "update_observation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ScreenObservation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates_json"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowService.update_observation",
+          "return_annotation": "PreparedObservation",
+          "signature": "(self, observation: ScreenObservation, candidates_json: str) -> PreparedObservation",
+          "source_location": {
+            "column": 4,
+            "end_line": 249,
+            "start_line": 234
           }
         }
       ]
@@ -21492,6 +22104,385 @@
             "column": 4,
             "end_line": 138,
             "start_line": 137
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.frame_analyzer",
+        "ai_game_player.models",
+        "ai_game_player.ocr_recognizer",
+        "ai_game_player.screen_capture"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Protocol"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            },
+            {
+              "alias": null,
+              "name": "WindowsScreenCapture"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 91,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_analyzer"
+          ],
+          "module": "ai_game_player.frame_analyzer",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameAnalyzer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 103,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ocr_recognizer"
+          ],
+          "module": "ai_game_player.ocr_recognizer",
+          "names": [
+            {
+              "alias": null,
+              "name": "TesseractOcrRecognizer"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.observation_service",
+      "path": "src/ai_game_player/observation_service.py",
+      "source_location": {
+        "end_line": 105,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FrameAnalyzerFactory",
+          "parameters": [],
+          "qualified_name": "FrameAnalyzerFactory",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 18,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "object | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr_recognizer"
+            }
+          ],
+          "qualified_name": "FrameAnalyzerFactory.__call__",
+          "return_annotation": "REDACTED",
+          "signature": "(self, ocr_recognizer: object | None) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 18,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FrameAnalyzer",
+          "parameters": [],
+          "qualified_name": "FrameAnalyzer",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 31,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "analyze",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ScreenFrame",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "screen_id"
+            }
+          ],
+          "qualified_name": "FrameAnalyzer.analyze",
+          "return_annotation": "ScreenObservation",
+          "signature": "(self, frame: ScreenFrame, screen_id: str) -> ScreenObservation",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 31
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LiveObservationService",
+          "parameters": [],
+          "qualified_name": "LiveObservationService",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int | None], ScreenFrame] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "capture_frame"
+            },
+            {
+              "annotation": "Callable[[object | None], FrameAnalyzer] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "analyzer_factory"
+            },
+            {
+              "annotation": "Callable[[], object | None] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "ocr_factory"
+            }
+          ],
+          "qualified_name": "LiveObservationService.__init__",
+          "return_annotation": "None",
+          "signature": "(self, capture_frame: Callable[[int | None], ScreenFrame] | None = …, analyzer_factory: Callable[[object | None], FrameAnalyzer] | None = …, ocr_factory: Callable[[], object | None] | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 59,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture_observation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "LiveObservationService.capture_observation",
+          "return_annotation": "ScreenObservation",
+          "signature": "(self, window_handle: int | None) -> ScreenObservation",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_capture_windows_frame",
+          "parameters": [
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "LiveObservationService._capture_windows_frame",
+          "return_annotation": "ScreenFrame",
+          "signature": "(window_handle: int | None) -> ScreenFrame",
+          "source_location": {
+            "column": 4,
+            "end_line": 81,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_create_frame_analyzer",
+          "parameters": [
+            {
+              "annotation": "object | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr_recognizer"
+            }
+          ],
+          "qualified_name": "LiveObservationService._create_frame_analyzer",
+          "return_annotation": "FrameAnalyzer",
+          "signature": "(ocr_recognizer: object | None) -> FrameAnalyzer",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_create_ocr_recognizer",
+          "parameters": [],
+          "qualified_name": "LiveObservationService._create_ocr_recognizer",
+          "return_annotation": "object | None",
+          "signature": "() -> object | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 102
           }
         }
       ]
@@ -40165,6 +41156,448 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.application_workflow",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.application_workflow"
+          ],
+          "module": "ai_game_player.application_workflow",
+          "names": [
+            {
+              "alias": null,
+              "name": "ApplicationSettings"
+            },
+            {
+              "alias": null,
+              "name": "ApplicationWorkflowService"
+            },
+            {
+              "alias": null,
+              "name": "MemorySource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_application_workflow",
+      "path": "tests/test_application_workflow.py",
+      "source_location": {
+        "end_line": 149,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeConfigStore",
+          "parameters": [],
+          "qualified_name": "FakeConfigStore",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 19,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeConfigStore.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 16,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "save",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            }
+          ],
+          "qualified_name": "FakeConfigStore.save",
+          "return_annotation": null,
+          "signature": "(self, config)",
+          "source_location": {
+            "column": 4,
+            "end_line": 19,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeRuntimeComposition",
+          "parameters": [],
+          "qualified_name": "FakeRuntimeComposition",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 29,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeRuntimeComposition.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 24,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "explain_actions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            }
+          ],
+          "qualified_name": "FakeRuntimeComposition.explain_actions",
+          "return_annotation": null,
+          "signature": "(self, observation, candidates)",
+          "source_location": {
+            "column": 4,
+            "end_line": 29,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ApplicationWorkflowServiceTests",
+          "parameters": [],
+          "qualified_name": "ApplicationWorkflowServiceTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 145,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 56,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_execute_saves_settings_evaluates_candidates_and_updates_pipeline_source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_execute_saves_settings_evaluates_candidates_and_updates_pipeline_source",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_session_runtime_uses_the_validated_source_and_explicit_target_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_session_runtime_uses_the_validated_source_and_explicit_target_snapshot",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "cursor_callback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "_arguments"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_session_runtime_uses_the_validated_source_and_explicit_target_snapshot.cursor_callback",
+          "return_annotation": null,
+          "signature": "(*_arguments)",
+          "source_location": {
+            "column": 8,
+            "end_line": 83,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_decision_and_disallowed_live_input_both_remain_dry_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_decision_and_disallowed_live_input_both_remain_dry_run",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 117,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_candidate_document_does_not_replace_the_previous_source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_invalid_candidate_document_does_not_replace_the_previous_source",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 134,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_command_is_rejected_before_settings_are_saved",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_unknown_command_is_rejected_before_settings_are_saved",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 145,
+            "start_line": 136
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store"
       ],
       "imports": [
@@ -52281,6 +53714,7 @@
         "ai_game_player",
         "ai_game_player.app",
         "ai_game_player.models",
+        "ai_game_player.observation_service",
         "ai_game_player.outcome",
         "ai_game_player.run_control"
       ],
@@ -52417,6 +53851,22 @@
           "line": 11,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.observation_service"
+          ],
+          "module": "ai_game_player.observation_service",
+          "names": [
+            {
+              "alias": null,
+              "name": "LiveObservationService"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.outcome"
           ],
           "module": "ai_game_player.outcome",
@@ -52430,7 +53880,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -52451,7 +53901,7 @@
       "module": "tests.test_live_execution_validation",
       "path": "tests/test_live_execution_validation.py",
       "source_location": {
-        "end_line": 589,
+        "end_line": 592,
         "start_line": 1
       },
       "symbols": [
@@ -52471,8 +53921,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 36,
-            "start_line": 19
+            "end_line": 37,
+            "start_line": 20
           }
         },
         {
@@ -52500,8 +53950,8 @@
           "signature": "(self, value)",
           "source_location": {
             "column": 4,
-            "end_line": 27,
-            "start_line": 26
+            "end_line": 28,
+            "start_line": 27
           }
         },
         {
@@ -52523,8 +53973,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 36,
-            "start_line": 35
+            "end_line": 37,
+            "start_line": 36
           }
         },
         {
@@ -52543,8 +53993,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 73,
-            "start_line": 43
+            "end_line": 74,
+            "start_line": 44
           }
         },
         {
@@ -52578,8 +54028,8 @@
           "signature": "(self, valid_handles, process_id = …)",
           "source_location": {
             "column": 4,
-            "end_line": 53,
-            "start_line": 50
+            "end_line": 54,
+            "start_line": 51
           }
         },
         {
@@ -52607,8 +54057,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 63,
-            "start_line": 61
+            "end_line": 64,
+            "start_line": 62
           }
         },
         {
@@ -52642,8 +54092,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 73,
-            "start_line": 71
+            "end_line": 74,
+            "start_line": 72
           }
         },
         {
@@ -52662,8 +54112,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 97,
-            "start_line": 80
+            "end_line": 98,
+            "start_line": 81
           }
         },
         {
@@ -52685,8 +54135,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 87
+            "end_line": 89,
+            "start_line": 88
           }
         },
         {
@@ -52714,8 +54164,8 @@
           "signature": "(self, *record)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 96
+            "end_line": 98,
+            "start_line": 97
           }
         },
         {
@@ -52736,8 +54186,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 585,
-            "start_line": 104
+            "end_line": 588,
+            "start_line": 105
           }
         },
         {
@@ -52777,8 +54227,8 @@
           "signature": "(self, *, live = …, mode = …, handles = …)",
           "source_location": {
             "column": 4,
-            "end_line": 120,
-            "start_line": 111
+            "end_line": 121,
+            "start_line": 112
           }
         },
         {
@@ -52800,8 +54250,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 128
+            "end_line": 134,
+            "start_line": 129
           }
         },
         {
@@ -52823,8 +54273,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 141
+            "end_line": 144,
+            "start_line": 142
           }
         },
         {
@@ -52846,8 +54296,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 151
+            "end_line": 185,
+            "start_line": 152
           }
         },
         {
@@ -52866,8 +54316,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 154,
-            "start_line": 152
+            "end_line": 155,
+            "start_line": 153
           }
         },
         {
@@ -52895,8 +54345,8 @@
           "signature": "(self, *_record)",
           "source_location": {
             "column": 12,
-            "end_line": 154,
-            "start_line": 153
+            "end_line": 155,
+            "start_line": 154
           }
         },
         {
@@ -52918,8 +54368,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 227,
-            "start_line": 192
+            "end_line": 230,
+            "start_line": 193
           }
         },
         {
@@ -52941,8 +54391,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 260,
-            "start_line": 235
+            "end_line": 263,
+            "start_line": 238
           }
         },
         {
@@ -52964,8 +54414,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 268
+            "end_line": 281,
+            "start_line": 271
           }
         },
         {
@@ -52987,8 +54437,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 296,
-            "start_line": 286
+            "end_line": 299,
+            "start_line": 289
           }
         },
         {
@@ -53010,8 +54460,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 304
+            "end_line": 316,
+            "start_line": 307
           }
         },
         {
@@ -53033,8 +54483,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 367,
-            "start_line": 321
+            "end_line": 370,
+            "start_line": 324
           }
         },
         {
@@ -53056,8 +54506,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 392,
-            "start_line": 375
+            "end_line": 395,
+            "start_line": 378
           }
         },
         {
@@ -53079,8 +54529,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 422,
-            "start_line": 394
+            "end_line": 425,
+            "start_line": 397
           }
         },
         {
@@ -53102,8 +54552,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 442,
-            "start_line": 424
+            "end_line": 445,
+            "start_line": 427
           }
         },
         {
@@ -53125,8 +54575,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 470,
-            "start_line": 444
+            "end_line": 473,
+            "start_line": 447
           }
         },
         {
@@ -53141,8 +54591,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 457,
-            "start_line": 456
+            "end_line": 460,
+            "start_line": 459
           }
         },
         {
@@ -53164,8 +54614,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 487,
-            "start_line": 472
+            "end_line": 490,
+            "start_line": 475
           }
         },
         {
@@ -53187,8 +54637,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 513,
-            "start_line": 495
+            "end_line": 516,
+            "start_line": 498
           }
         },
         {
@@ -53210,8 +54660,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 542,
-            "start_line": 515
+            "end_line": 545,
+            "start_line": 518
           }
         },
         {
@@ -53233,8 +54683,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 566,
-            "start_line": 550
+            "end_line": 569,
+            "start_line": 553
           }
         },
         {
@@ -53256,8 +54706,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 585,
-            "start_line": 574
+            "end_line": 588,
+            "start_line": 577
           }
         }
       ]
@@ -55202,6 +56652,166 @@
             "column": 4,
             "end_line": 604,
             "start_line": 597
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.models",
+        "ai_game_player.observation_service",
+        "ai_game_player.screen_capture"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.observation_service"
+          ],
+          "module": "ai_game_player.observation_service",
+          "names": [
+            {
+              "alias": null,
+              "name": "LiveObservationService"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_observation_service",
+      "path": "tests/test_observation_service.py",
+      "source_location": {
+        "end_line": 51,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LiveObservationServiceTests",
+          "parameters": [],
+          "qualified_name": "LiveObservationServiceTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 47,
+            "start_line": 9
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_and_analyzer_dependencies_receive_window_and_live_screen_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveObservationServiceTests.test_capture_and_analyzer_dependencies_receive_window_and_live_screen_id",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 35,
+            "start_line": 10
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_analyzer_failure_is_returned_to_the_caller",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveObservationServiceTests.test_analyzer_failure_is_returned_to_the_caller",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 47,
+            "start_line": 37
           }
         }
       ]

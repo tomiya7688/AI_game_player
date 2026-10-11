@@ -51,11 +51,6 @@ classDiagram
         +_append()
         +_read()
     }
-    class MemorySource {
-        +__init__()
-        +update()
-        +read()
-    }
     class TkAfterScheduler {
         +__init__()
         +schedule()
@@ -98,7 +93,29 @@ classDiagram
         +run_and_execute()
         +run()
         +_run_session_step()
+        +_application_settings()
+        +_display_step_evaluation()
         +close()
+    }
+    class MemorySource {
+        +__init__()
+        +update()
+        +read()
+    }
+    class ApplicationSettings {
+    }
+    class PreparedObservation {
+    }
+    class PreparedSessionStep {
+    }
+    class ApplicationWorkflowService {
+        +__init__()
+        +assess_outcome()
+        +assess_locally()
+        +list_models()
+        +create_session_runtime()
+        +prepare_step()
+        +update_observation()
     }
     ValueError <|-- ArtifactIntegrityError
     class ArtifactIntegrityError {
@@ -589,6 +606,21 @@ classDiagram
     }
     class ActionDecision {
         +to_dict()
+    }
+    Protocol <|-- FrameAnalyzerFactory
+    class FrameAnalyzerFactory {
+        +__call__()
+    }
+    Protocol <|-- FrameAnalyzer
+    class FrameAnalyzer {
+        +analyze()
+    }
+    class LiveObservationService {
+        +__init__()
+        +capture_observation()
+        +_capture_windows_frame()
+        +_create_frame_analyzer()
+        +_create_ocr_recognizer()
     }
     Protocol <|-- ObservationSource
     class ObservationSource {

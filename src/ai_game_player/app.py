@@ -8,18 +8,22 @@ from pathlib import Path
 from tkinter import messagebox, ttk
 
 from ai_game_player.action_executor import ExecutionResult
-from ai_game_player.config import AppConfig, ConfigStore
+from ai_game_player.application_workflow import (
+    ApplicationSettings,
+    ApplicationWorkflowService,
+    MemorySource,
+)
+from ai_game_player.config import ConfigStore
 from ai_game_player.execution_mode import execution_labels
 from ai_game_player.metrics import MetricsCalculator
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.game_session import GameSessionController, LoopObservation, SessionRuntime, SessionSnapshot, SessionStatus, SessionStep
-from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
-from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.runtime.session_composition import RuntimeComposition, SessionRuntimeConfiguration
+from ai_game_player.models import ActionDecision, ScreenObservation
+from ai_game_player.observation_service import LiveObservationService
+from ai_game_player.runtime.session_composition import RuntimeComposition
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
-from ai_game_player.screen_capture import WindowsScreenCapture
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 
 
@@ -32,31 +36,6 @@ GLOBAL_STOP_POLL_INTERVAL_MS = 100
 LOOP_STEP_DELAY_MS = 1000
 WINDOWS_F12_VIRTUAL_KEY_CODE = 0x7B
 WINDOWS_KEY_PRESSED_FLAG = 1
-
-
-class MemorySource:
-    # {
-    #   責務: [MemorySource: UIが更新した最新の画面観測と候補をsession中のPipelineへ渡す]
-    #   フィールド: [observation: 最新の画面観測, candidates: 同じ観測から得た操作候補]
-    # }
-    def __init__(self) -> None:
-        self.observation: ScreenObservation | None = None
-        self.candidates: list[ActionCandidate] = []
-
-    # {
-    #   責務: [update: 次のstepでPipelineが読む画面観測と候補を保存する]
-    #   処理: [観測と候補を同じ取得stepの組として差し替える]
-    #   引数: [observation: 操作判断の対象となる画面, candidates: 画面から抽出した候補]
-    #   戻り値: []
-    # }
-    def update(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None:
-        self.observation = observation
-        self.candidates = candidates
-
-    def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
-        if self.observation is None:
-            raise RuntimeError("画面観測をsessionへ登録してからPipelineを実行してください")
-        return self.observation, self.candidates
 
 
 class TkAfterScheduler:
@@ -120,16 +99,23 @@ class Application:
     #   引数: [
     #     root: Tkinterのルートウィンドウ
     #     runtime_composition: Provider・Evaluator・Pipelineを生成するcomposition root、未指定時は標準構成
+    #     observation_service: 画面をcapture・解析するservice、省略時はWindows向け標準構成
     #   ]
     #   戻り値: []
     # }
-    def __init__(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = None) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        runtime_composition: RuntimeComposition | None = None,
+        observation_service: LiveObservationService | None = None,
+    ) -> None:
         config_store = ConfigStore(Path("data/config.json"))
         config = config_store.load()
         self.root = root
-        self.runtime_composition = runtime_composition or RuntimeComposition()
+        runtime_composition = runtime_composition or RuntimeComposition()
         self.runtime_log = RuntimeLog()
-        self.memory_source = MemorySource()
+        memory_source = MemorySource()
+        self.observation_service = observation_service or LiveObservationService()
         self._session_dry_run = True
         self._last_session_mode: tuple[SessionStatus, bool] | None = None
         self._closing = False
@@ -163,7 +149,11 @@ class Application:
         self.purpose = tk.StringVar(value=config.purpose)
         self.live_execution = tk.BooleanVar(value=config.live_execution)
         self.input_mode = tk.StringVar(value=config.input_mode)
-        self.config_store = config_store
+        self.workflow_service = ApplicationWorkflowService(
+            config_store,
+            runtime_composition,
+            memory_source,
+        )
         settings = ttk.Frame(frame)
         settings.pack(fill=tk.X)
         ttk.Label(settings, text="Provider").pack(side=tk.LEFT)
@@ -341,21 +331,15 @@ class Application:
     # }
     def _create_session_runtime(self) -> SessionRuntime:
         self._validate_live_execution()
-        configuration = SessionRuntimeConfiguration(
-            provider_name=self.provider.get(),
-            model=self.model.get(),
-            endpoint=self.endpoint.get(),
+        selected_window = self.window_choice.get()
+        return self.workflow_service.create_session_runtime(
+            self._application_settings(),
             game_directory=Path("data/games/sandbox"),
             dry_run=self._session_dry_run,
-            window_handle=self.window_handles.get(self.window_choice.get()),
-            input_mode=self.input_mode.get(),
-            window_process_id=self.window_process_ids.get(self.window_choice.get()),
-        )
-        return self.runtime_composition.create_session_runtime(
-            configuration,
-            source=self.memory_source,
+            window_handle=self.window_handles.get(selected_window),
+            window_process_id=self.window_process_ids.get(selected_window),
             controller=self.controller,
-            automated_cursor_position_callback=self._record_automated_cursor_position,
+            cursor_callback=self._record_automated_cursor_position,
             runtime_log=self.runtime_log,
         )
 
@@ -397,11 +381,8 @@ class Application:
     def _observe_for_loop(self) -> LoopObservation:
         try:
             if os.name == "nt":
-                from ai_game_player.frame_analyzer import FrameAnalyzer
                 selected_handle = self.window_handles.get(self.window_choice.get())
-                observation = FrameAnalyzer(TesseractOcrRecognizer.optional()).analyze(
-                    WindowsScreenCapture().capture(selected_handle), "live"
-                )
+                observation = self.observation_service.capture_observation(selected_handle)
                 self.obs.delete("1.0", tk.END)
                 self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
             else:
@@ -558,7 +539,7 @@ class Application:
 
     def check_ollama(self) -> None:
         try:
-            models = self.runtime_composition.list_models(self.endpoint.get())
+            models = self.workflow_service.list_models(self.endpoint.get())
             self.model_combo["values"] = models
             self._set_status(f"Ollama接続OK: {len(models)}モデル")
         except Exception as exc:
@@ -567,7 +548,7 @@ class Application:
 
     def refresh_models(self) -> None:
         try:
-            models = self.runtime_composition.list_models(self.endpoint.get())
+            models = self.workflow_service.list_models(self.endpoint.get())
             self.model_combo["values"] = models
             if models and self.model.get() not in models:
                 self.model.set(models[0])
@@ -620,12 +601,12 @@ class Application:
             session = getattr(self, "session_controller", None)
             if session is not None and session.is_running:
                 return session.assess_outcome(observation, previous)
-            return self.runtime_composition.assess_outcome(
+            return self.workflow_service.assess_outcome(
                 provider_name, model, endpoint, observation, previous
             )
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "outcome_assessment"})
-            return self.runtime_composition.assess_locally(observation)
+            return self.workflow_service.assess_locally(observation)
 
     # {
     #   責務: [capture_screen: Windows画面を観測へ変換し評価をバックグラウンドへ渡す]
@@ -635,9 +616,8 @@ class Application:
     # }
     def capture_screen(self, *, loop_step: bool = False) -> ScreenObservation | None:
         try:
-            from ai_game_player.frame_analyzer import FrameAnalyzer
             selected_handle = self.window_handles.get(self.window_choice.get())
-            observation = FrameAnalyzer(TesseractOcrRecognizer.optional()).analyze(WindowsScreenCapture().capture(selected_handle), "live")
+            observation = self.observation_service.capture_observation(selected_handle)
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
@@ -858,11 +838,11 @@ class Application:
                 if loop_step:
                     if observation is not None:
                         try:
-                            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-                            self.memory_source.update(observation, candidates)
-                            evaluation = self.runtime_composition.explain_actions(observation, candidates)
-                            self.evaluation.delete("1.0", tk.END)
-                            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
+                            prepared_observation = self.workflow_service.update_observation(
+                                observation,
+                                self.actions.get("1.0", tk.END),
+                            )
+                            self._display_step_evaluation(prepared_observation.evaluation)
                         except Exception as exc:
                             self.stop(f"invalid_loop_candidates: {exc}")
                             continue
@@ -958,10 +938,13 @@ class Application:
             return
         try:
             self._validate_live_execution()
-            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            self.memory_source.update(observation, candidates)
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
+            prepared_step = self.workflow_service.prepare_step(
+                self._application_settings(),
+                self.obs.get("1.0", tk.END),
+                self.actions.get("1.0", tk.END),
+                "execute",
+            )
+            self._display_step_evaluation(prepared_step.evaluation)
         except ValueError as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
             messagebox.showerror("連続実行エラー", str(exc))
@@ -972,7 +955,7 @@ class Application:
             messagebox.showerror("連続実行エラー", str(exc))
             return
 
-        self._session_dry_run = not self.live_execution.get()
+        self._session_dry_run = prepared_step.dry_run
         self._record_automated_cursor_position(None, False)
         self._last_cursor_position = self._cursor_position()
         try:
@@ -1067,14 +1050,14 @@ class Application:
             return False
         try:
             self._validate_live_execution()
-            self.config_store.save(AppConfig(self.provider.get(), self.model.get(), self.endpoint.get(), self.personality.get(), self.purpose.get(), self.live_execution.get(), self.input_mode.get()))
-            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-            candidates = [ActionCandidate.from_dict(item) for item in json.loads(self.actions.get("1.0", tk.END))]
-            evaluation = self.runtime_composition.explain_actions(observation, candidates)
-            self.evaluation.delete("1.0", tk.END)
-            self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
-            self.memory_source.update(observation, candidates)
-            self._session_dry_run = command != "execute" or not self.live_execution.get()
+            prepared_step = self.workflow_service.prepare_step(
+                self._application_settings(),
+                self.obs.get("1.0", tk.END),
+                self.actions.get("1.0", tk.END),
+                command,
+            )
+            self._display_step_evaluation(prepared_step.evaluation)
+            self._session_dry_run = prepared_step.dry_run
             if self.session_controller.status is SessionStatus.RUNNING:
                 self.session_controller.stop("new_step_configuration")
             self.session_controller.step(command)
@@ -1083,6 +1066,33 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": command})
             messagebox.showerror("実行エラー" if command == "execute" else "判断エラー", str(exc))
             return False
+
+    # {
+    #   責務: [_application_settings: UI変数からstep開始時の設定snapshotを作る]
+    #   処理: [各Tk variableを一度読み、workflow serviceへUI objectを渡さない]
+    #   引数: []
+    #   戻り値: [ApplicationSettings: step開始時点で固定した利用者設定]
+    # }
+    def _application_settings(self) -> ApplicationSettings:
+        return ApplicationSettings(
+            provider=self.provider.get(),
+            model=self.model.get(),
+            endpoint=self.endpoint.get(),
+            personality=self.personality.get(),
+            purpose=self.purpose.get(),
+            live_execution=self.live_execution.get(),
+            input_mode=self.input_mode.get(),
+        )
+
+    # {
+    #   責務: [_display_step_evaluation: workflow serviceの候補評価結果を評価欄に表示する]
+    #   処理: [評価欄の旧JSONを置き換えて新しい候補理由を整形表示する]
+    #   引数: [evaluation: 操作候補ごとの許可状態と理由]
+    #   戻り値: []
+    # }
+    def _display_step_evaluation(self, evaluation: list[dict[str, object]]) -> None:
+        self.evaluation.delete("1.0", tk.END)
+        self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
 
     # {
     #   責務: [close: アプリ終了時にSessionを停止し、実行中workerの安全な終了を待つ]
