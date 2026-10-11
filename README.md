@@ -8,12 +8,27 @@
 画面キャプチャ → OCR/候補生成 → 安全評価 → Rule/Ollama判断 → 実行 → 結果評価 → 次の観測
 ```
 
-主要コードは `src/ai_game_player/` にあり、観測（capture/source）、評価（evaluator/outcome）、判断（provider/engine）、実行（action_executor/windows_input）、履歴・ログを分離しています。
+主要コードは [`src/ai_game_player/`](src/ai_game_player/) にあります。現在はroot package直下にmoduleが多いため、読む入口は [`src/ai_game_player/README.md`](src/ai_game_player/README.md) のSource Mapを参照してください。責務別subpackageへの段階移行はIssue #356で管理します。
 
 - [現在の機能と制約](key_info.md)
 - [クラス図](doc/class_diagram.mmd)
 - [シーケンス図](doc/sequence_diagram.mmd)
 - [評価指標](doc/評価指標機能説明書.md)
+
+## ソースコードを読む
+
+GitHub上から直接sourceへ移動できます。
+
+- [Python package: `src/ai_game_player/`](src/ai_game_player/)
+- [Python source map / 読む順序](src/ai_game_player/README.md)
+- [Application層](src/ai_game_player/applications/)
+- [Native Runtime境界](src/ai_game_player/runtime/)
+- [UI](src/ai_game_player/ui/)
+- [C++ Native Runtime](native/)
+- [Tests](tests/)
+- [Development tools](tools/)
+
+`src/ai_game_player/` 直下のflat module群は責務別packageへ段階移行します。新規コードは、既存の責務subpackageがある場合はrootへ増やさずそこへ配置する方針です。
 
 ## 現在できること
 
