@@ -8,6 +8,7 @@ from unittest.mock import patch
 from ai_game_player import app as app_module
 from ai_game_player.app import Application
 from ai_game_player.models import ScreenObservation
+from ai_game_player.observation_service import LiveObservationService
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.run_control import ExecutionCancelled, RunController
 
@@ -211,16 +212,18 @@ class LiveExecutionValidationTests(unittest.TestCase):
                 application._start_assessment_worker = lambda captured_observation, **options: started_assessments.append(
                     (captured_observation, options)
                 )
-
-                with (
-                    patch("ai_game_player.frame_analyzer.FrameAnalyzer") as analyzer_class,
-                    patch.object(app_module.WindowsScreenCapture, "capture", return_value=object()),
-                    patch.object(app_module.TesseractOcrRecognizer, "optional", return_value=None),
-                ):
-                    analyzer_class.return_value.analyze.return_value = observation
-                    captured_observation = application.capture_screen(loop_step=loop_step)
+                captured_frames = []
+                application.observation_service = LiveObservationService(
+                    capture_frame=lambda handle: captured_frames.append(handle) or object(),
+                    analyzer_factory=lambda _ocr: SimpleNamespace(
+                        analyze=lambda _frame, _screen_id: observation
+                    ),
+                    ocr_factory=lambda: None,
+                )
+                captured_observation = application.capture_screen(loop_step=loop_step)
 
                 self.assertIs(captured_observation, observation)
+                self.assertEqual(captured_frames, [None])
                 self.assertEqual(
                     started_assessments,
                     [(observation, {"loop_step": loop_step, "run_token": expected_token})],
