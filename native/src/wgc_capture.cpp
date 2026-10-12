@@ -128,6 +128,27 @@ GraphicsCaptureItem create_capture_item(HWND window) {
     return item;
 }
 
+// {
+//   責務: [query_wgc_support_once: WinRT factoryを初期化thread apartmentの終了後に再利用しないようOS対応判定を一度だけ行う]
+//   戻り値: [bool: Windows Graphics Captureを現在のOSが提供する場合はtrue]
+// }
+bool query_wgc_support_once() noexcept {
+    static std::once_flag support_query_once;
+    static bool is_supported = false;
+    try {
+        std::call_once(support_query_once, [] {
+            try {
+                is_supported = GraphicsCaptureSession::IsSupported();
+            } catch (...) {
+                is_supported = false;
+            }
+        });
+    } catch (...) {
+        return false;
+    }
+    return is_supported;
+}
+
 }  // namespace
 
 // {
@@ -410,12 +431,8 @@ int32_t kadoka_wgc_is_supported(uint32_t* out_supported) {
     if (FAILED(apartment.status())) {
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
-    try {
-        *out_supported = GraphicsCaptureSession::IsSupported() ? 1u : 0u;
-        return KADOKA_RUNTIME_STATUS_OK;
-    } catch (...) {
-        return KADOKA_RUNTIME_STATUS_OK;
-    }
+    *out_supported = query_wgc_support_once() ? 1u : 0u;
+    return KADOKA_RUNTIME_STATUS_OK;
 }
 
 // {
@@ -441,7 +458,7 @@ int32_t kadoka_wgc_open_window(
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
     try {
-        if (!GraphicsCaptureSession::IsSupported()) {
+        if (!query_wgc_support_once()) {
             return KADOKA_RUNTIME_STATUS_NOT_IMPLEMENTED;
         }
         auto session_state = std::make_shared<WgcSessionState>();
