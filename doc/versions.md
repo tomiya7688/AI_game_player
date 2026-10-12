@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #146: `LiveObservationService`がcaptureを直接実行する構造を、bounded latest queueを持つ`SharedFrameProducer`からObservation cadenceでsampleする構造へ変更。window変更時に未読の旧source frameを破棄し、freshness上限を超えたframeを拒否する。出力する`features.capture_metadata`にproducer-scoped frame ID、source世代、Event Journalと同じprocess-monotonic時計で表すcapture nanosecondsを含める。Application終了時にcapture producerを停止し、fake capture/analyzerによるstale・window変更・error・lifecycleのテストを追加。
+
 - Issue #142: Pythonのmodule/import/dependency/class/function/method/signature/data-model/source-locationを標準ASTから抽出するRepository Map Generatorとversion付きJSON Schemaを追加。include/exclude設定、出力先の上書き防止、platform-independent順序、PEP 263 encoding検出、decorator literal秘匿、atomic output、stale checkを提供し、本文・実行時挙動を推測せず`generated/repo_map.json`を生成する。
 
 - Issue #143: start_task.batが取得したIssue本文、Git statusの変更パス、Repository Mapを使い、関連module/symbolとtest候補を理由・ヒューリスティックconfidence付きで`.codex/next_issue.md`へ追加する。ファイル本文やdiff hunksは読まず、既存の文字数上限とIssue本文優先の切り詰め、必須`finish_task.bat`確認を維持する。

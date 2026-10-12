@@ -3,6 +3,9 @@
 ## できること
 
 - 起動済みWindowsウィンドウの取得・選択・範囲キャプチャ
+- 画面取得ボタンと連続実行は同じframe producerから画面を取得し、重複したWindows captureを行いません。
+- 追加consumerは同じframe列を購読できます。最新frame方式は未処理frameを新しいframeへ置き換え、順序保持方式は設定上限まで到着順を維持して、満杯時は新しいframeを破棄します。この購読契約自体は録画機能を実装しません。
+- 各Observationの`features.capture_metadata`にはframe IDとcapture時刻を記録します。capture時刻とSession Event Journalの時刻は、システム日時の変更で逆行しないprocess-monotonic時間源を使います。取得から既定1秒を超えたframeはObservation生成に使いません。
 - 任意のTesseract OCR/Automation候補の統合と安全評価
 - ローカル規則またはOllamaによる判断
 - 明示許可付きのWindowsクリック・キー入力

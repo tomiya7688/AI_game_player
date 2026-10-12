@@ -607,6 +607,10 @@ classDiagram
     class ActionDecision {
         +to_dict()
     }
+    class WindowCaptureSource {
+        +__init__()
+        +capture()
+    }
     Protocol <|-- FrameAnalyzerFactory
     class FrameAnalyzerFactory {
         +__call__()
@@ -618,6 +622,11 @@ classDiagram
     class LiveObservationService {
         +__init__()
         +capture_observation()
+        +subscribe_frames()
+        +_get_latest_frame_packet()
+        +_ensure_frame_producer()
+        +_stop_frame_producer()
+        +close()
         +_capture_windows_frame()
         +_create_frame_analyzer()
         +_create_ocr_recognizer()

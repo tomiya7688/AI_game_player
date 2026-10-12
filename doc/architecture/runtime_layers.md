@@ -37,7 +37,11 @@ The boundary is capability-based rather than language-based. A backend may provi
 
 ## Application workflow boundaries
 
-This section is for developers changing how the desktop UI captures a game screen, prepares a decision, or starts a session. Tkinter is Python's desktop UI toolkit. The `Application` class owns Tkinter controls, reads the current screen and candidate JSON fields, checks live-input permission, and displays results. The `Application` class delegates screen capture and frame analysis to `LiveObservationService`; that service returns a `ScreenObservation` and does not read or update Tkinter widgets.
+This section is for developers changing how the desktop UI captures a game screen, prepares a decision, or starts a session. Tkinter is Python's desktop UI toolkit. The `Application` class owns Tkinter controls, reads the current screen and candidate JSON fields, checks live-input permission, and displays results. The `Application` class delegates screen capture and frame analysis to `LiveObservationService`. The service owns one bounded latest-frame producer, so the capture button and continuous-session observer use the same OS capture stream.
+
+A preview or recorder can call `subscribe_frames()` to receive the producer's `FramePacket` values. Each `FramePacket` contains one captured frame, a frame ID, and the source generation; the source generation increases when the selected window changes. A latest-mode queue replaces an unread frame with the newest frame. An ordered-mode queue preserves arrival order up to its configured capacity and discards a new frame when the queue is full. The subscription API shares capture data; it does not implement video recording.
+
+`LiveObservationService` rejects a frame whose capture time is older than its configured freshness limit. The service stores the producer-scoped `frame_id`, `source_generation`, and capture `monotonic_ns` in `ScreenObservation.features.capture_metadata`. The service does not read or update Tkinter widgets.
 
 The `Application` class delegates provider, outcome, runtime-construction, settings-persistence, candidate-parsing, and candidate-evaluation work to `ApplicationWorkflowService`. The workflow service receives ordinary Python values and injected `ConfigStore`, `RuntimeComposition`, and `MemorySource` dependencies, so tests can exercise those operations without creating a Tk window. A `ScreenObservation` contains the screen ID, pixel dimensions, recognized text, and visual features. A successful candidate evaluation updates `MemorySource`; the next `SessionRuntime` reads the same observation and candidate list.
 
@@ -45,7 +49,7 @@ The capture button currently writes the returned `ScreenObservation` into the ed
 
 ```text
 Tkinter Application
-  -> LiveObservationService -> ScreenObservation
+  -> LiveObservationService -> SharedFrameProducer -> ScreenObservation.features.capture_metadata
   -> ApplicationWorkflowService -> ConfigStore / MemorySource / RuntimeComposition
   -> GameSessionController -> SessionRuntime
 ```

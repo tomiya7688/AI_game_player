@@ -15,6 +15,7 @@ class FakeSessionController:
     def __init__(self, is_running=True):
         self.is_running = is_running
         self.stop_reasons = []
+        self.has_pending_step = False
 
     def stop(self, reason):
         self.stop_reasons.append(reason)
@@ -26,6 +27,31 @@ class FakeRuntime:
 
     def run_and_execute(self, **_kwargs):
         self.execute_calls += 1
+
+
+class FakeObservationService:
+    def __init__(self):
+        self.close_calls = 0
+
+    def close(self):
+        self.close_calls += 1
+        return True
+
+
+class FakeRoot:
+    def __init__(self):
+        self.destroy_calls = 0
+
+    def destroy(self):
+        self.destroy_calls += 1
+
+
+class FakeRuntimeLog:
+    def __init__(self):
+        self.entries = []
+
+    def write(self, *entry):
+        self.entries.append(entry)
 
 
 class ApplicationSessionSafetyTests(unittest.TestCase):
@@ -55,6 +81,19 @@ class ApplicationSessionSafetyTests(unittest.TestCase):
 
         self.assertEqual(result.terminal_reason, "live execution permission revoked")
         self.assertEqual(runtime.execute_calls, 0)
+
+    def test_application_close_stops_observation_stream_before_destroying_ui(self):
+        app = object.__new__(Application)
+        app.session_controller = FakeSessionController()
+        app.observation_service = FakeObservationService()
+        app.runtime_log = FakeRuntimeLog()
+        app.root = FakeRoot()
+
+        app.close()
+
+        self.assertEqual(app.session_controller.stop_reasons, ["application_closed"])
+        self.assertEqual(app.observation_service.close_calls, 1)
+        self.assertEqual(app.root.destroy_calls, 1)
 
 
 if __name__ == "__main__":

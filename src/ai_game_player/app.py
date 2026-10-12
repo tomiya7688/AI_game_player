@@ -1095,14 +1095,21 @@ class Application:
         self.evaluation.insert("1.0", json.dumps(evaluation, ensure_ascii=False, indent=2))
 
     # {
-    #   責務: [close: アプリ終了時にSessionを停止し、実行中workerの安全な終了を待つ]
-    #   処理: [loopを停止し、pending stepがあれば結果pollerに終了後のroot破棄を任せる]
+    #   責務: [close: アプリ終了時にSessionと共有capture producerを停止し、実行中workerの終了を待つ]
+    #   処理: [loopとcapture serviceを停止し、pending stepがあれば結果pollerに終了後のroot破棄を任せる]
     #   引数: []
     #   戻り値: []
     # }
     def close(self) -> None:
         self._closing = True
         self.session_controller.stop("application_closed")
+        close_observation_service = getattr(self.observation_service, "close", None)
+        if callable(close_observation_service) and close_observation_service() is False:
+            self.runtime_log.write(
+                "error",
+                "画面capture producerは停止期限を超えたため、アプリ終了時点では未停止でした。",
+                {"operation": "close_observation_service"},
+            )
         if not self.session_controller.has_pending_step:
             self.root.destroy()
 
