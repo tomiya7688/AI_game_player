@@ -20,6 +20,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -294,10 +295,12 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
     //   戻り値: [unique_ptr<kadoka_wgc_frame>: callerがreleaseするtexture lease、timeout時はnull]
     // }
     std::unique_ptr<kadoka_wgc_frame> next_frame(uint32_t timeout_ms) {
+        std::fprintf(stderr, "WGC trace: next_frame entered\n");
         std::unique_lock capture_lock(capture_mutex, std::try_to_lock);
         if (!capture_lock.owns_lock()) {
             throw winrt::hresult_error(E_ILLEGAL_METHOD_CALL);
         }
+        std::fprintf(stderr, "WGC trace: capture lock acquired\n");
 
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
         uint64_t observed_generation = 0;
@@ -314,7 +317,9 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                 }
             }
 
+            std::fprintf(stderr, "WGC trace: waiting on event handle=%p timeout=%lu\n", frame_arrived_event, wait_timeout_ms);
             const DWORD wait_result = WaitForSingleObject(frame_arrived_event, wait_timeout_ms);
+            std::fprintf(stderr, "WGC trace: event wait result=%lu\n", wait_result);
             if (wait_result == WAIT_TIMEOUT) {
                 return nullptr;
             }
@@ -334,7 +339,9 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                 }
             }
 
+            std::fprintf(stderr, "WGC trace: trying next frame\n");
             auto captured_frame = frame_pool.TryGetNextFrame();
+            std::fprintf(stderr, "WGC trace: next frame available=%d\n", captured_frame ? 1 : 0);
             if (!captured_frame) {
                 continue;
             }
@@ -537,7 +544,9 @@ int32_t kadoka_wgc_next_frame(
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
     try {
+        std::fprintf(stderr, "WGC trace: C ABI calling next_frame\n");
         auto frame = session->state->next_frame(timeout_ms);
+        std::fprintf(stderr, "WGC trace: C ABI next_frame returned=%d\n", frame ? 1 : 0);
         if (!frame) {
             return KADOKA_RUNTIME_STATUS_TIMEOUT;
         }
