@@ -2,6 +2,8 @@ import ctypes
 import os
 from dataclasses import dataclass
 
+from ai_game_player.windows_abi import WINDOW_ENUM_CALLBACK, configure_user32_prototypes
+
 
 # {
 #   責務: [
@@ -56,8 +58,9 @@ class WindowsWindowSelector:
     #   ]
     #   処理: [
     #     1: Windows以外では明示的に失敗する
-    #     2: タイトル付きトップレベルウィンドウを列挙する
-    #     3: 各HWNDのプロセスIDを取得する
+#     2: user32の引数・戻り値をWindows ABIの型で宣言する
+#     3: BOOL callbackでタイトル付きトップレベルウィンドウを列挙する
+#     4: 各HWNDのプロセスIDを取得する
     #   ]
     #   引数: []
     #   戻り値: [
@@ -71,8 +74,8 @@ class WindowsWindowSelector:
         if os.name != "nt":
             raise RuntimeError("WindowsWindowSelector requires Windows")
         user32 = ctypes.windll.user32
+        configure_user32_prototypes(user32)
         windows: list[WindowInfo] = []
-        callback_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
 
         def callback(hwnd, _lparam):
             length = user32.GetWindowTextLengthW(hwnd)
@@ -84,5 +87,5 @@ class WindowsWindowSelector:
                     windows.append(WindowInfo(int(hwnd), buffer.value, int(process_id.value)))
             return True
 
-        user32.EnumWindows(callback_type(callback), 0)
+        user32.EnumWindows(WINDOW_ENUM_CALLBACK(callback), 0)
         return windows

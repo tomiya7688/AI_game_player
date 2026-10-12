@@ -2,7 +2,6 @@ import ctypes
 import os
 import time
 from dataclasses import dataclass, field, replace
-from ctypes import wintypes
 from collections.abc import Callable
 from typing import Any
 
@@ -12,6 +11,7 @@ from ai_game_player.capture_geometry import (
     crop_screen_frame,
 )
 from ai_game_player.capture_region import CaptureRegion, PixelRect
+from ai_game_player.windows_abi import configure_gdi32_prototypes, configure_user32_prototypes
 
 
 class BitmapInfoHeader(ctypes.Structure):
@@ -117,6 +117,7 @@ class WindowsScreenCapture:
 
     # {
     #   責務: [_capture_unrestricted: 指定HWNDまたはdesktopからROI適用前のBGRA frameをWGC/GDIで取得する]
+    #   処理: [user32/gdi32のWin32 prototypeを設定してからcaptureし、HWND・GDI handle・pointerをポインター幅で渡す]
     #   引数: [window_handle: 画素取得元のWindows HWND、省略時はdesktop, include_bounds: ROI座標変換に必要なscreen/window boundsをframeへ付けるか]
     #   戻り値: [ScreenFrame: screen_boundsとwindow capture時のwindow_boundsを保持するraw frame]
     #   エラー: [無効HWND・GDI失敗・capture area不正: frameを返さずcapture理由を送出]
@@ -133,47 +134,8 @@ class WindowsScreenCapture:
             raise RuntimeError("WindowsScreenCapture requires Windows")
         user32 = self._user32 or ctypes.windll.user32
         gdi32 = self._gdi32 or ctypes.windll.gdi32
-        if self._user32 is None:
-            user32.GetSystemMetrics.argtypes = [ctypes.c_int]
-            user32.GetSystemMetrics.restype = ctypes.c_int
-            user32.GetDC.argtypes = [wintypes.HWND]
-            user32.GetDC.restype = wintypes.HDC
-            user32.ReleaseDC.argtypes = [wintypes.HWND, wintypes.HDC]
-            user32.ReleaseDC.restype = ctypes.c_int
-            user32.GetDesktopWindow.restype = wintypes.HWND
-            user32.IsWindow.argtypes = [wintypes.HWND]
-            user32.IsWindow.restype = wintypes.BOOL
-            user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(ctypes.c_long * 4)]
-            user32.GetWindowRect.restype = wintypes.BOOL
-            user32.IsWindowVisible.argtypes = [wintypes.HWND]
-            user32.IsWindowVisible.restype = wintypes.BOOL
-            user32.IsIconic.argtypes = [wintypes.HWND]
-            user32.IsIconic.restype = wintypes.BOOL
-            user32.GetWindow.argtypes = [wintypes.HWND, wintypes.UINT]
-            user32.GetWindow.restype = wintypes.HWND
-            user32.SendMessageTimeoutW.argtypes = [
-                wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
-                wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t),
-            ]
-            user32.SendMessageTimeoutW.restype = ctypes.c_size_t
-            gdi32.CreateCompatibleDC.argtypes = [wintypes.HDC]
-            gdi32.CreateCompatibleDC.restype = wintypes.HDC
-            gdi32.SelectObject.argtypes = [wintypes.HDC, wintypes.HGDIOBJ]
-            gdi32.SelectObject.restype = wintypes.HGDIOBJ
-            gdi32.BitBlt.argtypes = [
-                wintypes.HDC, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
-                wintypes.HDC, ctypes.c_int, ctypes.c_int, wintypes.DWORD,
-            ]
-            gdi32.BitBlt.restype = wintypes.BOOL
-            gdi32.CreateDIBSection.argtypes = [
-                wintypes.HDC, ctypes.POINTER(BitmapInfo), wintypes.UINT,
-                ctypes.POINTER(ctypes.c_void_p), wintypes.HANDLE, wintypes.DWORD,
-            ]
-            gdi32.CreateDIBSection.restype = wintypes.HBITMAP
-            gdi32.DeleteObject.argtypes = [wintypes.HGDIOBJ]
-            gdi32.DeleteObject.restype = wintypes.BOOL
-            gdi32.DeleteDC.argtypes = [wintypes.HDC]
-            gdi32.DeleteDC.restype = wintypes.BOOL
+        configure_user32_prototypes(user32)
+        configure_gdi32_prototypes(gdi32, BitmapInfo)
         capture_window = window_handle is not None and window_handle != user32.GetDesktopWindow()
         window_bounds = None
         if capture_window:
@@ -287,6 +249,7 @@ class WindowsScreenCapture:
 
     # {
     #   責務: [_get_window_bounds: 有効な選択HWNDのscreen上の外枠矩形をWin32 APIから読む]
+    #   処理: [user32のHWNDとRECT pointer prototypeを設定し、GetWindowRectのBOOLを確認する]
     #   引数: [window_handle: 対象windowを識別するHWND]
     #   戻り値: [PixelRect: screen座標のwindow外枠]
     #   エラー: [Windows以外、HWND失効、GetWindowRect失敗、寸法不正: window対応ROIの座標変換を拒否]
@@ -295,11 +258,7 @@ class WindowsScreenCapture:
         if self._user32 is None and os.name != "nt":
             raise RuntimeError("WindowsScreenCapture requires Windows")
         user32 = self._user32 or ctypes.windll.user32
-        if self._user32 is None:
-            user32.IsWindow.argtypes = [wintypes.HWND]
-            user32.IsWindow.restype = wintypes.BOOL
-            user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(ctypes.c_long * 4)]
-            user32.GetWindowRect.restype = wintypes.BOOL
+        configure_user32_prototypes(user32)
         if not user32.IsWindow(window_handle):
             raise RuntimeError("Selected window handle is no longer valid")
         rect = (ctypes.c_long * 4)()
