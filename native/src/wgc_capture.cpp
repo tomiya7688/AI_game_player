@@ -22,7 +22,6 @@
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 #include <deque>
 #include <exception>
@@ -166,7 +165,7 @@ bool query_wgc_support_once() noexcept {
 
 // {
 //   責務: [kadoka_wgc_frame: 取得済みframeのmetadataと参照中Direct3D textureを保持する]
-//   フィールド: [texture: leaseが解放されるまで保持するBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime]
+//   フィールド: [texture: leaseが解放されるまで保持するBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime, copy_mutex: 同じdevice contextを使うlease間の共有lock]
 // }
 struct kadoka_wgc_frame {
     winrt::com_ptr<ID3D11Texture2D> texture;
@@ -174,18 +173,19 @@ struct kadoka_wgc_frame {
     uint32_t height = 0;
     uint64_t frame_id = 0;
     uint64_t timestamp_ns = 0;
-    std::mutex copy_mutex;
+    std::shared_ptr<std::mutex> copy_mutex;
 };
 
 // {
 //   責務: [WgcSessionState: 選択HWND用のWGC sessionを専用MTA threadで所有し、capture requestを直列化する]
-//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: 専用threadだけが使うWGC資源, worker_thread: MTA apartmentとWGC資源の寿命, pending_commands: capture threadへ渡す要求, next_frame_id: leaseへ割り当てる連番, close_requested: worker終了要求]
+//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: 専用threadだけが使うWGC資源, native_context_mutex: frame lease間で共有するD3D context lock, worker_thread: MTA apartmentとWGC資源の寿命, pending_commands: capture threadへ渡す要求, next_frame_id: leaseへ割り当てる連番, close_requested: worker終了要求]
 // }
 struct WgcSessionState {
     HWND window = nullptr;
     GraphicsCaptureItem capture_item{nullptr};
     IDirect3DDevice capture_device{nullptr};
     winrt::com_ptr<ID3D11Device> native_device;
+    std::shared_ptr<std::mutex> native_context_mutex = std::make_shared<std::mutex>();
     Direct3D11CaptureFramePool frame_pool{nullptr};
     GraphicsCaptureSession capture_session{nullptr};
     winrt::Windows::Graphics::SizeInt32 frame_pool_size{};
@@ -422,8 +422,6 @@ struct WgcSessionState {
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
                     std::numeric_limits<uint32_t>::max()) {
-                std::fprintf(stderr, "WGC trace: rejected content size %ldx%ld\n",
-                    static_cast<long>(content_size.Width), static_cast<long>(content_size.Height));
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
@@ -445,6 +443,7 @@ struct WgcSessionState {
             auto surface = captured_frame.Surface();
             auto surface_access = surface.as<Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>();
             auto frame_lease = std::make_unique<kadoka_wgc_frame>();
+            frame_lease->copy_mutex = native_context_mutex;
             winrt::check_hresult(surface_access->GetInterface(
                 __uuidof(ID3D11Texture2D),
                 frame_lease->texture.put_void()
@@ -454,13 +453,6 @@ struct WgcSessionState {
             if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
                 texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
                 texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
-                std::fprintf(stderr,
-                    "WGC trace: rejected texture format=%u size=%lux%lu content=%ldx%ld\n",
-                    static_cast<unsigned int>(texture_description.Format),
-                    static_cast<unsigned long>(texture_description.Width),
-                    static_cast<unsigned long>(texture_description.Height),
-                    static_cast<long>(content_size.Width),
-                    static_cast<long>(content_size.Height));
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
@@ -500,7 +492,10 @@ int32_t copy_frame_to_bgra(kadoka_wgc_frame& frame, uint8_t* output_bgra, uint64
         return KADOKA_RUNTIME_STATUS_BUFFER_TOO_SMALL;
     }
 
-    std::lock_guard copy_lock(frame.copy_mutex);
+    if (!frame.copy_mutex) {
+        return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
+    }
+    std::lock_guard copy_lock(*frame.copy_mutex);
     winrt::com_ptr<ID3D11Device> device;
     frame.texture->GetDevice(device.put());
     D3D11_TEXTURE2D_DESC staging_description{};
@@ -629,10 +624,6 @@ int32_t kadoka_wgc_next_frame(
         return KADOKA_RUNTIME_STATUS_OK;
     } catch (const std::bad_alloc&) {
         return KADOKA_RUNTIME_STATUS_ALLOCATION_FAILED;
-    } catch (const winrt::hresult_error& error) {
-        std::fprintf(stderr, "WGC trace: frame request failed with HRESULT 0x%08lx\n",
-            static_cast<unsigned long>(static_cast<uint32_t>(error.code())));
-        return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     } catch (...) {
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
@@ -664,7 +655,8 @@ int32_t kadoka_wgc_frame_get_info(const kadoka_wgc_frame* frame, kadoka_wgc_fram
 //   戻り値: [int32_t: copy結果のstatus code]
 // }
 int32_t kadoka_wgc_frame_copy_bgra(kadoka_wgc_frame* frame, uint8_t* output_bgra, uint64_t output_capacity) {
-    if (frame == nullptr || frame->texture == nullptr || frame->width == 0u || frame->height == 0u ||
+    if (frame == nullptr || frame->texture == nullptr || frame->copy_mutex == nullptr ||
+        frame->width == 0u || frame->height == 0u ||
         static_cast<uint64_t>(frame->width) * kBytesPerPixel >
             std::numeric_limits<uint64_t>::max() / frame->height) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
