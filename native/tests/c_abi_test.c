@@ -1,5 +1,7 @@
 #include "kadoka/runtime_api.h"
 
+#include <stdio.h>
+
 int main(void) {
     kadoka_runtime_options options = {sizeof(kadoka_runtime_options), KADOKA_RUNTIME_ABI_VERSION};
     kadoka_runtime_handle* runtime = 0;
@@ -24,16 +26,19 @@ int main(void) {
     if (kadoka_runtime_abi_version() != KADOKA_RUNTIME_ABI_VERSION) {
         return 1;
     }
+    fprintf(stderr, "C ABI stage: WGC support query\n");
     if (kadoka_wgc_is_supported(&wgc_supported) != KADOKA_RUNTIME_STATUS_OK || wgc_supported > 1u ||
         kadoka_wgc_is_supported(0) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT) {
         return 8;
     }
+    fprintf(stderr, "C ABI stage: null WGC close/release\n");
     if (kadoka_wgc_close(&wgc_session) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT ||
         kadoka_wgc_close(0) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT ||
         kadoka_wgc_frame_release(&wgc_frame) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT ||
         kadoka_wgc_frame_release(0) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT) {
         return 9;
     }
+    fprintf(stderr, "C ABI stage: WGC null checks passed\n");
     if (kadoka_runtime_init(&options, &runtime) != KADOKA_RUNTIME_STATUS_OK || runtime == 0) {
         return 2;
     }
@@ -41,6 +46,7 @@ int main(void) {
         (void)kadoka_runtime_shutdown(&runtime);
         return 3;
     }
+    fprintf(stderr, "C ABI stage: runtime query passed\n");
     if ((info.capabilities & (KADOKA_CAP_SAFETY | KADOKA_CAP_FAST_CV)) !=
         (KADOKA_CAP_SAFETY | KADOKA_CAP_FAST_CV)) {
         (void)kadoka_runtime_shutdown(&runtime);
@@ -60,6 +66,7 @@ int main(void) {
         (void)kadoka_runtime_shutdown(&runtime);
         return 7;
     }
+    fprintf(stderr, "C ABI stage: frame preprocessing passed\n");
     if (kadoka_runtime_shutdown(&runtime) != KADOKA_RUNTIME_STATUS_OK || runtime != 0) {
         return 5;
     }

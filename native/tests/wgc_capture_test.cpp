@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <vector>
 
 int main() {
@@ -27,6 +28,7 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 77;
     }
+    std::fprintf(stderr, "WGC stage: runtime support query passed\n");
 
     HWND target_window = CreateWindowExW(
         0u,
@@ -48,6 +50,7 @@ int main() {
     }
     ShowWindow(target_window, SW_SHOWNOACTIVATE);
     UpdateWindow(target_window);
+    std::fprintf(stderr, "WGC stage: test window created\n");
 
     kadoka_wgc_session* session = nullptr;
     if (kadoka_wgc_open_window(
@@ -59,6 +62,7 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 4;
     }
+    std::fprintf(stderr, "WGC stage: capture session opened\n");
 
     kadoka_wgc_frame* first_frame = nullptr;
     if (kadoka_wgc_next_frame(session, 5000u, &first_frame) != KADOKA_RUNTIME_STATUS_OK || first_frame == nullptr) {
@@ -67,6 +71,7 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 5;
     }
+    std::fprintf(stderr, "WGC stage: first frame arrived\n");
     kadoka_wgc_frame_info first_info{};
     first_info.struct_size = sizeof(first_info);
     if (kadoka_wgc_frame_get_info(first_frame, &first_info) != KADOKA_RUNTIME_STATUS_OK ||
@@ -93,6 +98,7 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 8;
     }
+    std::fprintf(stderr, "WGC stage: first frame copied and released\n");
 
     if (!SetWindowPos(target_window, nullptr, 20, 20, 260, 160, SWP_NOACTIVATE | SWP_NOZORDER)) {
         kadoka_wgc_close(&session);
@@ -126,6 +132,7 @@ int main() {
         }
     }
     kadoka_wgc_close(&session);
+    std::fprintf(stderr, "WGC stage: capture session closed\n");
     const bool window_destroyed = DestroyWindow(target_window) != 0;
     const bool runtime_closed = kadoka_runtime_shutdown(&runtime) == KADOKA_RUNTIME_STATUS_OK && runtime == nullptr;
     assert(resize_succeeded);

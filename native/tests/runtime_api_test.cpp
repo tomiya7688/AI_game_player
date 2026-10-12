@@ -186,7 +186,11 @@ int main() {
     assert(info.abi_version == KADOKA_RUNTIME_ABI_VERSION);
     assert((info.capabilities & KADOKA_CAP_SAFETY) != 0u);
     assert((info.capabilities & KADOKA_CAP_FAST_CV) != 0u);
-    assert(info.capabilities == (KADOKA_CAP_SAFETY | KADOKA_CAP_FAST_CV));
+    uint32_t capture_supported = 0u;
+    assert(kadoka_wgc_is_supported(&capture_supported) == KADOKA_RUNTIME_STATUS_OK);
+    const uint64_t expected_capabilities = KADOKA_CAP_SAFETY | KADOKA_CAP_FAST_CV |
+        (capture_supported == 1u ? KADOKA_CAP_CAPTURE : 0u);
+    assert(info.capabilities == expected_capabilities);
     struct ExtendedInfo {
         kadoka_runtime_info base;
         uint64_t extension;
