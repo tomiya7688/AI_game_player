@@ -422,6 +422,8 @@ struct WgcSessionState {
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
                     std::numeric_limits<uint32_t>::max()) {
+                std::fprintf(stderr, "WGC trace: rejected content size %ldx%ld\n",
+                    static_cast<long>(content_size.Width), static_cast<long>(content_size.Height));
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
@@ -438,6 +440,13 @@ struct WgcSessionState {
             if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
                 texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
                 texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
+                std::fprintf(stderr,
+                    "WGC trace: rejected texture format=%u size=%lux%lu content=%ldx%ld\n",
+                    static_cast<unsigned int>(texture_description.Format),
+                    static_cast<unsigned long>(texture_description.Width),
+                    static_cast<unsigned long>(texture_description.Height),
+                    static_cast<long>(content_size.Width),
+                    static_cast<long>(content_size.Height));
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
@@ -454,6 +463,8 @@ struct WgcSessionState {
             captured_frame.Close();
 
             if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
+                std::fprintf(stderr, "WGC trace: recreating pool %dx%d -> %dx%d\n",
+                    frame_pool_size.Width, frame_pool_size.Height, content_size.Width, content_size.Height);
                 frame_pool_size = content_size;
                 frame_pool.Recreate(
                     capture_device,
