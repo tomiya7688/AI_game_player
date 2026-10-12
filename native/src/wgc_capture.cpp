@@ -21,6 +21,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -254,18 +255,27 @@ struct WgcSessionState {
     //   戻り値: [unique_ptr<kadoka_wgc_frame>: callerがreleaseするtexture lease、timeout時はnull]
     // }
     std::unique_ptr<kadoka_wgc_frame> next_frame(uint32_t timeout_ms) {
+        std::fprintf(stderr, "WGC trace: polling started\n");
         std::unique_lock capture_lock(capture_mutex, std::try_to_lock);
         if (!capture_lock.owns_lock()) {
             throw winrt::hresult_error(E_ILLEGAL_METHOD_CALL);
         }
 
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
+        uint32_t poll_attempt = 0;
         while (std::chrono::steady_clock::now() < deadline) {
             if (is_closed.load()) {
                 return nullptr;
             }
 
+            const bool log_poll = poll_attempt++ % 20u == 0u;
+            if (log_poll) {
+                std::fprintf(stderr, "WGC trace: TryGetNextFrame begin\n");
+            }
             auto captured_frame = frame_pool.TryGetNextFrame();
+            if (log_poll) {
+                std::fprintf(stderr, "WGC trace: TryGetNextFrame end available=%d\n", captured_frame ? 1 : 0);
+            }
             if (is_closed.load()) {
                 if (captured_frame) {
                     captured_frame.Close();
@@ -282,12 +292,14 @@ struct WgcSessionState {
                 }
                 continue;
             }
+            std::fprintf(stderr, "WGC trace: frame received\n");
             while (auto newer_frame = frame_pool.TryGetNextFrame()) {
                 captured_frame.Close();
                 captured_frame = std::move(newer_frame);
             }
 
             const auto content_size = captured_frame.ContentSize();
+            std::fprintf(stderr, "WGC trace: size read\n");
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
                     std::numeric_limits<uint32_t>::max()) {
@@ -302,6 +314,7 @@ struct WgcSessionState {
                 __uuidof(ID3D11Texture2D),
                 frame_lease->texture.put_void()
             ));
+            std::fprintf(stderr, "WGC trace: texture interface acquired\n");
             D3D11_TEXTURE2D_DESC texture_description{};
             frame_lease->texture->GetDesc(&texture_description);
             if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
@@ -315,12 +328,14 @@ struct WgcSessionState {
             frame_lease->height = static_cast<uint32_t>(content_size.Height);
             frame_lease->frame_id = ++next_frame_id;
             const int64_t capture_time_units = captured_frame.SystemRelativeTime().count();
+            std::fprintf(stderr, "WGC trace: timestamp read\n");
             if (capture_time_units > 0 && static_cast<uint64_t>(capture_time_units) <=
                     std::numeric_limits<uint64_t>::max() / kNanosecondsPerWinRtTimeUnit) {
                 frame_lease->timestamp_ns =
                     static_cast<uint64_t>(capture_time_units) * kNanosecondsPerWinRtTimeUnit;
             }
             captured_frame.Close();
+            std::fprintf(stderr, "WGC trace: frame closed\n");
 
             if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
                 frame_pool_size = content_size;
@@ -331,6 +346,7 @@ struct WgcSessionState {
                     frame_pool_size
                 );
             }
+            std::fprintf(stderr, "WGC trace: returning lease\n");
             return frame_lease;
         }
         return nullptr;
@@ -481,7 +497,9 @@ int32_t kadoka_wgc_next_frame(
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
     try {
+        std::fprintf(stderr, "WGC trace: C ABI calling frame pool\n");
         auto frame = session->state->next_frame(timeout_ms);
+        std::fprintf(stderr, "WGC trace: C ABI frame pool returned\n");
         if (!frame) {
             return KADOKA_RUNTIME_STATUS_TIMEOUT;
         }
