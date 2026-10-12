@@ -220,18 +220,23 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
         std::weak_ptr<WgcSessionState> weak_state = shared_from_this();
         frame_arrived_token = frame_pool.FrameArrived(
             [weak_state](const Direct3D11CaptureFramePool&, const winrt::Windows::Foundation::IInspectable&) {
+                std::fprintf(stderr, "WGC trace: frame callback entered\n");
                 const auto state = weak_state.lock();
                 if (!state) {
+                    std::fprintf(stderr, "WGC trace: frame callback state expired\n");
                     return;
                 }
                 {
                     std::lock_guard lock(state->arrival_mutex);
                     if (state->is_closed) {
+                        std::fprintf(stderr, "WGC trace: frame callback observed close\n");
                         return;
                     }
                     ++state->arrival_generation;
+                    std::fprintf(stderr, "WGC trace: signaling frame event %p\n", state->frame_arrived_event);
                     SetEvent(state->frame_arrived_event);
                 }
+                std::fprintf(stderr, "WGC trace: frame callback signaled\n");
             }
         );
         capture_session = frame_pool.CreateCaptureSession(capture_item);
