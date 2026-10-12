@@ -137,6 +137,7 @@ class ActionExecutor:
     #     2: dry-runならOS入力なしで結果を返す
     #     3: 実入力対象のHWNDとPIDを確認する
     #     4: FailSafeRuntimeを確認して選択Executorを呼ぶ
+    #     input_dispatch_started: 外部Executor呼出しへ到達したかを示し、呼出し前の失敗と入力結果不明を区別する
     #   ]
     #   引数: [
     #     candidate: 実行候補
@@ -154,6 +155,7 @@ class ActionExecutor:
         candidate: ActionCandidate,
         fail_safe_command: FailSafeCommand | None = None,
     ) -> ExecutionResult:
+        self.input_dispatch_started = False
         decision = self.safety_guard.check(candidate)
         if not decision.allowed:
             raise RuntimeError(f"SafetyGuard blocked action [{decision.code}]: {decision.reason}")
@@ -200,6 +202,7 @@ class ActionExecutor:
                     hold_ttl_seconds=runtime.config.hold_ttl_seconds if runtime is not None else None,
                 )
                 self.live_executor = executor
+            self.input_dispatch_started = True
             return executor.execute(candidate)
         finally:
             if runtime is not None and command is not None:

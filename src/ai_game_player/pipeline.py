@@ -11,6 +11,7 @@ from ai_game_player.action_safety import (
     SafetyStatus,
 )
 from ai_game_player.candidate_merger import CandidateMerger
+from ai_game_player.decision_verifier import ReliabilityStatus
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.event_journal import EventJournal
@@ -25,10 +26,10 @@ from ai_game_player.runtime_log import RuntimeLog
 
 
 # {
-#   責務: [DecisionPipeline: 画面観測から候補判断・安全評価・実行までを接続する]
-#   フィールド: [source: 観測入力, executor: 安全な候補実行境界, controller: 実行制御]
-#   処理: [対象識別情報を実行境界まで引き継ぎ、実行結果と履歴を管理する]
-#   フィールド: [event_journal: session eventのappend先, runtime_log: active Journalへruntime eventを複製するoptional logger, _runtime_log_attachment_token: このPipelineだけがbindingを解除する所有token]
+#   責務: [DecisionPipeline: 画面観測から検証済み判断、安全評価、世代guard付き実行までを接続する]
+#   フィールド: [source: 画面と候補を返す入力元, engine: Decision Context作成と回答検証, safety_evaluator: 操作リスク評価, executor: dry-runまたはOS入力, controller: 停止・再開世代, event_journal: 任意のSession event保存先]
+#   処理: [判断snapshotに含まれる候補実体を実行まで保ち、Action SafetyとDecision Reliabilityを別の根拠として記録する]
+#   履歴: [指定Journalへ判断・実行・安全eventを追記し、RuntimeLog bindingはこのPipelineが所有するtokenで解除する]
 # }
 class DecisionPipeline:
     # {
@@ -214,11 +215,11 @@ class DecisionPipeline:
         return decision
 
     # {
-    #   責務: [run_and_execute: 同じ判断snapshotで許可された候補だけを停止確認後に実行する]
-    #   処理: [画面候補・判断・評価済み候補を固定し、実入力前に停止世代とSafety評価を再検証する]
-    #   引数: [ocr_texts: 判断へ追加するOCR候補, purpose: providerへ渡すゲーム目標, personality: providerへ渡す判断方針, expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
-    #   戻り値: [ExecutionResult: 選択した候補の実行結果]
-    #   エラー: [停止・再開で世代が失効した場合はExecutionCancelled、安全評価が拒否した場合はRuntimeError]
+    #   責務: [run_and_execute: 現在画面で選んだ候補を信頼性・Action Safety・停止世代の条件に従って実行する]
+    #   処理: [同一snapshotの候補実体を固定し、Safety BLOCKまたは実入力前の追加確認が残る場合は履歴を停止扱いにして入力しない]
+    #   引数: [ocr_texts: 観測へ加えるOCR候補, purpose: ゲーム内達成目標, personality: provider応答方針, expected_rearm_token: 判断開始時の実行世代]
+    #   戻り値: [ExecutionResult: dry-runまたは入力executorが返した実行結果]
+    #   エラー: [RuntimeError: Safety条件が実行を拒否した場合, ExecutionCancelled: 判断または入力の途中で実行世代が失効した場合]
     # }
     def run_and_execute(
         self,
@@ -240,21 +241,42 @@ class DecisionPipeline:
             commit_guard=lambda commit: self.controller.run_if_current(run_token, commit),
         )
         self.controller.ensure_running(run_token)
-
-        # 評価・判断済みオブジェクトを維持し、後段で同じIDの別候補へ置き換えない。
-        safety_context, snapshot_id = self._safety_context(selected.action_id, purpose)
+        reliability_result = self.engine.last_reliability_result
+        reliability_record = reliability_result.to_dict() if reliability_result is not None else None
+        safety_context, snapshot_id = self._safety_context(selected.action_id, purpose, reliability_record)
         assessment = self.safety_evaluator.evaluate(observation, selected, safety_context)
         self.last_safety_result = assessment
         self.safety_audit.append_evaluation(assessment, snapshot_id=snapshot_id, goal=purpose)
         if assessment.status == SafetyStatus.BLOCK:
+            self.engine.mark_last_decision_not_executed(f"Action Safety Evaluator blocked action: {selected.action_id}")
             raise RuntimeError(f"Action Safety Evaluator blocked action: {selected.action_id}")
         if assessment.requires_verification and not self.executor.dry_run:
             requests = ", ".join(assessment.verification_requests)
+            self.engine.mark_last_decision_not_executed(f"Action Safety verification required: {requests}")
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
+        if not self.executor.dry_run and reliability_result is None:
+            raise RuntimeError(
+                "Decision Verifier did not produce a reliability result; live input is blocked"
+            )
+        if not self.executor.dry_run and reliability_result is not None and reliability_result.status != ReliabilityStatus.TRUST:
+            self.engine.mark_last_decision_not_executed(
+                f"Decision Reliability requires verification: {reliability_result.status.value}"
+            )
+            raise RuntimeError(
+                "Decision Reliability requires verification before live input: "
+                f"{reliability_result.status.value}"
+            )
 
         self.controller.ensure_running(run_token)
         self._bind_execution_stop_checker(run_token)
-        result = self.executor.execute(selected)
+        try:
+            result = self.executor.execute(selected)
+        except Exception as error:
+            if not getattr(self.executor, "input_dispatch_started", True):
+                self.engine.mark_last_decision_not_executed(
+                    f"OS入力を開始する前に実行器が失敗しました: {type(error).__name__}"
+                )
+            raise
         self.execution_history.append(result)
         self.safety_audit.append_execution(assessment.assessment_id, result)
         return result
@@ -401,24 +423,38 @@ class DecisionPipeline:
         self._seen_rearm_token = token
 
     # {
-    #   責務: [_bind_execution_stop_checker: 現在の実入力をRunControllerの停止・再開世代へ結び付ける]
-    #   処理: [停止状態または開始後の世代変更を検出する確認関数をActionExecutorへ登録する]
-    #   引数: [run_token: 実入力stepの開始時に記録した再開世代]
-    #   戻り値: []
+    #   責務: [_bind_execution_stop_checker: 実入力中に現在のRunController世代を監視する]
+    #   処理: [開始時の世代が変わるか停止状態になった場合にTrueを返す関数をActionExecutorへ登録する]
+    #   引数: [run_token: 現在の実行stepが開始時に保持した再開世代]
+    #   戻り値: [なし。ActionExecutorの停止確認を現在のrun世代へ更新する]
     # }
     def _bind_execution_stop_checker(self, run_token: int) -> None:
         self.executor.run_controller_stop_checker = lambda: (
             not self.controller.is_running or self.controller.rearm_token != run_token
         )
 
-    def _safety_context(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]:
+    # {
+    #   責務: [_safety_context: 同じ判断traceから目的寄与点と信頼性根拠をSafety Evaluatorへ渡す]
+    #   処理: [指定actionの評価値を読み、Action Safety用のcontextとsnapshot IDを組み立てる]
+    #   引数: [action_id: Safety評価する候補ID, purpose: 判断時に利用者が指定したゲーム目標, decision_reliability: 同じ選択のDecision Verifier結果。未取得ならNone]
+    #   戻り値: [tuple[SafetyEvaluationContext, str]: Safety評価入力と根拠となるsnapshot ID]
+    # }
+    def _safety_context(
+        self,
+        action_id: str,
+        purpose: str,
+        decision_reliability: dict[str, object] | None = None,
+    ) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)
         if not recent:
-            return SafetyEvaluationContext(current_goal=purpose), ""
+            return SafetyEvaluationContext(current_goal=purpose, decision_reliability=decision_reliability), ""
         entry = recent[-1]
         raw_context = entry.get("context", {})
         if not isinstance(raw_context, dict):
-            return SafetyEvaluationContext(current_goal=purpose), str(entry.get("snapshot_id", ""))
+            return (
+                SafetyEvaluationContext(current_goal=purpose, decision_reliability=decision_reliability),
+                str(entry.get("snapshot_id", "")),
+            )
         utility_score = None
         utility_confidence = None
         candidates = raw_context.get("candidates", [])
@@ -438,6 +474,7 @@ class DecisionPipeline:
                 current_goal=purpose,
                 utility_score=utility_score,
                 utility_confidence=utility_confidence,
+                decision_reliability=decision_reliability,
             ),
             str(raw_context.get("snapshot_id", entry.get("snapshot_id", ""))),
         )

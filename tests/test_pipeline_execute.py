@@ -5,11 +5,12 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from ai_game_player.app import Application
+from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
-from ai_game_player.action_executor import ExecutionResult
+from ai_game_player.safety_guard import EmergencyStop
+from ai_game_player.app import Application
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.run_control import ExecutionCancelled, RunController
 
@@ -93,6 +94,73 @@ class PipelineExecuteTest(unittest.TestCase):
             result = DecisionPipeline(Source(), Path(directory), Provider()).run_and_execute([{"text": "OCR START", "x": 10, "y": 10, "width": 20, "height": 10}])
             self.assertEqual(result.action_id, "ocr-0")
 
+    def test_live_execution_remains_available_to_legacy_choose_providers(self):
+        class LiveSource:
+            def read(self):
+                observation = ScreenObservation("menu", 100, 80, features={"signature": "menu-v1"})
+                return observation, [ActionCandidate("continue", "wait", "Continue")]
+
+        class LegacyProvider(RuleProvider):
+            def choose(self, candidates, observation, purpose="", personality=""):
+                return ActionDecision(candidates[0].action_id, "Continue the game", "legacy-provider")
+
+        class FakeExecutor:
+            def execute(self, candidate):
+                return ExecutionResult(candidate.action_id, True, "live", "ok")
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(
+                LiveSource(),
+                Path(directory),
+                LegacyProvider(),
+                dry_run=False,
+                emergency_stop=EmergencyStop(),
+            )
+            pipeline.executor.live_executor = FakeExecutor()
+
+            result = pipeline.run_and_execute()
+
+        self.assertTrue(result.executed)
+        self.assertEqual(result.action_id, "continue")
+        reliability = pipeline.engine.last_reliability_result
+        self.assertIsNotNone(reliability)
+        self.assertEqual(reliability.status.value, "TRUST")
+
+    def test_executor_preflight_failure_marks_decision_as_not_executed(self):
+        class LiveSource:
+            def read(self):
+                observation = ScreenObservation("menu", 100, 80, features={"signature": "menu-v1"})
+                return observation, [ActionCandidate("continue", "wait", "Continue")]
+
+        class LiveExecutor:
+            def execute(self, _candidate):
+                raise AssertionError("preflight failure must prevent input dispatch")
+
+        class BlockedSafetyCheck:
+            def check(self, _candidate):
+                return SimpleNamespace(allowed=False, code="test_block", reason="test preflight block")
+
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(
+                LiveSource(),
+                Path(directory),
+                dry_run=False,
+                emergency_stop=EmergencyStop(),
+            )
+            pipeline.executor.live_executor = LiveExecutor()
+            pipeline.executor.safety_guard = BlockedSafetyCheck()
+
+            with self.assertRaisesRegex(RuntimeError, "SafetyGuard blocked action"):
+                pipeline.run_and_execute()
+
+            trace = pipeline.engine.trace.recent()
+            action_history = pipeline.engine.trace.recent_actions()
+            pipeline.close()
+
+        self.assertEqual(trace[-1]["execution_status"], "blocked")
+        self.assertIn("実行器が失敗しました", trace[-1]["execution_block_reason"])
+        self.assertEqual(action_history, [])
+
     def test_run_and_execute_reads_source_once_and_uses_same_candidates(self):
         class ChangingSource:
             def __init__(self):
@@ -114,7 +182,6 @@ class PipelineExecuteTest(unittest.TestCase):
 
         self.assertEqual(source.read_count, 1)
         self.assertEqual(result.action_id, "first-action")
-
     def test_run_and_execute_passes_the_selected_candidate_instance_to_execution(self):
         selected_candidate = ActionCandidate("selected", "wait", "Wait")
         executed_candidates = []

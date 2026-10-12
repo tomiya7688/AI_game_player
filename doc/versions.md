@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #43: Decision Provider出力を形式・型・許可候補・判断時の画面状態・理由と候補の矛盾で決定論的に検証し、4段階の状態と根拠・出所をDecision traceおよびAction Safety監査へ記録する。TRUSTは実施検査に通過した状態であり、正しさの保証ではない。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で候補語境界・任意の後続修飾語・一文字候補・二重否定・クリック／押下の能動形と受動形、前置詞・冠詞・UI部品名を含む明示的な否定を検証し、英語・日本語とも候補一覧にある複合名の別候補を区別する。未実行判断だけを行動履歴から除外し、直前に実行した操作のOutcome結果はその操作のtraceと後続Decision Contextに保持する。終端結果でも変化・安定Evidenceを重み付けして `state_changed` を独立判定し、競合が強い場合は状態変化として扱わない。旧Ollama APIは省略された理由を空文字列へ補い、文字列以外の理由を拒否する。空候補の通信前拒否、schema失敗時のprovider provenance、Evaluator許可候補による独立groundingも追加検証し、Action SafetyとDecision Reliabilityの宣言コメントを責務・入力の意味・判断条件・結果まで説明する形へ改める。
 - Issue #259: 選択HWND専用のWindows Graphics Capture sessionをNative Runtime C ABI v1へ追加。寸法・packed BGRA・session内frame ID・monotonic時刻・lease中だけ有効なDirect3D texture handleを返し、caller-owned bufferへのcopyとtimeout付きframe取得を提供する。Pythonの`WindowsScreenCapture`は選択windowでsessionを再利用し、WGC非対応・取得失敗時は理由を保持してGDI fallbackを試す。Windows resize integration testとPython fake ABI・fallback・ObservationService lifecycle testを追加。
 
 - Issue #38: ゲーム固有presetに依存しないrolling SelfCheckMonitorを追加。scene/action/state cycle、連続no-progress、confidenceを考慮したexpected/actual outcomeの不一致、汎用Scene時間超過、confidenceとreliabilityに基づくevaluator disagreementをseverity・evidence付きeventとして報告する。判定保留Outcomeは停滞・不一致判定から除外し、継続中の不一致がWarningからCriticalへ上がった場合は再通知する。
@@ -33,7 +34,7 @@
 
 - PR #345: 判断履歴と判断traceを一時ファイルへ先に準備し、RunControllerが実行世代を検証してから両ファイルとエンジンの前回判断状態を公開する。Stopが一時ファイル準備中に届いた場合、workerは未公開データを破棄する。
 
-- Issue #336: 実入力開始時に対象HWND/PIDの選択・有効性を検証し、HWND再利用による別プロセスへの入力を実行直前に拒否する。連続実行は対象未選択で開始せず、各ステップ失敗時に停止する。
+ - Issue #336: 実入力開始時に対象HWND/PIDの選択・有効性を検証し、HWND再利用による別プロセスへの入力を実行直前に拒否する。連続実行は対象未選択で開始せず、各ステップ失敗時に停止する。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 

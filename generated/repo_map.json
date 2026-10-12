@@ -303,7 +303,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 191,
+          "line": 193,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.windows_input"
@@ -320,7 +320,7 @@
       "module": "ai_game_player.action_executor",
       "path": "src/ai_game_player/action_executor.py",
       "source_location": {
-        "end_line": 280,
+        "end_line": 283,
         "start_line": 1
       },
       "symbols": [
@@ -413,7 +413,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 280,
+            "end_line": 283,
             "start_line": 48
           }
         },
@@ -561,8 +561,8 @@
           "signature": "(self, candidate: ActionCandidate, fail_safe_command: FailSafeCommand | None = …) -> ExecutionResult",
           "source_location": {
             "column": 4,
-            "end_line": 206,
-            "start_line": 152
+            "end_line": 209,
+            "start_line": 153
           }
         },
         {
@@ -590,8 +590,8 @@
           "signature": "(self, state_changed: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 209,
-            "start_line": 208
+            "end_line": 212,
+            "start_line": 211
           }
         },
         {
@@ -619,8 +619,8 @@
           "signature": "(self, observed_at: float | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 211
+            "end_line": 221,
+            "start_line": 214
           }
         },
         {
@@ -642,8 +642,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 222,
-            "start_line": 220
+            "end_line": 225,
+            "start_line": 223
           }
         },
         {
@@ -671,8 +671,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 229,
-            "start_line": 224
+            "end_line": 232,
+            "start_line": 227
           }
         },
         {
@@ -694,8 +694,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 241,
-            "start_line": 231
+            "end_line": 244,
+            "start_line": 234
           }
         },
         {
@@ -717,8 +717,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 243
+            "end_line": 250,
+            "start_line": 246
           }
         },
         {
@@ -742,8 +742,8 @@
           "signature": "(self) -> FailSafeState | None",
           "source_location": {
             "column": 4,
-            "end_line": 252,
-            "start_line": 250
+            "end_line": 255,
+            "start_line": 253
           }
         },
         {
@@ -765,8 +765,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 264,
-            "start_line": 260
+            "end_line": 267,
+            "start_line": 263
           }
         },
         {
@@ -788,8 +788,8 @@
           "signature": "(self) -> TargetState | None",
           "source_location": {
             "column": 4,
-            "end_line": 272,
-            "start_line": 266
+            "end_line": 275,
+            "start_line": 269
           }
         },
         {
@@ -811,8 +811,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 280,
-            "start_line": 274
+            "end_line": 283,
+            "start_line": 277
           }
         }
       ]
@@ -955,7 +955,7 @@
       "module": "ai_game_player.action_safety",
       "path": "src/ai_game_player/action_safety.py",
       "source_location": {
-        "end_line": 466,
+        "end_line": 588,
         "start_line": 1
       },
       "symbols": [
@@ -1068,8 +1068,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 57,
-            "start_line": 40
+            "end_line": 73,
+            "start_line": 55
           }
         },
         {
@@ -1091,8 +1091,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 57,
-            "start_line": 49
+            "end_line": 73,
+            "start_line": 65
           }
         },
         {
@@ -1113,8 +1113,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 61
+            "end_line": 172,
+            "start_line": 101
           }
         },
         {
@@ -1136,8 +1136,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 79
+            "end_line": 137,
+            "start_line": 120
           }
         },
         {
@@ -1159,8 +1159,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 98
+            "end_line": 172,
+            "start_line": 152
           }
         },
         {
@@ -1179,8 +1179,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 342,
-            "start_line": 120
+            "end_line": 463,
+            "start_line": 192
           }
         },
         {
@@ -1214,8 +1214,8 @@
           "signature": "(self, suspicious_threshold: float = …, high_risk_threshold: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 157
+            "end_line": 238,
+            "start_line": 234
           }
         },
         {
@@ -1255,8 +1255,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, context: SafetyEvaluationContext | None = …) -> ActionSafetyResult",
           "source_location": {
             "column": 4,
-            "end_line": 314,
-            "start_line": 163
+            "end_line": 415,
+            "start_line": 258
           }
         },
         {
@@ -1296,8 +1296,8 @@
           "signature": "(check: str, severity: str, confidence: float, message: str) -> None",
           "source_location": {
             "column": 8,
-            "end_line": 179,
-            "start_line": 178
+            "end_line": 279,
+            "start_line": 278
           }
         },
         {
@@ -1321,8 +1321,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 318,
-            "start_line": 317
+            "end_line": 424,
+            "start_line": 423
           }
         },
         {
@@ -1352,8 +1352,8 @@
           "signature": "(text: str, terms: tuple[str, ...]) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 322,
-            "start_line": 321
+            "end_line": 433,
+            "start_line": 432
           }
         },
         {
@@ -1377,8 +1377,8 @@
           "signature": "(score: float) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 332,
-            "start_line": 325
+            "end_line": 448,
+            "start_line": 441
           }
         },
         {
@@ -1408,8 +1408,8 @@
           "signature": "(intent: str, goal: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 342,
-            "start_line": 335
+            "end_line": 463,
+            "start_line": 456
           }
         },
         {
@@ -1428,8 +1428,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 466,
-            "start_line": 349
+            "end_line": 588,
+            "start_line": 471
           }
         },
         {
@@ -1463,8 +1463,8 @@
           "signature": "(self, path: Path, event_adapter: LegacyEventAdapter | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 360,
-            "start_line": 358
+            "end_line": 482,
+            "start_line": 480
           }
         },
         {
@@ -1504,8 +1504,8 @@
           "signature": "(self, result: ActionSafetyResult, *, snapshot_id: str = …, goal: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 378,
-            "start_line": 368
+            "end_line": 500,
+            "start_line": 490
           }
         },
         {
@@ -1539,8 +1539,8 @@
           "signature": "(self, assessment_id: str, execution: Any) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 399,
-            "start_line": 387
+            "end_line": 521,
+            "start_line": 509
           }
         },
         {
@@ -1586,8 +1586,8 @@
           "signature": "(self, assessment_id: str, status: str, confidence: float, evidence: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 423,
-            "start_line": 408
+            "end_line": 545,
+            "start_line": 530
           }
         },
         {
@@ -1609,8 +1609,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 432,
-            "start_line": 431
+            "end_line": 554,
+            "start_line": 553
           }
         },
         {
@@ -1638,8 +1638,8 @@
           "signature": "(self, event: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 449,
-            "start_line": 440
+            "end_line": 571,
+            "start_line": 562
           }
         },
         {
@@ -1661,8 +1661,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 466,
-            "start_line": 458
+            "end_line": 588,
+            "start_line": 580
           }
         }
       ]
@@ -7821,7 +7821,7 @@
       "module": "ai_game_player.decision_context",
       "path": "src/ai_game_player/decision_context.py",
       "source_location": {
-        "end_line": 496,
+        "end_line": 763,
         "start_line": 1
       },
       "symbols": [
@@ -7843,8 +7843,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 35,
-            "start_line": 17
+            "end_line": 39,
+            "start_line": 21
           }
         },
         {
@@ -7866,8 +7866,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 24
+            "end_line": 36,
+            "start_line": 28
           }
         },
         {
@@ -7889,8 +7889,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 35,
-            "start_line": 34
+            "end_line": 39,
+            "start_line": 38
           }
         },
         {
@@ -7911,8 +7911,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 39
+            "end_line": 62,
+            "start_line": 47
           }
         },
         {
@@ -7934,8 +7934,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 47
+            "end_line": 59,
+            "start_line": 55
           }
         },
         {
@@ -7957,8 +7957,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 53
+            "end_line": 62,
+            "start_line": 61
           }
         },
         {
@@ -7979,8 +7979,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 86,
-            "start_line": 58
+            "end_line": 98,
+            "start_line": 70
           }
         },
         {
@@ -8002,8 +8002,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 71
+            "end_line": 98,
+            "start_line": 83
           }
         },
         {
@@ -8024,8 +8024,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 111,
-            "start_line": 90
+            "end_line": 127,
+            "start_line": 106
           }
         },
         {
@@ -8047,8 +8047,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 111,
-            "start_line": 100
+            "end_line": 127,
+            "start_line": 116
           }
         },
         {
@@ -8069,8 +8069,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 125,
-            "start_line": 114
+            "end_line": 141,
+            "start_line": 130
           }
         },
         {
@@ -8116,8 +8116,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, recent_history: list[dict[str, Any]], previous_outcome: OutcomeAssessment) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 118
+            "end_line": 141,
+            "start_line": 134
           }
         },
         {
@@ -8136,8 +8136,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 173,
-            "start_line": 128
+            "end_line": 194,
+            "start_line": 144
           }
         },
         {
@@ -8165,8 +8165,8 @@
           "signature": "(self, evaluator: ActionEvaluator | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 132
+            "end_line": 149,
+            "start_line": 148
           }
         },
         {
@@ -8212,8 +8212,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, recent_history: list[dict[str, Any]], previous_outcome: OutcomeAssessment) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 135
+            "end_line": 164,
+            "start_line": 156
           }
         },
         {
@@ -8247,8 +8247,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> list[EvaluatorEvidence]",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 151
+            "end_line": 178,
+            "start_line": 172
           }
         },
         {
@@ -8276,8 +8276,8 @@
           "signature": "(self, report: dict[str, object]) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 173,
-            "start_line": 165
+            "end_line": 194,
+            "start_line": 186
           }
         },
         {
@@ -8296,8 +8296,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 200,
-            "start_line": 176
+            "end_line": 226,
+            "start_line": 197
           }
         },
         {
@@ -8325,8 +8325,8 @@
           "signature": "(self, window: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 180
+            "end_line": 204,
+            "start_line": 201
           }
         },
         {
@@ -8372,8 +8372,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, recent_history: list[dict[str, Any]], previous_outcome: OutcomeAssessment) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 185
+            "end_line": 226,
+            "start_line": 211
           }
         },
         {
@@ -8392,8 +8392,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 220,
-            "start_line": 203
+            "end_line": 246,
+            "start_line": 229
           }
         },
         {
@@ -8421,8 +8421,8 @@
           "signature": "(self, conflict_threshold: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 204
+            "end_line": 233,
+            "start_line": 230
           }
         },
         {
@@ -8450,8 +8450,8 @@
           "signature": "(self, evaluations: list[EvaluatorEvidence]) -> tuple[float, float, bool]",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 209
+            "end_line": 246,
+            "start_line": 235
           }
         },
         {
@@ -8470,8 +8470,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 260,
-            "start_line": 223
+            "end_line": 286,
+            "start_line": 249
           }
         },
         {
@@ -8505,8 +8505,8 @@
           "signature": "(self, store: KnowledgeStore | None = …, limit: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 224
+            "end_line": 254,
+            "start_line": 250
           }
         },
         {
@@ -8534,8 +8534,8 @@
           "signature": "(self, candidate: ActionCandidate) -> list[KnowledgeEvidence]",
           "source_location": {
             "column": 4,
-            "end_line": 260,
-            "start_line": 230
+            "end_line": 286,
+            "start_line": 256
           }
         },
         {
@@ -8554,8 +8554,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 359,
-            "start_line": 263
+            "end_line": 397,
+            "start_line": 294
           }
         },
         {
@@ -8607,8 +8607,8 @@
           "signature": "(self, knowledge_store: KnowledgeStore | None = …, evaluators: list[CandidateContextEvaluator] | None = …, fusion: EvaluationFusion | None = …, history_limit: int = …, knowledge_limit: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 279,
-            "start_line": 266
+            "end_line": 316,
+            "start_line": 303
           }
         },
         {
@@ -8672,8 +8672,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate], allowed_candidates: list[ActionCandidate], *, recent_history: list[dict[str, Any]] | None = …, previous_outcome: OutcomeAssessment | None = …, current_goal: str = …, short_term_goal: str = …) -> DecisionContext",
           "source_location": {
             "column": 4,
-            "end_line": 359,
-            "start_line": 287
+            "end_line": 397,
+            "start_line": 324
           }
         },
         {
@@ -8692,8 +8692,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 439,
-            "start_line": 366
+            "end_line": 673,
+            "start_line": 405
           }
         },
         {
@@ -8727,8 +8727,8 @@
           "signature": "(self, path: Path, event_adapter: LegacyEventAdapter | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 377,
-            "start_line": 375
+            "end_line": 414,
+            "start_line": 412
           }
         },
         {
@@ -8755,15 +8755,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "decision"
+            },
+            {
+              "annotation": "dict[str, Any] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "reliability"
             }
           ],
           "qualified_name": "DecisionTraceStore.append",
           "return_annotation": "None",
-          "signature": "(self, context: DecisionContext, decision: ActionDecision) -> None",
+          "signature": "(self, context: DecisionContext, decision: ActionDecision, *, reliability: dict[str, Any] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 391,
-            "start_line": 386
+            "end_line": 433,
+            "start_line": 422
           }
         },
         {
@@ -8790,15 +8796,208 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "decision"
+            },
+            {
+              "annotation": "dict[str, Any] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "reliability"
             }
           ],
           "qualified_name": "DecisionTraceStore.prepare_append",
           "return_annotation": "StagedJsonWrite | StagedJournalAppend",
-          "signature": "(self, context: DecisionContext, decision: ActionDecision) -> StagedJsonWrite | StagedJournalAppend",
+          "signature": "(self, context: DecisionContext, decision: ActionDecision, *, reliability: dict[str, Any] | None = …) -> StagedJsonWrite | StagedJournalAppend",
           "source_location": {
             "column": 4,
-            "end_line": 424,
-            "start_line": 400
+            "end_line": 470,
+            "start_line": 442
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "mark_action_not_executed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore.mark_action_not_executed",
+          "return_annotation": "bool",
+          "signature": "(self, snapshot_id: str, action_id: str, reason: str) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 492,
+            "start_line": 478
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append_rejection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "DecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reliability"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore.append_rejection",
+          "return_annotation": "None",
+          "signature": "(self, context: DecisionContext, reliability: dict[str, Any]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 510,
+            "start_line": 500
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_append_entry",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entry"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore._append_entry",
+          "return_annotation": "None",
+          "signature": "(self, entry: dict[str, Any]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 528,
+            "start_line": 518
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_update_entry",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entries"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "fields"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore._update_entry",
+          "return_annotation": "None",
+          "signature": "(self, entries: list[dict[str, Any]], target: dict[str, Any], fields: dict[str, Any]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 552,
+            "start_line": 536
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_action_outcome",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "outcome"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore.record_action_outcome",
+          "return_annotation": "bool",
+          "signature": "(self, snapshot_id: str, action_id: str, outcome: dict[str, Any]) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 582,
+            "start_line": 572
           }
         },
         {
@@ -8826,8 +9025,37 @@
           "signature": "(self, limit: int = …) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 429,
-            "start_line": 426
+            "end_line": 597,
+            "start_line": 594
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "recent_actions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "limit"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore.recent_actions",
+          "return_annotation": "list[dict[str, Any]]",
+          "signature": "(self, limit: int = …) -> list[dict[str, Any]]",
+          "source_location": {
+            "column": 4,
+            "end_line": 623,
+            "start_line": 617
           }
         },
         {
@@ -8849,8 +9077,37 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 439,
-            "start_line": 431
+            "end_line": 659,
+            "start_line": 636
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_write",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entries"
+            }
+          ],
+          "qualified_name": "DecisionTraceStore._write",
+          "return_annotation": "None",
+          "signature": "(self, entries: list[dict[str, Any]]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 673,
+            "start_line": 668
           }
         },
         {
@@ -8872,8 +9129,8 @@
           "signature": "(observation: ScreenObservation) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 461,
-            "start_line": 441
+            "end_line": 694,
+            "start_line": 674
           }
         },
         {
@@ -8895,8 +9152,31 @@
           "signature": "(entry: dict[str, Any]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 473,
-            "start_line": 464
+            "end_line": 713,
+            "start_line": 697
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_is_action_history_entry",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entry"
+            }
+          ],
+          "qualified_name": "_is_action_history_entry",
+          "return_annotation": "bool",
+          "signature": "(entry: dict[str, Any]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 740,
+            "start_line": 732
           }
         },
         {
@@ -8924,8 +9204,8 @@
           "signature": "(observation: ScreenObservation, previous: dict[str, Any] | None) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 489,
-            "start_line": 476
+            "end_line": 756,
+            "start_line": 743
           }
         },
         {
@@ -8947,8 +9227,853 @@
           "signature": "(value: object) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 496,
-            "start_line": 492
+            "end_line": 763,
+            "start_line": 759
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.decision_reliability",
+      "path": "src/ai_game_player/decision_reliability.py",
+      "source_location": {
+        "end_line": 210,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReliabilityStatus",
+          "parameters": [],
+          "qualified_name": "ReliabilityStatus",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "ReliabilityEvidence",
+          "parameters": [],
+          "qualified_name": "ReliabilityEvidence",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 92,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReliabilityEvidence.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReliabilityEvidence.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 92,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "ReliabilityResult",
+          "parameters": [],
+          "qualified_name": "ReliabilityResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 139,
+            "start_line": 109
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReliabilityResult.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "_DecisionFields",
+          "parameters": [],
+          "qualified_name": "_DecisionFields",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 163,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_decision_fields",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "decision_output"
+            }
+          ],
+          "qualified_name": "_decision_fields",
+          "return_annotation": "_DecisionFields | None",
+          "signature": "(decision_output: object) -> _DecisionFields | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 210,
+            "start_line": 182
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_context",
+        "ai_game_player.decision_reliability",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Sequence"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unicodedata",
+          "names": [
+            {
+              "alias": null,
+              "name": "category"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "uuid",
+          "names": [
+            {
+              "alias": null,
+              "name": "uuid4"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateDecisionContext"
+            },
+            {
+              "alias": null,
+              "name": "DecisionContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_reliability"
+          ],
+          "module": "ai_game_player.decision_reliability",
+          "names": [
+            {
+              "alias": "ReliabilityEvidence",
+              "name": "ReliabilityEvidence"
+            },
+            {
+              "alias": "ReliabilityResult",
+              "name": "ReliabilityResult"
+            },
+            {
+              "alias": "ReliabilityStatus",
+              "name": "ReliabilityStatus"
+            },
+            {
+              "alias": null,
+              "name": "_decision_fields"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.decision_verifier",
+      "path": "src/ai_game_player/decision_verifier.py",
+      "source_location": {
+        "end_line": 660,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DecisionVerifier",
+          "parameters": [],
+          "qualified_name": "DecisionVerifier",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 389,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "verify",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "decision_output"
+            },
+            {
+              "annotation": "DecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "ScreenObservation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": "Sequence[str] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "evaluator_allowed_action_ids"
+            }
+          ],
+          "qualified_name": "DecisionVerifier.verify",
+          "return_annotation": "ReliabilityResult",
+          "signature": "(self, decision_output: object, context: DecisionContext, observation: ScreenObservation, *, evaluator_allowed_action_ids: Sequence[str] | None = …) -> ReliabilityResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 271,
+            "start_line": 60
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "add_evidence",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "check"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "severity"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            },
+            {
+              "annotation": "dict[str, Any] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "details"
+            }
+          ],
+          "qualified_name": "DecisionVerifier.verify.add_evidence",
+          "return_annotation": "None",
+          "signature": "(check: str, severity: str, message: str, details: dict[str, Any] | None = …) -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 101,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "normalize_decision",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "decision_output"
+            }
+          ],
+          "qualified_name": "DecisionVerifier.normalize_decision",
+          "return_annotation": "ActionDecision | None",
+          "signature": "(decision_output: object) -> ActionDecision | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 300,
+            "start_line": 289
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_index_candidates",
+          "parameters": [
+            {
+              "annotation": "DecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "Callable[[str, str, str, dict[str, Any] | None], None]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "add_evidence"
+            }
+          ],
+          "qualified_name": "DecisionVerifier._index_candidates",
+          "return_annotation": "dict[str, CandidateDecisionContext]",
+          "signature": "(context: DecisionContext, add_evidence: Callable[[str, str, str, dict[str, Any] | None], None]) -> dict[str, CandidateDecisionContext]",
+          "source_location": {
+            "column": 4,
+            "end_line": 353,
+            "start_line": 320
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_build_result",
+          "parameters": [
+            {
+              "annotation": "DecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            },
+            {
+              "annotation": "list[ReliabilityEvidence]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            }
+          ],
+          "qualified_name": "DecisionVerifier._build_result",
+          "return_annotation": "ReliabilityResult",
+          "signature": "(context: DecisionContext, action_id: str, provider: str, evidence: list[ReliabilityEvidence]) -> ReliabilityResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 389,
+            "start_line": 374
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reason_contradicts_action",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "CandidateDecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate"
+            },
+            {
+              "annotation": "Sequence[CandidateDecisionContext]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            }
+          ],
+          "qualified_name": "_reason_contradicts_action",
+          "return_annotation": "bool",
+          "signature": "(reason: str, candidate: CandidateDecisionContext, candidates: Sequence[CandidateDecisionContext]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 508,
+            "start_line": 410
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_has_japanese_compound_prefix",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_start"
+            }
+          ],
+          "qualified_name": "_has_japanese_compound_prefix",
+          "return_annotation": "bool",
+          "signature": "(reason: str, candidate_start: int) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 526,
+            "start_line": 517
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_matches_longer_candidate_phrase",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_term_start"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "selected_term"
+            },
+            {
+              "annotation": "set[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_terms"
+            }
+          ],
+          "qualified_name": "_matches_longer_candidate_phrase",
+          "return_annotation": "bool",
+          "signature": "(reason: str, candidate_term_start: int, selected_term: str, candidate_terms: set[str]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 560,
+            "start_line": 548
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_matches_longer_japanese_candidate",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_term_start"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "selected_term"
+            },
+            {
+              "annotation": "set[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_terms"
+            }
+          ],
+          "qualified_name": "_matches_longer_japanese_candidate",
+          "return_annotation": "bool",
+          "signature": "(reason: str, candidate_term_start: int, selected_term: str, candidate_terms: set[str]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 601,
+            "start_line": 582
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_mentions_longer_candidate_before_japanese_negation",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "directive_start"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "selected_term"
+            },
+            {
+              "annotation": "set[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_terms"
+            }
+          ],
+          "qualified_name": "_mentions_longer_candidate_before_japanese_negation",
+          "return_annotation": "bool",
+          "signature": "(reason: str, directive_start: int, selected_term: str, candidate_terms: set[str]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 640,
+            "start_line": 623
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_normalize_contradiction_text",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_normalize_contradiction_text",
+          "return_annotation": "str",
+          "signature": "(value: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 660,
+            "start_line": 659
           }
         }
       ]
@@ -9264,6 +10389,7 @@
         "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.decision_context",
+        "ai_game_player.decision_verifier",
         "ai_game_player.evaluator",
         "ai_game_player.event_journal",
         "ai_game_player.history",
@@ -9281,6 +10407,19 @@
           "level": 0,
           "line": 1,
           "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
           "module": "collections.abc",
           "names": [
             {
@@ -9292,7 +10431,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 2,
+          "line": 3,
           "local_dependencies": [],
           "module": "contextvars",
           "names": [
@@ -9305,29 +10444,13 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 3,
+          "line": 4,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
             {
               "alias": null,
               "name": "Path"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 5,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.atomic_json"
-          ],
-          "module": "ai_game_player.atomic_json",
-          "names": [
-            {
-              "alias": null,
-              "name": "StagedJsonWrite"
             }
           ]
         },
@@ -9341,6 +10464,10 @@
           ],
           "module": "ai_game_player.decision_context",
           "names": [
+            {
+              "alias": null,
+              "name": "DecisionContext"
+            },
             {
               "alias": null,
               "name": "DecisionContextBuilder"
@@ -9357,6 +10484,46 @@
           "line": 7,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionVerifier"
+            },
+            {
+              "alias": null,
+              "name": "ReliabilityResult"
+            },
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "StagedJsonWrite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.event_journal"
           ],
           "module": "ai_game_player.event_journal",
@@ -9370,7 +10537,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 10,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.evaluator"
@@ -9386,7 +10553,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 11,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.history"
@@ -9402,7 +10569,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.journal_adapters"
@@ -9422,7 +10589,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge"
@@ -9438,7 +10605,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -9462,7 +10629,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -9478,7 +10645,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome_fusion"
@@ -9494,7 +10661,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome_models"
@@ -9510,7 +10677,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.provider"
@@ -9527,7 +10694,7 @@
       "module": "ai_game_player.engine",
       "path": "src/ai_game_player/engine.py",
       "source_location": {
-        "end_line": 206,
+        "end_line": 343,
         "start_line": 1
       },
       "symbols": [
@@ -9547,8 +10714,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 206,
-            "start_line": 28
+            "end_line": 343,
+            "start_line": 31
           }
         },
         {
@@ -9606,8 +10773,8 @@
           "signature": "(self, game_directory: Path, provider = …, context_builder: DecisionContextBuilder | None = …, outcome_detector: OutcomeDetector | None = …, event_journal: EventJournal | None = …, migrate_legacy: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 35
+            "end_line": 84,
+            "start_line": 38
           }
         },
         {
@@ -9653,8 +10820,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate], purpose: str = …, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 136,
-            "start_line": 81
+            "end_line": 183,
+            "start_line": 93
           }
         },
         {
@@ -9669,8 +10836,68 @@
           "signature": "() -> None",
           "source_location": {
             "column": 12,
-            "end_line": 127,
-            "start_line": 123
+            "end_line": 174,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "mark_last_decision_not_executed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "GamePlayerEngine.mark_last_decision_not_executed",
+          "return_annotation": "None",
+          "signature": "(self, reason: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 218,
+            "start_line": 202
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_bind_legacy_context_references",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "decision_output"
+            },
+            {
+              "annotation": "DecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "GamePlayerEngine._bind_legacy_context_references",
+          "return_annotation": "object",
+          "signature": "(decision_output: object, context: DecisionContext) -> object",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 238
           }
         },
         {
@@ -9728,8 +10955,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate], purpose: str = …, personality: str = …, before_provider: Callable[[], None] | None = …, commit_guard: Callable[[Callable[[], None]], None] | None = …) -> tuple[ActionDecision, ActionCandidate]",
           "source_location": {
             "column": 4,
-            "end_line": 174,
-            "start_line": 145
+            "end_line": 290,
+            "start_line": 260
           }
         },
         {
@@ -9751,8 +10978,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 176
+            "end_line": 307,
+            "start_line": 298
           }
         },
         {
@@ -9774,8 +11001,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 194,
-            "start_line": 187
+            "end_line": 322,
+            "start_line": 315
           }
         },
         {
@@ -9803,8 +11030,8 @@
           "signature": "(self, observation: ScreenObservation) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 206,
-            "start_line": 196
+            "end_line": 343,
+            "start_line": 330
           }
         }
       ]
@@ -21681,7 +22908,7 @@
       "module": "ai_game_player.models",
       "path": "src/ai_game_player/models.py",
       "source_location": {
-        "end_line": 138,
+        "end_line": 179,
         "start_line": 1
       },
       "symbols": [
@@ -21992,8 +23219,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 138,
-            "start_line": 132
+            "end_line": 179,
+            "start_line": 146
           }
         },
         {
@@ -22011,12 +23238,12 @@
             }
           ],
           "qualified_name": "ActionDecision.to_dict",
-          "return_annotation": "dict[str, str]",
-          "signature": "(self) -> dict[str, str]",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 137
+            "end_line": 179,
+            "start_line": 168
           }
         }
       ]
@@ -25113,7 +26340,7 @@
       "module": "ai_game_player.outcome_fusion",
       "path": "src/ai_game_player/outcome_fusion.py",
       "source_location": {
-        "end_line": 278,
+        "end_line": 364,
         "start_line": 1
       },
       "symbols": [
@@ -25190,7 +26417,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 227,
+            "end_line": 313,
             "start_line": 25
           }
         },
@@ -25231,8 +26458,49 @@
           "signature": "(self, action_id: str, evidence: tuple[OutcomeEvidence, ...], *, semantic_fallback_used: bool = …) -> OutcomeEvent",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 28
+            "end_line": 142,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_fuse_state_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": "tuple[OutcomeEvidence, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "semantic_fallback_used"
+            }
+          ],
+          "qualified_name": "DeterministicOutcomeFusion._fuse_state_evidence",
+          "return_annotation": "OutcomeEvent",
+          "signature": "(self, action_id: str, evidence: tuple[OutcomeEvidence, ...], semantic_fallback_used: bool) -> OutcomeEvent",
+          "source_location": {
+            "column": 4,
+            "end_line": 250,
+            "start_line": 162
           }
         },
         {
@@ -25268,8 +26536,8 @@
           "signature": "(evidence: tuple[OutcomeEvidence, ...], signal: str, value: str) -> float",
           "source_location": {
             "column": 4,
-            "end_line": 194,
-            "start_line": 193
+            "end_line": 254,
+            "start_line": 253
           }
         },
         {
@@ -25293,8 +26561,8 @@
           "signature": "(value: float) -> float",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 197
+            "end_line": 258,
+            "start_line": 257
           }
         },
         {
@@ -25324,8 +26592,8 @@
           "signature": "(primary: float, opposing: float) -> float",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 201
+            "end_line": 265,
+            "start_line": 261
           }
         },
         {
@@ -25384,15 +26652,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "semantic_fallback_used"
+            },
+            {
+              "annotation": "bool | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "state_changed"
             }
           ],
           "qualified_name": "DeterministicOutcomeFusion._event",
           "return_annotation": "OutcomeEvent",
-          "signature": "(action_id: str, status: str, confidence: float, conflict: bool, abstained: bool, evidence: tuple[OutcomeEvidence, ...], reason: str, semantic_fallback_used: bool) -> OutcomeEvent",
+          "signature": "(action_id: str, status: str, confidence: float, conflict: bool, abstained: bool, evidence: tuple[OutcomeEvidence, ...], reason: str, semantic_fallback_used: bool, *, state_changed: bool | None = …) -> OutcomeEvent",
           "source_location": {
             "column": 4,
-            "end_line": 227,
-            "start_line": 208
+            "end_line": 313,
+            "start_line": 291
           }
         },
         {
@@ -25411,8 +26685,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 278,
-            "start_line": 230
+            "end_line": 364,
+            "start_line": 316
           }
         },
         {
@@ -25452,8 +26726,8 @@
           "signature": "(self, semantic_provider: SemanticOutcomeProvider | None = …, semantic_threshold: float = …, fusion: DeterministicOutcomeFusion | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 233
+            "end_line": 333,
+            "start_line": 319
           }
         },
         {
@@ -25499,8 +26773,8 @@
           "signature": "(self, before: ScreenObservation, action_id: str, after: ScreenObservation, temporal_observations: tuple[ScreenObservation, ...] = …) -> OutcomeEvent",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 249
+            "end_line": 364,
+            "start_line": 335
           }
         }
       ]
@@ -25574,7 +26848,7 @@
       "module": "ai_game_player.outcome_models",
       "path": "src/ai_game_player/outcome_models.py",
       "source_location": {
-        "end_line": 102,
+        "end_line": 120,
         "start_line": 1
       },
       "symbols": [
@@ -25689,8 +26963,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 102,
-            "start_line": 45
+            "end_line": 120,
+            "start_line": 61
           }
         },
         {
@@ -25712,8 +26986,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 63,
-            "start_line": 57
+            "end_line": 80,
+            "start_line": 74
           }
         },
         {
@@ -25735,8 +27009,8 @@
           "signature": "(self) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 65
+            "end_line": 84,
+            "start_line": 82
           }
         },
         {
@@ -25758,8 +27032,8 @@
           "signature": "(self) -> dict[str, float]",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 69
+            "end_line": 106,
+            "start_line": 86
           }
         },
         {
@@ -25781,8 +27055,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 91
+            "end_line": 120,
+            "start_line": 108
           }
         }
       ]
@@ -25979,6 +27253,7 @@
         "ai_game_player.action_executor",
         "ai_game_player.action_safety",
         "ai_game_player.candidate_merger",
+        "ai_game_player.decision_verifier",
         "ai_game_player.engine",
         "ai_game_player.event_journal",
         "ai_game_player.execution_history",
@@ -26109,6 +27384,22 @@
           "line": 14,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.engine"
           ],
           "module": "ai_game_player.engine",
@@ -26122,7 +27413,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.execution_history"
@@ -26138,7 +27429,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.event_journal"
@@ -26154,7 +27445,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.fail_safe_runtime"
@@ -26178,7 +27469,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.journal_adapters"
@@ -26194,7 +27485,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 20,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -26218,7 +27509,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 21,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_source"
@@ -26234,7 +27525,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 22,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ocr_detector"
@@ -26250,7 +27541,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -26266,7 +27557,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 23,
+          "line": 24,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.safety_guard"
@@ -26290,7 +27581,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 25,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime_log"
@@ -26307,7 +27598,7 @@
       "module": "ai_game_player.pipeline",
       "path": "src/ai_game_player/pipeline.py",
       "source_location": {
-        "end_line": 443,
+        "end_line": 480,
         "start_line": 1
       },
       "symbols": [
@@ -26327,8 +27618,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 443,
-            "start_line": 33
+            "end_line": 480,
+            "start_line": 34
           }
         },
         {
@@ -26470,8 +27761,8 @@
           "signature": "(self, source: ObservationSource, game_directory: Path, provider: object | None = …, controller: RunController | None = …, dry_run: bool = …, window_handle: int | None = …, input_mode: str = …, window_process_id: int | None = …, safety_evaluator: ActionSafetyEvaluator | None = …, safety_guard: SafetyGuard | None = …, safety_guard_config: SafetyGuardConfig | None = …, emergency_stop: EmergencyStop | None = …, fail_safe_runtime: FailSafeRuntime | None = …, fail_safe_config: FailSafeConfig | None = …, external_watchdog: bool = …, automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = …, event_journal: EventJournal | None = …, runtime_log: RuntimeLog | None = …, migrate_legacy: bool = …, migrate_runtime_log: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 70
+            "end_line": 161,
+            "start_line": 71
           }
         },
         {
@@ -26499,8 +27790,8 @@
           "signature": "(self, ocr_texts: list[dict[str, object]] | None = …) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 162
+            "end_line": 170,
+            "start_line": 163
           }
         },
         {
@@ -26546,8 +27837,8 @@
           "signature": "(self, ocr_texts: list[dict[str, object]] | None = …, purpose: str = …, personality: str = …, expected_rearm_token: int | None = …) -> tuple[ActionDecision, list[ActionCandidate], ScreenObservation]",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 177
+            "end_line": 194,
+            "start_line": 178
           }
         },
         {
@@ -26593,8 +27884,8 @@
           "signature": "(self, ocr_texts: list[dict[str, object]] | None = …, purpose: str = …, personality: str = …, expected_rearm_token: int | None = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 214,
-            "start_line": 202
+            "end_line": 215,
+            "start_line": 203
           }
         },
         {
@@ -26640,8 +27931,8 @@
           "signature": "(self, ocr_texts: list[dict[str, object]] | None = …, purpose: str = …, personality: str = …, expected_rearm_token: int | None = …) -> ExecutionResult",
           "source_location": {
             "column": 4,
-            "end_line": 260,
-            "start_line": 223
+            "end_line": 282,
+            "start_line": 224
           }
         },
         {
@@ -26663,8 +27954,8 @@
           "signature": "(self) -> list[ExecutionResult]",
           "source_location": {
             "column": 4,
-            "end_line": 268,
-            "start_line": 267
+            "end_line": 290,
+            "start_line": 289
           }
         },
         {
@@ -26704,8 +27995,8 @@
           "signature": "(self, status: str, confidence: float, evidence: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 276,
-            "start_line": 270
+            "end_line": 298,
+            "start_line": 292
           }
         },
         {
@@ -26733,8 +28024,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 280,
-            "start_line": 278
+            "end_line": 302,
+            "start_line": 300
           }
         },
         {
@@ -26756,8 +28047,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 284,
-            "start_line": 282
+            "end_line": 306,
+            "start_line": 304
           }
         },
         {
@@ -26779,8 +28070,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 293
+            "end_line": 326,
+            "start_line": 315
           }
         },
         {
@@ -26802,8 +28093,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 326,
-            "start_line": 313
+            "end_line": 348,
+            "start_line": 335
           }
         },
         {
@@ -26825,8 +28116,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 363,
-            "start_line": 335
+            "end_line": 385,
+            "start_line": 357
           }
         },
         {
@@ -26860,8 +28151,8 @@
           "signature": "(self, resource: str, error: Exception) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 391,
-            "start_line": 372
+            "end_line": 413,
+            "start_line": 394
           }
         },
         {
@@ -26883,8 +28174,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 401,
-            "start_line": 393
+            "end_line": 423,
+            "start_line": 415
           }
         },
         {
@@ -26912,8 +28203,8 @@
           "signature": "(self, run_token: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 412,
-            "start_line": 409
+            "end_line": 434,
+            "start_line": 431
           }
         },
         {
@@ -26940,15 +28231,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "purpose"
+            },
+            {
+              "annotation": "dict[str, object] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "decision_reliability"
             }
           ],
           "qualified_name": "DecisionPipeline._safety_context",
           "return_annotation": "tuple[SafetyEvaluationContext, str]",
-          "signature": "(self, action_id: str, purpose: str) -> tuple[SafetyEvaluationContext, str]",
+          "signature": "(self, action_id: str, purpose: str, decision_reliability: dict[str, object] | None = …) -> tuple[SafetyEvaluationContext, str]",
           "source_location": {
             "column": 4,
-            "end_line": 443,
-            "start_line": 414
+            "end_line": 480,
+            "start_line": 442
           }
         }
       ]
@@ -26979,6 +28276,19 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
           "module": "urllib.request",
           "names": [
             {
@@ -26994,7 +28304,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 5,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_context"
@@ -27010,7 +28320,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -27034,7 +28344,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 22,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -27050,7 +28360,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 54,
+          "line": 109,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -27067,7 +28377,7 @@
       "module": "ai_game_player.provider",
       "path": "src/ai_game_player/provider.py",
       "source_location": {
-        "end_line": 119,
+        "end_line": 278,
         "start_line": 1
       },
       "symbols": [
@@ -27087,8 +28397,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 31,
-            "start_line": 8
+            "end_line": 70,
+            "start_line": 20
           }
         },
         {
@@ -27122,8 +28432,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None = …)",
           "source_location": {
             "column": 4,
-            "end_line": 12,
-            "start_line": 9
+            "end_line": 24,
+            "start_line": 21
           }
         },
         {
@@ -27169,8 +28479,8 @@
           "signature": "(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = …, purpose: str = …, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 18,
-            "start_line": 14
+            "end_line": 30,
+            "start_line": 26
           }
         },
         {
@@ -27204,8 +28514,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 31,
-            "start_line": 20
+            "end_line": 70,
+            "start_line": 52
           }
         },
         {
@@ -27224,8 +28534,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 119,
-            "start_line": 34
+            "end_line": 278,
+            "start_line": 89
           }
         },
         {
@@ -27255,8 +28565,8 @@
           "signature": "(endpoint: str = …, timeout: int = …) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 46,
-            "start_line": 36
+            "end_line": 101,
+            "start_line": 91
           }
         },
         {
@@ -27296,8 +28606,8 @@
           "signature": "(self, model: str, endpoint: str = …, timeout: int = …)",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 48
+            "end_line": 106,
+            "start_line": 103
           }
         },
         {
@@ -27331,8 +28641,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None = …)",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 53
+            "end_line": 134,
+            "start_line": 108
           }
         },
         {
@@ -27378,8 +28688,8 @@
           "signature": "(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = …, purpose: str = …, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 91,
-            "start_line": 81
+            "end_line": 180,
+            "start_line": 159
           }
         },
         {
@@ -27413,8 +28723,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 99,
-            "start_line": 93
+            "end_line": 210,
+            "start_line": 202
           }
         },
         {
@@ -27435,21 +28745,15 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "context"
-            },
-            {
-              "annotation": "set[str]",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "allowed_action_ids"
             }
           ],
           "qualified_name": "OllamaProvider._request_decision",
           "return_annotation": "ActionDecision",
-          "signature": "(self, context: dict[str, object], allowed_action_ids: set[str]) -> ActionDecision",
+          "signature": "(self, context: dict[str, object]) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 119,
-            "start_line": 101
+            "end_line": 278,
+            "start_line": 231
           }
         }
       ]
@@ -41225,6 +42529,10 @@
             },
             {
               "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
               "name": "ScreenObservation"
             }
           ]
@@ -41249,7 +42557,7 @@
       "module": "tests.test_action_safety",
       "path": "tests/test_action_safety.py",
       "source_location": {
-        "end_line": 147,
+        "end_line": 214,
         "start_line": 1
       },
       "symbols": [
@@ -41271,7 +42579,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 143,
+            "end_line": 210,
             "start_line": 16
           }
         },
@@ -41501,7 +42809,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
+            "end_line": 125,
             "start_line": 102
           }
         },
@@ -41639,8 +42947,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 126
+            "end_line": 145,
+            "start_line": 127
           }
         },
         {
@@ -41659,8 +42967,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 129,
-            "start_line": 127
+            "end_line": 130,
+            "start_line": 128
           }
         },
         {
@@ -41682,8 +42990,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 129,
-            "start_line": 128
+            "end_line": 130,
+            "start_line": 129
           }
         },
         {
@@ -41702,8 +43010,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 133,
-            "start_line": 131
+            "end_line": 134,
+            "start_line": 132
           }
         },
         {
@@ -41731,8 +43039,339 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 12,
-            "end_line": 133,
-            "start_line": 132
+            "end_line": 134,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_live_pipeline_blocks_unverified_decision_and_retains_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_unverified_decision_and_retains_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Source",
+          "parameters": [],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_unverified_decision_and_retains_evidence.Source",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 150,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_unverified_decision_and_retains_evidence.Source.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 150,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeExecutor",
+          "parameters": [],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_unverified_decision_and_retains_evidence.FakeExecutor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 158,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_unverified_decision_and_retains_evidence.FakeExecutor.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 154,
+            "start_line": 153
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_unverified_decision_and_retains_evidence.FakeExecutor.execute",
+          "return_annotation": null,
+          "signature": "(self, candidate)",
+          "source_location": {
+            "column": 12,
+            "end_line": 158,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_live_pipeline_blocks_caution_decision_and_retains_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 210,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Source",
+          "parameters": [],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.Source",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 179,
+            "start_line": 177
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.Source.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 179,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CautiousProvider",
+          "parameters": [],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.CautiousProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 190,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "personality"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.CautiousProvider.choose_context",
+          "return_annotation": null,
+          "signature": "(self, context, personality = …)",
+          "source_location": {
+            "column": 12,
+            "end_line": 190,
+            "start_line": 182
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeExecutor",
+          "parameters": [],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.FakeExecutor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 198,
+            "start_line": 192
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.FakeExecutor.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 194,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate"
+            }
+          ],
+          "qualified_name": "ActionSafetyTest.test_live_pipeline_blocks_caution_decision_and_retains_evidence.FakeExecutor.execute",
+          "return_annotation": null,
+          "signature": "(self, candidate)",
+          "source_location": {
+            "column": 12,
+            "end_line": 198,
+            "start_line": 196
           }
         }
       ]
@@ -45717,6 +47356,8 @@
         "ai_game_player",
         "ai_game_player.decision_context",
         "ai_game_player.engine",
+        "ai_game_player.event_journal",
+        "ai_game_player.journal_adapters",
         "ai_game_player.knowledge",
         "ai_game_player.models",
         "ai_game_player.outcome"
@@ -45790,18 +47431,26 @@
             },
             {
               "alias": null,
+              "name": "DecisionTraceStore"
+            },
+            {
+              "alias": null,
               "name": "EvaluationFusion"
             },
             {
               "alias": null,
               "name": "EvaluatorEvidence"
+            },
+            {
+              "alias": null,
+              "name": "RepetitionContextEvaluator"
             }
           ]
         },
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.engine"
@@ -45817,7 +47466,39 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.journal_adapters"
+          ],
+          "module": "ai_game_player.journal_adapters",
+          "names": [
+            {
+              "alias": null,
+              "name": "LegacyEventAdapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge"
@@ -45833,7 +47514,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -45846,6 +47527,10 @@
             },
             {
               "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
               "name": "ScreenObservation"
             }
           ]
@@ -45853,7 +47538,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -45870,7 +47555,7 @@
       "module": "tests.test_decision_context",
       "path": "tests/test_decision_context.py",
       "source_location": {
-        "end_line": 158,
+        "end_line": 349,
         "start_line": 1
       },
       "symbols": [
@@ -45890,8 +47575,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 25,
-            "start_line": 17
+            "end_line": 29,
+            "start_line": 21
           }
         },
         {
@@ -45937,8 +47622,8 @@
           "signature": "(self, name, score, confidence = …, reliability = …)",
           "source_location": {
             "column": 4,
-            "end_line": 22,
-            "start_line": 18
+            "end_line": 26,
+            "start_line": 22
           }
         },
         {
@@ -45984,8 +47669,8 @@
           "signature": "(self, observation, candidate, recent_history, previous_outcome)",
           "source_location": {
             "column": 4,
-            "end_line": 25,
-            "start_line": 24
+            "end_line": 29,
+            "start_line": 28
           }
         },
         {
@@ -46006,8 +47691,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 154,
-            "start_line": 28
+            "end_line": 345,
+            "start_line": 32
           }
         },
         {
@@ -46035,8 +47720,8 @@
           "signature": "(self, signature = …)",
           "source_location": {
             "column": 4,
-            "end_line": 42,
-            "start_line": 29
+            "end_line": 46,
+            "start_line": 33
           }
         },
         {
@@ -46076,8 +47761,8 @@
           "signature": "(self, action_id = …, label = …, confidence = …)",
           "source_location": {
             "column": 4,
-            "end_line": 45,
-            "start_line": 44
+            "end_line": 49,
+            "start_line": 48
           }
         },
         {
@@ -46099,8 +47784,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 47
+            "end_line": 71,
+            "start_line": 51
           }
         },
         {
@@ -46122,8 +47807,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 69
+            "end_line": 83,
+            "start_line": 73
           }
         },
         {
@@ -46145,8 +47830,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 81
+            "end_line": 101,
+            "start_line": 85
           }
         },
         {
@@ -46168,8 +47853,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 112,
-            "start_line": 99
+            "end_line": 116,
+            "start_line": 103
           }
         },
         {
@@ -46191,8 +47876,132 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 128,
-            "start_line": 114
+            "end_line": 132,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 134
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SequentialProvider",
+          "parameters": [],
+          "qualified_name": "DecisionContextTest.test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context.SequentialProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 149,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context.SequentialProvider.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 138,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "personality"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_blocked_decision_keeps_prior_action_outcome_in_trace_and_context.SequentialProvider.choose_context",
+          "return_annotation": null,
+          "signature": "(self, context, personality = …)",
+          "source_location": {
+            "column": 12,
+            "end_line": 149,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_outcome_trace_preserves_simultaneous_state_change",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_terminal_outcome_trace_preserves_simultaneous_state_change",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 203,
+            "start_line": 178
           }
         },
         {
@@ -46214,8 +48023,100 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 130
+            "end_line": 218,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejected_provider_proposal_is_excluded_from_action_history",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_rejected_provider_proposal_is_excluded_from_action_history",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 249,
+            "start_line": 220
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_recent_action_limit_is_applied_after_rejection_filtering",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_recent_action_limit_is_applied_after_rejection_filtering",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 270,
+            "start_line": 251
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_blocked_decision_stays_in_audit_trace_but_not_action_history",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_blocked_decision_stays_in_audit_trace_but_not_action_history",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 290,
+            "start_line": 272
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_journal_trace_patches_keep_outcomes_and_blocked_status",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionContextTest.test_journal_trace_patches_keep_outcomes_and_blocked_status",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 334,
+            "start_line": 292
           }
         },
         {
@@ -46237,8 +48138,845 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 154,
-            "start_line": 145
+            "end_line": 345,
+            "start_line": 336
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_context",
+        "ai_game_player.decision_verifier",
+        "ai_game_player.engine",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionVerifier"
+            },
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.engine"
+          ],
+          "module": "ai_game_player.engine",
+          "names": [
+            {
+              "alias": null,
+              "name": "GamePlayerEngine"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_decision_verifier",
+      "path": "tests/test_decision_verifier.py",
+      "source_location": {
+        "end_line": 361,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DecisionVerifierTest",
+          "parameters": [],
+          "qualified_name": "DecisionVerifierTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 357,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 21,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "decision",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.decision",
+          "return_annotation": null,
+          "signature": "(self, **overrides)",
+          "source_location": {
+            "column": 4,
+            "end_line": 33,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trusts_action_grounded_in_current_snapshot_and_scene",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_trusts_action_grounded_in_current_snapshot_and_scene",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_invalid_schema_types_and_unexpected_fields",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_invalid_schema_types_and_unexpected_fields",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_action_outside_allowed_candidate_set",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_action_outside_allowed_candidate_set",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 59,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_stale_snapshot_and_state_references",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_stale_snapshot_and_state_references",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_context_from_a_different_screen",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_context_from_a_different_screen",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_reason_that_explicitly_denies_selected_action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_reason_that_explicitly_denies_selected_action",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_normalizes_candidate_separators_when_checking_negation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_normalizes_candidate_separators_when_checking_negation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_treat_negated_description_as_selection_rejection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_does_not_treat_negated_description_as_selection_rejection",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_match_english_prefixes_of_different_candidate_phrases",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_does_not_match_english_prefixes_of_different_candidate_phrases",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_english_negation_with_ordinary_trailing_modifiers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_english_negation_with_ordinary_trailing_modifiers",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 161,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_english_negation_of_click_and_press_actions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_english_negation_of_click_and_press_actions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 194,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_reject_japanese_negation_of_negation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_does_not_reject_japanese_negation_of_negation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 206,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_japanese_negation_of_longer_candidate_does_not_reject_selected_candidate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_japanese_negation_of_longer_candidate_does_not_reject_selected_candidate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 255,
+            "start_line": 219
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_japanese_candidate_inside_prefixed_compound_is_not_treated_as_standalone",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_japanese_candidate_inside_prefixed_compound_is_not_treated_as_standalone",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 273,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_negation_of_one_character_action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejects_negation_of_one_character_action",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 290,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_snapshot_reference_requires_verification",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_missing_snapshot_reference_requires_verification",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 296,
+            "start_line": 292
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_empty_reason_is_caution_without_claiming_trust",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_empty_reason_is_caution_without_claiming_trust",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 301,
+            "start_line": 298
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejection_is_persisted_before_engine_fails_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejection_is_persisted_before_engine_fails_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 324,
+            "start_line": 303
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "InvalidProvider",
+          "parameters": [],
+          "qualified_name": "DecisionVerifierTest.test_rejection_is_persisted_before_engine_fails_closed.InvalidProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 313,
+            "start_line": 304
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "personality"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_rejection_is_persisted_before_engine_fails_closed.InvalidProvider.choose_context",
+          "return_annotation": null,
+          "signature": "(self, context, personality = …)",
+          "source_location": {
+            "column": 12,
+            "end_line": 313,
+            "start_line": 305
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 357,
+            "start_line": 326
+          }
+        },
+        {
+          "bases": [
+            "DecisionContextBuilder"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "OverpermissiveContextBuilder",
+          "parameters": [],
+          "qualified_name": "DecisionVerifierTest.test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive.OverpermissiveContextBuilder",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 329,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "build",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "allowed_candidates"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive.OverpermissiveContextBuilder.build",
+          "return_annotation": null,
+          "signature": "(self, observation, candidates, allowed_candidates, **kwargs)",
+          "source_location": {
+            "column": 12,
+            "end_line": 329,
+            "start_line": 328
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Provider",
+          "parameters": [],
+          "qualified_name": "DecisionVerifierTest.test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive.Provider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 340,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "personality"
+            }
+          ],
+          "qualified_name": "DecisionVerifierTest.test_engine_preserves_evaluator_grounding_when_context_builder_is_overpermissive.Provider.choose_context",
+          "return_annotation": null,
+          "signature": "(self, context, personality = …)",
+          "source_location": {
+            "column": 12,
+            "end_line": 340,
+            "start_line": 332
           }
         }
       ]
@@ -60392,7 +63130,8 @@
         "ai_game_player.evaluation_primitives",
         "ai_game_player.models",
         "ai_game_player.outcome",
-        "ai_game_player.outcome_fusion"
+        "ai_game_player.outcome_fusion",
+        "ai_game_player.outcome_models"
       ],
       "imports": [
         {
@@ -60514,7 +63253,27 @@
           "names": [
             {
               "alias": null,
+              "name": "DeterministicOutcomeFusion"
+            },
+            {
+              "alias": null,
               "name": "OutcomeDetector"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.outcome_models"
+          ],
+          "module": "ai_game_player.outcome_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "OutcomeEvidence"
             }
           ]
         }
@@ -60522,7 +63281,7 @@
       "module": "tests.test_outcome_fusion",
       "path": "tests/test_outcome_fusion.py",
       "source_location": {
-        "end_line": 164,
+        "end_line": 211,
         "start_line": 1
       },
       "symbols": [
@@ -60563,8 +63322,8 @@
           "signature": "(*, ocr: list[str] | None = …, state: dict[str, object] | None = …, perceptual_hash: str | None = …, signature: str | None = …) -> ScreenObservation",
           "source_location": {
             "column": 0,
-            "end_line": 26,
-            "start_line": 12
+            "end_line": 27,
+            "start_line": 13
           }
         },
         {
@@ -60583,8 +63342,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 36,
-            "start_line": 29
+            "end_line": 37,
+            "start_line": 30
           }
         },
         {
@@ -60612,8 +63371,8 @@
           "signature": "(self, assessment: OutcomeAssessment) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 30
+            "end_line": 33,
+            "start_line": 31
           }
         },
         {
@@ -60647,8 +63406,8 @@
           "signature": "(self, observation, previous = …)",
           "source_location": {
             "column": 4,
-            "end_line": 36,
-            "start_line": 34
+            "end_line": 37,
+            "start_line": 35
           }
         },
         {
@@ -60669,8 +63428,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 160,
-            "start_line": 39
+            "end_line": 207,
+            "start_line": 40
           }
         },
         {
@@ -60692,8 +63451,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 52,
-            "start_line": 40
+            "end_line": 53,
+            "start_line": 41
           }
         },
         {
@@ -60715,8 +63474,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 64,
-            "start_line": 54
+            "end_line": 66,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_result_preserves_fused_stability_state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OutcomeFusionTests.test_terminal_result_preserves_fused_stability_state",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_result_preserves_fused_change_state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OutcomeFusionTests.test_terminal_result_preserves_fused_change_state",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 111,
+            "start_line": 102
           }
         },
         {
@@ -60738,8 +63543,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 66
+            "end_line": 129,
+            "start_line": 113
           }
         },
         {
@@ -60761,8 +63566,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 84
+            "end_line": 144,
+            "start_line": 131
           }
         },
         {
@@ -60784,8 +63589,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 110,
-            "start_line": 99
+            "end_line": 157,
+            "start_line": 146
           }
         },
         {
@@ -60807,8 +63612,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 122,
-            "start_line": 112
+            "end_line": 169,
+            "start_line": 159
           }
         },
         {
@@ -60830,8 +63635,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 134,
-            "start_line": 124
+            "end_line": 181,
+            "start_line": 171
           }
         },
         {
@@ -60853,8 +63658,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 136
+            "end_line": 192,
+            "start_line": 183
           }
         },
         {
@@ -60876,8 +63681,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 147
+            "end_line": 207,
+            "start_line": 194
           }
         }
       ]
@@ -61137,7 +63942,8 @@
         "ai_game_player.models",
         "ai_game_player.pipeline",
         "ai_game_player.provider",
-        "ai_game_player.run_control"
+        "ai_game_player.run_control",
+        "ai_game_player.safety_guard"
       ],
       "imports": [
         {
@@ -61224,13 +64030,13 @@
           "line": 8,
           "local_dependencies": [
             "ai_game_player",
-            "ai_game_player.app"
+            "ai_game_player.action_executor"
           ],
-          "module": "ai_game_player.app",
+          "module": "ai_game_player.action_executor",
           "names": [
             {
               "alias": null,
-              "name": "Application"
+              "name": "ExecutionResult"
             }
           ]
         },
@@ -61296,13 +64102,13 @@
           "line": 12,
           "local_dependencies": [
             "ai_game_player",
-            "ai_game_player.action_executor"
+            "ai_game_player.safety_guard"
           ],
-          "module": "ai_game_player.action_executor",
+          "module": "ai_game_player.safety_guard",
           "names": [
             {
               "alias": null,
-              "name": "ExecutionResult"
+              "name": "EmergencyStop"
             }
           ]
         },
@@ -61310,6 +64116,22 @@
           "kind": "from",
           "level": 0,
           "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.app"
+          ],
+          "module": "ai_game_player.app",
+          "names": [
+            {
+              "alias": null,
+              "name": "Application"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.engine"
@@ -61325,7 +64147,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -61346,7 +64168,7 @@
       "module": "tests.test_pipeline_execute",
       "path": "tests/test_pipeline_execute.py",
       "source_location": {
-        "end_line": 332,
+        "end_line": 399,
         "start_line": 1
       },
       "symbols": [
@@ -61366,8 +64188,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 28,
-            "start_line": 26
+            "end_line": 29,
+            "start_line": 27
           }
         },
         {
@@ -61389,8 +64211,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 28,
-            "start_line": 27
+            "end_line": 29,
+            "start_line": 28
           }
         },
         {
@@ -61411,8 +64233,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 332,
-            "start_line": 31
+            "end_line": 399,
+            "start_line": 32
           }
         },
         {
@@ -61434,8 +64256,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 52,
-            "start_line": 32
+            "end_line": 53,
+            "start_line": 33
           }
         },
         {
@@ -61454,8 +64276,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 35,
-            "start_line": 33
+            "end_line": 36,
+            "start_line": 34
           }
         },
         {
@@ -61483,8 +64305,8 @@
           "signature": "(self, **_arguments)",
           "source_location": {
             "column": 12,
-            "end_line": 35,
-            "start_line": 34
+            "end_line": 36,
+            "start_line": 35
           }
         },
         {
@@ -61506,8 +64328,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 54
+            "end_line": 66,
+            "start_line": 55
           }
         },
         {
@@ -61535,8 +64357,8 @@
           "signature": "(_position, _move_in_progress)",
           "source_location": {
             "column": 8,
-            "end_line": 56,
-            "start_line": 55
+            "end_line": 57,
+            "start_line": 56
           }
         },
         {
@@ -61558,8 +64380,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 80,
-            "start_line": 67
+            "end_line": 81,
+            "start_line": 68
           }
         },
         {
@@ -61581,8 +64403,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 82
+            "end_line": 87,
+            "start_line": 83
           }
         },
         {
@@ -61604,8 +64426,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 94,
-            "start_line": 88
+            "end_line": 95,
+            "start_line": 89
           }
         },
         {
@@ -61626,8 +64448,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 91,
-            "start_line": 89
+            "end_line": 92,
+            "start_line": 90
           }
         },
         {
@@ -61673,8 +64495,356 @@
           "signature": "(self, candidates, observation, purpose = …, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 91,
-            "start_line": 90
+            "end_line": 92,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_live_execution_remains_available_to_legacy_choose_providers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 127,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LiveSource",
+          "parameters": [],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers.LiveSource",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 101,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers.LiveSource.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 101,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [
+            "RuleProvider"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LegacyProvider",
+          "parameters": [],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers.LegacyProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 105,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "purpose"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "personality"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers.LegacyProvider.choose",
+          "return_annotation": null,
+          "signature": "(self, candidates, observation, purpose = …, personality = …)",
+          "source_location": {
+            "column": 12,
+            "end_line": 105,
+            "start_line": 104
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeExecutor",
+          "parameters": [],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers.FakeExecutor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 109,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_live_execution_remains_available_to_legacy_choose_providers.FakeExecutor.execute",
+          "return_annotation": null,
+          "signature": "(self, candidate)",
+          "source_location": {
+            "column": 12,
+            "end_line": 109,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_executor_preflight_failure_marks_decision_as_not_executed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 162,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LiveSource",
+          "parameters": [],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed.LiveSource",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 133,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed.LiveSource.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 133,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LiveExecutor",
+          "parameters": [],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed.LiveExecutor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 137,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_candidate"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed.LiveExecutor.execute",
+          "return_annotation": null,
+          "signature": "(self, _candidate)",
+          "source_location": {
+            "column": 12,
+            "end_line": 137,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BlockedSafetyCheck",
+          "parameters": [],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed.BlockedSafetyCheck",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 141,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "check",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_candidate"
+            }
+          ],
+          "qualified_name": "PipelineExecuteTest.test_executor_preflight_failure_marks_decision_as_not_executed.BlockedSafetyCheck.check",
+          "return_annotation": null,
+          "signature": "(self, _candidate)",
+          "source_location": {
+            "column": 12,
+            "end_line": 141,
+            "start_line": 140
           }
         },
         {
@@ -61696,8 +64866,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 96
+            "end_line": 184,
+            "start_line": 164
           }
         },
         {
@@ -61716,8 +64886,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 105,
-            "start_line": 97
+            "end_line": 173,
+            "start_line": 165
           }
         },
         {
@@ -61739,8 +64909,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 99,
-            "start_line": 98
+            "end_line": 167,
+            "start_line": 166
           }
         },
         {
@@ -61762,8 +64932,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 105,
-            "start_line": 101
+            "end_line": 173,
+            "start_line": 169
           }
         },
         {
@@ -61784,8 +64954,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 109,
-            "start_line": 107
+            "end_line": 177,
+            "start_line": 175
           }
         },
         {
@@ -61831,8 +65001,8 @@
           "signature": "(self, candidates, observation, purpose = …, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 109,
-            "start_line": 108
+            "end_line": 177,
+            "start_line": 176
           }
         },
         {
@@ -61854,8 +65024,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 118
+            "end_line": 208,
+            "start_line": 185
           }
         },
         {
@@ -61874,8 +65044,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 124,
-            "start_line": 122
+            "end_line": 191,
+            "start_line": 189
           }
         },
         {
@@ -61897,8 +65067,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 124,
-            "start_line": 123
+            "end_line": 191,
+            "start_line": 190
           }
         },
         {
@@ -61919,8 +65089,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 128,
-            "start_line": 126
+            "end_line": 195,
+            "start_line": 193
           }
         },
         {
@@ -61966,8 +65136,8 @@
           "signature": "(self, candidates, observation, purpose = …, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 128,
-            "start_line": 127
+            "end_line": 195,
+            "start_line": 194
           }
         },
         {
@@ -61989,8 +65159,8 @@
           "signature": "(candidate)",
           "source_location": {
             "column": 12,
-            "end_line": 135,
-            "start_line": 133
+            "end_line": 202,
+            "start_line": 200
           }
         },
         {
@@ -62012,8 +65182,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 143
+            "end_line": 230,
+            "start_line": 210
           }
         },
         {
@@ -62032,8 +65202,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 149,
-            "start_line": 144
+            "end_line": 216,
+            "start_line": 211
           }
         },
         {
@@ -62055,8 +65225,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 149,
-            "start_line": 145
+            "end_line": 216,
+            "start_line": 212
           }
         },
         {
@@ -62078,8 +65248,8 @@
           "signature": "(candidate)",
           "source_location": {
             "column": 12,
-            "end_line": 157,
-            "start_line": 155
+            "end_line": 224,
+            "start_line": 222
           }
         },
         {
@@ -62101,8 +65271,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 165
+            "end_line": 253,
+            "start_line": 232
           }
         },
         {
@@ -62123,8 +65293,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 173,
-            "start_line": 170
+            "end_line": 240,
+            "start_line": 237
           }
         },
         {
@@ -62170,8 +65340,8 @@
           "signature": "(self, candidates, observation, purpose = …, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 173,
-            "start_line": 171
+            "end_line": 240,
+            "start_line": 238
           }
         },
         {
@@ -62190,8 +65360,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 177,
-            "start_line": 175
+            "end_line": 244,
+            "start_line": 242
           }
         },
         {
@@ -62213,8 +65383,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 177,
-            "start_line": 176
+            "end_line": 244,
+            "start_line": 243
           }
         },
         {
@@ -62236,8 +65406,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 188
+            "end_line": 278,
+            "start_line": 255
           }
         },
         {
@@ -62258,8 +65428,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 194,
-            "start_line": 192
+            "end_line": 261,
+            "start_line": 259
           }
         },
         {
@@ -62305,8 +65475,8 @@
           "signature": "(self, observation, candidates, purpose = …, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 194,
-            "start_line": 193
+            "end_line": 261,
+            "start_line": 260
           }
         },
         {
@@ -62325,8 +65495,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 201,
-            "start_line": 196
+            "end_line": 268,
+            "start_line": 263
           }
         },
         {
@@ -62348,8 +65518,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 201,
-            "start_line": 197
+            "end_line": 268,
+            "start_line": 264
           }
         },
         {
@@ -62371,8 +65541,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 219
+            "end_line": 354,
+            "start_line": 286
           }
         },
         {
@@ -62393,8 +65563,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 239,
-            "start_line": 228
+            "end_line": 306,
+            "start_line": 295
           }
         },
         {
@@ -62440,8 +65610,8 @@
           "signature": "(self, candidates, observation = …, purpose = …, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 239,
-            "start_line": 235
+            "end_line": 306,
+            "start_line": 302
           }
         },
         {
@@ -62463,8 +65633,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 332,
-            "start_line": 289
+            "end_line": 399,
+            "start_line": 356
           }
         },
         {
@@ -62492,8 +65662,8 @@
           "signature": "(observation, decision)",
           "source_location": {
             "column": 12,
-            "end_line": 304,
-            "start_line": 299
+            "end_line": 371,
+            "start_line": 366
           }
         },
         {
@@ -62508,8 +65678,524 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 313,
-            "start_line": 309
+            "end_line": 380,
+            "start_line": 376
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_context",
+        "ai_game_player.decision_verifier",
+        "ai_game_player.models",
+        "ai_game_player.provider"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionVerifier"
+            },
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.provider"
+          ],
+          "module": "ai_game_player.provider",
+          "names": [
+            {
+              "alias": null,
+              "name": "OllamaProvider"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_provider_decision",
+      "path": "tests/test_provider_decision.py",
+      "source_location": {
+        "end_line": 123,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeResponse",
+          "parameters": [],
+          "qualified_name": "FakeResponse",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 22,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "FakeResponse.__init__",
+          "return_annotation": null,
+          "signature": "(self, value)",
+          "source_location": {
+            "column": 4,
+            "end_line": 13,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__enter__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeResponse.__enter__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 16,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__exit__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            }
+          ],
+          "qualified_name": "FakeResponse.__exit__",
+          "return_annotation": null,
+          "signature": "(self, *args)",
+          "source_location": {
+            "column": 4,
+            "end_line": 19,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeResponse.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ProviderDecisionTest",
+          "parameters": [],
+          "qualified_name": "ProviderDecisionTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 119,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 33,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_preserves_snapshot_references_for_the_verifier",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_preserves_snapshot_references_for_the_verifier",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_does_not_coerce_invalid_action_id_type",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_does_not_coerce_invalid_action_id_type",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 67,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_converts_malformed_json_to_rejectable_schema_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_converts_malformed_json_to_rejectable_schema_evidence",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_rejects_empty_allowed_actions_before_network_request",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_rejects_empty_allowed_actions_before_network_request",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_legacy_choose_rejects_action_outside_allowed_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_legacy_choose_rejects_action_outside_allowed_candidates",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 94
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_legacy_choose_keeps_empty_reason_for_missing_field",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_legacy_choose_keeps_empty_reason_for_missing_field",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_legacy_choose_rejects_non_string_reason",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "urlopen"
+            }
+          ],
+          "qualified_name": "ProviderDecisionTest.test_legacy_choose_rejects_non_string_reason",
+          "return_annotation": null,
+          "signature": "(self, urlopen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 111
           }
         }
       ]
@@ -67869,7 +71555,7 @@
       "module": "tests.test_sequence_diagram",
       "path": "tests/test_sequence_diagram.py",
       "source_location": {
-        "end_line": 16,
+        "end_line": 17,
         "start_line": 1
       },
       "symbols": [
@@ -67891,7 +71577,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 16,
+            "end_line": 17,
             "start_line": 8
           }
         },
@@ -67914,7 +71600,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 16,
+            "end_line": 17,
             "start_line": 9
           }
         }
@@ -75750,7 +79436,7 @@
       "module": "tools.generate_sequence_diagram",
       "path": "tools/generate_sequence_diagram.py",
       "source_location": {
-        "end_line": 36,
+        "end_line": 64,
         "start_line": 1
       },
       "symbols": [
@@ -75785,8 +79471,8 @@
           "signature": "(source_file: Path, class_name: str, method_name: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 21,
-            "start_line": 6
+            "end_line": 49,
+            "start_line": 28
           }
         },
         {
@@ -75801,8 +79487,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 32,
-            "start_line": 24
+            "end_line": 60,
+            "start_line": 52
           }
         }
       ]
