@@ -7,10 +7,11 @@ from unittest.mock import patch
 
 from ai_game_player import app as app_module
 from ai_game_player.app import Application
+from ai_game_player.game_session import SessionStatus
 from ai_game_player.models import ScreenObservation
 from ai_game_player.observation_service import LiveObservationService
 from ai_game_player.outcome import OutcomeAssessment
-from ai_game_player.run_control import ExecutionCancelled, RunController
+from ai_game_player.run_control import RunController
 from ai_game_player.screen_capture import ScreenFrame
 
 
@@ -100,10 +101,67 @@ class RecordingLog:
 
 
 # {
+#   責務: [FakeSessionController: ApplicationからSession controllerへのcommand委譲を記録する]
+#   フィールド: [run_control: worker世代のtest制御, status: session状態, is_looping: 連続実行状態, command_calls: sessionへ届いた操作]
+# }
+class FakeSessionController:
+    # {
+    #   責務: [__init__: 初期状態のSession controller spyを作成する]
+    #   処理: [idle状態と空のcommand記録領域を初期化する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def __init__(self):
+        self.run_control = RunController()
+        self.status = SessionStatus.IDLE
+        self.is_looping = False
+        self.has_pending_step = False
+        self.start_count = 0
+        self.stop_reasons = []
+        self.loop_commands = []
+        self.step_commands = []
+        self.completed_steps = []
+        self.completed_observations = []
+
+    def start(self):
+        self.start_count += 1
+        self.run_control.start()
+        self.status = SessionStatus.RUNNING
+
+    def stop(self, reason="stopped"):
+        self.stop_reasons.append(reason)
+        self.is_looping = False
+        self.run_control.stop(reason)
+        self.status = SessionStatus.STOPPED
+
+    def start_loop(self, command="execute", interval_ms=1000):
+        self.loop_commands.append((command, interval_ms))
+        self.start()
+        self.is_looping = True
+
+    def step(self, command="execute"):
+        self.step_commands.append(command)
+        if self.status is not SessionStatus.RUNNING:
+            self.start()
+
+    def complete_step(self, result=None, error=None):
+        self.completed_steps.append((result, error))
+
+    def complete_loop_observation(self, observation):
+        self.completed_observations.append(observation)
+
+
+# {
 #   責務: [LiveExecutionValidationTests: 実入力対象の識別と連続実行の停止条件を検証する]
 #   フィールド: [fake Applicationとfake Win32 APIを各testで構成する]
 # }
 class LiveExecutionValidationTests(unittest.TestCase):
+    def make_uninitialized_application(self):
+        application = Application.__new__(Application)
+        application.session_controller = FakeSessionController()
+        application.controller = application.session_controller.run_control
+        return application
+
     # {
     #   責務: [make_application: UI依存なしで検証可能なApplicationを構築する]
     #   処理: [実行フラグ・入力方式・選択対象とHWND/PIDを設定する]
@@ -111,14 +169,13 @@ class LiveExecutionValidationTests(unittest.TestCase):
     #   戻り値: [Application: テスト用インスタンス]
     # }
     def make_application(self, *, live=True, mode="window_message", handles=None):
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         application.live_execution = FakeVariable(live)
         application.input_mode = FakeVariable(mode)
         application.window_choice = FakeVariable("Game")
         application.window_handles = handles or {}
         application.window_process_ids = {name: 456 for name in application.window_handles}
         application._execution_in_progress = False
-        application._loop_active = False
         return application
 
     # {
@@ -155,7 +212,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
             def write(self, *_record):
                 raise RuntimeError("Session Journal is unhealthy")
 
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         application.controller = RunController()
         application.controller.start()
         run_token = application.controller.rearm_token
@@ -196,7 +253,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
 
         for loop_step in (False, True):
             with self.subTest(loop_step=loop_step):
-                application = Application.__new__(Application)
+                application = self.make_uninitialized_application()
                 application.window_handles = {}
                 application.window_choice = FakeVariable("Game")
                 application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
@@ -247,7 +304,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
     #   戻り値: []
     # }
     def test_standalone_assessment_updates_display_after_stop(self):
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         previous_observation = ScreenObservation("previous", 1280, 720, [])
         observation = ScreenObservation("captured", 1280, 720, [])
         assessment = OutcomeAssessment("ongoing", 0.6, "ゲームは継続中です")
@@ -255,7 +312,6 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application._background_results = queue.Queue()
         application._background_results.put(("assessment", 1, None, "assessment", assessment, None, False, observation, None))
         application._latest_assessment_task_id = 1
-        application._loop_active = False
         application.controller = RunController()
         application.controller.start()
         application.controller.stop("manual")
@@ -327,86 +383,71 @@ class LiveExecutionValidationTests(unittest.TestCase):
         show_error.assert_called_once()
 
     # {
-    #   責務: [test_rearm_clears_invalidated_loop_and_allows_restart: 再アームで旧loopを解除し、新しい連続実行を開始できることを検証する]
-    #   処理: [再アーム後に旧worker結果を破棄し、loop状態を残さずstart_loopが再予約できることを確認する]
+    #   責務: [test_start_loop_delegates_scheduling_to_session_controller: 連続実行のtimer所有権をSession controllerへ委譲する]
+    #   処理: [validなdry-run設定でApplicationが独自callbackを登録せずcontroller.start_loopを呼ぶことを確認する]
     #   引数: []
     #   戻り値: []
     # }
-    def test_rearm_clears_invalidated_loop_and_allows_restart(self):
-        application = Application.__new__(Application)
-        controller = RunController()
-        controller.start()
-        old_run_token = controller.rearm_token
-        cancelled_callbacks = []
-        scheduled_callbacks = []
-        statuses = []
-        application.controller = controller
-        application._loop_active = True
-        application.loop_job = "pending-loop-step"
-        application._execution_in_progress = True
-        application._execution_task_id = 7
-        application._background_results = queue.Queue()
-        application.runtime_log = RecordingLog()
-        application.root = SimpleNamespace(
-            after_cancel=cancelled_callbacks.append,
-            after=lambda delay, callback: scheduled_callbacks.append((delay, callback)) or f"callback-{len(scheduled_callbacks)}",
+    def test_start_loop_delegates_scheduling_to_session_controller(self):
+        application = self.make_application(live=False)
+        application.workflow_service = SimpleNamespace(
+            prepare_step=lambda *_arguments: SimpleNamespace(evaluation=[], dry_run=True)
         )
+        application._application_settings = lambda: SimpleNamespace()
+        application.obs = SimpleNamespace(get=lambda *_arguments: "{}")
+        application.actions = SimpleNamespace(get=lambda *_arguments: "[]")
+        application._display_step_evaluation = lambda _evaluation: None
+        application._record_automated_cursor_position = lambda *_arguments: None
+        application._cursor_position = lambda: (100, 200)
+
+        application.start_loop()
+
+        self.assertEqual(
+            application.session_controller.loop_commands,
+            [("execute", app_module.LOOP_STEP_DELAY_MS)],
+        )
+        self.assertTrue(application.session_controller.is_looping)
+
+    # {
+    #   責務: [test_single_step_delegates_to_session_controller: 1回分の判断操作をSession controllerへ委譲する]
+    #   処理: [validなdry-run設定でApplication.run_and_executeがSession controller.stepを呼ぶことを確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_single_step_delegates_to_session_controller(self):
+        application = self.make_application(live=False)
+        application.workflow_service = SimpleNamespace(
+            prepare_step=lambda *_arguments: SimpleNamespace(evaluation=[], dry_run=True)
+        )
+        application._application_settings = lambda: SimpleNamespace()
+        application.obs = SimpleNamespace(get=lambda *_arguments: "{}")
+        application.actions = SimpleNamespace(get=lambda *_arguments: "[]")
+        application._display_step_evaluation = lambda _evaluation: None
+
+        self.assertTrue(application.run_and_execute())
+        self.assertEqual(application.session_controller.step_commands, ["execute"])
+
+    # {
+    #   責務: [test_rearm_restarts_the_session_controller: Applicationの再開commandをSession controllerへ委譲する]
+    #   処理: [running Sessionを停止理由rearmedで閉じ、Application.startがSessionを再開することを確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_rearm_restarts_the_session_controller(self):
+        application = self.make_uninitialized_application()
+        statuses = []
+        application.session_controller.start()
+        application.runtime_log = RecordingLog()
         application._set_status = statuses.append
 
         application.start()
 
-        self.assertEqual(cancelled_callbacks, ["pending-loop-step"])
-        self.assertFalse(application._loop_active)
-        self.assertIsNone(application.loop_job)
-        self.assertGreater(controller.rearm_token, old_run_token)
-        self.assertTrue(controller.is_running)
-
-        application._background_results.put(
-            ("pipeline", 7, old_run_token, "execute", None, ExecutionCancelled("再アーム"), True, None, None)
-        )
-        application._poll_background_results()
-
-        self.assertFalse(application._execution_in_progress)
-        self.assertFalse(application._loop_active)
-        self.assertTrue(controller.is_running)
-
-        application._validate_live_execution = lambda: None
-        application._record_automated_cursor_position = lambda *_args: None
-        application._cursor_position = lambda: (100, 200)
-        application.loop_guard = SimpleNamespace(reset=lambda: None)
-        application.start_loop()
-
-        self.assertTrue(application._loop_active)
-        self.assertEqual(application.loop_job, "callback-2")
-        self.assertEqual(application.runtime_log.records[0][1], "loop_stopped_by_rearm")
-
-    # {
-    #   責務: [test_loop_stops_when_step_fails: 評価後にstepを開始できなければ連続実行を止める]
-    #   処理: [失敗結果を返す非同期起動後にstopが呼ばれることを検証する]
-    #   引数: []
-    #   戻り値: []
-    # }
-    def test_loop_stops_when_step_fails(self):
-        application = self.make_application(live=False)
-        application.controller = SimpleNamespace(is_running=True, rearm_token=0)
-        application._loop_active = True
-        application.loop_job = None
-        application.runtime_log = RecordingLog()
-        application.loop_guard = SimpleNamespace(observe=lambda _observation: False)
-        application._run_is_current = lambda _token: True
-        application.run_and_execute = lambda **_kwargs: False
-        stopped = []
-        application.stop = lambda *_args: stopped.append(True)
-        application._continue_loop_with_assessment(
-            ScreenObservation("play", 1280, 720, []),
-            SimpleNamespace(status="ongoing"),
-            0,
-        )
-
-        self.assertEqual(stopped, [True])
+        self.assertEqual(application.session_controller.stop_reasons, ["rearmed"])
+        self.assertEqual(application.session_controller.start_count, 2)
+        self.assertEqual(statuses, ["実行可能"])
 
     def test_poll_background_results_discards_superseded_assessment(self):
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         earlier_observation = ScreenObservation("earlier", 1280, 720, [])
         latest_observation = ScreenObservation("latest", 1280, 720, [])
         previous_observation = ScreenObservation("previous", 1280, 720, [])
@@ -415,7 +456,6 @@ class LiveExecutionValidationTests(unittest.TestCase):
         displayed_statuses = []
         application._background_results = queue.Queue()
         application._latest_assessment_task_id = 2
-        application._loop_active = False
         application.controller = SimpleNamespace(is_running=False, rearm_token=0, stop_reason=None)
         application.runtime_log = RecordingLog()
         application.provider = FakeVariable("Rule")
@@ -436,7 +476,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertEqual(application.runtime_log.records[-1][2]["latest_task_id"], 2)
 
     def test_start_assessment_worker_records_task_after_successful_start(self):
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         application._background_task_counter = 5
         application._latest_assessment_task_id = 4
         application.previous_observation = None
@@ -456,7 +496,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertEqual(application._latest_assessment_task_id, 6)
 
     def test_failed_assessment_worker_start_preserves_previous_latest_task(self):
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         application._background_task_counter = 5
         application._latest_assessment_task_id = 4
         application.previous_observation = None
@@ -484,10 +524,10 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertEqual(statuses, ["状態評価を開始できません"])
 
     def test_poll_background_results_stops_loop_for_superseded_loop_assessment(self):
-        application = Application.__new__(Application)
+        application = self.make_uninitialized_application()
         application._background_results = queue.Queue()
         application._latest_assessment_task_id = 2
-        application._loop_active = True
+        application.session_controller.is_looping = True
         application.controller = SimpleNamespace(is_running=True, rearm_token=4, stop_reason=None)
         application.runtime_log = RecordingLog()
         application.root = SimpleNamespace(after=lambda *_args: None)
@@ -508,7 +548,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
     # }
     def test_poll_global_stop_ignores_automated_cursor_move(self):
         application = self.make_application(live=False)
-        application._loop_active = True
+        application.session_controller.is_looping = True
         application._last_cursor_position = (100, 200)
         application._automated_cursor_position_lock = threading.Lock()
         application._automated_cursor_position = None
@@ -528,7 +568,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
 
     def test_poll_global_stop_keeps_automated_move_pending_until_api_completes(self):
         application = self.make_application(live=False)
-        application._loop_active = True
+        application.session_controller.is_looping = True
         application._last_cursor_position = (100, 200)
         application._automated_cursor_position_lock = threading.Lock()
         application._automated_cursor_position = None
@@ -563,7 +603,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
     # }
     def test_poll_global_stop_stops_for_manual_cursor_move(self):
         application = self.make_application(live=False)
-        application._loop_active = True
+        application.session_controller.is_looping = True
         application._last_cursor_position = (100, 200)
         application._automated_cursor_position_lock = threading.Lock()
         application._automated_cursor_position = None

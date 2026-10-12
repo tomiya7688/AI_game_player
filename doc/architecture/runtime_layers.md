@@ -56,6 +56,8 @@ Tkinter Application
 
 `GameSessionController` owns start, step, loop, stop, and session-resource lifetime. `RuntimeComposition` creates the provider and decision pipeline that make up each `SessionRuntime`. The `Application` class displays controller state and delivers user commands; it does not assemble provider or pipeline dependencies directly.
 
+`Application.start_loop()` validates the selected target and current settings, then calls `GameSessionController.start_loop()`. The controller owns the next-step timer and repeat/terminal stop decisions. `TkAfterScheduler` adapts Tkinter's `after()` and `after_cancel()` calls to the controller's scheduler contract, so the `Application` class does not keep a second loop flag or loop callback.
+
 ## FAST_CV frame preprocessing
 
 The optional `FAST_CV` capability exposes a coarse frame-preprocessing operation through C ABI v1. The caller lends a BGRA frame synchronously; the native runtime returns RGB/brightness summaries, a perceptual sample hash, and filtered bright-region bounds in caller-owned output buffers. If the region buffer is too small, the caller retries with the reported required capacity. The result reports elapsed time, logical frame-payload bytes processed, region-payload bytes written, and input-copy count/bytes; frame-payload bytes exclude row padding, and the current implementation borrows the input and reports zero copies. The Python binding accepts provider-reported copy metrics and sums them across buffer-capacity retries. This is an explicit runtime API only: `FrameAnalyzer` keeps the Python reference implementation as its default fallback, and applications must inject a native preprocessor deliberately.

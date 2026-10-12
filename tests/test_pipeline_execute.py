@@ -245,6 +245,12 @@ class PipelineExecuteTest(unittest.TestCase):
 
             application = Application.__new__(Application)
             application.controller = controller
+            application.session_controller = SimpleNamespace(
+                is_looping=False,
+                has_pending_step=False,
+                status=None,
+                complete_step=lambda **_arguments: None,
+            )
             application._execution_in_progress = False
             application._background_task_counter = 0
             application._execution_task_id = None

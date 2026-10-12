@@ -247,81 +247,22 @@ class Application:
         self.live_status.config(text=status)
 
     # {
-    #   責務: [_is_looping: Session controllerまたは互換テスト状態から連続実行状態を返す]
-    #   処理: [通常実行ではSessionの状態を使い、部分初期化されたApplicationでは旧loop flagを読む]
+    #   責務: [_is_looping: Session controllerが保持する連続実行状態をUIへ返す]
+    #   処理: [Session controllerの公開状態を読み、Applicationにloop状態を複製しない]
     #   引数: []
     #   戻り値: [bool: 連続実行中ならTrue]
     # }
     def _is_looping(self) -> bool:
-        session = getattr(self, "session_controller", None)
-        if session is not None:
-            return session.is_looping
-        return bool(getattr(self, "_loop_active", False))
+        return self.session_controller.is_looping
 
     # {
-    #   責務: [_clear_loop_state: 互換実行状態に残るloop予約を解除する]
-    #   処理: [旧callback tokenを取消し、連続実行flagとtokenを初期化する]
-    #   引数: []
-    #   戻り値: []
-    # }
-    def _clear_loop_state(self) -> None:
-        self._loop_active = False
-        token = getattr(self, "loop_job", None)
-        if token is not None:
-            try:
-                self.root.after_cancel(token)
-            except tk.TclError as exc:
-                self.runtime_log.write("error", str(exc), {"operation": "cancel_loop_callback"})
-        self.loop_job = None
-
-    # {
-    #   責務: [_loop_step: 互換実行環境で画面観測評価を開始する]
-    #   処理: [連続実行状態を確認し、画面観測を評価workerへ渡す]
-    #   引数: []
-    #   戻り値: []
-    # }
-    def _loop_step(self) -> None:
-        self.loop_job = None
-        if not self._is_looping() or not self.controller.is_running:
-            return
-        run_token = self.controller.rearm_token
-        if os.name == "nt":
-            if self.capture_screen(loop_step=True) is None:
-                self.stop("capture_failure")
-            return
-        try:
-            observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
-        except Exception as exc:
-            self.runtime_log.write("error", str(exc), {"operation": "loop_observation"})
-            self.stop("invalid_observation")
-            return
-        self._start_assessment_worker(observation, loop_step=True, run_token=run_token)
-
-    # {
-    #   責務: [_continue_loop_with_assessment: 互換loopの評価結果から次のstep可否を決める]
-    #   処理: [反復・terminal状態を確認し、継続時だけworker stepを開始する]
-    #   引数: [observation: 最新画面, assessment: 状態評価, run_token: 評価開始世代]
-    #   戻り値: []
-    # }
-    def _continue_loop_with_assessment(self, observation: ScreenObservation, assessment: OutcomeAssessment, run_token: int | None) -> None:
-        if not self._is_looping() or not self._run_is_current(run_token):
-            return
-        if self.loop_guard.observe(observation) or assessment.status in {"success", "failure"}:
-            self.stop("terminal_outcome" if assessment.status in {"success", "failure"} else "repeated_observation")
-            return
-        if not self.run_and_execute(loop_step=True, expected_rearm_token=run_token):
-            self.stop("pipeline_step_not_started")
-
-    # {
-    #   責務: [_complete_session_step: Sessionが存在する場合だけworker完了を通知する]
-    #   処理: [新しいSession controllerへ完了・失敗を渡し、旧部分初期化テストでは何もしない]
+    #   責務: [_complete_session_step: worker完了をSessionへ通知する]
+    #   処理: [非同期workerの例外または成功をSession controllerへ渡す]
     #   引数: [error: worker失敗時の例外または成功時None]
     #   戻り値: []
     # }
     def _complete_session_step(self, error: Exception | None = None) -> None:
-        session = getattr(self, "session_controller", None)
-        if session is not None:
-            session.complete_step(error=error)
+        self.session_controller.complete_step(error=error)
 
     # {
     #   責務: [_create_session_runtime: composition rootからSession Controller用runtimeを構築する]
@@ -846,10 +787,7 @@ class Application:
                         except Exception as exc:
                             self.stop(f"invalid_loop_candidates: {exc}")
                             continue
-                    if hasattr(self, "session_controller"):
-                        self.session_controller.complete_loop_observation(LoopObservation(observation, result.status))
-                    else:
-                        self._continue_loop_with_assessment(observation, result, run_token)
+                    self.session_controller.complete_loop_observation(LoopObservation(observation, result.status))
                 continue
 
             if task_type != "pipeline" or task_id != self._execution_task_id:
@@ -904,36 +842,14 @@ class Application:
     #   責務: [
     #     start_loop: 対象を検証してから連続実行を開始する
     #   ]
-    #   処理: [
-    #     1: 実入力対象のHWNDとPIDを検証する
-    #     2: 不正なら記録と通知を行い開始を拒否する
-    #     3: 古い自動移動記録を消去してカーソル基準位置を保存する
-    #     4: 正常ならcontrollerを開始し次stepを予約する
-    #   ]
+    #   処理: [入力対象と設定を検証し、Session controllerへ連続実行を依頼する]
     #   引数: []
     #   戻り値: []
     # }
     def start_loop(self) -> None:
-        if self._is_looping():
+        if self.session_controller.is_looping:
             return
-        if not hasattr(self, "session_controller"):
-            try:
-                self._validate_live_execution()
-            except ValueError as exc:
-                self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
-                messagebox.showerror("連続実行エラー", str(exc))
-                self._set_status("連続実行を開始できません")
-                return
-            self.controller.start()
-            self._loop_active = True
-            self._record_automated_cursor_position(None, False)
-            self._last_cursor_position = self._cursor_position()
-            self.loop_guard.reset()
-            self.runtime_log.write("run_control", "loop_started")
-            self.loop_job = self.root.after(LOOP_STEP_DELAY_MS, self._loop_step)
-            self._set_status("連続実行中")
-            return
-        if self._execution_in_progress or getattr(getattr(self, "session_controller", None), "has_pending_step", False):
+        if self._execution_in_progress or self.session_controller.has_pending_step:
             self._set_status("停止要求を反映中です。前の推論応答を待っています")
             return
         try:
@@ -966,19 +882,11 @@ class Application:
 
     # {
     #   責務: [start: 「再開」操作で実行世代を進め、停止状態を解除する]
-    #   処理: [連続実行が有効なら旧loopと予約callbackを解除し、RunControllerを再開して状態とログを更新する]
+    #   処理: [Session controllerの停止・保留状態を確認し、Sessionを再開して状態とログを更新する]
     #   引数: []
     #   戻り値: []
     # }
     def start(self) -> None:
-        if not hasattr(self, "session_controller"):
-            if getattr(self, "_loop_active", False) or getattr(self, "loop_job", None) is not None:
-                self._clear_loop_state()
-                self.runtime_log.write("run_control", "loop_stopped_by_rearm")
-            self.controller.start()
-            self.runtime_log.write("run_control", "started")
-            self._set_status("実行可能")
-            return
         if self.session_controller.has_pending_step:
             self._set_status("停止要求を反映中です。前の推論応答を待っています")
             return
@@ -995,16 +903,12 @@ class Application:
 
     # {
     #   責務: [stop: 停止要求を即時記録しloop予約と実入力許可を止める]
-    #   処理: [controllerを停止状態にし、予約済みloopを取り消して理由を表示する]
+    #   処理: [Session controllerへ停止を要求し、理由を利用者へ表示する]
     #   引数: [reason: 停止を要求した要因]
     #   戻り値: []
     # }
     def stop(self, reason: str = "ユーザー停止") -> None:
-        if hasattr(self, "session_controller"):
-            self.session_controller.stop(reason)
-        else:
-            self.controller.stop(reason)
-            self._clear_loop_state()
+        self.session_controller.stop(reason)
         self.runtime_log.write("run_control", "stopped", {"reason": reason})
         status = f"停止要求を受け付けました（{reason}）。推論結果は破棄します" if self._execution_in_progress else f"停止中（{reason}）"
         self._set_status(status)
@@ -1034,14 +938,6 @@ class Application:
     #   戻り値: [bool: step要求を受け付けた場合はTrue]
     # }
     def _run_session_step(self, command: str) -> bool:
-        if not hasattr(self, "session_controller"):
-            try:
-                self._validate_live_execution()
-            except Exception as exc:
-                self.runtime_log.write("error", str(exc), {"operation": command})
-                messagebox.showerror("実行エラー", str(exc))
-                return False
-            return False
         if self._is_looping():
             self._set_status("連続実行中は単独stepを開始できません")
             return False

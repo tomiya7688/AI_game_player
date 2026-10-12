@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #32: `Application`が保持していた互換用Tkinter loop callbackと重複loop状態を削除し、開始・停止・step・連続実行を`GameSessionController`へ一本化。実行時責務境界の説明と、Application commandの委譲を検証する回帰テストを追加。
+
 - Issue #146: `LiveObservationService`がcaptureを直接実行する構造を、bounded latest queueを持つ`SharedFrameProducer`からObservation cadenceでsampleする構造へ変更。window変更時に未読の旧source frameを破棄し、freshness上限を超えたframeを拒否する。出力する`features.capture_metadata`にproducer-scoped frame ID、source世代、Event Journalと同じprocess-monotonic時計で表すcapture nanosecondsを含める。Application終了時にcapture producerを停止し、fake capture/analyzerによるstale・window変更・error・lifecycleのテストを追加。
 
 - Issue #142: Pythonのmodule/import/dependency/class/function/method/signature/data-model/source-locationを標準ASTから抽出するRepository Map Generatorとversion付きJSON Schemaを追加。include/exclude設定、出力先の上書き防止、platform-independent順序、PEP 263 encoding検出、decorator literal秘匿、atomic output、stale checkを提供し、本文・実行時挙動を推測せず`generated/repo_map.json`を生成する。
