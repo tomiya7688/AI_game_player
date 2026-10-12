@@ -44241,7 +44241,7 @@
       "module": "ai_game_player.windows_input",
       "path": "src/ai_game_player/windows_input.py",
       "source_location": {
-        "end_line": 435,
+        "end_line": 444,
         "start_line": 1
       },
       "symbols": [
@@ -44277,7 +44277,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 435,
+            "end_line": 444,
             "start_line": 67
           }
         },
@@ -44504,8 +44504,8 @@
           "signature": "(self, candidate: ActionCandidate) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 300
+            "end_line": 322,
+            "start_line": 307
           }
         },
         {
@@ -44533,8 +44533,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 339,
-            "start_line": 322
+            "end_line": 348,
+            "start_line": 331
           }
         },
         {
@@ -44562,8 +44562,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 348
+            "end_line": 375,
+            "start_line": 357
           }
         },
         {
@@ -44591,8 +44591,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 377,
-            "start_line": 368
+            "end_line": 386,
+            "start_line": 377
           }
         },
         {
@@ -44620,8 +44620,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 402,
-            "start_line": 386
+            "end_line": 411,
+            "start_line": 395
           }
         },
         {
@@ -44649,8 +44649,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 406,
-            "start_line": 404
+            "end_line": 415,
+            "start_line": 413
           }
         },
         {
@@ -44678,8 +44678,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 413,
-            "start_line": 408
+            "end_line": 422,
+            "start_line": 417
           }
         },
         {
@@ -44707,8 +44707,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 417,
-            "start_line": 415
+            "end_line": 426,
+            "start_line": 424
           }
         },
         {
@@ -44736,8 +44736,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 424,
-            "start_line": 419
+            "end_line": 433,
+            "start_line": 428
           }
         },
         {
@@ -44765,8 +44765,8 @@
           "signature": "(self, duration: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 435,
-            "start_line": 426
+            "end_line": 444,
+            "start_line": 435
           }
         }
       ]
@@ -79943,7 +79943,7 @@
       "module": "tests.test_windows_input",
       "path": "tests/test_windows_input.py",
       "source_location": {
-        "end_line": 421,
+        "end_line": 439,
         "start_line": 1
       },
       "symbols": [
@@ -80419,8 +80419,82 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 421,
+            "end_line": 439,
             "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_key_label_is_passed_to_vk_key_scan_as_wchar",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsInputTest.test_key_label_is_passed_to_vk_key_scan_as_wchar",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [
+            "FakeUser32"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecordingUser32",
+          "parameters": [],
+          "qualified_name": "WindowsInputTest.test_key_label_is_passed_to_vk_key_scan_as_wchar.RecordingUser32",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 101,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "VkKeyScanW",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "character"
+            }
+          ],
+          "qualified_name": "WindowsInputTest.test_key_label_is_passed_to_vk_key_scan_as_wchar.RecordingUser32.VkKeyScanW",
+          "return_annotation": null,
+          "signature": "(self, character)",
+          "source_location": {
+            "column": 12,
+            "end_line": 101,
+            "start_line": 99
           }
         },
         {
@@ -80442,8 +80516,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 97
+            "end_line": 159,
+            "start_line": 115
           }
         },
         {
@@ -80464,8 +80538,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 112,
-            "start_line": 101
+            "end_line": 130,
+            "start_line": 119
           }
         },
         {
@@ -80499,8 +80573,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 12,
-            "end_line": 104,
-            "start_line": 102
+            "end_line": 122,
+            "start_line": 120
           }
         },
         {
@@ -80528,8 +80602,8 @@
           "signature": "(self, character)",
           "source_location": {
             "column": 12,
-            "end_line": 107,
-            "start_line": 106
+            "end_line": 125,
+            "start_line": 124
           }
         },
         {
@@ -80575,8 +80649,8 @@
           "signature": "(self, virtual_key, scan_code, flags, extra_info)",
           "source_location": {
             "column": 12,
-            "end_line": 112,
-            "start_line": 109
+            "end_line": 130,
+            "start_line": 127
           }
         },
         {
@@ -80591,8 +80665,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 127,
-            "start_line": 123
+            "end_line": 145,
+            "start_line": 141
           }
         },
         {
@@ -80614,8 +80688,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 143
+            "end_line": 163,
+            "start_line": 161
           }
         },
         {
@@ -80637,8 +80711,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 147
+            "end_line": 178,
+            "start_line": 165
           }
         },
         {
@@ -80660,8 +80734,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 179,
-            "start_line": 162
+            "end_line": 197,
+            "start_line": 180
           }
         },
         {
@@ -80683,8 +80757,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 181
+            "end_line": 202,
+            "start_line": 199
           }
         },
         {
@@ -80706,8 +80780,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 192,
-            "start_line": 186
+            "end_line": 210,
+            "start_line": 204
           }
         },
         {
@@ -80726,8 +80800,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 189,
-            "start_line": 187
+            "end_line": 207,
+            "start_line": 205
           }
         },
         {
@@ -80755,8 +80829,8 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 12,
-            "end_line": 189,
-            "start_line": 188
+            "end_line": 207,
+            "start_line": 206
           }
         },
         {
@@ -80778,8 +80852,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 194
+            "end_line": 221,
+            "start_line": 212
           }
         },
         {
@@ -80801,8 +80875,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 222,
-            "start_line": 205
+            "end_line": 240,
+            "start_line": 223
           }
         },
         {
@@ -80830,8 +80904,8 @@
           "signature": "(position, move_in_progress)",
           "source_location": {
             "column": 8,
-            "end_line": 210,
-            "start_line": 209
+            "end_line": 228,
+            "start_line": 227
           }
         },
         {
@@ -80853,8 +80927,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 243,
-            "start_line": 224
+            "end_line": 261,
+            "start_line": 242
           }
         },
         {
@@ -80882,8 +80956,8 @@
           "signature": "(position, move_in_progress)",
           "source_location": {
             "column": 8,
-            "end_line": 230,
-            "start_line": 229
+            "end_line": 248,
+            "start_line": 247
           }
         },
         {
@@ -80905,8 +80979,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 259,
-            "start_line": 245
+            "end_line": 277,
+            "start_line": 263
           }
         },
         {
@@ -80928,8 +81002,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 275,
-            "start_line": 261
+            "end_line": 293,
+            "start_line": 279
           }
         },
         {
@@ -80951,8 +81025,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 288,
-            "start_line": 277
+            "end_line": 306,
+            "start_line": 295
           }
         },
         {
@@ -80974,8 +81048,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 308,
-            "start_line": 290
+            "end_line": 326,
+            "start_line": 308
           }
         },
         {
@@ -80997,8 +81071,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 331,
-            "start_line": 310
+            "end_line": 349,
+            "start_line": 328
           }
         },
         {
@@ -81020,8 +81094,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 352,
-            "start_line": 333
+            "end_line": 370,
+            "start_line": 351
           }
         },
         {
@@ -81043,8 +81117,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 375,
-            "start_line": 354
+            "end_line": 393,
+            "start_line": 372
           }
         },
         {
@@ -81066,8 +81140,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 396,
-            "start_line": 377
+            "end_line": 414,
+            "start_line": 395
           }
         },
         {
@@ -81089,8 +81163,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 417,
-            "start_line": 398
+            "end_line": 435,
+            "start_line": 416
           }
         },
         {
@@ -81112,8 +81186,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 421,
-            "start_line": 419
+            "end_line": 439,
+            "start_line": 437
           }
         }
       ]

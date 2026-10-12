@@ -94,6 +94,24 @@ class MemoryLedgerStore:
 #   フィールド: [各testがfake user32とActionCandidateを使う]
 # }
 class WindowsInputTest(unittest.TestCase):
+    def test_key_label_is_passed_to_vk_key_scan_as_wchar(self):
+        class RecordingUser32(FakeUser32):
+            def VkKeyScanW(self, character):
+                self.scanned_character = character
+                return ord(character)
+
+        user32 = RecordingUser32()
+        executor = WindowsInputExecutor()
+        candidate = ActionCandidate("press-a", "key", "A")
+
+        with patch.object(windows_input.os, "name", "nt"), patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
+            executor._execute_key(candidate)
+
+        self.assertEqual(user32.scanned_character, "A")
+        self.assertEqual(user32.key_events, [(ord("A"), 0), (ord("A"), 2)])
+
     def test_controller_stop_releases_key_during_live_hold(self):
         controller = RunController()
         key_pressed = threading.Event()
@@ -104,7 +122,7 @@ class WindowsInputTest(unittest.TestCase):
                 return 1
 
             def VkKeyScanW(self, character):
-                return character
+                return ord(character)
 
             def keybd_event(self, virtual_key, scan_code, flags, extra_info):
                 super().keybd_event(virtual_key, scan_code, flags, extra_info)

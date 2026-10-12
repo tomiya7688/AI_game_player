@@ -297,10 +297,19 @@ class WindowsInputExecutor:
                 self._held_mouse_lparams.pop("left", None)
                 self._ledger_release_mouse("left")
 
+    # {
+    #   責務: [_execute_key: key Actionのlabelを仮想キーへ変換して選択中の入力方式で実行する]
+    #   処理: [定義済みkey名を優先し、それ以外は1文字のWCHARをVkKeyScanWへ渡す。hold中だけ押下しfinallyで解放する]
+    #   引数: [candidate: key labelとhold_secondsを持つ安全評価済みAction]
+    #   戻り値: []
+    #   エラー: [labelから仮想キーを解決できない場合ValueError。Win32入力失敗時は入力APIのRuntimeError]
+    # }
     def _execute_key(self, candidate: ActionCandidate) -> None:
         user32 = _user32_with_prototypes()
         key_name = candidate.label.strip().upper()
-        key_code = SPECIAL_KEYS.get(key_name, user32.VkKeyScanW(ord(candidate.label[0])) if candidate.label else -1)
+        key_code = SPECIAL_KEYS.get(key_name)
+        if key_code is None:
+            key_code = user32.VkKeyScanW(candidate.label[0]) if candidate.label else -1
         if key_code < 0:
             raise ValueError("key action requires a supported key label")
         virtual_key = key_code & 0xFF
