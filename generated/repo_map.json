@@ -2066,7 +2066,7 @@
       "module": "ai_game_player.app",
       "path": "src/ai_game_player/app.py",
       "source_location": {
-        "end_line": 1124,
+        "end_line": 1020,
         "start_line": 1
       },
       "symbols": [
@@ -2199,7 +2199,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1114,
+            "end_line": 1010,
             "start_line": 87
           }
         },
@@ -2344,95 +2344,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 259,
+            "end_line": 256,
             "start_line": 255
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "_clear_loop_state",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "Application._clear_loop_state",
-          "return_annotation": "None",
-          "signature": "(self) -> None",
-          "source_location": {
-            "column": 4,
-            "end_line": 275,
-            "start_line": 267
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "_loop_step",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "Application._loop_step",
-          "return_annotation": "None",
-          "signature": "(self) -> None",
-          "source_location": {
-            "column": 4,
-            "end_line": 298,
-            "start_line": 283
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "_continue_loop_with_assessment",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            },
-            {
-              "annotation": "ScreenObservation",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "observation"
-            },
-            {
-              "annotation": "OutcomeAssessment",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "assessment"
-            },
-            {
-              "annotation": "int | None",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "run_token"
-            }
-          ],
-          "qualified_name": "Application._continue_loop_with_assessment",
-          "return_annotation": "None",
-          "signature": "(self, observation: ScreenObservation, assessment: OutcomeAssessment, run_token: int | None) -> None",
-          "source_location": {
-            "column": 4,
-            "end_line": 313,
-            "start_line": 306
           }
         },
         {
@@ -2460,8 +2373,8 @@
           "signature": "(self, error: Exception | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 321
+            "end_line": 265,
+            "start_line": 264
           }
         },
         {
@@ -2483,8 +2396,8 @@
           "signature": "(self) -> SessionRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 344,
-            "start_line": 332
+            "end_line": 285,
+            "start_line": 273
           }
         },
         {
@@ -2518,8 +2431,8 @@
           "signature": "(self, runtime: SessionRuntime, command: str) -> SessionStep",
           "source_location": {
             "column": 4,
-            "end_line": 373,
-            "start_line": 352
+            "end_line": 314,
+            "start_line": 293
           }
         },
         {
@@ -2541,8 +2454,8 @@
           "signature": "(self) -> LoopObservation",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 381
+            "end_line": 339,
+            "start_line": 322
           }
         },
         {
@@ -2570,8 +2483,8 @@
           "signature": "(self, snapshot: SessionSnapshot) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 418,
-            "start_line": 406
+            "end_line": 359,
+            "start_line": 347
           }
         },
         {
@@ -2599,8 +2512,8 @@
           "signature": "(self, error: Exception) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 429,
-            "start_line": 426
+            "end_line": 370,
+            "start_line": 367
           }
         },
         {
@@ -2622,8 +2535,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 446,
-            "start_line": 437
+            "end_line": 387,
+            "start_line": 378
           }
         },
         {
@@ -2645,8 +2558,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 480,
-            "start_line": 463
+            "end_line": 421,
+            "start_line": 404
           }
         },
         {
@@ -2668,8 +2581,8 @@
           "signature": "(self) -> tuple[int, int] | None",
           "source_location": {
             "column": 4,
-            "end_line": 488,
-            "start_line": 482
+            "end_line": 429,
+            "start_line": 423
           }
         },
         {
@@ -2703,8 +2616,8 @@
           "signature": "(self, position: tuple[int, int] | None, move_in_progress: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 503,
-            "start_line": 496
+            "end_line": 444,
+            "start_line": 437
           }
         },
         {
@@ -2726,8 +2639,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 538,
-            "start_line": 511
+            "end_line": 479,
+            "start_line": 452
           }
         },
         {
@@ -2749,8 +2662,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 547,
-            "start_line": 540
+            "end_line": 488,
+            "start_line": 481
           }
         },
         {
@@ -2772,8 +2685,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 557,
-            "start_line": 549
+            "end_line": 498,
+            "start_line": 490
           }
         },
         {
@@ -2795,8 +2708,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 584,
-            "start_line": 574
+            "end_line": 525,
+            "start_line": 515
           }
         },
         {
@@ -2848,8 +2761,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 609,
-            "start_line": 592
+            "end_line": 550,
+            "start_line": 533
           }
         },
         {
@@ -2877,8 +2790,8 @@
           "signature": "(self, *, loop_step: bool = …) -> ScreenObservation | None",
           "source_location": {
             "column": 4,
-            "end_line": 630,
-            "start_line": 617
+            "end_line": 571,
+            "start_line": 558
           }
         },
         {
@@ -2918,8 +2831,8 @@
           "signature": "(self, observation: ScreenObservation, *, loop_step: bool, run_token: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 669,
-            "start_line": 638
+            "end_line": 610,
+            "start_line": 579
           }
         },
         {
@@ -2989,8 +2902,8 @@
           "signature": "(self, task_id: int, run_token: int | None, loop_step: bool, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 694,
-            "start_line": 677
+            "end_line": 635,
+            "start_line": 618
           }
         },
         {
@@ -3054,8 +2967,8 @@
           "signature": "(self, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 736,
-            "start_line": 702
+            "end_line": 677,
+            "start_line": 643
           }
         },
         {
@@ -3125,8 +3038,8 @@
           "signature": "(self, task_id: int, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 783,
-            "start_line": 744
+            "end_line": 724,
+            "start_line": 685
           }
         },
         {
@@ -3154,8 +3067,8 @@
           "signature": "(self, run_token: int | None) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 792,
-            "start_line": 791
+            "end_line": 733,
+            "start_line": 732
           }
         },
         {
@@ -3177,8 +3090,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 901,
-            "start_line": 800
+            "end_line": 839,
+            "start_line": 741
           }
         },
         {
@@ -3200,8 +3113,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 965,
-            "start_line": 916
+            "end_line": 881,
+            "start_line": 849
           }
         },
         {
@@ -3223,8 +3136,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 994,
-            "start_line": 973
+            "end_line": 902,
+            "start_line": 889
           }
         },
         {
@@ -3252,8 +3165,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1010,
-            "start_line": 1002
+            "end_line": 914,
+            "start_line": 910
           }
         },
         {
@@ -3275,8 +3188,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1019,
-            "start_line": 1018
+            "end_line": 923,
+            "start_line": 922
           }
         },
         {
@@ -3298,8 +3211,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1028,
-            "start_line": 1027
+            "end_line": 932,
+            "start_line": 931
           }
         },
         {
@@ -3327,8 +3240,8 @@
           "signature": "(self, command: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1068,
-            "start_line": 1036
+            "end_line": 964,
+            "start_line": 940
           }
         },
         {
@@ -3350,8 +3263,8 @@
           "signature": "(self) -> ApplicationSettings",
           "source_location": {
             "column": 4,
-            "end_line": 1085,
-            "start_line": 1076
+            "end_line": 981,
+            "start_line": 972
           }
         },
         {
@@ -3379,8 +3292,8 @@
           "signature": "(self, evaluation: list[dict[str, object]]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1095,
-            "start_line": 1093
+            "end_line": 991,
+            "start_line": 989
           }
         },
         {
@@ -3402,8 +3315,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1114,
-            "start_line": 1103
+            "end_line": 1010,
+            "start_line": 999
           }
         },
         {
@@ -3418,8 +3331,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 1120,
-            "start_line": 1117
+            "end_line": 1016,
+            "start_line": 1013
           }
         }
       ]
@@ -54279,6 +54192,7 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.app",
+        "ai_game_player.game_session",
         "ai_game_player.models",
         "ai_game_player.observation_service",
         "ai_game_player.outcome",
@@ -54402,6 +54316,22 @@
           "line": 10,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.game_session"
+          ],
+          "module": "ai_game_player.game_session",
+          "names": [
+            {
+              "alias": null,
+              "name": "SessionStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -54415,7 +54345,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_service"
@@ -54431,7 +54361,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -54447,17 +54377,13 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
           ],
           "module": "ai_game_player.run_control",
           "names": [
-            {
-              "alias": null,
-              "name": "ExecutionCancelled"
-            },
             {
               "alias": null,
               "name": "RunController"
@@ -54467,7 +54393,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -54484,7 +54410,7 @@
       "module": "tests.test_live_execution_validation",
       "path": "tests/test_live_execution_validation.py",
       "source_location": {
-        "end_line": 603,
+        "end_line": 643,
         "start_line": 1
       },
       "symbols": [
@@ -54504,8 +54430,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 38,
-            "start_line": 21
+            "end_line": 39,
+            "start_line": 22
           }
         },
         {
@@ -54533,8 +54459,8 @@
           "signature": "(self, value)",
           "source_location": {
             "column": 4,
-            "end_line": 29,
-            "start_line": 28
+            "end_line": 30,
+            "start_line": 29
           }
         },
         {
@@ -54556,8 +54482,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 38,
-            "start_line": 37
+            "end_line": 39,
+            "start_line": 38
           }
         },
         {
@@ -54576,8 +54502,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 75,
-            "start_line": 45
+            "end_line": 76,
+            "start_line": 46
           }
         },
         {
@@ -54611,8 +54537,8 @@
           "signature": "(self, valid_handles, process_id = …)",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 52
+            "end_line": 56,
+            "start_line": 53
           }
         },
         {
@@ -54640,8 +54566,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 63
+            "end_line": 66,
+            "start_line": 64
           }
         },
         {
@@ -54675,8 +54601,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 73
+            "end_line": 76,
+            "start_line": 74
           }
         },
         {
@@ -54695,8 +54621,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 99,
-            "start_line": 82
+            "end_line": 100,
+            "start_line": 83
           }
         },
         {
@@ -54718,8 +54644,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 90,
-            "start_line": 89
+            "end_line": 91,
+            "start_line": 90
           }
         },
         {
@@ -54747,8 +54673,231 @@
           "signature": "(self, *record)",
           "source_location": {
             "column": 4,
-            "end_line": 99,
-            "start_line": 98
+            "end_line": 100,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeSessionController",
+          "parameters": [],
+          "qualified_name": "FakeSessionController",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 151,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeSessionController.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeSessionController.start",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 129,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "FakeSessionController.stop",
+          "return_annotation": null,
+          "signature": "(self, reason = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start_loop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "command"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "interval_ms"
+            }
+          ],
+          "qualified_name": "FakeSessionController.start_loop",
+          "return_annotation": null,
+          "signature": "(self, command = …, interval_ms = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 140,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "command"
+            }
+          ],
+          "qualified_name": "FakeSessionController.step",
+          "return_annotation": null,
+          "signature": "(self, command = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 145,
+            "start_line": 142
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "complete_step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "FakeSessionController.complete_step",
+          "return_annotation": null,
+          "signature": "(self, result = …, error = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "complete_loop_observation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            }
+          ],
+          "qualified_name": "FakeSessionController.complete_loop_observation",
+          "return_annotation": null,
+          "signature": "(self, observation)",
+          "source_location": {
+            "column": 4,
+            "end_line": 151,
+            "start_line": 150
           }
         },
         {
@@ -54769,8 +54918,31 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 599,
-            "start_line": 106
+            "end_line": 639,
+            "start_line": 158
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "make_uninitialized_application",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveExecutionValidationTests.make_uninitialized_application",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 159
           }
         },
         {
@@ -54810,8 +54982,8 @@
           "signature": "(self, *, live = …, mode = …, handles = …)",
           "source_location": {
             "column": 4,
-            "end_line": 122,
-            "start_line": 113
+            "end_line": 179,
+            "start_line": 171
           }
         },
         {
@@ -54833,8 +55005,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 135,
-            "start_line": 130
+            "end_line": 192,
+            "start_line": 187
           }
         },
         {
@@ -54856,8 +55028,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 143
+            "end_line": 202,
+            "start_line": 200
           }
         },
         {
@@ -54879,8 +55051,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 153
+            "end_line": 243,
+            "start_line": 210
           }
         },
         {
@@ -54899,8 +55071,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 156,
-            "start_line": 154
+            "end_line": 213,
+            "start_line": 211
           }
         },
         {
@@ -54928,8 +55100,8 @@
           "signature": "(self, *_record)",
           "source_location": {
             "column": 12,
-            "end_line": 156,
-            "start_line": 155
+            "end_line": 213,
+            "start_line": 212
           }
         },
         {
@@ -54951,8 +55123,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 241,
-            "start_line": 194
+            "end_line": 298,
+            "start_line": 251
           }
         },
         {
@@ -54974,8 +55146,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 274,
-            "start_line": 249
+            "end_line": 330,
+            "start_line": 306
           }
         },
         {
@@ -54997,8 +55169,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 292,
-            "start_line": 282
+            "end_line": 348,
+            "start_line": 338
           }
         },
         {
@@ -55020,8 +55192,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 310,
-            "start_line": 300
+            "end_line": 366,
+            "start_line": 356
           }
         },
         {
@@ -55043,8 +55215,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 327,
-            "start_line": 318
+            "end_line": 383,
+            "start_line": 374
           }
         },
         {
@@ -55052,7 +55224,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_rearm_clears_invalidated_loop_and_allows_restart",
+          "name": "test_start_loop_delegates_scheduling_to_session_controller",
           "parameters": [
             {
               "annotation": null,
@@ -55061,13 +55233,13 @@
               "name": "self"
             }
           ],
-          "qualified_name": "LiveExecutionValidationTests.test_rearm_clears_invalidated_loop_and_allows_restart",
+          "qualified_name": "LiveExecutionValidationTests.test_start_loop_delegates_scheduling_to_session_controller",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 381,
-            "start_line": 335
+            "end_line": 409,
+            "start_line": 391
           }
         },
         {
@@ -55075,7 +55247,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_loop_stops_when_step_fails",
+          "name": "test_single_step_delegates_to_session_controller",
           "parameters": [
             {
               "annotation": null,
@@ -55084,13 +55256,36 @@
               "name": "self"
             }
           ],
-          "qualified_name": "LiveExecutionValidationTests.test_loop_stops_when_step_fails",
+          "qualified_name": "LiveExecutionValidationTests.test_single_step_delegates_to_session_controller",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 406,
-            "start_line": 389
+            "end_line": 428,
+            "start_line": 417
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rearm_restarts_the_session_controller",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveExecutionValidationTests.test_rearm_restarts_the_session_controller",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 447,
+            "start_line": 436
           }
         },
         {
@@ -55112,8 +55307,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 436,
-            "start_line": 408
+            "end_line": 476,
+            "start_line": 449
           }
         },
         {
@@ -55135,8 +55330,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 456,
-            "start_line": 438
+            "end_line": 496,
+            "start_line": 478
           }
         },
         {
@@ -55158,8 +55353,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 484,
-            "start_line": 458
+            "end_line": 524,
+            "start_line": 498
           }
         },
         {
@@ -55174,8 +55369,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 471,
-            "start_line": 470
+            "end_line": 511,
+            "start_line": 510
           }
         },
         {
@@ -55197,8 +55392,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 501,
-            "start_line": 486
+            "end_line": 541,
+            "start_line": 526
           }
         },
         {
@@ -55220,8 +55415,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 527,
-            "start_line": 509
+            "end_line": 567,
+            "start_line": 549
           }
         },
         {
@@ -55243,8 +55438,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 556,
-            "start_line": 529
+            "end_line": 596,
+            "start_line": 569
           }
         },
         {
@@ -55266,8 +55461,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 580,
-            "start_line": 564
+            "end_line": 620,
+            "start_line": 604
           }
         },
         {
@@ -55289,8 +55484,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 599,
-            "start_line": 588
+            "end_line": 639,
+            "start_line": 628
           }
         }
       ]
@@ -59742,7 +59937,7 @@
       "module": "tests.test_pipeline_execute",
       "path": "tests/test_pipeline_execute.py",
       "source_location": {
-        "end_line": 326,
+        "end_line": 332,
         "start_line": 1
       },
       "symbols": [
@@ -59807,7 +60002,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 326,
+            "end_line": 332,
             "start_line": 31
           }
         },
@@ -60767,7 +60962,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 281,
+            "end_line": 287,
             "start_line": 219
           }
         },
@@ -60859,8 +61054,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 326,
-            "start_line": 283
+            "end_line": 332,
+            "start_line": 289
           }
         },
         {
@@ -60888,8 +61083,8 @@
           "signature": "(observation, decision)",
           "source_location": {
             "column": 12,
-            "end_line": 298,
-            "start_line": 293
+            "end_line": 304,
+            "start_line": 299
           }
         },
         {
@@ -60904,8 +61099,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 307,
-            "start_line": 303
+            "end_line": 313,
+            "start_line": 309
           }
         }
       ]
