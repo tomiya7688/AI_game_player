@@ -11,6 +11,7 @@ from ai_game_player.models import ScreenObservation
 from ai_game_player.observation_service import LiveObservationService
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.run_control import ExecutionCancelled, RunController
+from ai_game_player.screen_capture import ScreenFrame
 
 
 # {
@@ -191,7 +192,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
     #   戻り値: []
     # }
     def test_manual_capture_assessment_does_not_use_execution_generation(self):
-        observation = ScreenObservation("live", 1280, 720, [])
+        observation = ScreenObservation("live", 1, 1, [])
 
         for loop_step in (False, True):
             with self.subTest(loop_step=loop_step):
@@ -214,19 +215,29 @@ class LiveExecutionValidationTests(unittest.TestCase):
                 )
                 captured_frames = []
                 application.observation_service = LiveObservationService(
-                    capture_frame=lambda handle: captured_frames.append(handle) or object(),
+                    capture_frame=lambda handle: captured_frames.append(handle)
+                    or ScreenFrame(1, 1, bytes(4)),
                     analyzer_factory=lambda _ocr: SimpleNamespace(
                         analyze=lambda _frame, _screen_id: observation
                     ),
                     ocr_factory=lambda: None,
+                    capture_interval_seconds=10.0,
+                    frame_wait_timeout_seconds=1.0,
                 )
+                self.addCleanup(application.observation_service.close)
                 captured_observation = application.capture_screen(loop_step=loop_step)
 
-                self.assertIs(captured_observation, observation)
+                self.assertEqual(captured_observation.screen_id, observation.screen_id)
+                self.assertEqual(captured_observation.width, observation.width)
+                self.assertEqual(captured_observation.height, observation.height)
+                self.assertIn("capture_metadata", captured_observation.features)
                 self.assertEqual(captured_frames, [None])
+                self.assertEqual(len(started_assessments), 1)
+                assessment_observation, assessment_options = started_assessments[0]
+                self.assertIs(assessment_observation, captured_observation)
                 self.assertEqual(
-                    started_assessments,
-                    [(observation, {"loop_step": loop_step, "run_token": expected_token})],
+                    assessment_options,
+                    {"loop_step": loop_step, "run_token": expected_token},
                 )
 
     # {
