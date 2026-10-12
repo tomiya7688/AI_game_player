@@ -1272,6 +1272,40 @@ classDiagram
         +__init__()
         +assess()
     }
+    str <|-- UnknownnessType
+    Enum <|-- UnknownnessType
+    class UnknownnessType {
+    }
+    str <|-- UnknownnessScope
+    Enum <|-- UnknownnessScope
+    class UnknownnessScope {
+    }
+    class UnknownnessEvidence {
+        +__post_init__()
+        +to_dict()
+    }
+    class UnknownnessScopeAssessment {
+        +__post_init__()
+        +to_dict()
+    }
+    class UnknownnessResult {
+        +__post_init__()
+        +instant_unknown()
+        +persistent_unknown()
+        +instant_scopes()
+        +persistent_scopes()
+        +instant_types()
+        +persistent_types()
+        +to_dict()
+    }
+    class _ScopeHysteresisState {
+    }
+    class UnknownnessMonitor {
+        +__init__()
+        +evaluate()
+        +reset()
+        +_assess_scope()
+    }
     class WindowInfo {
         +display_name()
     }
