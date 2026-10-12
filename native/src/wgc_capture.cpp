@@ -427,6 +427,20 @@ struct WgcSessionState {
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
+            if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
+                // {
+                //   理由: [WGCのresize通知frameは新ContentSizeと旧texture寸法を持つことがあるため、旧textureを返さずpoolを作り直す]
+                // }
+                captured_frame.Close();
+                frame_pool_size = content_size;
+                frame_pool.Recreate(
+                    capture_device,
+                    kCapturePixelFormat,
+                    kCaptureFramePoolBufferCount,
+                    frame_pool_size
+                );
+                continue;
+            }
 
             auto surface = captured_frame.Surface();
             auto surface_access = surface.as<Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>();
@@ -461,18 +475,6 @@ struct WgcSessionState {
                     static_cast<uint64_t>(capture_time_units) * kNanosecondsPerWinRtTimeUnit;
             }
             captured_frame.Close();
-
-            if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
-                std::fprintf(stderr, "WGC trace: recreating pool %dx%d -> %dx%d\n",
-                    frame_pool_size.Width, frame_pool_size.Height, content_size.Width, content_size.Height);
-                frame_pool_size = content_size;
-                frame_pool.Recreate(
-                    capture_device,
-                    kCapturePixelFormat,
-                    kCaptureFramePoolBufferCount,
-                    frame_pool_size
-                );
-            }
             return frame_lease;
         }
         return nullptr;
