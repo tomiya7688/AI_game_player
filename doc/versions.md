@@ -2,7 +2,38 @@
 
 ## Unreleased
 
-- Issue #38: ゲーム固有presetに依存しないrolling SelfCheckMonitorを追加。scene/action/state cycle、連続no-progress、confidenceを考慮したexpected/actual outcomeの不一致、汎用Scene時間超過、confidenceとreliabilityに基づくevaluator disagreementをseverity・evidence付きeventとして報告する。
+- Issue #259: 選択HWND専用のWindows Graphics Capture sessionをNative Runtime C ABI v1へ追加。寸法・packed BGRA・session内frame ID・monotonic時刻・lease中だけ有効なDirect3D texture handleを返し、caller-owned bufferへのcopyとtimeout付きframe取得を提供する。Pythonの`WindowsScreenCapture`は選択windowでsessionを再利用し、WGC非対応・取得失敗時は理由を保持してGDI fallbackを試す。Windows resize integration testとPython fake ABI・fallback・ObservationService lifecycle testを追加。
+
+- Issue #38: ゲーム固有presetに依存しないrolling SelfCheckMonitorを追加。scene/action/state cycle、連続no-progress、confidenceを考慮したexpected/actual outcomeの不一致、汎用Scene時間超過、confidenceとreliabilityに基づくevaluator disagreementをseverity・evidence付きeventとして報告する。判定保留Outcomeは停滞・不一致判定から除外し、継続中の不一致がWarningからCriticalへ上がった場合は再通知する。
+
+- Issue #32: `Application`が保持していた互換用Tkinter loop callbackと重複loop状態を削除し、開始・停止・step・連続実行を`GameSessionController`へ一本化。実行時責務境界の説明と、Application commandの委譲を検証する回帰テストを追加。
+
+- Issue #146: `LiveObservationService`がcaptureを直接実行する構造を、bounded latest queueを持つ`SharedFrameProducer`からObservation cadenceでsampleする構造へ変更。window変更時に未読の旧source frameを破棄し、freshness上限を超えたframeを拒否する。出力する`features.capture_metadata`にproducer-scoped frame ID、source世代、Event Journalと同じprocess-monotonic時計で表すcapture nanosecondsを含める。Application終了時にcapture producerを停止し、fake capture/analyzerによるstale・window変更・error・lifecycleのテストを追加。
+
+- Issue #142: Pythonのmodule/import/dependency/class/function/method/signature/data-model/source-locationを標準ASTから抽出するRepository Map Generatorとversion付きJSON Schemaを追加。include/exclude設定、出力先の上書き防止、platform-independent順序、PEP 263 encoding検出、decorator literal秘匿、atomic output、stale checkを提供し、本文・実行時挙動を推測せず`generated/repo_map.json`を生成する。
+
+- Issue #143: start_task.batが取得したIssue本文、Git statusの変更パス、Repository Mapを使い、関連module/symbolとtest候補を理由・ヒューリスティックconfidence付きで`.codex/next_issue.md`へ追加する。ファイル本文やdiff hunksは読まず、既存の文字数上限とIssue本文優先の切り詰め、必須`finish_task.bat`確認を維持する。
+
+- Issue #258: 1つのcapture backendから得た`ScreenFrame`を複数のconsumerへ配るShared Frame Producerを追加。`frame_id`とsource世代を付け、BGRA寸法・monotonic timestampを検証する。最新frame置換と順序維持のbounded queue、drop metrics、source切替、停止とcapture失敗通知をfake backendで検証する。
+
+- Issue #262: legacy History・DecisionTrace・Execution・Safety・RuntimeLogをSession Event Journalへ接続。旧JSON/JSONLを削除せず、recordをstable event ID付きで移行し、decision/execution/safetyの配列JSON全体を書き直さずにSession内Journalへ追記する。
+
+- Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。
+- Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingはproviderが報告したinput-copy metricsを受け入れ、capacity retryを含む各ABI呼び出しの値を合算する。FrameAnalyzer注入点と同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
+- Issue #147: GUIからProvider・Pipeline・候補評価器の生成をRuntimeCompositionへ分離。GameSessionControllerが保持するPipelineとProviderをSession中に共有し、終了時はPipelineを先に閉じてProviderを解放する。部分初期化・終了失敗をFakeで検証し、失敗したresourceだけを再試行できるようにする。
+
+- Issue #145: start/stop/one-step/continuous-loopをTkinterからGUI-freeのGameSessionControllerへ移動。repeat/outcome stop policy、generation-guarded timer cancellation、error/terminal lifecycleとSession-scoped DecisionPipeline/Engineの再利用・一括shutdownを追加し、fake runtime/schedulerで検証。
+
+- Issue #145 review follow-up: 実入力許可の解除で即時停止し、各実行stepでも再検証。loop observer例外をFAILEDへ遷移させ、終了に失敗したruntimeを保持して再開を拒否。状態通知失敗を隔離し、各経路を回帰テスト。
+- Issue #331: 判断時に評価・許可された候補オブジェクトを実行まで引き継ぎ、操作IDから元候補を再検索しないようにする。操作IDが重複する候補はすべて拒否し、Providerが候補リストを同じIDの別候補へ置き換えても元の評価済み候補だけを実行する。Decision Contextには一括評価した重複拒否理由を記録し、既存の`GamePlayerEngine.step()`拡張も実行経路で呼び出す。
+
+- Issue #332: Ollamaの画面評価・候補判断をUI thread外で実行し、推論中の停止を受理する。実行中のキー保持・待機もRunControllerの停止状態とstep開始世代を監視して中断し、保持キーを解除する。停止後・再開後に返った旧推論結果は判断履歴と実入力へ進めず、停止理由をログへ記録する。mouse方式の連続実行では、入力workerがSetCursorPosの開始・完了とクリック先をUIへ通知し、自動カーソル移動を手動移動による停止と誤認しない。未通知の手動カーソル移動による停止は維持する。
+
+- PR #345: 重複した画面評価workerは起動順IDで新旧を判定し、最新より古い結果を観測履歴・評価表示へ反映しない。停止中に完了した手動画面評価は実行世代に関係なく評価表示へ反映する。古い評価結果が現在有効な連続実行stepに属する場合は連続実行を停止する。「再開」操作で実行世代が更新された場合も旧連続実行状態と予約callbackを解除し、旧workerの結果を破棄した後に連続実行を再開できる状態に戻す。
+
+- PR #345: 判断履歴と判断traceを一時ファイルへ先に準備し、RunControllerが実行世代を検証してから両ファイルとエンジンの前回判断状態を公開する。Stopが一時ファイル準備中に届いた場合、workerは未公開データを破棄する。
+
+- Issue #336: 実入力開始時に対象HWND/PIDの選択・有効性を検証し、HWND再利用による別プロセスへの入力を実行直前に拒否する。連続実行は対象未選択で開始せず、各ステップ失敗時に停止する。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 

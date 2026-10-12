@@ -12,20 +12,36 @@ from ai_game_player.models import ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
 from ai_game_player.screen_capture import WindowsScreenCapture
-from ai_game_player.window_selector import WindowsWindowSelector
+from ai_game_player.window_selector import WindowInfo, WindowsWindowSelector
 
 
 TITLE = "Kadoka E2E Sample Game"
 
 
+# {
+#   責務: [WindowsSampleObservationSource: サンプルゲーム画面を観測し操作候補を抽出する]
+#   フィールド: [window_handle: キャプチャ対象HWND, capture: Windows画面取得器, analyzer: フレーム解析器]
+# }
 class WindowsSampleObservationSource:
     """Captures the real sample window and exposes only automatically detected interior UI candidates."""
 
+    # {
+    #   責務: [__init__: 指定HWND用の画面取得・解析器を初期化する]
+    #   処理: [対象handleとcapture/analyzerを保持する]
+    #   引数: [window_handle: キャプチャする対象HWND]
+    #   戻り値: []
+    # }
     def __init__(self, window_handle: int) -> None:
         self.window_handle = window_handle
         self.capture = WindowsScreenCapture()
         self.analyzer = FrameAnalyzer()
 
+    # {
+    #   責務: [read: サンプル画面を取得し内部UI領域の候補を含む観測を返す]
+    #   処理: [画面を解析し外枠や巨大領域の候補を除外する]
+    #   引数: []
+    #   戻り値: [tuple[ScreenObservation, list]: 観測と追加候補]
+    # }
     def read(self) -> tuple[ScreenObservation, list]:
         frame = self.capture.capture(self.window_handle)
         observation = self.analyzer.analyze(frame, "windows-e2e-sample")
@@ -53,6 +69,12 @@ class WindowsSampleObservationSource:
         ), []
 
 
+# {
+#   責務: [read_completed: サンプルゲームの到達状態を読み取る]
+#   処理: [JSONを安全に解析しcompleted値を返す]
+#   引数: [path: 状態JSONのパス]
+#   戻り値: [bool: completed状態]
+# }
 def read_completed(path: Path) -> bool:
     if not path.exists():
         return False
@@ -63,17 +85,30 @@ def read_completed(path: Path) -> bool:
     return bool(value.get("completed")) if isinstance(value, dict) else False
 
 
-def find_window(title: str, timeout_seconds: float = 15.0) -> int:
+# {
+#   責務: [find_window: タイトル一致するウィンドウのHWNDと所有PIDを取得する]
+#   処理: [一定時間一覧を再取得し、タイトル一致したWindowInfoを返す]
+#   引数: [title: 対象タイトル, timeout_seconds: 検索上限秒]
+#   戻り値: [WindowInfo: HWNDと列挙時PIDを含む対象情報]
+#   エラー: [期限内に対象が見つからない場合RuntimeError]
+# }
+def find_window(title: str, timeout_seconds: float = 15.0) -> WindowInfo:
     deadline = time.monotonic() + timeout_seconds
     selector = WindowsWindowSelector()
     while time.monotonic() < deadline:
         for window in selector.list_windows():
             if window.title == title:
-                return window.handle
+                return window
         time.sleep(0.1)
     raise RuntimeError(f"sample window not found: {title}")
 
 
+# {
+#   責務: [main: Windows上で自動候補によるサンプルゲームE2Eを実行する]
+#   処理: [サンプルを起動し、HWND/PIDを結び付けてlive閉ループを検証する]
+#   引数: []
+#   戻り値: [int: 成功・失敗を示す終了コード]
+# }
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run Kadoka closed-loop Windows E2E acceptance")
     parser.add_argument("--steps", type=int, default=24, help="sample milestone length")
@@ -105,7 +140,8 @@ def main() -> int:
     )
     pipeline: DecisionPipeline | None = None
     try:
-        handle = find_window(TITLE)
+        window = find_window(TITLE)
+        handle = window.handle
         source = WindowsSampleObservationSource(handle)
         pipeline = DecisionPipeline(
             source,
@@ -113,6 +149,7 @@ def main() -> int:
             RuleProvider(),
             dry_run=False,
             window_handle=handle,
+            window_process_id=window.process_id,
             input_mode="mouse",
         )
         # Live input starts SAFE_IDLE by design. E2E must model the user's explicit Start/re-arm action.
