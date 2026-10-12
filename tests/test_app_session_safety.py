@@ -10,12 +10,24 @@ class FakeVariable:
     def get(self):
         return self.value
 
+    def set(self, value):
+        self.value = value
+
+
+class FakeWidget:
+    def __init__(self):
+        self.options = {}
+
+    def config(self, **options):
+        self.options.update(options)
+
 
 class FakeSessionController:
-    def __init__(self, is_running=True):
+    def __init__(self, is_running=True, is_looping=False, has_pending_step=False):
         self.is_running = is_running
+        self.is_looping = is_looping
         self.stop_reasons = []
-        self.has_pending_step = False
+        self.has_pending_step = has_pending_step
 
     def stop(self, reason):
         self.stop_reasons.append(reason)
@@ -72,6 +84,40 @@ class ApplicationSessionSafetyTests(unittest.TestCase):
             app.session_controller.stop_reasons,
             ["live execution permission revoked"],
         )
+
+    def test_continuous_mode_display_matches_the_mode_fixed_at_loop_start(self):
+        cases = (
+            (False, True, "連続実行中の動作: dry-run（実入力なし）"),
+            (True, False, "連続実行中の動作: 実入力"),
+        )
+        for live_permission, session_dry_run, expected_status in cases:
+            with self.subTest(live_permission=live_permission):
+                app = object.__new__(Application)
+                app.live_execution = FakeVariable(live_permission)
+                app._session_dry_run = session_dry_run
+                app.session_controller = FakeSessionController(is_looping=True)
+                app.execute_button = FakeWidget()
+                app.loop_button = FakeWidget()
+                app.live_status = FakeWidget()
+                app.live_execution_toggle = FakeWidget()
+
+                app._refresh_execution_controls()
+
+                self.assertEqual(app.live_status.options["text"], expected_status)
+                self.assertEqual(app.live_execution_toggle.options["state"], "disabled")
+
+    def test_live_permission_cannot_change_between_continuous_steps(self):
+        app = self.make_application()
+        app.live_execution.set(True)
+        app.session_controller.is_looping = True
+        app.status_message = None
+        app._set_status = lambda message: setattr(app, "status_message", message)
+
+        app._on_live_execution_changed()
+
+        self.assertFalse(app.live_execution.get())
+        self.assertEqual(app.session_controller.stop_reasons, [])
+        self.assertEqual(app.status_message, "連続実行中は実入力設定を変更できません")
 
     def test_live_step_revalidates_permission_before_execution(self):
         app = self.make_application()
