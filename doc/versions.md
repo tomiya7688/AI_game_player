@@ -4,6 +4,8 @@
 
 - Issue #259: 選択HWND専用のWindows Graphics Capture sessionをNative Runtime C ABI v1へ追加。寸法・packed BGRA・session内frame ID・monotonic時刻・lease中だけ有効なDirect3D texture handleを返し、caller-owned bufferへのcopyとtimeout付きframe取得を提供する。Pythonの`WindowsScreenCapture`は選択windowでsessionを再利用し、WGC非対応・取得失敗時は理由を保持してGDI fallbackを試す。Windows resize integration testとPython fake ABI・fallback・ObservationService lifecycle testを追加。
 
+- Issue #38: ゲーム固有presetに依存しないrolling SelfCheckMonitorを追加。scene/action/state cycle、連続no-progress、confidenceを考慮したexpected/actual outcomeの不一致、汎用Scene時間超過、confidenceとreliabilityに基づくevaluator disagreementをseverity・evidence付きeventとして報告する。判定保留Outcomeは停滞・不一致判定から除外し、継続中の不一致がWarningからCriticalへ上がった場合は再通知する。
+
 - Issue #32: `Application`が保持していた互換用Tkinter loop callbackと重複loop状態を削除し、開始・停止・step・連続実行を`GameSessionController`へ一本化。実行時責務境界の説明と、Application commandの委譲を検証する回帰テストを追加。
 
 - Issue #146: `LiveObservationService`がcaptureを直接実行する構造を、bounded latest queueを持つ`SharedFrameProducer`からObservation cadenceでsampleする構造へ変更。window変更時に未読の旧source frameを破棄し、freshness上限を超えたframeを拒否する。出力する`features.capture_metadata`にproducer-scoped frame ID、source世代、Event Journalと同じprocess-monotonic時計で表すcapture nanosecondsを含める。Application終了時にcapture producerを停止し、fake capture/analyzerによるstale・window変更・error・lifecycleのテストを追加。

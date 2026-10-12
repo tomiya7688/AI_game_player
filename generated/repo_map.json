@@ -34723,6 +34723,646 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "deque"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckCategory"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckConfig"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSample"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSeverity"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.self_check",
+      "path": "src/ai_game_player/self_check.py",
+      "source_location": {
+        "end_line": 359,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SelfCheckMonitor",
+          "parameters": [],
+          "qualified_name": "SelfCheckMonitor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 359,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckConfig | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor.__init__",
+          "return_annotation": "None",
+          "signature": "(self, config: SelfCheckConfig | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 47,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "observe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor.observe",
+          "return_annotation": "tuple[SelfCheckEvent, ...]",
+          "signature": "(self, sample: SelfCheckSample) -> tuple[SelfCheckEvent, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "reset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor.reset",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_detect_repeated_cycle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor._detect_repeated_cycle",
+          "return_annotation": "SelfCheckEvent | None",
+          "signature": "(self) -> SelfCheckEvent | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_detect_stagnation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor._detect_stagnation",
+          "return_annotation": "SelfCheckEvent | None",
+          "signature": "(self) -> SelfCheckEvent | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 213,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_detect_outcome_mismatch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor._detect_outcome_mismatch",
+          "return_annotation": "SelfCheckEvent | None",
+          "signature": "(self, sample: SelfCheckSample) -> SelfCheckEvent | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 259,
+            "start_line": 230
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_detect_scene_duration",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor._detect_scene_duration",
+          "return_annotation": "SelfCheckEvent | None",
+          "signature": "(self, sample: SelfCheckSample) -> SelfCheckEvent | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 289,
+            "start_line": 276
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_detect_evaluator_disagreement",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor._detect_evaluator_disagreement",
+          "return_annotation": "SelfCheckEvent | None",
+          "signature": "(self, sample: SelfCheckSample) -> SelfCheckEvent | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 330,
+            "start_line": 306
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_create_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckCategory",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "category"
+            },
+            {
+              "annotation": "SelfCheckSeverity",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "severity"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scene_id"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitor._create_event",
+          "return_annotation": "SelfCheckEvent",
+          "signature": "(self, category: SelfCheckCategory, severity: SelfCheckSeverity, reason: str, evidence: tuple[str, ...], scene_id: str) -> SelfCheckEvent",
+          "source_location": {
+            "column": 4,
+            "end_line": 359,
+            "start_line": 351
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_context",
+        "ai_game_player.outcome_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "EvaluatorEvidence"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.outcome_models"
+          ],
+          "module": "ai_game_player.outcome_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "OutcomeEvent"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.self_check_models",
+      "path": "src/ai_game_player/self_check_models.py",
+      "source_location": {
+        "end_line": 240,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SelfCheckCategory",
+          "parameters": [],
+          "qualified_name": "SelfCheckCategory",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 26,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SelfCheckSeverity",
+          "parameters": [],
+          "qualified_name": "SelfCheckSeverity",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 40,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "SelfCheckConfig",
+          "parameters": [],
+          "qualified_name": "SelfCheckConfig",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 114,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckConfig.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 114,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "SelfCheckSample",
+          "parameters": [],
+          "qualified_name": "SelfCheckSample",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 164,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckSample.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 164,
+            "start_line": 158
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "SelfCheckEvent",
+          "parameters": [],
+          "qualified_name": "SelfCheckEvent",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 240,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckEvent.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 214,
+            "start_line": 210
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckEvent.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 240,
+            "start_line": 231
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.frame_stream",
         "ai_game_player.frame_subscriber",
         "ai_game_player.screen_capture"
@@ -66604,6 +67244,562 @@
             "column": 4,
             "end_line": 18,
             "start_line": 11
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_context",
+        "ai_game_player.outcome_models",
+        "ai_game_player.self_check"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "EvaluatorEvidence"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.outcome_models"
+          ],
+          "module": "ai_game_player.outcome_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "OutcomeEvent"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check"
+          ],
+          "module": "ai_game_player.self_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckCategory"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckConfig"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSample"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSeverity"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckMonitor"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_self_check",
+      "path": "tests/test_self_check.py",
+      "source_location": {
+        "end_line": 273,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_sample",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_signature"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "outcome"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "outcome_confidence"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "outcome_abstained"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_outcome"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "scene_id"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "scene_elapsed_seconds"
+            },
+            {
+              "annotation": "tuple[EvaluatorEvidence, ...]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "evaluator_evidence"
+            }
+          ],
+          "qualified_name": "make_sample",
+          "return_annotation": "SelfCheckSample",
+          "signature": "(action_id: str, state_signature: str, *, outcome: str = …, outcome_confidence: float = …, outcome_abstained: bool = …, expected_outcome: str | None = …, scene_id: str = …, scene_elapsed_seconds: float = …, evaluator_evidence: tuple[EvaluatorEvidence, ...] = …) -> SelfCheckSample",
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SelfCheckMonitorTest",
+          "parameters": [],
+          "qualified_name": "SelfCheckMonitorTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 269,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_detects_repeated_action_state_cycle_without_game_specific_preset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_detects_repeated_action_state_cycle_without_game_specific_preset",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 64,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_detects_consecutive_no_progress",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_detects_consecutive_no_progress",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 77,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_detects_terminal_expected_actual_mismatch_as_critical",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_detects_terminal_expected_actual_mismatch_as_critical",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_treat_unknown_actual_outcome_as_a_mismatch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_does_not_treat_unknown_actual_outcome_as_a_mismatch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_raise_terminal_mismatch_from_low_confidence_outcome",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_does_not_raise_terminal_mismatch_from_low_confidence_outcome",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reports_outcome_mismatch_when_severity_escalates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_reports_outcome_mismatch_when_severity_escalates",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_classify_abstained_outcome_as_mismatch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_does_not_classify_abstained_outcome_as_mismatch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 154,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_does_not_classify_abstained_unchanged_outcomes_as_stagnation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_does_not_classify_abstained_unchanged_outcomes_as_stagnation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_detects_scene_duration_over_configured_generic_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_detects_scene_duration_over_configured_generic_limit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_detects_opposing_confident_evaluator_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_detects_opposing_confident_evaluator_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 197,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ignores_disagreement_from_low_reliability_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_ignores_disagreement_from_low_reliability_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 208,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rearms_cycle_event_after_condition_clears",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_rearms_cycle_event_after_condition_clears",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 225,
+            "start_line": 210
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rolling_history_evicts_old_cycle_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_rolling_history_evicts_old_cycle_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 227
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reset_starts_a_fresh_session_history",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_reset_starts_a_fresh_session_history",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 258,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_history_capacity_smaller_than_cycle_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_rejects_history_capacity_smaller_than_cycle_window",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 265,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_fractional_step_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelfCheckMonitorTest.test_rejects_fractional_step_limit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 269,
+            "start_line": 267
           }
         }
       ]
