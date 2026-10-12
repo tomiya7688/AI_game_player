@@ -6,6 +6,8 @@ from time import monotonic
 from typing import Protocol
 from uuid import uuid4
 
+from ai_game_player.capture_geometry import crop_screen_frame
+from ai_game_player.capture_region import CaptureRegion
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 from ai_game_player.shared_frame_producer import (
@@ -75,14 +77,14 @@ class FrameAnalyzer(Protocol):
 
 
 # {
-#   責務: [LiveObservationService: bounded shared frame streamから選択画面を解析し、frame IDとmonotonic時刻付きObservationを返す]
-#   フィールド: [capture_frame: 対象windowからframeを取得する関数, _windows_capture: default Windows backendとWGC resource lifetime, analyzer_factory: frame解析依存の生成関数, ocr_factory: optional OCR recognizer生成関数, producer/subscriber: Capture cadenceをObservation samplingから分離する共有stream]
+#   責務: [LiveObservationService: ROI設定に従うbounded shared frame streamから選択画面を解析し、capture根拠付きObservationを返す]
+#   フィールド: [capture_frame: 対象windowからraw frameを取得する関数, capture_region: 現在source generationに使うROI設定, _windows_capture: default Windows backendとWGC resource lifetime, analyzer_factory/ocr_factory: frame解析依存, producer/subscriber: Capture cadenceをObservation samplingから分離する共有stream]
 # }
 class LiveObservationService:
     # {
-    #   責務: [__init__: 差替え可能なcapture・frame analyzer・OCR依存とbounded frame streamの時間条件を初期化する]
-    #   処理: [未指定capture依存では1つのWindowsScreenCaptureを保持し、WGC sessionをcapture thread間で再利用する。cadenceとfreshness上限も検証する]
-    #   引数: [capture_frame: window handleからScreenFrameを取得する関数, analyzer_factory: OCR依存からanalyzerを作る関数, ocr_factory: optional OCR recognizerを作る関数, capture_interval_seconds: producerがcaptureを繰り返す間隔, frame_wait_timeout_seconds: consumerがframeを待つ上限, maximum_frame_age_seconds: Observationに利用できるframeの最大経過時間]
+    #   責務: [__init__: 差替え可能なcapture・frame analyzer・OCR依存、ROI設定、bounded frame streamの時間条件を初期化する]
+    #   処理: [未指定capture依存では1つのWindowsScreenCaptureへcapture regionを設定し、WGC sessionを再利用する。cadenceとfreshness上限も検証する]
+    #   引数: [capture_frame: window handleからScreenFrameを取得する関数, analyzer_factory: OCR依存からanalyzerを作る関数, ocr_factory: optional OCR recognizerを作る関数, capture_region: 各frameに適用するscreen/window ROI, capture_interval_seconds: producerがcaptureを繰り返す間隔, frame_wait_timeout_seconds: consumerがframeを待つ上限, maximum_frame_age_seconds: Observationに利用できるframeの最大経過時間]
     #   戻り値: []
     # }
     def __init__(
@@ -91,6 +93,7 @@ class LiveObservationService:
         analyzer_factory: Callable[[object | None], FrameAnalyzer] | None = None,
         ocr_factory: Callable[[], object | None] | None = None,
         *,
+        capture_region: CaptureRegion | None = None,
         capture_interval_seconds: float = DEFAULT_FRAME_CAPTURE_INTERVAL_SECONDS,
         frame_wait_timeout_seconds: float = DEFAULT_FRAME_WAIT_TIMEOUT_SECONDS,
         maximum_frame_age_seconds: float = DEFAULT_MAXIMUM_FRAME_AGE_SECONDS,
@@ -119,6 +122,7 @@ class LiveObservationService:
             else self._create_frame_analyzer
         )
         self.ocr_factory = ocr_factory if ocr_factory is not None else self._create_ocr_recognizer
+        self.capture_region = capture_region
         self.capture_interval_seconds = capture_interval_seconds
         self.frame_wait_timeout_seconds = frame_wait_timeout_seconds
         self.maximum_frame_age_seconds = maximum_frame_age_seconds
@@ -130,10 +134,28 @@ class LiveObservationService:
         self._closed = False
 
     # {
+    #   責務: [set_capture_region: 次の画面取得に使うROIをcapture backendへ設定し、producer世代を更新する]
+    #   引数: [capture_region: 4方式のcapture settingと任意のpixelまたはnormalized ROI]
+    #   戻り値: []
+    #   エラー: [service終了後またはproducerが置換不能な状態での設定変更: 変更失敗を呼び出し元へ送出]
+    # }
+    def set_capture_region(self, capture_region: CaptureRegion) -> None:
+        with self._lock:
+            if self._closed:
+                raise RuntimeError("LiveObservationService is closed and cannot change its capture region")
+            if self.capture_region == capture_region:
+                return
+            if self._producer is not None:
+                self._producer.replace_source(
+                    self._create_capture_source(self._window_handle, capture_region)
+                )
+            self.capture_region = capture_region
+
+    # {
     #   責務: [capture_observation: 選択windowのfresh frameを共有streamから取得し、live Observationへ変換する]
-    #   処理: [latest subscriberからframeを取得し、同じframeの識別子とcapture時刻をfeatures.capture_metadataへ保存する]
+    #   処理: [latest subscriberからframeを取得し、同じframeの識別子・時刻・適用ROIのsource/confidenceをfeaturesへ保存する]
     #   引数: [window_handle: capture対象のWindows window handle、省略時はcapture backendのdesktop動作]
-    #   戻り値: [ScreenObservation: screen状態とframe_id・monotonic_nsを含むcapture metadata]
+    #   戻り値: [ScreenObservation: screen状態、frame_id・monotonic_ns、利用時はROI座標変換metadata]
     #   エラー: [capture停止・timeout・stale frame・OCR・解析失敗: 呼び出し元が表示またはSession停止を判断できるよう送出]
     # }
     def capture_observation(self, window_handle: int | None) -> ScreenObservation:
@@ -146,6 +168,8 @@ class LiveObservationService:
             "source_generation": packet.source_generation,
             "monotonic_ns": round(packet.frame.captured_at * NANOSECONDS_PER_SECOND),
         }
+        if packet.frame.capture_geometry is not None:
+            features["capture_region"] = packet.frame.capture_geometry.to_dict()
         return replace(observation, features=features)
 
     # {
@@ -230,7 +254,7 @@ class LiveObservationService:
         if self._producer is not None and self._producer.metrics.error_message is not None:
             self._stop_frame_producer()
         if self._producer is None:
-            source = WindowCaptureSource(self.capture_frame, window_handle)
+            source = self._create_capture_source(window_handle)
             producer = SharedFrameProducer(source, interval_seconds=self.capture_interval_seconds)
             subscriber = producer.subscribe(FrameDeliveryMode.LATEST)
             try:
@@ -245,9 +269,41 @@ class LiveObservationService:
             self._stream_id = uuid4().hex
             return
         if self._window_handle != window_handle:
-            source = WindowCaptureSource(self.capture_frame, window_handle)
+            source = self._create_capture_source(window_handle)
             self._producer.replace_source(source)
             self._window_handle = window_handle
+
+    # {
+    #   責務: [_create_capture_source: capture modeを固定したsource関数を作り、source切替中の旧ROI混入を防ぐ]
+    #   引数: [window_handle: 入力候補座標の対象となる選択HWND、省略時はdesktop, capture_region: このsourceのgenerationに固定するROI。省略時はservice設定]
+    #   戻り値: [WindowCaptureSource: 対象windowと同じgenerationでROIを取得するproducer source]
+    # }
+    def _create_capture_source(
+        self,
+        window_handle: int | None,
+        capture_region: CaptureRegion | None = None,
+    ) -> WindowCaptureSource:
+        if capture_region is None:
+            capture_region = self.capture_region
+        if capture_region is None:
+            return WindowCaptureSource(self.capture_frame, window_handle)
+        source_window_handle = capture_region.capture_handle(window_handle)
+
+        # {
+        #   責務: [capture_configured_frame: source generation作成時のROI設定を固定してraw frameから候補用frameを作る]
+        #   引数: [ignored_window_handle: WindowCaptureSource契約から渡されるHWND。このclosureはsource生成時のwindow handleを使う]
+        #   戻り値: [ScreenFrame: 選択したmodeでROIを適用したframe]
+        #   エラー: [native capture、geometry取得、ROI範囲検証失敗: SharedFrameProducerへ理由を送出]
+        # }
+        def capture_configured_frame(ignored_window_handle: int | None) -> ScreenFrame:
+            if self._windows_capture is not None:
+                return self._windows_capture.capture(window_handle, capture_region)
+            return crop_screen_frame(
+                self.capture_frame(source_window_handle),
+                capture_region,
+            )
+
+        return WindowCaptureSource(capture_configured_frame, window_handle)
 
     # {
     #   責務: [_stop_frame_producer: latest subscriptionを解除し、capture threadへ停止を要求する]

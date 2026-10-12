@@ -1,6 +1,9 @@
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
+from ai_game_player.capture_geometry import CaptureGeometry
+from ai_game_player.capture_region import CaptureRegionMode, PixelRect
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.frame_preprocessor import PythonFramePreprocessor
 from ai_game_player.screen_capture import ScreenFrame
@@ -50,6 +53,33 @@ class FrameAnalyzerTest(unittest.TestCase):
         self.assertEqual(elements[0]["bbox"], (2, 1, 3, 3))
         candidates = observation.features["image_candidates"]
         self.assertEqual((candidates[0]["x"], candidates[0]["y"]), (3, 2))
+
+    def test_roi_candidates_are_mapped_to_window_coordinates_and_keep_geometry_metadata(self):
+        raw_frame = load_ppm(FIXTURES / "bright_button.ppm")
+        geometry = CaptureGeometry(
+            CaptureRegionMode.WINDOW_RELATIVE_REGION,
+            PixelRect(5, 6, raw_frame.width, raw_frame.height),
+            200,
+            100,
+            PixelRect(100, 200, 200, 100),
+            PixelRect(95, 194, 200, 100),
+            0.95,
+            "test:window-relative",
+        )
+
+        observation = FrameAnalyzer().analyze(
+            replace(raw_frame, capture_geometry=geometry),
+            "roi-test",
+        )
+
+        self.assertEqual((observation.width, observation.height), (200, 100))
+        self.assertEqual(observation.features["image_candidates"][0]["bbox"], (12, 13, 3, 3))
+        self.assertEqual(
+            (observation.features["image_candidates"][0]["x"], observation.features["image_candidates"][0]["y"]),
+            (13, 14),
+        )
+        self.assertEqual(observation.features["capture_region"]["coordinate_space"], "window")
+        self.assertEqual(observation.features["capture_region"]["source"], "test:window-relative")
 
     def test_rejects_invalid_buffer(self):
         with self.assertRaises(ValueError):

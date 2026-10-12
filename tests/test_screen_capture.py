@@ -3,6 +3,7 @@ import os
 import unittest
 from unittest.mock import patch
 
+from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode, NormalizedRect, PixelRect
 from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 
 
@@ -156,6 +157,47 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertEqual([], gdi32.calls)
         capture.close()
         self.assertTrue(wgc_capture.closed)
+
+    def test_window_relative_mode_crops_the_selected_window_and_keeps_screen_mapping(self):
+        user32 = FakeUser32()
+        gdi32 = FakeGdi32()
+        native_frame = ScreenFrame(4, 2, b"n" * 32, captured_at=14.0, frame_id=9)
+        capture = WindowsScreenCapture(
+            user32=user32,
+            gdi32=gdi32,
+            wgc_capture_factory=lambda _handle: FakeWgcCapture(native_frame),
+        )
+        capture.set_capture_region(
+            CaptureRegion(
+                CaptureRegionMode.WINDOW_RELATIVE_REGION,
+                NormalizedRect(0.5, 0, 0.5, 1),
+            )
+        )
+
+        frame = capture.capture(123)
+
+        self.assertEqual((frame.width, frame.height, len(frame.bgra)), (2, 2, 16))
+        self.assertEqual(frame.capture_geometry.crop_rect, PixelRect(2, 0, 2, 2))
+        self.assertEqual(frame.capture_geometry.roi_to_window(0, 0), (1.0, 0.0))
+        self.assertEqual(frame.capture_geometry.roi_to_screen(0, 0), (11.0, 20.0))
+        self.assertEqual(gdi32.calls, [])
+        capture.close()
+
+    def test_fixed_region_captures_desktop_pixels_and_maps_back_to_selected_window(self):
+        user32 = FakeUser32()
+        gdi32 = FakeGdi32()
+        capture = WindowsScreenCapture(user32=user32, gdi32=gdi32)
+        capture.set_capture_region(
+            CaptureRegion(CaptureRegionMode.FIXED_REGION, PixelRect(10, 20, 2, 2))
+        )
+
+        frame = capture.capture(123)
+
+        self.assertEqual((frame.width, frame.height, len(frame.bgra)), (2, 2, 16))
+        self.assertEqual(frame.capture_geometry.roi_to_window(0, 0), (0.0, 0.0))
+        self.assertEqual(frame.capture_geometry.roi_to_screen(0, 0), (10.0, 20.0))
+        self.assertEqual(frame.capture_geometry.source, "configured:fixed_region")
+        self.assertIn("BitBlt", gdi32.calls)
 
     def test_window_change_replaces_the_wgc_session_after_reusing_the_current_window(self):
         user32 = FakeUser32()
