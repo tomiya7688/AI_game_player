@@ -79,6 +79,8 @@ class TkAfterScheduler:
 #     window_handles: 表示名ごとのHWND
 #     window_process_ids: 表示名ごとの列挙時PID
 #     live_execution: 実入力の許可状態
+#     live_execution_toggle: Sessionの実行中に実入力設定を変更できないことを示すcheckbox
+#     _session_dry_run: 現在のSessionが開始時に固定した入力モード
 #     capture_mode/capture_region_x/y/width/height: capture方式とfixed/normalized ROIの入力値
 #     _active_capture_region: capture serviceへ最後に適用したROI設定
 #     _latest_assessment_task_id: 結果を適用できる最新の画面評価worker ID
@@ -192,7 +194,13 @@ class Application:
         ttk.Entry(prompt_settings, textvariable=self.personality, width=20).pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="目的").pack(side=tk.LEFT)
         ttk.Entry(prompt_settings, textvariable=self.purpose, width=34).pack(side=tk.LEFT, padx=5)
-        ttk.Checkbutton(prompt_settings, text="実入力を許可", variable=self.live_execution, command=self._on_live_execution_changed).pack(side=tk.LEFT, padx=5)
+        self.live_execution_toggle = ttk.Checkbutton(
+            prompt_settings,
+            text="実入力を許可",
+            variable=self.live_execution,
+            command=self._on_live_execution_changed,
+        )
+        self.live_execution_toggle.pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         window_settings = ttk.Frame(frame)
@@ -278,11 +286,24 @@ class Application:
         self.result.config(text=message)
         self.shell.set_status(message)
 
+    # {
+    #   責務: [_refresh_execution_controls: 設定と実行中Sessionのmodeを操作表示へ反映する]
+    #   処理: [Session開始時に固定した実際の入力modeを表示し、stepまたはloop実行中は実入力checkboxを無効にする]
+    #   引数: []
+    #   戻り値: []
+    # }
     def _refresh_execution_controls(self) -> None:
         execute_label, loop_label, status = execution_labels(self.live_execution.get())
+        session_controller = getattr(self, "session_controller", None)
+        session_is_looping = bool(session_controller and session_controller.is_looping)
+        step_is_pending = bool(session_controller and session_controller.has_pending_step)
+        if session_is_looping or step_is_pending:
+            active_mode = "実入力" if not self._session_dry_run else "dry-run（実入力なし）"
+            status = f"連続実行中の動作: {active_mode}" if session_is_looping else f"現在のstepの動作: {active_mode}"
         self.execute_button.config(text=execute_label)
         self.loop_button.config(text=loop_label)
         self.live_status.config(text=status)
+        self.live_execution_toggle.config(state="disabled" if session_is_looping or step_is_pending else "normal")
 
     # {
     #   責務: [_is_looping: Session controllerが保持する連続実行状態をUIへ返す]
@@ -433,11 +454,12 @@ class Application:
 
     # {
     #   責務: [_on_session_state_change: Session状態をGUI表示とログへ反映する]
-    #   処理: [状態が変わったときだけ記録し、停止・完了・失敗の結果を表示する]
+    #   処理: [実行modeとcheckbox可否を更新し、状態が変わったときだけ記録して停止・完了・失敗の結果を表示する]
     #   引数: [snapshot: Sessionの状態とstep数]
     #   戻り値: []
     # }
     def _on_session_state_change(self, snapshot: SessionSnapshot) -> None:
+        self._refresh_execution_controls()
         current = (snapshot.status, snapshot.looping)
         if current != self._last_session_mode:
             self.runtime_log.write("session", snapshot.status.value, {"steps": snapshot.steps, "reason": snapshot.stop_reason})
@@ -464,16 +486,17 @@ class Application:
 
     # {
     #   責務: [_on_live_execution_changed: 実入力設定変更時にSessionの実行モードを同期する]
-    #   処理: [pending workerがない場合だけSession runtimeを停止し、表示と設定を更新する]
+    #   処理: [連続実行中またはpending worker中の変更を元に戻し、それ以外では表示を更新して実入力解除時にSessionを停止する]
     #   引数: []
     #   戻り値: []
     # }
     def _on_live_execution_changed(self) -> None:
         self._refresh_execution_controls()
-        if getattr(self.session_controller, "has_pending_step", False):
+        if self.session_controller.is_looping or self.session_controller.has_pending_step:
             self.live_execution.set(not self.live_execution.get())
             self._refresh_execution_controls()
-            self._set_status("実行中は実入力設定を変更できません")
+            message = "連続実行中は実入力設定を変更できません" if self.session_controller.is_looping else "実行中は実入力設定を変更できません"
+            self._set_status(message)
             return
         if not self.live_execution.get() and not self._session_dry_run:
             self._session_dry_run = True
