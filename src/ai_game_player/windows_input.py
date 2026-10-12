@@ -29,6 +29,11 @@ SPECIAL_KEYS = {
     "F12": 0x7B,
 }
 
+WINDOW_MESSAGE_MOUSE_UP_FAILURE_MESSAGE = (
+    "対象ウィンドウへのマウス解放送信に失敗しました。"
+    "ボタンが押されたままの可能性があります。Sessionを停止し、対象ウィンドウの状態を確認してください。"
+)
+
 
 # {
 #   責務: [
@@ -187,10 +192,10 @@ class WindowsInputExecutor:
 
     # {
     #   責務: [_execute_click: 対象ウィンドウの座標を指定方式でクリックする]
-    #   処理: [window_message方式では対象へmessageを送り、mouse方式では移動先を停止監視へ通知してからクリックする]
+    #   処理: [window_message方式では対象へmessageを送る。mouse方式では移動先を停止監視へ通知し、SetCursorPos失敗時は押下を送らない]
     #   引数: [candidate: 安全評価済みクリック候補とウィンドウ内座標]
     #   戻り値: []
-    #   エラー: [座標欠落またはWin32座標・入力APIの失敗でValueErrorまたはRuntimeError]
+    #   エラー: [座標欠落でValueError。Win32入力API失敗時は送信操作と利用者の次の確認手順を示すRuntimeError]
     # }
     def _execute_click(self, candidate: ActionCandidate) -> None:
         if candidate.x is None or candidate.y is None:
@@ -222,7 +227,10 @@ class WindowsInputExecutor:
             self.automated_cursor_position_callback((x, y), True)
         try:
             if not user32.SetCursorPos(x, y):
-                raise RuntimeError("SetCursorPos failed")
+                raise RuntimeError(
+                    "SetCursorPos に失敗したためクリックを送信しませんでした。"
+                    "対象ウィンドウが有効か確認し、必要ならウィンドウを再選択してから再試行してください。"
+                )
         except Exception:
             if self.automated_cursor_position_callback is not None:
                 self.automated_cursor_position_callback(None, False)
@@ -244,6 +252,13 @@ class WindowsInputExecutor:
                 self._mouse_up("left")
                 raise
 
+    # {
+    #   責務: [_post_click: window_message方式で対象ウィンドウへマウス押下・解放messageを送る]
+    #   処理: [PostMessageWの戻り値を各送信で確認し、解放失敗時はheld状態を保持して再試行可能にする]
+    #   引数: [lparam: クリック位置を対象client座標としてpackした値]
+    #   戻り値: []
+    #   エラー: [HWND欠落または送信失敗でRuntimeError。失敗した操作と利用者の確認手順を示す]
+    # }
     def _post_click(self, lparam: int) -> None:
         user32 = getattr(ctypes, "windll").user32
         if self.window_handle is None:
@@ -253,12 +268,15 @@ class WindowsInputExecutor:
         up_sent = False
         try:
             if not user32.PostMessageW(self.window_handle, 0x0201, 0x0001, lparam):
-                raise RuntimeError("PostMessageW mouse-down failed")
+                raise RuntimeError(
+                    "対象ウィンドウへのマウス押下送信に失敗しました。"
+                    "対象ウィンドウが応答しているか、window_message方式の入力を受け付けるか確認して再試行してください。"
+                )
             down_sent = True
             self._held_mouse.add("left")
             self._held_mouse_lparams["left"] = lparam
             if not user32.PostMessageW(self.window_handle, 0x0202, 0, lparam):
-                raise RuntimeError("PostMessageW mouse-up failed")
+                raise RuntimeError(WINDOW_MESSAGE_MOUSE_UP_FAILURE_MESSAGE)
             up_sent = True
         finally:
             if not down_sent or up_sent:
@@ -281,6 +299,13 @@ class WindowsInputExecutor:
         finally:
             self._key_up(virtual_key)
 
+    # {
+    #   責務: [_key_down: 選択した入力方式でキー押下を送り、成功したheld状態を記録する]
+    #   処理: [window_message方式ではPostMessageWの戻り値を検査し、失敗時はledgerを解放する]
+    #   引数: [virtual_key: Windowsが定義する押下対象の仮想キーコード]
+    #   戻り値: []
+    #   エラー: [対象HWND欠落またはwindow_message送信失敗でRuntimeError。対象の応答状態と入力方式の確認を促す]
+    # }
     def _key_down(self, virtual_key: int) -> None:
         user32 = getattr(ctypes, "windll").user32
         self._ledger_hold_key(virtual_key)
@@ -289,7 +314,10 @@ class WindowsInputExecutor:
                 if self.window_handle is None:
                     raise RuntimeError("window_message requires a selected window")
                 if not user32.PostMessageW(self.window_handle, 0x0100, virtual_key, 0):
-                    raise RuntimeError("PostMessageW key-down failed")
+                    raise RuntimeError(
+                        "対象ウィンドウへのキー押下送信に失敗しました。"
+                        "対象ウィンドウが応答しているか、window_message方式の入力を受け付けるか確認して再試行してください。"
+                    )
             else:
                 user32.keybd_event(virtual_key, 0, 0, 0)
         except Exception:
@@ -297,6 +325,13 @@ class WindowsInputExecutor:
             raise
         self._held_keys.add(virtual_key)
 
+    # {
+    #   責務: [_key_up: 選択した入力方式でキー解放を送り、成功後にheld状態を消す]
+    #   処理: [window_message方式ではPostMessageWの戻り値を検査し、失敗時はheld状態とledgerを維持する]
+    #   引数: [virtual_key: Windowsが定義する解放対象の仮想キーコード]
+    #   戻り値: []
+    #   エラー: [対象HWND欠落またはwindow_message送信失敗でRuntimeError。キー残留の可能性とSession停止を示す]
+    # }
     def _key_up(self, virtual_key: int) -> None:
         user32 = getattr(ctypes, "windll").user32
         released = False
@@ -305,7 +340,10 @@ class WindowsInputExecutor:
                 if self.window_handle is None:
                     raise RuntimeError("window_message requires a selected window")
                 if not user32.PostMessageW(self.window_handle, 0x0101, virtual_key, 0):
-                    raise RuntimeError("PostMessageW key-up failed")
+                    raise RuntimeError(
+                        "対象ウィンドウへのキー解放送信に失敗しました。"
+                        "キーが押されたままの可能性があります。Sessionを停止し、対象ウィンドウの状態を確認してください。"
+                    )
             else:
                 user32.keybd_event(virtual_key, 0, 2, 0)
             released = True
@@ -325,6 +363,13 @@ class WindowsInputExecutor:
             raise
         self._held_mouse.add(button)
 
+    # {
+    #   責務: [_mouse_up: 選択した入力方式でマウスボタンを解放し、成功後にheld状態を消す]
+    #   処理: [window_message方式ではPostMessageWの戻り値を検査し、失敗時はheld状態とledgerを維持する]
+    #   引数: [button: held状態に記録した解放対象のマウスボタン名]
+    #   戻り値: []
+    #   エラー: [対象HWND欠落またはwindow_message送信失敗でRuntimeError。解放失敗時はSession停止を促す]
+    # }
     def _mouse_up(self, button: str) -> None:
         released = False
         try:
@@ -333,7 +378,7 @@ class WindowsInputExecutor:
                     raise RuntimeError("window_message requires a selected window")
                 lparam = self._held_mouse_lparams.get(button, 0)
                 if not getattr(ctypes, "windll").user32.PostMessageW(self.window_handle, 0x0202, 0, lparam):
-                    raise RuntimeError("PostMessageW mouse-up failed")
+                    raise RuntimeError(WINDOW_MESSAGE_MOUSE_UP_FAILURE_MESSAGE)
             elif button == "left":
                 getattr(ctypes, "windll").user32.mouse_event(0x0004, 0, 0, 0, 0)
             released = True
