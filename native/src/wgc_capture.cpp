@@ -207,18 +207,23 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
         std::weak_ptr<WgcSessionState> weak_state = shared_from_this();
         frame_arrived_token = frame_pool.FrameArrived(
             [weak_state](const Direct3D11CaptureFramePool&, const winrt::Windows::Foundation::IInspectable&) {
+                std::fprintf(stderr, "WGC native event: entered\n");
                 const auto state = weak_state.lock();
                 if (!state) {
+                    std::fprintf(stderr, "WGC native event: state expired\n");
                     return;
                 }
                 {
                     std::lock_guard lock(state->arrival_mutex);
                     if (state->is_closed) {
+                        std::fprintf(stderr, "WGC native event: already closed\n");
                         return;
                     }
                     ++state->arrival_generation;
+                    std::fprintf(stderr, "WGC native event: generation=%llu\n", static_cast<unsigned long long>(state->arrival_generation));
                 }
                 state->frame_arrived.notify_one();
+                std::fprintf(stderr, "WGC native event: notified\n");
             }
         );
         capture_session = frame_pool.CreateCaptureSession(capture_item);
@@ -286,9 +291,14 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                 std::unique_lock arrival_lock(arrival_mutex);
                 observed_generation = arrival_generation;
                 std::fprintf(stderr, "WGC native next: waiting, generation=%llu\n", static_cast<unsigned long long>(observed_generation));
-                if (!frame_arrived.wait_until(arrival_lock, deadline, [this, observed_generation] {
-                        return is_closed || arrival_generation > observed_generation;
-                    })) {
+                const bool event_observed = frame_arrived.wait_until(arrival_lock, deadline, [this, observed_generation] {
+                    return is_closed || arrival_generation > observed_generation;
+                });
+                std::fprintf(stderr, "WGC native next: wait returned=%d generation=%llu closed=%d\n",
+                    event_observed ? 1 : 0,
+                    static_cast<unsigned long long>(arrival_generation),
+                    is_closed ? 1 : 0);
+                if (!event_observed) {
                     return nullptr;
                 }
                 if (is_closed) {
