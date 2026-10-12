@@ -17,12 +17,21 @@ def make_sample(
     *,
     outcome: str = "changed",
     outcome_confidence: float = 0.9,
+    outcome_abstained: bool = False,
     expected_outcome: str | None = None,
     scene_id: str = "unknown-game-scene",
     scene_elapsed_seconds: float = 0.0,
     evaluator_evidence: tuple[EvaluatorEvidence, ...] = (),
 ) -> SelfCheckSample:
-    outcome_event = OutcomeEvent(action_id, outcome, outcome_confidence, False, False, (), f"{outcome} result")
+    outcome_event = OutcomeEvent(
+        action_id,
+        outcome,
+        outcome_confidence,
+        False,
+        outcome_abstained,
+        (),
+        f"{outcome} result",
+    )
     return SelfCheckSample(
         outcome_event,
         state_signature,
@@ -101,6 +110,64 @@ class SelfCheckMonitorTest(unittest.TestCase):
         )
 
         self.assertNotIn(SelfCheckCategory.OUTCOME_MISMATCH, {event.category for event in events})
+
+    def test_reports_outcome_mismatch_when_severity_escalates(self):
+        monitor = SelfCheckMonitor()
+
+        warning_events = monitor.observe(
+            make_sample("finish-level", "state-before-failure", outcome="changed", expected_outcome="success")
+        )
+        warning = next(
+            event for event in warning_events if event.category == SelfCheckCategory.OUTCOME_MISMATCH
+        )
+        self.assertEqual(warning.severity, SelfCheckSeverity.WARNING)
+
+        critical_events = monitor.observe(
+            make_sample("finish-level", "state-after-failure", outcome="failure", expected_outcome="success")
+        )
+        critical = next(
+            event for event in critical_events if event.category == SelfCheckCategory.OUTCOME_MISMATCH
+        )
+        self.assertEqual(critical.severity, SelfCheckSeverity.CRITICAL)
+
+        repeated_events = monitor.observe(
+            make_sample("finish-level", "state-still-failed", outcome="failure", expected_outcome="success")
+        )
+        self.assertNotIn(
+            SelfCheckCategory.OUTCOME_MISMATCH,
+            {event.category for event in repeated_events},
+        )
+
+    def test_does_not_classify_abstained_outcome_as_mismatch(self):
+        monitor = SelfCheckMonitor()
+
+        events = monitor.observe(
+            make_sample(
+                "finish-level",
+                "unknown-state",
+                outcome="failure",
+                outcome_abstained=True,
+                expected_outcome="success",
+            )
+        )
+
+        self.assertNotIn(SelfCheckCategory.OUTCOME_MISMATCH, {event.category for event in events})
+
+    def test_does_not_classify_abstained_unchanged_outcomes_as_stagnation(self):
+        monitor = SelfCheckMonitor(SelfCheckConfig(stagnation_limit=3))
+
+        events = ()
+        for action_id in ("move-left", "move-right", "wait"):
+            events = monitor.observe(
+                make_sample(
+                    action_id,
+                    "same-state",
+                    outcome="unchanged",
+                    outcome_abstained=True,
+                )
+            )
+
+        self.assertNotIn(SelfCheckCategory.STAGNATION, {event.category for event in events})
 
     def test_detects_scene_duration_over_configured_generic_limit(self):
         monitor = SelfCheckMonitor(SelfCheckConfig(scene_duration_limit_seconds=60.0))

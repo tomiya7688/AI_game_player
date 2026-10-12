@@ -16,7 +16,7 @@ from ai_game_player.self_check_models import (
 #   フィールド: [
 #     config: 有限履歴と検出しきい値
 #     _history: 直近stepのrolling履歴
-#     _active_categories: 継続中の検出を重複通知しないための集合
+#     _active_events: 継続中の検出で通知済みの最高重要度を保持する
 #     _step_count: Monitor開始後のstep数
 #   ]
 #   処理: [
@@ -43,7 +43,7 @@ class SelfCheckMonitor:
     def __init__(self, config: SelfCheckConfig | None = None) -> None:
         self.config = config or SelfCheckConfig()
         self._history: deque[SelfCheckSample] = deque(maxlen=self.config.history_limit)
-        self._active_categories: set[SelfCheckCategory] = set()
+        self._active_events: dict[SelfCheckCategory, SelfCheckEvent] = {}
         self._step_count = 0
 
     # {
@@ -53,7 +53,8 @@ class SelfCheckMonitor:
     #   処理: [
     #     1: 入力stepを有限rolling履歴へ追加する
     #     2: 周期、停滞、期待差、Scene時間、評価器対立を独立して判定する
-    #     3: 継続中の同一カテゴリを抑制し、新規イベントだけを返す
+    #     3: 継続中の同一カテゴリを抑制し、重要度が上がった場合だけ再通知する
+    #     4: 検出が消えたカテゴリを通知状態から外し、再発時に再通知する
     #   ]
     #   引数: [
     #     sample: 実際のOutcomeと汎用状態・Scene・評価器情報
@@ -76,13 +77,31 @@ class SelfCheckMonitor:
             )
             if event is not None
         )
-        active_categories = {event.category for event in detected_events}
-        # 同じ兆候が継続する間は通知を一度に制限し、条件が消えた後は再通知できるようにする。
-        new_events = tuple(
-            event for event in detected_events if event.category not in self._active_categories
-        )
-        self._active_categories = active_categories
-        return new_events
+        new_events: list[SelfCheckEvent] = []
+        active_events: dict[SelfCheckCategory, SelfCheckEvent] = {}
+        for event in detected_events:
+            previous_event = self._active_events.get(event.category)
+            if previous_event is None:
+                new_events.append(event)
+                active_events[event.category] = event
+                continue
+
+            severity_escalated = (
+                previous_event.severity == SelfCheckSeverity.WARNING
+                and event.severity == SelfCheckSeverity.CRITICAL
+            )
+            if severity_escalated:
+                # 継続中の期待差でも終端結果が逆転した場合は、重大化を利用者へ通知する。
+                new_events.append(event)
+                active_events[event.category] = event
+            elif previous_event.severity == SelfCheckSeverity.CRITICAL:
+                # 重要度が一度上がったカテゴリでは、条件解消までcriticalを再通知しない。
+                active_events[event.category] = previous_event
+            else:
+                active_events[event.category] = event
+
+        self._active_events = active_events
+        return tuple(new_events)
 
     # {
     #   責務: [
@@ -90,7 +109,7 @@ class SelfCheckMonitor:
     #   ]
     #   処理: [
     #     1: rolling履歴を空にする
-    #     2: step数と継続中カテゴリを初期化する
+    #     2: step数と継続中イベントの通知状態を初期化する
     #   ]
     #   引数: [
     #     self: 初期化するMonitor
@@ -101,7 +120,7 @@ class SelfCheckMonitor:
     # }
     def reset(self) -> None:
         self._history.clear()
-        self._active_categories.clear()
+        self._active_events.clear()
         self._step_count = 0
 
     # {
@@ -176,9 +195,10 @@ class SelfCheckMonitor:
         if len(self._history) < window_size:
             return None
         recent = tuple(self._history)[-window_size:]
-        # unknownは未判定であり「進展なし」の証拠ではないため、停滞stepに数えない。
+        # unknownまたは判定保留のOutcomeは進展の有無を確定できないため、停滞stepに数えない。
         if not all(
             sample.actual_outcome.status == "unchanged"
+            and not sample.actual_outcome.abstained
             and sample.actual_outcome.confidence >= self.config.minimum_outcome_confidence
             for sample in recent
         ):
@@ -197,7 +217,7 @@ class SelfCheckMonitor:
     #     _detect_outcome_mismatch: 既知の実際のOutcomeと期待Outcomeの食い違いを判定する
     #   ]
     #   処理: [
-    #     1: 期待値があり、実際値が不明でない場合だけ比較する
+    #     1: 期待値があり、実際値がunknownまたは判定保留でない場合だけ比較する
     #     2: 成功と失敗が逆転した場合はcritical、それ以外はwarningにする
     #   ]
     #   引数: [
@@ -210,12 +230,13 @@ class SelfCheckMonitor:
     def _detect_outcome_mismatch(self, sample: SelfCheckSample) -> SelfCheckEvent | None:
         expected = sample.expected_outcome
         actual = sample.actual_outcome.status
-        # Unknownは期待との差を確定できないため、誤った不一致イベントを作らない。
+        # Unknownまたは判定保留のOutcomeは期待との差を確定できないため、不一致イベントを作らない。
         if (
             expected is None
             or expected == actual
             or actual == "unknown"
             or expected == "unknown"
+            or sample.actual_outcome.abstained
             or sample.actual_outcome.confidence < self.config.minimum_outcome_confidence
         ):
             return None
