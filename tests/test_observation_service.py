@@ -2,6 +2,7 @@ import unittest
 from threading import Event
 from time import monotonic
 from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from ai_game_player.models import ScreenObservation
 from ai_game_player.observation_service import (
@@ -13,6 +14,19 @@ from ai_game_player.shared_frame_producer import FrameDeliveryMode, FrameProduce
 
 
 class LiveObservationServiceTests(unittest.TestCase):
+    def test_default_capture_backend_is_reused_and_closed_with_the_service(self):
+        capture_backend = Mock()
+        with patch(
+            "ai_game_player.observation_service.WindowsScreenCapture",
+            return_value=capture_backend,
+        ) as capture_factory:
+            service = LiveObservationService()
+
+            self.assertTrue(service.close())
+
+        capture_factory.assert_called_once_with()
+        capture_backend.close.assert_called_once_with()
+
     def test_capture_and_analyzer_dependencies_receive_window_and_live_screen_id(self):
         expected_frame = ScreenFrame(2, 1, bytes(8))
         expected_observation = ScreenObservation("live", 2, 1, ["PLAY"])

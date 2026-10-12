@@ -15,11 +15,24 @@ int main(void) {
         1u, 1u, 4u, 220u, 9u, 0u, sizeof(pixel), pixel
     };
     kadoka_frame_preprocess_result frame_result = {0};
+    kadoka_wgc_session* wgc_session = 0;
+    kadoka_wgc_frame* wgc_frame = 0;
+    uint32_t wgc_supported = 0u;
     frame_result.struct_size = sizeof(frame_result);
     frame_result.abi_version = KADOKA_RUNTIME_ABI_VERSION;
 
     if (kadoka_runtime_abi_version() != KADOKA_RUNTIME_ABI_VERSION) {
         return 1;
+    }
+    if (kadoka_wgc_is_supported(&wgc_supported) != KADOKA_RUNTIME_STATUS_OK || wgc_supported > 1u ||
+        kadoka_wgc_is_supported(0) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT) {
+        return 8;
+    }
+    if (kadoka_wgc_close(&wgc_session) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT ||
+        kadoka_wgc_close(0) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT ||
+        kadoka_wgc_frame_release(&wgc_frame) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT ||
+        kadoka_wgc_frame_release(0) != KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT) {
+        return 9;
     }
     if (kadoka_runtime_init(&options, &runtime) != KADOKA_RUNTIME_STATUS_OK || runtime == 0) {
         return 2;

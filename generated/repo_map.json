@@ -22193,7 +22193,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 298,
+          "line": 296,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -22209,7 +22209,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 310,
+          "line": 308,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ocr_recognizer"
@@ -22226,7 +22226,7 @@
       "module": "ai_game_player.observation_service",
       "path": "src/ai_game_player/observation_service.py",
       "source_location": {
-        "end_line": 312,
+        "end_line": 310,
         "start_line": 1
       },
       "symbols": [
@@ -22432,7 +22432,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 312,
+            "end_line": 310,
             "start_line": 81
           }
         },
@@ -22491,7 +22491,7 @@
           "signature": "(self, capture_frame: Callable[[int | None], ScreenFrame] | None = …, analyzer_factory: Callable[[object | None], FrameAnalyzer] | None = …, ocr_factory: Callable[[], object | None] | None = …, *, capture_interval_seconds: float = …, frame_wait_timeout_seconds: float = …, maximum_frame_age_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 127,
+            "end_line": 130,
             "start_line": 88
           }
         },
@@ -22520,8 +22520,8 @@
           "signature": "(self, window_handle: int | None) -> ScreenObservation",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 136
+            "end_line": 149,
+            "start_line": 139
           }
         },
         {
@@ -22561,8 +22561,8 @@
           "signature": "(self, window_handle: int | None, mode: FrameDeliveryMode = …, max_pending: int = …) -> FrameSubscriber",
           "source_location": {
             "column": 4,
-            "end_line": 168,
-            "start_line": 155
+            "end_line": 171,
+            "start_line": 158
           }
         },
         {
@@ -22590,8 +22590,8 @@
           "signature": "(self, window_handle: int | None) -> tuple[FramePacket, str]",
           "source_location": {
             "column": 4,
-            "end_line": 217,
-            "start_line": 177
+            "end_line": 220,
+            "start_line": 180
           }
         },
         {
@@ -22619,8 +22619,8 @@
           "signature": "(self, window_handle: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 226
+            "end_line": 250,
+            "start_line": 229
           }
         },
         {
@@ -22642,8 +22642,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 266,
-            "start_line": 254
+            "end_line": 269,
+            "start_line": 257
           }
         },
         {
@@ -22665,33 +22665,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 273
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [
-            "staticmethod"
-          ],
-          "kind": "method",
-          "name": "_capture_windows_frame",
-          "parameters": [
-            {
-              "annotation": "int | None",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "window_handle"
-            }
-          ],
-          "qualified_name": "LiveObservationService._capture_windows_frame",
-          "return_annotation": "ScreenFrame",
-          "signature": "(window_handle: int | None) -> ScreenFrame",
-          "source_location": {
-            "column": 4,
-            "end_line": 288,
-            "start_line": 287
+            "end_line": 286,
+            "start_line": 277
           }
         },
         {
@@ -22715,8 +22690,8 @@
           "signature": "(ocr_recognizer: object | None) -> FrameAnalyzer",
           "source_location": {
             "column": 4,
-            "end_line": 300,
-            "start_line": 297
+            "end_line": 298,
+            "start_line": 295
           }
         },
         {
@@ -22733,8 +22708,8 @@
           "signature": "() -> object | None",
           "source_location": {
             "column": 4,
-            "end_line": 312,
-            "start_line": 309
+            "end_line": 310,
+            "start_line": 307
           }
         }
       ]
@@ -29771,7 +29746,7 @@
       "module": "ai_game_player.runtime.native",
       "path": "src/ai_game_player/runtime/native.py",
       "source_location": {
-        "end_line": 544,
+        "end_line": 818,
         "start_line": 1
       },
       "symbols": [
@@ -29793,8 +29768,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 44,
-            "start_line": 38
+            "end_line": 48,
+            "start_line": 40
           }
         },
         {
@@ -29815,8 +29790,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 53,
-            "start_line": 47
+            "end_line": 57,
+            "start_line": 51
           }
         },
         {
@@ -29838,8 +29813,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 60,
-            "start_line": 56
+            "end_line": 64,
+            "start_line": 60
           }
         },
         {
@@ -29860,8 +29835,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 71,
-            "start_line": 63
+            "end_line": 75,
+            "start_line": 67
           }
         },
         {
@@ -29895,8 +29870,8 @@
           "signature": "(self, operation: str, status_code: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 71,
-            "start_line": 64
+            "end_line": 75,
+            "start_line": 68
           }
         },
         {
@@ -29917,8 +29892,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 75,
-            "start_line": 74
+            "end_line": 79,
+            "start_line": 78
           }
         },
         {
@@ -29939,8 +29914,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 79,
-            "start_line": 78
+            "end_line": 83,
+            "start_line": 82
           }
         },
         {
@@ -29961,8 +29936,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 83,
-            "start_line": 82
+            "end_line": 87,
+            "start_line": 86
           }
         },
         {
@@ -29983,8 +29958,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 91,
-            "start_line": 86
+            "end_line": 95,
+            "start_line": 90
           }
         },
         {
@@ -30005,8 +29980,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 101,
-            "start_line": 94
+            "end_line": 105,
+            "start_line": 98
           }
         },
         {
@@ -30027,8 +30002,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 111,
-            "start_line": 104
+            "end_line": 115,
+            "start_line": 108
           }
         },
         {
@@ -30049,8 +30024,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 126,
-            "start_line": 114
+            "end_line": 130,
+            "start_line": 118
           }
         },
         {
@@ -30071,8 +30046,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 137,
-            "start_line": 129
+            "end_line": 141,
+            "start_line": 133
           }
         },
         {
@@ -30093,8 +30068,30 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 158,
-            "start_line": 140
+            "end_line": 162,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [
+            "ctypes.Structure"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "_WgcFrameInfo",
+          "parameters": [],
+          "qualified_name": "_WgcFrameInfo",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 180,
+            "start_line": 169
           }
         },
         {
@@ -30115,8 +30112,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 164,
-            "start_line": 162
+            "end_line": 186,
+            "start_line": 184
           }
         },
         {
@@ -30137,8 +30134,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 171,
-            "start_line": 168
+            "end_line": 193,
+            "start_line": 190
           }
         },
         {
@@ -30159,8 +30156,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 179,
-            "start_line": 175
+            "end_line": 201,
+            "start_line": 197
           }
         },
         {
@@ -30200,8 +30197,49 @@
           "signature": "(library: object, name: str, argtypes: list[Any], restype: Any) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 190,
-            "start_line": 182
+            "end_line": 212,
+            "start_line": 204
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bind_optional",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "library"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "list[Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "argtypes"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "restype"
+            }
+          ],
+          "qualified_name": "_bind_optional",
+          "return_annotation": "Any | None",
+          "signature": "(library: object, name: str, argtypes: list[Any], restype: Any) -> Any | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 227,
+            "start_line": 220
           }
         },
         {
@@ -30229,8 +30267,8 @@
           "signature": "(operation: str, status: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 195,
-            "start_line": 193
+            "end_line": 232,
+            "start_line": 230
           }
         },
         {
@@ -30249,8 +30287,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 511,
-            "start_line": 198
+            "end_line": 719,
+            "start_line": 239
           }
         },
         {
@@ -30284,8 +30322,8 @@
           "signature": "(self, library: object, *, library_path: Path | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 239,
-            "start_line": 201
+            "end_line": 322,
+            "start_line": 248
           }
         },
         {
@@ -30315,8 +30353,8 @@
           "signature": "(cls, path: str | Path) -> NativeRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 251,
-            "start_line": 242
+            "end_line": 334,
+            "start_line": 325
           }
         },
         {
@@ -30340,8 +30378,8 @@
           "signature": "(self) -> RuntimeDescriptor",
           "source_location": {
             "column": 4,
-            "end_line": 255,
-            "start_line": 254
+            "end_line": 338,
+            "start_line": 337
           }
         },
         {
@@ -30363,8 +30401,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 259,
-            "start_line": 257
+            "end_line": 342,
+            "start_line": 340
           }
         },
         {
@@ -30398,8 +30436,95 @@
           "signature": "(self, kind: NativeBatchKind, batch_id: int) -> NativeBatchResult",
           "source_location": {
             "column": 4,
-            "end_line": 279,
-            "start_line": 261
+            "end_line": 362,
+            "start_line": 344
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "is_wgc_capture_supported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeRuntime.is_wgc_capture_supported",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 381,
+            "start_line": 369
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "open_wgc_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "NativeRuntime.open_wgc_window",
+          "return_annotation": "NativeWgcWindow",
+          "signature": "(self, window_handle: int) -> NativeWgcWindow",
+          "source_location": {
+            "column": 4,
+            "end_line": 422,
+            "start_line": 389
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_capture_wgc_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ctypes.c_void_p",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout_ms"
+            }
+          ],
+          "qualified_name": "NativeRuntime._capture_wgc_frame",
+          "return_annotation": "ScreenFrame",
+          "signature": "(self, session: ctypes.c_void_p, timeout_ms: int) -> ScreenFrame",
+          "source_location": {
+            "column": 4,
+            "end_line": 487,
+            "start_line": 430
           }
         },
         {
@@ -30439,8 +30564,8 @@
           "signature": "(self, frame: ScreenFrame, *, brightness_threshold: int = …, min_region_pixels: int = …) -> FramePrimitiveBatch",
           "source_location": {
             "column": 4,
-            "end_line": 432,
-            "start_line": 281
+            "end_line": 640,
+            "start_line": 489
           }
         },
         {
@@ -30512,8 +30637,8 @@
           "signature": "(frame_result: _FrameResult, region_capacity: int, frame_pixel_count: int, frame_width: int, frame_height: int, minimum_region_pixels: int, region_buffer: Any, *, frame_payload_bytes: int, buffer_too_small: bool) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 494,
-            "start_line": 435
+            "end_line": 702,
+            "start_line": 643
           }
         },
         {
@@ -30535,8 +30660,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 503,
-            "start_line": 496
+            "end_line": 711,
+            "start_line": 704
           }
         },
         {
@@ -30558,8 +30683,8 @@
           "signature": "(self) -> NativeRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 508,
-            "start_line": 505
+            "end_line": 716,
+            "start_line": 713
           }
         },
         {
@@ -30599,8 +30724,179 @@
           "signature": "(self, exc_type: type[BaseException] | None, exc: BaseException | None, traceback: TracebackType | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 511,
-            "start_line": 510
+            "end_line": 719,
+            "start_line": 718
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "NativeWgcWindow",
+          "parameters": [],
+          "qualified_name": "NativeWgcWindow",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 785,
+            "start_line": 726
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "NativeRuntime",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime"
+            },
+            {
+              "annotation": "ctypes.c_void_p",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            }
+          ],
+          "qualified_name": "NativeWgcWindow.__init__",
+          "return_annotation": "None",
+          "signature": "(self, runtime: NativeRuntime, session: ctypes.c_void_p) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 734,
+            "start_line": 732
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout_ms"
+            }
+          ],
+          "qualified_name": "NativeWgcWindow.capture",
+          "return_annotation": "ScreenFrame",
+          "signature": "(self, timeout_ms: int = …) -> ScreenFrame",
+          "source_location": {
+            "column": 4,
+            "end_line": 745,
+            "start_line": 742
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeWgcWindow.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 763,
+            "start_line": 752
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__enter__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeWgcWindow.__enter__",
+          "return_annotation": "NativeWgcWindow",
+          "signature": "(self) -> NativeWgcWindow",
+          "source_location": {
+            "column": 4,
+            "end_line": 772,
+            "start_line": 769
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__exit__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "type[BaseException] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "exc_type"
+            },
+            {
+              "annotation": "BaseException | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "exc"
+            },
+            {
+              "annotation": "TracebackType | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "traceback"
+            }
+          ],
+          "qualified_name": "NativeWgcWindow.__exit__",
+          "return_annotation": "None",
+          "signature": "(self, exc_type: type[BaseException] | None, exc: BaseException | None, traceback: TracebackType | None) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 785,
+            "start_line": 779
           }
         },
         {
@@ -30622,8 +30918,8 @@
           "signature": "(path: str | Path | None = …) -> NativeLoadResult",
           "source_location": {
             "column": 0,
-            "end_line": 544,
-            "start_line": 514
+            "end_line": 818,
+            "start_line": 788
           }
         }
       ]
@@ -33809,7 +34105,11 @@
       ]
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.native"
+      ],
       "imports": [
         {
           "kind": "import",
@@ -33885,6 +34185,19 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
           "module": "typing",
           "names": [
             {
@@ -33892,12 +34205,33 @@
               "name": "Any"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 235,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.native"
+          ],
+          "module": "ai_game_player.runtime.native",
+          "names": [
+            {
+              "alias": null,
+              "name": "NativeLoadStatus"
+            },
+            {
+              "alias": null,
+              "name": "discover_native_runtime"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.screen_capture",
       "path": "src/ai_game_player/screen_capture.py",
       "source_location": {
-        "end_line": 193,
+        "end_line": 326,
         "start_line": 1
       },
       "symbols": [
@@ -33919,8 +34253,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 9
+            "end_line": 23,
+            "start_line": 10
           }
         },
         {
@@ -33941,8 +34275,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 26,
-            "start_line": 25
+            "end_line": 27,
+            "start_line": 26
           }
         },
         {
@@ -33963,8 +34297,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 30
+            "end_line": 40,
+            "start_line": 35
           }
         },
         {
@@ -33983,8 +34317,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 193,
-            "start_line": 36
+            "end_line": 326,
+            "start_line": 46
           }
         },
         {
@@ -34011,15 +34345,21 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "gdi32"
+            },
+            {
+              "annotation": "Callable[[int], Any] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "wgc_capture_factory"
             }
           ],
           "qualified_name": "WindowsScreenCapture.__init__",
           "return_annotation": "None",
-          "signature": "(self, *, user32: Any | None = …, gdi32: Any | None = …) -> None",
+          "signature": "(self, *, user32: Any | None = …, gdi32: Any | None = …, wgc_capture_factory: Callable[[int], Any] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 43,
-            "start_line": 39
+            "end_line": 71,
+            "start_line": 54
           }
         },
         {
@@ -34047,8 +34387,83 @@
           "signature": "(self, window_handle: int | None = …) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 45
+            "end_line": 211,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_capture_with_wgc",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "WindowsScreenCapture._capture_with_wgc",
+          "return_annotation": "ScreenFrame | None",
+          "signature": "(self, window_handle: int) -> ScreenFrame | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 269,
+            "start_line": 219
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_close_wgc_session",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsScreenCapture._close_wgc_session",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 286,
+            "start_line": 276
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsScreenCapture.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 302,
+            "start_line": 293
           }
         },
         {
@@ -34102,8 +34517,8 @@
           "signature": "(user32: Any, window: int, left: int, top: int, right: int, bottom: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 172
+            "end_line": 326,
+            "start_line": 305
           }
         }
       ]
@@ -56250,7 +56665,7 @@
       "module": "tests.test_native_runtime",
       "path": "tests/test_native_runtime.py",
       "source_location": {
-        "end_line": 608,
+        "end_line": 729,
         "start_line": 1
       },
       "symbols": [
@@ -56348,7 +56763,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 126,
+            "end_line": 202,
             "start_line": 30
           }
         },
@@ -56371,8 +56786,253 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
+            "end_line": 84,
             "start_line": 31
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_is_supported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output_pointer"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_is_supported",
+          "return_annotation": null,
+          "signature": "(self, output_pointer)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_open_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime_handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output_pointer"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_open_window",
+          "return_annotation": null,
+          "signature": "(self, runtime_handle, window_handle, output_pointer)",
+          "source_location": {
+            "column": 4,
+            "end_line": 95,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_next_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session_handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout_ms"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output_pointer"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_next_frame",
+          "return_annotation": null,
+          "signature": "(self, session_handle, timeout_ms, output_pointer)",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_get_info",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame_handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "info_pointer"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_get_info",
+          "return_annotation": null,
+          "signature": "(self, frame_handle, info_pointer)",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 104
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_copy_bgra",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame_handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output_pointer"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output_capacity"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_copy_bgra",
+          "return_annotation": null,
+          "signature": "(self, frame_handle, output_pointer, output_capacity)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_release_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame_pointer"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_release_frame",
+          "return_annotation": null,
+          "signature": "(self, frame_pointer)",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wgc_close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session_pointer"
+            }
+          ],
+          "qualified_name": "FakeLibrary.wgc_close",
+          "return_annotation": null,
+          "signature": "(self, session_pointer)",
+          "source_location": {
+            "column": 4,
+            "end_line": 132,
+            "start_line": 126
           }
         },
         {
@@ -56400,8 +57060,8 @@
           "signature": "(self, pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 58
+            "end_line": 141,
+            "start_line": 134
           }
         },
         {
@@ -56435,8 +57095,8 @@
           "signature": "(self, options_pointer, handle_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 67
+            "end_line": 151,
+            "start_line": 143
           }
         },
         {
@@ -56464,8 +57124,8 @@
           "signature": "(self, handle_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 77
+            "end_line": 158,
+            "start_line": 153
           }
         },
         {
@@ -56505,8 +57165,8 @@
           "signature": "(self, handle, request_pointer, result_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 99,
-            "start_line": 84
+            "end_line": 175,
+            "start_line": 160
           }
         },
         {
@@ -56546,8 +57206,8 @@
           "signature": "(self, handle, input_pointer, result_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 101
+            "end_line": 202,
+            "start_line": 177
           }
         },
         {
@@ -56568,8 +57228,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 442,
-            "start_line": 129
+            "end_line": 560,
+            "start_line": 205
           }
         },
         {
@@ -56591,8 +57251,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 136,
-            "start_line": 130
+            "end_line": 212,
+            "start_line": 206
           }
         },
         {
@@ -56614,8 +57274,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 138
+            "end_line": 219,
+            "start_line": 214
           }
         },
         {
@@ -56637,8 +57297,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 152,
-            "start_line": 145
+            "end_line": 228,
+            "start_line": 221
           }
         },
         {
@@ -56660,8 +57320,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 154
+            "end_line": 239,
+            "start_line": 230
           }
         },
         {
@@ -56683,8 +57343,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 165
+            "end_line": 245,
+            "start_line": 241
           }
         },
         {
@@ -56706,8 +57366,77 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 171
+            "end_line": 252,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wgc_window_capture_copies_frame_and_releases_native_leases",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeRuntimeTest.test_wgc_window_capture_copies_frame_and_releases_native_leases",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 269,
+            "start_line": 254
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wgc_capture_rejects_corrupt_frame_metadata_and_releases_lease",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeRuntimeTest.test_wgc_capture_rejects_corrupt_frame_metadata_and_releases_lease",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 282,
+            "start_line": 271
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wgc_capture_reports_unsupported_runtime_without_opening_session",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeRuntimeTest.test_wgc_capture_reports_unsupported_runtime_without_opening_session",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 294,
+            "start_line": 284
           }
         },
         {
@@ -56729,8 +57458,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 178
+            "end_line": 311,
+            "start_line": 296
           }
         },
         {
@@ -56752,8 +57481,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 195
+            "end_line": 334,
+            "start_line": 313
           }
         },
         {
@@ -56775,8 +57504,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 238,
-            "start_line": 218
+            "end_line": 356,
+            "start_line": 336
           }
         },
         {
@@ -56798,8 +57527,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 240
+            "end_line": 365,
+            "start_line": 358
           }
         },
         {
@@ -56821,8 +57550,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 272,
-            "start_line": 249
+            "end_line": 390,
+            "start_line": 367
           }
         },
         {
@@ -56844,8 +57573,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 274
+            "end_line": 405,
+            "start_line": 392
           }
         },
         {
@@ -56867,8 +57596,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 297,
-            "start_line": 289
+            "end_line": 415,
+            "start_line": 407
           }
         },
         {
@@ -56890,8 +57619,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 307,
-            "start_line": 299
+            "end_line": 425,
+            "start_line": 417
           }
         },
         {
@@ -56913,8 +57642,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 322,
-            "start_line": 309
+            "end_line": 440,
+            "start_line": 427
           }
         },
         {
@@ -56936,8 +57665,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 336,
-            "start_line": 324
+            "end_line": 454,
+            "start_line": 442
           }
         },
         {
@@ -56959,8 +57688,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 346,
-            "start_line": 338
+            "end_line": 464,
+            "start_line": 456
           }
         },
         {
@@ -56982,8 +57711,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 356,
-            "start_line": 348
+            "end_line": 474,
+            "start_line": 466
           }
         },
         {
@@ -57005,8 +57734,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 364,
-            "start_line": 358
+            "end_line": 482,
+            "start_line": 476
           }
         },
         {
@@ -57028,8 +57757,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 375,
-            "start_line": 366
+            "end_line": 493,
+            "start_line": 484
           }
         },
         {
@@ -57051,8 +57780,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 390,
-            "start_line": 377
+            "end_line": 508,
+            "start_line": 495
           }
         },
         {
@@ -57074,8 +57803,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 442,
-            "start_line": 392
+            "end_line": 560,
+            "start_line": 510
           }
         },
         {
@@ -57097,8 +57826,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 407,
-            "start_line": 403
+            "end_line": 525,
+            "start_line": 521
           }
         },
         {
@@ -57113,8 +57842,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 413,
-            "start_line": 409
+            "end_line": 531,
+            "start_line": 527
           }
         },
         {
@@ -57129,8 +57858,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 422,
-            "start_line": 415
+            "end_line": 540,
+            "start_line": 533
           }
         },
         {
@@ -57151,8 +57880,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 510,
-            "start_line": 445
+            "end_line": 628,
+            "start_line": 563
           }
         },
         {
@@ -57174,8 +57903,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 451,
-            "start_line": 446
+            "end_line": 569,
+            "start_line": 564
           }
         },
         {
@@ -57197,8 +57926,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 458,
-            "start_line": 453
+            "end_line": 576,
+            "start_line": 571
           }
         },
         {
@@ -57220,8 +57949,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 465,
-            "start_line": 460
+            "end_line": 583,
+            "start_line": 578
           }
         },
         {
@@ -57243,8 +57972,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 477,
-            "start_line": 467
+            "end_line": 595,
+            "start_line": 585
           }
         },
         {
@@ -57266,8 +57995,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 493,
-            "start_line": 479
+            "end_line": 611,
+            "start_line": 597
           }
         },
         {
@@ -57289,8 +58018,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 504,
-            "start_line": 495
+            "end_line": 622,
+            "start_line": 613
           }
         },
         {
@@ -57312,8 +58041,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 510,
-            "start_line": 506
+            "end_line": 628,
+            "start_line": 624
           }
         },
         {
@@ -57336,8 +58065,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 604,
-            "start_line": 514
+            "end_line": 725,
+            "start_line": 632
           }
         },
         {
@@ -57359,8 +58088,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 540,
-            "start_line": 515
+            "end_line": 661,
+            "start_line": 633
           }
         },
         {
@@ -57382,8 +58111,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 561,
-            "start_line": 542
+            "end_line": 682,
+            "start_line": 663
           }
         },
         {
@@ -57405,8 +58134,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 595,
-            "start_line": 563
+            "end_line": 716,
+            "start_line": 684
           }
         },
         {
@@ -57428,8 +58157,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 604,
-            "start_line": 597
+            "end_line": 725,
+            "start_line": 718
           }
         }
       ]
@@ -57498,7 +58227,24 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -57514,7 +58260,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_service"
@@ -57534,7 +58280,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -57550,7 +58296,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.shared_frame_producer"
@@ -57571,7 +58317,7 @@
       "module": "tests.test_observation_service",
       "path": "tests/test_observation_service.py",
       "source_location": {
-        "end_line": 215,
+        "end_line": 229,
         "start_line": 1
       },
       "symbols": [
@@ -57593,8 +58339,31 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 211,
-            "start_line": 15
+            "end_line": 225,
+            "start_line": 16
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_default_capture_backend_is_reused_and_closed_with_the_service",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveObservationServiceTests.test_default_capture_backend_is_reused_and_closed_with_the_service",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 17
           }
         },
         {
@@ -57616,8 +58385,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 16
+            "end_line": 68,
+            "start_line": 30
           }
         },
         {
@@ -57639,8 +58408,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 56
+            "end_line": 83,
+            "start_line": 70
           }
         },
         {
@@ -57662,8 +58431,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 94,
-            "start_line": 71
+            "end_line": 108,
+            "start_line": 85
           }
         },
         {
@@ -57685,8 +58454,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 123,
-            "start_line": 96
+            "end_line": 137,
+            "start_line": 110
           }
         },
         {
@@ -57708,8 +58477,8 @@
           "signature": "(_handle)",
           "source_location": {
             "column": 8,
-            "end_line": 102,
-            "start_line": 99
+            "end_line": 116,
+            "start_line": 113
           }
         },
         {
@@ -57731,8 +58500,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 125
+            "end_line": 158,
+            "start_line": 139
           }
         },
         {
@@ -57754,8 +58523,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 159,
-            "start_line": 146
+            "end_line": 173,
+            "start_line": 160
           }
         },
         {
@@ -57777,8 +58546,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 161
+            "end_line": 207,
+            "start_line": 175
           }
         },
         {
@@ -57800,8 +58569,8 @@
           "signature": "(_handle)",
           "source_location": {
             "column": 8,
-            "end_line": 170,
-            "start_line": 166
+            "end_line": 184,
+            "start_line": 180
           }
         },
         {
@@ -57823,8 +58592,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 195
+            "end_line": 225,
+            "start_line": 209
           }
         }
       ]
@@ -64617,7 +65386,7 @@
       "module": "tests.test_screen_capture",
       "path": "tests/test_screen_capture.py",
       "source_location": {
-        "end_line": 184,
+        "end_line": 261,
         "start_line": 1
       },
       "symbols": [
@@ -65280,6 +66049,107 @@
           }
         },
         {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeWgcCapture",
+          "parameters": [],
+          "qualified_name": "FakeWgcCapture",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "FakeWgcCapture.__init__",
+          "return_annotation": null,
+          "signature": "(self, frame = …, error = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 94
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeWgcCapture.capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeWgcCapture.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 104
+          }
+        },
+        {
           "bases": [
             "unittest.TestCase"
           ],
@@ -65297,8 +66167,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 184,
-            "start_line": 93
+            "end_line": 261,
+            "start_line": 108
           }
         },
         {
@@ -65320,8 +66190,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 94
+            "end_line": 112,
+            "start_line": 109
           }
         },
         {
@@ -65343,8 +66213,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 103,
-            "start_line": 99
+            "end_line": 118,
+            "start_line": 114
           }
         },
         {
@@ -65366,8 +66236,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 105
+            "end_line": 128,
+            "start_line": 120
           }
         },
         {
@@ -65389,8 +66259,77 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 123,
-            "start_line": 115
+            "end_line": 138,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_window_capture_prefers_native_wgc_frame_when_available",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ScreenCaptureTest.test_window_capture_prefers_native_wgc_frame_when_available",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 158,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_window_change_replaces_the_wgc_session_after_reusing_the_current_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ScreenCaptureTest.test_window_change_replaces_the_wgc_session_after_reusing_the_current_window",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 183,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_window_capture_falls_back_to_gdi_after_native_wgc_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ScreenCaptureTest.test_window_capture_falls_back_to_gdi_after_native_wgc_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 185
           }
         },
         {
@@ -65412,8 +66351,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 125
+            "end_line": 210,
+            "start_line": 202
           }
         },
         {
@@ -65435,8 +66374,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 142,
-            "start_line": 135
+            "end_line": 219,
+            "start_line": 212
           }
         },
         {
@@ -65458,8 +66397,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 151,
-            "start_line": 144
+            "end_line": 228,
+            "start_line": 221
           }
         },
         {
@@ -65481,8 +66420,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 153
+            "end_line": 237,
+            "start_line": 230
           }
         },
         {
@@ -65504,8 +66443,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 162
+            "end_line": 257,
+            "start_line": 239
           }
         },
         {
@@ -65527,8 +66466,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 182
+            "end_line": 261,
+            "start_line": 259
           }
         }
       ]

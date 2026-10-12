@@ -76,12 +76,12 @@ class FrameAnalyzer(Protocol):
 
 # {
 #   責務: [LiveObservationService: bounded shared frame streamから選択画面を解析し、frame IDとmonotonic時刻付きObservationを返す]
-#   フィールド: [capture_frame: 対象windowからframeを取得する関数, analyzer_factory: frameを解析する依存の生成関数, ocr_factory: optional OCR recognizer生成関数, producer/subscriber: Capture cadenceをObservation samplingから分離する共有stream]
+#   フィールド: [capture_frame: 対象windowからframeを取得する関数, _windows_capture: default Windows backendとWGC resource lifetime, analyzer_factory: frame解析依存の生成関数, ocr_factory: optional OCR recognizer生成関数, producer/subscriber: Capture cadenceをObservation samplingから分離する共有stream]
 # }
 class LiveObservationService:
     # {
     #   責務: [__init__: 差替え可能なcapture・frame analyzer・OCR依存とbounded frame streamの時間条件を初期化する]
-    #   処理: [未指定capture依存はWindows backendへ接続し、capture cadenceとframe freshnessの上限を検証する]
+    #   処理: [未指定capture依存では1つのWindowsScreenCaptureを保持し、WGC sessionをcapture thread間で再利用する。cadenceとfreshness上限も検証する]
     #   引数: [capture_frame: window handleからScreenFrameを取得する関数, analyzer_factory: OCR依存からanalyzerを作る関数, ocr_factory: optional OCR recognizerを作る関数, capture_interval_seconds: producerがcaptureを繰り返す間隔, frame_wait_timeout_seconds: consumerがframeを待つ上限, maximum_frame_age_seconds: Observationに利用できるframeの最大経過時間]
     #   戻り値: []
     # }
@@ -107,9 +107,12 @@ class LiveObservationService:
                 or value <= 0
             ):
                 raise ValueError(f"{field_name} must be finite and greater than zero")
-        self.capture_frame = (
-            capture_frame if capture_frame is not None else self._capture_windows_frame
-        )
+        if capture_frame is None:
+            self._windows_capture = WindowsScreenCapture()
+            self.capture_frame = self._windows_capture.capture
+        else:
+            self._windows_capture = None
+            self.capture_frame = capture_frame
         self.analyzer_factory = (
             analyzer_factory
             if analyzer_factory is not None
@@ -266,26 +269,21 @@ class LiveObservationService:
         return True
 
     # {
-    #   責務: [close: ObservationServiceのframe subscriptionとcapture threadを終了する]
-    #   処理: [二度目以降も安全に呼び出せるよう終了状態を保持し、thread停止結果を返す]
+    #   責務: [close: ObservationServiceのframe subscription、capture thread、Native WGC資源を終了する]
+    #   処理: [producer停止後にWindowsScreenCaptureのWGC sessionとNative Runtimeを解放し、終了失敗時は後続呼び出しで再試行する]
     #   戻り値: [bool: frame producerが期限内に停止した場合はTrue]
+    #   エラー: [WGC sessionまたはNative Runtimeの終了失敗: 次回closeで解放を再試行できる状態を保って送出]
     # }
     def close(self) -> bool:
         with self._lock:
             if self._closed:
-                return self._producer is None
-            self._closed = True
-            return self._stop_frame_producer()
-
-    # {
-    #   責務: [_capture_windows_frame: Windows capture backendで画面frameを1枚取得する]
-    #   処理: [選択window handleをWindowsScreenCaptureへ渡してframeを返す]
-    #   引数: [window_handle: capture対象のWindows window、省略時はdesktop]
-    #   戻り値: [ScreenFrame: capture backendが返したBGRA画面]
-    # }
-    @staticmethod
-    def _capture_windows_frame(window_handle: int | None) -> ScreenFrame:
-        return WindowsScreenCapture().capture(window_handle)
+                stopped = self._producer is None or self._stop_frame_producer()
+            else:
+                self._closed = True
+                stopped = self._stop_frame_producer()
+            if stopped and self._windows_capture is not None:
+                self._windows_capture.close()
+            return stopped
 
     # {
     #   責務: [_create_frame_analyzer: OCR recognizerを持つFrameAnalyzerを遅延importで作る]

@@ -90,6 +90,21 @@ class FakeGdi32:
         return 1
 
 
+class FakeWgcCapture:
+    def __init__(self, frame=None, error=None):
+        self.frame = frame or ScreenFrame(2, 2, b"w" * 16, captured_at=12.0, frame_id=4)
+        self.error = error
+        self.closed = False
+
+    def capture(self):
+        if self.error is not None:
+            raise self.error
+        return self.frame
+
+    def close(self):
+        self.closed = True
+
+
 class ScreenCaptureTest(unittest.TestCase):
     def test_frame_contract(self):
         frame = ScreenFrame(2, 3, b"x" * 24)
@@ -121,6 +136,68 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertEqual((frame.width, frame.height), (2, 2))
         self.assertEqual(user32.send_message_args, (123, 0x0317, 23, 0x1E, 0x3, 1000))
         self.assertNotIn("BitBlt", gdi32.calls)
+
+    def test_window_capture_prefers_native_wgc_frame_when_available(self):
+        user32 = FakeUser32()
+        gdi32 = FakeGdi32()
+        native_frame = ScreenFrame(2, 2, b"n" * 16, captured_at=14.0, frame_id=9)
+        wgc_capture = FakeWgcCapture(native_frame)
+        factory_calls = []
+
+        capture = WindowsScreenCapture(
+            user32=user32,
+            gdi32=gdi32,
+            wgc_capture_factory=lambda handle: factory_calls.append(handle) or wgc_capture,
+        )
+        frame = capture.capture(123)
+
+        self.assertIs(native_frame, frame)
+        self.assertEqual([123], factory_calls)
+        self.assertEqual([], gdi32.calls)
+        capture.close()
+        self.assertTrue(wgc_capture.closed)
+
+    def test_window_change_replaces_the_wgc_session_after_reusing_the_current_window(self):
+        user32 = FakeUser32()
+        user32.IsWindow = lambda handle: handle in (123, 124)
+        gdi32 = FakeGdi32()
+        first_session = FakeWgcCapture(ScreenFrame(2, 2, b"a" * 16, captured_at=14.0, frame_id=1))
+        second_session = FakeWgcCapture(ScreenFrame(2, 2, b"b" * 16, captured_at=15.0, frame_id=1))
+        sessions = {123: first_session, 124: second_session}
+        factory_calls = []
+        capture = WindowsScreenCapture(
+            user32=user32,
+            gdi32=gdi32,
+            wgc_capture_factory=lambda handle: factory_calls.append(handle) or sessions[handle],
+        )
+
+        self.assertIs(first_session.frame, capture.capture(123))
+        self.assertIs(first_session.frame, capture.capture(123))
+        self.assertIs(second_session.frame, capture.capture(124))
+
+        self.assertEqual([123, 124], factory_calls)
+        self.assertTrue(first_session.closed)
+        self.assertFalse(second_session.closed)
+        self.assertEqual([], gdi32.calls)
+        capture.close()
+        self.assertTrue(second_session.closed)
+
+    def test_window_capture_falls_back_to_gdi_after_native_wgc_failure(self):
+        user32 = FakeUser32()
+        gdi32 = FakeGdi32()
+        wgc_capture = FakeWgcCapture(error=RuntimeError("WGC device was lost"))
+        capture = WindowsScreenCapture(
+            user32=user32,
+            gdi32=gdi32,
+            wgc_capture_factory=lambda _handle: wgc_capture,
+        )
+
+        frame = capture.capture(123)
+
+        self.assertEqual((2, 2), (frame.width, frame.height))
+        self.assertIn("WGC device was lost", capture.last_backend_error)
+        self.assertTrue(wgc_capture.closed)
+        self.assertIn("CreateDIBSection", gdi32.calls)
 
     def test_window_capture_fails_closed_when_window_does_not_render(self):
         user32 = FakeUser32()

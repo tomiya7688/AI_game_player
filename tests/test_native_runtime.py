@@ -48,12 +48,88 @@ class FakeLibrary:
         self.frame_input_copy_count = 0
         self.frame_input_copy_bytes = 0
         self.frame_corrupt_result = {}
+        self.wgc_supported = 1
+        self.wgc_open_status = 0
+        self.wgc_next_status = 0
+        self.wgc_info_status = 0
+        self.wgc_copy_status = 0
+        self.wgc_release_status = 0
+        self.wgc_close_status = 0
+        self.wgc_frame_info = {
+            "struct_size": ctypes.sizeof(abi._WgcFrameInfo),
+            "abi_version": 1,
+            "width": 2,
+            "height": 2,
+            "stride_bytes": 8,
+            "reserved": 0,
+            "frame_id": 7,
+            "timestamp_ns": 123_456_789_000,
+            "native_surface_handle": 0x99,
+        }
+        self.wgc_pixels = b"\x01\x02\x03\xff" * 4
+        self.wgc_released_frames = 0
+        self.wgc_closed_sessions = 0
         self.kadoka_runtime_abi_version = FakeFunction(lambda: self.version)
         self.kadoka_runtime_query = FakeFunction(self.query)
         self.kadoka_runtime_init = FakeFunction(self.init)
         self.kadoka_runtime_shutdown = FakeFunction(self.shutdown)
         self.kadoka_runtime_process_batch = FakeFunction(self.batch)
         self.kadoka_runtime_preprocess_frame = FakeFunction(self.preprocess_frame)
+        self.kadoka_wgc_is_supported = FakeFunction(self.wgc_is_supported)
+        self.kadoka_wgc_open_window = FakeFunction(self.wgc_open_window)
+        self.kadoka_wgc_next_frame = FakeFunction(self.wgc_next_frame)
+        self.kadoka_wgc_frame_get_info = FakeFunction(self.wgc_get_info)
+        self.kadoka_wgc_frame_copy_bgra = FakeFunction(self.wgc_copy_bgra)
+        self.kadoka_wgc_frame_release = FakeFunction(self.wgc_release_frame)
+        self.kadoka_wgc_close = FakeFunction(self.wgc_close)
+
+    def wgc_is_supported(self, output_pointer):
+        ctypes.cast(output_pointer, ctypes.POINTER(ctypes.c_uint32))[0] = self.wgc_supported
+        return 0
+
+    def wgc_open_window(self, runtime_handle, window_handle, output_pointer):
+        assert runtime_handle.value == 0x12345678
+        assert window_handle > 0
+        if self.wgc_open_status == 0:
+            ctypes.cast(output_pointer, ctypes.POINTER(ctypes.c_void_p))[0] = 0x87654321
+        return self.wgc_open_status
+
+    def wgc_next_frame(self, session_handle, timeout_ms, output_pointer):
+        assert session_handle.value == 0x87654321
+        assert timeout_ms >= 0
+        if self.wgc_next_status == 0:
+            ctypes.cast(output_pointer, ctypes.POINTER(ctypes.c_void_p))[0] = 0x1234
+        return self.wgc_next_status
+
+    def wgc_get_info(self, frame_handle, info_pointer):
+        assert frame_handle.value == 0x1234
+        info = ctypes.cast(info_pointer, ctypes.POINTER(abi._WgcFrameInfo)).contents
+        for field, value in self.wgc_frame_info.items():
+            setattr(info, field, value)
+        return self.wgc_info_status
+
+    def wgc_copy_bgra(self, frame_handle, output_pointer, output_capacity):
+        assert frame_handle.value == 0x1234
+        if self.wgc_copy_status == 0:
+            assert output_capacity == len(self.wgc_pixels)
+            ctypes.memmove(output_pointer, self.wgc_pixels, len(self.wgc_pixels))
+        return self.wgc_copy_status
+
+    def wgc_release_frame(self, frame_pointer):
+        frame_handle = ctypes.cast(frame_pointer, ctypes.POINTER(ctypes.c_void_p))
+        assert frame_handle[0] == 0x1234
+        self.wgc_released_frames += 1
+        if self.wgc_release_status == 0:
+            frame_handle[0] = None
+        return self.wgc_release_status
+
+    def wgc_close(self, session_pointer):
+        session_handle = ctypes.cast(session_pointer, ctypes.POINTER(ctypes.c_void_p))
+        assert session_handle[0] == 0x87654321
+        self.wgc_closed_sessions += 1
+        if self.wgc_close_status == 0:
+            session_handle[0] = None
+        return self.wgc_close_status
 
     def query(self, pointer):
         info = ctypes.cast(pointer, ctypes.POINTER(abi._Info)).contents
@@ -174,6 +250,48 @@ class NativeRuntimeTest(unittest.TestCase):
         with abi.NativeRuntime(library) as runtime:
             self.assertEqual(library.capabilities, runtime.info.capability_bits)
             self.assertEqual(frozenset(RuntimeCapability), runtime.descriptor.capabilities)
+
+    def test_wgc_window_capture_copies_frame_and_releases_native_leases(self):
+        library = FakeLibrary()
+        runtime = abi.NativeRuntime(library)
+        capture = runtime.open_wgc_window(0x123)
+
+        frame = capture.capture(timeout_ms=750)
+        capture.close()
+        runtime.close()
+
+        self.assertEqual((2, 2), (frame.width, frame.height))
+        self.assertEqual(library.wgc_pixels, frame.bgra)
+        self.assertAlmostEqual(123.456789, frame.captured_at)
+        self.assertEqual(7, frame.frame_id)
+        self.assertEqual(1, library.wgc_released_frames)
+        self.assertEqual(1, library.wgc_closed_sessions)
+        self.assertFalse(runtime.is_healthy())
+
+    def test_wgc_capture_rejects_corrupt_frame_metadata_and_releases_lease(self):
+        library = FakeLibrary()
+        library.wgc_frame_info["stride_bytes"] = 4
+        runtime = abi.NativeRuntime(library)
+        capture = runtime.open_wgc_window(0x123)
+
+        with self.assertRaises(abi.NativeContractError):
+            capture.capture()
+
+        self.assertEqual(1, library.wgc_released_frames)
+        capture.close()
+        runtime.close()
+
+    def test_wgc_capture_reports_unsupported_runtime_without_opening_session(self):
+        library = FakeLibrary()
+        library.wgc_supported = 0
+        runtime = abi.NativeRuntime(library)
+
+        with self.assertRaises(abi.NativeRuntimeError) as caught:
+            runtime.open_wgc_window(0x123)
+
+        self.assertEqual(abi.NativeStatus.NOT_IMPLEMENTED, caught.exception.status_code)
+        self.assertEqual(0, library.kadoka_wgc_open_window.calls)
+        runtime.close()
 
     def test_fast_cv_capability_requires_and_binds_frame_preprocessing(self):
         library = FakeLibrary()
@@ -521,8 +639,11 @@ class NativeRuntimeIntegrationTest(unittest.TestCase):
         self.addCleanup(runtime.close)
         with abi.NativeRuntime.load(os.environ["KADOKA_NATIVE_RUNTIME"]) as independent:
             self.assertEqual(1, runtime.info.abi_version)
+            expected_capabilities = {RuntimeCapability.SAFETY, RuntimeCapability.FAST_CV}
+            if runtime.is_wgc_capture_supported():
+                expected_capabilities.add(RuntimeCapability.CAPTURE)
             self.assertEqual(
-                frozenset({RuntimeCapability.SAFETY, RuntimeCapability.FAST_CV}),
+                frozenset(expected_capabilities),
                 runtime.descriptor.capabilities,
             )
             registry = RuntimeRegistry()

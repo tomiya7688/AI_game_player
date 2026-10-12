@@ -58,6 +58,12 @@ Tkinter Application
 
 `Application.start_loop()` validates the selected target and current settings, then calls `GameSessionController.start_loop()`. The controller owns the next-step timer and repeat/terminal stop decisions. `TkAfterScheduler` adapts Tkinter's `after()` and `after_cancel()` calls to the controller's scheduler contract, so the `Application` class does not keep a second loop flag or loop callback.
 
+## Windows Graphics Capture for selected windows
+
+The native runtime exposes an optional C ABI v1 Windows Graphics Capture (WGC) session for one HWND. The capability query reports whether the current Windows environment supports WGC. A session returns a frame lease containing BGRA dimensions, a session frame ID, a monotonic timestamp, and a borrowed opaque Direct3D texture handle. The caller may retain each frame lease independently; releasing a lease invalidates only that frame's borrowed texture handle.
+
+The Python `WindowsScreenCapture` uses WGC only for a selected HWND and reuses that HWND's session across captures. The Python binding copies each texture into caller-owned packed BGRA bytes and releases the native lease before returning `ScreenFrame`; this path is not zero-copy. Desktop-wide capture continues to use the existing GDI implementation. If WGC is unavailable or capture fails, `WindowsScreenCapture` records the reason and attempts GDI fallback for the selected HWND. WGC support does not guarantee frames for minimized windows or protected content.
+
 ## FAST_CV frame preprocessing
 
 The optional `FAST_CV` capability exposes a coarse frame-preprocessing operation through C ABI v1. The caller lends a BGRA frame synchronously; the native runtime returns RGB/brightness summaries, a perceptual sample hash, and filtered bright-region bounds in caller-owned output buffers. If the region buffer is too small, the caller retries with the reported required capacity. The result reports elapsed time, logical frame-payload bytes processed, region-payload bytes written, and input-copy count/bytes; frame-payload bytes exclude row padding, and the current implementation borrows the input and reports zero copies. The Python binding accepts provider-reported copy metrics and sums them across buffer-capacity retries. This is an explicit runtime API only: `FrameAnalyzer` keeps the Python reference implementation as its default fallback, and applications must inject a native preprocessor deliberately.
