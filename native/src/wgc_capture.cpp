@@ -16,11 +16,10 @@
 #include <winrt/Windows.Graphics.DirectX.Direct3D11.h>
 #include <winrt/base.h>
 
+#include <algorithm>
 #include <chrono>
-#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -167,7 +166,7 @@ struct kadoka_wgc_frame {
 
 // {
 //   責務: [WgcSessionState: 選択HWND用のWGC session、frame pool、到着通知を所有する]
-//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: Windows Graphics Capture資源, arrival_generation: FrameArrived通知数]
+//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: Windows Graphics Capture資源, frame_arrived_event: frame到着または終了を待機threadへ通知するWin32 event, arrival_generation: FrameArrived通知数]
 // }
 struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
     HWND window = nullptr;
@@ -180,9 +179,17 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
     winrt::Windows::Graphics::SizeInt32 frame_pool_size{};
     std::mutex capture_mutex;
     std::mutex arrival_mutex;
-    std::condition_variable frame_arrived;
+    HANDLE frame_arrived_event = nullptr;
     uint64_t arrival_generation = 0;
     bool is_closed = false;
+
+    // {
+    //   責務: [~WgcSessionState: 部分初期化中を含むWGC native資源を破棄する]
+    //   戻り値: []
+    // }
+    ~WgcSessionState() {
+        close();
+    }
 
     // {
     //   責務: [start: target HWNDを監視するFreeThreaded WGC frame poolとcapture sessionを起動する]
@@ -191,6 +198,11 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
     // }
     void start(HWND target_window) {
         window = target_window;
+        frame_arrived_event = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        if (frame_arrived_event == nullptr) {
+            const HRESULT event_error = HRESULT_FROM_WIN32(GetLastError());
+            throw winrt::hresult_error(FAILED(event_error) ? event_error : E_FAIL);
+        }
         capture_item = create_capture_item(window);
         frame_pool_size = capture_item.Size();
         if (frame_pool_size.Width <= 0 || frame_pool_size.Height <= 0) {
@@ -207,23 +219,18 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
         std::weak_ptr<WgcSessionState> weak_state = shared_from_this();
         frame_arrived_token = frame_pool.FrameArrived(
             [weak_state](const Direct3D11CaptureFramePool&, const winrt::Windows::Foundation::IInspectable&) {
-                std::fprintf(stderr, "WGC native event: entered\n");
                 const auto state = weak_state.lock();
                 if (!state) {
-                    std::fprintf(stderr, "WGC native event: state expired\n");
                     return;
                 }
                 {
                     std::lock_guard lock(state->arrival_mutex);
                     if (state->is_closed) {
-                        std::fprintf(stderr, "WGC native event: already closed\n");
                         return;
                     }
                     ++state->arrival_generation;
-                    std::fprintf(stderr, "WGC native event: generation=%llu\n", static_cast<unsigned long long>(state->arrival_generation));
+                    SetEvent(state->frame_arrived_event);
                 }
-                state->frame_arrived.notify_one();
-                std::fprintf(stderr, "WGC native event: notified\n");
             }
         );
         capture_session = frame_pool.CreateCaptureSession(capture_item);
@@ -241,8 +248,10 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                 return;
             }
             is_closed = true;
+            if (frame_arrived_event != nullptr) {
+                SetEvent(frame_arrived_event);
+            }
         }
-        frame_arrived.notify_all();
         std::lock_guard capture_lock(capture_mutex);
         try {
             if (frame_pool && frame_arrived_token.value != 0) {
@@ -270,6 +279,13 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
         capture_item = nullptr;
         capture_device = nullptr;
         native_device = nullptr;
+        {
+            std::lock_guard lock(arrival_mutex);
+            if (frame_arrived_event != nullptr) {
+                CloseHandle(frame_arrived_event);
+                frame_arrived_event = nullptr;
+            }
+        }
     }
 
     // {
@@ -278,7 +294,6 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
     //   戻り値: [unique_ptr<kadoka_wgc_frame>: callerがreleaseするtexture lease、timeout時はnull]
     // }
     std::unique_ptr<kadoka_wgc_frame> next_frame(uint32_t timeout_ms) {
-        std::fprintf(stderr, "WGC native next: entered\n");
         std::unique_lock capture_lock(capture_mutex, std::try_to_lock);
         if (!capture_lock.owns_lock()) {
             throw winrt::hresult_error(E_ILLEGAL_METHOD_CALL);
@@ -287,29 +302,39 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
         uint64_t observed_generation = 0;
         while (std::chrono::steady_clock::now() < deadline) {
+            DWORD wait_timeout_ms = 0u;
             {
-                std::unique_lock arrival_lock(arrival_mutex);
-                observed_generation = arrival_generation;
-                std::fprintf(stderr, "WGC native next: waiting, generation=%llu\n", static_cast<unsigned long long>(observed_generation));
-                const bool event_observed = frame_arrived.wait_until(arrival_lock, deadline, [this, observed_generation] {
-                    return is_closed || arrival_generation > observed_generation;
-                });
-                std::fprintf(stderr, "WGC native next: wait returned=%d generation=%llu closed=%d\n",
-                    event_observed ? 1 : 0,
-                    static_cast<unsigned long long>(arrival_generation),
-                    is_closed ? 1 : 0);
-                if (!event_observed) {
+                const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    deadline - std::chrono::steady_clock::now()
+                ).count();
+                wait_timeout_ms = static_cast<DWORD>(std::clamp<int64_t>(remaining, 1, MAXDWORD - 1));
+                std::lock_guard arrival_lock(arrival_mutex);
+                if (is_closed || frame_arrived_event == nullptr) {
                     return nullptr;
                 }
-                if (is_closed) {
-                    return nullptr;
-                }
-                observed_generation = arrival_generation;
             }
 
-            std::fprintf(stderr, "WGC native next: getting frame\n");
+            const DWORD wait_result = WaitForSingleObject(frame_arrived_event, wait_timeout_ms);
+            if (wait_result == WAIT_TIMEOUT) {
+                return nullptr;
+            }
+            if (wait_result != WAIT_OBJECT_0) {
+                const HRESULT wait_error = HRESULT_FROM_WIN32(GetLastError());
+                throw winrt::hresult_error(FAILED(wait_error) ? wait_error : E_FAIL);
+            }
+            {
+                std::lock_guard arrival_lock(arrival_mutex);
+                if (is_closed || frame_arrived_event == nullptr) {
+                    return nullptr;
+                }
+                observed_generation = arrival_generation;
+                if (!ResetEvent(frame_arrived_event)) {
+                    const HRESULT reset_error = HRESULT_FROM_WIN32(GetLastError());
+                    throw winrt::hresult_error(FAILED(reset_error) ? reset_error : E_FAIL);
+                }
+            }
+
             auto captured_frame = frame_pool.TryGetNextFrame();
-            std::fprintf(stderr, "WGC native next: frame retrieved=%d\n", captured_frame ? 1 : 0);
             if (!captured_frame) {
                 continue;
             }
@@ -318,7 +343,6 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                 captured_frame = std::move(newer_frame);
             }
 
-            std::fprintf(stderr, "WGC native next: reading size\n");
             const auto content_size = captured_frame.ContentSize();
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
@@ -327,21 +351,15 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                 throw winrt::hresult_error(E_INVALIDARG);
             }
 
-            std::fprintf(stderr, "WGC native next: reading surface\n");
             auto surface = captured_frame.Surface();
-            std::fprintf(stderr, "WGC native next: querying DXGI interop\n");
             auto surface_access = surface.as<Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>();
-            std::fprintf(stderr, "WGC native next: allocating lease\n");
             auto frame_lease = std::make_unique<kadoka_wgc_frame>();
-            std::fprintf(stderr, "WGC native next: getting texture interface\n");
             winrt::check_hresult(surface_access->GetInterface(
                 __uuidof(ID3D11Texture2D),
                 frame_lease->texture.put_void()
             ));
-            std::fprintf(stderr, "WGC native next: texture interface acquired\n");
             D3D11_TEXTURE2D_DESC texture_description{};
             frame_lease->texture->GetDesc(&texture_description);
-            std::fprintf(stderr, "WGC native next: texture desc read\n");
             if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
                 texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
                 texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
@@ -352,18 +370,15 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
             frame_lease->width = static_cast<uint32_t>(content_size.Width);
             frame_lease->height = static_cast<uint32_t>(content_size.Height);
             frame_lease->frame_id = observed_generation;
-            std::fprintf(stderr, "WGC native next: reading timestamp\n");
             const int64_t capture_time_units = captured_frame.SystemRelativeTime().count();
             if (capture_time_units > 0 && static_cast<uint64_t>(capture_time_units) <=
                     std::numeric_limits<uint64_t>::max() / kNanosecondsPerWinRtTimeUnit) {
                 frame_lease->timestamp_ns =
                     static_cast<uint64_t>(capture_time_units) * kNanosecondsPerWinRtTimeUnit;
             }
-            std::fprintf(stderr, "WGC native next: closing frame\n");
             captured_frame.Close();
 
             if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
-                std::fprintf(stderr, "WGC native next: recreating frame pool\n");
                 frame_pool_size = content_size;
                 frame_pool.Recreate(
                     capture_device,
@@ -372,7 +387,6 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
                     frame_pool_size
                 );
             }
-            std::fprintf(stderr, "WGC native next: returning lease\n");
             return frame_lease;
         }
         return nullptr;
