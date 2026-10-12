@@ -108,6 +108,13 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 9;
     }
+    if (!SetWindowTextW(target_window, L"Kadoka WGC resized capture contract test") ||
+        !InvalidateRect(target_window, nullptr, TRUE)) {
+        kadoka_wgc_close(&session);
+        DestroyWindow(target_window);
+        kadoka_runtime_shutdown(&runtime);
+        return 12;
+    }
     UpdateWindow(target_window);
     bool resize_succeeded = false;
     uint64_t last_frame_id = first_info.frame_id;
