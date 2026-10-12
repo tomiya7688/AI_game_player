@@ -24,6 +24,7 @@ endif()
 
 add_library(kadoka_native_runtime SHARED
     src/runtime_api.cpp
+    src/wgc_capture.cpp
 )
 
 target_include_directories(kadoka_native_runtime
@@ -33,6 +34,10 @@ target_include_directories(kadoka_native_runtime
 
 target_compile_features(kadoka_native_runtime PUBLIC cxx_std_20)
 target_compile_definitions(kadoka_native_runtime PRIVATE KADOKA_RUNTIME_BUILD)
+
+if(WIN32)
+    target_link_libraries(kadoka_native_runtime PRIVATE d3d11 runtimeobject windowsapp)
+endif()
 
 if(MSVC)
     target_compile_options(kadoka_native_runtime PRIVATE /W4 /permissive-)
@@ -54,4 +59,17 @@ if(BUILD_TESTING)
         target_compile_options(kadoka_native_runtime_test PRIVATE -UNDEBUG)
     endif()
     add_test(NAME kadoka_native_runtime_test COMMAND kadoka_native_runtime_test)
+
+    if(WIN32)
+        add_executable(kadoka_wgc_capture_test tests/wgc_capture_test.cpp)
+        target_link_libraries(kadoka_wgc_capture_test PRIVATE kadoka_native_runtime user32)
+        target_compile_features(kadoka_wgc_capture_test PRIVATE cxx_std_20)
+        if(MSVC)
+            target_compile_options(kadoka_wgc_capture_test PRIVATE /UNDEBUG)
+        else()
+            target_compile_options(kadoka_wgc_capture_test PRIVATE -UNDEBUG)
+        endif()
+        add_test(NAME kadoka_wgc_capture_test COMMAND kadoka_wgc_capture_test)
+        set_tests_properties(kadoka_wgc_capture_test PROPERTIES SKIP_RETURN_CODE 77)
+    endif()
 endif()

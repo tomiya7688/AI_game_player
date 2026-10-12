@@ -112,6 +112,11 @@ int32_t kadoka_runtime_shutdown(kadoka_runtime_handle** runtime) {
     return KADOKA_RUNTIME_STATUS_OK;
 }
 
+// {
+//   責務: [kadoka_runtime_query: ABI versionとWindows環境で実行可能なNative Runtime capabilitiesを返す]
+//   引数: [out_info: size付きruntime informationを受け取るcaller-owned output]
+//   戻り値: [int32_t: queryが成功した場合はOK、output契約違反ではINVALID_ARGUMENT]
+// }
 int32_t kadoka_runtime_query(kadoka_runtime_info* out_info) {
     if (out_info == nullptr || out_info->struct_size < sizeof(kadoka_runtime_info)) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
@@ -119,6 +124,10 @@ int32_t kadoka_runtime_query(kadoka_runtime_info* out_info) {
 
     out_info->abi_version = KADOKA_RUNTIME_ABI_VERSION;
     out_info->capabilities = KADOKA_CAP_SAFETY | KADOKA_CAP_FAST_CV;
+    uint32_t capture_supported = 0u;
+    if (kadoka_wgc_is_supported(&capture_supported) == KADOKA_RUNTIME_STATUS_OK && capture_supported == 1u) {
+        out_info->capabilities |= KADOKA_CAP_CAPTURE;
+    }
     return KADOKA_RUNTIME_STATUS_OK;
 }
 

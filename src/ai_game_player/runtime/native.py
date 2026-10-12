@@ -32,7 +32,9 @@ NATIVE_ABI_VERSION = 1
 CAP_FAST_CV = 1 << 3
 MAX_INT32 = (1 << 31) - 1
 MAX_UINT32 = (1 << 32) - 1
+MAX_UINT64 = (1 << 64) - 1
 INITIAL_REGION_BUFFER_CAPACITY = 256
+WGC_DEFAULT_TIMEOUT_MS = 2_000
 
 
 class NativeStatus(IntEnum):
@@ -42,6 +44,8 @@ class NativeStatus(IntEnum):
     ALLOCATION_FAILED = -3
     NOT_IMPLEMENTED = -4
     BUFFER_TOO_SMALL = -5
+    TIMEOUT = -6
+    CAPTURE_FAILED = -7
 
 
 class NativeBatchKind(IntEnum):
@@ -158,6 +162,24 @@ class _FrameResult(ctypes.Structure):
     ]
 
 
+# {
+#   責務: [_WgcFrameInfo: C ABIから受け取るWindows Graphics Capture frame metadataを表す]
+#   フィールド: [width/height/stride_bytes: packed BGRA画像寸法, frame_id: WGC session内の到着順ID, timestamp_ns: QPC基準のmonotonic nanoseconds, native_surface_handle: lease存続中だけ有効なopaque Direct3D texture handle]
+# }
+class _WgcFrameInfo(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("width", ctypes.c_uint32),
+        ("height", ctypes.c_uint32),
+        ("stride_bytes", ctypes.c_uint32),
+        ("reserved", ctypes.c_uint32),
+        ("frame_id", ctypes.c_uint64),
+        ("timestamp_ns", ctypes.c_uint64),
+        ("native_surface_handle", ctypes.c_uint64),
+    ]
+
+
 @dataclass(frozen=True)
 class NativeRuntimeInfo:
     abi_version: int
@@ -190,14 +212,39 @@ def _bind(library: object, name: str, argtypes: list[Any], restype: Any) -> Any:
     return function
 
 
+# {
+#   責務: [_bind_optional: optional C ABI functionが存在する場合だけctypes signatureを設定する]
+#   引数: [library: Native Runtime DLLまたはtest double, name: export symbol名, argtypes: C ABI引数型, restype: C ABI戻り値型]
+#   戻り値: [function | None: signature設定済みfunction、exportなしならNone]
+# }
+def _bind_optional(library: object, name: str, argtypes: list[Any], restype: Any) -> Any | None:
+    try:
+        function = getattr(library, name)
+    except AttributeError:
+        return None
+    function.argtypes = argtypes
+    function.restype = restype
+    return function
+
+
 def _check(operation: str, status: int) -> None:
     if status != NativeStatus.OK:
         raise NativeRuntimeError(operation, status)
 
 
+# {
+#   責務: [NativeRuntime: optional C ABI v1 libraryのlifecycle、frame processing、WGC session creationを管理する]
+#   フィールド: [library/handle: native codeとinstance lifetime, _lock: ABI callとshutdownの直列化, _descriptor: reported runtime capabilities]
+# }
 class NativeRuntime:
     """Owns one native instance; serializes batch calls and shutdown."""
 
+    # {
+    #   責務: [__init__: C ABI v1 symbol、runtime info、optional WGC exports、native handleを初期化する]
+    #   引数: [library: C ABI v1 exportsを持つDLLまたはtest double, library_path: load元のoptional filesystem path]
+    #   戻り値: []
+    #   エラー: [必須symbol不足・ABI不一致・Native Runtime初期化失敗: 互換性のないlibraryを拒否して送出]
+    # }
     def __init__(self, library: object, *, library_path: Path | None = None) -> None:
         self._library = library  # Retain the DLL for at least the handle lifetime.
         self.library_path = library_path
@@ -212,6 +259,42 @@ class NativeRuntime:
         init = _bind(library, "kadoka_runtime_init", [ctypes.POINTER(_Options), ctypes.POINTER(ctypes.c_void_p)], ctypes.c_int32)
         self._shutdown = _bind(library, "kadoka_runtime_shutdown", [ctypes.POINTER(ctypes.c_void_p)], ctypes.c_int32)
         self._process_batch = _bind(library, "kadoka_runtime_process_batch", [ctypes.c_void_p, ctypes.POINTER(_BatchRequest), ctypes.POINTER(_BatchResult)], ctypes.c_int32)
+        self._wgc_is_supported = _bind_optional(
+            library, "kadoka_wgc_is_supported", [ctypes.POINTER(ctypes.c_uint32)], ctypes.c_int32
+        )
+        self._wgc_open_window = _bind_optional(
+            library,
+            "kadoka_wgc_open_window",
+            [ctypes.c_void_p, ctypes.c_uint64, ctypes.POINTER(ctypes.c_void_p)],
+            ctypes.c_int32,
+        )
+        self._wgc_next_frame = _bind_optional(
+            library,
+            "kadoka_wgc_next_frame",
+            [ctypes.c_void_p, ctypes.c_uint32, ctypes.POINTER(ctypes.c_void_p)],
+            ctypes.c_int32,
+        )
+        self._wgc_frame_get_info = _bind_optional(
+            library,
+            "kadoka_wgc_frame_get_info",
+            [ctypes.c_void_p, ctypes.POINTER(_WgcFrameInfo)],
+            ctypes.c_int32,
+        )
+        self._wgc_frame_copy_bgra = _bind_optional(
+            library,
+            "kadoka_wgc_frame_copy_bgra",
+            [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64],
+            ctypes.c_int32,
+        )
+        self._wgc_frame_release = _bind_optional(
+            library,
+            "kadoka_wgc_frame_release",
+            [ctypes.POINTER(ctypes.c_void_p)],
+            ctypes.c_int32,
+        )
+        self._wgc_close = _bind_optional(
+            library, "kadoka_wgc_close", [ctypes.POINTER(ctypes.c_void_p)], ctypes.c_int32
+        )
         self._preprocess_frame = None
         info = _Info(ctypes.sizeof(_Info), 0, 0)
         _check("query", int(query(ctypes.byref(info))))
@@ -277,6 +360,131 @@ class NativeRuntime:
                     raise NativeContractError("Native Runtime returned an invalid batch result")
             _check("process_batch", status)
             return NativeBatchResult(int(result.batch_id), int(result.abi_version), NativeStatus(status))
+
+    # {
+    #   責務: [is_wgc_capture_supported: Native Runtimeが現在のWindows環境でWGC captureを開始できるか確認する]
+    #   戻り値: [bool: WGC APIが存在し、OSがcaptureを許可する場合はTrue]
+    #   エラー: [Native Runtime close済みまたはABI問い合わせ失敗: 利用可能状態を誤認しないよう例外を送出]
+    # }
+    def is_wgc_capture_supported(self) -> bool:
+        if self._wgc_is_supported is None:
+            return False
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("wgc_is_supported (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            is_supported = ctypes.c_uint32()
+            status = int(self._wgc_is_supported(ctypes.byref(is_supported)))
+            _check("wgc_is_supported", status)
+            if is_supported.value not in (0, 1):
+                self._healthy = False
+                raise NativeContractError("Native Runtime returned an invalid WGC support flag")
+            return bool(is_supported.value)
+
+    # {
+    #   責務: [open_wgc_window: 指定HWNDをNative Runtimeへ渡してcapture sessionを所有するobjectを作る]
+    #   引数: [window_handle: 有効なWindows HWNDを整数で表した値]
+    #   戻り値: [NativeWgcWindow: capture frame取得とsession終了を行うwindow backend]
+    #   エラー: [非Windows、非対応OS、無効HWND、Native API失敗: capture開始できない理由を送出]
+    # }
+    def open_wgc_window(self, window_handle: int) -> NativeWgcWindow:
+        pointer_maximum = (1 << (ctypes.sizeof(ctypes.c_void_p) * 8)) - 1
+        if (
+            isinstance(window_handle, bool)
+            or not isinstance(window_handle, int)
+            or not 0 < window_handle <= pointer_maximum
+        ):
+            raise ValueError("window_handle must be a non-zero Windows pointer-sized integer")
+        wgc_symbols = (
+            self._wgc_is_supported,
+            self._wgc_open_window,
+            self._wgc_next_frame,
+            self._wgc_frame_get_info,
+            self._wgc_frame_copy_bgra,
+            self._wgc_frame_release,
+            self._wgc_close,
+        )
+        if any(symbol is None for symbol in wgc_symbols):
+            raise NativeRuntimeError("open_wgc_window (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        wgc_open_window = self._wgc_open_window
+        if wgc_open_window is None:
+            raise NativeRuntimeError("open_wgc_window (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("open_wgc_window (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            if not self.is_wgc_capture_supported():
+                raise NativeRuntimeError("open_wgc_window (unsupported platform)", NativeStatus.NOT_IMPLEMENTED)
+            session = ctypes.c_void_p()
+            status = int(wgc_open_window(self._handle, window_handle, ctypes.byref(session)))
+            _check("wgc_open_window", status)
+            if not session.value:
+                self._healthy = False
+                raise NativeContractError("Native Runtime opened WGC without returning a session handle")
+            return NativeWgcWindow(self, session)
+
+    # {
+    #   責務: [_capture_wgc_frame: frame leaseからmetadataとcaller-owned BGRA pixelを取得する]
+    #   引数: [session: window capture session, timeout_ms: WGC frame arrivalを待つ上限ミリ秒]
+    #   戻り値: [ScreenFrame: tightly packed BGRA pixelとQPC由来timestampを持つframe]
+    #   エラー: [timeout・HWND消失・壊れたmetadata・pixel copy失敗: 失敗statusを呼び出し元へ送出]
+    # }
+    def _capture_wgc_frame(self, session: ctypes.c_void_p, timeout_ms: int) -> ScreenFrame:
+        if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 0 <= timeout_ms <= MAX_UINT32:
+            raise ValueError("timeout_ms must be an unsigned 32-bit integer")
+        next_frame = self._wgc_next_frame
+        get_frame_info = self._wgc_frame_get_info
+        copy_frame_bgra = self._wgc_frame_copy_bgra
+        release_frame = self._wgc_frame_release
+        if next_frame is None or get_frame_info is None or copy_frame_bgra is None or release_frame is None:
+            raise NativeRuntimeError("wgc_capture (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("wgc_next_frame (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            frame = ctypes.c_void_p()
+            status = int(next_frame(session, timeout_ms, ctypes.byref(frame)))
+            _check("wgc_next_frame", status)
+            if not frame.value:
+                self._healthy = False
+                raise NativeContractError("Native Runtime returned success without a WGC frame lease")
+
+            try:
+                frame_info = _WgcFrameInfo()
+                frame_info.struct_size = ctypes.sizeof(_WgcFrameInfo)
+                _check("wgc_frame_get_info", int(get_frame_info(frame, ctypes.byref(frame_info))))
+                required_capacity = frame_info.width * frame_info.height * BGRA_BYTES_PER_PIXEL
+                if (
+                    frame_info.struct_size != ctypes.sizeof(_WgcFrameInfo)
+                    or frame_info.abi_version != NATIVE_ABI_VERSION
+                    or frame_info.width <= 0
+                    or frame_info.height <= 0
+                    or frame_info.width > MAX_INT32
+                    or frame_info.height > MAX_INT32
+                    or frame_info.width * BGRA_BYTES_PER_PIXEL > MAX_UINT32
+                    or frame_info.stride_bytes != frame_info.width * BGRA_BYTES_PER_PIXEL
+                    or required_capacity > ctypes.c_size_t(-1).value
+                    or frame_info.frame_id <= 0
+                    or frame_info.timestamp_ns <= 0
+                    or frame_info.native_surface_handle == 0
+                    or frame_info.reserved != 0
+                ):
+                    self._healthy = False
+                    raise NativeContractError("Native Runtime returned invalid WGC frame metadata")
+                pixel_buffer = (ctypes.c_uint8 * required_capacity)()
+                copy_status = int(
+                    copy_frame_bgra(frame, pixel_buffer, required_capacity)
+                )
+                _check("wgc_frame_copy_bgra", copy_status)
+                return ScreenFrame(
+                    frame_info.width,
+                    frame_info.height,
+                    bytes(pixel_buffer),
+                    captured_at=frame_info.timestamp_ns / 1_000_000_000,
+                    frame_id=frame_info.frame_id,
+                )
+            finally:
+                release_status = int(release_frame(ctypes.byref(frame)))
+                if release_status != NativeStatus.OK:
+                    self._healthy = False
+                    raise NativeContractError("Native Runtime failed to release the WGC frame lease")
 
     def preprocess(
         self,
@@ -508,6 +716,72 @@ class NativeRuntime:
         return self
 
     def __exit__(self, exc_type: type[BaseException] | None, exc: BaseException | None, traceback: TracebackType | None) -> None:
+        self.close()
+
+
+# {
+#   責務: [NativeWgcWindow: HWND専用のNative WGC sessionを保持し、frame leaseを解放してScreenFrameを返す]
+#   フィールド: [runtime: C ABI libraryとlifecycleを保持するNative Runtime, session: closeまで有効なopaque WGC session handle]
+# }
+class NativeWgcWindow:
+    # {
+    #   責務: [__init__: 初期化済みNative RuntimeとWGC session handleを保持する]
+    #   引数: [runtime: WGC APIを公開するNative Runtime, session: kadoka_wgc_open_windowが返したsession handle]
+    #   戻り値: []
+    # }
+    def __init__(self, runtime: NativeRuntime, session: ctypes.c_void_p) -> None:
+        self._runtime = runtime
+        self._session = session
+
+    # {
+    #   責務: [capture: 次に届くframeをNative RuntimeからBGRA ScreenFrameへ変換する]
+    #   引数: [timeout_ms: 新しいWGC frameを待つ上限ミリ秒]
+    #   戻り値: [ScreenFrame: native frame IDとmonotonic timestampを保持する画面]
+    #   エラー: [timeout・HWND消失・Native Runtime異常: capture failureとして送出]
+    # }
+    def capture(self, timeout_ms: int = WGC_DEFAULT_TIMEOUT_MS) -> ScreenFrame:
+        if not self._session.value:
+            raise NativeRuntimeError("wgc_capture (closed session)", NativeStatus.INVALID_ARGUMENT)
+        return self._runtime._capture_wgc_frame(self._session, timeout_ms)
+
+    # {
+    #   責務: [close: WGC sessionとframe poolを終了し、native session handleを解放する]
+    #   戻り値: []
+    #   エラー: [Native Runtimeがsession資源を解放できない場合: close failureを送出]
+    # }
+    def close(self) -> None:
+        if not self._session.value:
+            return
+        close_session = self._runtime._wgc_close
+        if close_session is None:
+            raise NativeRuntimeError("wgc_close (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        with self._runtime._lock:
+            status = int(close_session(ctypes.byref(self._session)))
+            _check("wgc_close", status)
+            if self._session.value:
+                self._runtime._healthy = False
+                raise NativeContractError("Native Runtime close did not clear the WGC session handle")
+
+    # {
+    #   責務: [__enter__: open済みWGC sessionをcontext manager bodyへ渡す]
+    #   戻り値: [NativeWgcWindow: close前のcapture session]
+    # }
+    def __enter__(self) -> NativeWgcWindow:
+        if not self._session.value or not self._runtime.is_healthy():
+            raise NativeRuntimeError("wgc_enter (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+        return self
+
+    # {
+    #   責務: [__exit__: context manager終了時にWGC session資源を解放する]
+    #   引数: [exc_type/exc/traceback: bodyが失敗した場合にPythonが渡す例外情報]
+    #   戻り値: []
+    # }
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         self.close()
 
 

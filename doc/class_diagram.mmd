@@ -624,7 +624,6 @@ classDiagram
         +_ensure_frame_producer()
         +_stop_frame_producer()
         +close()
-        +_capture_windows_frame()
         +_create_frame_analyzer()
         +_create_ocr_recognizer()
     }
@@ -880,6 +879,9 @@ classDiagram
     ctypes.Structure <|-- _FrameResult
     class _FrameResult {
     }
+    ctypes.Structure <|-- _WgcFrameInfo
+    class _WgcFrameInfo {
+    }
     class NativeRuntimeInfo {
     }
     class NativeBatchResult {
@@ -892,8 +894,18 @@ classDiagram
         +descriptor()
         +is_healthy()
         +process_batch()
+        +is_wgc_capture_supported()
+        +open_wgc_window()
+        +_capture_wgc_frame()
         +preprocess()
         +_valid_frame_result()
+        +close()
+        +__enter__()
+        +__exit__()
+    }
+    class NativeWgcWindow {
+        +__init__()
+        +capture()
         +close()
         +__enter__()
         +__exit__()
@@ -1004,6 +1016,9 @@ classDiagram
     class WindowsScreenCapture {
         +__init__()
         +capture()
+        +_capture_with_wgc()
+        +_close_wgc_session()
+        +close()
         +_is_visible_and_unoccluded()
     }
     class ScreenSimilarity {
