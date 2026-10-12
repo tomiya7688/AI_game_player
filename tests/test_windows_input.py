@@ -236,11 +236,43 @@ class WindowsInputTest(unittest.TestCase):
         )
 
         with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
-            with self.assertRaisesRegex(RuntimeError, "SetCursorPos failed"):
+            with self.assertRaisesRegex(RuntimeError, "クリックを送信しませんでした.*ウィンドウを再選択"):
                 executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
 
         self.assertEqual(notifications, [((130, 245), True), (None, False)])
         self.assertEqual(user32.mouse_events, [])
+
+    def test_execute_does_not_report_success_when_cursor_move_fails(self):
+        user32 = FakeUser32()
+        user32.cursor_position_result = 0
+        executor = WindowsInputExecutor(window_handle=123, window_process_id=456)
+        candidate = ActionCandidate("click", "click", "Play", 30, 45)
+
+        with patch.object(windows_input.os, "name", "nt"):
+            with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+                with patch.object(executor, "_verify_target_identity"):
+                    with self.assertRaisesRegex(RuntimeError, "クリックを送信しませんでした"):
+                        executor.execute(candidate)
+
+        self.assertEqual(user32.cursor_positions, [(130, 245)])
+        self.assertEqual(user32.mouse_events, [])
+        self.assertEqual(executor._held_mouse, set())
+
+    def test_execute_does_not_report_success_when_window_message_fails(self):
+        user32 = FakeUser32()
+        user32.failed_messages = {0x0201}
+        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", window_process_id=456)
+        candidate = ActionCandidate("click", "click", "Play", 30, 45)
+
+        with patch.object(windows_input.os, "name", "nt"):
+            with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+                with patch.object(executor, "_verify_target_identity"):
+                    with self.assertRaisesRegex(RuntimeError, "マウス押下送信に失敗しました"):
+                        executor.execute(candidate)
+
+        self.assertEqual([message[1] for message in user32.messages], [0x0201])
+        self.assertEqual(user32.mouse_events, [])
+        self.assertEqual(executor._held_mouse, set())
 
     def test_window_message_translates_window_coordinates_to_client_lparam(self):
         user32 = FakeUser32()
@@ -282,14 +314,14 @@ class WindowsInputTest(unittest.TestCase):
 
         with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
             user32.failed_messages = {0x0100}
-            with self.assertRaisesRegex(RuntimeError, "key-down failed"):
+            with self.assertRaisesRegex(RuntimeError, "キー押下送信に失敗.*応答しているか"):
                 executor._key_down(0x41)
 
             self.assertEqual(ledger.snapshot()["held_keys"], {})
             self.assertEqual(executor._held_keys, set())
 
             user32.failed_messages = {0x0201}
-            with self.assertRaisesRegex(RuntimeError, "mouse-down failed"):
+            with self.assertRaisesRegex(RuntimeError, "マウス押下送信に失敗.*応答しているか"):
                 executor._post_click(0)
 
         self.assertEqual(ledger.snapshot()["held_mouse"], {})
@@ -305,7 +337,7 @@ class WindowsInputTest(unittest.TestCase):
 
         with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
             user32.failed_messages = {0x0202}
-            with self.assertRaisesRegex(RuntimeError, "mouse-up failed"):
+            with self.assertRaisesRegex(RuntimeError, "マウス解放送信に失敗.*Sessionを停止"):
                 executor._post_click(0x1234)
 
             self.assertEqual(executor._held_mouse, {"left"})
@@ -328,7 +360,7 @@ class WindowsInputTest(unittest.TestCase):
             executor._key_down(0x41)
             user32.failed_messages = {0x0101}
             with patch.object(windows_input.os, "name", "nt"):
-                with self.assertRaisesRegex(RuntimeError, "key-up failed"):
+                with self.assertRaisesRegex(RuntimeError, "キー解放送信に失敗.*Sessionを停止"):
                     executor.release_all()
 
             self.assertEqual(executor._held_keys, {0x41})

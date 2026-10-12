@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #367: Windows入力APIが失敗した場合のエラーを具体化。SetCursorPosが失敗したクリックは押下を送らず、PostMessageWのキー・マウス送信失敗は対象操作と次の確認手順を日本語で表示する。API失敗時に成功結果を返さないことを実行境界のテストで確認し、偽Win32 APIの回帰テストでクリック抑止、Session停止の案内、押下状態の保持と解放再試行を検証する。
 - Issue #60: capture modeをdesktop全体・選択window全体・主画面上の固定pixel ROI・window内の正規化ROIから選択できるようにする。captureごとにwindow-relative領域を解決し、ROI外のpixelを画像/OCR解析へ渡さない。ROI内候補を選択windowまたはscreen座標へ変換し、逆変換とnormalized coordinates、mode・source・confidenceをObservation metadataへ保持する。capture regionを`data/config.json`へ保存し、旧configにはwindow全体を適用する。
 - Issue #39: `UnknownnessMonitor`へ認識・prototype距離・知識検索miss・評価器不一致・遷移曖昧さの正規化済み根拠を入力し、perceptual/semantic/action/transition/knowledgeの5scopeを別々に重み付き融合する。観測ごとの`instant_unknown`と、連続2回の閾値超過で開始し連続2回の回復で解除する`persistent_unknown`を分け、現在および保持中の根拠・確信度・出所を`unknownness/v1`で出力する。検出器入力を実行pipelineへ接続する処理とunknown時の行動選択は含まない。
 - Issue #43: Decision Provider出力を形式・型・許可候補・判断時の画面状態・理由と候補の矛盾で決定論的に検証し、4段階の状態と根拠・出所をDecision traceおよびAction Safety監査へ記録する。TRUSTは実施検査に通過した状態であり、正しさの保証ではない。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で候補語境界・任意の後続修飾語・一文字候補・二重否定・クリック／押下の能動形と受動形、前置詞・冠詞・UI部品名を含む明示的な否定を検証し、英語・日本語とも候補一覧にある複合名の別候補を区別する。未実行判断だけを行動履歴から除外し、直前に実行した操作のOutcome結果はその操作のtraceと後続Decision Contextに保持する。終端結果でも変化・安定Evidenceを重み付けして `state_changed` を独立判定し、競合が強い場合は状態変化として扱わない。旧Ollama APIは省略された理由を空文字列へ補い、文字列以外の理由を拒否する。空候補の通信前拒否、schema失敗時のprovider provenance、Evaluator許可候補による独立groundingも追加検証し、Action SafetyとDecision Reliabilityの宣言コメントを責務・入力の意味・判断条件・結果まで説明する形へ改める。
