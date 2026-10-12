@@ -14,6 +14,10 @@ from ai_game_player.outcome import OutcomeAssessment
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [EvaluatorEvidence: 1つの評価器が1候補について出した点数・根拠・確信度をまとめる]
+#   フィールド: [evaluator: 評価器名, score: 候補の評価値（-1は否定、0は中立、1は肯定）, confidence: 評価の確かさ, reliability: 評価器自体の信頼度, evidence: 点数の理由]
+# }
 class EvaluatorEvidence:
     evaluator: str
     score: float
@@ -36,6 +40,10 @@ class EvaluatorEvidence:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [KnowledgeEvidence: 候補を選ぶ理由として参照した知識の本文と出所を保持する]
+#   フィールド: [evidence_id: 知識記録ID, source: 収集元, statement: 判断に使う知識本文, confidence: 知識の確かさ, provenance: 保存先や参照元, category: 知識の分類名]
+# }
 class KnowledgeEvidence:
     evidence_id: str
     source: str
@@ -55,6 +63,10 @@ class KnowledgeEvidence:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [CandidateDecisionContext: 画面で見つかった1候補について、許可状態・評価根拠・参考知識をまとめる]
+#   フィールド: [action_id: 候補ID, kind: クリックやキー入力など操作の種類, label: 画面上の表示名, recognition_confidence: 画面解析が候補を正しく見つけた確信度, allowed: 独立した候補評価器が実行可能としたか, evaluations: 候補ごとの点数と理由, utility_score: 目標への見込み, utility_confidence: 見込みの確かさ, evaluator_conflict: 評価器同士の結論が割れたか, knowledge: 判断に使う知識, uncertainty: 残る不確実性]
+# }
 class CandidateDecisionContext:
     action_id: str
     kind: str
@@ -87,6 +99,10 @@ class CandidateDecisionContext:
 
 
 @dataclass(frozen=True)
+# {
+#   責務: [DecisionContext: 1回の選択に使った画面・許可候補・過去の結果を同じ観測IDに結び付ける]
+#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性]
+# }
 class DecisionContext:
     snapshot_id: str
     state: dict[str, Any]
@@ -132,6 +148,11 @@ class SafetyContextEvaluator:
     def __init__(self, evaluator: ActionEvaluator | None = None) -> None:
         self.evaluator = evaluator or ActionEvaluator()
 
+    # {
+    #   責務: [evaluate: 候補1件の実行可否を既存ActionEvaluatorへ問い合わせ、判断材料用の証拠へ変える]
+    #   引数: [observation: 候補座標と画面範囲を比べる観測, candidate: 実行可否を調べる候補, recent_history: 直近履歴（この評価器では未使用）, previous_outcome: 直前操作の結果（この評価器では未使用）]
+    #   戻り値: [EvaluatorEvidence: 許可なら中立、拒否なら否定点を持つ評価と既存の理由]
+    # }
     def evaluate(
         self,
         observation: ScreenObservation,
@@ -182,6 +203,11 @@ class RepetitionContextEvaluator:
             raise ValueError("repetition window must be positive")
         self.window = window
 
+    # {
+    #   責務: [evaluate: 同じ候補が続き、直前の操作後に画面が進んでいない場合に繰返し点を下げる]
+    #   引数: [observation: 現在画面, candidate: 点数を付ける操作候補, recent_history: 実行前に止めていない過去の選択, previous_outcome: 直前操作の成功・失敗・進行状況]
+    #   戻り値: [EvaluatorEvidence: 繰返し回数と画面変化から求めた点数・確信度・理由]
+    # }
     def evaluate(
         self,
         observation: ScreenObservation,
@@ -260,8 +286,19 @@ class CandidateKnowledgeRetriever:
         ]
 
 
+# {
+#   責務: [DecisionContextBuilder: 現在画面・候補評価・参考知識・実行履歴を、判断元へ渡す1件の判断材料へまとめる]
+#   保持状態: [evaluators: 候補ごとの評価器, fusion: 評価点と確信度をまとめる処理, history_limit: 判断元へ渡す実行前停止後でない履歴の最大件数, knowledge: 候補に関連する参考知識の検索器]
+#   処理: [候補ID・許可状態・評価根拠を同じ画面観測IDに結び、結果と不確実性をJSON形式へ変換できる状態で返す]
+# }
 class DecisionContextBuilder:
-    """Builds the compact state/evaluation/knowledge package consumed by a decision provider."""
+
+    # {
+    #   責務: [__init__: 使用する評価器、評価統合規則、履歴件数、参考知識件数を設定する]
+    #   引数: [knowledge_store: 候補に関連する説明を検索する保存先, evaluators: 点数と理由を出す評価器一覧, fusion: 評価点・確信度・意見不一致を統合する処理, history_limit: 参照する履歴の最大件数, knowledge_limit: 候補ごとに返す知識の最大件数]
+    #   戻り値: []
+    #   エラー: [ValueError: 履歴件数が負数の場合]
+    # }
 
     def __init__(
         self,
@@ -361,9 +398,9 @@ class DecisionContextBuilder:
 
 
 # {
-#   責務: [DecisionTraceStore: 画面snapshot、判断、信頼性検査、実行結果を追記型traceへ保存する]
-#   フィールド: [path: 旧trace JSONの保存先, event_adapter: 指定時にSession Journalへ追記し旧reader形式も返すadapter]
-#   処理: [通常trace・拒否・実行前停止・操作結果を保存し、操作履歴には実行対象の判断だけを返す]
+#   責務: [DecisionTraceStore: 画面観測・候補選択・信頼性検査・実行前停止・操作結果を、後から順に追える判断履歴へ保存する]
+#   フィールド: [path: 旧JSON形式の履歴保存先, event_adapter: 指定時に実行セッションの追記型記録へ保存し、旧形式の読み取りも提供する変換器]
+#   処理: [拒否や実行前停止も監査履歴には残し、次の選択へ渡す履歴からは拒否・実行前停止を除く]
 # }
 class DecisionTraceStore:
 
@@ -561,17 +598,17 @@ class DecisionTraceStore:
 
     # {
     #   責務: [
-    #     recent_actions: 次の判断で繰り返しを避けるため、実行対象になった直近の操作履歴だけを返す
+#     recent_actions: 判断として確定し、拒否または実行前停止で取り消されていない直近の操作履歴だけを返す
     #   ]
     #   処理: [
-    #     1: 拒否記録と実行前に止めた操作を履歴全件から除く
+#     1: 信頼性検査で拒否された記録と、入力送信前に停止した記録を履歴全件から除く
     #     2: 残った記録の末尾から指定件数を返す
     #   ]
     #   引数: [
     #     limit: 返す操作履歴の最大件数。0なら空の一覧を返す
     #   ]
     #   戻り値: [
-    #     list[dict[str, Any]]: 古いものから新しいものの順に並ぶ、実行対象の判断記録
+#     list[dict[str, Any]]: 古い順に並んだ、次の候補選択で実際の過去操作として参照する記録
     #   ]
     #   エラー: [
     #     ValueError: limitが負数の場合。履歴件数として負数を指定できない
@@ -678,12 +715,12 @@ def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
 
 # {
 #   責務: [
-#     _is_action_history_entry: 実際に実行対象となった判断だけを選び、拒否・中止記録を操作履歴から外す
+#     _is_action_history_entry: 実行判断として確定し、拒否または入力送信前停止で無効になっていない記録を選ぶ
 #   ]
 #   処理: [
-#     1: 選択された操作の記録がない項目を除外する
-#     2: 信頼性検査でREJECTになった項目を除外する
-#     3: 実行前に停止状態へ更新された項目を除外する
+#     1: 実行判断の内容がない項目を除外する
+#     2: 信頼性検査が候補選択を無効とした項目を除外する
+#     3: 操作入力を送る前に停止した項目を除外する
 #   ]
 #   引数: [
 #     entry: 画面状態・判断・実行結果などを含む履歴の1件

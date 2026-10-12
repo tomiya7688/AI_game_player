@@ -39,17 +39,17 @@ class SafetyEvidence:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     SafetyEvaluationContext: 操作の危険度を決める際に参照するゲーム目標、操作後の予測、候補選択の検査結果を受け渡す
+#     SafetyEvaluationContext: 操作が危険かを調べるため、ゲーム目標・操作後の予測・候補選択の検査結果を評価器へ渡す
 #   ]
 #   フィールド: [
-#     current_goal: 今回のプレイで最終的に達成したいゲーム内の目的。危険操作がこの目的に必要か調べる
-#     short_term_goal: 次の数手で達成したい中間目的。最終目的だけでは操作意図を判断できない場合に参照する
-#     expected_effect_consistent: 実行後に観測した変化が操作前の予測と一致したか。まだ実行していない場合はNone
-#     utility_score: 選択候補が目的へ与える見込みの寄与。-1は妨げる、0は影響なし、1は大きく進めることを示す
-#     utility_confidence: utility_scoreをどれだけ確かな予測とみなせるか。0は根拠が弱く、1は根拠が強い
-#     target_scope_hint: 操作が及ぶと予測した範囲。localは画面内の一部、gameはゲーム内、sessionは今回の実行、systemはOS
-#     reversible_hint: 操作前の状態へ戻せる見込み。元に戻せるか判定できていない場合はNone
-#     decision_reliability: 候補が許可一覧にあり、現在画面と選択理由に矛盾しないかを検査した記録
+#     current_goal: 今回のプレイで最後に達成したいゲーム内の目的。危険を伴う操作が目的に必要かを評価器が判断する
+#     short_term_goal: 次の数手で達成したい中間目的。最終目的だけでは操作の意図を決められない場合に使う
+#     expected_effect_consistent: 操作後に観測した変化が、操作前に予測した変化と一致したか。未実行ならNone
+#     utility_score: 候補が目的を進める見込みを-1から1で表す。-1は妨げる、0は影響なし、1は大きく進める
+#     utility_confidence: utility_scoreの根拠の強さを0から1で表す。0は根拠なし、1は強い根拠がある
+#     target_scope_hint: 操作の影響範囲の予測。localは画面の一部、gameはゲーム内、sessionは今回の実行、systemはOS全体
+#     reversible_hint: 操作前の状態へ戻せる見込み。判断できない場合はNone
+#     decision_reliability: 候補が許可一覧に含まれ、現在画面と理由に食い違いがないかを別の検査器が調べた結果
 #   ]
 # }
 class SafetyEvaluationContext:
@@ -76,26 +76,26 @@ class SafetyEvaluationContext:
 @dataclass(frozen=True)
 # {
 #   責務: [
-#     ActionSafetyResult: 操作を実行してよいかの判定、その判定根拠、および候補選択の信頼性記録を別々に保持する
+#     ActionSafetyResult: 操作そのものの危険度判定と、選択候補が画面・許可一覧に合うかの検査結果を分けて保存する
 #   ]
 #   フィールド: [
-#     assessment_id: 個々の評価記録を後から参照するために発行した一意なID
+#     assessment_id: この安全評価を後から特定し、実行結果やゲーム結果と結び付ける一意なID
 #     action_id: 画面内で危険度を調べた操作候補のID
-#     status: SAFEは既知の危険条件なし、SUSPICIOUSは追加確認が必要、BLOCKは実行を許可しない
-#     recognition_confidence: 画面解析が操作対象を正しく検出した見込み。低くても操作自体の危険度とは混同しない
-#     safety_score: 検査結果から算出した安全側の点数。0は危険、1は既知の危険がない状態
-#     risk_score: 操作説明や対象範囲から算出した危険側の点数。0は低く、1は極めて高い
-#     risk_level: risk_scoreをlow、medium、high、criticalの4段階にまとめた区分
-#     reversible: 実行後にゲーム内状態を元へ戻せると確認できた場合True。不明ならNone
-#     blast_radius: 失敗時に影響する広さをlow、medium、high、criticalで示す
-#     target_scope: 操作対象の範囲。localは一部、gameはゲーム内、sessionは今回の実行、systemはOS
-#     goal_alignment: 危険操作が現在の目標で明示的に必要とされる場合True。判断材料がない場合None
-#     expected_effect_consistent: 実行後の変化が事前予測に合致したか。未実行・未評価ならNone
-#     requires_verification: SUSPICIOUS判定に対して実行前確認を求める場合True
-#     verification_requests: 再観測や目標確認など、実行前に満たすべき確認項目
-#     upstream_anomaly: 上流が高い有用性を付けた一方で本評価が高リスクとした場合True
-#     evidence: 空間、操作種別、目的など各検査の判定・深刻度・根拠を記録した一覧
-#     decision_reliability: 選択候補が現在の画面と許可候補に整合するかの別系統の検査記録
+#     status: SAFEは既知の遮断条件なし、SUSPICIOUSは実行前の追加確認が必要、BLOCKは入力を送らない判定
+#     recognition_confidence: 画面解析が対象を正しく見つけた見込み。低い認識確信度と操作の危険度は別々に扱う
+#     safety_score: 安全側の点数。値が低いほど入力を許可しにくく、高いほど検査規則上の危険が少ない
+#     risk_score: 危険側の点数。0は低リスク、1は規則上の最高リスク
+#     risk_level: risk_scoreをlow（低）、medium（中）、high（高）、critical（極めて高い）の4段階に分けた区分
+#     reversible: 実行後にゲーム内状態を元へ戻せると確認できた場合True。確認できない場合None
+#     blast_radius: 誤操作や失敗が起きた場合に影響する範囲をlow（小）からcritical（極めて大）で示す
+#     target_scope: 操作対象の範囲。localは画面の一部、gameはゲーム内、sessionは今回の実行、systemはOS全体
+#     goal_alignment: 危険操作が現在の目標に必要と確認できた場合True。目標を照合できない場合None
+#     expected_effect_consistent: 実行後の変化が事前予測と一致した場合True。未実行または未評価ならNone
+#     requires_verification: SUSPICIOUS判定を解除するための確認が実行前に必要な場合True
+#     verification_requests: 再観測や目標照合など、入力送信の前に済ませる確認項目
+#     upstream_anomaly: 目的への貢献見込みは高い一方で、操作の危険度も高いという不一致がある場合True
+#     evidence: 座標、操作種別、目的など、各検査が何を根拠に判定したかを示す一覧
+#     decision_reliability: 選択候補が画面と許可一覧に合うかを調べた別検査の結果。操作の危険度とは混同しない
 #   ]
 # }
 class ActionSafetyResult:
@@ -225,6 +225,12 @@ class ActionSafetyEvaluator:
         "win+",
     )
 
+    # {
+    #   責務: [__init__: 注意判定と高リスク判定を切り替える点数の境界を設定する]
+    #   引数: [suspicious_threshold: SUSPICIOUS判定を始める危険点数, high_risk_threshold: 高リスクとして追加確認を強める点数]
+    #   戻り値: []
+    #   エラー: [ValueError: 0から1の範囲外、または注意境界が高リスク境界を超える場合]
+    # }
     def __init__(self, suspicious_threshold: float = 0.45, high_risk_threshold: float = 0.65) -> None:
         if not 0.0 <= suspicious_threshold <= high_risk_threshold <= 1.0:
             raise ValueError("safety thresholds must satisfy 0 <= suspicious <= high-risk <= 1")
@@ -264,6 +270,11 @@ class ActionSafetyEvaluator:
         target_scope = context.target_scope_hint or "local"
         goal_alignment: bool | None = None
 
+        # {
+        #   責務: [add: 1つの安全規則の結論を、評価結果へ表示する根拠として追加する]
+        #   引数: [check: 検査項目名, severity: info・warning・blockの扱い, confidence: 根拠の確信度, message: 検査対象と結果の説明]
+        #   戻り値: [なし。evidence一覧へ根拠を1件追加する]
+        # }
         def add(check: str, severity: str, confidence: float, message: str) -> None:
             evidence.append(SafetyEvidence(check, severity, confidence, message))
 
@@ -403,14 +414,29 @@ class ActionSafetyEvaluator:
             context.decision_reliability,
         )
 
+    # {
+    #   責務: [_normalize: 候補名と目的文の英字大小・区切りを揃え、危険語を照合できる形にする]
+    #   引数: [text: 照合対象の操作名またはゲーム目標]
+    #   戻り値: [str: 小文字化し、ハイフン・下線・連続空白を半角空白へ揃えた文字列]
+    # }
     @staticmethod
     def _normalize(text: str) -> str:
         return " ".join(text.casefold().replace("_", " ").replace("-", " ").split())
 
+    # {
+    #   責務: [_contains: 正規化済みの操作説明に、指定した危険意図の語句が含まれるか調べる]
+    #   引数: [text: 正規化済みの操作名と表示名, terms: 検索する語句の一覧]
+    #   戻り値: [bool: いずれかの語句が含まれる場合True]
+    # }
     @staticmethod
     def _contains(text: str, terms: tuple[str, ...]) -> bool:
         return any(term in text for term in terms)
 
+    # {
+    #   責務: [_risk_level: 危険点数を4段階の表示区分へ変換する]
+    #   引数: [score: 0から1の範囲に収めた危険点数]
+    #   戻り値: [str: low・medium・high・criticalの区分名]
+    # }
     @staticmethod
     def _risk_level(score: float) -> str:
         if score < 0.25:
@@ -421,6 +447,11 @@ class ActionSafetyEvaluator:
             return "high"
         return "critical"
 
+    # {
+    #   責務: [_goal_supports: ゲーム目標が危険操作の実行を明示的に求めているか照合する]
+    #   引数: [intent: 操作の危険な目的を示す分類名, goal: 小文字と空白を揃えたゲーム目標]
+    #   戻り値: [bool: 分類に対応する必要語句が目標に含まれる場合True]
+    # }
     @staticmethod
     def _goal_supports(intent: str, goal: str) -> bool:
         terms = {
@@ -433,16 +464,17 @@ class ActionSafetyEvaluator:
 
 
 # {
-#   責務: [ActionSafetyAuditLog: safety評価・実行・最終Outcomeを旧形式readerまたはJournalへ保存する]
-#   フィールド: [path: 旧JSON配列の移行元, event_adapter: 現SessionのJournal writerと互換cache]
+#   責務: [ActionSafetyAuditLog: 安全判定の識別IDごとに、判定・実際に送った入力・後から確認したゲーム結果を追記保存する]
+#   記録内容: [evaluationは実行前の危険判定, executionは入力を送った結果, actual_outcomeは実行後のゲーム状態]
+#   保存先: [path: 旧JSON配列を読む保存先, event_adapter: 現在のSession Journalへ追記する変換器]
 # }
 class ActionSafetyAuditLog:
-    """Append-only audit events linking assessment, execution, and eventual outcome."""
+    """安全判定の識別IDごとに、判定・入力・実行後の結果を追記保存する。"""
 
     # {
-    #   責務: [__init__: safety監査recordの旧JSON pathと任意Journal adapterを設定する]
-    #   処理: [adapterが指定された場合は保存済みJSON配列をSession Journalへ移行する]
-    #   引数: [path: action_safety.jsonの旧保存先, event_adapter: Session Journalへ移行・追記するadapter]
+    #   責務: [__init__: 安全評価履歴を読む旧JSON保存先と、現在の記録先へ接続する変換器を設定する]
+    #   処理: [変換器がある場合は追記先として使い、ない場合はpathのJSON配列を読み書きする]
+    #   引数: [path: action_safety.jsonの保存先, event_adapter: 実行セッションの追記型履歴へ既存記録を移行して追記する変換器]
     #   戻り値: []
     # }
     def __init__(self, path: Path, event_adapter: LegacyEventAdapter | None = None) -> None:
@@ -450,9 +482,9 @@ class ActionSafetyAuditLog:
         self.event_adapter = event_adapter
 
     # {
-    #   責務: [append_evaluation: 候補のSafety評価と対象snapshotを監査履歴へ記録する]
-    #   処理: [評価結果・目標・snapshot IDをevent recordにまとめる]
-    #   引数: [result: ActionSafetyEvaluatorの判定, snapshot_id: 判断に使った画面snapshot, goal: providerへ渡した目標]
+    #   責務: [append_evaluation: 操作を送る前に行った危険度判定を、その判定に使った画面とともに保存する]
+    #   処理: [評価結果・目標・画面観測IDを1件の記録へまとめる]
+    #   引数: [result: ActionSafetyEvaluatorが返した危険度判定, snapshot_id: 判断に使った画面観測ID, goal: 判断元へ渡した目標]
     #   戻り値: []
     # }
     def append_evaluation(self, result: ActionSafetyResult, *, snapshot_id: str = "", goal: str = "") -> None:
@@ -468,9 +500,9 @@ class ActionSafetyAuditLog:
         )
 
     # {
-    #   責務: [append_execution: Safety評価IDに対応する実行結果を監査履歴へ記録する]
-    #   処理: [action ID・実行可否・入力方式・詳細を1 eventへまとめる]
-    #   引数: [assessment_id: 実行を許可したSafety評価ID, execution: 実際のActionExecutor結果]
+    #   責務: [append_execution: 実行前の危険度判定に対応する入力送信結果を保存する]
+    #   処理: [操作ID・実行可否・入力方式・結果説明を1件の記録へまとめる]
+    #   引数: [assessment_id: 入力送信前に行った危険度判定のID, execution: ActionExecutorが返した入力結果]
     #   戻り値: []
     #   エラー: [ValueError: assessment_idが空の場合]
     # }
@@ -489,9 +521,9 @@ class ActionSafetyAuditLog:
         )
 
     # {
-    #   責務: [append_outcome: 実行後に観測したOutcomeをSafety評価IDへ関連付ける]
-    #   処理: [許可状態・信頼度・根拠を検証してactual_outcome eventにする]
-    #   引数: [assessment_id: Outcomeの対象となるSafety評価ID, status: success/failure/ongoing/unknown, confidence: 評価信頼度, evidence: statusを支える観測根拠]
+    #   責務: [append_outcome: 入力後に観測したゲーム結果を、入力前の危険度判定へ関連付ける]
+    #   処理: [結果区分・確信度・観測根拠を検証し、実行後の結果として追記する]
+    #   引数: [assessment_id: 結果の対象となる危険度判定ID, status: successは成功、failureは失敗、ongoingは進行中、unknownは不明, confidence: 結果判定の確信度, evidence: statusを支持する観測内容]
     #   戻り値: []
     #   エラー: [ValueError: ID・status・confidenceが契約を満たさない場合]
     # }
@@ -513,18 +545,18 @@ class ActionSafetyAuditLog:
         )
 
     # {
-    #   責務: [entries: 旧Safety audit readerと同じrecord形状で監査履歴を返す]
-    #   処理: [Journal adapter cacheまたは既存JSON配列からrecordを取得する]
-    #   引数: [self: Safety監査store]
-    #   戻り値: [list[dict[str, Any]]: evaluation/execution/actual_outcome record列]
+    #   責務: [entries: 危険度判定・入力送信・実行後結果の追記履歴を、旧JSON利用者と同じ形で返す]
+    #   処理: [Journal変換器の記録、または保存済みJSON配列から辞書形式の記録を取得する]
+    #   引数: []
+    #   戻り値: [list[dict[str, Any]]: evaluationは事前判定、executionは入力結果、actual_outcomeはゲーム結果を示す記録一覧]
     # }
     def entries(self) -> list[dict[str, Any]]:
         return self._read()
 
     # {
-    #   責務: [_append: 監査recordをJournalまたは旧JSON保存先へ追加する]
-    #   処理: [Journal adapterがあればappendし、未指定時は一時JSONを原子的に置換する]
-    #   引数: [event: 旧reader互換形式のSafety監査record]
+    #   責務: [_append: 新しい危険度判定・入力結果・ゲーム結果を追記履歴へ追加する]
+    #   処理: [Journal変換器があればそこへ送り、なければ一時JSONから保存先を置き換える]
+    #   引数: [event: 種別と関連IDを含む、旧JSON利用者にも読める記録]
     #   戻り値: []
     # }
     def _append(self, event: dict[str, Any]) -> None:
@@ -539,11 +571,11 @@ class ActionSafetyAuditLog:
         temporary.replace(self.path)
 
     # {
-    #   責務: [_read: 旧JSON保存先から監査recordを非破壊で読む]
-    #   処理: [Journal adapterの互換cacheまたはJSON arrayを返し、他形式を拒否する]
+    #   責務: [_read: 保存済みの危険度判定・入力結果・ゲーム結果を変更せず読み込む]
+    #   処理: [Journal変換器の互換記録またはJSON配列を返し、配列以外の形式を拒否する]
     #   引数: [self: Safety監査store]
-    #   戻り値: [list[dict[str, Any]]: 監査record列]
-    #   エラー: [OSError: JSON読込に失敗, ValueError: JSONが配列ではない場合]
+    #   戻り値: [list[dict[str, Any]]: 保存順に並んだ評価・入力・結果の記録]
+    #   エラー: [OSError: 保存ファイルを読めない場合, ValueError: JSONの最上位が配列ではない場合]
     # }
     def _read(self) -> list[dict[str, Any]]:
         if self.event_adapter is not None:

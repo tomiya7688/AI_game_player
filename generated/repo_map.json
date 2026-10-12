@@ -955,7 +955,7 @@
       "module": "ai_game_player.action_safety",
       "path": "src/ai_game_player/action_safety.py",
       "source_location": {
-        "end_line": 556,
+        "end_line": 588,
         "start_line": 1
       },
       "symbols": [
@@ -1179,7 +1179,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 432,
+            "end_line": 463,
             "start_line": 192
           }
         },
@@ -1214,8 +1214,8 @@
           "signature": "(self, suspicious_threshold: float = …, high_risk_threshold: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 228
+            "end_line": 238,
+            "start_line": 234
           }
         },
         {
@@ -1255,8 +1255,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, context: SafetyEvaluationContext | None = …) -> ActionSafetyResult",
           "source_location": {
             "column": 4,
-            "end_line": 404,
-            "start_line": 252
+            "end_line": 415,
+            "start_line": 258
           }
         },
         {
@@ -1296,8 +1296,8 @@
           "signature": "(check: str, severity: str, confidence: float, message: str) -> None",
           "source_location": {
             "column": 8,
-            "end_line": 268,
-            "start_line": 267
+            "end_line": 279,
+            "start_line": 278
           }
         },
         {
@@ -1321,8 +1321,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 408,
-            "start_line": 407
+            "end_line": 424,
+            "start_line": 423
           }
         },
         {
@@ -1352,8 +1352,8 @@
           "signature": "(text: str, terms: tuple[str, ...]) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 412,
-            "start_line": 411
+            "end_line": 433,
+            "start_line": 432
           }
         },
         {
@@ -1377,8 +1377,8 @@
           "signature": "(score: float) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 422,
-            "start_line": 415
+            "end_line": 448,
+            "start_line": 441
           }
         },
         {
@@ -1408,8 +1408,8 @@
           "signature": "(intent: str, goal: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 432,
-            "start_line": 425
+            "end_line": 463,
+            "start_line": 456
           }
         },
         {
@@ -1428,8 +1428,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 556,
-            "start_line": 439
+            "end_line": 588,
+            "start_line": 471
           }
         },
         {
@@ -1463,8 +1463,8 @@
           "signature": "(self, path: Path, event_adapter: LegacyEventAdapter | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 450,
-            "start_line": 448
+            "end_line": 482,
+            "start_line": 480
           }
         },
         {
@@ -1504,8 +1504,8 @@
           "signature": "(self, result: ActionSafetyResult, *, snapshot_id: str = …, goal: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 468,
-            "start_line": 458
+            "end_line": 500,
+            "start_line": 490
           }
         },
         {
@@ -1539,8 +1539,8 @@
           "signature": "(self, assessment_id: str, execution: Any) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 489,
-            "start_line": 477
+            "end_line": 521,
+            "start_line": 509
           }
         },
         {
@@ -1586,8 +1586,8 @@
           "signature": "(self, assessment_id: str, status: str, confidence: float, evidence: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 513,
-            "start_line": 498
+            "end_line": 545,
+            "start_line": 530
           }
         },
         {
@@ -1609,8 +1609,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 522,
-            "start_line": 521
+            "end_line": 554,
+            "start_line": 553
           }
         },
         {
@@ -1638,8 +1638,8 @@
           "signature": "(self, event: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 539,
-            "start_line": 530
+            "end_line": 571,
+            "start_line": 562
           }
         },
         {
@@ -1661,8 +1661,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 556,
-            "start_line": 548
+            "end_line": 588,
+            "start_line": 580
           }
         }
       ]
@@ -7821,7 +7821,7 @@
       "module": "ai_game_player.decision_context",
       "path": "src/ai_game_player/decision_context.py",
       "source_location": {
-        "end_line": 726,
+        "end_line": 763,
         "start_line": 1
       },
       "symbols": [
@@ -7843,8 +7843,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 35,
-            "start_line": 17
+            "end_line": 39,
+            "start_line": 21
           }
         },
         {
@@ -7866,8 +7866,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 24
+            "end_line": 36,
+            "start_line": 28
           }
         },
         {
@@ -7889,8 +7889,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 35,
-            "start_line": 34
+            "end_line": 39,
+            "start_line": 38
           }
         },
         {
@@ -7911,8 +7911,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 39
+            "end_line": 62,
+            "start_line": 47
           }
         },
         {
@@ -7934,8 +7934,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 47
+            "end_line": 59,
+            "start_line": 55
           }
         },
         {
@@ -7957,8 +7957,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 53
+            "end_line": 62,
+            "start_line": 61
           }
         },
         {
@@ -7979,8 +7979,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 86,
-            "start_line": 58
+            "end_line": 98,
+            "start_line": 70
           }
         },
         {
@@ -8002,8 +8002,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 71
+            "end_line": 98,
+            "start_line": 83
           }
         },
         {
@@ -8024,8 +8024,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 111,
-            "start_line": 90
+            "end_line": 127,
+            "start_line": 106
           }
         },
         {
@@ -8047,8 +8047,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 111,
-            "start_line": 100
+            "end_line": 127,
+            "start_line": 116
           }
         },
         {
@@ -8069,8 +8069,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 125,
-            "start_line": 114
+            "end_line": 141,
+            "start_line": 130
           }
         },
         {
@@ -8116,8 +8116,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, recent_history: list[dict[str, Any]], previous_outcome: OutcomeAssessment) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 118
+            "end_line": 141,
+            "start_line": 134
           }
         },
         {
@@ -8136,8 +8136,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 173,
-            "start_line": 128
+            "end_line": 194,
+            "start_line": 144
           }
         },
         {
@@ -8165,8 +8165,8 @@
           "signature": "(self, evaluator: ActionEvaluator | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 132
+            "end_line": 149,
+            "start_line": 148
           }
         },
         {
@@ -8212,8 +8212,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, recent_history: list[dict[str, Any]], previous_outcome: OutcomeAssessment) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 135
+            "end_line": 164,
+            "start_line": 156
           }
         },
         {
@@ -8247,8 +8247,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> list[EvaluatorEvidence]",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 151
+            "end_line": 178,
+            "start_line": 172
           }
         },
         {
@@ -8276,8 +8276,8 @@
           "signature": "(self, report: dict[str, object]) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 173,
-            "start_line": 165
+            "end_line": 194,
+            "start_line": 186
           }
         },
         {
@@ -8296,8 +8296,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 200,
-            "start_line": 176
+            "end_line": 226,
+            "start_line": 197
           }
         },
         {
@@ -8325,8 +8325,8 @@
           "signature": "(self, window: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 180
+            "end_line": 204,
+            "start_line": 201
           }
         },
         {
@@ -8372,8 +8372,8 @@
           "signature": "(self, observation: ScreenObservation, candidate: ActionCandidate, recent_history: list[dict[str, Any]], previous_outcome: OutcomeAssessment) -> EvaluatorEvidence",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 185
+            "end_line": 226,
+            "start_line": 211
           }
         },
         {
@@ -8392,8 +8392,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 220,
-            "start_line": 203
+            "end_line": 246,
+            "start_line": 229
           }
         },
         {
@@ -8421,8 +8421,8 @@
           "signature": "(self, conflict_threshold: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 204
+            "end_line": 233,
+            "start_line": 230
           }
         },
         {
@@ -8450,8 +8450,8 @@
           "signature": "(self, evaluations: list[EvaluatorEvidence]) -> tuple[float, float, bool]",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 209
+            "end_line": 246,
+            "start_line": 235
           }
         },
         {
@@ -8470,8 +8470,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 260,
-            "start_line": 223
+            "end_line": 286,
+            "start_line": 249
           }
         },
         {
@@ -8505,8 +8505,8 @@
           "signature": "(self, store: KnowledgeStore | None = …, limit: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 224
+            "end_line": 254,
+            "start_line": 250
           }
         },
         {
@@ -8534,8 +8534,8 @@
           "signature": "(self, candidate: ActionCandidate) -> list[KnowledgeEvidence]",
           "source_location": {
             "column": 4,
-            "end_line": 260,
-            "start_line": 230
+            "end_line": 286,
+            "start_line": 256
           }
         },
         {
@@ -8554,8 +8554,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 360,
-            "start_line": 263
+            "end_line": 397,
+            "start_line": 294
           }
         },
         {
@@ -8607,8 +8607,8 @@
           "signature": "(self, knowledge_store: KnowledgeStore | None = …, evaluators: list[CandidateContextEvaluator] | None = …, fusion: EvaluationFusion | None = …, history_limit: int = …, knowledge_limit: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 279,
-            "start_line": 266
+            "end_line": 316,
+            "start_line": 303
           }
         },
         {
@@ -8672,8 +8672,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate], allowed_candidates: list[ActionCandidate], *, recent_history: list[dict[str, Any]] | None = …, previous_outcome: OutcomeAssessment | None = …, current_goal: str = …, short_term_goal: str = …) -> DecisionContext",
           "source_location": {
             "column": 4,
-            "end_line": 360,
-            "start_line": 287
+            "end_line": 397,
+            "start_line": 324
           }
         },
         {
@@ -8692,8 +8692,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 636,
-            "start_line": 368
+            "end_line": 673,
+            "start_line": 405
           }
         },
         {
@@ -8727,8 +8727,8 @@
           "signature": "(self, path: Path, event_adapter: LegacyEventAdapter | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 377,
-            "start_line": 375
+            "end_line": 414,
+            "start_line": 412
           }
         },
         {
@@ -8768,8 +8768,8 @@
           "signature": "(self, context: DecisionContext, decision: ActionDecision, *, reliability: dict[str, Any] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 396,
-            "start_line": 385
+            "end_line": 433,
+            "start_line": 422
           }
         },
         {
@@ -8809,8 +8809,8 @@
           "signature": "(self, context: DecisionContext, decision: ActionDecision, *, reliability: dict[str, Any] | None = …) -> StagedJsonWrite | StagedJournalAppend",
           "source_location": {
             "column": 4,
-            "end_line": 433,
-            "start_line": 405
+            "end_line": 470,
+            "start_line": 442
           }
         },
         {
@@ -8850,8 +8850,8 @@
           "signature": "(self, snapshot_id: str, action_id: str, reason: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 455,
-            "start_line": 441
+            "end_line": 492,
+            "start_line": 478
           }
         },
         {
@@ -8885,8 +8885,8 @@
           "signature": "(self, context: DecisionContext, reliability: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 473,
-            "start_line": 463
+            "end_line": 510,
+            "start_line": 500
           }
         },
         {
@@ -8914,8 +8914,8 @@
           "signature": "(self, entry: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 491,
-            "start_line": 481
+            "end_line": 528,
+            "start_line": 518
           }
         },
         {
@@ -8955,8 +8955,8 @@
           "signature": "(self, entries: list[dict[str, Any]], target: dict[str, Any], fields: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 515,
-            "start_line": 499
+            "end_line": 552,
+            "start_line": 536
           }
         },
         {
@@ -8996,8 +8996,8 @@
           "signature": "(self, snapshot_id: str, action_id: str, outcome: dict[str, Any]) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 545,
-            "start_line": 535
+            "end_line": 582,
+            "start_line": 572
           }
         },
         {
@@ -9025,8 +9025,8 @@
           "signature": "(self, limit: int = …) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 560,
-            "start_line": 557
+            "end_line": 597,
+            "start_line": 594
           }
         },
         {
@@ -9054,8 +9054,8 @@
           "signature": "(self, limit: int = …) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 586,
-            "start_line": 580
+            "end_line": 623,
+            "start_line": 617
           }
         },
         {
@@ -9077,8 +9077,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 622,
-            "start_line": 599
+            "end_line": 659,
+            "start_line": 636
           }
         },
         {
@@ -9106,8 +9106,8 @@
           "signature": "(self, entries: list[dict[str, Any]]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 636,
-            "start_line": 631
+            "end_line": 673,
+            "start_line": 668
           }
         },
         {
@@ -9129,8 +9129,8 @@
           "signature": "(observation: ScreenObservation) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 657,
-            "start_line": 637
+            "end_line": 694,
+            "start_line": 674
           }
         },
         {
@@ -9152,8 +9152,8 @@
           "signature": "(entry: dict[str, Any]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 676,
-            "start_line": 660
+            "end_line": 713,
+            "start_line": 697
           }
         },
         {
@@ -9175,8 +9175,8 @@
           "signature": "(entry: dict[str, Any]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 703,
-            "start_line": 695
+            "end_line": 740,
+            "start_line": 732
           }
         },
         {
@@ -9204,8 +9204,8 @@
           "signature": "(observation: ScreenObservation, previous: dict[str, Any] | None) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 719,
-            "start_line": 706
+            "end_line": 756,
+            "start_line": 743
           }
         },
         {
@@ -9227,8 +9227,8 @@
           "signature": "(value: object) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 726,
-            "start_line": 722
+            "end_line": 763,
+            "start_line": 759
           }
         }
       ]
@@ -9328,7 +9328,7 @@
       "module": "ai_game_player.decision_reliability",
       "path": "src/ai_game_player/decision_reliability.py",
       "source_location": {
-        "end_line": 209,
+        "end_line": 210,
         "start_line": 1
       },
       "symbols": [
@@ -9486,8 +9486,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 162,
-            "start_line": 156
+            "end_line": 163,
+            "start_line": 157
           }
         },
         {
@@ -9509,8 +9509,8 @@
           "signature": "(decision_output: object) -> _DecisionFields | None",
           "source_location": {
             "column": 0,
-            "end_line": 209,
-            "start_line": 181
+            "end_line": 210,
+            "start_line": 182
           }
         }
       ]
