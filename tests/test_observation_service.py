@@ -2,8 +2,9 @@ import unittest
 from threading import Event
 from time import monotonic
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
+from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode, PixelRect
 from ai_game_player.models import ScreenObservation
 from ai_game_player.observation_service import (
     LiveObservationService,
@@ -14,6 +15,30 @@ from ai_game_player.shared_frame_producer import FrameDeliveryMode, FrameProduce
 
 
 class LiveObservationServiceTests(unittest.TestCase):
+    def test_capture_region_settings_reach_the_reused_windows_backend(self):
+        initial_region = CaptureRegion(CaptureRegionMode.WINDOW)
+        next_region = CaptureRegion(
+            CaptureRegionMode.FIXED_REGION,
+            PixelRect(10, 20, 30, 40),
+        )
+        capture_backend = Mock()
+        with patch(
+            "ai_game_player.observation_service.WindowsScreenCapture",
+            return_value=capture_backend,
+        ):
+            service = LiveObservationService(capture_region=initial_region)
+
+            service._create_capture_source(77).capture()
+            service.set_capture_region(next_region)
+            service._create_capture_source(77).capture()
+            service.close()
+
+        self.assertEqual(
+            capture_backend.capture.call_args_list,
+            [call(77, initial_region), call(77, next_region)],
+        )
+        capture_backend.close.assert_called_once_with()
+
     def test_default_capture_backend_is_reused_and_closed_with_the_service(self):
         capture_backend = Mock()
         with patch(

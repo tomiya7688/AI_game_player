@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from ai_game_player import app as app_module
 from ai_game_player.app import Application
+from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode
 from ai_game_player.game_session import SessionStatus
 from ai_game_player.models import ScreenObservation
 from ai_game_player.observation_service import LiveObservationService
@@ -256,6 +257,8 @@ class LiveExecutionValidationTests(unittest.TestCase):
                 application = self.make_uninitialized_application()
                 application.window_handles = {}
                 application.window_choice = FakeVariable("Game")
+                application.capture_mode = FakeVariable(CaptureRegionMode.FULL_SCREEN.value)
+                application._active_capture_region = CaptureRegion(CaptureRegionMode.FULL_SCREEN)
                 application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
                 application.runtime_log = RecordingLog()
                 application.controller = RunController()

@@ -3,6 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from ai_game_player.capture_region import CaptureRegion
 from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.game_session import SessionRuntime
 from ai_game_player.models import ActionCandidate, ScreenObservation
@@ -52,7 +53,7 @@ class MemorySource:
 
 # {
 #   責務: [ApplicationSettings: UIからstep開始時に確定したProviderと操作設定を保持する]
-#   フィールド: [provider/model/endpoint: 判断Provider設定, personality/purpose: 判断条件, live_execution: 実入力許可, input_mode: 入力方式]
+#   フィールド: [provider/model/endpoint: 判断Provider設定, personality/purpose: 判断条件, live_execution: 実入力許可, input_mode: 入力方式, capture_region: capture sourceとscreen/window ROI設定]
 # }
 @dataclass(frozen=True)
 class ApplicationSettings:
@@ -63,6 +64,7 @@ class ApplicationSettings:
     purpose: str
     live_execution: bool
     input_mode: str
+    capture_region: CaptureRegion = CaptureRegion()
 
 
 # {
@@ -188,9 +190,9 @@ class ApplicationWorkflowService:
         )
 
     # {
-    #   責務: [prepare_step: UI入力を保存・解析し安全評価済みstepとしてSession sourceへ登録する]
-    #   処理: [設定保存後に観測と候補JSONを型へ変換し、候補理由を評価してsourceを更新する]
-    #   引数: [settings: step開始時に確定したProvider・人格・入力設定, observation_json: UIが表示する観測JSON, candidates_json: UIが受け取った候補JSON, command: decisionまたはexecute]
+    #   責務: [prepare_step: capture regionを含むUI設定を保存し、検証済み観測・候補をSession sourceへ登録する]
+    #   処理: [Provider・人格・実入力・capture region設定を保存した後、観測と候補JSONを型へ変換して候補理由を評価する]
+    #   引数: [settings: step開始時に確定したProvider・人格・入力・capture region設定, observation_json: UIが表示する観測JSON, candidates_json: UIが受け取った候補JSON, command: decisionまたはexecute]
     #   戻り値: [PreparedSessionStep: Session ControllerとUIが共有する検証結果]
     #   エラー: [ValueErrorまたはJSONDecodeError: command、観測JSON、候補JSONが不正な場合]
     # }
@@ -213,6 +215,7 @@ class ApplicationWorkflowService:
                 settings.purpose,
                 settings.live_execution,
                 settings.input_mode,
+                settings.capture_region,
             )
         )
         observation = ScreenObservation(**json.loads(observation_json))

@@ -65,6 +65,8 @@ classDiagram
         +_complete_session_step()
         +_create_session_runtime()
         +_perform_session_step()
+        +_capture_region_from_controls()
+        +_apply_capture_region()
         +_observe_for_loop()
         +_on_session_state_change()
         +_on_session_error()
@@ -167,6 +169,41 @@ classDiagram
         +_priority()
         +_normalize_text()
         +_iou()
+    }
+    class CaptureGeometry {
+        +__post_init__()
+        +coordinate_size()
+        +roi_to_screen()
+        +screen_to_roi()
+        +roi_to_window()
+        +window_to_roi()
+        +roi_to_normalized()
+        +normalized_to_roi()
+        +roi_rect_to_coordinates()
+        +to_dict()
+        +roi_rect_to_screen()
+    }
+    str <|-- CaptureRegionMode
+    Enum <|-- CaptureRegionMode
+    class CaptureRegionMode {
+    }
+    class PixelRect {
+        +__post_init__()
+        +right()
+        +bottom()
+        +contains()
+        +to_dict()
+    }
+    class NormalizedRect {
+        +__post_init__()
+        +to_dict()
+    }
+    class CaptureRegion {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+        +capture_handle()
+        +resolve()
     }
     class CapturedObservationSource {
         +__init__()
@@ -646,10 +683,12 @@ classDiagram
     }
     class LiveObservationService {
         +__init__()
+        +set_capture_region()
         +capture_observation()
         +subscribe_frames()
         +_get_latest_frame_packet()
         +_ensure_frame_producer()
+        +_create_capture_source()
         +_stop_frame_producer()
         +close()
         +_create_frame_analyzer()
@@ -1044,7 +1083,10 @@ classDiagram
     }
     class WindowsScreenCapture {
         +__init__()
+        +set_capture_region()
         +capture()
+        +_capture_unrestricted()
+        +_get_window_bounds()
         +_capture_with_wgc()
         +_close_wgc_session()
         +close()

@@ -3,6 +3,7 @@ from dataclasses import replace
 from pathlib import Path
 import unittest
 
+from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode, PixelRect
 from ai_game_player.application_workflow import (
     ApplicationSettings,
     ApplicationWorkflowService,
@@ -71,6 +72,21 @@ class ApplicationWorkflowServiceTests(unittest.TestCase):
         self.assertEqual(result.candidates, candidates)
         self.assertEqual(result.evaluation, [{"action_id": "start", "accepted": True}])
         self.assertFalse(result.dry_run)
+
+    def test_prepare_step_persists_the_capture_region_selected_by_the_user(self):
+        capture_region = CaptureRegion(
+            CaptureRegionMode.FIXED_REGION,
+            PixelRect(12, 34, 320, 240),
+        )
+
+        self.service.prepare_step(
+            replace(self.settings, capture_region=capture_region),
+            self.observation_json,
+            self.candidates_json,
+            "decision",
+        )
+
+        self.assertEqual(self.config_store.saved[0].capture_region, capture_region)
 
     def test_session_runtime_uses_the_validated_source_and_explicit_target_snapshot(self):
         created = []

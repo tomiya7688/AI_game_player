@@ -1672,6 +1672,7 @@
         "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.application_workflow",
+        "ai_game_player.capture_region",
         "ai_game_player.config",
         "ai_game_player.execution_mode",
         "ai_game_player.game_session",
@@ -1842,10 +1843,42 @@
           "line": 16,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "NormalizedRect"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.config"
           ],
           "module": "ai_game_player.config",
           "names": [
+            {
+              "alias": null,
+              "name": "AppConfig"
+            },
             {
               "alias": null,
               "name": "ConfigStore"
@@ -1855,7 +1888,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.execution_mode"
@@ -1871,7 +1904,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 24,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.metrics"
@@ -1887,7 +1920,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 25,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -1903,7 +1936,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 26,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_session"
@@ -1939,7 +1972,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -1959,7 +1992,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 28,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_service"
@@ -1975,7 +2008,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 23,
+          "line": 29,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -1992,7 +2025,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 30,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime_log"
@@ -2008,7 +2041,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 31,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -2024,7 +2057,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 32,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.window_selector"
@@ -2040,7 +2073,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 27,
+          "line": 33,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ui",
@@ -2066,7 +2099,7 @@
       "module": "ai_game_player.app",
       "path": "src/ai_game_player/app.py",
       "source_location": {
-        "end_line": 1020,
+        "end_line": 1115,
         "start_line": 1
       },
       "symbols": [
@@ -2086,8 +2119,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 65,
-            "start_line": 41
+            "end_line": 71,
+            "start_line": 47
           }
         },
         {
@@ -2115,8 +2148,8 @@
           "signature": "(self, root: tk.Misc) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 47,
-            "start_line": 46
+            "end_line": 53,
+            "start_line": 52
           }
         },
         {
@@ -2150,8 +2183,8 @@
           "signature": "(self, delay_ms: int, callback) -> object",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 55
+            "end_line": 62,
+            "start_line": 61
           }
         },
         {
@@ -2179,8 +2212,8 @@
           "signature": "(self, token: object) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 64
+            "end_line": 71,
+            "start_line": 70
           }
         },
         {
@@ -2199,8 +2232,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1010,
-            "start_line": 87
+            "end_line": 1105,
+            "start_line": 95
           }
         },
         {
@@ -2240,8 +2273,8 @@
           "signature": "(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = …, observation_service: LiveObservationService | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 106
+            "end_line": 269,
+            "start_line": 115
           }
         },
         {
@@ -2269,8 +2302,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 233
+            "end_line": 275,
+            "start_line": 271
           }
         },
         {
@@ -2298,8 +2331,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 241,
-            "start_line": 239
+            "end_line": 279,
+            "start_line": 277
           }
         },
         {
@@ -2321,8 +2354,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 243
+            "end_line": 285,
+            "start_line": 281
           }
         },
         {
@@ -2344,8 +2377,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 256,
-            "start_line": 255
+            "end_line": 294,
+            "start_line": 293
           }
         },
         {
@@ -2373,8 +2406,8 @@
           "signature": "(self, error: Exception | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 265,
-            "start_line": 264
+            "end_line": 303,
+            "start_line": 302
           }
         },
         {
@@ -2396,8 +2429,8 @@
           "signature": "(self) -> SessionRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 285,
-            "start_line": 273
+            "end_line": 323,
+            "start_line": 311
           }
         },
         {
@@ -2431,8 +2464,54 @@
           "signature": "(self, runtime: SessionRuntime, command: str) -> SessionStep",
           "source_location": {
             "column": 4,
-            "end_line": 314,
-            "start_line": 293
+            "end_line": 352,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_capture_region_from_controls",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Application._capture_region_from_controls",
+          "return_annotation": "CaptureRegion",
+          "signature": "(self) -> CaptureRegion",
+          "source_location": {
+            "column": 4,
+            "end_line": 380,
+            "start_line": 360
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_apply_capture_region",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Application._apply_capture_region",
+          "return_annotation": "CaptureRegion",
+          "signature": "(self) -> CaptureRegion",
+          "source_location": {
+            "column": 4,
+            "end_line": 406,
+            "start_line": 388
           }
         },
         {
@@ -2454,8 +2533,8 @@
           "signature": "(self) -> LoopObservation",
           "source_location": {
             "column": 4,
-            "end_line": 339,
-            "start_line": 322
+            "end_line": 432,
+            "start_line": 414
           }
         },
         {
@@ -2483,8 +2562,8 @@
           "signature": "(self, snapshot: SessionSnapshot) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 359,
-            "start_line": 347
+            "end_line": 452,
+            "start_line": 440
           }
         },
         {
@@ -2512,8 +2591,8 @@
           "signature": "(self, error: Exception) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 370,
-            "start_line": 367
+            "end_line": 463,
+            "start_line": 460
           }
         },
         {
@@ -2535,8 +2614,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 387,
-            "start_line": 378
+            "end_line": 480,
+            "start_line": 471
           }
         },
         {
@@ -2558,8 +2637,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 421,
-            "start_line": 404
+            "end_line": 514,
+            "start_line": 497
           }
         },
         {
@@ -2581,8 +2660,8 @@
           "signature": "(self) -> tuple[int, int] | None",
           "source_location": {
             "column": 4,
-            "end_line": 429,
-            "start_line": 423
+            "end_line": 522,
+            "start_line": 516
           }
         },
         {
@@ -2616,8 +2695,8 @@
           "signature": "(self, position: tuple[int, int] | None, move_in_progress: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 444,
-            "start_line": 437
+            "end_line": 537,
+            "start_line": 530
           }
         },
         {
@@ -2639,8 +2718,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 479,
-            "start_line": 452
+            "end_line": 572,
+            "start_line": 545
           }
         },
         {
@@ -2662,8 +2741,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 488,
-            "start_line": 481
+            "end_line": 581,
+            "start_line": 574
           }
         },
         {
@@ -2685,8 +2764,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 498,
-            "start_line": 490
+            "end_line": 591,
+            "start_line": 583
           }
         },
         {
@@ -2708,8 +2787,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 525,
-            "start_line": 515
+            "end_line": 618,
+            "start_line": 608
           }
         },
         {
@@ -2761,8 +2840,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 550,
-            "start_line": 533
+            "end_line": 643,
+            "start_line": 626
           }
         },
         {
@@ -2790,8 +2869,8 @@
           "signature": "(self, *, loop_step: bool = …) -> ScreenObservation | None",
           "source_location": {
             "column": 4,
-            "end_line": 571,
-            "start_line": 558
+            "end_line": 665,
+            "start_line": 651
           }
         },
         {
@@ -2831,8 +2910,8 @@
           "signature": "(self, observation: ScreenObservation, *, loop_step: bool, run_token: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 610,
-            "start_line": 579
+            "end_line": 704,
+            "start_line": 673
           }
         },
         {
@@ -2902,8 +2981,8 @@
           "signature": "(self, task_id: int, run_token: int | None, loop_step: bool, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 635,
-            "start_line": 618
+            "end_line": 729,
+            "start_line": 712
           }
         },
         {
@@ -2967,8 +3046,8 @@
           "signature": "(self, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 677,
-            "start_line": 643
+            "end_line": 771,
+            "start_line": 737
           }
         },
         {
@@ -3038,8 +3117,8 @@
           "signature": "(self, task_id: int, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 724,
-            "start_line": 685
+            "end_line": 818,
+            "start_line": 779
           }
         },
         {
@@ -3067,8 +3146,8 @@
           "signature": "(self, run_token: int | None) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 733,
-            "start_line": 732
+            "end_line": 827,
+            "start_line": 826
           }
         },
         {
@@ -3090,8 +3169,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 839,
-            "start_line": 741
+            "end_line": 933,
+            "start_line": 835
           }
         },
         {
@@ -3113,8 +3192,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 881,
-            "start_line": 849
+            "end_line": 975,
+            "start_line": 943
           }
         },
         {
@@ -3136,8 +3215,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 902,
-            "start_line": 889
+            "end_line": 996,
+            "start_line": 983
           }
         },
         {
@@ -3165,8 +3244,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 914,
-            "start_line": 910
+            "end_line": 1008,
+            "start_line": 1004
           }
         },
         {
@@ -3188,8 +3267,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 923,
-            "start_line": 922
+            "end_line": 1017,
+            "start_line": 1016
           }
         },
         {
@@ -3211,8 +3290,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 932,
-            "start_line": 931
+            "end_line": 1026,
+            "start_line": 1025
           }
         },
         {
@@ -3240,8 +3319,8 @@
           "signature": "(self, command: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 964,
-            "start_line": 940
+            "end_line": 1058,
+            "start_line": 1034
           }
         },
         {
@@ -3263,8 +3342,8 @@
           "signature": "(self) -> ApplicationSettings",
           "source_location": {
             "column": 4,
-            "end_line": 981,
-            "start_line": 972
+            "end_line": 1076,
+            "start_line": 1066
           }
         },
         {
@@ -3292,8 +3371,8 @@
           "signature": "(self, evaluation: list[dict[str, object]]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 991,
-            "start_line": 989
+            "end_line": 1086,
+            "start_line": 1084
           }
         },
         {
@@ -3315,8 +3394,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1010,
-            "start_line": 999
+            "end_line": 1105,
+            "start_line": 1094
           }
         },
         {
@@ -3331,8 +3410,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 1016,
-            "start_line": 1013
+            "end_line": 1111,
+            "start_line": 1108
           }
         }
       ]
@@ -3340,6 +3419,7 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_region",
         "ai_game_player.config",
         "ai_game_player.game_session",
         "ai_game_player.models",
@@ -3408,6 +3488,22 @@
           "line": 6,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.config"
           ],
           "module": "ai_game_player.config",
@@ -3425,7 +3521,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_session"
@@ -3441,7 +3537,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -3461,7 +3557,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -3477,7 +3573,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -3498,7 +3594,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime_log"
@@ -3514,7 +3610,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -3531,7 +3627,7 @@
       "module": "ai_game_player.application_workflow",
       "path": "src/ai_game_player/application_workflow.py",
       "source_location": {
-        "end_line": 249,
+        "end_line": 252,
         "start_line": 1
       },
       "symbols": [
@@ -3551,8 +3647,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 50,
-            "start_line": 19
+            "end_line": 51,
+            "start_line": 20
           }
         },
         {
@@ -3574,8 +3670,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 28,
-            "start_line": 26
+            "end_line": 29,
+            "start_line": 27
           }
         },
         {
@@ -3609,8 +3705,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 38,
-            "start_line": 36
+            "end_line": 39,
+            "start_line": 37
           }
         },
         {
@@ -3632,8 +3728,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 50,
-            "start_line": 47
+            "end_line": 51,
+            "start_line": 48
           }
         },
         {
@@ -3654,8 +3750,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 65,
-            "start_line": 58
+            "end_line": 67,
+            "start_line": 59
           }
         },
         {
@@ -3676,8 +3772,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 76,
-            "start_line": 73
+            "end_line": 78,
+            "start_line": 75
           }
         },
         {
@@ -3698,8 +3794,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 88,
-            "start_line": 84
+            "end_line": 90,
+            "start_line": 86
           }
         },
         {
@@ -3718,8 +3814,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 249,
-            "start_line": 95
+            "end_line": 252,
+            "start_line": 97
           }
         },
         {
@@ -3759,8 +3855,8 @@
           "signature": "(self, config_store: ConfigStore, runtime_composition: RuntimeComposition, memory_source: MemorySource) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 110,
-            "start_line": 102
+            "end_line": 112,
+            "start_line": 104
           }
         },
         {
@@ -3812,8 +3908,8 @@
           "signature": "(self, provider_name: str, model: str, endpoint: str, observation: ScreenObservation, previous: ScreenObservation | None) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 119
+            "end_line": 135,
+            "start_line": 121
           }
         },
         {
@@ -3841,8 +3937,8 @@
           "signature": "(self, observation: ScreenObservation) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 142,
-            "start_line": 141
+            "end_line": 144,
+            "start_line": 143
           }
         },
         {
@@ -3870,8 +3966,8 @@
           "signature": "(self, endpoint: str) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 152,
-            "start_line": 151
+            "end_line": 154,
+            "start_line": 153
           }
         },
         {
@@ -3941,8 +4037,8 @@
           "signature": "(self, settings: ApplicationSettings, *, game_directory: Path, dry_run: bool, window_handle: int | None, window_process_id: int | None, controller: RunController, cursor_callback: Callable[[tuple[int, int] | None, bool], None], runtime_log: RuntimeLog) -> SessionRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 188,
-            "start_line": 160
+            "end_line": 190,
+            "start_line": 162
           }
         },
         {
@@ -3988,8 +4084,8 @@
           "signature": "(self, settings: ApplicationSettings, observation_json: str, candidates_json: str, command: str) -> PreparedSessionStep",
           "source_location": {
             "column": 4,
-            "end_line": 225,
-            "start_line": 197
+            "end_line": 228,
+            "start_line": 199
           }
         },
         {
@@ -4023,8 +4119,8 @@
           "signature": "(self, observation: ScreenObservation, candidates_json: str) -> PreparedObservation",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 234
+            "end_line": 252,
+            "start_line": 237
           }
         }
       ]
@@ -7062,6 +7158,1002 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_region"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "ceil"
+            },
+            {
+              "alias": null,
+              "name": "floor"
+            },
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.capture_geometry",
+      "path": "src/ai_game_player/capture_geometry.py",
+      "source_location": {
+        "end_line": 222,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CaptureGeometry",
+          "parameters": [],
+          "qualified_name": "CaptureGeometry",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 189,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 44,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "coordinate_size",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.coordinate_size",
+          "return_annotation": "tuple[int, int]",
+          "signature": "(self) -> tuple[int, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "roi_to_screen",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.roi_to_screen",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self, x: float, y: float) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 66,
+            "start_line": 60
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "screen_to_roi",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.screen_to_roi",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self, x: float, y: float) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 77,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "roi_to_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.roi_to_window",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self, x: float, y: float) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "window_to_roi",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.window_to_roi",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self, x: float, y: float) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "roi_to_normalized",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.roi_to_normalized",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self, x: float, y: float) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "normalized_to_roi",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.normalized_to_roi",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self, x: float, y: float) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "roi_rect_to_coordinates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PixelRect",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rect"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.roi_rect_to_coordinates",
+          "return_annotation": "PixelRect",
+          "signature": "(self, rect: PixelRect) -> PixelRect",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 172,
+            "start_line": 158
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "roi_rect_to_screen",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureGeometry.roi_rect_to_screen",
+          "return_annotation": "PixelRect",
+          "signature": "(self) -> PixelRect",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "crop_screen_frame",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": "CaptureRegion",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "region"
+            }
+          ],
+          "qualified_name": "crop_screen_frame",
+          "return_annotation": "Any",
+          "signature": "(frame: Any, region: CaptureRegion) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 222,
+            "start_line": 198
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.capture_geometry"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "ceil"
+            },
+            {
+              "alias": null,
+              "name": "floor"
+            },
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "TYPE_CHECKING"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureGeometry"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 217,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureGeometry"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.capture_region",
+      "path": "src/ai_game_player/capture_region.py",
+      "source_location": {
+        "end_line": 257,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CaptureRegionMode",
+          "parameters": [],
+          "qualified_name": "CaptureRegionMode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PixelRect",
+          "parameters": [],
+          "qualified_name": "PixelRect",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 80,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PixelRect.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 49,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "right",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PixelRect.right",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 57,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "bottom",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PixelRect.bottom",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 65,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "contains",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "REDACTED",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "other"
+            }
+          ],
+          "qualified_name": "PixelRect.contains",
+          "return_annotation": "bool",
+          "signature": "(self, other: REDACTED) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PixelRect.to_dict",
+          "return_annotation": "dict[str, int]",
+          "signature": "(self) -> dict[str, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "NormalizedRect",
+          "parameters": [],
+          "qualified_name": "NormalizedRect",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 115,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NormalizedRect.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NormalizedRect.to_dict",
+          "return_annotation": "dict[str, float]",
+          "signature": "(self) -> dict[str, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CaptureRegion",
+          "parameters": [],
+          "qualified_name": "CaptureRegion",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 257,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegion.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 143,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegion.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "CaptureRegion.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 186,
+            "start_line": 162
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture_handle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "CaptureRegion.capture_handle",
+          "return_annotation": "int | None",
+          "signature": "(self, window_handle: int | None) -> int | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 202,
+            "start_line": 194
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "resolve",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame_width"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame_height"
+            },
+            {
+              "annotation": "PixelRect",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "screen_bounds"
+            },
+            {
+              "annotation": "PixelRect | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_bounds"
+            }
+          ],
+          "qualified_name": "CaptureRegion.resolve",
+          "return_annotation": "REDACTED",
+          "signature": "(self, frame_width: int, frame_height: int, screen_bounds: PixelRect, window_bounds: PixelRect | None) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 210
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.frame_analyzer",
         "ai_game_player.frame_stream",
         "ai_game_player.models"
@@ -7208,7 +8300,10 @@
       ]
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.capture_region"
+      ],
       "imports": [
         {
           "kind": "import",
@@ -7237,6 +8332,10 @@
             {
               "alias": null,
               "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
             }
           ]
         },
@@ -7252,12 +8351,28 @@
               "name": "Path"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.config",
       "path": "src/ai_game_player/config.py",
       "source_location": {
-        "end_line": 30,
+        "end_line": 80,
         "start_line": 1
       },
       "symbols": [
@@ -7279,8 +8394,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 13,
-            "start_line": 6
+            "end_line": 20,
+            "start_line": 12
           }
         },
         {
@@ -7299,8 +8414,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 30,
-            "start_line": 15
+            "end_line": 80,
+            "start_line": 26
           }
         },
         {
@@ -7324,12 +8439,12 @@
             }
           ],
           "qualified_name": "ConfigStore.__init__",
-          "return_annotation": null,
-          "signature": "(self, path: Path)",
+          "return_annotation": "None",
+          "signature": "(self, path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 16,
-            "start_line": 16
+            "end_line": 34,
+            "start_line": 33
           }
         },
         {
@@ -7351,8 +8466,8 @@
           "signature": "(self) -> AppConfig",
           "source_location": {
             "column": 4,
-            "end_line": 28,
-            "start_line": 17
+            "end_line": 65,
+            "start_line": 42
           }
         },
         {
@@ -7380,8 +8495,8 @@
           "signature": "(self, config: AppConfig) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 30,
-            "start_line": 29
+            "end_line": 80,
+            "start_line": 73
           }
         }
       ]
@@ -17488,6 +18603,8 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.bright_region_detector",
+        "ai_game_player.capture_geometry",
+        "ai_game_player.capture_region",
         "ai_game_player.frame_preprocessor",
         "ai_game_player.models",
         "ai_game_player.perceptual_hasher",
@@ -17498,6 +18615,19 @@
           "kind": "from",
           "level": 0,
           "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
           "local_dependencies": [],
           "module": "hashlib",
           "names": [
@@ -17511,6 +18641,19 @@
           "kind": "from",
           "level": 0,
           "line": 3,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.bright_region_detector"
@@ -17530,7 +18673,39 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureGeometry"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_preprocessor"
@@ -17550,13 +18725,17 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
           "names": [
+            {
+              "alias": null,
+              "name": "DetectedElement"
+            },
             {
               "alias": null,
               "name": "ScreenObservation"
@@ -17566,7 +18745,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 10,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.perceptual_hasher"
@@ -17582,7 +18761,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 11,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -17599,7 +18778,7 @@
       "module": "ai_game_player.frame_analyzer",
       "path": "src/ai_game_player/frame_analyzer.py",
       "source_location": {
-        "end_line": 67,
+        "end_line": 161,
         "start_line": 1
       },
       "symbols": [
@@ -17619,8 +18798,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 67,
-            "start_line": 10
+            "end_line": 83,
+            "start_line": 14
           }
         },
         {
@@ -17666,8 +18845,8 @@
           "signature": "(self, ocr = …, perceptual_hasher: PerceptualHasher | None = …, bright_region_detector: BrightRegionDetector | None = …, frame_preprocessor: FramePreprocessor | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 26,
-            "start_line": 13
+            "end_line": 30,
+            "start_line": 17
           }
         },
         {
@@ -17701,8 +18880,66 @@
           "signature": "(self, frame: ScreenFrame, screen_id: str = …) -> ScreenObservation",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 28
+            "end_line": 83,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_transform_detected_elements",
+          "parameters": [
+            {
+              "annotation": "list[DetectedElement] | tuple[DetectedElement, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "elements"
+            },
+            {
+              "annotation": "CaptureGeometry | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "geometry"
+            }
+          ],
+          "qualified_name": "_transform_detected_elements",
+          "return_annotation": "list[DetectedElement]",
+          "signature": "(elements: list[DetectedElement] | tuple[DetectedElement, ...], geometry: CaptureGeometry | None) -> list[DetectedElement]",
+          "source_location": {
+            "column": 0,
+            "end_line": 106,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_transform_candidate_dicts",
+          "parameters": [
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": "CaptureGeometry | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "geometry"
+            }
+          ],
+          "qualified_name": "_transform_candidate_dicts",
+          "return_annotation": "list[dict[str, Any]]",
+          "signature": "(candidates: list[dict[str, Any]], geometry: CaptureGeometry | None) -> list[dict[str, Any]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 161,
+            "start_line": 114
           }
         }
       ]
@@ -23251,6 +24488,8 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_geometry",
+        "ai_game_player.capture_region",
         "ai_game_player.frame_analyzer",
         "ai_game_player.models",
         "ai_game_player.ocr_recognizer",
@@ -23355,6 +24594,38 @@
           "line": 9,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "crop_screen_frame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.models"
           ],
           "module": "ai_game_player.models",
@@ -23368,7 +24639,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -23388,7 +24659,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.shared_frame_producer"
@@ -23420,7 +24691,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 296,
+          "line": 352,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -23436,7 +24707,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 308,
+          "line": 364,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ocr_recognizer"
@@ -23453,7 +24724,7 @@
       "module": "ai_game_player.observation_service",
       "path": "src/ai_game_player/observation_service.py",
       "source_location": {
-        "end_line": 310,
+        "end_line": 366,
         "start_line": 1
       },
       "symbols": [
@@ -23473,8 +24744,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 48,
-            "start_line": 29
+            "end_line": 50,
+            "start_line": 31
           }
         },
         {
@@ -23508,8 +24779,8 @@
           "signature": "(self, capture_frame: Callable[[int | None], ScreenFrame], window_handle: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 41,
-            "start_line": 35
+            "end_line": 43,
+            "start_line": 37
           }
         },
         {
@@ -23531,8 +24802,8 @@
           "signature": "(self) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 48,
-            "start_line": 47
+            "end_line": 50,
+            "start_line": 49
           }
         },
         {
@@ -23553,8 +24824,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 61,
-            "start_line": 54
+            "end_line": 63,
+            "start_line": 56
           }
         },
         {
@@ -23582,8 +24853,8 @@
           "signature": "(self, ocr_recognizer: object | None) -> REDACTED",
           "source_location": {
             "column": 4,
-            "end_line": 61,
-            "start_line": 61
+            "end_line": 63,
+            "start_line": 63
           }
         },
         {
@@ -23604,8 +24875,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 74,
-            "start_line": 67
+            "end_line": 76,
+            "start_line": 69
           }
         },
         {
@@ -23639,8 +24910,8 @@
           "signature": "(self, frame: ScreenFrame, screen_id: str) -> ScreenObservation",
           "source_location": {
             "column": 4,
-            "end_line": 74,
-            "start_line": 74
+            "end_line": 76,
+            "start_line": 76
           }
         },
         {
@@ -23659,8 +24930,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 310,
-            "start_line": 81
+            "end_line": 366,
+            "start_line": 83
           }
         },
         {
@@ -23695,6 +24966,12 @@
               "name": "ocr_factory"
             },
             {
+              "annotation": "CaptureRegion | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "capture_region"
+            },
+            {
               "annotation": "float",
               "has_default": true,
               "kind": "keyword_only",
@@ -23715,11 +24992,40 @@
           ],
           "qualified_name": "LiveObservationService.__init__",
           "return_annotation": "None",
-          "signature": "(self, capture_frame: Callable[[int | None], ScreenFrame] | None = …, analyzer_factory: Callable[[object | None], FrameAnalyzer] | None = …, ocr_factory: Callable[[], object | None] | None = …, *, capture_interval_seconds: float = …, frame_wait_timeout_seconds: float = …, maximum_frame_age_seconds: float = …) -> None",
+          "signature": "(self, capture_frame: Callable[[int | None], ScreenFrame] | None = …, analyzer_factory: Callable[[object | None], FrameAnalyzer] | None = …, ocr_factory: Callable[[], object | None] | None = …, *, capture_region: CaptureRegion | None = …, capture_interval_seconds: float = …, frame_wait_timeout_seconds: float = …, maximum_frame_age_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 130,
-            "start_line": 88
+            "end_line": 134,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "set_capture_region",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CaptureRegion",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "capture_region"
+            }
+          ],
+          "qualified_name": "LiveObservationService.set_capture_region",
+          "return_annotation": "None",
+          "signature": "(self, capture_region: CaptureRegion) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 142
           }
         },
         {
@@ -23747,8 +25053,8 @@
           "signature": "(self, window_handle: int | None) -> ScreenObservation",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 139
+            "end_line": 173,
+            "start_line": 161
           }
         },
         {
@@ -23788,8 +25094,8 @@
           "signature": "(self, window_handle: int | None, mode: FrameDeliveryMode = …, max_pending: int = …) -> FrameSubscriber",
           "source_location": {
             "column": 4,
-            "end_line": 171,
-            "start_line": 158
+            "end_line": 195,
+            "start_line": 182
           }
         },
         {
@@ -23817,8 +25123,8 @@
           "signature": "(self, window_handle: int | None) -> tuple[FramePacket, str]",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 180
+            "end_line": 244,
+            "start_line": 204
           }
         },
         {
@@ -23846,8 +25152,66 @@
           "signature": "(self, window_handle: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 250,
-            "start_line": 229
+            "end_line": 274,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_create_capture_source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            },
+            {
+              "annotation": "CaptureRegion | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "capture_region"
+            }
+          ],
+          "qualified_name": "LiveObservationService._create_capture_source",
+          "return_annotation": "WindowCaptureSource",
+          "signature": "(self, window_handle: int | None, capture_region: CaptureRegion | None = …) -> WindowCaptureSource",
+          "source_location": {
+            "column": 4,
+            "end_line": 306,
+            "start_line": 281
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "capture_configured_frame",
+          "parameters": [
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ignored_window_handle"
+            }
+          ],
+          "qualified_name": "LiveObservationService._create_capture_source.capture_configured_frame",
+          "return_annotation": "ScreenFrame",
+          "signature": "(ignored_window_handle: int | None) -> ScreenFrame",
+          "source_location": {
+            "column": 8,
+            "end_line": 304,
+            "start_line": 298
           }
         },
         {
@@ -23869,8 +25233,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 269,
-            "start_line": 257
+            "end_line": 325,
+            "start_line": 313
           }
         },
         {
@@ -23892,8 +25256,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 286,
-            "start_line": 277
+            "end_line": 342,
+            "start_line": 333
           }
         },
         {
@@ -23917,8 +25281,8 @@
           "signature": "(ocr_recognizer: object | None) -> FrameAnalyzer",
           "source_location": {
             "column": 4,
-            "end_line": 298,
-            "start_line": 295
+            "end_line": 354,
+            "start_line": 351
           }
         },
         {
@@ -23935,8 +25299,8 @@
           "signature": "() -> object | None",
           "source_location": {
             "column": 4,
-            "end_line": 310,
-            "start_line": 307
+            "end_line": 366,
+            "start_line": 363
           }
         }
       ]
@@ -35411,6 +36775,8 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_geometry",
+        "ai_game_player.capture_region",
         "ai_game_player.runtime",
         "ai_game_player.runtime.native"
       ],
@@ -35468,6 +36834,10 @@
             {
               "alias": null,
               "name": "field"
+            },
+            {
+              "alias": null,
+              "name": "replace"
             }
           ]
         },
@@ -35513,7 +36883,51 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 235,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "BGRA_BYTES_PER_PIXEL"
+            },
+            {
+              "alias": null,
+              "name": "CaptureGeometry"
+            },
+            {
+              "alias": null,
+              "name": "crop_screen_frame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 333,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -35535,7 +36949,7 @@
       "module": "ai_game_player.screen_capture",
       "path": "src/ai_game_player/screen_capture.py",
       "source_location": {
-        "end_line": 326,
+        "end_line": 424,
         "start_line": 1
       },
       "symbols": [
@@ -35557,8 +36971,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 23,
-            "start_line": 10
+            "end_line": 30,
+            "start_line": 17
           }
         },
         {
@@ -35579,8 +36993,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 27,
-            "start_line": 26
+            "end_line": 34,
+            "start_line": 33
           }
         },
         {
@@ -35601,8 +37015,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 40,
-            "start_line": 35
+            "end_line": 50,
+            "start_line": 42
           }
         },
         {
@@ -35621,8 +37035,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 326,
-            "start_line": 46
+            "end_line": 424,
+            "start_line": 56
           }
         },
         {
@@ -35662,8 +37076,37 @@
           "signature": "(self, *, user32: Any | None = …, gdi32: Any | None = …, wgc_capture_factory: Callable[[int], Any] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 71,
-            "start_line": 54
+            "end_line": 82,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "set_capture_region",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CaptureRegion | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "capture_region"
+            }
+          ],
+          "qualified_name": "WindowsScreenCapture.set_capture_region",
+          "return_annotation": "None",
+          "signature": "(self, capture_region: CaptureRegion | None) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 89
           }
         },
         {
@@ -35684,15 +37127,85 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "window_handle"
+            },
+            {
+              "annotation": "CaptureRegion | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "capture_region"
             }
           ],
           "qualified_name": "WindowsScreenCapture.capture",
           "return_annotation": "ScreenFrame",
-          "signature": "(self, window_handle: int | None = …) -> ScreenFrame",
+          "signature": "(self, window_handle: int | None = …, capture_region: CaptureRegion | None = …) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 79
+            "end_line": 116,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_capture_unrestricted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "include_bounds"
+            }
+          ],
+          "qualified_name": "WindowsScreenCapture._capture_unrestricted",
+          "return_annotation": "ScreenFrame",
+          "signature": "(self, window_handle: int | None = …, *, include_bounds: bool = …) -> ScreenFrame",
+          "source_location": {
+            "column": 4,
+            "end_line": 286,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_get_window_bounds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "WindowsScreenCapture._get_window_bounds",
+          "return_annotation": "PixelRect",
+          "signature": "(self, window_handle: int) -> PixelRect",
+          "source_location": {
+            "column": 4,
+            "end_line": 309,
+            "start_line": 294
           }
         },
         {
@@ -35720,8 +37233,8 @@
           "signature": "(self, window_handle: int) -> ScreenFrame | None",
           "source_location": {
             "column": 4,
-            "end_line": 269,
-            "start_line": 219
+            "end_line": 367,
+            "start_line": 317
           }
         },
         {
@@ -35743,8 +37256,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 286,
-            "start_line": 276
+            "end_line": 384,
+            "start_line": 374
           }
         },
         {
@@ -35766,8 +37279,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 302,
-            "start_line": 293
+            "end_line": 400,
+            "start_line": 391
           }
         },
         {
@@ -35821,8 +37334,8 @@
           "signature": "(user32: Any, window: int, left: int, top: int, right: int, bottom: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 326,
-            "start_line": 305
+            "end_line": 424,
+            "start_line": 403
           }
         }
       ]
@@ -45096,6 +46609,7 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.application_workflow",
+        "ai_game_player.capture_region",
         "ai_game_player.models"
       ],
       "imports": [
@@ -45157,6 +46671,30 @@
           "line": 6,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.application_workflow"
           ],
           "module": "ai_game_player.application_workflow",
@@ -45178,7 +46716,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -45195,7 +46733,7 @@
       "module": "tests.test_application_workflow",
       "path": "tests/test_application_workflow.py",
       "source_location": {
-        "end_line": 149,
+        "end_line": 165,
         "start_line": 1
       },
       "symbols": [
@@ -45215,8 +46753,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 19,
-            "start_line": 14
+            "end_line": 20,
+            "start_line": 15
           }
         },
         {
@@ -45238,8 +46776,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 16,
-            "start_line": 15
+            "end_line": 17,
+            "start_line": 16
           }
         },
         {
@@ -45267,8 +46805,8 @@
           "signature": "(self, config)",
           "source_location": {
             "column": 4,
-            "end_line": 19,
-            "start_line": 18
+            "end_line": 20,
+            "start_line": 19
           }
         },
         {
@@ -45287,8 +46825,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 29,
-            "start_line": 22
+            "end_line": 30,
+            "start_line": 23
           }
         },
         {
@@ -45310,8 +46848,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 23
+            "end_line": 25,
+            "start_line": 24
           }
         },
         {
@@ -45345,8 +46883,8 @@
           "signature": "(self, observation, candidates)",
           "source_location": {
             "column": 4,
-            "end_line": 29,
-            "start_line": 26
+            "end_line": 30,
+            "start_line": 27
           }
         },
         {
@@ -45367,8 +46905,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 145,
-            "start_line": 32
+            "end_line": 161,
+            "start_line": 33
           }
         },
         {
@@ -45390,8 +46928,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 33
+            "end_line": 57,
+            "start_line": 34
           }
         },
         {
@@ -45413,8 +46951,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 73,
-            "start_line": 58
+            "end_line": 74,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prepare_step_persists_the_capture_region_selected_by_the_user",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationWorkflowServiceTests.test_prepare_step_persists_the_capture_region_selected_by_the_user",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 76
           }
         },
         {
@@ -45436,8 +46997,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 75
+            "end_line": 122,
+            "start_line": 91
           }
         },
         {
@@ -45459,8 +47020,8 @@
           "signature": "(*_arguments)",
           "source_location": {
             "column": 8,
-            "end_line": 83,
-            "start_line": 82
+            "end_line": 99,
+            "start_line": 98
           }
         },
         {
@@ -45482,8 +47043,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 108
+            "end_line": 133,
+            "start_line": 124
           }
         },
         {
@@ -45505,8 +47066,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 134,
-            "start_line": 119
+            "end_line": 150,
+            "start_line": 135
           }
         },
         {
@@ -45528,8 +47089,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 136
+            "end_line": 161,
+            "start_line": 152
           }
         }
       ]
@@ -47107,6 +48668,321 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_geometry",
+        "ai_game_player.capture_region",
+        "ai_game_player.screen_capture"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "NormalizedRect"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "crop_screen_frame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_capture_region",
+      "path": "tests/test_capture_region.py",
+      "source_location": {
+        "end_line": 132,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "patterned_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "width"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "height"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "screen_bounds"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "window_bounds"
+            }
+          ],
+          "qualified_name": "patterned_frame",
+          "return_annotation": null,
+          "signature": "(width, height, *, screen_bounds = …, window_bounds = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CaptureRegionTest",
+          "parameters": [],
+          "qualified_name": "CaptureRegionTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 128,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_full_screen_keeps_all_pixels_and_records_source_metadata",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_full_screen_keeps_all_pixels_and_records_source_metadata",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_window_mode_keeps_frame_and_requires_a_selected_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_window_mode_keeps_frame_and_requires_a_selected_window",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fixed_region_copies_only_requested_screen_pixels",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_fixed_region_copies_only_requested_screen_pixels",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 76,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fixed_region_fails_instead_of_silently_clipping_screen_edges",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_fixed_region_fails_instead_of_silently_clipping_screen_edges",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 83,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_window_relative_region_tracks_window_move_and_resize",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_window_relative_region_tracks_window_move_and_resize",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_relative_region_rejects_missing_window_bounds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_relative_region_rejects_missing_window_bounds",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_region_rejects_invalid_modes_and_normalized_bounds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaptureRegionTest.test_capture_region_rejects_invalid_modes_and_normalized_bounds",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 128,
+            "start_line": 124
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.captured_source",
         "ai_game_player.screen_capture"
       ],
@@ -47791,6 +49667,7 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_region",
         "ai_game_player.config"
       ],
       "imports": [
@@ -47852,6 +49729,34 @@
           "line": 6,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "NormalizedRect"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.config"
           ],
           "module": "ai_game_player.config",
@@ -47870,7 +49775,7 @@
       "module": "tests.test_config",
       "path": "tests/test_config.py",
       "source_location": {
-        "end_line": 26,
+        "end_line": 72,
         "start_line": 1
       },
       "symbols": [
@@ -47892,8 +49797,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 26,
-            "start_line": 9
+            "end_line": 72,
+            "start_line": 10
           }
         },
         {
@@ -47915,8 +49820,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 12,
-            "start_line": 10
+            "end_line": 13,
+            "start_line": 11
           }
         },
         {
@@ -47938,8 +49843,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 20,
-            "start_line": 14
+            "end_line": 21,
+            "start_line": 15
           }
         },
         {
@@ -47961,8 +49866,77 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 26,
-            "start_line": 22
+            "end_line": 27,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_region_mode_and_rectangle_survive_config_round_trip",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConfigTest.test_capture_region_mode_and_rectangle_survive_config_round_trip",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_old_config_defaults_to_window_capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConfigTest.test_old_config_defaults_to_window_capture",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_persisted_capture_region_fails_with_field_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConfigTest.test_invalid_persisted_capture_region_fails_with_field_context",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 53
           }
         }
       ]
@@ -53834,6 +55808,8 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_geometry",
+        "ai_game_player.capture_region",
         "ai_game_player.frame_analyzer",
         "ai_game_player.frame_preprocessor",
         "ai_game_player.screen_capture"
@@ -53857,6 +55833,19 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
           "module": "pathlib",
           "names": [
             {
@@ -53868,7 +55857,43 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_geometry"
+          ],
+          "module": "ai_game_player.capture_geometry",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureGeometry"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -53884,7 +55909,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_preprocessor"
@@ -53900,7 +55925,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -53917,7 +55942,7 @@
       "module": "tests.test_frame_analyzer",
       "path": "tests/test_frame_analyzer.py",
       "source_location": {
-        "end_line": 56,
+        "end_line": 86,
         "start_line": 1
       },
       "symbols": [
@@ -53940,8 +55965,8 @@
           "signature": "(path: Path) -> ScreenFrame",
           "source_location": {
             "column": 0,
-            "end_line": 26,
-            "start_line": 12
+            "end_line": 29,
+            "start_line": 15
           }
         },
         {
@@ -53962,8 +55987,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 56,
-            "start_line": 29
+            "end_line": 86,
+            "start_line": 32
           }
         },
         {
@@ -53985,8 +56010,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 35,
-            "start_line": 30
+            "end_line": 38,
+            "start_line": 33
           }
         },
         {
@@ -54008,8 +56033,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 43,
-            "start_line": 37
+            "end_line": 46,
+            "start_line": 40
           }
         },
         {
@@ -54031,8 +56056,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 52,
-            "start_line": 45
+            "end_line": 55,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_roi_candidates_are_mapped_to_window_coordinates_and_keep_geometry_metadata",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FrameAnalyzerTest.test_roi_candidates_are_mapped_to_window_coordinates_and_keep_geometry_metadata",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 57
           }
         },
         {
@@ -54054,8 +56102,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 54
+            "end_line": 86,
+            "start_line": 84
           }
         }
       ]
@@ -58751,6 +60799,7 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.app",
+        "ai_game_player.capture_region",
         "ai_game_player.game_session",
         "ai_game_player.models",
         "ai_game_player.observation_service",
@@ -58875,6 +60924,26 @@
           "line": 10,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.game_session"
           ],
           "module": "ai_game_player.game_session",
@@ -58888,7 +60957,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -58904,7 +60973,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_service"
@@ -58920,7 +60989,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -58936,7 +61005,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -58952,7 +61021,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -58969,7 +61038,7 @@
       "module": "tests.test_live_execution_validation",
       "path": "tests/test_live_execution_validation.py",
       "source_location": {
-        "end_line": 643,
+        "end_line": 646,
         "start_line": 1
       },
       "symbols": [
@@ -58989,8 +61058,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 39,
-            "start_line": 22
+            "end_line": 40,
+            "start_line": 23
           }
         },
         {
@@ -59018,8 +61087,8 @@
           "signature": "(self, value)",
           "source_location": {
             "column": 4,
-            "end_line": 30,
-            "start_line": 29
+            "end_line": 31,
+            "start_line": 30
           }
         },
         {
@@ -59041,8 +61110,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 39,
-            "start_line": 38
+            "end_line": 40,
+            "start_line": 39
           }
         },
         {
@@ -59061,8 +61130,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 76,
-            "start_line": 46
+            "end_line": 77,
+            "start_line": 47
           }
         },
         {
@@ -59096,8 +61165,8 @@
           "signature": "(self, valid_handles, process_id = …)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 53
+            "end_line": 57,
+            "start_line": 54
           }
         },
         {
@@ -59125,8 +61194,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 66,
-            "start_line": 64
+            "end_line": 67,
+            "start_line": 65
           }
         },
         {
@@ -59160,8 +61229,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 76,
-            "start_line": 74
+            "end_line": 77,
+            "start_line": 75
           }
         },
         {
@@ -59180,8 +61249,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 100,
-            "start_line": 83
+            "end_line": 101,
+            "start_line": 84
           }
         },
         {
@@ -59203,8 +61272,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 91,
-            "start_line": 90
+            "end_line": 92,
+            "start_line": 91
           }
         },
         {
@@ -59232,8 +61301,8 @@
           "signature": "(self, *record)",
           "source_location": {
             "column": 4,
-            "end_line": 100,
-            "start_line": 99
+            "end_line": 101,
+            "start_line": 100
           }
         },
         {
@@ -59252,8 +61321,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 151,
-            "start_line": 107
+            "end_line": 152,
+            "start_line": 108
           }
         },
         {
@@ -59275,8 +61344,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 114
+            "end_line": 125,
+            "start_line": 115
           }
         },
         {
@@ -59298,8 +61367,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 129,
-            "start_line": 126
+            "end_line": 130,
+            "start_line": 127
           }
         },
         {
@@ -59327,8 +61396,8 @@
           "signature": "(self, reason = …)",
           "source_location": {
             "column": 4,
-            "end_line": 135,
-            "start_line": 131
+            "end_line": 136,
+            "start_line": 132
           }
         },
         {
@@ -59362,8 +61431,8 @@
           "signature": "(self, command = …, interval_ms = …)",
           "source_location": {
             "column": 4,
-            "end_line": 140,
-            "start_line": 137
+            "end_line": 141,
+            "start_line": 138
           }
         },
         {
@@ -59391,8 +61460,8 @@
           "signature": "(self, command = …)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 142
+            "end_line": 146,
+            "start_line": 143
           }
         },
         {
@@ -59426,8 +61495,8 @@
           "signature": "(self, result = …, error = …)",
           "source_location": {
             "column": 4,
-            "end_line": 148,
-            "start_line": 147
+            "end_line": 149,
+            "start_line": 148
           }
         },
         {
@@ -59455,8 +61524,8 @@
           "signature": "(self, observation)",
           "source_location": {
             "column": 4,
-            "end_line": 151,
-            "start_line": 150
+            "end_line": 152,
+            "start_line": 151
           }
         },
         {
@@ -59477,8 +61546,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 639,
-            "start_line": 158
+            "end_line": 642,
+            "start_line": 159
           }
         },
         {
@@ -59500,8 +61569,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 159
+            "end_line": 164,
+            "start_line": 160
           }
         },
         {
@@ -59541,8 +61610,8 @@
           "signature": "(self, *, live = …, mode = …, handles = …)",
           "source_location": {
             "column": 4,
-            "end_line": 179,
-            "start_line": 171
+            "end_line": 180,
+            "start_line": 172
           }
         },
         {
@@ -59564,8 +61633,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 192,
-            "start_line": 187
+            "end_line": 193,
+            "start_line": 188
           }
         },
         {
@@ -59587,8 +61656,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 202,
-            "start_line": 200
+            "end_line": 203,
+            "start_line": 201
           }
         },
         {
@@ -59610,8 +61679,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 243,
-            "start_line": 210
+            "end_line": 244,
+            "start_line": 211
           }
         },
         {
@@ -59630,8 +61699,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 213,
-            "start_line": 211
+            "end_line": 214,
+            "start_line": 212
           }
         },
         {
@@ -59659,8 +61728,8 @@
           "signature": "(self, *_record)",
           "source_location": {
             "column": 12,
-            "end_line": 213,
-            "start_line": 212
+            "end_line": 214,
+            "start_line": 213
           }
         },
         {
@@ -59682,8 +61751,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 298,
-            "start_line": 251
+            "end_line": 301,
+            "start_line": 252
           }
         },
         {
@@ -59705,8 +61774,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 330,
-            "start_line": 306
+            "end_line": 333,
+            "start_line": 309
           }
         },
         {
@@ -59728,8 +61797,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 348,
-            "start_line": 338
+            "end_line": 351,
+            "start_line": 341
           }
         },
         {
@@ -59751,8 +61820,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 356
+            "end_line": 369,
+            "start_line": 359
           }
         },
         {
@@ -59774,8 +61843,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 383,
-            "start_line": 374
+            "end_line": 386,
+            "start_line": 377
           }
         },
         {
@@ -59797,8 +61866,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 409,
-            "start_line": 391
+            "end_line": 412,
+            "start_line": 394
           }
         },
         {
@@ -59820,8 +61889,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 428,
-            "start_line": 417
+            "end_line": 431,
+            "start_line": 420
           }
         },
         {
@@ -59843,8 +61912,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 447,
-            "start_line": 436
+            "end_line": 450,
+            "start_line": 439
           }
         },
         {
@@ -59866,8 +61935,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 476,
-            "start_line": 449
+            "end_line": 479,
+            "start_line": 452
           }
         },
         {
@@ -59889,8 +61958,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 496,
-            "start_line": 478
+            "end_line": 499,
+            "start_line": 481
           }
         },
         {
@@ -59912,8 +61981,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 524,
-            "start_line": 498
+            "end_line": 527,
+            "start_line": 501
           }
         },
         {
@@ -59928,8 +61997,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 511,
-            "start_line": 510
+            "end_line": 514,
+            "start_line": 513
           }
         },
         {
@@ -59951,8 +62020,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 541,
-            "start_line": 526
+            "end_line": 544,
+            "start_line": 529
           }
         },
         {
@@ -59974,8 +62043,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 567,
-            "start_line": 549
+            "end_line": 570,
+            "start_line": 552
           }
         },
         {
@@ -59997,8 +62066,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 596,
-            "start_line": 569
+            "end_line": 599,
+            "start_line": 572
           }
         },
         {
@@ -60020,8 +62089,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 620,
-            "start_line": 604
+            "end_line": 623,
+            "start_line": 607
           }
         },
         {
@@ -60043,8 +62112,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 639,
-            "start_line": 628
+            "end_line": 642,
+            "start_line": 631
           }
         }
       ]
@@ -62310,6 +64379,7 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_region",
         "ai_game_player.models",
         "ai_game_player.observation_service",
         "ai_game_player.screen_capture",
@@ -62381,6 +64451,10 @@
             },
             {
               "alias": null,
+              "name": "call"
+            },
+            {
+              "alias": null,
               "name": "patch"
             }
           ]
@@ -62389,6 +64463,30 @@
           "kind": "from",
           "level": 0,
           "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -62404,7 +64502,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_service"
@@ -62424,7 +64522,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -62440,7 +64538,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.shared_frame_producer"
@@ -62461,7 +64559,7 @@
       "module": "tests.test_observation_service",
       "path": "tests/test_observation_service.py",
       "source_location": {
-        "end_line": 229,
+        "end_line": 254,
         "start_line": 1
       },
       "symbols": [
@@ -62483,8 +64581,31 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 225,
-            "start_line": 16
+            "end_line": 250,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_capture_region_settings_reach_the_reused_windows_backend",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveObservationServiceTests.test_capture_region_settings_reach_the_reused_windows_backend",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 18
           }
         },
         {
@@ -62506,8 +64627,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 28,
-            "start_line": 17
+            "end_line": 53,
+            "start_line": 42
           }
         },
         {
@@ -62529,8 +64650,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 30
+            "end_line": 93,
+            "start_line": 55
           }
         },
         {
@@ -62552,8 +64673,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 83,
-            "start_line": 70
+            "end_line": 108,
+            "start_line": 95
           }
         },
         {
@@ -62575,8 +64696,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 108,
-            "start_line": 85
+            "end_line": 133,
+            "start_line": 110
           }
         },
         {
@@ -62598,8 +64719,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 137,
-            "start_line": 110
+            "end_line": 162,
+            "start_line": 135
           }
         },
         {
@@ -62621,8 +64742,8 @@
           "signature": "(_handle)",
           "source_location": {
             "column": 8,
-            "end_line": 116,
-            "start_line": 113
+            "end_line": 141,
+            "start_line": 138
           }
         },
         {
@@ -62644,8 +64765,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 158,
-            "start_line": 139
+            "end_line": 183,
+            "start_line": 164
           }
         },
         {
@@ -62667,8 +64788,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 173,
-            "start_line": 160
+            "end_line": 198,
+            "start_line": 185
           }
         },
         {
@@ -62690,8 +64811,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 175
+            "end_line": 232,
+            "start_line": 200
           }
         },
         {
@@ -62713,8 +64834,8 @@
           "signature": "(_handle)",
           "source_location": {
             "column": 8,
-            "end_line": 184,
-            "start_line": 180
+            "end_line": 209,
+            "start_line": 205
           }
         },
         {
@@ -62736,8 +64857,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 225,
-            "start_line": 209
+            "end_line": 250,
+            "start_line": 234
           }
         }
       ]
@@ -70399,6 +72520,7 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.capture_region",
         "ai_game_player.screen_capture"
       ],
       "imports": [
@@ -70460,6 +72582,34 @@
           "line": 6,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.capture_region"
+          ],
+          "module": "ai_game_player.capture_region",
+          "names": [
+            {
+              "alias": null,
+              "name": "CaptureRegion"
+            },
+            {
+              "alias": null,
+              "name": "CaptureRegionMode"
+            },
+            {
+              "alias": null,
+              "name": "NormalizedRect"
+            },
+            {
+              "alias": null,
+              "name": "PixelRect"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.screen_capture"
           ],
           "module": "ai_game_player.screen_capture",
@@ -70478,7 +72628,7 @@
       "module": "tests.test_screen_capture",
       "path": "tests/test_screen_capture.py",
       "source_location": {
-        "end_line": 261,
+        "end_line": 303,
         "start_line": 1
       },
       "symbols": [
@@ -70498,8 +72648,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 49,
-            "start_line": 9
+            "end_line": 50,
+            "start_line": 10
           }
         },
         {
@@ -70539,8 +72689,8 @@
           "signature": "(self, *, screen_dc = …, window_visible = …, window_above = …)",
           "source_location": {
             "column": 4,
-            "end_line": 15,
-            "start_line": 10
+            "end_line": 16,
+            "start_line": 11
           }
         },
         {
@@ -70568,8 +72718,8 @@
           "signature": "(self, index)",
           "source_location": {
             "column": 4,
-            "end_line": 18,
-            "start_line": 17
+            "end_line": 19,
+            "start_line": 18
           }
         },
         {
@@ -70591,8 +72741,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 21,
-            "start_line": 20
+            "end_line": 22,
+            "start_line": 21
           }
         },
         {
@@ -70620,8 +72770,8 @@
           "signature": "(self, window)",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 23
+            "end_line": 25,
+            "start_line": 24
           }
         },
         {
@@ -70649,8 +72799,8 @@
           "signature": "(self, window)",
           "source_location": {
             "column": 4,
-            "end_line": 27,
-            "start_line": 26
+            "end_line": 28,
+            "start_line": 27
           }
         },
         {
@@ -70678,8 +72828,8 @@
           "signature": "(self, window)",
           "source_location": {
             "column": 4,
-            "end_line": 30,
-            "start_line": 29
+            "end_line": 31,
+            "start_line": 30
           }
         },
         {
@@ -70713,8 +72863,8 @@
           "signature": "(self, window, command)",
           "source_location": {
             "column": 4,
-            "end_line": 33,
-            "start_line": 32
+            "end_line": 34,
+            "start_line": 33
           }
         },
         {
@@ -70748,8 +72898,8 @@
           "signature": "(self, window, rect_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 38,
-            "start_line": 35
+            "end_line": 39,
+            "start_line": 36
           }
         },
         {
@@ -70813,8 +72963,8 @@
           "signature": "(self, window, message, device_context, flags, send_flags, timeout, result_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 42,
-            "start_line": 40
+            "end_line": 43,
+            "start_line": 41
           }
         },
         {
@@ -70842,8 +72992,8 @@
           "signature": "(self, window)",
           "source_location": {
             "column": 4,
-            "end_line": 45,
-            "start_line": 44
+            "end_line": 46,
+            "start_line": 45
           }
         },
         {
@@ -70877,8 +73027,8 @@
           "signature": "(self, window, device_context)",
           "source_location": {
             "column": 4,
-            "end_line": 49,
-            "start_line": 47
+            "end_line": 50,
+            "start_line": 48
           }
         },
         {
@@ -70897,8 +73047,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 90,
-            "start_line": 52
+            "end_line": 91,
+            "start_line": 53
           }
         },
         {
@@ -70926,8 +73076,8 @@
           "signature": "(self, failure = …)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 53
+            "end_line": 57,
+            "start_line": 54
           }
         },
         {
@@ -70955,8 +73105,8 @@
           "signature": "(self, screen_dc)",
           "source_location": {
             "column": 4,
-            "end_line": 60,
-            "start_line": 58
+            "end_line": 61,
+            "start_line": 59
           }
         },
         {
@@ -70990,8 +73140,8 @@
           "signature": "(self, memory_dc, selected_object)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 62
+            "end_line": 68,
+            "start_line": 63
           }
         },
         {
@@ -71019,8 +73169,8 @@
           "signature": "(self, *args)",
           "source_location": {
             "column": 4,
-            "end_line": 71,
-            "start_line": 69
+            "end_line": 72,
+            "start_line": 70
           }
         },
         {
@@ -71078,8 +73228,8 @@
           "signature": "(self, device_context, bitmap_info, usage, pixel_pointer, section, offset)",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 73
+            "end_line": 83,
+            "start_line": 74
           }
         },
         {
@@ -71107,8 +73257,8 @@
           "signature": "(self, bitmap)",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 84
+            "end_line": 87,
+            "start_line": 85
           }
         },
         {
@@ -71136,8 +73286,8 @@
           "signature": "(self, memory_dc)",
           "source_location": {
             "column": 4,
-            "end_line": 90,
-            "start_line": 88
+            "end_line": 91,
+            "start_line": 89
           }
         },
         {
@@ -71156,8 +73306,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 105,
-            "start_line": 93
+            "end_line": 106,
+            "start_line": 94
           }
         },
         {
@@ -71191,8 +73341,8 @@
           "signature": "(self, frame = …, error = …)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 94
+            "end_line": 98,
+            "start_line": 95
           }
         },
         {
@@ -71214,8 +73364,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 99
+            "end_line": 103,
+            "start_line": 100
           }
         },
         {
@@ -71237,8 +73387,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 105,
-            "start_line": 104
+            "end_line": 106,
+            "start_line": 105
           }
         },
         {
@@ -71259,8 +73409,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 261,
-            "start_line": 108
+            "end_line": 303,
+            "start_line": 109
           }
         },
         {
@@ -71282,8 +73432,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 112,
-            "start_line": 109
+            "end_line": 113,
+            "start_line": 110
           }
         },
         {
@@ -71305,8 +73455,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 114
+            "end_line": 119,
+            "start_line": 115
           }
         },
         {
@@ -71328,8 +73478,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 128,
-            "start_line": 120
+            "end_line": 129,
+            "start_line": 121
           }
         },
         {
@@ -71351,8 +73501,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 130
+            "end_line": 139,
+            "start_line": 131
           }
         },
         {
@@ -71374,8 +73524,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 158,
-            "start_line": 140
+            "end_line": 159,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_window_relative_mode_crops_the_selected_window_and_keeps_screen_mapping",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ScreenCaptureTest.test_window_relative_mode_crops_the_selected_window_and_keeps_screen_mapping",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fixed_region_captures_desktop_pixels_and_maps_back_to_selected_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ScreenCaptureTest.test_fixed_region_captures_desktop_pixels_and_maps_back_to_selected_window",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 186
           }
         },
         {
@@ -71397,8 +73593,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 160
+            "end_line": 225,
+            "start_line": 202
           }
         },
         {
@@ -71420,8 +73616,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 185
+            "end_line": 242,
+            "start_line": 227
           }
         },
         {
@@ -71443,8 +73639,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 210,
-            "start_line": 202
+            "end_line": 252,
+            "start_line": 244
           }
         },
         {
@@ -71466,8 +73662,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 219,
-            "start_line": 212
+            "end_line": 261,
+            "start_line": 254
           }
         },
         {
@@ -71489,8 +73685,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 221
+            "end_line": 270,
+            "start_line": 263
           }
         },
         {
@@ -71512,8 +73708,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 230
+            "end_line": 279,
+            "start_line": 272
           }
         },
         {
@@ -71535,8 +73731,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 257,
-            "start_line": 239
+            "end_line": 299,
+            "start_line": 281
           }
         },
         {
@@ -71558,8 +73754,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 259
+            "end_line": 303,
+            "start_line": 301
           }
         }
       ]

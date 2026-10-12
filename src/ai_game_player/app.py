@@ -13,7 +13,13 @@ from ai_game_player.application_workflow import (
     ApplicationWorkflowService,
     MemorySource,
 )
-from ai_game_player.config import ConfigStore
+from ai_game_player.capture_region import (
+    CaptureRegion,
+    CaptureRegionMode,
+    NormalizedRect,
+    PixelRect,
+)
+from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.execution_mode import execution_labels
 from ai_game_player.metrics import MetricsCalculator
 from ai_game_player.outcome import OutcomeAssessment
@@ -67,12 +73,14 @@ class TkAfterScheduler:
 
 # {
 #   責務: [
-#     Application: UI入力を受け取り、ゲーム実行状態と対象ウィンドウを管理する
+#     Application: UI入力、capture領域、ゲーム実行状態、対象ウィンドウを管理する
 #   ]
 #   フィールド: [
 #     window_handles: 表示名ごとのHWND
 #     window_process_ids: 表示名ごとの列挙時PID
 #     live_execution: 実入力の許可状態
+#     capture_mode/capture_region_x/y/width/height: capture方式とfixed/normalized ROIの入力値
+#     _active_capture_region: capture serviceへ最後に適用したROI設定
 #     _latest_assessment_task_id: 結果を適用できる最新の画面評価worker ID
 #     _automated_cursor_position: 入力workerが通知した自動移動の予定座標と進行状態
 #   ]
@@ -90,16 +98,17 @@ class Application:
     #     __init__: UIと実行制御の初期状態を構築する
     #   ]
     #   処理: [
-    #     1: 設定と実行制御を初期化する
+    #     1: 保存済みの判断・入力・capture region設定を読み、実行制御を初期化する
     #     2: 対象ウィンドウの識別情報を保持する
     #     3: worker結果と最新画面評価IDを初期化する
     #     4: 自動カーソル位置のworker/UI間同期を初期化する
-    #     5: UI commandと表示を接続し、composition rootをsession制御へ注入する
+    #     5: capture modeとROIのUI入力を作り、設定保存とcapture serviceへ接続する
+    #     6: UI commandと表示を接続し、composition rootをsession制御へ注入する
     #   ]
     #   引数: [
     #     root: Tkinterのルートウィンドウ
     #     runtime_composition: Provider・Evaluator・Pipelineを生成するcomposition root、未指定時は標準構成
-    #     observation_service: 画面をcapture・解析するservice、省略時はWindows向け標準構成
+    #     observation_service: 画面をcapture・解析するservice、省略時は保存済みROIを適用するWindows標準構成
     #   ]
     #   戻り値: []
     # }
@@ -115,7 +124,11 @@ class Application:
         runtime_composition = runtime_composition or RuntimeComposition()
         self.runtime_log = RuntimeLog()
         memory_source = MemorySource()
-        self.observation_service = observation_service or LiveObservationService()
+        self.observation_service = observation_service or LiveObservationService(
+            capture_region=config.capture_region
+        )
+        self.config_store = config_store
+        self._active_capture_region = config.capture_region
         self._session_dry_run = True
         self._last_session_mode: tuple[SessionStatus, bool] | None = None
         self._closing = False
@@ -149,6 +162,12 @@ class Application:
         self.purpose = tk.StringVar(value=config.purpose)
         self.live_execution = tk.BooleanVar(value=config.live_execution)
         self.input_mode = tk.StringVar(value=config.input_mode)
+        self.capture_mode = tk.StringVar(value=config.capture_region.mode.value)
+        saved_region = config.capture_region.rect
+        self.capture_region_x = tk.StringVar(value=str(saved_region.x) if saved_region else "0")
+        self.capture_region_y = tk.StringVar(value=str(saved_region.y) if saved_region else "0")
+        self.capture_region_width = tk.StringVar(value=str(saved_region.width) if saved_region else "0")
+        self.capture_region_height = tk.StringVar(value=str(saved_region.height) if saved_region else "0")
         self.workflow_service = ApplicationWorkflowService(
             config_store,
             runtime_composition,
@@ -183,6 +202,25 @@ class Application:
         self.window_combo = ttk.Combobox(window_settings, textvariable=self.window_choice, state="readonly", width=42)
         self.window_combo.pack(side=tk.LEFT, padx=5)
         ttk.Button(window_settings, text="一覧更新", command=self.refresh_windows).pack(side=tk.LEFT)
+        capture_settings = ttk.Frame(frame)
+        capture_settings.pack(fill=tk.X, pady=(6, 0))
+        ttk.Label(capture_settings, text="取得範囲").pack(side=tk.LEFT)
+        ttk.Combobox(
+            capture_settings,
+            textvariable=self.capture_mode,
+            values=tuple(mode.value for mode in CaptureRegionMode),
+            state="readonly",
+            width=26,
+        ).pack(side=tk.LEFT, padx=5)
+        for label, variable in (
+            ("X", self.capture_region_x),
+            ("Y", self.capture_region_y),
+            ("幅", self.capture_region_width),
+            ("高さ", self.capture_region_height),
+        ):
+            ttk.Label(capture_settings, text=label).pack(side=tk.LEFT)
+            ttk.Entry(capture_settings, textvariable=variable, width=7).pack(side=tk.LEFT, padx=(2, 5))
+        ttk.Label(capture_settings, text="固定領域はscreen px、window-relativeは0〜1の比率").pack(side=tk.LEFT)
         ttk.Label(frame, text="画面観測JSON").pack(anchor=tk.W)
         ttk.Button(frame, text="画面取得（Windows）", command=self.capture_screen).pack(anchor=tk.W)
         self.obs = tk.Text(frame, height=10)
@@ -314,6 +352,60 @@ class Application:
         return SessionStep(deferred=True)
 
     # {
+    #   責務: [_capture_region_from_controls: capture modeに応じて入力欄の値を検証済みROI設定へ変換する]
+    #   引数: []
+    #   戻り値: [CaptureRegion: desktop全体、window全体、screen pixel固定領域、またはwindow比率領域]
+    #   エラー: [数値形式、正の寸法、0から1の範囲がmodeの要件を満たさない場合: capture前に理由を送出]
+    # }
+    def _capture_region_from_controls(self) -> CaptureRegion:
+        mode = CaptureRegionMode(self.capture_mode.get())
+        if mode in {CaptureRegionMode.FULL_SCREEN, CaptureRegionMode.WINDOW}:
+            return CaptureRegion(mode)
+        values = (
+            self.capture_region_x.get(),
+            self.capture_region_y.get(),
+            self.capture_region_width.get(),
+            self.capture_region_height.get(),
+        )
+        try:
+            if mode is CaptureRegionMode.FIXED_REGION:
+                rect = PixelRect(*(int(value) for value in values))
+            else:
+                rect = NormalizedRect(*(float(value) for value in values))
+        except (TypeError, ValueError) as error:
+            coordinate_unit = "screen pixel整数" if mode is CaptureRegionMode.FIXED_REGION else "0から1のwindow比率"
+            raise ValueError(
+                f"取得範囲のX・Y・幅・高さは{coordinate_unit}で入力してください: {error}"
+            ) from error
+        return CaptureRegion(mode, rect)
+
+    # {
+    #   責務: [_apply_capture_region: UIのROI設定を変更時だけconfig.jsonとcapture serviceへ反映する]
+    #   引数: []
+    #   戻り値: [CaptureRegion: capture backendへ設定した画面領域]
+    #   エラー: [入力欄・設定保存・service更新の失敗: captureを始めず理由を呼び出し元へ送出]
+    # }
+    def _apply_capture_region(self) -> CaptureRegion:
+        capture_region = self._capture_region_from_controls()
+        if capture_region == self._active_capture_region:
+            return capture_region
+        self.config_store.save(
+            AppConfig(
+                provider=self.provider.get(),
+                model=self.model.get(),
+                endpoint=self.endpoint.get(),
+                personality=self.personality.get(),
+                purpose=self.purpose.get(),
+                live_execution=self.live_execution.get(),
+                input_mode=self.input_mode.get(),
+                capture_region=capture_region,
+            )
+        )
+        self.observation_service.set_capture_region(capture_region)
+        self._active_capture_region = capture_region
+        return capture_region
+
+    # {
     #   責務: [_observe_for_loop: 連続実行の画面取得と非同期状態評価を開始する]
     #   処理: [画面を取得し、loop世代付き評価workerを開始してSessionへ完了待ちを返す]
     #   引数: []
@@ -322,6 +414,7 @@ class Application:
     def _observe_for_loop(self) -> LoopObservation:
         try:
             if os.name == "nt":
+                self._apply_capture_region()
                 selected_handle = self.window_handles.get(self.window_choice.get())
                 observation = self.observation_service.capture_observation(selected_handle)
                 self.obs.delete("1.0", tk.END)
@@ -550,13 +643,14 @@ class Application:
             return self.workflow_service.assess_locally(observation)
 
     # {
-    #   責務: [capture_screen: Windows画面を観測へ変換し評価をバックグラウンドへ渡す]
-    #   処理: [観測をUIへ表示し、loop評価だけを実行世代へ結び付けてworkerを開始する]
+    #   責務: [capture_screen: 選択ROIを適用したWindows画面を観測へ変換し、評価をbackgroundへ渡す]
+    #   処理: [ROI入力を検証・保存してcapture serviceへ反映し、ObservationをUIへ表示する。loop評価は実行世代へ結び付けてworkerを開始する]
     #   引数: [loop_step: Trueなら結果を現在の連続実行stepに限定し、Falseなら停止後も独立して評価する]
     #   戻り値: [ScreenObservation | None: 取得した観測または取得失敗]
     # }
     def capture_screen(self, *, loop_step: bool = False) -> ScreenObservation | None:
         try:
+            self._apply_capture_region()
             selected_handle = self.window_handles.get(self.window_choice.get())
             observation = self.observation_service.capture_observation(selected_handle)
             self.obs.delete("1.0", tk.END)
@@ -965,9 +1059,9 @@ class Application:
 
     # {
     #   責務: [_application_settings: UI変数からstep開始時の設定snapshotを作る]
-    #   処理: [各Tk variableを一度読み、workflow serviceへUI objectを渡さない]
+    #   処理: [各Tk variableとCaptureRegion入力を一度読み、workflow serviceへUI objectを渡さない]
     #   引数: []
-    #   戻り値: [ApplicationSettings: step開始時点で固定した利用者設定]
+    #   戻り値: [ApplicationSettings: 判断・実入力・capture mode/ROIを含むstep開始時の設定snapshot]
     # }
     def _application_settings(self) -> ApplicationSettings:
         return ApplicationSettings(
@@ -978,6 +1072,7 @@ class Application:
             purpose=self.purpose.get(),
             live_execution=self.live_execution.get(),
             input_mode=self.input_mode.get(),
+            capture_region=self._capture_region_from_controls(),
         )
 
     # {
