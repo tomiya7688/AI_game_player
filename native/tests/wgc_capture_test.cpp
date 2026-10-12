@@ -114,6 +114,7 @@ int main() {
     for (unsigned int attempt = 0u; attempt < 5u && !resize_succeeded; ++attempt) {
         kadoka_wgc_frame* resized_frame = nullptr;
         const int32_t next_frame_status = kadoka_wgc_next_frame(session, 1000u, &resized_frame);
+        std::fprintf(stderr, "WGC stage: resize capture status=%d lease=%p\n", next_frame_status, resized_frame);
         if (next_frame_status == KADOKA_RUNTIME_STATUS_TIMEOUT) {
             continue;
         }

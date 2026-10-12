@@ -22,6 +22,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <deque>
 #include <exception>
@@ -615,6 +616,10 @@ int32_t kadoka_wgc_next_frame(
         return KADOKA_RUNTIME_STATUS_OK;
     } catch (const std::bad_alloc&) {
         return KADOKA_RUNTIME_STATUS_ALLOCATION_FAILED;
+    } catch (const winrt::hresult_error& error) {
+        std::fprintf(stderr, "WGC trace: frame request failed with HRESULT 0x%08lx\n",
+            static_cast<unsigned long>(static_cast<uint32_t>(error.code())));
+        return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     } catch (...) {
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
