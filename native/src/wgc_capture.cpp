@@ -19,14 +19,19 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
+#include <deque>
+#include <exception>
+#include <functional>
+#include <future>
 #include <limits>
 #include <memory>
 #include <mutex>
 #include <new>
+#include <thread>
 
 namespace {
 
@@ -160,7 +165,7 @@ bool query_wgc_support_once() noexcept {
 
 // {
 //   責務: [kadoka_wgc_frame: 取得済みframeのmetadataと参照中Direct3D textureを保持する]
-//   フィールド: [texture: leaseが解放されるまで保持するBGRA texture, width/height: frameの有効pixel範囲, frame_id/timestamp_ns: WGC到着順とQPC時刻]
+//   フィールド: [texture: leaseが解放されるまで保持するBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime]
 // }
 struct kadoka_wgc_frame {
     winrt::com_ptr<ID3D11Texture2D> texture;
@@ -172,8 +177,8 @@ struct kadoka_wgc_frame {
 };
 
 // {
-//   責務: [WgcSessionState: 選択HWND用のWGC sessionとframe pool、連番、終了状態を所有する]
-//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: Windows Graphics Capture資源, next_frame_id: leaseへ割り当てる連番, is_closed: 資源終了を通知するatomic state]
+//   責務: [WgcSessionState: 選択HWND用のWGC sessionを専用MTA threadで所有し、capture requestを直列化する]
+//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: 専用threadだけが使うWGC資源, worker_thread: MTA apartmentとWGC資源の寿命, pending_commands: capture threadへ渡す要求, next_frame_id: leaseへ割り当てる連番, close_requested: worker終了要求]
 // }
 struct WgcSessionState {
     HWND window = nullptr;
@@ -183,9 +188,14 @@ struct WgcSessionState {
     Direct3D11CaptureFramePool frame_pool{nullptr};
     GraphicsCaptureSession capture_session{nullptr};
     winrt::Windows::Graphics::SizeInt32 frame_pool_size{};
-    std::mutex capture_mutex;
+    std::thread worker_thread;
+    std::mutex request_mutex;
+    std::mutex command_mutex;
+    std::condition_variable command_ready;
+    std::deque<std::function<void()>> pending_commands;
+    std::mutex close_mutex;
     uint64_t next_frame_id = 0;
-    std::atomic<bool> is_closed{false};
+    std::atomic<bool> close_requested{false};
 
     // {
     //   責務: [~WgcSessionState: 部分初期化中を含むWGC native資源を破棄する]
@@ -196,13 +206,33 @@ struct WgcSessionState {
     }
 
     // {
-    //   責務: [start: target HWNDを取得するFreeThreaded WGC frame poolとcapture sessionを起動する]
+    //   責務: [start: MTA apartmentを維持する専用threadでtarget HWND用のWGC sessionを起動する]
     //   引数: [target_window: capture対象のHWND]
-    //   戻り値: [void: 成功時にcapture sessionがframeを取得できる状態になる]
+    //   戻り値: [void: 成功時にworkerがcapture requestを受け付ける]
     // }
     void start(HWND target_window) {
         window = target_window;
-        capture_item = create_capture_item(window);
+        std::promise<void> startup_result;
+        auto startup_future = startup_result.get_future();
+        worker_thread = std::thread([this, target_window, startup_result = std::move(startup_result)]() mutable {
+            run_capture_thread(target_window, std::move(startup_result));
+        });
+        try {
+            startup_future.get();
+        } catch (...) {
+            close();
+            throw;
+        }
+    }
+
+    // {
+    //   責務: [initialize_capture: workerのMTA apartmentで選択HWNDのWGC resourcesを作る]
+    //   引数: [target_window: capture対象のHWND]
+    //   戻り値: [void: 成功時にcapture_sessionがframe取得を開始する]
+    // }
+    void initialize_capture(HWND target_window) {
+        window = target_window;
+        capture_item = create_capture_item(target_window);
         frame_pool_size = capture_item.Size();
         if (frame_pool_size.Width <= 0 || frame_pool_size.Height <= 0) {
             throw winrt::hresult_error(E_INVALIDARG);
@@ -220,14 +250,55 @@ struct WgcSessionState {
     }
 
     // {
-    //   責務: [close: capture sessionとframe poolを一度だけ終了する]
+    //   責務: [run_capture_thread: MTA apartmentとWGC resourcesを維持しcommand queueを処理する]
+    //   引数: [target_window: capture対象HWND, startup_result: WGC resource初期化結果をstartへ返すpromise]
+    //   戻り値: [void: resource作成から解放まで同じMTAを維持し、終了時にworker所有のWGC resourcesを解放する]
+    // }
+    void run_capture_thread(HWND target_window, std::promise<void> startup_result) {
+        bool startup_completed = false;
+        WinRtApartmentScope apartment;
+        try {
+            if (FAILED(apartment.status())) {
+                throw winrt::hresult_error(apartment.status());
+            }
+            initialize_capture(target_window);
+            startup_result.set_value();
+            startup_completed = true;
+
+            while (true) {
+                std::function<void()> command;
+                {
+                    std::unique_lock command_lock(command_mutex);
+                    command_ready.wait(command_lock, [this] {
+                        return close_requested.load() || !pending_commands.empty();
+                    });
+                    if (close_requested.load() && pending_commands.empty()) {
+                        break;
+                    }
+                    command = std::move(pending_commands.front());
+                    pending_commands.pop_front();
+                }
+                command();
+            }
+            release_capture_resources();
+            return;
+        } catch (...) {
+            if (!startup_completed) {
+                try {
+                    startup_result.set_exception(std::current_exception());
+                } catch (...) {
+                    // Startup caller may already have abandoned its promise after a thread failure.
+                }
+            }
+        }
+        release_capture_resources();
+    }
+
+    // {
+    //   責務: [release_capture_resources: worker threadが所有するcapture sessionとframe poolを終了する]
     //   戻り値: [void: 再呼び出し可能な終了処理]
     // }
-    void close() noexcept {
-        if (is_closed.exchange(true)) {
-            return;
-        }
-        std::lock_guard capture_lock(capture_mutex);
+    void release_capture_resources() noexcept {
         try {
             if (capture_session) {
                 capture_session.Close();
@@ -250,33 +321,82 @@ struct WgcSessionState {
     }
 
     // {
-    //   責務: [next_frame: WGC frame poolを短い間隔で確認し最新frameを期限内にleaseとして返す]
-    //   引数: [timeout_ms: frame poolからframeを取得するまでの上限ミリ秒]
-    //   戻り値: [unique_ptr<kadoka_wgc_frame>: callerがreleaseするtexture lease、timeout時はnull]
+    //   責務: [enqueue_command: close前のcapture要求だけをworker queueへ追加する]
+    //   引数: [command: worker threadで実行するrequest]
+    //   戻り値: [bool: request追加に成功した場合はtrue]
+    // }
+    bool enqueue_command(std::function<void()> command) {
+        {
+            std::lock_guard command_lock(command_mutex);
+            if (close_requested.load()) {
+                return false;
+            }
+            pending_commands.push_back(std::move(command));
+        }
+        command_ready.notify_one();
+        return true;
+    }
+
+    // {
+    //   責務: [close: worker終了を要求しWGC資源の解放完了まで待つ]
+    //   戻り値: [void: worker join後に再呼び出しできる終了処理]
+    // }
+    void close() noexcept {
+        std::lock_guard close_lock(close_mutex);
+        close_requested.store(true);
+        command_ready.notify_all();
+        if (worker_thread.joinable() && worker_thread.get_id() != std::this_thread::get_id()) {
+            worker_thread.join();
+        }
+    }
+
+    // {
+    //   責務: [next_frame: callerのthreadからframe requestを送り完了frameを受け取る]
+    //   引数: [timeout_ms: workerがframe poolを確認する上限ミリ秒]
+    //   戻り値: [unique_ptr<kadoka_wgc_frame>: callerがreleaseするtexture lease、timeoutまたはclose時はnull]
     // }
     std::unique_ptr<kadoka_wgc_frame> next_frame(uint32_t timeout_ms) {
-        std::fprintf(stderr, "WGC trace: polling started\n");
-        std::unique_lock capture_lock(capture_mutex, std::try_to_lock);
-        if (!capture_lock.owns_lock()) {
+        std::unique_lock request_lock(request_mutex, std::try_to_lock);
+        if (!request_lock.owns_lock()) {
             throw winrt::hresult_error(E_ILLEGAL_METHOD_CALL);
         }
+        if (close_requested.load()) {
+            return nullptr;
+        }
 
+        auto result = std::make_shared<std::promise<std::unique_ptr<kadoka_wgc_frame>>>();
+        auto result_future = result->get_future();
+        const bool request_queued = enqueue_command([this, result, timeout_ms] {
+            try {
+                if (close_requested.load()) {
+                    result->set_value(nullptr);
+                } else {
+                    result->set_value(capture_next_frame(timeout_ms));
+                }
+            } catch (...) {
+                result->set_exception(std::current_exception());
+            }
+        });
+        if (!request_queued) {
+            return nullptr;
+        }
+        return result_future.get();
+    }
+
+    // {
+    //   責務: [capture_next_frame: worker threadでframe poolをpollしlatest frame leaseを作る]
+    //   引数: [timeout_ms: frame poolをpollする上限ミリ秒]
+    //   戻り値: [unique_ptr<kadoka_wgc_frame>: frame lease、timeoutまたはclose時はnull]
+    // }
+    std::unique_ptr<kadoka_wgc_frame> capture_next_frame(uint32_t timeout_ms) {
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
-        uint32_t poll_attempt = 0;
         while (std::chrono::steady_clock::now() < deadline) {
-            if (is_closed.load()) {
+            if (close_requested.load()) {
                 return nullptr;
             }
 
-            const bool log_poll = poll_attempt++ % 20u == 0u;
-            if (log_poll) {
-                std::fprintf(stderr, "WGC trace: TryGetNextFrame begin\n");
-            }
             auto captured_frame = frame_pool.TryGetNextFrame();
-            if (log_poll) {
-                std::fprintf(stderr, "WGC trace: TryGetNextFrame end available=%d\n", captured_frame ? 1 : 0);
-            }
-            if (is_closed.load()) {
+            if (close_requested.load()) {
                 if (captured_frame) {
                     captured_frame.Close();
                 }
@@ -292,14 +412,12 @@ struct WgcSessionState {
                 }
                 continue;
             }
-            std::fprintf(stderr, "WGC trace: frame received\n");
             while (auto newer_frame = frame_pool.TryGetNextFrame()) {
                 captured_frame.Close();
                 captured_frame = std::move(newer_frame);
             }
 
             const auto content_size = captured_frame.ContentSize();
-            std::fprintf(stderr, "WGC trace: size read\n");
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
                     std::numeric_limits<uint32_t>::max()) {
@@ -314,7 +432,6 @@ struct WgcSessionState {
                 __uuidof(ID3D11Texture2D),
                 frame_lease->texture.put_void()
             ));
-            std::fprintf(stderr, "WGC trace: texture interface acquired\n");
             D3D11_TEXTURE2D_DESC texture_description{};
             frame_lease->texture->GetDesc(&texture_description);
             if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
@@ -328,14 +445,12 @@ struct WgcSessionState {
             frame_lease->height = static_cast<uint32_t>(content_size.Height);
             frame_lease->frame_id = ++next_frame_id;
             const int64_t capture_time_units = captured_frame.SystemRelativeTime().count();
-            std::fprintf(stderr, "WGC trace: timestamp read\n");
             if (capture_time_units > 0 && static_cast<uint64_t>(capture_time_units) <=
                     std::numeric_limits<uint64_t>::max() / kNanosecondsPerWinRtTimeUnit) {
                 frame_lease->timestamp_ns =
                     static_cast<uint64_t>(capture_time_units) * kNanosecondsPerWinRtTimeUnit;
             }
             captured_frame.Close();
-            std::fprintf(stderr, "WGC trace: frame closed\n");
 
             if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
                 frame_pool_size = content_size;
@@ -346,7 +461,6 @@ struct WgcSessionState {
                     frame_pool_size
                 );
             }
-            std::fprintf(stderr, "WGC trace: returning lease\n");
             return frame_lease;
         }
         return nullptr;
@@ -477,8 +591,8 @@ int32_t kadoka_wgc_open_window(
 }
 
 // {
-//   責務: [kadoka_wgc_next_frame: 到着をtimeout_msだけ待ち、最新textureをleaseとして返す]
-//   引数: [session: 稼働中のWGC session, timeout_ms: frame待機上限ミリ秒, out_frame: frame lease出力先]
+//   責務: [kadoka_wgc_next_frame: workerへcaptureを依頼し最新textureをleaseとして返す]
+//   引数: [session: 稼働中のWGC session, timeout_ms: workerのframe取得上限ミリ秒, out_frame: frame lease出力先]
 //   戻り値: [int32_t: frame取得結果のstatus code]
 // }
 int32_t kadoka_wgc_next_frame(
@@ -489,17 +603,11 @@ int32_t kadoka_wgc_next_frame(
     if (session == nullptr || session->state == nullptr || out_frame == nullptr || *out_frame != nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
-    WinRtApartmentScope apartment;
-    if (FAILED(apartment.status())) {
-        return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
-    }
     if (!IsWindow(session->state->window)) {
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
     try {
-        std::fprintf(stderr, "WGC trace: C ABI calling frame pool\n");
         auto frame = session->state->next_frame(timeout_ms);
-        std::fprintf(stderr, "WGC trace: C ABI frame pool returned\n");
         if (!frame) {
             return KADOKA_RUNTIME_STATUS_TIMEOUT;
         }
@@ -573,11 +681,10 @@ int32_t kadoka_wgc_close(kadoka_wgc_session** session) {
     if (session == nullptr || *session == nullptr || (*session)->state == nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
-    WinRtApartmentScope apartment;
     (*session)->state->close();
     delete *session;
     *session = nullptr;
-    return SUCCEEDED(apartment.status()) ? KADOKA_RUNTIME_STATUS_OK : KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
+    return KADOKA_RUNTIME_STATUS_OK;
 }
 
 #else
