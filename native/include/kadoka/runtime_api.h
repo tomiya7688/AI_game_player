@@ -77,7 +77,7 @@ typedef struct kadoka_wgc_frame kadoka_wgc_frame;
 
 // {
 //   責務: [kadoka_wgc_frame_info: frame leaseのpacked BGRA寸法、WGC frame ID、QPC時刻、native textureを示す]
-//   フィールド: [width/height/stride_bytes: copy APIの画素寸法, frame_id: session内で単調増加するarrival ID, timestamp_ns: SystemRelativeTimeのnanoseconds, native_surface_handle: frame releaseまでnative callerだけが使うopaque texture handle]
+//   フィールド: [width/height/stride_bytes: copy APIの画素寸法, frame_id: session内で単調増加するlease ID, timestamp_ns: SystemRelativeTimeのnanoseconds, native_surface_handle: frame releaseまでnative callerだけが使うopaque texture handle]
 // }
 typedef struct kadoka_wgc_frame_info {
     uint32_t struct_size;
@@ -218,7 +218,7 @@ KADOKA_RUNTIME_API int32_t kadoka_wgc_open_window(
 
 // {
 //   責務: [kadoka_wgc_next_frame: 指定時間以内に届いた最新frameを所有権付きで返す]
-//   引数: [session: open_windowが返したsession, timeout_ms: frame到着を待つ上限ミリ秒, out_frame: 新しいframe leaseを受け取るnullポインタ]
+//   引数: [session: open_windowが返したsession, timeout_ms: frame取得まで待つ上限ミリ秒, out_frame: 新しいframe leaseを受け取るnullポインタ]
 //   戻り値: [int32_t: frame取得結果。期限超過ではTIMEOUTを返す]
 // }
 KADOKA_RUNTIME_API int32_t kadoka_wgc_next_frame(

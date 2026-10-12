@@ -17,10 +17,10 @@
 #include <winrt/base.h>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -40,6 +40,11 @@ constexpr DirectXPixelFormat kCapturePixelFormat = DirectXPixelFormat::B8G8R8A8U
 constexpr int32_t kCaptureFramePoolBufferCount = 2;
 constexpr uint64_t kNanosecondsPerWinRtTimeUnit = 100u;
 constexpr uint32_t kBytesPerPixel = 4u;
+// {
+//   責務: [kFramePoolPollInterval: FreeThreaded frame poolを次に確認するまでの上限待ち時間]
+//   値: [5 milliseconds: frame到着の確認間隔]
+// }
+constexpr std::chrono::milliseconds kFramePoolPollInterval{5};
 
 // {
 //   責務: [WinRtApartmentScope: C ABI呼び出しthreadでWinRT APIを使える状態にする]
@@ -166,23 +171,20 @@ struct kadoka_wgc_frame {
 };
 
 // {
-//   責務: [WgcSessionState: 選択HWND用のWGC session、frame pool、到着通知を所有する]
-//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: Windows Graphics Capture資源, frame_arrived_event: frame到着または終了を待機threadへ通知するWin32 event, arrival_generation: FrameArrived通知数]
+//   責務: [WgcSessionState: 選択HWND用のWGC sessionとframe pool、連番、終了状態を所有する]
+//   フィールド: [window: capture対象HWND, capture_item/capture_device/frame_pool/capture_session: Windows Graphics Capture資源, next_frame_id: leaseへ割り当てる連番, is_closed: 資源終了を通知するatomic state]
 // }
-struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
+struct WgcSessionState {
     HWND window = nullptr;
     GraphicsCaptureItem capture_item{nullptr};
     IDirect3DDevice capture_device{nullptr};
     winrt::com_ptr<ID3D11Device> native_device;
     Direct3D11CaptureFramePool frame_pool{nullptr};
     GraphicsCaptureSession capture_session{nullptr};
-    winrt::event_token frame_arrived_token{};
     winrt::Windows::Graphics::SizeInt32 frame_pool_size{};
     std::mutex capture_mutex;
-    std::mutex arrival_mutex;
-    HANDLE frame_arrived_event = nullptr;
-    uint64_t arrival_generation = 0;
-    bool is_closed = false;
+    uint64_t next_frame_id = 0;
+    std::atomic<bool> is_closed{false};
 
     // {
     //   責務: [~WgcSessionState: 部分初期化中を含むWGC native資源を破棄する]
@@ -193,17 +195,12 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
     }
 
     // {
-    //   責務: [start: target HWNDを監視するFreeThreaded WGC frame poolとcapture sessionを起動する]
+    //   責務: [start: target HWNDを取得するFreeThreaded WGC frame poolとcapture sessionを起動する]
     //   引数: [target_window: capture対象のHWND]
-    //   戻り値: [void: 成功時にsessionがframe arrivalを通知する]
+    //   戻り値: [void: 成功時にcapture sessionがframeを取得できる状態になる]
     // }
     void start(HWND target_window) {
         window = target_window;
-        frame_arrived_event = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-        if (frame_arrived_event == nullptr) {
-            const HRESULT event_error = HRESULT_FROM_WIN32(GetLastError());
-            throw winrt::hresult_error(FAILED(event_error) ? event_error : E_FAIL);
-        }
         capture_item = create_capture_item(window);
         frame_pool_size = capture_item.Size();
         if (frame_pool_size.Width <= 0 || frame_pool_size.Height <= 0) {
@@ -217,55 +214,19 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
             kCaptureFramePoolBufferCount,
             frame_pool_size
         );
-        std::weak_ptr<WgcSessionState> weak_state = shared_from_this();
-        frame_arrived_token = frame_pool.FrameArrived(
-            [weak_state](const Direct3D11CaptureFramePool&, const winrt::Windows::Foundation::IInspectable&) {
-                std::fprintf(stderr, "WGC trace: frame callback entered\n");
-                const auto state = weak_state.lock();
-                if (!state) {
-                    std::fprintf(stderr, "WGC trace: frame callback state expired\n");
-                    return;
-                }
-                {
-                    std::lock_guard lock(state->arrival_mutex);
-                    if (state->is_closed) {
-                        std::fprintf(stderr, "WGC trace: frame callback observed close\n");
-                        return;
-                    }
-                    ++state->arrival_generation;
-                    std::fprintf(stderr, "WGC trace: signaling frame event %p\n", state->frame_arrived_event);
-                    SetEvent(state->frame_arrived_event);
-                }
-                std::fprintf(stderr, "WGC trace: frame callback signaled\n");
-            }
-        );
         capture_session = frame_pool.CreateCaptureSession(capture_item);
         capture_session.StartCapture();
     }
 
     // {
-    //   責務: [close: WGC event、capture session、frame poolを一度だけ終了する]
+    //   責務: [close: capture sessionとframe poolを一度だけ終了する]
     //   戻り値: [void: 再呼び出し可能な終了処理]
     // }
     void close() noexcept {
-        {
-            std::lock_guard lock(arrival_mutex);
-            if (is_closed) {
-                return;
-            }
-            is_closed = true;
-            if (frame_arrived_event != nullptr) {
-                SetEvent(frame_arrived_event);
-            }
+        if (is_closed.exchange(true)) {
+            return;
         }
         std::lock_guard capture_lock(capture_mutex);
-        try {
-            if (frame_pool && frame_arrived_token.value != 0) {
-                frame_pool.FrameArrived(frame_arrived_token);
-            }
-        } catch (...) {
-            // Event revocation failure must not prevent session and pool shutdown.
-        }
         try {
             if (capture_session) {
                 capture_session.Close();
@@ -285,69 +246,40 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
         capture_item = nullptr;
         capture_device = nullptr;
         native_device = nullptr;
-        {
-            std::lock_guard lock(arrival_mutex);
-            if (frame_arrived_event != nullptr) {
-                CloseHandle(frame_arrived_event);
-                frame_arrived_event = nullptr;
-            }
-        }
     }
 
     // {
-    //   責務: [next_frame: 到着済みWGC frameのうち最新の1枚を期限内にleaseとして返す]
-    //   引数: [timeout_ms: FrameArrived通知を待つ上限ミリ秒]
+    //   責務: [next_frame: WGC frame poolを短い間隔で確認し最新frameを期限内にleaseとして返す]
+    //   引数: [timeout_ms: frame poolからframeを取得するまでの上限ミリ秒]
     //   戻り値: [unique_ptr<kadoka_wgc_frame>: callerがreleaseするtexture lease、timeout時はnull]
     // }
     std::unique_ptr<kadoka_wgc_frame> next_frame(uint32_t timeout_ms) {
-        std::fprintf(stderr, "WGC trace: next_frame entered\n");
         std::unique_lock capture_lock(capture_mutex, std::try_to_lock);
         if (!capture_lock.owns_lock()) {
             throw winrt::hresult_error(E_ILLEGAL_METHOD_CALL);
         }
-        std::fprintf(stderr, "WGC trace: capture lock acquired\n");
 
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
-        uint64_t observed_generation = 0;
         while (std::chrono::steady_clock::now() < deadline) {
-            DWORD wait_timeout_ms = 0u;
-            {
-                const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    deadline - std::chrono::steady_clock::now()
-                ).count();
-                wait_timeout_ms = static_cast<DWORD>(std::clamp<int64_t>(remaining, 1, MAXDWORD - 1));
-                std::lock_guard arrival_lock(arrival_mutex);
-                if (is_closed || frame_arrived_event == nullptr) {
-                    return nullptr;
-                }
-            }
-
-            std::fprintf(stderr, "WGC trace: waiting on event handle=%p timeout=%lu\n", frame_arrived_event, wait_timeout_ms);
-            const DWORD wait_result = WaitForSingleObject(frame_arrived_event, wait_timeout_ms);
-            std::fprintf(stderr, "WGC trace: event wait result=%lu\n", wait_result);
-            if (wait_result == WAIT_TIMEOUT) {
+            if (is_closed.load()) {
                 return nullptr;
             }
-            if (wait_result != WAIT_OBJECT_0) {
-                const HRESULT wait_error = HRESULT_FROM_WIN32(GetLastError());
-                throw winrt::hresult_error(FAILED(wait_error) ? wait_error : E_FAIL);
-            }
-            {
-                std::lock_guard arrival_lock(arrival_mutex);
-                if (is_closed || frame_arrived_event == nullptr) {
-                    return nullptr;
-                }
-                observed_generation = arrival_generation;
-                if (!ResetEvent(frame_arrived_event)) {
-                    const HRESULT reset_error = HRESULT_FROM_WIN32(GetLastError());
-                    throw winrt::hresult_error(FAILED(reset_error) ? reset_error : E_FAIL);
-                }
-            }
 
-            std::fprintf(stderr, "WGC trace: trying next frame\n");
             auto captured_frame = frame_pool.TryGetNextFrame();
-            std::fprintf(stderr, "WGC trace: next frame available=%d\n", captured_frame ? 1 : 0);
+            if (is_closed.load()) {
+                if (captured_frame) {
+                    captured_frame.Close();
+                }
+                return nullptr;
+            }
             if (!captured_frame) {
+                const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    deadline - std::chrono::steady_clock::now()
+                );
+                const auto poll_interval = std::min(remaining, kFramePoolPollInterval);
+                if (poll_interval.count() > 0) {
+                    Sleep(static_cast<DWORD>(poll_interval.count()));
+                }
                 continue;
             }
             while (auto newer_frame = frame_pool.TryGetNextFrame()) {
@@ -381,7 +313,7 @@ struct WgcSessionState : std::enable_shared_from_this<WgcSessionState> {
 
             frame_lease->width = static_cast<uint32_t>(content_size.Width);
             frame_lease->height = static_cast<uint32_t>(content_size.Height);
-            frame_lease->frame_id = observed_generation;
+            frame_lease->frame_id = ++next_frame_id;
             const int64_t capture_time_units = captured_frame.SystemRelativeTime().count();
             if (capture_time_units > 0 && static_cast<uint64_t>(capture_time_units) <=
                     std::numeric_limits<uint64_t>::max() / kNanosecondsPerWinRtTimeUnit) {
@@ -549,9 +481,7 @@ int32_t kadoka_wgc_next_frame(
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
     try {
-        std::fprintf(stderr, "WGC trace: C ABI calling next_frame\n");
         auto frame = session->state->next_frame(timeout_ms);
-        std::fprintf(stderr, "WGC trace: C ABI next_frame returned=%d\n", frame ? 1 : 0);
         if (!frame) {
             return KADOKA_RUNTIME_STATUS_TIMEOUT;
         }
