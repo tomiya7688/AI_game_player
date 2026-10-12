@@ -3,13 +3,14 @@ from __future__ import annotations
 import ctypes
 import os
 import time
-from typing import TYPE_CHECKING, Callable
+from typing import Any, Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ai_game_player.action_executor import ExecutionResult
 
 from ai_game_player.fail_safe_runtime import InputLedger
 from ai_game_player.models import ActionCandidate
+from ai_game_player.windows_abi import configure_user32_prototypes
 
 
 SPECIAL_KEYS = {
@@ -33,6 +34,18 @@ WINDOW_MESSAGE_MOUSE_UP_FAILURE_MESSAGE = (
     "対象ウィンドウへのマウス解放送信に失敗しました。"
     "ボタンが押されたままの可能性があります。Sessionを停止し、対象ウィンドウの状態を確認してください。"
 )
+
+
+# {
+#   責務: [_user32_with_prototypes: 入力送信に使うuser32関数を取得し、Windows ABIの型を設定する]
+#   処理: [ctypes.windllからuser32を取得し、HWND・座標・message引数と戻り値のprototypeを宣言する]
+#   引数: []
+#   戻り値: [Any: prototype設定後のuser32ライブラリまたはtest double]
+# }
+def _user32_with_prototypes() -> Any:
+    user32 = getattr(ctypes, "windll").user32
+    configure_user32_prototypes(user32)
+    return user32
 
 
 # {
@@ -165,7 +178,7 @@ class WindowsInputExecutor:
         if self.window_handle is None or not self.window_process_id:
             raise RuntimeError("live Windows input requires a selected window and its process identity")
 
-        user32 = getattr(ctypes, "windll").user32
+        user32 = _user32_with_prototypes()
         if not user32.IsWindow(self.window_handle):
             raise RuntimeError("selected target window is no longer available")
 
@@ -200,7 +213,7 @@ class WindowsInputExecutor:
     def _execute_click(self, candidate: ActionCandidate) -> None:
         if candidate.x is None or candidate.y is None:
             raise ValueError("click action requires coordinates")
-        user32 = getattr(ctypes, "windll").user32
+        user32 = _user32_with_prototypes()
         if self.input_mode == "window_message":
             if self.window_handle is None:
                 raise RuntimeError("window_message requires a selected window")
@@ -260,7 +273,7 @@ class WindowsInputExecutor:
     #   エラー: [HWND欠落または送信失敗でRuntimeError。失敗した操作と利用者の確認手順を示す]
     # }
     def _post_click(self, lparam: int) -> None:
-        user32 = getattr(ctypes, "windll").user32
+        user32 = _user32_with_prototypes()
         if self.window_handle is None:
             raise RuntimeError("window_message requires a selected window")
         self._ledger_hold_mouse("left")
@@ -284,10 +297,19 @@ class WindowsInputExecutor:
                 self._held_mouse_lparams.pop("left", None)
                 self._ledger_release_mouse("left")
 
+    # {
+    #   責務: [_execute_key: key Actionのlabelを仮想キーへ変換して選択中の入力方式で実行する]
+    #   処理: [定義済みkey名を優先し、それ以外は1文字のWCHARをVkKeyScanWへ渡す。hold中だけ押下しfinallyで解放する]
+    #   引数: [candidate: key labelとhold_secondsを持つ安全評価済みAction]
+    #   戻り値: []
+    #   エラー: [labelから仮想キーを解決できない場合ValueError。Win32入力失敗時は入力APIのRuntimeError]
+    # }
     def _execute_key(self, candidate: ActionCandidate) -> None:
-        user32 = getattr(ctypes, "windll").user32
+        user32 = _user32_with_prototypes()
         key_name = candidate.label.strip().upper()
-        key_code = SPECIAL_KEYS.get(key_name, user32.VkKeyScanW(ord(candidate.label[0])) if candidate.label else -1)
+        key_code = SPECIAL_KEYS.get(key_name)
+        if key_code is None:
+            key_code = user32.VkKeyScanW(candidate.label[0]) if candidate.label else -1
         if key_code < 0:
             raise ValueError("key action requires a supported key label")
         virtual_key = key_code & 0xFF
@@ -307,7 +329,7 @@ class WindowsInputExecutor:
     #   エラー: [対象HWND欠落またはwindow_message送信失敗でRuntimeError。対象の応答状態と入力方式の確認を促す]
     # }
     def _key_down(self, virtual_key: int) -> None:
-        user32 = getattr(ctypes, "windll").user32
+        user32 = _user32_with_prototypes()
         self._ledger_hold_key(virtual_key)
         try:
             if self.input_mode == "window_message":
@@ -333,7 +355,7 @@ class WindowsInputExecutor:
     #   エラー: [対象HWND欠落またはwindow_message送信失敗でRuntimeError。キー残留の可能性とSession停止を示す]
     # }
     def _key_up(self, virtual_key: int) -> None:
-        user32 = getattr(ctypes, "windll").user32
+        user32 = _user32_with_prototypes()
         released = False
         try:
             if self.input_mode == "window_message":
@@ -357,7 +379,7 @@ class WindowsInputExecutor:
             raise ValueError(f"unsupported mouse button: {button}")
         self._ledger_hold_mouse(button)
         try:
-            getattr(ctypes, "windll").user32.mouse_event(0x0002, 0, 0, 0, 0)
+            _user32_with_prototypes().mouse_event(0x0002, 0, 0, 0, 0)
         except Exception:
             self._ledger_release_mouse(button)
             raise
@@ -377,10 +399,10 @@ class WindowsInputExecutor:
                 if self.window_handle is None:
                     raise RuntimeError("window_message requires a selected window")
                 lparam = self._held_mouse_lparams.get(button, 0)
-                if not getattr(ctypes, "windll").user32.PostMessageW(self.window_handle, 0x0202, 0, lparam):
+                if not _user32_with_prototypes().PostMessageW(self.window_handle, 0x0202, 0, lparam):
                     raise RuntimeError(WINDOW_MESSAGE_MOUSE_UP_FAILURE_MESSAGE)
             elif button == "left":
-                getattr(ctypes, "windll").user32.mouse_event(0x0004, 0, 0, 0, 0)
+                _user32_with_prototypes().mouse_event(0x0004, 0, 0, 0, 0)
             released = True
         finally:
             if released:
