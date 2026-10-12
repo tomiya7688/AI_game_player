@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from ai_game_player.frame_analyzer import FrameAnalyzer
+from ai_game_player.frame_preprocessor import PythonFramePreprocessor
 from ai_game_player.screen_capture import ScreenFrame
 
 
@@ -32,6 +33,14 @@ class FrameAnalyzerTest(unittest.TestCase):
         self.assertEqual(observation.features["mean_rgb"], {"r": 30, "g": 20, "b": 10})
         self.assertEqual(len(observation.features["signature"]), 64)
         self.assertEqual(len(observation.features["perceptual_hash"]), 16)
+
+    def test_explicit_python_preprocessor_preserves_frame_features(self):
+        frame = load_ppm(FIXTURES / "bright_button.ppm")
+        fallback = FrameAnalyzer(frame_preprocessor=PythonFramePreprocessor()).analyze(frame, "fallback")
+        default = FrameAnalyzer().analyze(frame, "default")
+
+        for key in ("mean_rgb", "mean_brightness", "signature", "perceptual_hash", "image_candidates", "detected_elements"):
+            self.assertEqual(default.features[key], fallback.features[key], key)
 
     def test_fixture_image_emits_common_detected_element_and_legacy_candidate(self):
         observation = FrameAnalyzer().analyze(load_ppm(FIXTURES / "bright_button.ppm"), "fixture")

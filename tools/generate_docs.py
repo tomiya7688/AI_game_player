@@ -6,11 +6,14 @@ import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 try:
+    from .analyze_repo import RepositoryMapGenerator
     from .generate_class_diagram import render_class_diagram
     from .generate_sequence_diagram import render_sequence_diagram
 except ImportError:  # Direct execution: python tools/generate_docs.py
+    from analyze_repo import RepositoryMapGenerator
     from generate_class_diagram import render_class_diagram
     from generate_sequence_diagram import render_sequence_diagram
 
@@ -19,6 +22,7 @@ except ImportError:  # Direct execution: python tools/generate_docs.py
 class GeneratedDocument:
     path: Path
     content: str
+    publisher: Callable[[str], None] | None = None
 
 
 def project_root() -> Path:
@@ -52,13 +56,26 @@ def generated_documents(root: Path, config: dict) -> list[GeneratedDocument]:
                 ),
             )
         )
+    repository_map_config = config.get("repository_map")
+    if repository_map_config is not None:
+        generator = RepositoryMapGenerator(root, Path(repository_map_config["config"]))
+        documents.append(
+            GeneratedDocument(
+                generator.output_path(),
+                generator.render(),
+                generator.publish,
+            )
+        )
     return documents
 
 
 def write_documents(documents: list[GeneratedDocument]) -> None:
     for document in documents:
         document.path.parent.mkdir(parents=True, exist_ok=True)
-        document.path.write_text(document.content, encoding="utf-8")
+        if document.publisher is None:
+            document.path.write_text(document.content, encoding="utf-8")
+        else:
+            document.publisher(document.content)
 
 
 def stale_documents(documents: list[GeneratedDocument]) -> list[Path]:

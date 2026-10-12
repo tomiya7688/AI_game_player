@@ -225,6 +225,7 @@ class DecisionVerifierTest(unittest.TestCase):
         for reason in (
             "終了確認を避けるため終了を選択する",
             "終了確認は避けるので終了を選択する",
+            "終了を避ける必要はないので終了を選択する",
         ):
             with self.subTest(reason=reason):
                 decision = ActionDecision(
@@ -252,6 +253,24 @@ class DecisionVerifierTest(unittest.TestCase):
             self.observation,
         )
         self.assertEqual(rejected.status, ReliabilityStatus.REJECT)
+
+    def test_japanese_candidate_inside_prefixed_compound_is_not_treated_as_standalone(self):
+        selected = ActionCandidate("normal-finish", "wait", "終了", confidence=0.9)
+        forced = ActionCandidate("forced-finish", "wait", "強制終了", confidence=0.9)
+        candidates = [selected, forced]
+        context = DecisionContextBuilder().build(self.observation, candidates, candidates)
+        decision = ActionDecision(
+            "normal-finish",
+            "強制終了を避けるため終了を選択する",
+            "test-provider",
+            context.snapshot_id,
+            "menu",
+            "menu-v1",
+        )
+
+        result = self.verifier.verify(decision, context, self.observation)
+
+        self.assertEqual(result.status, ReliabilityStatus.TRUST)
 
     def test_rejects_negation_of_one_character_action(self):
         candidate = ActionCandidate("A", "wait", "A", confidence=0.9)

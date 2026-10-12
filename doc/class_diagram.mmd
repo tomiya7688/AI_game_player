@@ -51,29 +51,68 @@ classDiagram
         +_append()
         +_read()
     }
-    class MemorySource {
+    class TkAfterScheduler {
         +__init__()
-        +read()
+        +schedule()
+        +cancel()
     }
     class Application {
         +__init__()
         +_save_shell_state()
         +_set_status()
         +_refresh_execution_controls()
+        +_is_looping()
+        +_complete_session_step()
+        +_create_session_runtime()
+        +_perform_session_step()
+        +_observe_for_loop()
+        +_on_session_state_change()
+        +_on_session_error()
+        +_on_live_execution_changed()
         +_validate_live_execution()
         +_cursor_position()
+        +_record_automated_cursor_position()
         +_poll_global_stop()
         +check_ollama()
         +refresh_models()
         +refresh_windows()
         +_assess_observation()
         +capture_screen()
+        +_start_assessment_worker()
+        +_assess_observation_in_background()
+        +_start_pipeline_worker()
+        +_run_pipeline_in_background()
+        +_run_is_current()
+        +_poll_background_results()
         +start_loop()
-        +_loop_step()
         +start()
         +stop()
         +run_and_execute()
         +run()
+        +_run_session_step()
+        +_application_settings()
+        +_display_step_evaluation()
+        +close()
+    }
+    class MemorySource {
+        +__init__()
+        +update()
+        +read()
+    }
+    class ApplicationSettings {
+    }
+    class PreparedObservation {
+    }
+    class PreparedSessionStep {
+    }
+    class ApplicationWorkflowService {
+        +__init__()
+        +assess_outcome()
+        +assess_locally()
+        +list_models()
+        +create_session_runtime()
+        +prepare_step()
+        +update_observation()
     }
     ValueError <|-- ArtifactIntegrityError
     class ArtifactIntegrityError {
@@ -108,6 +147,10 @@ classDiagram
         +_write_staged_file()
         +_fsync_directory()
     }
+    class StagedJsonWrite {
+        +publish()
+        +discard()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
@@ -124,10 +167,6 @@ classDiagram
         +_priority()
         +_normalize_text()
         +_iou()
-    }
-    Protocol <|-- FrameCapture
-    class FrameCapture {
-        +capture()
     }
     class CapturedObservationSource {
         +__init__()
@@ -161,6 +200,8 @@ classDiagram
     class SafetyContextEvaluator {
         +__init__()
         +evaluate()
+        +evaluate_batch()
+        +_evidence_from_report()
     }
     class RepetitionContextEvaluator {
         +__init__()
@@ -181,8 +222,11 @@ classDiagram
     class DecisionTraceStore {
         +__init__()
         +append()
+        +prepare_append()
         +mark_action_not_executed()
         +append_rejection()
+        +_append_entry()
+        +_update_entry()
         +record_action_outcome()
         +recent()
         +recent_actions()
@@ -213,6 +257,7 @@ classDiagram
         +step()
         +mark_last_decision_not_executed()
         +_bind_legacy_context_references()
+        +step_with_candidate()
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
@@ -247,6 +292,39 @@ classDiagram
         +explain()
         +evaluate()
         +_rejection_reason()
+    }
+    RuntimeError <|-- EventJournalError
+    class EventJournalError {
+    }
+    EventJournalError <|-- EventJournalCorruptionError
+    class EventJournalCorruptionError {
+    }
+    EventJournalError <|-- EventJournalClosedError
+    class EventJournalClosedError {
+    }
+    class EventEnvelope {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class EventJournal {
+        +__init__()
+        +session_id()
+        +last_sequence()
+        +append()
+        +_read_event_by_id()
+        +flush()
+        +close()
+        +__enter__()
+        +__exit__()
+        +_ensure_writable()
+        +_initialize_database()
+        +_create_database_schema()
+        +_remove_incomplete_new_database()
+        +_recover_existing_records()
+        +_require_connection()
+        +_rollback_open_transaction()
+        +_discard_connection()
     }
     class ExecutionHistory {
         +__init__()
@@ -377,9 +455,108 @@ classDiagram
         +__init__()
         +analyze()
     }
+    class FramePrimitiveBatch {
+    }
+    Protocol <|-- FramePreprocessor
+    class FramePreprocessor {
+        +preprocess()
+    }
+    class PythonFramePreprocessor {
+        +__init__()
+        +preprocess()
+    }
+    Protocol <|-- FrameCapture
+    class FrameCapture {
+        +capture()
+    }
+    Enum <|-- FrameDeliveryMode
+    class FrameDeliveryMode {
+    }
+    class FramePacket {
+    }
+    class FrameProducerMetrics {
+    }
+    RuntimeError <|-- FrameProducerError
+    class FrameProducerError {
+    }
+    class FrameSubscriber {
+        +__init__()
+        +dropped_frames()
+        +pending_frames()
+        +is_closed()
+        +get()
+        +_publish()
+        +_discard_pending()
+        +_finish()
+        +close()
+    }
+    Protocol <|-- SessionRuntime
+    class SessionRuntime {
+        +run()
+        +run_and_execute()
+        +load_execution_history()
+        +assess_outcome()
+        +close()
+    }
+    Protocol <|-- SessionScheduler
+    class SessionScheduler {
+        +schedule()
+        +cancel()
+    }
+    str <|-- SessionStatus
+    Enum <|-- SessionStatus
+    class SessionStatus {
+    }
+    class SessionStep {
+    }
+    class LoopObservation {
+    }
+    class SessionSnapshot {
+    }
+    class GameSessionController {
+        +__init__()
+        +status()
+        +snapshot()
+        +is_running()
+        +is_looping()
+        +has_pending_step()
+        +start()
+        +step()
+        +complete_step()
+        +start_loop()
+        +stop()
+        +ensure_running()
+        +assess_outcome()
+        +rearm_token()
+        +_schedule_next()
+        +_run_loop_step()
+        +complete_loop_observation()
+        +_apply_loop_observation()
+        +_finish()
+        +_mark_shutdown_failed()
+        +_fail()
+        +_close_runtime()
+        +_cancel_scheduled()
+        +_notify_error()
+        +_notify()
+    }
     class HistoryStore {
         +__init__()
         +append()
+        +prepare_append()
+    }
+    class StagedJournalAppend {
+        +__init__()
+        +publish()
+        +discard()
+    }
+    class LegacyEventAdapter {
+        +__init__()
+        +records()
+        +prepare_append()
+        +_append_record()
+        +_read_legacy_records()
+        +_legacy_event_id()
     }
     class KnowledgeStore {
         +__init__()
@@ -454,6 +631,29 @@ classDiagram
     }
     class ActionDecision {
         +to_dict()
+    }
+    class WindowCaptureSource {
+        +__init__()
+        +capture()
+    }
+    Protocol <|-- FrameAnalyzerFactory
+    class FrameAnalyzerFactory {
+        +__call__()
+    }
+    Protocol <|-- FrameAnalyzer
+    class FrameAnalyzer {
+        +analyze()
+    }
+    class LiveObservationService {
+        +__init__()
+        +capture_observation()
+        +subscribe_frames()
+        +_get_latest_frame_packet()
+        +_ensure_frame_producer()
+        +_stop_frame_producer()
+        +close()
+        +_create_frame_analyzer()
+        +_create_ocr_recognizer()
     }
     Protocol <|-- ObservationSource
     class ObservationSource {
@@ -575,11 +775,16 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
         +rearm_safety()
         +close()
+        +close_execution_resources()
+        +close_event_journal()
+        +record_shutdown_failure()
         +_sync_runtime_rearm()
+        +_bind_execution_stop_checker()
         +_safety_context()
     }
     class RuleProvider {
@@ -599,12 +804,19 @@ classDiagram
         +__init__()
         +detect()
     }
+    RuntimeError <|-- ExecutionCancelled
+    class ExecutionCancelled {
+        +__init__()
+    }
     class RunController {
         +__init__()
         +is_running()
         +rearm_token()
+        +stop_reason()
         +start()
         +stop()
+        +_validate_running_locked()
+        +run_if_current()
         +ensure_running()
     }
     class ResolutionFailure {
@@ -687,6 +899,18 @@ classDiagram
     ctypes.Structure <|-- _BatchResult
     class _BatchResult {
     }
+    ctypes.Structure <|-- _FrameInput
+    class _FrameInput {
+    }
+    ctypes.Structure <|-- _FrameRegion
+    class _FrameRegion {
+    }
+    ctypes.Structure <|-- _FrameResult
+    class _FrameResult {
+    }
+    ctypes.Structure <|-- _WgcFrameInfo
+    class _WgcFrameInfo {
+    }
     class NativeRuntimeInfo {
     }
     class NativeBatchResult {
@@ -699,6 +923,18 @@ classDiagram
         +descriptor()
         +is_healthy()
         +process_batch()
+        +is_wgc_capture_supported()
+        +open_wgc_window()
+        +_capture_wgc_frame()
+        +preprocess()
+        +_valid_frame_result()
+        +close()
+        +__enter__()
+        +__exit__()
+    }
+    class NativeWgcWindow {
+        +__init__()
+        +capture()
         +close()
         +__enter__()
         +__exit__()
@@ -710,8 +946,28 @@ classDiagram
         +names()
         +resolve()
     }
+    class SessionRuntimeConfiguration {
+    }
+    class ManagedSessionRuntime {
+        +__init__()
+        +run()
+        +run_and_execute()
+        +load_execution_history()
+        +assess_outcome()
+        +close()
+    }
+    class RuntimeComposition {
+        +__init__()
+        +create_session_runtime()
+        +assess_outcome()
+        +assess_locally()
+        +explain_actions()
+        +list_models()
+    }
     class RuntimeLog {
         +__init__()
+        +attach_event_journal()
+        +detach_event_journal()
         +write()
     }
     str <|-- SafetyState
@@ -789,6 +1045,9 @@ classDiagram
     class WindowsScreenCapture {
         +__init__()
         +capture()
+        +_capture_with_wgc()
+        +_close_wgc_session()
+        +close()
         +_is_visible_and_unoccluded()
     }
     class ScreenSimilarity {
@@ -796,6 +1055,47 @@ classDiagram
         +compare()
         +_fallback_similarity()
         +_result()
+    }
+    class SelfCheckMonitor {
+        +__init__()
+        +observe()
+        +reset()
+        +_detect_repeated_cycle()
+        +_detect_stagnation()
+        +_detect_outcome_mismatch()
+        +_detect_scene_duration()
+        +_detect_evaluator_disagreement()
+        +_create_event()
+    }
+    str <|-- SelfCheckCategory
+    Enum <|-- SelfCheckCategory
+    class SelfCheckCategory {
+    }
+    str <|-- SelfCheckSeverity
+    Enum <|-- SelfCheckSeverity
+    class SelfCheckSeverity {
+    }
+    class SelfCheckConfig {
+        +__post_init__()
+    }
+    class SelfCheckSample {
+        +__post_init__()
+    }
+    class SelfCheckEvent {
+        +__post_init__()
+        +to_dict()
+    }
+    class SharedFrameProducer {
+        +__init__()
+        +metrics()
+        +subscribe()
+        +start()
+        +stop()
+        +replace_source()
+        +_remove_subscriber()
+        +_notify_finished_subscribers()
+        +_finish_locked()
+        +_capture_loop()
     }
     class ShellState {
         +__post_init__()
@@ -981,6 +1281,7 @@ classDiagram
     class WindowsInputExecutor {
         +__init__()
         +execute()
+        +_verify_target_identity()
         +release_all()
         +_execute_click()
         +_post_click()

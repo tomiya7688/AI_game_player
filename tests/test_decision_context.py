@@ -11,6 +11,8 @@ from ai_game_player.decision_context import (
     RepetitionContextEvaluator,
 )
 from ai_game_player.engine import GamePlayerEngine
+from ai_game_player.event_journal import EventJournal
+from ai_game_player.journal_adapters import LegacyEventAdapter
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
@@ -79,6 +81,24 @@ class DecisionContextTest(unittest.TestCase):
         self.assertTrue(packaged.evaluator_conflict)
         self.assertIn("evaluator_conflict", packaged.uncertainty)
         self.assertIn("candidate_evaluator_conflict", context.uncertainty)
+
+    def test_decision_context_records_batch_duplicate_rejection_reason(self):
+        duplicate_candidates = [
+            ActionCandidate("duplicate", "wait", "First"),
+            ActionCandidate("duplicate", "wait", "Second"),
+        ]
+
+        context = DecisionContextBuilder().build(
+            self.observation(),
+            duplicate_candidates,
+            [],
+        )
+
+        self.assertEqual([candidate.allowed for candidate in context.candidates], [False, False])
+        self.assertEqual(
+            [candidate.evaluations[0].evidence for candidate in context.candidates],
+            ["duplicate_action_id", "duplicate_action_id"],
+        )
 
     def test_candidate_knowledge_keeps_source_confidence_and_provenance(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -267,6 +287,50 @@ class DecisionContextTest(unittest.TestCase):
         self.assertTrue(marked)
         self.assertEqual(audit_trace[0]["execution_status"], "blocked")
         self.assertEqual(audit_trace[0]["execution_block_reason"], "verification required")
+        self.assertEqual(recent_actions, [])
+
+    def test_journal_trace_patches_keep_outcomes_and_blocked_status(self):
+        candidate = self.candidate()
+        context = DecisionContextBuilder().build(self.observation(), [candidate], [candidate])
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal = EventJournal(root / "session.sqlite3", session_id="decision-trace-patches")
+            adapter = LegacyEventAdapter(
+                journal,
+                root / "decision_trace.json",
+                "decision.trace",
+                migrate_legacy=False,
+            )
+            store = DecisionTraceStore(root / "decision_trace.json", adapter)
+            store.append(
+                context,
+                ActionDecision("start", "accepted", "test-provider"),
+                reliability={"status": "TRUST"},
+            )
+
+            self.assertTrue(
+                store.record_action_outcome(
+                    context.snapshot_id,
+                    "start",
+                    {"status": "success", "state_changed": True},
+                )
+            )
+            self.assertTrue(
+                store.mark_action_not_executed(
+                    context.snapshot_id,
+                    "start",
+                    "live verification required",
+                )
+            )
+
+            recent_trace = store.recent()
+            recent_actions = store.recent_actions()
+            journal.close()
+
+        self.assertEqual(len(recent_trace), 1)
+        self.assertEqual(recent_trace[0]["action_outcome"]["status"], "success")
+        self.assertEqual(recent_trace[0]["execution_status"], "blocked")
+        self.assertEqual(recent_trace[0]["execution_block_reason"], "live verification required")
         self.assertEqual(recent_actions, [])
 
     def test_fusion_uses_confidence_and_reliability_independently(self):

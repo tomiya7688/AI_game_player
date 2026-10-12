@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
+from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
+from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -138,6 +140,29 @@ class SafetyContextEvaluator:
         previous_outcome: OutcomeAssessment,
     ) -> EvaluatorEvidence:
         report = self.evaluator.explain(observation, [candidate])[0]
+        return self._evidence_from_report(report)
+
+    # {
+    #   責務: [evaluate_batch: 同じ候補集合に対するSafety結果を候補ごとに返す]
+    #   処理: [全候補を一括評価し、重複action IDの拒否理由を候補単位の証拠へ変換する]
+    #   引数: [observation: 候補座標を検証する画面観測, candidates: 同一batchとして評価する候補集合]
+    #   戻り値: [list[EvaluatorEvidence]: 入力候補と同じ順序のSafety評価証拠]
+    # }
+    def evaluate_batch(
+        self,
+        observation: ScreenObservation,
+        candidates: list[ActionCandidate],
+    ) -> list[EvaluatorEvidence]:
+        reports = self.evaluator.explain(observation, candidates)
+        return [self._evidence_from_report(report) for report in reports]
+
+    # {
+    #   責務: [_evidence_from_report: ActionEvaluatorの1件分の報告をDecision Context用の証拠へ変換する]
+    #   処理: [許可状態をscoreへ、拒否理由を監査文字列へ対応付ける]
+    #   引数: [report: acceptedとreasonを含むActionEvaluatorの候補別報告]
+    #   戻り値: [EvaluatorEvidence: Decision Contextへ保存するSafety証拠]
+    # }
+    def _evidence_from_report(self, report: dict[str, object]) -> EvaluatorEvidence:
         accepted = bool(report["accepted"])
         return EvaluatorEvidence(
             self.name,
@@ -253,6 +278,12 @@ class DecisionContextBuilder:
         self.history_limit = history_limit
         self.knowledge = CandidateKnowledgeRetriever(knowledge_store, knowledge_limit)
 
+    # {
+    #   責務: [build: 観測・候補・評価・知識をDecision Provider向けsnapshotへまとめる]
+    #   処理: [Safety評価は同じ候補batchで一度行い、他の評価器は候補ごとに実行して証拠を統合する]
+    #   引数: [observation: 判断対象画面, candidates: SafetyとDecision Contextへ渡す全候補, allowed_candidates: 判断可能と確定した候補, recent_history: 直近の判断履歴, previous_outcome: 直前操作の結果, current_goal: 利用者の現在目標, short_term_goal: 次に達成する短期目標]
+    #   戻り値: [DecisionContext: Providerへ渡す圧縮済みの判断snapshot]
+    # }
     def build(
         self,
         observation: ScreenObservation,
@@ -268,10 +299,21 @@ class DecisionContextBuilder:
         history = history[-self.history_limit :] if self.history_limit else []
         outcome = previous_outcome or OutcomeAssessment("unknown", 0.0, "no previous action")
         allowed_ids = {candidate.action_id for candidate in allowed_candidates}
+        batch_safety_evidence = {
+            id(evaluator): evaluator.evaluate_batch(observation, candidates)
+            for evaluator in self.evaluators
+            if isinstance(evaluator, SafetyContextEvaluator)
+            and type(evaluator).evaluate is SafetyContextEvaluator.evaluate
+        }
         candidate_contexts: list[CandidateDecisionContext] = []
         global_uncertainty: list[str] = []
-        for candidate in candidates:
-            evaluations = [evaluator.evaluate(observation, candidate, history, outcome) for evaluator in self.evaluators]
+        for candidate_index, candidate in enumerate(candidates):
+            evaluations = [
+                batch_safety_evidence[id(evaluator)][candidate_index]
+                if id(evaluator) in batch_safety_evidence
+                else evaluator.evaluate(observation, candidate, history, outcome)
+                for evaluator in self.evaluators
+            ]
             score, confidence, conflict = self.fusion.fuse(evaluations)
             knowledge = self.knowledge.retrieve(candidate)
             uncertainty: list[str] = []
@@ -319,48 +361,26 @@ class DecisionContextBuilder:
 
 
 # {
-#   責務: [
-#     DecisionTraceStore: 画面状態、判断、判断の信頼性検査、操作結果を一件の履歴に結び付けて保存する
-#   ]
-#   フィールド: [
-#     path: 判断履歴のJSON配列を読み書きするファイルの場所
-#   ]
-#   処理: [
-#     1: 許可候補から選ばれた判断に、画面状態と選択理由を添えて追加する
-#     2: 拒否された判断や実行前に停止した理由も残し、行動履歴と区別する
-#     3: 操作後に届いた結果を、画面IDと操作IDが一致する判断へ結び付ける
-#     4: 一時ファイルへ全件を書いてから置き換え、途中終了で履歴が半端になるのを防ぐ
-#   ]
+#   責務: [DecisionTraceStore: 画面snapshot、判断、信頼性検査、実行結果を追記型traceへ保存する]
+#   フィールド: [path: 旧trace JSONの保存先, event_adapter: 指定時にSession Journalへ追記し旧reader形式も返すadapter]
+#   処理: [通常trace・拒否・実行前停止・操作結果を保存し、操作履歴には実行対象の判断だけを返す]
 # }
 class DecisionTraceStore:
 
     # {
-    #   責務: [
-    #     __init__: 判断履歴を保存するファイルの場所を記録し、このStoreの書き込み先を決める
-    #   ]
-    #   引数: [
-    #     path: 画面・判断・操作結果をJSON配列として保存するファイルの場所
-    #   ]
-    #   戻り値: [なし。保存先をインスタンスに保持する]
+    #   責務: [__init__: 旧trace JSONの保存先と任意のSession Journal adapterを保持する]
+    #   引数: [path: 旧trace JSONの場所, event_adapter: 指定時に新しいtrace eventを追記するJournal adapter]
+    #   戻り値: [なし。保存先をインスタンスへ保持する]
     # }
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, event_adapter: LegacyEventAdapter | None = None) -> None:
         self.path = path
+        self.event_adapter = event_adapter
 
     # {
-    #   責務: [
-    #     append: REJECTされず記録対象となった判断に、参照した画面・候補・検査記録を添えて履歴へ追加する
-    #   ]
-    #   処理: [
-    #     1: 既存履歴を読み込み、選択操作・画面状態・判断材料を一件にまとめる
-    #     2: 任意の信頼性検査記録がある場合は同じ履歴に関連付ける
-    #     3: 一時ファイルへ全件を書き、完成後に履歴ファイルと置き換える
-    #   ]
-    #   引数: [
-    #     context: モデルへ渡した画面状態、操作候補、目標、過去の操作結果
-    #     decision: 拒否されず候補一覧から選ばれた操作とその理由。追加確認が必要な状態も記録できる
-    #     reliability: 選択が画面や許可候補と矛盾しないかを調べた記録。未実施なら省略する
-    #   ]
-    #   戻り値: [なし。履歴ファイルを更新する。保存に失敗した場合は書き込み例外を呼び出し元へ返す]
+    #   責務: [append: 判断と任意の信頼性検査結果をtraceへ確定する]
+    #   処理: [未確定traceを準備し、Journalまたは旧JSONへ一度だけ公開する]
+    #   引数: [context: 判断元へ渡した画面・候補・目標・履歴, decision: 選ばれた許可候補, reliability: 形式と画面整合性を調べた結果。未実施なら省略]
+    #   戻り値: [なし。trace保存に失敗した場合は保存例外を呼び出し元へ伝える]
     # }
     def append(
         self,
@@ -369,8 +389,27 @@ class DecisionTraceStore:
         *,
         reliability: dict[str, Any] | None = None,
     ) -> None:
-        entries = self._read()
-        trace_entry: dict[str, Any] = {
+        staged_write = self.prepare_append(context, decision, reliability=reliability)
+        try:
+            staged_write.publish()
+        finally:
+            staged_write.discard()
+
+    # {
+    #   責務: [prepare_append: 判断と検査根拠を含むtraceを実行世代の確定前に準備する]
+    #   処理: [snapshot・判断・根拠を一件にし、Journal用遅延appendまたは旧JSON一時書込みを作る]
+    #   引数: [context: providerへ渡した判断context, decision: 選ばれた候補と理由, reliability: 任意の信頼性検査結果]
+    #   戻り値: [StagedJsonWrite | StagedJournalAppend: 呼出側が確定または破棄するtrace]
+    #   エラー: [OSError: trace JSONの準備に失敗した場合, ValueError: 既存trace JSONが配列ではない場合]
+    # }
+    def prepare_append(
+        self,
+        context: DecisionContext,
+        decision: ActionDecision,
+        *,
+        reliability: dict[str, Any] | None = None,
+    ) -> StagedJsonWrite | StagedJournalAppend:
+        entry: dict[str, Any] = {
             "snapshot_id": context.snapshot_id,
             "screen_id": context.state.get("screen_id", ""),
             "state_signature": context.state.get("signature", ""),
@@ -386,27 +425,18 @@ class DecisionTraceStore:
             "context": context.to_dict(),
         }
         if reliability is not None:
-            trace_entry["reliability"] = reliability
-        entries.append(trace_entry)
-        self._write(entries)
+            entry["reliability"] = reliability
+        if self.event_adapter is not None:
+            return self.event_adapter.prepare_append(entry)
+        entries = self._read()
+        entries.append(entry)
+        return stage_json_write(self.path, entries)
 
     # {
-    #   責務: [
-    #     mark_action_not_executed: 実行前の安全確認などで中止した判断を、実行済み操作と誤認されない状態に更新する
-    #   ]
-    #   処理: [
-    #     1: 新しい履歴から順に、指定画面と操作の判断記録を探す
-    #     2: 該当記録に停止状態と理由を保存し、見つからなければ何も変更しない
-    #     3: 停止した操作が次回の成功済み行動履歴に混ざらないようにする
-    #   ]
-    #   引数: [
-    #     snapshot_id: 中止した判断を特定する、判断時点の画面ID
-    #     action_id: 中止した操作候補のID
-    #     reason: 実行しなかった理由。安全判定や実行条件など、後から監査できる説明を渡す
-    #   ]
-    #   戻り値: [
-    #     bool: 一致する判断を見つけて停止状態を保存した場合True。該当履歴がなければFalse
-    #   ]
+    #   責務: [mark_action_not_executed: 実行前に停止した判断へ監査状態を追記する]
+    #   処理: [snapshot IDとaction IDでtraceを特定し、Journalではpatch event、旧JSONではatomic置換で停止理由を保存する]
+    #   引数: [snapshot_id: 判断時点の画面snapshot ID, action_id: 停止した候補ID, reason: 実行へ進まなかった理由]
+    #   戻り値: [bool: 対象traceを更新した場合True。対象判断がなければFalse]
     # }
     def mark_action_not_executed(self, snapshot_id: str, action_id: str, reason: str) -> bool:
         entries = self._read()
@@ -416,40 +446,72 @@ class DecisionTraceStore:
                 and entry.get("action_id") == action_id
                 and isinstance(entry.get("decision"), dict)
             ):
-                entry["execution_status"] = "blocked"
-                entry["execution_block_reason"] = reason
-                self._write(entries)
+                self._update_entry(
+                    entries,
+                    entry,
+                    {"execution_status": "blocked", "execution_block_reason": reason},
+                )
                 return True
         return False
 
     # {
-    #   責務: [
-    #     append_rejection: 信頼性検査で拒否した判断を、実行可能な選択と混同しない履歴として保存する
-    #   ]
-    #   処理: [
-    #     1: 拒否時に使った画面状態と検査結果を一件にまとめる
-    #     2: 実行する判断が存在しないことをdecision=nullで記録する
-    #     3: 一時ファイルへ全件を書き、完成後に履歴ファイルと置き換える
-    #   ]
-    #   引数: [
-    #     context: モデルに提示した候補や画面状態など、拒否判定の基になった情報
-    #     reliability: 不許可の理由と検査根拠を含む、信頼性判定の辞書
-    #   ]
-    #   戻り値: [なし。履歴ファイルを更新する。保存に失敗した場合は書き込み例外を呼び出し元へ返す]
+    #   責務: [append_rejection: 拒否したprovider判断を実行可能な選択と区別して監査履歴へ保存する]
+    #   処理: [decision=nullと信頼性検査結果を含むtrace recordをJournalまたは旧JSONへ追加する]
+    #   引数: [context: 拒否判定に使った画面・候補・目標, reliability: 拒否状態と検査根拠]
+    #   戻り値: [なし。保存に失敗した場合は保存例外を呼び出し元へ伝える]
     # }
     def append_rejection(self, context: DecisionContext, reliability: dict[str, Any]) -> None:
+        rejection = {
+            "snapshot_id": context.snapshot_id,
+            "screen_id": context.state.get("screen_id", ""),
+            "state_signature": context.state.get("signature", ""),
+            "action_id": reliability.get("action_id", ""),
+            "decision": None,
+            "reliability": reliability,
+            "context": context.to_dict(),
+        }
+        self._append_entry(rejection)
+
+    # {
+    #   責務: [_append_entry: 新しいtrace recordをJournalまたは旧JSONへ確定する]
+    #   処理: [Journal adapterの遅延appendをpublishし、adapter未指定時は原子的に旧JSONを置換する]
+    #   引数: [entry: 追加するdecision trace record]
+    #   戻り値: [なし。recordを保存した後に戻る]
+    # }
+    def _append_entry(self, entry: dict[str, Any]) -> None:
+        if self.event_adapter is not None:
+            staged_write = self.event_adapter.prepare_append(entry)
+            try:
+                staged_write.publish()
+            finally:
+                staged_write.discard()
+            return
         entries = self._read()
-        entries.append(
-            {
-                "snapshot_id": context.snapshot_id,
-                "screen_id": context.state.get("screen_id", ""),
-                "state_signature": context.state.get("signature", ""),
-                "action_id": reliability.get("action_id", ""),
-                "decision": None,
-                "reliability": reliability,
-                "context": context.to_dict(),
-            }
-        )
+        entries.append(entry)
+        self._write(entries)
+
+    # {
+    #   責務: [_update_entry: 操作結果または実行前停止を既存traceへ関連付ける]
+    #   処理: [Journalでは対象IDを指すpatchを追記し、旧JSONではrecordを更新して原子的に置換する]
+    #   引数: [entries: patch適用済みtrace一覧, target: 更新対象trace, fields: 追加または上書きする監査項目]
+    #   戻り値: [なし。更新recordを保存した後に戻る]
+    # }
+    def _update_entry(
+        self,
+        entries: list[dict[str, Any]],
+        target: dict[str, Any],
+        fields: dict[str, Any],
+    ) -> None:
+        if self.event_adapter is not None:
+            self._append_entry(
+                {
+                    "snapshot_id": target.get("snapshot_id", ""),
+                    "action_id": target.get("action_id", ""),
+                    "trace_update": fields,
+                }
+            )
+            return
+        target.update(fields)
         self._write(entries)
 
     # {
@@ -478,8 +540,7 @@ class DecisionTraceStore:
                 and entry.get("action_id") == action_id
                 and _is_action_history_entry(entry)
             ):
-                entry["action_outcome"] = outcome
-                self._write(entries)
+                self._update_entry(entries, entry, {"action_outcome": outcome})
                 return True
         return False
 
@@ -536,31 +597,43 @@ class DecisionTraceStore:
     #   エラー: [ValueError: ファイルの最上位がJSON配列でない場合。JSON解析や読み込みの例外も呼び出し元へ伝える]
     # }
     def _read(self) -> list[dict[str, Any]]:
-        if not self.path.exists():
+        if self.event_adapter is not None:
+            records = self.event_adapter.records
+        elif not self.path.exists():
             return []
-        value = json.loads(self.path.read_text(encoding="utf-8"))
-        if not isinstance(value, list):
-            raise ValueError("decision trace must contain an array")
-        return [entry for entry in value if isinstance(entry, dict)]
+        else:
+            value = json.loads(self.path.read_text(encoding="utf-8"))
+            if not isinstance(value, list):
+                raise ValueError("decision trace must contain an array")
+            records = [entry for entry in value if isinstance(entry, dict)]
+        projected: list[dict[str, Any]] = []
+        indexed_entries: dict[tuple[str, str], dict[str, Any]] = {}
+        for record in records:
+            patch = record.get("trace_update")
+            if isinstance(patch, dict):
+                key = (str(record.get("snapshot_id", "")), str(record.get("action_id", "")))
+                target = indexed_entries.get(key)
+                if target is not None:
+                    target.update(patch)
+                continue
+            projected.append(record)
+            key = (str(record.get("snapshot_id", "")), str(record.get("action_id", "")))
+            indexed_entries[key] = record
+        return projected
 
     # {
-    #   責務: [履歴全件を一時ファイルへ書き切ってから置き換え、途中失敗で既存履歴を壊さないよう保存する]
-    #   処理: [
-    #     1: 保存先の親ディレクトリがなければ作成する
-    #     2: Unicodeをそのまま保持した整形JSONを一時ファイルへ書く
-    #     3: 書き込み完了後に一時ファイルを保存先へ置き換える
-    #   ]
-    #   引数: [entries: 保存する判断履歴全件。各項目は辞書形式]
-    #   戻り値: [なし。ディスクへの置き換えが成功した後に戻る]
-    #   エラー: [ディレクトリ作成・書き込み・置き換えに失敗した場合は、入出力例外を呼び出し元へ伝える]
+    #   責務: [_write: trace全体を一時JSONへ書いてから保存先へ原子的に置き換える]
+    #   処理: [同じ保存先を対象にstage_json_writeを使い、公開後に一時ファイルを後始末する]
+    #   引数: [entries: 保存順に並んだtrace record全件]
+    #   戻り値: [なし。JSON置換が成功した後に戻る]
+    #   エラー: [OSError: 一時JSONの作成または保存先への置換に失敗した場合]
     # }
     def _write(self, entries: list[dict[str, Any]]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self.path.with_suffix(f".{uuid4().hex}.tmp")
-        temporary.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
-        temporary.replace(self.path)
-
-
+        staged_write = stage_json_write(self.path, entries)
+        try:
+            staged_write.publish()
+        finally:
+            staged_write.discard()
 def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     features = observation.features
     visible_text: list[str] = []

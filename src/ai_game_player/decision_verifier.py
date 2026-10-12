@@ -1,5 +1,6 @@
 import re
 from typing import Any, Callable, Sequence
+from unicodedata import category
 from uuid import uuid4
 
 from ai_game_player.decision_context import CandidateDecisionContext, DecisionContext
@@ -465,13 +466,13 @@ def _reason_contradicts_action(
         japanese_directives = r"選ばない|選択しない|使わない|避ける|拒否する|不適切"
         japanese_directive = (
             rf"(?P<directive_before>{japanese_directives})"
+            rf"(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN})"
             rf".{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}(?P<target_after>{escaped_term})"
             rf"|(?P<target_before>{escaped_term}).{{0,{JAPANESE_NEGATION_WINDOW_CHARS}}}"
             rf"(?:は|を|が)?(?P<directive_after>{japanese_directives})"
+            rf"(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN})"
         )
-        japanese_negation = (
-            rf"(?=(?:{japanese_directive})(?!{JAPANESE_NEGATION_CONTINUATION_PATTERN}))"
-        )
+        japanese_negation = rf"(?=(?:{japanese_directive}))"
         for match in re.finditer(japanese_negation, normalized_reason):
             if match.group("target_after") is not None:
                 target_start = match.start("target_after")
@@ -482,6 +483,8 @@ def _reason_contradicts_action(
                     term,
                     all_candidate_terms,
                 ):
+                    continue
+                if _has_japanese_compound_prefix(normalized_reason, target_start):
                     continue
                 if _mentions_longer_candidate_before_japanese_negation(
                     normalized_reason,
@@ -499,8 +502,28 @@ def _reason_contradicts_action(
                     all_candidate_terms,
                 ):
                     continue
+                if _has_japanese_compound_prefix(normalized_reason, target_start):
+                    continue
             return True
     return False
+
+
+# {
+#   責務: [_has_japanese_compound_prefix: 候補語の直前に助詞以外の日本語文字が続く部分一致を除外する]
+#   処理: [候補開始位置の1文字前を調べ、漢字・かな・英数字が助詞境界なしで接続していれば複合語の一部と判定する]
+#   引数: [reason: 空白と表記を正規化した判断理由, candidate_start: 候補語が始まる文字位置]
+#   戻り値: [bool: 候補語の前が独立境界ではない場合True]
+# }
+def _has_japanese_compound_prefix(reason: str, candidate_start: int) -> bool:
+    if candidate_start == 0:
+        return False
+    preceding_text = reason[:candidate_start]
+    if preceding_text.endswith(("から", "より", "ため", "ので")):
+        return False
+    preceding_character = reason[candidate_start - 1]
+    if preceding_character in JAPANESE_PARTICLE_CHARS or preceding_character.isspace():
+        return False
+    return category(preceding_character)[0] in {"L", "N"}
 
 
 # {
@@ -583,7 +606,7 @@ def _matches_longer_japanese_candidate(
 #     _mentions_longer_candidate_before_japanese_negation: 否定語の直前に別の長い候補名がある場合、その否定を選択候補の拒否と誤認しない
 #   ]
 #   処理: [
-#     1: 否定語の直前に定数で定めた範囲を取り、同じ書き出しの長い候補名を探す
+#     1: 否定語の直前に定数で定めた範囲を取り、選択候補語を含む長い候補名を探す
 #     2: 長い候補名の後に日本語の助詞が続き、その後に否定語があるか照合する
 #     3: 否定語が長い別候補へ掛かる場合Trueを返す
 #   ]
@@ -604,7 +627,10 @@ def _mentions_longer_candidate_before_japanese_negation(
     candidate_terms: set[str],
 ) -> bool:
     for other_term in candidate_terms:
-        if not other_term.startswith(selected_term) or len(other_term) <= len(selected_term):
+        if (
+            len(other_term) <= len(selected_term)
+            or not (other_term.startswith(selected_term) or other_term.endswith(selected_term))
+        ):
             continue
         preceding_text_start = max(0, directive_start - JAPANESE_NEGATION_WINDOW_CHARS - len(other_term))
         preceding_text = reason[preceding_text_start:directive_start]

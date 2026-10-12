@@ -1,4 +1,6 @@
 from pathlib import Path
+from datetime import datetime, timezone
+from typing import Callable
 
 from ai_game_player.action_executor import ActionExecutor, ExecutionResult
 from ai_game_player.action_safety import (
@@ -12,30 +14,60 @@ from ai_game_player.candidate_merger import CandidateMerger
 from ai_game_player.decision_verifier import ReliabilityStatus
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.fail_safe_runtime import FailSafeConfig, FailSafeRuntime, FailSafeState
+from ai_game_player.journal_adapters import LegacyEventAdapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
 from ai_game_player.run_control import RunController
 from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
+from ai_game_player.runtime_log import RuntimeLog
 
 
 # {
-#   責務: [
-#     DecisionPipeline: 画面入力から候補判断・危険度検査・安全な入力実行までの順序を管理する
-#   ]
-#   フィールド: [
-#     engine: 画面候補から判断を選び、画面・許可候補との整合を記録する処理
-#     safety_evaluator: 選択操作の対象範囲や不可逆性を、入力送信前に規則で調べる処理
-#     executor: 既定では実入力を送らず、設定で許可された場合だけ画面へ操作を送る実行器
-#   ]
-#   処理: [
-#     1: 画面・文字認識・部品検出から統合候補を作り、許可候補から操作を選ぶ
-#     2: 選択の信頼性記録を危険度評価へ渡し、二つの判定根拠を別々に保存する
-#     3: 実入力では危険判定と追加確認の条件を満たした場合だけ操作を送る。dry-runでは送信せず結果を記録する
-#   ]
+#   責務: [DecisionPipeline: 画面観測から検証済み判断、安全評価、世代guard付き実行までを接続する]
+#   フィールド: [source: 画面と候補を返す入力元, engine: Decision Context作成と回答検証, safety_evaluator: 操作リスク評価, executor: dry-runまたはOS入力, controller: 停止・再開世代, event_journal: 任意のSession event保存先]
+#   処理: [判断snapshotに含まれる候補実体を実行まで保ち、Action SafetyとDecision Reliabilityを別の根拠として記録する]
+#   履歴: [指定Journalへ判断・実行・安全eventを追記し、RuntimeLog bindingはこのPipelineが所有するtokenで解除する]
 # }
 class DecisionPipeline:
+    # {
+    #   責務: [
+    #     __init__: observation・判断・実行コンポーネントを対象識別情報付きで接続する
+    #   ]
+    #   処理: [
+    #     1: 候補生成と判断用componentを初期化する
+    #     2: HWND・PID・入力方式をActionExecutorへ渡す
+    #     3: RunControllerの停止状態を実入力の停止確認へ渡す
+    #     4: 自動カーソル通知関数をActionExecutorへ渡す
+    #     5: Session履歴・安全評価・RuntimeLog bindingを先に初期化し、失敗時にexecutorを残さない
+    #     6: すべての履歴adapter初期化後にActionExecutorを生成する
+    #   ]
+    #   引数: [
+    #     source: 判断対象の画面観測と操作候補を提供する入力元
+    #     game_directory: ゲーム固有の履歴・安全状態を保存するdirectory
+    #     provider: 操作候補から次の判断を選ぶProvider
+    #     controller: stop/rearm世代を共有するRunController
+    #     dry_run: trueなら入力を送らず実行内容だけを記録する設定
+    #     window_handle: 入力対象のHWND
+    #     input_mode: OS mouseまたはwindow messageの入力方式
+    #     window_process_id: 対象HWNDを所有するprocess ID
+    #     safety_evaluator: 操作候補のリスクを評価するoptional evaluator
+    #     safety_guard: 実入力を監視するoptional SafetyGuard
+    #     safety_guard_config: SafetyGuardの閾値と制限
+    #     emergency_stop: OS入力を停止するoptional emergency stop
+    #     fail_safe_runtime: persistent fail-safe状態を管理するoptional runtime
+    #     fail_safe_config: fail-safeの制限と復旧設定
+    #     external_watchdog: trueなら外部watchdog processを起動する設定
+    #     automated_cursor_position_callback: 自動入力workerの開始・完了位置を通知する関数
+    #     event_journal: このSession専用のevent保存先。未指定ならSession Journalを使わない
+    #     runtime_log: application log。Journal指定時はeventを同じSessionへ複製する
+    #     migrate_legacy: trueなら旧history・trace・execution・safety記録をJournalへ移行する
+    #     migrate_runtime_log: trueなら旧RuntimeLog JSONLをJournalへ移行する
+    #   ]
+    #   戻り値: []
+    # }
     def __init__(
         self,
         source: ObservationSource,
@@ -45,6 +77,7 @@ class DecisionPipeline:
         dry_run: bool = True,
         window_handle: int | None = None,
         input_mode: str = "mouse",
+        window_process_id: int | None = None,
         safety_evaluator: ActionSafetyEvaluator | None = None,
         safety_guard: SafetyGuard | None = None,
         safety_guard_config: SafetyGuardConfig | None = None,
@@ -52,30 +85,80 @@ class DecisionPipeline:
         fail_safe_runtime: FailSafeRuntime | None = None,
         fail_safe_config: FailSafeConfig | None = None,
         external_watchdog: bool = True,
+        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        event_journal: EventJournal | None = None,
+        runtime_log: RuntimeLog | None = None,
+        migrate_legacy: bool = True,
+        migrate_runtime_log: bool = True,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
         self.merger = CandidateMerger()
-        self.engine = GamePlayerEngine(game_directory, provider)
+        self.event_journal = event_journal
+        self.runtime_log = runtime_log
+        self._runtime_log_attachment_token: object | None = None
+        self._runtime_log_detached = runtime_log is None or event_journal is None
+        self._event_journal_closed = event_journal is None
+        self._executor_closed = False
+        self.engine = GamePlayerEngine(
+            game_directory,
+            provider,
+            event_journal=event_journal,
+            migrate_legacy=migrate_legacy,
+        )
         self.controller = controller or RunController()
         self._seen_rearm_token = 0
-        self.executor = ActionExecutor(
-            dry_run,
-            window_handle=window_handle,
-            input_mode=input_mode,
-            safety_guard=safety_guard,
-            safety_config=safety_guard_config,
-            safety_log_path=game_directory / "safety_guard.jsonl",
-            emergency_stop=emergency_stop,
-            fail_safe_runtime=fail_safe_runtime,
-            fail_safe_config=fail_safe_config,
-            fail_safe_state_directory=game_directory / "fail_safe",
-            external_watchdog=external_watchdog,
+        execution_history_path = game_directory / "execution_history.json"
+        self.execution_history = ExecutionHistory(
+            execution_history_path,
+            LegacyEventAdapter(
+                event_journal,
+                execution_history_path,
+                "execution.result",
+                migrate_legacy=migrate_legacy,
+            )
+            if event_journal is not None else None,
         )
-        self.execution_history = ExecutionHistory(game_directory / "execution_history.json")
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
-        self.safety_audit = ActionSafetyAuditLog(game_directory / "action_safety.json")
+        safety_audit_path = game_directory / "action_safety.json"
+        self.safety_audit = ActionSafetyAuditLog(
+            safety_audit_path,
+            LegacyEventAdapter(
+                event_journal,
+                safety_audit_path,
+                "safety.audit",
+                migrate_legacy=migrate_legacy,
+            )
+            if event_journal is not None else None,
+        )
         self.last_safety_result: ActionSafetyResult | None = None
+        if self.event_journal is not None and self.runtime_log is not None:
+            self._runtime_log_attachment_token = self.runtime_log.attach_event_journal(
+                self.event_journal,
+                migrate_legacy=migrate_runtime_log,
+            )
+        try:
+            self.executor = ActionExecutor(
+                dry_run,
+                window_handle=window_handle,
+                window_process_id=window_process_id,
+                input_mode=input_mode,
+                safety_guard=safety_guard,
+                safety_config=safety_guard_config,
+                safety_log_path=game_directory / "safety_guard.jsonl",
+                emergency_stop=emergency_stop,
+                fail_safe_runtime=fail_safe_runtime,
+                fail_safe_config=fail_safe_config,
+                fail_safe_state_directory=game_directory / "fail_safe",
+                external_watchdog=external_watchdog,
+                run_controller_stop_checker=lambda: not self.controller.is_running,
+                automated_cursor_position_callback=automated_cursor_position_callback,
+            )
+        except Exception:
+            if self._runtime_log_attachment_token is not None and self.runtime_log is not None:
+                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
+                self._runtime_log_detached = True
+            raise
 
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:
         observation, configured = self.source.read()
@@ -86,58 +169,78 @@ class DecisionPipeline:
         image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
         return observation, self.merger.merge(configured, detected, image)
 
+    # {
+    #   責務: [_decide: 候補を判断し、推論応答を履歴へ確定する前に停止状態を再検証する]
+    #   処理: [観測候補を取得してproviderを呼び、履歴公開をrun世代lock内で行うguardをengineへ渡す]
+    #   引数: [ocr_texts: 画面から認識したOCR候補, purpose: 判断providerへ渡すゲーム目標, personality: 判断方針, expected_rearm_token: 判断開始時の再開世代]
+    #   戻り値: [ActionDecision・候補・ScreenObservation: 同一snapshotの判断情報]
+    # }
     def _decide(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
         purpose: str = "",
         personality: str = "",
+        expected_rearm_token: int | None = None,
     ) -> tuple[ActionDecision, list[ActionCandidate], ScreenObservation]:
         observation, candidates = self._read_candidates(ocr_texts)
-        decision = self.engine.step(observation, candidates, purpose, personality)
+        decision, _ = self.engine.step_with_candidate(
+            observation,
+            candidates,
+            purpose,
+            personality,
+            before_provider=lambda: self.controller.ensure_running(expected_rearm_token),
+            commit_guard=lambda commit: self.controller.run_if_current(expected_rearm_token, commit),
+        )
         return decision, candidates, observation
 
-    def run(self, ocr_texts: list[dict[str, object]] | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
-        self.controller.ensure_running()
+    # {
+    #   責務: [run: 実行世代を固定して判断し、停止後に返った推論結果を破棄する]
+    #   処理: [開始時の世代を検証し、判断後にも同世代の実行許可を確認する]
+    #   引数: [expected_rearm_token: 呼び出し元が保持する実行開始時の世代]
+    #   戻り値: [ActionDecision: 有効な実行世代で得た判断]
+    #   エラー: [ExecutionCancelled: 停止後または再開前の推論結果]
+    # }
+    def run(
+        self,
+        ocr_texts: list[dict[str, object]] | None = None,
+        purpose: str = "",
+        personality: str = "",
+        expected_rearm_token: int | None = None,
+    ) -> ActionDecision:
+        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, _, _ = self._decide(ocr_texts, purpose, personality)
+        decision, _, _ = self._decide(ocr_texts, purpose, personality, run_token)
+        self.controller.ensure_running(run_token)
         return decision
 
     # {
-    #   責務: [
-    #     run_and_execute: 現在画面の判断と安全条件を確かめ、設定に応じて実入力またはdry-runを行う
-    #   ]
-    #   処理: [
-    #     1: 画面を取り込み、候補を統合して現在の画面に結び付いた選択を得る
-    #     2: 選択候補を危険度検査へ渡し、実行前確認が必要か判定する
-    #     3: BLOCKは常に停止し、実入力では安全性または選択信頼性の追加確認が残る場合も停止する
-    #     4: 設定がdry-runなら入力を送らず、それ以外は許可後に実行し、結果と監査記録を保存する
-    #   ]
-    #   引数: [
-    #     ocr_texts: 画面から別途得た文字列候補。省略時は観測に含まれるOCR候補を使う
-    #     purpose: 判断元と危険度検査に渡す、今回のゲーム内達成目的
-    #     personality: 判断元へ渡す任意の応答方針。候補の許可状態や安全条件を変える設定ではない
-    #   ]
-    #   戻り値: [
-    #     ExecutionResult: 入力未送信のdry-run結果、または実際に送信した操作の実行結果
-    #   ]
-    #   エラー: [
-    #     RuntimeError: 選択候補が統合一覧にない、安全判定がBLOCK、または実入力前の確認条件を満たさない場合
-    #   ]
+    #   責務: [run_and_execute: 現在画面で選んだ候補を信頼性・Action Safety・停止世代の条件に従って実行する]
+    #   処理: [同一snapshotの候補実体を固定し、Safety BLOCKまたは実入力前の追加確認が残る場合は履歴を停止扱いにして入力しない]
+    #   引数: [ocr_texts: 観測へ加えるOCR候補, purpose: ゲーム内達成目標, personality: provider応答方針, expected_rearm_token: 判断開始時の実行世代]
+    #   戻り値: [ExecutionResult: dry-runまたは入力executorが返した実行結果]
+    #   エラー: [RuntimeError: Safety条件が実行を拒否した場合, ExecutionCancelled: 判断または入力の途中で実行世代が失効した場合]
     # }
     def run_and_execute(
         self,
         ocr_texts: list[dict[str, object]] | None = None,
         purpose: str = "",
         personality: str = "",
+        expected_rearm_token: int | None = None,
     ) -> ExecutionResult:
-        self.controller.ensure_running()
+        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, candidates, observation = self._decide(ocr_texts, purpose, personality)
-        selected = next((candidate for candidate in candidates if candidate.action_id == decision.action_id), None)
-        if selected is None:
-            self.engine.mark_last_decision_not_executed("決定した候補が統合済み候補にありません")
-            raise RuntimeError("決定された候補が統合済み候補にありません")
-
+        observation, candidates = self._read_candidates(ocr_texts)
+        _, selected = self.engine.step_with_candidate(
+            observation,
+            candidates,
+            purpose,
+            personality,
+            before_provider=lambda: self.controller.ensure_running(run_token),
+            commit_guard=lambda commit: self.controller.run_if_current(run_token, commit),
+        )
+        self.controller.ensure_running(run_token)
         reliability_result = self.engine.last_reliability_result
         reliability_record = reliability_result.to_dict() if reliability_result is not None else None
         safety_context, snapshot_id = self._safety_context(selected.action_id, purpose, reliability_record)
@@ -151,11 +254,11 @@ class DecisionPipeline:
             requests = ", ".join(assessment.verification_requests)
             self.engine.mark_last_decision_not_executed(f"Action Safety verification required: {requests}")
             raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
-        if (
-            reliability_result is not None
-            and reliability_result.status != ReliabilityStatus.TRUST
-            and not self.executor.dry_run
-        ):
+        if not self.executor.dry_run and reliability_result is None:
+            raise RuntimeError(
+                "Decision Verifier did not produce a reliability result; live input is blocked"
+            )
+        if not self.executor.dry_run and reliability_result is not None and reliability_result.status != ReliabilityStatus.TRUST:
             self.engine.mark_last_decision_not_executed(
                 f"Decision Reliability requires verification: {reliability_result.status.value}"
             )
@@ -164,10 +267,27 @@ class DecisionPipeline:
                 f"{reliability_result.status.value}"
             )
 
-        result = self.executor.execute(selected)
+        self.controller.ensure_running(run_token)
+        self._bind_execution_stop_checker(run_token)
+        try:
+            result = self.executor.execute(selected)
+        except Exception as error:
+            if not getattr(self.executor, "input_dispatch_started", True):
+                self.engine.mark_last_decision_not_executed(
+                    f"OS入力を開始する前に実行器が失敗しました: {type(error).__name__}"
+                )
+            raise
         self.execution_history.append(result)
         self.safety_audit.append_execution(assessment.assessment_id, result)
         return result
+
+    # {
+    #   責務: [load_execution_history: pipelineが現在のlegacy互換形で保持する実行履歴を返す]
+    #   引数: [なし]
+    #   戻り値: [list[ExecutionResult]: 旧保存分とSession Journalの実行結果]
+    # }
+    def load_execution_history(self) -> list[ExecutionResult]:
+        return self.execution_history.load()
 
     def record_safety_outcome(self, status: str, confidence: float, evidence: str = "") -> None:
         if self.last_safety_result is None:
@@ -185,8 +305,112 @@ class DecisionPipeline:
         self.controller.start()
         self._sync_runtime_rearm()
 
+    # {
+    #   責務: [close: 入力executor・runtime log binding・Session Journalを終了する]
+    #   処理: [executor・runtime log・Journalを順番に閉じ、各cleanup errorを集めて送出する]
+    #   引数: [self: 終了するDecisionPipeline]
+    #   戻り値: []
+    #   エラー: [executorまたはJournal closeで発生した終了errorを呼出元へ送る]
+    # }
     def close(self) -> None:
-        self.executor.close()
+        close_errors: list[Exception] = []
+        try:
+            self.close_execution_resources()
+        except Exception as error:
+            close_errors.append(error)
+        try:
+            self.close_event_journal()
+        except Exception as error:
+            close_errors.append(error)
+        if close_errors:
+            raise RuntimeError("Pipeline cleanup failed: " + "; ".join(map(str, close_errors))) from close_errors[0]
+
+    # {
+    #   責務: [close_execution_resources: 実入力executorを停止し失敗をJournalへ記録する]
+    #   処理: [executor終了後もJournalを開いたままにして、後続Provider終了失敗を保存できるようにする]
+    #   引数: [なし]
+    #   戻り値: []
+    #   エラー: [Exception: executor終了またはJournalへの失敗記録に失敗した場合]
+    # }
+    def close_execution_resources(self) -> None:
+        if self._executor_closed:
+            return
+        try:
+            self.executor.close()
+            self._executor_closed = True
+        except Exception as error:
+            try:
+                self.record_shutdown_failure("executor", error)
+            except Exception as logging_error:
+                raise RuntimeError(
+                    f"Executor shutdown failed ({error}); failure logging also failed ({logging_error})"
+                ) from error
+            raise
+
+    # {
+    #   責務: [close_event_journal: RuntimeLogのSession bindingとSession Journalを閉じる]
+    #   処理: [RuntimeLog bindingを保持したまま事前checkpointし、失敗をRuntimeLogまたは未閉鎖Journalへ記録してからJournalを閉じ最後にdetachする。closeがcheckpoint errorを送出してもJournalはclosedとして扱う]
+    #   引数: [なし]
+    #   戻り値: []
+    #   エラー: [Exception: SQLite checkpointまたは接続closeに失敗した場合]
+    # }
+    def close_event_journal(self) -> None:
+        close_error: Exception | None = None
+        if not self._event_journal_closed and self.event_journal is not None:
+            try:
+                self.event_journal.flush()
+            except Exception as error:
+                close_error = error
+                try:
+                    self.record_shutdown_failure("event_journal_checkpoint", error)
+                except Exception:
+                    pass
+            try:
+                self.event_journal.close()
+            except Exception as error:
+                if close_error is None:
+                    close_error = error
+                try:
+                    self.record_shutdown_failure("event_journal_close", error)
+                except Exception:
+                    pass
+            finally:
+                # EventJournalは最終checkpoint失敗時もconnectionを解放してclosed状態になる。
+                self._event_journal_closed = True
+        if not self._runtime_log_detached and self.runtime_log is not None:
+            if self._runtime_log_attachment_token is not None:
+                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
+            self._runtime_log_detached = True
+        if close_error is not None:
+            raise close_error
+
+    # {
+    #   責務: [record_shutdown_failure: Provider・executorの終了失敗をJournalへ記録する]
+    #   処理: [Journalを閉じる前にruntime logへ追記し、runtime logがなければ同じrecordをSession Journalへ直接appendする]
+    #   引数: [resource: 終了に失敗したresource名, error: resource closeが送出した例外]
+    #   戻り値: []
+    #   エラー: [OSErrorまたはEventJournalError: 保存先が一つだけ失敗した場合の元の例外, RuntimeError: JSONLとJournalの両方が失敗した場合]
+    # }
+    def record_shutdown_failure(self, resource: str, error: Exception) -> None:
+        event_name = "session.shutdown_failed"
+        message = f"Session shutdown failed while closing {resource}"
+        context = {"status": "failed", "resource": resource, "error": str(error)}
+        if self.runtime_log is not None:
+            self.runtime_log.write(event_name, message, context)
+            return
+        if self.event_journal is not None:
+            self.event_journal.append(
+                "runtime.log",
+                status="failed",
+                payload={
+                    "legacy_record": {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "event": event_name,
+                        "message": message,
+                        "context": context,
+                    }
+                },
+            )
 
     def _sync_runtime_rearm(self) -> None:
         runtime = self.executor.fail_safe_runtime
@@ -199,22 +423,21 @@ class DecisionPipeline:
         self._seen_rearm_token = token
 
     # {
-    #   責務: [
-    #     _safety_context: 今回の判断履歴から、危険度評価に必要な目的・候補評価・検査記録を取り出す
-    #   ]
-    #   処理: [
-    #     1: 直近判断記録から指定候補の目的寄与点と、その予測の確信度を探す
-    #     2: 候補選択の信頼性記録を危険度情報と混ぜずに添える
-    #     3: 記録がない場合は未評価項目のまま安全評価用入力を返す
-    #   ]
-    #   引数: [
-    #     action_id: 安全評価する操作候補を、今回の判断履歴から特定するID
-    #     purpose: 操作が達成に役立つか照合するための現在のゲーム目的
-    #     decision_reliability: 同じ選択に対して先に行った画面・候補整合検査の記録。未取得ならNone
-    #   ]
-    #   戻り値: [
-    #     tuple[SafetyEvaluationContext, str]: 危険度評価に渡す値と、根拠の判断を特定する画面観測ID
-    #   ]
+    #   責務: [_bind_execution_stop_checker: 実入力中に現在のRunController世代を監視する]
+    #   処理: [開始時の世代が変わるか停止状態になった場合にTrueを返す関数をActionExecutorへ登録する]
+    #   引数: [run_token: 現在の実行stepが開始時に保持した再開世代]
+    #   戻り値: [なし。ActionExecutorの停止確認を現在のrun世代へ更新する]
+    # }
+    def _bind_execution_stop_checker(self, run_token: int) -> None:
+        self.executor.run_controller_stop_checker = lambda: (
+            not self.controller.is_running or self.controller.rearm_token != run_token
+        )
+
+    # {
+    #   責務: [_safety_context: 同じ判断traceから目的寄与点と信頼性根拠をSafety Evaluatorへ渡す]
+    #   処理: [指定actionの評価値を読み、Action Safety用のcontextとsnapshot IDを組み立てる]
+    #   引数: [action_id: Safety評価する候補ID, purpose: 判断時に利用者が指定したゲーム目標, decision_reliability: 同じ選択のDecision Verifier結果。未取得ならNone]
+    #   戻り値: [tuple[SafetyEvaluationContext, str]: Safety評価入力と根拠となるsnapshot ID]
     # }
     def _safety_context(
         self,
