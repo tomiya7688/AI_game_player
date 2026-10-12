@@ -83,6 +83,8 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 6;
     }
+    std::fprintf(stderr, "WGC stage: first size=%ux%u id=%llu\n",
+        first_info.width, first_info.height, static_cast<unsigned long long>(first_info.frame_id));
     const uint64_t first_frame_size = static_cast<uint64_t>(first_info.stride_bytes) * first_info.height;
     std::vector<uint8_t> first_pixels(static_cast<size_t>(first_frame_size));
     if (kadoka_wgc_frame_copy_bgra(first_frame, first_pixels.data(), first_pixels.size()) != KADOKA_RUNTIME_STATUS_OK) {
@@ -106,6 +108,7 @@ int main() {
         kadoka_runtime_shutdown(&runtime);
         return 9;
     }
+    UpdateWindow(target_window);
     bool resize_succeeded = false;
     uint64_t last_frame_id = first_info.frame_id;
     for (unsigned int attempt = 0u; attempt < 5u && !resize_succeeded; ++attempt) {
@@ -120,6 +123,10 @@ int main() {
         kadoka_wgc_frame_info resized_info{};
         resized_info.struct_size = sizeof(resized_info);
         const bool info_available = kadoka_wgc_frame_get_info(resized_frame, &resized_info) == KADOKA_RUNTIME_STATUS_OK;
+        if (info_available) {
+            std::fprintf(stderr, "WGC stage: resized candidate size=%ux%u id=%llu\n",
+                resized_info.width, resized_info.height, static_cast<unsigned long long>(resized_info.frame_id));
+        }
         const bool frame_is_new = info_available && resized_info.frame_id > last_frame_id;
         if (frame_is_new) {
             last_frame_id = resized_info.frame_id;
@@ -135,6 +142,8 @@ int main() {
     std::fprintf(stderr, "WGC stage: capture session closed\n");
     const bool window_destroyed = DestroyWindow(target_window) != 0;
     const bool runtime_closed = kadoka_runtime_shutdown(&runtime) == KADOKA_RUNTIME_STATUS_OK && runtime == nullptr;
+    std::fprintf(stderr, "WGC stage: resize=%d window_closed=%d runtime_closed=%d\n",
+        resize_succeeded ? 1 : 0, window_destroyed ? 1 : 0, runtime_closed ? 1 : 0);
     assert(resize_succeeded);
     assert(window_destroyed);
     assert(runtime_closed);
