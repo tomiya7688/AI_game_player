@@ -22,7 +22,7 @@ jobs:
       - name: Build native runtime
         run: cmake --build build/native --config Release --parallel
       - name: Test native runtime
-        run: ctest --test-dir build/native -C Release --output-on-failure
+        run: ctest --repeat until-fail:5 --test-dir build/native -C Release --output-on-failure
 
   native-sanitizers:
     name: Native C++ ASan + UBSan + GCC analyzer
