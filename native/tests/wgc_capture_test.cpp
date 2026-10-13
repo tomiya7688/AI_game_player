@@ -123,6 +123,10 @@ int main() {
         const int32_t next_frame_status = kadoka_wgc_next_frame(session, 1000u, &resized_frame);
         std::fprintf(stderr, "WGC stage: resize capture status=%d lease=%p\n", next_frame_status, resized_frame);
         if (next_frame_status == KADOKA_RUNTIME_STATUS_TIMEOUT) {
+            if (!InvalidateRect(target_window, nullptr, TRUE) || !UpdateWindow(target_window)) {
+                break;
+            }
+            std::fprintf(stderr, "WGC stage: resized test window redrawn after frame timeout\\n");
             continue;
         }
         if (next_frame_status != KADOKA_RUNTIME_STATUS_OK || resized_frame == nullptr) {
