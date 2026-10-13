@@ -17,6 +17,7 @@ from ai_game_player.window_selector import WindowInfo, WindowsWindowSelector
 
 TITLE = "Kadoka E2E Sample Game"
 SAMPLE_CONTROL_CONFIDENCE = 1.0
+SAMPLE_CONTROL_ASPECT_RATIO_RELATIVE_TOLERANCE = 0.12
 
 
 # {
@@ -40,7 +41,7 @@ class WindowsSampleObservationSource:
 
     # {
     #   責務: [read: sample gameが意味を宣言し、画面検出も一致する操作候補を返す]
-    #   処理: [画面を取得し、active controlの矩形寸法に一致する検出領域だけをsample metadataで確認する]
+    #   処理: [画面を取得し、active controlと縦横比が一致する検出領域を一意に選びsample metadataで確認する]
     #   引数: []
     #   戻り値: [tuple[ScreenObservation, list[ActionCandidate]]: 観測と意味が確認済みのsample操作候補]
     # }
@@ -120,7 +121,17 @@ def match_sample_control_to_image(
         bbox = value.get("bbox")
         if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
             continue
-        if bbox[2] == expected_width and bbox[3] == expected_height:
+        try:
+            actual_width, actual_height = int(bbox[2]), int(bbox[3])
+        except (TypeError, ValueError):
+            continue
+        width_scale = actual_width / expected_width
+        height_scale = actual_height / expected_height
+        scale_difference = abs(width_scale - height_scale)
+        largest_scale = max(width_scale, height_scale)
+        if largest_scale <= 0:
+            continue
+        if scale_difference <= largest_scale * SAMPLE_CONTROL_ASPECT_RATIO_RELATIVE_TOLERANCE:
             matching_candidates.append(value)
     if len(matching_candidates) != 1:
         return None

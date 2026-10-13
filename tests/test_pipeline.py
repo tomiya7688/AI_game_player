@@ -66,3 +66,27 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(candidate.confidence, 1.0)
         self.assertEqual((candidate.x, candidate.y), (170, 130))
         self.assertIsNone(match_sample_control_to_image(active_control, image_candidates * 2))
+
+    def test_sample_game_metadata_allows_uniform_capture_scaling_only(self):
+        active_control = {
+            "action_id": "advance-1",
+            "label": "ADVANCE 1/24",
+            "bbox_size": (220, 80),
+        }
+        scaled_button = {
+            "action_id": "bright-region-0",
+            "kind": "click",
+            "label": "region",
+            "x": 330,
+            "y": 195,
+            "confidence": 0.0,
+            "bbox": [165, 135, 330, 120],
+        }
+        mismatched_shape = {**scaled_button, "bbox": [165, 135, 330, 150]}
+
+        candidate = match_sample_control_to_image(active_control, [scaled_button])
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate.action_id, "advance-1")
+        self.assertEqual(candidate.confidence, 1.0)
+        self.assertIsNone(match_sample_control_to_image(active_control, [mismatched_shape]))
