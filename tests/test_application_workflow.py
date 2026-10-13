@@ -126,7 +126,8 @@ class ApplicationWorkflowServiceTests(unittest.TestCase):
         )
         source_observation, candidates = self.memory_source.read()
 
-        self.assertIs(source_observation, observation)
+        self.assertIs(source_observation, prepared.observation)
+        self.assertEqual(source_observation.to_dict(), observation.to_dict())
         self.assertEqual([candidate.action_id for candidate in candidates], ["ocr-start", "image-background"])
         self.assertEqual(
             prepared.evaluation,
