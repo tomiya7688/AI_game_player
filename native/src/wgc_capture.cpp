@@ -668,19 +668,19 @@ int32_t kadoka_wgc_next_frame(
     } catch (const winrt::hresult_error& error) {
         std::fprintf(
             stderr,
-            "WGC operation 'WgcSessionState.next_frame' failed with HRESULT 0x%08lX\\n",
+            "WGC operation 'WgcSessionState.next_frame' failed with HRESULT 0x%08lX\n",
             static_cast<unsigned long>(error.code().value)
         );
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     } catch (const std::exception& error) {
         std::fprintf(
             stderr,
-            "WGC operation 'WgcSessionState.next_frame' failed: %s\\n",
+            "WGC operation 'WgcSessionState.next_frame' failed: %s\n",
             error.what()
         );
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     } catch (...) {
-        std::fprintf(stderr, "WGC operation 'WgcSessionState.next_frame' failed with unknown exception\\n");
+        std::fprintf(stderr, "WGC operation 'WgcSessionState.next_frame' failed with unknown exception\n");
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
 }
