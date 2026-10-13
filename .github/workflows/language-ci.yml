@@ -83,7 +83,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - name: Run capture-recognition-decision-live-input loop to milestone
+      - name: Run sample-control-confirmed live input loop to milestone
         shell: pwsh
         env:
           PYTHONPATH: "src;."

@@ -67031,7 +67031,9 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.models",
-        "ai_game_player.pipeline"
+        "ai_game_player.pipeline",
+        "tools",
+        "tools.run_windows_e2e"
       ],
       "imports": [
         {
@@ -67076,7 +67078,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 5,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -67096,7 +67098,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.pipeline"
@@ -67108,12 +67110,28 @@
               "name": "DecisionPipeline"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "tools",
+            "tools.run_windows_e2e"
+          ],
+          "module": "tools.run_windows_e2e",
+          "names": [
+            {
+              "alias": null,
+              "name": "match_sample_control_to_image"
+            }
+          ]
         }
       ],
       "module": "tests.test_pipeline",
       "path": "tests/test_pipeline.py",
       "source_location": {
-        "end_line": 37,
+        "end_line": 68,
         "start_line": 1
       },
       "symbols": [
@@ -67133,8 +67151,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 7,
-            "start_line": 6
+            "end_line": 11,
+            "start_line": 10
           }
         },
         {
@@ -67156,8 +67174,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 7,
-            "start_line": 7
+            "end_line": 11,
+            "start_line": 11
           }
         },
         {
@@ -67178,8 +67196,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 37,
-            "start_line": 8
+            "end_line": 68,
+            "start_line": 12
           }
         },
         {
@@ -67201,8 +67219,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 13,
-            "start_line": 9
+            "end_line": 17,
+            "start_line": 13
           }
         },
         {
@@ -67224,8 +67242,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 37,
-            "start_line": 14
+            "end_line": 41,
+            "start_line": 18
           }
         },
         {
@@ -67244,8 +67262,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 34,
-            "start_line": 15
+            "end_line": 38,
+            "start_line": 19
           }
         },
         {
@@ -67267,8 +67285,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 34,
-            "start_line": 16
+            "end_line": 38,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sample_game_metadata_is_required_to_promote_bright_region",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PipelineTest.test_sample_game_metadata_is_required_to_promote_bright_region",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 43
           }
         }
       ]
@@ -83366,7 +83407,7 @@
       "module": "tools.e2e_sample_game",
       "path": "tools/e2e_sample_game.py",
       "source_location": {
-        "end_line": 70,
+        "end_line": 102,
         "start_line": 1
       },
       "symbols": [
@@ -83394,15 +83435,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "total_steps"
+            },
+            {
+              "annotation": "dict[str, object] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "active_control"
             }
           ],
           "qualified_name": "write_state",
           "return_annotation": "None",
-          "signature": "(path: Path, step: int, total_steps: int) -> None",
+          "signature": "(path: Path, step: int, total_steps: int, active_control: dict[str, object] | None) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 15,
-            "start_line": 8
+            "end_line": 31,
+            "start_line": 11
           }
         },
         {
@@ -83417,8 +83464,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 66,
-            "start_line": 18
+            "end_line": 98,
+            "start_line": 34
           }
         },
         {
@@ -83433,8 +83480,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 50,
-            "start_line": 37
+            "end_line": 84,
+            "start_line": 53
           }
         },
         {
@@ -83456,8 +83503,8 @@
           "signature": "(event) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 60,
-            "start_line": 52
+            "end_line": 93,
+            "start_line": 86
           }
         }
       ]
@@ -85315,6 +85362,10 @@
           "names": [
             {
               "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
               "name": "ScreenObservation"
             }
           ]
@@ -85391,7 +85442,7 @@
       "module": "tools.run_windows_e2e",
       "path": "tools/run_windows_e2e.py",
       "source_location": {
-        "end_line": 188,
+        "end_line": 267,
         "start_line": 1
       },
       "symbols": [
@@ -85411,8 +85462,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 69,
-            "start_line": 25
+            "end_line": 73,
+            "start_line": 26
           }
         },
         {
@@ -85433,15 +85484,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "window_handle"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_file"
             }
           ],
           "qualified_name": "WindowsSampleObservationSource.__init__",
           "return_annotation": "None",
-          "signature": "(self, window_handle: int) -> None",
+          "signature": "(self, window_handle: int, state_file: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 37,
-            "start_line": 34
+            "end_line": 39,
+            "start_line": 35
           }
         },
         {
@@ -85459,12 +85516,64 @@
             }
           ],
           "qualified_name": "WindowsSampleObservationSource.read",
-          "return_annotation": "tuple[ScreenObservation, list]",
-          "signature": "(self) -> tuple[ScreenObservation, list]",
+          "return_annotation": "tuple[ScreenObservation, list[ActionCandidate]]",
+          "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 45
+            "end_line": 73,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_active_control",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "read_active_control",
+          "return_annotation": "dict[str, object] | None",
+          "signature": "(path: Path) -> dict[str, object] | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 102,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "match_sample_control_to_image",
+          "parameters": [
+            {
+              "annotation": "dict[str, object] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "active_control"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "image_candidates"
+            }
+          ],
+          "qualified_name": "match_sample_control_to_image",
+          "return_annotation": "ActionCandidate | None",
+          "signature": "(active_control: dict[str, object] | None, image_candidates: object) -> ActionCandidate | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 148,
+            "start_line": 105
           }
         },
         {
@@ -85486,8 +85595,8 @@
           "signature": "(path: Path) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 85,
-            "start_line": 78
+            "end_line": 164,
+            "start_line": 157
           }
         },
         {
@@ -85504,6 +85613,12 @@
               "name": "title"
             },
             {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_file"
+            },
+            {
               "annotation": "float",
               "has_default": true,
               "kind": "positional_or_keyword",
@@ -85512,11 +85627,11 @@
           ],
           "qualified_name": "find_window",
           "return_annotation": "WindowInfo",
-          "signature": "(title: str, timeout_seconds: float = …) -> WindowInfo",
+          "signature": "(title: str, state_file: Path, timeout_seconds: float = …) -> WindowInfo",
           "source_location": {
             "column": 0,
-            "end_line": 103,
-            "start_line": 95
+            "end_line": 182,
+            "start_line": 174
           }
         },
         {
@@ -85531,8 +85646,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 184,
-            "start_line": 112
+            "end_line": 263,
+            "start_line": 191
           }
         }
       ]

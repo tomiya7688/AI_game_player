@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ai_game_player.e2e_runner import run_continuous_e2e
 from ai_game_player.frame_analyzer import FrameAnalyzer
-from ai_game_player.models import ScreenObservation
+from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
 from ai_game_player.screen_capture import WindowsScreenCapture
@@ -16,6 +16,7 @@ from ai_game_player.window_selector import WindowInfo, WindowsWindowSelector
 
 
 TITLE = "Kadoka E2E Sample Game"
+SAMPLE_CONTROL_CONFIDENCE = 1.0
 
 
 # {
@@ -23,30 +24,31 @@ TITLE = "Kadoka E2E Sample Game"
 #   フィールド: [window_handle: キャプチャ対象HWND, capture: Windows画面取得器, analyzer: フレーム解析器]
 # }
 class WindowsSampleObservationSource:
-    """Captures the real sample window and exposes only automatically detected interior UI candidates."""
+    """Capture the sample UI and confirm a detected region with the sample game's active-control metadata."""
 
     # {
-    #   責務: [__init__: 指定HWND用の画面取得・解析器を初期化する]
-    #   処理: [対象handleとcapture/analyzerを保持する]
-    #   引数: [window_handle: キャプチャする対象HWND]
+    #   責務: [__init__: 指定HWND用の画面取得・解析器とsample stateを接続する]
+    #   処理: [対象handle・active controlを読むstate path・capture/analyzerを保持する]
+    #   引数: [window_handle: キャプチャする対象HWND, state_file: sample gameが宣言する操作対象JSON]
     #   戻り値: []
     # }
-    def __init__(self, window_handle: int) -> None:
+    def __init__(self, window_handle: int, state_file: Path) -> None:
         self.window_handle = window_handle
+        self.state_file = state_file
         self.capture = WindowsScreenCapture()
         self.analyzer = FrameAnalyzer()
 
     # {
-    #   責務: [read: サンプル画面を取得し内部UI領域の候補を含む観測を返す]
-    #   処理: [画面を解析し外枠や巨大領域の候補を除外する]
+    #   責務: [read: sample gameが意味を宣言し、画面検出も一致する操作候補を返す]
+    #   処理: [画面を取得し、active controlの矩形寸法に一致する検出領域だけをsample metadataで確認する]
     #   引数: []
-    #   戻り値: [tuple[ScreenObservation, list]: 観測と追加候補]
+    #   戻り値: [tuple[ScreenObservation, list[ActionCandidate]]: 観測と意味が確認済みのsample操作候補]
     # }
-    def read(self) -> tuple[ScreenObservation, list]:
+    def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
         frame = self.capture.capture(self.window_handle)
         observation = self.analyzer.analyze(frame, "windows-e2e-sample")
         features = dict(observation.features)
-        candidates = []
+        image_candidates = []
         for value in features.get("image_candidates", []):
             if not isinstance(value, dict):
                 continue
@@ -58,15 +60,92 @@ class WindowsSampleObservationSource:
                 continue
             if width >= frame.width * 0.9 or height >= frame.height * 0.7:
                 continue
-            candidates.append(value)
-        features["image_candidates"] = candidates
+            image_candidates.append(value)
+        features["image_candidates"] = image_candidates
+        active_control = read_active_control(self.state_file)
+        candidate = match_sample_control_to_image(active_control, image_candidates)
         return ScreenObservation(
             observation.screen_id,
             observation.width,
             observation.height,
             observation.ocr_text,
             features,
-        ), []
+        ), [candidate] if candidate is not None else []
+
+
+def read_active_control(path: Path) -> dict[str, object] | None:
+    """Read the current control meaning declared by the deterministic sample game."""
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"sample game state could not be read: {path}") from error
+    if not isinstance(state, dict):
+        raise RuntimeError("sample game state must be a JSON object")
+    if state.get("completed") is True:
+        return None
+    control = state.get("active_control")
+    if not isinstance(control, dict):
+        raise RuntimeError("sample game state has no active control description")
+    action_id = control.get("action_id")
+    label = control.get("label")
+    bbox_size = control.get("bbox_size")
+    if (
+        not isinstance(action_id, str)
+        or not action_id.strip()
+        or not isinstance(label, str)
+        or not label.strip()
+        or not isinstance(bbox_size, list)
+        or len(bbox_size) != 2
+        or any(type(value) is not int or value <= 0 for value in bbox_size)
+    ):
+        raise RuntimeError("sample game active control has invalid identity, label, or dimensions")
+    return {"action_id": action_id, "label": label, "bbox_size": tuple(bbox_size)}
+
+
+def match_sample_control_to_image(
+    active_control: dict[str, object] | None,
+    image_candidates: object,
+) -> ActionCandidate | None:
+    """Promote one detected rectangle only when sample semantics confirm that control."""
+    if active_control is None or not isinstance(image_candidates, list):
+        return None
+    bbox_size = active_control.get("bbox_size")
+    if not isinstance(bbox_size, tuple) or len(bbox_size) != 2:
+        return None
+    expected_width, expected_height = bbox_size
+    matching_candidates: list[dict[str, object]] = []
+    for value in image_candidates:
+        if not isinstance(value, dict):
+            continue
+        bbox = value.get("bbox")
+        if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
+            continue
+        if bbox[2] == expected_width and bbox[3] == expected_height:
+            matching_candidates.append(value)
+    if len(matching_candidates) != 1:
+        return None
+
+    match = matching_candidates[0]
+    try:
+        action_id = str(active_control["action_id"])
+        label = str(active_control["label"])
+        x = int(match["x"])
+        y = int(match["y"])
+        raw_bbox = match["bbox"]
+        if not isinstance(raw_bbox, (list, tuple)) or len(raw_bbox) != 4:
+            return None
+        bbox = tuple(int(value) for value in raw_bbox)
+    except (KeyError, TypeError, ValueError):
+        return None
+    return ActionCandidate(
+        action_id,
+        "click",
+        label,
+        x,
+        y,
+        SAMPLE_CONTROL_CONFIDENCE,
+        bbox=bbox,
+    )
 
 
 # {
@@ -86,18 +165,18 @@ def read_completed(path: Path) -> bool:
 
 
 # {
-#   責務: [find_window: タイトル一致するウィンドウのHWNDと所有PIDを取得する]
-#   処理: [一定時間一覧を再取得し、タイトル一致したWindowInfoを返す]
-#   引数: [title: 対象タイトル, timeout_seconds: 検索上限秒]
+#   責務: [find_window: タイトルとsample state fileを確認して対象HWNDと所有PIDを取得する]
+#   処理: [一定時間window一覧を再取得し、タイトル一致とstate file作成の両方を待つ]
+#   引数: [title: 対象タイトル, state_file: sample UI stateのパス, timeout_seconds: 検索上限秒]
 #   戻り値: [WindowInfo: HWNDと列挙時PIDを含む対象情報]
 #   エラー: [期限内に対象が見つからない場合RuntimeError]
 # }
-def find_window(title: str, timeout_seconds: float = 15.0) -> WindowInfo:
+def find_window(title: str, state_file: Path, timeout_seconds: float = 15.0) -> WindowInfo:
     deadline = time.monotonic() + timeout_seconds
     selector = WindowsWindowSelector()
     while time.monotonic() < deadline:
         for window in selector.list_windows():
-            if window.title == title:
+            if window.title == title and state_file.is_file():
                 return window
         time.sleep(0.1)
     raise RuntimeError(f"sample window not found: {title}")
@@ -140,9 +219,9 @@ def main() -> int:
     )
     pipeline: DecisionPipeline | None = None
     try:
-        window = find_window(TITLE)
+        window = find_window(TITLE, state_file)
         handle = window.handle
-        source = WindowsSampleObservationSource(handle)
+        source = WindowsSampleObservationSource(handle, state_file)
         pipeline = DecisionPipeline(
             source,
             data_dir,

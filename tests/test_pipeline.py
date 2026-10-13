@@ -1,8 +1,12 @@
 import tempfile
 import unittest
 from pathlib import Path
+
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
+from tools.run_windows_e2e import match_sample_control_to_image
+
+
 class Source:
     def read(self): return ScreenObservation("menu",200,100),[ActionCandidate("configured","click","Configured",10,10,.8)]
 class PipelineTest(unittest.TestCase):
@@ -35,3 +39,30 @@ class PipelineTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError, "許可された操作候補がありません"):
                 DecisionPipeline(ImageSource(), Path(directory)).run()
+
+    def test_sample_game_metadata_is_required_to_promote_bright_region(self):
+        image_candidates = [
+            {
+                "action_id": "bright-region-0",
+                "kind": "click",
+                "label": "region",
+                "x": 170,
+                "y": 130,
+                "confidence": 0.0,
+                "bbox": [60, 90, 220, 80],
+            }
+        ]
+        active_control = {
+            "action_id": "advance-1",
+            "label": "ADVANCE 1/24",
+            "bbox_size": (220, 80),
+        }
+
+        self.assertIsNone(match_sample_control_to_image(None, image_candidates))
+        candidate = match_sample_control_to_image(active_control, image_candidates)
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate.action_id, "advance-1")
+        self.assertEqual(candidate.confidence, 1.0)
+        self.assertEqual((candidate.x, candidate.y), (170, 130))
+        self.assertIsNone(match_sample_control_to_image(active_control, image_candidates * 2))
