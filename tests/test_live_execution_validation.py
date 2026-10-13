@@ -261,6 +261,13 @@ class LiveExecutionValidationTests(unittest.TestCase):
                 application.capture_mode = FakeVariable(CaptureRegionMode.FULL_SCREEN.value)
                 application._active_capture_region = CaptureRegion(CaptureRegionMode.FULL_SCREEN)
                 application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
+                application.actions = SimpleNamespace(get=lambda *_args: "[]")
+                application.workflow_service = SimpleNamespace(
+                    preview_observation=lambda captured, _candidates: SimpleNamespace(
+                        evaluation=[]
+                    )
+                )
+                application._display_step_evaluation = lambda _evaluation: None
                 application.runtime_log = RecordingLog()
                 application.controller = RunController()
                 if loop_step:
@@ -301,6 +308,60 @@ class LiveExecutionValidationTests(unittest.TestCase):
                     {"loop_step": loop_step, "run_token": expected_token},
                 )
 
+    # {
+    #   責務: [test_capture_screen_previews_observation_candidates_without_manual_candidates: GUIの画面取得がAutomation候補なしで画面由来候補を評価欄へ渡すことを検証する]
+    #   処理: [画面取得後に空のAutomation候補JSONとOCR/画像特徴をworkflowへ渡し、由来付き評価を表示することを確認する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_capture_screen_previews_observation_candidates_without_manual_candidates(self):
+        observation = ScreenObservation(
+            "captured-title",
+            640,
+            480,
+            features={
+                "ocr_candidates": [{"text": "START", "x": 20, "y": 30, "width": 80, "height": 32}],
+                "image_candidates": [{"action_id": "bright", "kind": "click", "label": "bright_region", "x": 40, "y": 46, "confidence": 0.0}],
+            },
+        )
+        received_inputs = []
+        displayed_evaluations = []
+        application = self.make_uninitialized_application()
+        application.window_handles = {}
+        application.window_choice = FakeVariable("Game")
+        application.capture_mode = FakeVariable(CaptureRegionMode.FULL_SCREEN.value)
+        application._active_capture_region = CaptureRegion(CaptureRegionMode.FULL_SCREEN)
+        application._apply_capture_region = lambda: None
+        application.observation_service = SimpleNamespace(
+            capture_observation=lambda _handle: observation
+        )
+        application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
+        application.actions = SimpleNamespace(get=lambda *_args: "[]")
+        application.workflow_service = SimpleNamespace(
+            preview_observation=lambda captured, candidates_json: received_inputs.append(
+                (captured, candidates_json)
+            )
+            or SimpleNamespace(
+                evaluation=[
+                    {
+                        "action_id": "ocr-0",
+                        "accepted": True,
+                        "sources": ["ocr", "image"],
+                    }
+                ]
+            )
+        )
+        application._display_step_evaluation = displayed_evaluations.append
+        application.runtime_log = RecordingLog()
+        application._start_assessment_worker = lambda *_args, **_kwargs: None
+
+        self.assertIs(application.capture_screen(), observation)
+        self.assertEqual(received_inputs, [(observation, "[]")])
+        self.assertEqual(
+            displayed_evaluations,
+            [[{"action_id": "ocr-0", "accepted": True, "sources": ["ocr", "image"]}]],
+        )
+
     def test_duplicate_title_selection_keeps_the_selected_window_for_capture_and_input(self):
         first_window = WindowInfo(0x101, "Game", 456)
         second_window = WindowInfo(0x202, "Game", 456)
@@ -337,6 +398,11 @@ class LiveExecutionValidationTests(unittest.TestCase):
             capture_observation=lambda handle: captured_handles.append(handle) or observation
         )
         application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
+        application.actions = SimpleNamespace(get=lambda *_args: "[]")
+        application.workflow_service = SimpleNamespace(
+            preview_observation=lambda _captured, _candidates: SimpleNamespace(evaluation=[])
+        )
+        application._display_step_evaluation = lambda _evaluation: None
         application.controller = SimpleNamespace(rearm_token=None)
         application._start_assessment_worker = lambda *_args, **_kwargs: None
 

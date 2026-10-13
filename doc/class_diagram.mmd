@@ -80,6 +80,7 @@ classDiagram
         +refresh_windows()
         +_assess_observation()
         +capture_screen()
+        +_update_candidate_preview()
         +_start_assessment_worker()
         +_assess_observation_in_background()
         +_start_pipeline_worker()
@@ -115,6 +116,9 @@ classDiagram
         +create_session_runtime()
         +prepare_step()
         +update_observation()
+        +preview_observation()
+        +_prepare_observation()
+        +_merge_observation_candidates()
     }
     ValueError <|-- ArtifactIntegrityError
     class ArtifactIntegrityError {
@@ -163,6 +167,7 @@ classDiagram
     class CandidateMerger {
         +__init__()
         +merge()
+        +merge_with_sources()
         +_view()
         +_same()
         +_prefer()

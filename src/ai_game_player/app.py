@@ -12,6 +12,7 @@ from ai_game_player.application_workflow import (
     ApplicationSettings,
     ApplicationWorkflowService,
     MemorySource,
+    PreparedObservation,
 )
 from ai_game_player.capture_region import (
     CaptureRegion,
@@ -92,6 +93,7 @@ class TkAfterScheduler:
 #     3: 画面評価結果の新旧を判定する
 #     4: 自動カーソル移動を停止監視へ通知する
 #     5: 実行結果と状態を画面へ表示する
+#     6: 画面取得後に統合候補の由来と安全評価を表示する
 #   ]
 # }
 class Application:
@@ -105,7 +107,8 @@ class Application:
     #     3: worker結果と最新画面評価IDを初期化する
     #     4: 自動カーソル位置のworker/UI間同期を初期化する
     #     5: capture modeとROIのUI入力を作り、設定保存とcapture serviceへ接続する
-    #     6: UI commandと表示を接続し、composition rootをsession制御へ注入する
+    #     6: 任意のAutomation候補入力と候補評価表示を作る
+    #     7: UI commandと表示を接続し、composition rootをsession制御へ注入する
     #   ]
     #   引数: [
     #     root: Tkinterのルートウィンドウ
@@ -234,10 +237,13 @@ class Application:
         self.obs = tk.Text(frame, height=10)
         self.obs.pack(fill=tk.BOTH, expand=True)
         self.obs.insert("1.0", json.dumps({"screen_id": "title", "width": 1280, "height": 720, "ocr_text": ["NEW GAME", "OPTION"]}, ensure_ascii=False, indent=2))
-        ttk.Label(frame, text="Automation候補JSON").pack(anchor=tk.W, pady=(8, 0))
+        ttk.Label(
+            frame,
+            text="Automation候補JSON（任意。画面取得後にOCR・画像候補を自動統合）",
+        ).pack(anchor=tk.W, pady=(8, 0))
         self.actions = tk.Text(frame, height=10)
         self.actions.pack(fill=tk.BOTH, expand=True)
-        self.actions.insert("1.0", json.dumps([{"action_id": "new-game", "kind": "click", "label": "NEW GAME", "x": 640, "y": 360, "confidence": .95}, {"action_id": "option", "kind": "click", "label": "OPTION", "x": 640, "y": 500, "confidence": .8}], ensure_ascii=False, indent=2))
+        self.actions.insert("1.0", "[]")
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
         ttk.Label(frame, text="停止方法: 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
@@ -666,8 +672,8 @@ class Application:
             return self.workflow_service.assess_locally(observation)
 
     # {
-    #   責務: [capture_screen: 選択ROIを適用したWindows画面を観測へ変換し、評価をbackgroundへ渡す]
-    #   処理: [ROI入力を検証・保存してcapture serviceへ反映し、ObservationをUIへ表示する。loop評価は実行世代へ結び付けてworkerを開始する]
+    #   責務: [capture_screen: 選択ROIの画面を取得し、統合候補をdry-run評価欄へ表示する]
+    #   処理: [ObservationをUIへ保存しOCR/画像/Automation候補を統合する。candidate preview失敗はcapture成功と分けて報告し、状態評価workerを開始する]
     #   引数: [loop_step: Trueなら結果を現在の連続実行stepに限定し、Falseなら停止後も独立して評価する]
     #   戻り値: [ScreenObservation | None: 取得した観測または取得失敗]
     # }
@@ -679,6 +685,15 @@ class Application:
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
             self.runtime_log.write("screen_capture", "observation updated", {"screen_id": observation.screen_id})
+            try:
+                self._update_candidate_preview(observation, register_for_session=False)
+            except Exception as preview_error:
+                self.runtime_log.write(
+                    "error",
+                    str(preview_error),
+                    {"operation": "candidate_preview"},
+                )
+                self._set_status(f"画面は取得しましたが候補評価に失敗しました: {preview_error}")
             run_token = self.controller.rearm_token if loop_step else None
             self._start_assessment_worker(observation, loop_step=loop_step, run_token=run_token)
             return observation
@@ -686,6 +701,28 @@ class Application:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
             messagebox.showerror("画面取得エラー", str(exc))
             return None
+
+    # {
+    #   責務: [_update_candidate_preview: 画面Observationから候補を統合し、由来と安全評価をGUIへ表示する]
+    #   処理: [画面取得のpreviewでは共有Session sourceを変更せず、連続実行stepの確定時だけ評価済み候補をsourceへ登録する]
+    #   引数: [observation: captureされた画面と検出候補, register_for_session: 評価候補をSession Pipeline sourceへ登録するか]
+    #   戻り値: [PreparedObservation: 統合候補と由来付き評価結果]
+    #   エラー: [ValueErrorまたはJSONDecodeError: 入力候補のschemaが不正な場合]
+    # }
+    def _update_candidate_preview(
+        self,
+        observation: ScreenObservation,
+        *,
+        register_for_session: bool = True,
+    ) -> PreparedObservation:
+        update_observation = (
+            self.workflow_service.update_observation
+            if register_for_session
+            else self.workflow_service.preview_observation
+        )
+        prepared = update_observation(observation, self.actions.get("1.0", tk.END))
+        self._display_step_evaluation(prepared.evaluation)
+        return prepared
 
     # {
     #   責務: [_start_assessment_worker: Ollamaを含む画面状態評価をUIスレッド外で開始する]
@@ -896,11 +933,7 @@ class Application:
                 if loop_step:
                     if observation is not None:
                         try:
-                            prepared_observation = self.workflow_service.update_observation(
-                                observation,
-                                self.actions.get("1.0", tk.END),
-                            )
-                            self._display_step_evaluation(prepared_observation.evaluation)
+                            self._update_candidate_preview(observation)
                         except Exception as exc:
                             self.stop(f"invalid_loop_candidates: {exc}")
                             continue

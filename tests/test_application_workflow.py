@@ -9,7 +9,8 @@ from ai_game_player.application_workflow import (
     ApplicationWorkflowService,
     MemorySource,
 )
-from ai_game_player.models import ScreenObservation
+from ai_game_player.evaluator import ActionEvaluator
+from ai_game_player.models import ActionCandidate, ScreenObservation
 
 
 class FakeConfigStore:
@@ -70,8 +71,113 @@ class ApplicationWorkflowServiceTests(unittest.TestCase):
         self.assertEqual(self.config_store.saved[0].provider, "Ollama")
         self.assertEqual(result.observation, observation)
         self.assertEqual(result.candidates, candidates)
-        self.assertEqual(result.evaluation, [{"action_id": "start", "accepted": True}])
+        self.assertEqual(
+            result.evaluation,
+            [{"action_id": "start", "accepted": True, "sources": ["automation"]}],
+        )
         self.assertFalse(result.dry_run)
+
+    def test_captured_ocr_and_image_candidates_reach_preview_without_manual_candidates(self):
+        observation = ScreenObservation(
+            "captured-title",
+            640,
+            480,
+            features={
+                "ocr_candidates": [
+                    {
+                        "action_id": "ocr-start",
+                        "text": "START",
+                        "x": 50,
+                        "y": 30,
+                        "width": 100,
+                        "height": 40,
+                        "confidence": 0.9,
+                    }
+                ],
+                "image_candidates": [
+                    {
+                        "action_id": "image-start",
+                        "kind": "click",
+                        "label": "bright_region",
+                        "x": 100,
+                        "y": 50,
+                        "confidence": 0.0,
+                        "bbox": [50, 30, 100, 40],
+                    },
+                    {
+                        "action_id": "image-background",
+                        "kind": "click",
+                        "label": "bright_region",
+                        "x": 300,
+                        "y": 300,
+                        "confidence": 0.0,
+                        "bbox": [280, 280, 40, 40],
+                    },
+                ],
+            },
+        )
+        self.composition.explain_actions = ActionEvaluator().explain
+
+        prepared = self.service.prepare_step(
+            self.settings,
+            json.dumps(observation.to_dict(), ensure_ascii=False),
+            "[]",
+            "decision",
+        )
+        source_observation, candidates = self.memory_source.read()
+
+        self.assertIs(source_observation, prepared.observation)
+        self.assertEqual(source_observation.to_dict(), observation.to_dict())
+        self.assertEqual([candidate.action_id for candidate in candidates], ["ocr-start", "image-background"])
+        self.assertEqual(
+            prepared.evaluation,
+            [
+                {
+                    "action_id": "ocr-start",
+                    "accepted": True,
+                    "reason": "accepted",
+                    "confidence": 0.9,
+                    "sources": ["ocr", "image"],
+                },
+                {
+                    "action_id": "image-background",
+                    "accepted": False,
+                    "reason": "low_confidence",
+                    "confidence": 0.0,
+                    "sources": ["image"],
+                },
+            ],
+        )
+
+    def test_preview_does_not_replace_candidates_used_by_a_running_session(self):
+        running_observation = ScreenObservation("running", 640, 480)
+        running_candidate = ActionCandidate("running-start", "click", "START", 100, 100)
+        self.memory_source.update(running_observation, [running_candidate])
+        preview_observation = ScreenObservation(
+            "preview",
+            640,
+            480,
+            features={
+                "ocr_candidates": [
+                    {
+                        "action_id": "preview-start",
+                        "text": "START",
+                        "x": 50,
+                        "y": 30,
+                        "width": 100,
+                        "height": 40,
+                        "confidence": 0.9,
+                    }
+                ]
+            },
+        )
+
+        prepared = self.service.preview_observation(preview_observation, "[]")
+
+        source_observation, source_candidates = self.memory_source.read()
+        self.assertEqual(prepared.observation, preview_observation)
+        self.assertIs(source_observation, running_observation)
+        self.assertEqual(source_candidates, [running_candidate])
 
     def test_prepare_step_persists_the_capture_region_selected_by_the_user(self):
         capture_region = CaptureRegion(

@@ -3,10 +3,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from ai_game_player.candidate_merger import CandidateMerger
 from ai_game_player.capture_region import CaptureRegion
 from ai_game_player.config import AppConfig, ConfigStore
 from ai_game_player.game_session import SessionRuntime
 from ai_game_player.models import ActionCandidate, ScreenObservation
+from ai_game_player.ocr_detector import OcrTextCandidateDetector
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.runtime.session_composition import RuntimeComposition, SessionRuntimeConfiguration
 from ai_game_player.runtime_log import RuntimeLog
@@ -69,7 +71,7 @@ class ApplicationSettings:
 
 # {
 #   責務: [PreparedObservation: 候補評価に成功した画面と候補をUIへ返す]
-#   フィールド: [observation: Pipelineが判断する画面, candidates: 同画面の操作候補, evaluation: 候補検査結果]
+#   フィールド: [observation: Pipelineが判断する画面, candidates: 同画面で統合した操作候補, evaluation: 候補検査結果と入力元]
 # }
 @dataclass(frozen=True)
 class PreparedObservation:
@@ -80,7 +82,7 @@ class PreparedObservation:
 
 # {
 #   責務: [PreparedSessionStep: 検証済みstep設定と観測評価をUIへ返す]
-#   フィールド: [observation: stepが判断する画面, candidates: 同画面の操作候補, evaluation: 候補検査結果, dry_run: 実入力を行わないか]
+#   フィールド: [observation: stepが判断する画面, candidates: 同画面で統合した操作候補, evaluation: 候補検査結果と入力元, dry_run: 実入力を行わないか]
 # }
 @dataclass(frozen=True)
 class PreparedSessionStep:
@@ -91,14 +93,14 @@ class PreparedSessionStep:
 
 
 # {
-#   責務: [ApplicationWorkflowService: UIに依存せずstep入力を保存・検証しSession sourceを更新する]
-#   フィールド: [config_store: 利用者設定の保存先, runtime_composition: 候補評価を行うruntime composition, memory_source: Session Pipelineが読む観測source]
+#   責務: [ApplicationWorkflowService: 画面と候補を検証・評価し、次の判断に使う観測sourceを更新する]
+#   フィールド: [config_store: 利用者設定の保存先, runtime_composition: 候補の安全評価を行う実行構成, memory_source: 判断処理が読む画面と候補の保存先, candidate_merger: 自動操作・OCR・画像候補を重複統合する処理, ocr_detector: 認識文字を操作候補へ変換する処理]
 # }
 class ApplicationWorkflowService:
     # {
-    #   責務: [__init__: UI非依存のstep workflowに保存先と実行依存を注入する]
-    #   処理: [設定保存、候補評価、Session source更新に必要な依存だけを保持する]
-    #   引数: [config_store: 利用者設定の保存先, runtime_composition: 候補評価を提供するcomposition root, memory_source: 検証した観測と候補の登録先]
+    #   責務: [__init__: GUIを使わない候補処理へ設定保存・評価・観測保存の依存先を接続する]
+    #   処理: [自動操作・OCR・画像候補の統合と評価に使う処理を生成して保持する]
+    #   引数: [config_store: 利用者設定の保存先, runtime_composition: 候補の安全評価を提供する実行構成, memory_source: 検証済み画面と候補の登録先]
     #   戻り値: []
     # }
     def __init__(
@@ -110,6 +112,8 @@ class ApplicationWorkflowService:
         self.config_store = config_store
         self.runtime_composition = runtime_composition
         self.memory_source = memory_source
+        self.candidate_merger = CandidateMerger()
+        self.ocr_detector = OcrTextCandidateDetector()
 
     # {
     #   責務: [assess_outcome: provider設定に従って画面の進行・成功・失敗を評価する]
@@ -190,8 +194,8 @@ class ApplicationWorkflowService:
         )
 
     # {
-    #   責務: [prepare_step: capture regionを含むUI設定を保存し、検証済み観測・候補をSession sourceへ登録する]
-    #   処理: [Provider・人格・実入力・capture region設定を保存した後、観測と候補JSONを型へ変換して候補理由を評価する]
+    #   責務: [prepare_step: 利用者設定を保存し、画面取得結果と操作候補を次の判断に登録する]
+    #   処理: [判断元・人格・実入力・取得範囲の設定を保存し、認識文字・画像・任意の自動操作候補を統合して安全評価する]
     #   引数: [settings: step開始時に確定したProvider・人格・入力・capture region設定, observation_json: UIが表示する観測JSON, candidates_json: UIが受け取った候補JSON, command: decisionまたはexecute]
     #   戻り値: [PreparedSessionStep: Session ControllerとUIが共有する検証結果]
     #   エラー: [ValueErrorまたはJSONDecodeError: command、観測JSON、候補JSONが不正な場合]
@@ -228,10 +232,10 @@ class ApplicationWorkflowService:
         )
 
     # {
-    #   責務: [update_observation: 画面観測と候補JSONを評価しSession Pipeline sourceを更新する]
-    #   処理: [候補配列を検証してから安全評価を行い、成功後にだけ観測と候補をsourceへ登録する]
-    #   引数: [observation: candidate座標と判断対象になる画面, candidates_json: 同じ画面上の操作候補JSON配列]
-    #   戻り値: [PreparedObservation: Pipelineへ登録した観測、候補、候補評価結果]
+    #   責務: [update_observation: 画面候補を安全評価して判断処理の観測保存先を更新する]
+    #   処理: [任意の自動操作候補JSONと画面内の認識文字・画像候補を統合し、評価成功後に画面と候補を同時に登録する]
+    #   引数: [observation: 操作位置と画面状態を含む取得結果, candidates_json: 同じ画面上で利用する任意の自動操作候補]
+    #   戻り値: [PreparedObservation: 判断処理へ登録した画面、統合候補、安全評価結果]
     #   エラー: [ValueErrorまたはJSONDecodeError: 候補JSONが配列でないか候補schemaが不正な場合]
     # }
     def update_observation(
@@ -239,14 +243,86 @@ class ApplicationWorkflowService:
         observation: ScreenObservation,
         candidates_json: str,
     ) -> PreparedObservation:
-        candidate_values = json.loads(candidates_json)
-        if not isinstance(candidate_values, list):
-            raise ValueError("操作候補JSONには候補の配列を指定してください")
-        candidates = [ActionCandidate.from_dict(item) for item in candidate_values]
+        prepared = self._prepare_observation(observation, candidates_json)
+        self.memory_source.update(observation, prepared.candidates)
+        return prepared
+
+    # {
+    #   責務: [preview_observation: 画面候補を統合・評価し、判断処理の画面と候補を変更せずGUI previewを返す]
+    #   処理: [update_observationと同じ候補統合・評価を行い、実行中の判断処理が参照する保存先は更新しない]
+    #   引数: [observation: 操作位置と画面状態を含む取得結果, candidates_json: 同じ画面上で利用する任意の自動操作候補]
+    #   戻り値: [PreparedObservation: GUIへ表示する統合候補と入力元付き評価結果]
+    #   エラー: [ValueErrorまたはJSONDecodeError: 候補JSONまたはObservation featureが不正な場合]
+    # }
+    def preview_observation(
+        self,
+        observation: ScreenObservation,
+        candidates_json: str,
+    ) -> PreparedObservation:
+        return self._prepare_observation(observation, candidates_json)
+
+    # {
+    #   責務: [_prepare_observation: 自動操作・認識文字・画像の候補を統合して安全評価する]
+    #   処理: [同じ画面から得た候補だけを統合し、各候補の入力元を記録した評価結果を作る]
+    #   引数: [observation: 操作位置と画面状態を含む取得結果, candidates_json: 同じ画面上で利用する任意の自動操作候補]
+    #   戻り値: [PreparedObservation: 統合候補と入力元付き評価結果]
+    #   エラー: [ValueErrorまたはJSONDecodeError: 候補JSONまたはObservation featureが不正な場合]
+    # }
+    def _prepare_observation(
+        self,
+        observation: ScreenObservation,
+        candidates_json: str,
+    ) -> PreparedObservation:
+        sourced_candidates = self._merge_observation_candidates(observation, candidates_json)
+        candidates = [candidate for candidate, _sources in sourced_candidates]
+        source_by_action_id = {
+            candidate.action_id: list(sources)
+            for candidate, sources in sourced_candidates
+        }
         evaluation = self.runtime_composition.explain_actions(observation, candidates)
-        self.memory_source.update(observation, candidates)
+        evaluation_with_sources = [
+            {
+                **result,
+                "sources": source_by_action_id.get(str(result.get("action_id", "")), []),
+            }
+            for result in evaluation
+        ]
         return PreparedObservation(
             observation=observation,
             candidates=candidates,
-            evaluation=evaluation,
+            evaluation=evaluation_with_sources,
+        )
+
+    # {
+    #   責務: [_merge_observation_candidates: 自動操作・認識文字・画像から得た候補を一つの一覧へまとめる]
+    #   処理: [各候補の形式を検証し、認識文字を共通要素へ変換して重複統合器へ渡す]
+    #   引数: [observation: 画面解析が検出した認識文字・画像候補を持つ画面, candidates_json: 任意の自動操作候補JSON配列]
+    #   戻り値: [list[tuple[ActionCandidate, tuple[str, ...]]]: 代表操作候補と自動操作・認識文字・画像の入力元]
+    #   エラー: [ValueErrorまたはJSONDecodeError: 候補JSONまたは画面内候補の形式が不正な場合]
+    # }
+    def _merge_observation_candidates(
+        self,
+        observation: ScreenObservation,
+        candidates_json: str,
+    ) -> list[tuple[ActionCandidate, tuple[str, ...]]]:
+        candidate_values = json.loads(candidates_json)
+        if not isinstance(candidate_values, list):
+            raise ValueError("操作候補JSONには候補の配列を指定してください")
+        automation_candidates = [ActionCandidate.from_dict(item) for item in candidate_values]
+        raw_ocr_candidates = observation.features.get("ocr_candidates", [])
+        raw_image_candidates = observation.features.get("image_candidates", [])
+        if not isinstance(raw_ocr_candidates, list):
+            raise ValueError("ObservationのOCR候補には候補の配列を指定してください")
+        if not isinstance(raw_image_candidates, list):
+            raise ValueError("Observationの画像候補には候補の配列を指定してください")
+        if any(not isinstance(item, dict) for item in raw_ocr_candidates):
+            raise ValueError("ObservationのOCR候補にはオブジェクトだけを指定してください")
+        if any(not isinstance(item, dict) for item in raw_image_candidates):
+            raise ValueError("Observationの画像候補にはオブジェクトだけを指定してください")
+        ocr_elements = self.ocr_detector.detect(observation, raw_ocr_candidates)
+        image_candidates = [ActionCandidate.from_dict(item) for item in raw_image_candidates]
+        return self.candidate_merger.merge_with_sources(
+            automation_candidates,
+            ocr_elements,
+            image_candidates,
         )
