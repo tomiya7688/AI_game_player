@@ -450,6 +450,12 @@ struct WgcSessionState {
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
                     std::numeric_limits<uint32_t>::max()) {
+                std::fprintf(
+                    stderr,
+                    "WGC CaptureFrame.ContentSize invalid: width=%ld height=%ld\n",
+                    static_cast<long>(content_size.Width),
+                    static_cast<long>(content_size.Height)
+                );
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
@@ -489,6 +495,15 @@ struct WgcSessionState {
             if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
                 texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
                 texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
+                std::fprintf(
+                    stderr,
+                    "WGC capture texture mismatch: format=0x%08lX texture=%ux%u content=%ldx%ld\n",
+                    static_cast<unsigned long>(texture_description.Format),
+                    texture_description.Width,
+                    texture_description.Height,
+                    static_cast<long>(content_size.Width),
+                    static_cast<long>(content_size.Height)
+                );
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
