@@ -126,7 +126,7 @@ int main() {
             if (!InvalidateRect(target_window, nullptr, TRUE) || !UpdateWindow(target_window)) {
                 break;
             }
-            std::fprintf(stderr, "WGC stage: resized test window redrawn after frame timeout\\n");
+            std::fprintf(stderr, "WGC stage: resized test window redrawn after frame timeout\n");
             continue;
         }
         if (next_frame_status != KADOKA_RUNTIME_STATUS_OK || resized_frame == nullptr) {
