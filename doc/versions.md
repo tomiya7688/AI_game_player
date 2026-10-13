@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #370: 同じタイトルのウィンドウをタイトルとHWNDで個別表示する処理に回帰テストを追加する。選んだウィンドウのHWNDが画面取得と実入力用Session runtimeの両方へ渡ることを確認する。
 - Issue #371: 連続実行が開始時に固定したdry-run／実入力modeを画面へ明示し、stepまたはloopの実行中は実入力許可checkboxを無効にする。Session modeとcheckbox表示が待機区間に食い違う状態を防ぐ。
 - Issue #369: window選択・入力・captureが使うuser32/gdi32関数にWindows ABIの引数・戻り値型を宣言し、HWND・HDC・HBITMAP・pointer値をx64で切り詰めず受け渡す。EnumWindows callback、CreateDIBSectionの構造体/pixel pointer、GDI handle戻り値、SendMessageTimeoutWの戻り値をABIに合わせ、64-bit相当HWNDを通すfake関数とWindows native DLLのprototype設定を検証する。
 - Issue #367: Windows入力APIが失敗した場合のエラーを具体化。SetCursorPosが失敗したクリックは押下を送らず、PostMessageWのキー・マウス送信失敗は対象操作と次の確認手順を日本語で表示する。API失敗時に成功結果を返さないことを実行境界のテストで確認し、偽Win32 APIの回帰テストでクリック抑止、Session停止の案内、押下状態の保持と解放再試行を検証する。
