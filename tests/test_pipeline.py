@@ -11,16 +11,27 @@ class PipelineTest(unittest.TestCase):
             decision=DecisionPipeline(Source(),Path(d)).run([{"text":"Other","x":100,"y":20,"width":20,"height":10}],"start","careful")
             self.assertEqual(decision.action_id,"configured")
             self.assertTrue((Path(d)/"history.json").exists())
-    def test_runs_image_candidate_without_manual_ocr_input(self):
+    def test_rejects_image_candidate_without_ui_evidence(self):
         class ImageSource:
             def read(self):
+                image_candidates = [
+                    {
+                        "action_id": "bright",
+                        "kind": "click",
+                        "label": "bright_region",
+                        "x": 20,
+                        "y": 20,
+                        "confidence": 0.0,
+                        "bbox": [10, 10, 20, 20],
+                    }
+                ]
                 observation = ScreenObservation(
                     "menu",
                     200,
                     100,
-                    features={"image_candidates": [{"action_id": "bright", "kind": "click", "label": "bright_region", "x": 20, "y": 20, "confidence": 0.7, "bbox": [10, 10, 20, 20]}]},
+                    features={"image_candidates": image_candidates},
                 )
                 return observation, []
         with tempfile.TemporaryDirectory() as directory:
-            decision = DecisionPipeline(ImageSource(), Path(directory)).run()
-            self.assertEqual(decision.action_id, "bright")
+            with self.assertRaisesRegex(ValueError, "許可された操作候補がありません"):
+                DecisionPipeline(ImageSource(), Path(directory)).run()

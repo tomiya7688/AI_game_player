@@ -14,13 +14,11 @@ from typing import Any
 
 from ai_game_player.bright_region_detector import (
     BGRA_BYTES_PER_PIXEL,
-    BRIGHT_REGION_CONFIDENCE_BASE,
-    BRIGHT_REGION_CONFIDENCE_DECIMAL_PLACES,
-    BRIGHT_REGION_DENSITY_WEIGHT,
     DEFAULT_BRIGHTNESS_THRESHOLD,
     DEFAULT_MIN_REGION_PIXELS,
     MAX_CHANNEL_VALUE,
     MIN_BRIGHT_REGION_EXTENT,
+    UNVERIFIED_BRIGHT_REGION_CONFIDENCE,
 )
 from ai_game_player.frame_preprocessor import FramePrimitiveBatch
 from ai_game_player.models import DetectedElement
@@ -486,6 +484,13 @@ class NativeRuntime:
                     self._healthy = False
                     raise NativeContractError("Native Runtime failed to release the WGC frame lease")
 
+    # {
+    #   責務: [preprocess: C ABIのframe解析から画素統計・hash・明領域を作り、Python参照経路と同じ意味で返す]
+    #   処理: [pixel countを矩形検証に使い、明領域にはUI未確認を表すconfidence 0を設定する]
+    #   引数: [frame: packed BGRA frame, brightness_threshold: 明画素とする輝度下限, min_region_pixels: 検出領域の最低画素数]
+    #   戻り値: [FramePrimitiveBatch: frame統計・hash・未確認の明領域・Native処理metrics]
+    #   エラー: [ValueError: frame寸法またはABI入力範囲が不正, NativeRuntimeError: 機能未対応またはC ABI失敗, NativeContractError: ABI出力が契約違反]
+    # }
     def preprocess(
         self,
         frame: ScreenFrame,
@@ -611,12 +616,7 @@ class NativeRuntime:
                             int(region.height),
                         ),
                         "bright_region",
-                        round(
-                            BRIGHT_REGION_CONFIDENCE_BASE
-                            + BRIGHT_REGION_DENSITY_WEIGHT * int(region.pixel_count)
-                            / (int(region.width) * int(region.height)),
-                            BRIGHT_REGION_CONFIDENCE_DECIMAL_PLACES,
-                        ),
+                        UNVERIFIED_BRIGHT_REGION_CONFIDENCE,
                     )
                     for region_index, region in enumerate(
                         () if region_buffer is None
