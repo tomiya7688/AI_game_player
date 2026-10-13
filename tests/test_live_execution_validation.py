@@ -14,6 +14,7 @@ from ai_game_player.observation_service import LiveObservationService
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.run_control import RunController
 from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.window_selector import WindowInfo
 
 
 # {
@@ -299,6 +300,66 @@ class LiveExecutionValidationTests(unittest.TestCase):
                     assessment_options,
                     {"loop_step": loop_step, "run_token": expected_token},
                 )
+
+    def test_duplicate_title_selection_keeps_the_selected_window_for_capture_and_input(self):
+        first_window = WindowInfo(0x101, "Game", 456)
+        second_window = WindowInfo(0x202, "Game", 456)
+        application = self.make_uninitialized_application()
+        application.runtime_log = RecordingLog()
+        application.window_combo = {}
+        application.window_choice = FakeVariable(first_window.display_name)
+
+        with (
+            patch.object(
+                app_module,
+                "WindowsWindowSelector",
+                return_value=SimpleNamespace(list_windows=lambda: [first_window, second_window]),
+            ),
+            patch.object(app_module.messagebox, "showerror"),
+        ):
+            application.refresh_windows()
+
+        self.assertEqual(application.runtime_log.records, [])
+
+        self.assertEqual(
+            application.window_combo["values"],
+            [first_window.display_name, second_window.display_name],
+        )
+        self.assertEqual(application.window_handles[first_window.display_name], first_window.handle)
+        self.assertEqual(application.window_handles[second_window.display_name], second_window.handle)
+        self.assertEqual(application.window_process_ids[second_window.display_name], second_window.process_id)
+
+        application.window_choice.value = second_window.display_name
+        captured_handles = []
+        observation = ScreenObservation("selected-window", 100, 100, [])
+        application._apply_capture_region = lambda: None
+        application.observation_service = SimpleNamespace(
+            capture_observation=lambda handle: captured_handles.append(handle) or observation
+        )
+        application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
+        application.controller = SimpleNamespace(rearm_token=None)
+        application._start_assessment_worker = lambda *_args, **_kwargs: None
+
+        self.assertIs(application.capture_screen(), observation)
+        self.assertEqual(captured_handles, [second_window.handle])
+
+        runtime_arguments = []
+        application.live_execution = FakeVariable(True)
+        application._session_dry_run = False
+        application._application_settings = lambda: object()
+        application.workflow_service = SimpleNamespace(
+            create_session_runtime=lambda _settings, **arguments: runtime_arguments.append(arguments)
+            or "session-runtime"
+        )
+        application.controller = object()
+
+        fake_user32 = FakeUser32({first_window.handle, second_window.handle}, process_id=second_window.process_id)
+        with patch.object(app_module.ctypes, "windll", SimpleNamespace(user32=fake_user32), create=True):
+            runtime = application._create_session_runtime()
+
+        self.assertEqual(runtime, "session-runtime")
+        self.assertEqual(runtime_arguments[0]["window_handle"], second_window.handle)
+        self.assertEqual(runtime_arguments[0]["window_process_id"], second_window.process_id)
 
     # {
     #   責務: [test_standalone_assessment_updates_display_after_stop: 停止中に完了した手動評価を画面へ反映する]

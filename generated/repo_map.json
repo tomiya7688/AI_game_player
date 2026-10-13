@@ -61165,7 +61165,8 @@
         "ai_game_player.observation_service",
         "ai_game_player.outcome",
         "ai_game_player.run_control",
-        "ai_game_player.screen_capture"
+        "ai_game_player.screen_capture",
+        "ai_game_player.window_selector"
       ],
       "imports": [
         {
@@ -61393,12 +61394,28 @@
               "name": "ScreenFrame"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.window_selector"
+          ],
+          "module": "ai_game_player.window_selector",
+          "names": [
+            {
+              "alias": null,
+              "name": "WindowInfo"
+            }
+          ]
         }
       ],
       "module": "tests.test_live_execution_validation",
       "path": "tests/test_live_execution_validation.py",
       "source_location": {
-        "end_line": 646,
+        "end_line": 707,
         "start_line": 1
       },
       "symbols": [
@@ -61418,8 +61435,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 40,
-            "start_line": 23
+            "end_line": 41,
+            "start_line": 24
           }
         },
         {
@@ -61447,8 +61464,8 @@
           "signature": "(self, value)",
           "source_location": {
             "column": 4,
-            "end_line": 31,
-            "start_line": 30
+            "end_line": 32,
+            "start_line": 31
           }
         },
         {
@@ -61470,8 +61487,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 40,
-            "start_line": 39
+            "end_line": 41,
+            "start_line": 40
           }
         },
         {
@@ -61490,8 +61507,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 77,
-            "start_line": 47
+            "end_line": 78,
+            "start_line": 48
           }
         },
         {
@@ -61525,8 +61542,8 @@
           "signature": "(self, valid_handles, process_id = …)",
           "source_location": {
             "column": 4,
-            "end_line": 57,
-            "start_line": 54
+            "end_line": 58,
+            "start_line": 55
           }
         },
         {
@@ -61554,8 +61571,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 65
+            "end_line": 68,
+            "start_line": 66
           }
         },
         {
@@ -61589,8 +61606,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 77,
-            "start_line": 75
+            "end_line": 78,
+            "start_line": 76
           }
         },
         {
@@ -61609,8 +61626,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 101,
-            "start_line": 84
+            "end_line": 102,
+            "start_line": 85
           }
         },
         {
@@ -61632,8 +61649,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 92,
-            "start_line": 91
+            "end_line": 93,
+            "start_line": 92
           }
         },
         {
@@ -61661,8 +61678,8 @@
           "signature": "(self, *record)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 100
+            "end_line": 102,
+            "start_line": 101
           }
         },
         {
@@ -61681,8 +61698,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 152,
-            "start_line": 108
+            "end_line": 153,
+            "start_line": 109
           }
         },
         {
@@ -61704,8 +61721,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 115
+            "end_line": 126,
+            "start_line": 116
           }
         },
         {
@@ -61727,8 +61744,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 130,
-            "start_line": 127
+            "end_line": 131,
+            "start_line": 128
           }
         },
         {
@@ -61756,8 +61773,8 @@
           "signature": "(self, reason = …)",
           "source_location": {
             "column": 4,
-            "end_line": 136,
-            "start_line": 132
+            "end_line": 137,
+            "start_line": 133
           }
         },
         {
@@ -61791,8 +61808,8 @@
           "signature": "(self, command = …, interval_ms = …)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 138
+            "end_line": 142,
+            "start_line": 139
           }
         },
         {
@@ -61820,8 +61837,8 @@
           "signature": "(self, command = …)",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 143
+            "end_line": 147,
+            "start_line": 144
           }
         },
         {
@@ -61855,8 +61872,8 @@
           "signature": "(self, result = …, error = …)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 148
+            "end_line": 150,
+            "start_line": 149
           }
         },
         {
@@ -61884,8 +61901,8 @@
           "signature": "(self, observation)",
           "source_location": {
             "column": 4,
-            "end_line": 152,
-            "start_line": 151
+            "end_line": 153,
+            "start_line": 152
           }
         },
         {
@@ -61906,8 +61923,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 642,
-            "start_line": 159
+            "end_line": 703,
+            "start_line": 160
           }
         },
         {
@@ -61929,8 +61946,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 164,
-            "start_line": 160
+            "end_line": 165,
+            "start_line": 161
           }
         },
         {
@@ -61970,8 +61987,8 @@
           "signature": "(self, *, live = …, mode = …, handles = …)",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 172
+            "end_line": 181,
+            "start_line": 173
           }
         },
         {
@@ -61993,8 +62010,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 188
+            "end_line": 194,
+            "start_line": 189
           }
         },
         {
@@ -62016,8 +62033,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 201
+            "end_line": 204,
+            "start_line": 202
           }
         },
         {
@@ -62039,8 +62056,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 244,
-            "start_line": 211
+            "end_line": 245,
+            "start_line": 212
           }
         },
         {
@@ -62059,8 +62076,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 214,
-            "start_line": 212
+            "end_line": 215,
+            "start_line": 213
           }
         },
         {
@@ -62088,8 +62105,8 @@
           "signature": "(self, *_record)",
           "source_location": {
             "column": 12,
-            "end_line": 214,
-            "start_line": 213
+            "end_line": 215,
+            "start_line": 214
           }
         },
         {
@@ -62111,8 +62128,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 301,
-            "start_line": 252
+            "end_line": 302,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_title_selection_keeps_the_selected_window_for_capture_and_input",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveExecutionValidationTests.test_duplicate_title_selection_keeps_the_selected_window_for_capture_and_input",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 362,
+            "start_line": 304
           }
         },
         {
@@ -62134,8 +62174,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 333,
-            "start_line": 309
+            "end_line": 394,
+            "start_line": 370
           }
         },
         {
@@ -62157,8 +62197,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 351,
-            "start_line": 341
+            "end_line": 412,
+            "start_line": 402
           }
         },
         {
@@ -62180,8 +62220,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 369,
-            "start_line": 359
+            "end_line": 430,
+            "start_line": 420
           }
         },
         {
@@ -62203,8 +62243,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 386,
-            "start_line": 377
+            "end_line": 447,
+            "start_line": 438
           }
         },
         {
@@ -62226,8 +62266,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 412,
-            "start_line": 394
+            "end_line": 473,
+            "start_line": 455
           }
         },
         {
@@ -62249,8 +62289,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 431,
-            "start_line": 420
+            "end_line": 492,
+            "start_line": 481
           }
         },
         {
@@ -62272,8 +62312,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 450,
-            "start_line": 439
+            "end_line": 511,
+            "start_line": 500
           }
         },
         {
@@ -62295,8 +62335,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 479,
-            "start_line": 452
+            "end_line": 540,
+            "start_line": 513
           }
         },
         {
@@ -62318,8 +62358,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 499,
-            "start_line": 481
+            "end_line": 560,
+            "start_line": 542
           }
         },
         {
@@ -62341,8 +62381,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 527,
-            "start_line": 501
+            "end_line": 588,
+            "start_line": 562
           }
         },
         {
@@ -62357,8 +62397,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 514,
-            "start_line": 513
+            "end_line": 575,
+            "start_line": 574
           }
         },
         {
@@ -62380,8 +62420,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 544,
-            "start_line": 529
+            "end_line": 605,
+            "start_line": 590
           }
         },
         {
@@ -62403,8 +62443,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 570,
-            "start_line": 552
+            "end_line": 631,
+            "start_line": 613
           }
         },
         {
@@ -62426,8 +62466,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 599,
-            "start_line": 572
+            "end_line": 660,
+            "start_line": 633
           }
         },
         {
@@ -62449,8 +62489,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 623,
-            "start_line": 607
+            "end_line": 684,
+            "start_line": 668
           }
         },
         {
@@ -62472,8 +62512,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 642,
-            "start_line": 631
+            "end_line": 703,
+            "start_line": 692
           }
         }
       ]
