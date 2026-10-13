@@ -22,6 +22,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <deque>
 #include <exception>
@@ -32,6 +33,7 @@
 #include <mutex>
 #include <new>
 #include <thread>
+#include <utility>
 
 namespace {
 
@@ -51,6 +53,26 @@ constexpr uint32_t kBytesPerPixel = 4u;
 //   値: [5 milliseconds: frame到着の確認間隔]
 // }
 constexpr std::chrono::milliseconds kFramePoolPollInterval{5};
+
+// {
+//   責務: [run_capture_operation: WGC処理が失敗した段階とHRESULTをstderrへ記録して例外を再送出する]
+//   引数: [operation_name: 診断ログへ記録するWGC処理名, operation: 実行するWGC処理]
+//   戻り値: [呼び出したWGC処理の戻り値。HRESULT例外は診断後にそのまま再送出する]
+// }
+template <typename Operation>
+decltype(auto) run_capture_operation(const char* operation_name, Operation&& operation) {
+    try {
+        return std::forward<Operation>(operation)();
+    } catch (const winrt::hresult_error& error) {
+        std::fprintf(
+            stderr,
+            "WGC operation '%s' failed with HRESULT 0x%08lX\n",
+            operation_name,
+            static_cast<unsigned long>(error.code().value)
+        );
+        throw;
+    }
+}
 
 // {
 //   責務: [WinRtApartmentScope: C ABI呼び出しthreadでWinRT APIを使える状態にする]
@@ -396,7 +418,9 @@ struct WgcSessionState {
                 return nullptr;
             }
 
-            auto captured_frame = frame_pool.TryGetNextFrame();
+            auto captured_frame = run_capture_operation("FramePool.TryGetNextFrame", [this] {
+                return frame_pool.TryGetNextFrame();
+            });
             if (close_requested.load()) {
                 if (captured_frame) {
                     captured_frame.Close();
@@ -413,54 +437,96 @@ struct WgcSessionState {
                 }
                 continue;
             }
-            while (auto newer_frame = frame_pool.TryGetNextFrame()) {
+            while (auto newer_frame = run_capture_operation("FramePool.TryGetNextFrame", [this] {
+                return frame_pool.TryGetNextFrame();
+            })) {
                 captured_frame.Close();
                 captured_frame = std::move(newer_frame);
             }
 
-            const auto content_size = captured_frame.ContentSize();
+            const auto content_size = run_capture_operation("CaptureFrame.ContentSize", [&captured_frame] {
+                return captured_frame.ContentSize();
+            });
             if (content_size.Width <= 0 || content_size.Height <= 0 ||
                 static_cast<uint64_t>(content_size.Width) * kBytesPerPixel >
                     std::numeric_limits<uint32_t>::max()) {
+                std::fprintf(
+                    stderr,
+                    "WGC CaptureFrame.ContentSize invalid: width=%ld height=%ld\n",
+                    static_cast<long>(content_size.Width),
+                    static_cast<long>(content_size.Height)
+                );
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
             }
             if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
                 // {
-                //   理由: [WGCのresize通知frameは新ContentSizeと旧texture寸法を持つことがあるため、旧textureを返さずpoolを作り直す]
+                //   理由: [WGCのresize通知frameが新しいContentSizeと古いtexture寸法を持つことがあるため、そのframeを破棄して新しい寸法でframe poolを作り直す]
                 // }
                 captured_frame.Close();
+                run_capture_operation("FramePool.Recreate", [this, content_size] {
+                    frame_pool.Recreate(
+                        capture_device,
+                        kCapturePixelFormat,
+                        kCaptureFramePoolBufferCount,
+                        content_size
+                    );
+                });
                 frame_pool_size = content_size;
-                frame_pool.Recreate(
-                    capture_device,
-                    kCapturePixelFormat,
-                    kCaptureFramePoolBufferCount,
-                    frame_pool_size
-                );
                 continue;
             }
 
-            auto surface = captured_frame.Surface();
-            auto surface_access = surface.as<Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>();
+            auto surface = run_capture_operation("CaptureFrame.Surface", [&captured_frame] {
+                return captured_frame.Surface();
+            });
+            auto surface_access = run_capture_operation("CaptureSurface.as", [&surface] {
+                return surface.as<Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>();
+            });
             auto frame_lease = std::make_unique<kadoka_wgc_frame>();
             frame_lease->copy_mutex = native_context_mutex;
-            winrt::check_hresult(surface_access->GetInterface(
-                __uuidof(ID3D11Texture2D),
-                frame_lease->texture.put_void()
-            ));
+            run_capture_operation("CaptureSurface.GetInterface", [&surface_access, &frame_lease] {
+                winrt::check_hresult(surface_access->GetInterface(
+                    __uuidof(ID3D11Texture2D),
+                    frame_lease->texture.put_void()
+                ));
+            });
             D3D11_TEXTURE2D_DESC texture_description{};
             frame_lease->texture->GetDesc(&texture_description);
-            if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
-                texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
-                texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
+            if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM) {
+                std::fprintf(
+                    stderr,
+                    "WGC capture texture has an unsupported format: format=0x%08lX\n",
+                    static_cast<unsigned long>(texture_description.Format)
+                );
                 captured_frame.Close();
                 throw winrt::hresult_error(E_INVALIDARG);
+            }
+            if (texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
+                texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
+                // {
+                //   理由: [FramePool.Recreate後もWGCが旧texture寸法の遷移frameを返す場合があるため、そのframeを破棄して新しいtextureが届くまで待つ]
+                // }
+                std::fprintf(
+                    stderr,
+                    "WGC resize transition frame discarded: texture=%ux%u content=%ldx%ld\n",
+                    texture_description.Width,
+                    texture_description.Height,
+                    static_cast<long>(content_size.Width),
+                    static_cast<long>(content_size.Height)
+                );
+                captured_frame.Close();
+                continue;
             }
 
             frame_lease->width = static_cast<uint32_t>(content_size.Width);
             frame_lease->height = static_cast<uint32_t>(content_size.Height);
             frame_lease->frame_id = ++next_frame_id;
-            const int64_t capture_time_units = captured_frame.SystemRelativeTime().count();
+            const int64_t capture_time_units = run_capture_operation(
+                "CaptureFrame.SystemRelativeTime",
+                [&captured_frame] {
+                    return captured_frame.SystemRelativeTime().count();
+                }
+            );
             if (capture_time_units > 0 && static_cast<uint64_t>(capture_time_units) <=
                     std::numeric_limits<uint64_t>::max() / kNanosecondsPerWinRtTimeUnit) {
                 frame_lease->timestamp_ns =
@@ -624,7 +690,22 @@ int32_t kadoka_wgc_next_frame(
         return KADOKA_RUNTIME_STATUS_OK;
     } catch (const std::bad_alloc&) {
         return KADOKA_RUNTIME_STATUS_ALLOCATION_FAILED;
+    } catch (const winrt::hresult_error& error) {
+        std::fprintf(
+            stderr,
+            "WGC operation 'WgcSessionState.next_frame' failed with HRESULT 0x%08lX\n",
+            static_cast<unsigned long>(error.code().value)
+        );
+        return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
+    } catch (const std::exception& error) {
+        std::fprintf(
+            stderr,
+            "WGC operation 'WgcSessionState.next_frame' failed: %s\n",
+            error.what()
+        );
+        return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     } catch (...) {
+        std::fprintf(stderr, "WGC operation 'WgcSessionState.next_frame' failed with unknown exception\n");
         return KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
     }
 }
