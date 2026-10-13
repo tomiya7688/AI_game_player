@@ -13,14 +13,16 @@ GREEN_LUMA_WEIGHT = 587
 BLUE_LUMA_WEIGHT = 114
 LUMA_WEIGHT_TOTAL = 1000
 MIN_BRIGHT_REGION_EXTENT = 3
-BRIGHT_REGION_CONFIDENCE_BASE = 0.5
-BRIGHT_REGION_DENSITY_WEIGHT = 0.2
-BRIGHT_REGION_CONFIDENCE_DECIMAL_PLACES = 2
+UNVERIFIED_BRIGHT_REGION_CONFIDENCE = 0.0
 VISITED_PIXEL_MARKER = 1
 
 
+# {
+#   責務: [BrightRegionDetector: 輝度が高い連結領域を検出し、UI要素かどうかは未確認の要素として返す]
+#   制約: [領域の明るさと密度は画素領域の検出にだけ使い、クリック可能性や実行信頼度の根拠には使わない]
+# }
 class BrightRegionDetector:
-    """Finds bright connected regions as low-confidence detected UI elements."""
+    """Return bright connected pixel regions without claiming that they are UI controls."""
 
     def __init__(
         self,
@@ -63,6 +65,12 @@ class BrightRegionDetector:
                     pending.append(neighbor)
         return component
 
+    # {
+    #   責務: [_element: 有効な画素領域をUI未確認のDetectedElementへ変換する]
+    #   処理: [最小画素数と矩形寸法を確認し、矩形と検出順を保持してUI確信度を0にする]
+    #   引数: [component: 連結した明画素のframe内index列, width: frame幅, index: 検出順を示す番号]
+    #   戻り値: [DetectedElement: 領域矩形と未確認confidenceを持つ要素。サイズ条件を満たさない場合はNone]
+    # }
     def _element(self, component: list[int], width: int, index: int) -> DetectedElement | None:
         if len(component) < self.min_pixels:
             return None
@@ -72,17 +80,12 @@ class BrightRegionDetector:
         region_width, region_height = right - left + 1, bottom - top + 1
         if region_width < MIN_BRIGHT_REGION_EXTENT or region_height < MIN_BRIGHT_REGION_EXTENT:
             return None
-        density = len(component) / (region_width * region_height)
-        confidence = round(
-            BRIGHT_REGION_CONFIDENCE_BASE + BRIGHT_REGION_DENSITY_WEIGHT * density,
-            BRIGHT_REGION_CONFIDENCE_DECIMAL_PLACES,
-        )
         return DetectedElement(
             f"bright-region-{index}",
             "region",
             (left, top, region_width, region_height),
             "bright_region",
-            confidence,
+            UNVERIFIED_BRIGHT_REGION_CONFIDENCE,
         )
 
     def _is_bright(self, frame: ScreenFrame, index: int) -> bool:

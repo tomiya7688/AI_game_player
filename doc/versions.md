@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #333: PythonとNative Runtimeのbright-region検出が明るさ・画素密度から実行信頼度を作らないようにする。両経路の明領域をUI要素として未確認のconfidence `0.0` で返し、画像候補だけの判断を候補評価器が拒否する。閉ループE2Eはsample gameのactive control情報と画面検出矩形を照合して実入力を検証する。
 - Issue #370: 同じタイトルのウィンドウをタイトルとHWNDで個別表示する処理に回帰テストを追加する。選んだウィンドウのHWNDが画面取得と実入力用Session runtimeの両方へ渡ることを確認する。
 - Issue #371: 連続実行が開始時に固定したdry-run／実入力modeを画面へ明示し、stepまたはloopの実行中は実入力許可checkboxを無効にする。Session modeとcheckbox表示が待機区間に食い違う状態を防ぐ。
 - Issue #369: window選択・入力・captureが使うuser32/gdi32関数にWindows ABIの引数・戻り値型を宣言し、HWND・HDC・HBITMAP・pointer値をx64で切り詰めず受け渡す。EnumWindows callback、CreateDIBSectionの構造体/pixel pointer、GDI handle戻り値、SendMessageTimeoutWの戻り値をABIに合わせ、64-bit相当HWNDを通すfake関数とWindows native DLLのprototype設定を検証する。

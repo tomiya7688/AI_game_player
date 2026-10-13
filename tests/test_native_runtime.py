@@ -325,7 +325,7 @@ class NativeRuntimeTest(unittest.TestCase):
         self.assertEqual(76, result.mean_brightness)
         self.assertEqual("0000000000001234", result.perceptual_hash)
         self.assertEqual((2, 1, 3, 3), result.detected_elements[0].bbox)
-        self.assertEqual(0.7, result.detected_elements[0].confidence)
+        self.assertEqual(0.0, result.detected_elements[0].confidence)
         self.assertEqual(123, result.processing_ns)
         self.assertEqual(len(frame.bgra), result.input_frame_bytes_processed)
         self.assertEqual(ctypes.sizeof(abi._FrameRegion), result.output_bytes_written)
