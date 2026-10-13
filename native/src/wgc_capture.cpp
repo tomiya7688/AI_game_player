@@ -461,18 +461,18 @@ struct WgcSessionState {
             }
             if (content_size.Width != frame_pool_size.Width || content_size.Height != frame_pool_size.Height) {
                 // {
-                //   理由: [WGCのresize通知frameは新ContentSizeと旧texture寸法を持つことがあるため、旧textureを返さずpoolを作り直す]
+                //   理由: [WGCのresize通知frameが新しいContentSizeと古いtexture寸法を持つことがあるため、そのframeを破棄して新しい寸法でframe poolを作り直す]
                 // }
                 captured_frame.Close();
-                frame_pool_size = content_size;
-                run_capture_operation("FramePool.Recreate", [this] {
+                run_capture_operation("FramePool.Recreate", [this, content_size] {
                     frame_pool.Recreate(
                         capture_device,
                         kCapturePixelFormat,
                         kCaptureFramePoolBufferCount,
-                        frame_pool_size
+                        content_size
                     );
                 });
+                frame_pool_size = content_size;
                 continue;
             }
 
@@ -492,20 +492,30 @@ struct WgcSessionState {
             });
             D3D11_TEXTURE2D_DESC texture_description{};
             frame_lease->texture->GetDesc(&texture_description);
-            if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
-                texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
-                texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
+            if (texture_description.Format != DXGI_FORMAT_B8G8R8A8_UNORM) {
                 std::fprintf(
                     stderr,
-                    "WGC capture texture mismatch: format=0x%08lX texture=%ux%u content=%ldx%ld\n",
-                    static_cast<unsigned long>(texture_description.Format),
+                    "WGC capture texture has an unsupported format: format=0x%08lX\n",
+                    static_cast<unsigned long>(texture_description.Format)
+                );
+                captured_frame.Close();
+                throw winrt::hresult_error(E_INVALIDARG);
+            }
+            if (texture_description.Width < static_cast<uint32_t>(content_size.Width) ||
+                texture_description.Height < static_cast<uint32_t>(content_size.Height)) {
+                // {
+                //   理由: [FramePool.Recreate後もWGCが旧texture寸法の遷移frameを返す場合があるため、そのframeを破棄して新しいtextureが届くまで待つ]
+                // }
+                std::fprintf(
+                    stderr,
+                    "WGC resize transition frame discarded: texture=%ux%u content=%ldx%ld\n",
                     texture_description.Width,
                     texture_description.Height,
                     static_cast<long>(content_size.Width),
                     static_cast<long>(content_size.Height)
                 );
                 captured_frame.Close();
-                throw winrt::hresult_error(E_INVALIDARG);
+                continue;
             }
 
             frame_lease->width = static_cast<uint32_t>(content_size.Width);
