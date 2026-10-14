@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from math import isfinite
 
 from ai_game_player.screen_capture import ScreenFrame
@@ -86,6 +87,22 @@ def _cell_value_colors() -> dict[tuple[int, int, int], int]:
 
 BOARD_REGION_COLORS = _board_region_colors()
 CELL_VALUE_BY_RGB = _cell_value_colors()
+
+
+@lru_cache(maxsize=4096)
+def _is_board_region_color(rgb: tuple[int, int, int]) -> bool:
+    # {
+    #   責務: [_is_board_region_color: capture時の色ずれを許容し、2048盤面に属するRGB画素を判定する]
+    #   引数: [rgb: screen captureから読み取った画素のRGB色]
+    #   戻り値: [bool: 盤面palette色とのRGB二乗距離が許容値以内ならTrue]
+    # }
+    if rgb in BOARD_REGION_COLORS:
+        return True
+    return any(
+        sum((actual - expected) ** 2 for actual, expected in zip(rgb, palette_rgb))
+        <= MAXIMUM_COLOR_DISTANCE_SQUARED
+        for palette_rgb in BOARD_REGION_COLORS
+    )
 
 
 @dataclass(frozen=True)
@@ -191,7 +208,7 @@ class Game2048BoardRecognizer:
                     frame.bgra[pixel_offset + 1],
                     frame.bgra[pixel_offset],
                 )
-                if rgb not in BOARD_REGION_COLORS:
+                if not _is_board_region_color(rgb):
                     continue
                 matching_pixels += 1
                 left = min(left, x)

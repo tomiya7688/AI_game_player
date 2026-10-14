@@ -117,6 +117,25 @@ class ReferenceGame2048AdapterTests(unittest.TestCase):
         self.assertTrue(all(candidate.kind == "key" for candidate in candidates))
         self.assertTrue(all(candidate.confidence >= self.adapter.minimum_candidate_confidence for candidate in candidates))
 
+    def test_screen_fixture_recognizes_board_colors_shifted_by_capture_resampling(self):
+        frame = render_fixture(self.fixture)
+        pixels = bytearray(frame.bgra)
+        left, top, board_width, board_height = self.fixture["board_rect"]
+        for y in range(top, top + board_height):
+            for x in range(left, left + board_width):
+                offset = (y * frame.width + x) * 4
+                shifted_rgb = tuple(
+                    min(255, channel + 2)
+                    for channel in (pixels[offset + 2], pixels[offset + 1], pixels[offset])
+                )
+                write_rgb(pixels, frame.width, x, y, shifted_rgb)
+        resampled_frame = ScreenFrame(frame.width, frame.height, bytes(pixels))
+
+        adapted, candidates = self.adapter.adapt(resampled_frame, self.observation())
+
+        self.assertEqual(adapted.features["game_2048"]["board"], self.fixture["board"])
+        self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
+
     def test_screen_fixture_selects_current_score_instead_of_best_score(self):
         frame = render_fixture(self.fixture)
 
