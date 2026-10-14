@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Issue #245: MIT版2048のソースを固定commitから取得するsource lockへGit tree SHAと全34ファイルのGit blob SHAを記録し、cacheに欠落・追加・変更されたファイルがあれば再利用を拒否する。検証済みsourceはloopback限定HTTP serverと専用Edge/Chrome profileでWindows上に起動し、launcherは起動したPIDと2048のwindow titleで対象を識別してdesktop内に最大1180×850で配置する。Windowsのforeground制限で前面化できない場合も起動を失敗させず、その状態をJSON出力へ記録する。終了時は起動したbrowser process tree・一時profile・HTTP serverを閉じ、検証済みsource cacheは再利用のため保持する。
+- Issue #246: pinned 2048画面のCSS色と4x4配置からboardを復元し、同じcapture時点のOCR Observationから現在scoreとgame-over状態を得るScreen Adapterを追加する。状態にはboard矩形・cell/board confidence・再現可能なstate signatureを記録し、board confidenceが0.65以上かつgame-overでない場合だけUP/DOWN/LEFT/RIGHTのkeyboard候補を返す。CSS・grid・OCRデータから作る合成pixel fixtureでboard/score/terminal/action経路を検証し、Windows launcher integration testでは起動windowのcaptureからboardと4候補を検査する。launcherは小さいWindows desktopで盤面全体をcaptureするためChromium device scale factorを0.75にする。
 - Issue #138: Play Workspaceの先頭へ「ゲーム / ウィンドウ」選択欄を配置する。ウィンドウ一覧の更新後も存在する選択対象は維持し、消えた選択対象は自動で別ウィンドウへ切り替えず再選択を求める。候補がない場合と一覧取得が失敗した場合は、利用者へ次の操作を表示する。
 - Issue #337: GUIの画面取得後、Observation内のOCR・画像候補と任意のAutomation候補をCandidateMergerで統合し、安全評価欄へ入力元と評価結果を表示する。Automation候補JSONは空配列のまま使える。画面previewは実行中Sessionの候補sourceを書き換えず、step開始時に評価した同じObservationと候補だけをSession sourceへ登録する。confidence `0.0` の画像候補は拒否する。
 - Issue #333: PythonとNative Runtimeのbright-region検出が明るさ・画素密度から実行信頼度を作らないようにする。両経路の明領域をUI要素として未確認のconfidence `0.0` で返し、画像候補だけの判断を候補評価器が拒否する。閉ループE2Eはsample gameのactive control情報と画面検出矩形を照合して実入力を検証する。

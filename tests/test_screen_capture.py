@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode, NormalizedRect, PixelRect
+from ai_game_player.runtime.native import NativeRuntimeError, NativeStatus
 from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 
 
@@ -106,6 +107,18 @@ class FakeWgcCapture:
         self.closed = True
 
 
+class TimeoutThenFrameWgcCapture(FakeWgcCapture):
+    def __init__(self, frame):
+        super().__init__(frame)
+        self.capture_attempts = 0
+
+    def capture(self):
+        self.capture_attempts += 1
+        if self.capture_attempts == 1:
+            raise NativeRuntimeError("wgc_next_frame", NativeStatus.TIMEOUT)
+        return self.frame
+
+
 class ScreenCaptureTest(unittest.TestCase):
     def test_frame_contract(self):
         frame = ScreenFrame(2, 3, b"x" * 24)
@@ -155,6 +168,33 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertIs(native_frame, frame)
         self.assertEqual([123], factory_calls)
         self.assertEqual([], gdi32.calls)
+        capture.close()
+        self.assertTrue(wgc_capture.closed)
+
+    def test_window_capture_retries_the_same_wgc_session_after_a_transient_timeout(self):
+        user32 = FakeUser32()
+        gdi32 = FakeGdi32()
+        native_frame = ScreenFrame(2, 2, b"n" * 16, captured_at=14.0, frame_id=9)
+        wgc_capture = TimeoutThenFrameWgcCapture(native_frame)
+        factory_calls = []
+        capture = WindowsScreenCapture(
+            user32=user32,
+            gdi32=gdi32,
+            wgc_capture_factory=lambda handle: factory_calls.append(handle) or wgc_capture,
+        )
+
+        fallback_frame = capture.capture(123)
+        self.assertIsNone(fallback_frame.frame_id)
+        self.assertIn("TIMEOUT", capture.last_backend_error)
+        self.assertFalse(wgc_capture.closed)
+
+        retried_frame = capture.capture(123)
+
+        self.assertIs(native_frame, retried_frame)
+        self.assertEqual(2, wgc_capture.capture_attempts)
+        self.assertEqual([123], factory_calls)
+        self.assertIsNone(capture.last_backend_error)
+        self.assertIn("CreateDIBSection", gdi32.calls)
         capture.close()
         self.assertTrue(wgc_capture.closed)
 

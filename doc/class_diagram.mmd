@@ -533,6 +533,20 @@ classDiagram
         +_finish()
         +close()
     }
+    class ReferenceGame2048Adapter {
+        +__init__()
+        +adapt()
+    }
+    class BoardRegion {
+    }
+    class BoardRecognition {
+    }
+    class Game2048BoardRecognizer {
+        +__init__()
+        +recognize()
+        +_find_board_region()
+        +_read_cell()
+    }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
         +run()

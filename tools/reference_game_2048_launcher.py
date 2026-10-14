@@ -17,9 +17,15 @@ from .reference_game_2048_source import PinnedGameSource
 
 WINDOW_WIDTH = 1180
 WINDOW_HEIGHT = 850
+GAME_DEVICE_SCALE_FACTOR = 0.75
 WINDOW_LEFT = 60
 WINDOW_TOP = 60
 WINDOW_WAIT_SECONDS = 25.0
+HWND_TOP = 0
+SWP_NOSIZE = 0x0001
+SWP_NOMOVE = 0x0002
+SWP_NOACTIVATE = 0x0010
+SWP_SHOWWINDOW = 0x0040
 
 
 class LoopbackStaticServer:
@@ -102,6 +108,7 @@ class BrowserWindowSession:
                 f"--user-data-dir={self._profile.name}",
                 f"--window-size={WINDOW_WIDTH},{WINDOW_HEIGHT}",
                 f"--window-position={WINDOW_LEFT},{WINDOW_TOP}",
+                f"--force-device-scale-factor={GAME_DEVICE_SCALE_FACTOR}",
                 "--no-first-run",
                 "--no-default-browser-check",
                 "--disable-default-apps",
@@ -284,6 +291,20 @@ def focus_resize_browser_window(window_handle: int, expected_process_id: int) ->
     user32.ShowWindow.restype = wintypes.BOOL
     user32.MoveWindow.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.BOOL]
     user32.MoveWindow.restype = wintypes.BOOL
+    user32.SetWindowPos.argtypes = [
+        wintypes.HWND,
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.UINT,
+    ]
+    user32.SetWindowPos.restype = wintypes.BOOL
+    user32.InvalidateRect.argtypes = [wintypes.HWND, ctypes.c_void_p, wintypes.BOOL]
+    user32.InvalidateRect.restype = wintypes.BOOL
+    user32.UpdateWindow.argtypes = [wintypes.HWND]
+    user32.UpdateWindow.restype = wintypes.BOOL
     user32.SetForegroundWindow.argtypes = [wintypes.HWND]
     user32.SetForegroundWindow.restype = wintypes.BOOL
     user32.GetForegroundWindow.argtypes = []
@@ -308,5 +329,10 @@ def focus_resize_browser_window(window_handle: int, expected_process_id: int) ->
     user32.ShowWindow(handle, 9)
     if not user32.MoveWindow(handle, left, top, width, height, True):
         raise ctypes.WinError(ctypes.get_last_error())
+    z_order_flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW
+    if not user32.SetWindowPos(handle, wintypes.HWND(HWND_TOP), 0, 0, 0, 0, z_order_flags):
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not user32.InvalidateRect(handle, None, True) or not user32.UpdateWindow(handle):
+        raise ctypes.WinError(ctypes.get_last_error())
     user32.SetForegroundWindow(handle)
-    return user32.GetForegroundWindow() == handle
+    return user32.GetForegroundWindow() == window_handle
