@@ -10,16 +10,22 @@ from collections import Counter
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.game_2048_board import BOARD_REGION_COLORS
 from ai_game_player.screen_capture import WindowsScreenCapture
 from tools.reference_game_2048_launcher import (
+    HWND_TOP,
     LoopbackStaticServer,
     ReferenceGame2048Launcher,
+    SWP_NOACTIVATE,
+    SWP_NOMOVE,
+    SWP_NOSIZE,
+    SWP_SHOWWINDOW,
     find_browser_executable,
+    focus_resize_browser_window,
 )
 from tools.reference_game_2048_source import PinnedGameSource, PinnedGameSourceError
 
@@ -184,6 +190,42 @@ class BrowserDiscoveryTest(unittest.TestCase):
                 patch("shutil.which", side_effect=lambda command: "C:/tools/chrome.exe" if command == "chrome" else None),
             ):
                 self.assertEqual(find_browser_executable(), edge_path)
+
+    def test_owned_browser_window_reports_when_foreground_activation_is_denied(self):
+        import ctypes
+        from ctypes import wintypes
+
+        window_handle = 1234
+        process_id = 5678
+        user32 = Mock()
+        user32.IsWindow.return_value = True
+        user32.GetWindowThreadProcessId.side_effect = (
+            lambda _handle, output: setattr(
+                ctypes.cast(output, ctypes.POINTER(wintypes.DWORD)).contents,
+                "value",
+                process_id,
+            ) or 1
+        )
+        user32.GetSystemMetrics.side_effect = [1920, 1080]
+        user32.ShowWindow.return_value = 1
+        user32.MoveWindow.return_value = 1
+        user32.SetWindowPos.return_value = 1
+        user32.SetForegroundWindow.return_value = 0
+        user32.GetForegroundWindow.return_value = 9876
+
+        with patch("tools.reference_game_2048_launcher.os.name", "nt"), patch.object(
+            ctypes,
+            "WinDLL",
+            return_value=user32,
+            create=True,
+        ):
+            self.assertFalse(focus_resize_browser_window(window_handle, process_id))
+
+        user32.SetWindowPos.assert_called_once()
+        insert_after = user32.SetWindowPos.call_args.args[1]
+        flags = user32.SetWindowPos.call_args.args[6]
+        self.assertEqual(insert_after.value or 0, HWND_TOP)
+        self.assertEqual(flags, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW)
 
 
 @unittest.skipUnless(
