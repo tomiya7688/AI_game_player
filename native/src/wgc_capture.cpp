@@ -255,21 +255,37 @@ struct WgcSessionState {
     // }
     void initialize_capture(HWND target_window) {
         window = target_window;
+        std::fprintf(stderr, "WGC startup: creating capture item for HWND %p\n", target_window);
+        std::fflush(stderr);
         capture_item = create_capture_item(target_window);
+        std::fprintf(stderr, "WGC startup: capture item created for HWND %p\n", target_window);
+        std::fflush(stderr);
         frame_pool_size = capture_item.Size();
         if (frame_pool_size.Width <= 0 || frame_pool_size.Height <= 0) {
             throw winrt::hresult_error(E_INVALIDARG);
         }
 
+        std::fprintf(stderr, "WGC startup: creating Direct3D device for HWND %p\n", target_window);
+        std::fflush(stderr);
         capture_device = create_capture_device(native_device);
+        std::fprintf(stderr, "WGC startup: Direct3D device created for HWND %p\n", target_window);
+        std::fflush(stderr);
+        std::fprintf(stderr, "WGC startup: creating frame pool for HWND %p\n", target_window);
+        std::fflush(stderr);
         frame_pool = Direct3D11CaptureFramePool::CreateFreeThreaded(
             capture_device,
             kCapturePixelFormat,
             kCaptureFramePoolBufferCount,
             frame_pool_size
         );
+        std::fprintf(stderr, "WGC startup: frame pool created for HWND %p\n", target_window);
+        std::fflush(stderr);
         capture_session = frame_pool.CreateCaptureSession(capture_item);
+        std::fprintf(stderr, "WGC startup: capture session created for HWND %p\n", target_window);
+        std::fflush(stderr);
         capture_session.StartCapture();
+        std::fprintf(stderr, "WGC startup: capture started for HWND %p\n", target_window);
+        std::fflush(stderr);
     }
 
     // {
