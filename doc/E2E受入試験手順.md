@@ -4,10 +4,9 @@
 
 Issue #30 の第一段階受入として、人間が候補JSONを編集せずに `Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next Decision` を連続実行できることを確認する。
 
-本受入は2つの形で同じrunnerを使う。
+この手順は利用者とWindows E2E実装者向けです。画面captureから候補選択・live input・再観測までを確認し、サンプルUIと固定版2048の対象範囲を分けて扱います。
 
-1. **PR Gate**: Windows上の固定サンプルGUIを明確な一区切り（24 action）まで完走する。
-2. **10分継続試験**: 同じWindows runnerを600秒以上動作させ、停止理由と全step traceを保存する。
+GitHub ActionsのWindows E2E jobは、固定サンプルGUIの24 action受入、pinned 2048の起動・実画面認識、Campaign Runnerによる600秒live-input campaignを別々に実行します。サンプルUIのmilestone runnerと2048 Campaign Runnerは異なるrunnerです。
 
 固定サンプルGUIは実ゲームの代替となる最小受入対象であり、候補をコード内JSONで注入しない。実際のウィンドウをCaptureし、`FrameAnalyzer` / `BrightRegionDetector` が検出したUI領域からActionCandidateを生成する。
 
@@ -108,18 +107,39 @@ python tools/run_windows_e2e.py --steps 24
 
 ## 10分継続試験
 
-Windows実環境で以下を実行する。
+このコマンドは固定サンプルGUIの旧来の継続確認です。game-over後のbrowser再起動や2048 score/tile集計は行いません。pinned 2048のPR acceptanceには次節のCampaign Runnerを使います。
+
+Windows実環境で以下を実行します。
 
 ```powershell
 $env:PYTHONPATH = "src;."
 python tools/run_windows_e2e.py --duration 600 --steps 100000
 ```
 
-`--duration 600` は600秒到達を成功条件にする。sample milestoneが先に到達しないよう、duration指定時はsample側のstep上限を十分大きく設定する。
+`--duration 600` はsample windowのloopが最低600秒続くことを成功条件にします。sample milestoneが先に到達しないよう、duration指定時はsample側のstep上限を十分大きく設定します。
 
 実ゲームを使う場合も `ContinuousE2ERunner` を利用し、`observation_probe` とmilestone判定だけを対象ゲームへ差し替える。競技オンラインゲーム、anti-cheat回避、DRM回避はProject-supported scope外とする。
 
-## Trace format
+## Pinned 2048 Campaign Runner
+
+Campaign Runnerは、固定版2048を専用Edge/Chrome windowで起動し、画面認識・候補選択・window message input・再観測をprofileのdeadlineまで繰り返します。2048 episodeは画面状態を取得した後、DecisionPipelineからFailSafeRuntimeへ観測完了時刻を記録します。Windows CIで記録したaction-to-observationの最大値は2,666msです。FailSafeの観測期限は、この実測値より長い5秒に設定します。FailSafe watchdog（観測時刻の更新を監視する仕組み）は、5秒間新しい状態を記録できない場合に2048の実入力を停止します。game-overを画面から認識した場合は現在のbrowser episodeを閉じ、新しいepisodeを起動して続行します。一定回数の同一状態が続いた場合も、上限付きで新しいepisodeを起動して復旧を試します。攻略scoreやtile値の目標は設定しません。
+
+Campaign RunnerのPR profileは600秒、Release profileは1800秒です。duration overrideを付けると選択profileの実行時間だけを置き換えます。
+
+```powershell
+$env:PYTHONPATH = "src;."
+python tools/run_2048_campaign.py --profile pr
+python tools/run_2048_campaign.py --profile release
+python tools/run_2048_campaign.py --profile pr --duration-seconds 30
+```
+
+このコマンドはWindows上でのみ実行できます。コマンドは専用browser windowへlive arrow-key inputを送り、dry-runではありません。既存browser windowや別アプリは操作対象にしません。初回起動にはpinned sourceを取得するためのネットワーク接続が必要です。`--browser`、`--cache-dir`、`--artifact-dir`を指定するとbrowser実行ファイル、検証済みsource cache、成果物の親directoryを変更できます。
+
+Runnerは実行ごとにUTC時刻を含む新しいdirectoryを `build/e2e` 以下へ作り、`trace.jsonl` と `report.json` を保存します。既存成果物を上書きしません。traceはaction、state signature、score/tile、latency、episode lifecycle、stop reasonを記録し、生画面画像は保存しません。reportはprofile、目標時間、実時間、live input検証状態、action/step数、再起動/recovery数、last/peak score、scoreを得た観測数、最大tile、latency統計、game sourceとGit commitを記録します。`TesseractOcrRecognizer`とTesseract executableが利用可能な場合は画面OCRからscoreを記録します。OCR依存またはscore表示を認識できない場合、`last_score`と`peak_score`は`null`になることがあり、`score_samples`は読めたscore数を示します。reportの`metadata.score_ocr_enabled`はOCR recognizerの利用状態を示します。最大tileは認識した盤面から集計します。
+
+成功条件は、live OS inputを1回以上確認したうえで600秒または1800秒のdeadlineへ到達し、hard failureなくepisodeを閉じて両成果物を保存することです。scoreまたは最大tileが高いことは成功条件ではありません。認識、capture、Safety、decision、input、stall recovery、episode起動、step上限、cleanupの問題は失敗categoryと理由として保存します。
+
+## Sample E2E Trace format
 
 各stepはJSONLで次を保存する。
 
@@ -147,6 +167,8 @@ python tools/run_windows_e2e.py --duration 600 --steps 100000
 }
 ```
 
+2048 Campaign Runnerは `trace.jsonl` に `campaign_started`、`episode_started`、`step`、`episode_terminal`、`recovery_started`、`campaign_failure`、`cleanup_failure`、`campaign_summary` eventを保存します。別ファイルの `report.json` は一回のcampaignの集計結果です。
+
 ## 停止理由
 
 runnerは少なくとも以下を区別する。
@@ -161,6 +183,8 @@ runnerは少なくとも以下を区別する。
 - `recognition_or_candidate_failure`
 - `target_or_capture_failure`
 - `execution_failure`
+
+2048 Campaign Runnerは次の分類を `stop_reason` として保存する。`duration_reached`、`milestone_reached`、`safety_block`、`recognition_failure`、`capture_failure`、`decision_failure`、`execution_failure`、`live_input_not_verified`、`episode_start_failure`、`terminal_restart_limit`、`restart_failed`、`stall_limit`、`step_limit`、`artifact_write_failure`、`cleanup_failure`、`campaign_configuration`、`milestone_failure`、`unexpected_failure`。2048 CLIはmilestone callbackを設定しないため、通常の成功停止理由は `duration_reached` です。再利用するRunnerへcallbackを渡す実装者は、action後の `CampaignState` に対してboolを返してください。`true` は `milestone_reached`、例外またはbool以外の返却値は `milestone_failure` です。
 
 E2E failureは無理に成功扱いせず、traceをartifactへ残してcomponent blockerを特定する。
 

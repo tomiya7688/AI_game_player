@@ -152,7 +152,14 @@ IDirect3DDevice create_capture_device(winrt::com_ptr<ID3D11Device>& native_devic
 //   戻り値: [GraphicsCaptureItem: WGC sessionが取得する単一window item]
 // }
 GraphicsCaptureItem create_capture_item(HWND window) {
-    auto interop = winrt::get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
+    // {
+    //   理由: [WGC sessionごとに起動するMTA worker内でinterop factoryを取得してCreateForWindowを呼ぶ]
+    // }
+    winrt::hresult_error factory_error{E_FAIL};
+    auto interop = winrt::try_get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>(factory_error);
+    if (!interop) {
+        throw factory_error;
+    }
     GraphicsCaptureItem item{nullptr};
     winrt::check_hresult(interop->CreateForWindow(
         window,
@@ -186,10 +193,11 @@ bool query_wgc_support_once() noexcept {
 }  // namespace
 
 // {
-//   責務: [kadoka_wgc_frame: 取得済みframeのmetadataと参照中Direct3D textureを保持する]
-//   フィールド: [texture: leaseが解放されるまで保持するBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime, copy_mutex: 同じdevice contextを使うlease間の共有lock]
+//   責務: [kadoka_wgc_frame: copy完了まで取得frameをpoolへ返さずmetadataとDirect3D textureを保持する]
+//   フィールド: [capture_frame: releaseまでpoolへ返さないWGC frame, texture: lease中にcopyするBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime, copy_mutex: 同じdevice contextを使うlease間の共有lock]
 // }
 struct kadoka_wgc_frame {
+    Direct3D11CaptureFrame capture_frame{nullptr};
     winrt::com_ptr<ID3D11Texture2D> texture;
     uint32_t width = 0;
     uint32_t height = 0;
@@ -262,7 +270,18 @@ struct WgcSessionState {
         }
 
         capture_device = create_capture_device(native_device);
-        frame_pool = Direct3D11CaptureFramePool::CreateFreeThreaded(
+        // {
+        //   理由: [CreateFreeThreadedを実行する現在のMTA workerからStatics2 factoryを取得してframe poolを作る]
+        // }
+        winrt::hresult_error frame_pool_factory_error{E_FAIL};
+        auto frame_pool_factory = winrt::try_get_activation_factory<
+            Direct3D11CaptureFramePool,
+            winrt::Windows::Graphics::Capture::IDirect3D11CaptureFramePoolStatics2
+        >(frame_pool_factory_error);
+        if (!frame_pool_factory) {
+            throw frame_pool_factory_error;
+        }
+        frame_pool = frame_pool_factory.CreateFreeThreaded(
             capture_device,
             kCapturePixelFormat,
             kCaptureFramePoolBufferCount,
@@ -322,16 +341,19 @@ struct WgcSessionState {
     //   戻り値: [void: 再呼び出し可能な終了処理]
     // }
     void release_capture_resources() noexcept {
-        try {
-            if (capture_session) {
-                capture_session.Close();
-            }
-        } catch (...) {
-            // Native shutdown must continue releasing the frame pool.
-        }
+        // {
+        //   理由: [WindowsのWGC C++ sampleと同じくframe poolをcapture sessionより先にCloseし、終了順序を揃える]
+        // }
         try {
             if (frame_pool) {
                 frame_pool.Close();
+            }
+        } catch (...) {
+            // Native shutdown must continue closing the capture session.
+        }
+        try {
+            if (capture_session) {
+                capture_session.Close();
             }
         } catch (...) {
             // Releasing the projected references below still tears down local ownership.
@@ -532,7 +554,10 @@ struct WgcSessionState {
                 frame_lease->timestamp_ns =
                     static_cast<uint64_t>(capture_time_units) * kNanosecondsPerWinRtTimeUnit;
             }
-            captured_frame.Close();
+            // {
+            //   理由: [capture_frameをCloseするとframe poolが同じsurfaceを再利用するため、callerのBGRA copyが終わるlease releaseまでframeを保持する]
+            // }
+            frame_lease->capture_frame = std::move(captured_frame);
             return frame_lease;
         }
         return nullptr;
@@ -736,7 +761,8 @@ int32_t kadoka_wgc_frame_get_info(const kadoka_wgc_frame* frame, kadoka_wgc_fram
 //   戻り値: [int32_t: copy結果のstatus code]
 // }
 int32_t kadoka_wgc_frame_copy_bgra(kadoka_wgc_frame* frame, uint8_t* output_bgra, uint64_t output_capacity) {
-    if (frame == nullptr || frame->texture == nullptr || frame->copy_mutex == nullptr ||
+    if (frame == nullptr || frame->capture_frame == nullptr ||
+        frame->texture == nullptr || frame->copy_mutex == nullptr ||
         frame->width == 0u || frame->height == 0u ||
         static_cast<uint64_t>(frame->width) * kBytesPerPixel >
             std::numeric_limits<uint64_t>::max() / frame->height) {
@@ -750,17 +776,23 @@ int32_t kadoka_wgc_frame_copy_bgra(kadoka_wgc_frame* frame, uint8_t* output_bgra
 }
 
 // {
-//   責務: [kadoka_wgc_frame_release: frame leaseとtexture referenceを解放しpointerをnullへ戻す]
+//   責務: [kadoka_wgc_frame_release: 保持中WGC frameをpoolへ返しframe leaseを解放してpointerをnullへ戻す]
 //   引数: [frame: 解放するframe lease pointer]
-//   戻り値: [int32_t: 解放処理のstatus code。null pointerまたはnull leaseではINVALID_ARGUMENT]
+//   戻り値: [int32_t: pool返却とlease解放が成功した場合はOK、close失敗はCAPTURE_FAILED、null pointerはINVALID_ARGUMENT]
 // }
 int32_t kadoka_wgc_frame_release(kadoka_wgc_frame** frame) {
     if (frame == nullptr || *frame == nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
+    int32_t release_status = KADOKA_RUNTIME_STATUS_OK;
+    try {
+        (*frame)->capture_frame.Close();
+    } catch (...) {
+        release_status = KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
+    }
     delete *frame;
     *frame = nullptr;
-    return KADOKA_RUNTIME_STATUS_OK;
+    return release_status;
 }
 
 // {

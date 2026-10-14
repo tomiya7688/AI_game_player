@@ -165,6 +165,50 @@ classDiagram
         +_element()
         +_is_bright()
     }
+    class CampaignState {
+        +__post_init__()
+    }
+    class CampaignActionResult {
+        +__post_init__()
+    }
+    class CampaignConfig {
+        +__post_init__()
+    }
+    RuntimeError <|-- CampaignFailure
+    class CampaignFailure {
+        +__init__()
+    }
+    Protocol <|-- CampaignEpisode
+    class CampaignEpisode {
+        +observe()
+        +act()
+        +record_outcome()
+        +close()
+    }
+    class CampaignRunner {
+        +__init__()
+        +run()
+        +_prepare_output_paths()
+        +_record_failure()
+        +_build_report()
+        +_write_report()
+    }
+    class CampaignProgress {
+    }
+    class CampaignLoop {
+        +__init__()
+        +execute()
+        +_run_until_deadline()
+        +_start_episode()
+        +_restart_terminal_episode()
+        +_replace_episode()
+        +_run_action_step()
+        +_probe_milestone()
+        +_recover_stalled_episode()
+        +close_episode()
+        +close_after_run()
+        +_create_episode()
+    }
     class CandidateMerger {
         +__init__()
         +merge()
@@ -830,6 +874,7 @@ classDiagram
     }
     class DecisionPipeline {
         +__init__()
+        +record_observation()
         +_read_candidates()
         +_decide()
         +run()
