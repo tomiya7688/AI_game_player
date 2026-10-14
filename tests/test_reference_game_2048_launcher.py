@@ -222,6 +222,7 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         time.sleep(LIVE_BOARD_POLL_INTERVAL_SECONDS)
                 finally:
                     capture.close()
+                failure_diagnostic = None
                 if game_state["board"] is None:
                     diagnostic_directory = Path("build/e2e")
                     diagnostic_directory.mkdir(parents=True, exist_ok=True)
@@ -252,6 +253,7 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         "board_region": repr(adapter.board_recognizer._find_board_region(frame)),
                         "capture_backend_error": capture.last_backend_error,
                     }
+                    failure_diagnostic = json.dumps(diagnostic, ensure_ascii=False, sort_keys=True)
                     (diagnostic_directory / "2048-live-capture.json").write_text(
                         json.dumps(diagnostic, ensure_ascii=False, indent=2),
                         encoding="utf-8",
@@ -259,7 +261,8 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                 self.assertIsNotNone(
                     game_state["board"],
                     f"frame={frame.width}x{frame.height}, mean={observation.features.get('mean_rgb')}, "
-                    f"confidence={game_state['confidence']}, foreground={launcher.window_is_foreground}",
+                    f"confidence={game_state['confidence']}, foreground={launcher.window_is_foreground}, "
+                    f"diagnostics={failure_diagnostic}",
                 )
                 self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
             finally:
