@@ -733,6 +733,12 @@ classDiagram
     class ActionDecision {
         +to_dict()
     }
+    class NoisyLanguageProvider {
+        +__init__()
+        +choose_context()
+        +assess_outcome()
+        +_word_salad_reason()
+    }
     class WindowCaptureSource {
         +__init__()
         +capture()
