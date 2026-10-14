@@ -281,7 +281,20 @@ struct WgcSessionState {
         capture_device = create_capture_device(native_device);
         std::fprintf(stderr, "WGC startup: D3D device complete HWND=%p\n", target_window);
         std::fflush(stderr);
-        frame_pool = Direct3D11CaptureFramePool::CreateFreeThreaded(
+        // {
+        //   理由: [CreateFreeThreadedを実行する現在のMTA workerからStatics2 factoryを取得してframe poolを作る]
+        // }
+        winrt::hresult_error frame_pool_factory_error{E_FAIL};
+        auto frame_pool_factory = winrt::try_get_activation_factory<
+            Direct3D11CaptureFramePool,
+            winrt::Windows::Graphics::Capture::IDirect3D11CaptureFramePoolStatics2
+        >(frame_pool_factory_error);
+        if (!frame_pool_factory) {
+            throw frame_pool_factory_error;
+        }
+        std::fprintf(stderr, "WGC startup: frame pool factory complete HWND=%p\n", target_window);
+        std::fflush(stderr);
+        frame_pool = frame_pool_factory.CreateFreeThreaded(
             capture_device,
             kCapturePixelFormat,
             kCaptureFramePoolBufferCount,
