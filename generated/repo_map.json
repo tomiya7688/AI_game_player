@@ -72091,6 +72091,19 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -72102,7 +72115,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "zipfile",
           "names": [
@@ -72115,7 +72128,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -72128,7 +72141,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "urllib.error",
           "names": [
@@ -72141,7 +72154,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "urllib.request",
           "names": [
@@ -72154,7 +72167,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -72167,7 +72180,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -72183,7 +72196,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_adapter"
@@ -72199,7 +72212,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -72215,7 +72228,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_launcher"
@@ -72239,7 +72252,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 22,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -72260,7 +72273,7 @@
       "module": "tests.test_reference_game_2048_launcher",
       "path": "tests/test_reference_game_2048_launcher.py",
       "source_location": {
-        "end_line": 229,
+        "end_line": 238,
         "start_line": 1
       },
       "symbols": [
@@ -72282,8 +72295,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 32,
-            "start_line": 29
+            "end_line": 35,
+            "start_line": 32
           }
         },
         {
@@ -72311,8 +72324,8 @@
           "signature": "(self, content: bytes) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 30
+            "end_line": 35,
+            "start_line": 33
           }
         },
         {
@@ -72334,8 +72347,8 @@
           "signature": "(content: bytes) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 37,
-            "start_line": 35
+            "end_line": 40,
+            "start_line": 38
           }
         },
         {
@@ -72369,8 +72382,8 @@
           "signature": "(path: Path, license_bytes: bytes = …, index_bytes: bytes = …) -> Path",
           "source_location": {
             "column": 0,
-            "end_line": 63,
-            "start_line": 40
+            "end_line": 66,
+            "start_line": 43
           }
         },
         {
@@ -72392,8 +72405,8 @@
           "signature": "(entries: dict[str, bytes]) -> bytes",
           "source_location": {
             "column": 0,
-            "end_line": 71,
-            "start_line": 66
+            "end_line": 74,
+            "start_line": 69
           }
         },
         {
@@ -72414,8 +72427,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 143,
-            "start_line": 74
+            "end_line": 146,
+            "start_line": 77
           }
         },
         {
@@ -72437,8 +72450,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 75
+            "end_line": 99,
+            "start_line": 78
           }
         },
         {
@@ -72460,8 +72473,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 99
+            "end_line": 116,
+            "start_line": 102
           }
         },
         {
@@ -72483,8 +72496,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 127,
-            "start_line": 115
+            "end_line": 130,
+            "start_line": 118
           }
         },
         {
@@ -72506,8 +72519,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 129
+            "end_line": 146,
+            "start_line": 132
           }
         },
         {
@@ -72528,8 +72541,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 160,
-            "start_line": 146
+            "end_line": 163,
+            "start_line": 149
           }
         },
         {
@@ -72551,8 +72564,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 147
+            "end_line": 163,
+            "start_line": 150
           }
         },
         {
@@ -72573,8 +72586,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 181,
-            "start_line": 163
+            "end_line": 184,
+            "start_line": 166
           }
         },
         {
@@ -72596,8 +72609,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 164
+            "end_line": 184,
+            "start_line": 167
           }
         },
         {
@@ -72620,8 +72633,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 225,
-            "start_line": 188
+            "end_line": 234,
+            "start_line": 191
           }
         },
         {
@@ -72643,8 +72656,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 225,
-            "start_line": 189
+            "end_line": 234,
+            "start_line": 192
           }
         }
       ]

@@ -3,6 +3,7 @@ import io
 import json
 import os
 import tempfile
+import time
 import unittest
 import zipfile
 from pathlib import Path
@@ -24,6 +25,8 @@ from tools.reference_game_2048_source import PinnedGameSource, PinnedGameSourceE
 MIT_LICENSE = b"MIT fixture license\n"
 INDEX_HTML = b"<title>2048</title>"
 TEST_COMMIT = "a" * 40
+LIVE_BOARD_RENDER_TIMEOUT_SECONDS = 15.0
+LIVE_BOARD_POLL_INTERVAL_SECONDS = 0.25
 
 
 class FakeArchiveResponse(io.BytesIO):
@@ -204,17 +207,23 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                 self.assertIn("2048", html)
                 capture = WindowsScreenCapture()
                 try:
-                    frame = capture.capture(window.handle)
-                    observation = FrameAnalyzer().analyze(frame, "live-2048")
                     adapter = ReferenceGame2048Adapter()
-                    adapted, candidates = adapter.adapt(frame, observation)
+                    frame_analyzer = FrameAnalyzer()
+                    deadline = time.monotonic() + LIVE_BOARD_RENDER_TIMEOUT_SECONDS
+                    while True:
+                        frame = capture.capture(window.handle)
+                        observation = frame_analyzer.analyze(frame, "live-2048")
+                        adapted, candidates = adapter.adapt(frame, observation)
+                        game_state = adapted.features["game_2048"]
+                        if game_state["board"] is not None or time.monotonic() >= deadline:
+                            break
+                        time.sleep(LIVE_BOARD_POLL_INTERVAL_SECONDS)
                 finally:
                     capture.close()
-                game_state = adapted.features["game_2048"]
                 self.assertIsNotNone(
                     game_state["board"],
                     f"frame={frame.width}x{frame.height}, mean={observation.features.get('mean_rgb')}, "
-                    f"confidence={game_state['confidence']}",
+                    f"confidence={game_state['confidence']}, foreground={launcher.window_is_foreground}",
                 )
                 self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
             finally:
