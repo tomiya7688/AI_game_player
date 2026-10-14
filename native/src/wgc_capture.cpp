@@ -160,12 +160,20 @@ GraphicsCaptureItem create_capture_item(HWND window) {
     if (!interop) {
         throw factory_error;
     }
+    std::fprintf(stderr, "WGC item: interop factory acquired for HWND %p\n", window);
+    std::fflush(stderr);
     GraphicsCaptureItem item{nullptr};
-    winrt::check_hresult(interop->CreateForWindow(
+    std::fprintf(stderr, "WGC item: calling CreateForWindow for HWND %p\n", window);
+    std::fflush(stderr);
+    const HRESULT create_result = interop->CreateForWindow(
         window,
         winrt::guid_of<GraphicsCaptureItem>(),
         winrt::put_abi(item)
-    ));
+    );
+    std::fprintf(stderr, "WGC item: CreateForWindow returned 0x%08lX for HWND %p\n",
+        static_cast<unsigned long>(create_result), window);
+    std::fflush(stderr);
+    winrt::check_hresult(create_result);
     return item;
 }
 
