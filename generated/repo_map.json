@@ -70640,6 +70640,593 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "zipfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "zipfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "urllib.error",
+          "names": [
+            {
+              "alias": null,
+              "name": "URLError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "urllib.request",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlopen"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "LoopbackStaticServer"
+            },
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Launcher"
+            },
+            {
+              "alias": null,
+              "name": "find_browser_executable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "PinnedGameSource"
+            },
+            {
+              "alias": null,
+              "name": "PinnedGameSourceError"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_reference_game_2048_launcher",
+      "path": "tests/test_reference_game_2048_launcher.py",
+      "source_location": {
+        "end_line": 211,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "io.BytesIO"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeArchiveResponse",
+          "parameters": [],
+          "qualified_name": "FakeArchiveResponse",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 29,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "content"
+            }
+          ],
+          "qualified_name": "FakeArchiveResponse.__init__",
+          "return_annotation": "None",
+          "signature": "(self, content: bytes) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 29,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "git_blob_sha",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "content"
+            }
+          ],
+          "qualified_name": "git_blob_sha",
+          "return_annotation": "str",
+          "signature": "(content: bytes) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 34,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_lock",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "license_bytes"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "index_bytes"
+            }
+          ],
+          "qualified_name": "make_lock",
+          "return_annotation": "Path",
+          "signature": "(path: Path, license_bytes: bytes = …, index_bytes: bytes = …) -> Path",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 37
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_archive",
+          "parameters": [
+            {
+              "annotation": "dict[str, bytes]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entries"
+            }
+          ],
+          "qualified_name": "make_archive",
+          "return_annotation": "bytes",
+          "signature": "(entries: dict[str, bytes]) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 68,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PinnedGameSourceTest",
+          "parameters": [],
+          "qualified_name": "PinnedGameSourceTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 140,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_downloads_exact_locked_archive_once_and_reuses_verified_cache",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PinnedGameSourceTest.test_downloads_exact_locked_archive_once_and_reuses_verified_cache",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_parent_path_before_writing_outside_the_cache",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PinnedGameSourceTest.test_rejects_parent_path_before_writing_outside_the_cache",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 110,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_license_bytes_that_do_not_match_the_lock",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PinnedGameSourceTest.test_rejects_license_bytes_that_do_not_match_the_lock",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 112
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_existing_cache_is_preserved_without_network_access",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PinnedGameSourceTest.test_invalid_existing_cache_is_preserved_without_network_access",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 140,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LoopbackStaticServerTest",
+          "parameters": [],
+          "qualified_name": "LoopbackStaticServerTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 157,
+            "start_line": 143
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_serves_game_from_loopback_and_releases_port_on_close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServerTest.test_serves_game_from_loopback_and_releases_port_on_close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BrowserDiscoveryTest",
+          "parameters": [],
+          "qualified_name": "BrowserDiscoveryTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 178,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_installed_edge_precedes_chrome_found_on_path",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserDiscoveryTest.test_installed_edge_precedes_chrome_found_on_path",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 178,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "unittest.skipUnless(os.name == REDACTED and os.environ.get(REDACTED) == REDACTED, REDACTED)"
+          ],
+          "kind": "class",
+          "name": "WindowsReferenceGameIntegrationTest",
+          "parameters": [],
+          "qualified_name": "WindowsReferenceGameIntegrationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 207,
+            "start_line": 185
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_launches_locked_game_in_owned_window_and_cleans_up",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsReferenceGameIntegrationTest.test_launches_locked_game_in_owned_window_and_cleans_up",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 207,
+            "start_line": 186
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.region_detector"
@@ -85293,6 +85880,1330 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.window_selector",
+        "tools",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "functools",
+          "names": [
+            {
+              "alias": null,
+              "name": "partial"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "shutil",
+          "names": [
+            {
+              "alias": null,
+              "name": "shutil"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "http.server",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleHTTPRequestHandler"
+            },
+            {
+              "alias": null,
+              "name": "ThreadingHTTPServer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 1,
+          "line": 15,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "PinnedGameSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 145,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.window_selector"
+          ],
+          "module": "ai_game_player.window_selector",
+          "names": [
+            {
+              "alias": null,
+              "name": "WindowsWindowSelector"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 276,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        }
+      ],
+      "module": "tools.reference_game_2048_launcher",
+      "path": "tools/reference_game_2048_launcher.py",
+      "source_location": {
+        "end_line": 312,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LoopbackStaticServer",
+          "parameters": [],
+          "qualified_name": "LoopbackStaticServer",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 76,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer.__init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "url",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer.url",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 37,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source_path"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer.start",
+          "return_annotation": "str",
+          "signature": "(self, source_path: Path) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 60,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [
+            "SimpleHTTPRequestHandler"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "QuietRequestHandler",
+          "parameters": [],
+          "qualified_name": "LoopbackStaticServer.start.QuietRequestHandler",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 47,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "log_message",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "format"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer.start.QuietRequestHandler.log_message",
+          "return_annotation": "None",
+          "signature": "(self, format: str, *args: object) -> None",
+          "source_location": {
+            "column": 12,
+            "end_line": 47,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 76,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BrowserWindowSession",
+          "parameters": [],
+          "qualified_name": "BrowserWindowSession",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 181,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "browser_path"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source_path"
+            }
+          ],
+          "qualified_name": "BrowserWindowSession.__init__",
+          "return_annotation": "None",
+          "signature": "(self, browser_path: Path, source_path: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "url"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout_seconds"
+            }
+          ],
+          "qualified_name": "BrowserWindowSession.start",
+          "return_annotation": "None",
+          "signature": "(self, url: str, timeout_seconds: float = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wait_until_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "poll_seconds"
+            }
+          ],
+          "qualified_name": "BrowserWindowSession.wait_until_closed",
+          "return_annotation": "int",
+          "signature": "(self, poll_seconds: float = …) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserWindowSession.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 140,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_wait_for_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout_seconds"
+            }
+          ],
+          "qualified_name": "BrowserWindowSession._wait_for_window",
+          "return_annotation": null,
+          "signature": "(self, timeout_seconds: float)",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 142
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_stop_process_tree",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserWindowSession._stop_process_tree",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReferenceGame2048Launcher",
+          "parameters": [],
+          "qualified_name": "ReferenceGame2048Launcher",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 243,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cache_root"
+            },
+            {
+              "annotation": "Path | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "browser_path"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.__init__",
+          "return_annotation": "None",
+          "signature": "(self, cache_root: Path, browser_path: Path | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 192,
+            "start_line": 187
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "url",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.url",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 196,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "window_info",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.window_info",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "browser_process",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.browser_process",
+          "return_annotation": "subprocess.Popen[bytes] | None",
+          "signature": "(self) -> subprocess.Popen[bytes] | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 204,
+            "start_line": 203
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "window_is_foreground",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.window_is_foreground",
+          "return_annotation": "bool | None",
+          "signature": "(self) -> bool | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 208,
+            "start_line": 207
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "window_wait_seconds"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.start",
+          "return_annotation": "None",
+          "signature": "(self, window_wait_seconds: float = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 221,
+            "start_line": 210
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "wait_until_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.wait_until_closed",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 223
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 237,
+            "start_line": 228
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__enter__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.__enter__",
+          "return_annotation": "ReferenceGame2048Launcher",
+          "signature": "(self) -> ReferenceGame2048Launcher",
+          "source_location": {
+            "column": 4,
+            "end_line": 240,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__exit__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "exc_type"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "exc_value"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "traceback"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Launcher.__exit__",
+          "return_annotation": "None",
+          "signature": "(self, exc_type, exc_value, traceback) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 243,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "find_browser_executable",
+          "parameters": [],
+          "qualified_name": "find_browser_executable",
+          "return_annotation": "Path",
+          "signature": "() -> Path",
+          "source_location": {
+            "column": 0,
+            "end_line": 269,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "focus_resize_browser_window",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected_process_id"
+            }
+          ],
+          "qualified_name": "focus_resize_browser_window",
+          "return_annotation": "bool",
+          "signature": "(window_handle: int, expected_process_id: int) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 312,
+            "start_line": 272
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "stat",
+          "names": [
+            {
+              "alias": null,
+              "name": "stat"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "urllib.request",
+          "names": [
+            {
+              "alias": null,
+              "name": "urllib.request"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "zipfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "zipfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            },
+            {
+              "alias": null,
+              "name": "PurePosixPath"
+            },
+            {
+              "alias": null,
+              "name": "PureWindowsPath"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlsplit"
+            }
+          ]
+        }
+      ],
+      "module": "tools.reference_game_2048_source",
+      "path": "tools/reference_game_2048_source.py",
+      "source_location": {
+        "end_line": 281,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PinnedGameSourceError",
+          "parameters": [],
+          "qualified_name": "PinnedGameSourceError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 21,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PinnedGameSource",
+          "parameters": [],
+          "qualified_name": "PinnedGameSource",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 281,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cache_root"
+            },
+            {
+              "annotation": "Path",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "lock_path"
+            }
+          ],
+          "qualified_name": "PinnedGameSource.__init__",
+          "return_annotation": "None",
+          "signature": "(self, cache_root: Path, lock_path: Path = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 30,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "materialize",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PinnedGameSource.materialize",
+          "return_annotation": "Path",
+          "signature": "(self) -> Path",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_read_lock",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PinnedGameSource._read_lock",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 118,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_is_safe_locked_path",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "PinnedGameSource._is_safe_locked_path",
+          "return_annotation": "bool",
+          "signature": "(path: str) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 131,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_download_archive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "archive_path"
+            }
+          ],
+          "qualified_name": "PinnedGameSource._download_archive",
+          "return_annotation": "None",
+          "signature": "(self, archive_path: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 158,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_extract_archive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "archive_path"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "extracted_root"
+            }
+          ],
+          "qualified_name": "PinnedGameSource._extract_archive",
+          "return_annotation": "None",
+          "signature": "(self, archive_path: Path, extracted_root: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 211,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_validated_member_path",
+          "parameters": [
+            {
+              "annotation": "zipfile.ZipInfo",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "member"
+            }
+          ],
+          "qualified_name": "PinnedGameSource._validated_member_path",
+          "return_annotation": "PurePosixPath",
+          "signature": "(member: zipfile.ZipInfo) -> PurePosixPath",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 214
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_verify_source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source_root"
+            }
+          ],
+          "qualified_name": "PinnedGameSource._verify_source",
+          "return_annotation": "None",
+          "signature": "(self, source_root: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 243
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.fail_safe_runtime"
       ],
       "imports": [
@@ -85778,6 +87689,136 @@
             "column": 0,
             "end_line": 242,
             "start_line": 221
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Launcher"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "SOURCE_LOCK_PATH"
+            }
+          ]
+        }
+      ],
+      "module": "tools.run_reference_game_2048",
+      "path": "tools/run_reference_game_2048.py",
+      "source_location": {
+        "end_line": 60,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 56,
+            "start_line": 14
           }
         }
       ]

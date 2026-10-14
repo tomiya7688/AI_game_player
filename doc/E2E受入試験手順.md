@@ -11,6 +11,41 @@ Issue #30 の第一段階受入として、人間が候補JSONを編集せずに
 
 固定サンプルGUIは実ゲームの代替となる最小受入対象であり、候補をコード内JSONで注入しない。実際のウィンドウをCaptureし、`FrameAnalyzer` / `BrightRegionDetector` が検出したUI領域からActionCandidateを生成する。
 
+## Windowsで固定版2048を起動する
+
+Issue #245のlauncherは、MIT版2048をWindowsのEdgeまたはChromeで起動し、Issue #246/#247の実画面E2Eで使う対象windowを準備する。このlauncherは画面から盤面を認識したり、AIからキー入力を送ったりしないため、起動成功だけでAI gameplay完了とは判定しない。
+
+launcherは `tools/reference_games/2048.source.lock.json` に記録したupstream commit `478b6ec346e3787f589e4af751378d06ded4cbbc` を取得する。lock fileはrepository、commit、Git tree SHA、全34ファイルのGit blob SHA、機械可読なMIT license ID、LICENSE.txtの著作権表示、license URLを保持する。Git tree SHAはcommit内のファイル構成を識別し、Git blob SHAは各ファイルの内容を識別するhashです。upstreamは[2048 by Gabriele Cirulli](https://github.com/gabrielecirulli/2048)であり、commitのLICENSE.txtにMIT Licenseと `Copyright (c) 2014 Gabriele Cirulli` が記録されている。
+
+初回起動には `codeload.github.com` への接続が必要です。launcherは検証済みsourceを `build/reference_games/2048/<commit>` に保持し、次回以降は全ファイルの有無とGit blob SHAを照合してcacheを再利用します。既存cacheがlockと一致しない場合、launcherはcacheを削除・上書きせずエラーで停止します。原因を確認して再試行する利用者は、browser windowを閉じた後、該当するcommit folderだけをcache外へ退避してから起動し直します。
+
+Windows利用者はリポジトリrootから以下を実行します。
+
+```powershell
+$env:PYTHONPATH = "src;."
+python tools/run_reference_game_2048.py
+```
+
+launcherはEdgeを優先して検索し、見つからない場合はChromeを検索します。`--browser`へ実行ファイルのpathを指定すれば検索結果を上書きできます。launcherは `127.0.0.1` のephemeral portだけでゲームを配信し、専用browser profileを使った `--app` windowを起動します。window titleに2048を含み、起動したbrowser processが所有するHWNDだけを選び、desktop内に最大1180×850でresizeします。launcherは前面化も要求しますが、Windowsがforeground変更を拒否する場合は既存windowを残して起動成功とし、JSON出力の `window_is_foreground` を `false` にします。desktopが640×480未満の場合、launcherはゲームwindowを表示できないことをエラーで伝えます。
+
+HWND（Windowsがwindowへ割り当てる識別番号）は、launcherが起動したbrowser process IDと2048を含むwindow titleの両方に一致するwindowから取得します。ephemeral portはWindowsが空き番号から選ぶ一時portです。専用browser profileは既存の通常ブラウザー設定やwindowを再利用しないために使います。`--app` windowは2048だけを開く専用windowです。
+
+Edge/Chromeが標準pathにない場合、利用者は実行ファイルpathを指定します。
+
+```powershell
+python tools/run_reference_game_2048.py --browser "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+```
+
+利用者がゲームwindowを閉じるかCtrl+Cを押すと、launcherは起動したbrowser process tree、一時browser profile、localhost serverを終了します。検証済みsource cacheは次回起動に使うため残します。このlauncherはAI実入力を有効にしません。
+
+Windows CIは次のintegration testでpinned sourceの配信、PIDに結び付いた2048 windowの特定、window起動後の終了処理を確認します。
+
+```powershell
+$env:PYTHONPATH = "src;."
+$env:KADOKA_RUN_2048_INTEGRATION = "1"
+python -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
+```
+
 ## PR Gateの経路
 
 ```text

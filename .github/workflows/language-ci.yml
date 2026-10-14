@@ -76,7 +76,7 @@ jobs:
           if-no-files-found: error
 
   windows-e2e:
-    name: Windows closed-loop sample E2E
+    name: Windows sample loop and 2048 launcher E2E
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -88,6 +88,12 @@ jobs:
         env:
           PYTHONPATH: "src;."
         run: python tools/run_windows_e2e.py --steps 24
+      - name: Launch the pinned 2048 game in its owned browser window
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          KADOKA_RUN_2048_INTEGRATION: "1"
+        run: python -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
       - uses: actions/upload-artifact@v4
         if: always()
         with:
