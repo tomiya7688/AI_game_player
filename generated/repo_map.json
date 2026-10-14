@@ -20638,7 +20638,7 @@
       "module": "ai_game_player.game_2048_board",
       "path": "src/ai_game_player/game_2048_board.py",
       "source_location": {
-        "end_line": 325,
+        "end_line": 326,
         "start_line": 1
       },
       "symbols": [
@@ -20661,8 +20661,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> tuple[int, int, int]",
           "source_location": {
             "column": 0,
-            "end_line": 61,
-            "start_line": 51
+            "end_line": 62,
+            "start_line": 52
           }
         },
         {
@@ -20677,8 +20677,8 @@
           "signature": "() -> frozenset[tuple[int, int, int]]",
           "source_location": {
             "column": 0,
-            "end_line": 71,
-            "start_line": 64
+            "end_line": 72,
+            "start_line": 65
           }
         },
         {
@@ -20693,8 +20693,8 @@
           "signature": "() -> dict[tuple[int, int, int], int]",
           "source_location": {
             "column": 0,
-            "end_line": 85,
-            "start_line": 74
+            "end_line": 86,
+            "start_line": 75
           }
         },
         {
@@ -20718,8 +20718,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 105,
-            "start_line": 93
+            "end_line": 106,
+            "start_line": 94
           }
         },
         {
@@ -20740,8 +20740,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 118,
-            "start_line": 109
+            "end_line": 119,
+            "start_line": 110
           }
         },
         {
@@ -20762,8 +20762,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 130,
-            "start_line": 122
+            "end_line": 131,
+            "start_line": 123
           }
         },
         {
@@ -20782,8 +20782,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 309,
-            "start_line": 133
+            "end_line": 310,
+            "start_line": 134
           }
         },
         {
@@ -20811,8 +20811,8 @@
           "signature": "(self, minimum_confidence: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 138
+            "end_line": 148,
+            "start_line": 139
           }
         },
         {
@@ -20840,8 +20840,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRecognition | None",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 156
+            "end_line": 182,
+            "start_line": 157
           }
         },
         {
@@ -20869,8 +20869,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRegion | None",
           "source_location": {
             "column": 4,
-            "end_line": 256,
-            "start_line": 189
+            "end_line": 257,
+            "start_line": 190
           }
         },
         {
@@ -20916,8 +20916,8 @@
           "signature": "(self, frame: ScreenFrame, region: BoardRegion, row: int, column: int) -> tuple[int | None, float]",
           "source_location": {
             "column": 4,
-            "end_line": 309,
-            "start_line": 264
+            "end_line": 310,
+            "start_line": 265
           }
         },
         {
@@ -20939,8 +20939,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> int | None",
           "source_location": {
             "column": 0,
-            "end_line": 325,
-            "start_line": 312
+            "end_line": 326,
+            "start_line": 313
           }
         }
       ]
@@ -57864,7 +57864,7 @@
       "module": "tests.test_game_2048_adapter",
       "path": "tests/test_game_2048_adapter.py",
       "source_location": {
-        "end_line": 245,
+        "end_line": 263,
         "start_line": 1
       },
       "symbols": [
@@ -58025,7 +58025,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 240,
+            "end_line": 258,
             "start_line": 92
           }
         },
@@ -58138,6 +58138,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_board_region_search_tolerates_stronger_capture_color_resampling",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048AdapterTests.test_board_region_search_tolerates_stronger_capture_color_resampling",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_screen_fixture_selects_current_score_instead_of_best_score",
           "parameters": [
             {
@@ -58152,8 +58175,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 139
+            "end_line": 163,
+            "start_line": 157
           }
         },
         {
@@ -58175,8 +58198,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 162,
-            "start_line": 147
+            "end_line": 180,
+            "start_line": 165
           }
         },
         {
@@ -58198,8 +58221,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 164
+            "end_line": 199,
+            "start_line": 182
           }
         },
         {
@@ -58221,8 +58244,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 183
+            "end_line": 208,
+            "start_line": 201
           }
         },
         {
@@ -58244,8 +58267,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 199,
-            "start_line": 192
+            "end_line": 217,
+            "start_line": 210
           }
         },
         {
@@ -58267,8 +58290,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 213,
-            "start_line": 201
+            "end_line": 231,
+            "start_line": 219
           }
         },
         {
@@ -58290,8 +58313,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 226,
-            "start_line": 215
+            "end_line": 244,
+            "start_line": 233
           }
         },
         {
@@ -58313,8 +58336,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 228
+            "end_line": 251,
+            "start_line": 246
           }
         },
         {
@@ -58336,8 +58359,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 235
+            "end_line": 258,
+            "start_line": 253
           }
         }
       ]
@@ -72469,7 +72492,7 @@
       "module": "tests.test_reference_game_2048_launcher",
       "path": "tests/test_reference_game_2048_launcher.py",
       "source_location": {
-        "end_line": 340,
+        "end_line": 354,
         "start_line": 1
       },
       "symbols": [
@@ -72852,7 +72875,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 336,
+            "end_line": 350,
             "start_line": 239
           }
         },
@@ -72875,7 +72898,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 336,
+            "end_line": 350,
             "start_line": 240
           }
         }

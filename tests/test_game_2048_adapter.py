@@ -136,6 +136,24 @@ class ReferenceGame2048AdapterTests(unittest.TestCase):
         self.assertEqual(adapted.features["game_2048"]["board"], self.fixture["board"])
         self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
 
+    def test_board_region_search_tolerates_stronger_capture_color_resampling(self):
+        frame = render_fixture(self.fixture)
+        pixels = bytearray(frame.bgra)
+        left, top, board_width, board_height = self.fixture["board_rect"]
+        for y in range(top, top + board_height):
+            for x in range(left, left + board_width):
+                offset = (y * frame.width + x) * 4
+                shifted_rgb = tuple(
+                    min(255, channel + 10)
+                    for channel in (pixels[offset + 2], pixels[offset + 1], pixels[offset])
+                )
+                write_rgb(pixels, frame.width, x, y, shifted_rgb)
+        resampled_frame = ScreenFrame(frame.width, frame.height, bytes(pixels))
+
+        region = self.adapter.board_recognizer._find_board_region(resampled_frame)
+
+        self.assertIsNotNone(region)
+
     def test_screen_fixture_selects_current_score_instead_of_best_score(self):
         frame = render_fixture(self.fixture)
 

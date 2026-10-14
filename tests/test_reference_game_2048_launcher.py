@@ -287,20 +287,33 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                             right,
                             bottom,
                         )
-                    palette_counts = Counter(
+                    frame_color_counts = Counter(
                         (
                             frame.bgra[offset + 2],
                             frame.bgra[offset + 1],
                             frame.bgra[offset],
                         )
                         for offset in range(0, len(frame.bgra), 4)
-                        if (
-                            frame.bgra[offset + 2],
-                            frame.bgra[offset + 1],
-                            frame.bgra[offset],
-                        )
-                        in BOARD_REGION_COLORS
                     )
+                    palette_counts = Counter(
+                        {
+                            rgb: count
+                            for rgb, count in frame_color_counts.items()
+                            if rgb in BOARD_REGION_COLORS
+                        }
+                    )
+                    distance_thresholds = (36, 144, 324, 900)
+                    distance_bucket_counts = Counter()
+                    for rgb, count in frame_color_counts.items():
+                        nearest_distance = min(
+                            sum((actual - expected) ** 2 for actual, expected in zip(rgb, palette_rgb))
+                            for palette_rgb in BOARD_REGION_COLORS
+                        )
+                        bucket = next(
+                            (str(threshold) for threshold in distance_thresholds if nearest_distance <= threshold),
+                            "over_900",
+                        )
+                        distance_bucket_counts[bucket] += count
                     diagnostic = {
                         "width": frame.width,
                         "height": frame.height,
@@ -313,6 +326,7 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                             ",".join(str(channel) for channel in rgb): count
                             for rgb, count in sorted(palette_counts.items())
                         },
+                        "nearest_palette_distance_pixel_counts": dict(sorted(distance_bucket_counts.items())),
                         "board_region": repr(adapter.board_recognizer._find_board_region(frame)),
                         "capture_backend_error": capture.last_backend_error,
                     }

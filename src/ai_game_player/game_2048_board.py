@@ -34,6 +34,7 @@ CELL_CENTER_FRACTION = 0.5
 MINIMUM_BOARD_CONFIDENCE = 0.65
 MINIMUM_BOARD_SIDE_PIXELS = 80
 MAXIMUM_COLOR_DISTANCE_SQUARED = 36
+MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED = 324
 MINIMUM_ROW_MATCH_PIXELS = 24
 MINIMUM_ROW_MATCH_WIDTH_FRACTION = 0.05
 MINIMUM_ROW_SPAN_PIXELS = 50
@@ -94,13 +95,13 @@ def _is_board_region_color(rgb: tuple[int, int, int]) -> bool:
     # {
     #   責務: [_is_board_region_color: capture時の色ずれを許容し、2048盤面に属するRGB画素を判定する]
     #   引数: [rgb: screen captureから読み取った画素のRGB色]
-    #   戻り値: [bool: 盤面palette色とのRGB二乗距離が許容値以内ならTrue]
+    #   戻り値: [bool: 盤面palette色とのRGB二乗距離が324以下ならTrue]
     # }
     if rgb in BOARD_REGION_COLORS:
         return True
     return any(
         sum((actual - expected) ** 2 for actual, expected in zip(rgb, palette_rgb))
-        <= MAXIMUM_COLOR_DISTANCE_SQUARED
+        <= MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED
         for palette_rgb in BOARD_REGION_COLORS
     )
 
@@ -182,7 +183,7 @@ class Game2048BoardRecognizer:
 
     # {
     #   責務: [_find_board_region: row内の2048 CSS色分布から最大の正方形board候補を特定する]
-    #   処理: [board背景・empty cell・tile色の連続rowをまとめ、縦横比と画素密度を検査する]
+    #   処理: [board背景・empty cell・tile色からRGB二乗距離324以内の連続rowをまとめ、縦横比と画素密度を検査する]
     #   引数: [frame: 検索対象となるBGRA画面]
     #   戻り値: [BoardRegionまたはNone: 条件を満たす盤面矩形と形状確信度]
     # }
