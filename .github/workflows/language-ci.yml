@@ -111,11 +111,17 @@ jobs:
           PYTHONPATH: "src;."
           KADOKA_RUN_2048_INTEGRATION: "1"
         run: python -u -X faulthandler -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
+      - name: Verify a second live 2048 episode can capture after restart
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          KADOKA_RUN_2048_INTEGRATION: "1"
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_2048_campaign.py" -v
       - name: Run the 600-second pinned-game campaign
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u tools/run_2048_campaign.py --profile pr
+        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,3 +1,4 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -87,6 +88,36 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
 
         self.assertEqual(raised.exception.category, "safety_block")
         self.assertIn("reason=observation_stale", raised.exception.detail)
+
+
+@unittest.skipUnless(
+    os.name == "nt" and os.environ.get("KADOKA_RUN_2048_INTEGRATION") == "1",
+    "real browser restart integration runs only in the Windows E2E workflow",
+)
+class WindowsReferenceGameCampaignRestartTests(unittest.TestCase):
+    def test_second_episode_can_capture_after_the_first_episode_closes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_root = Path(temporary)
+            cache_root = temporary_root / "source-cache"
+            runtime_root = temporary_root / "runtime"
+
+            for episode_number in (1, 2):
+                print(f"2048 campaign restart integration: starting episode {episode_number}", flush=True)
+                episode = run_2048_campaign.ReferenceGame2048Episode(
+                    episode_number,
+                    cache_root,
+                    runtime_root,
+                    None,
+                    None,
+                )
+                try:
+                    state = episode.observe()
+                    self.assertTrue(state.signature)
+                    self.assertFalse(state.terminal)
+                    print(f"2048 campaign restart integration: episode {episode_number} observed a playable board", flush=True)
+                finally:
+                    episode.close()
+                    print(f"2048 campaign restart integration: episode {episode_number} closed", flush=True)
 
 
 if __name__ == "__main__":

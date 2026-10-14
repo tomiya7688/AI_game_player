@@ -47962,6 +47962,19 @@
           "level": 0,
           "line": 1,
           "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
           "module": "tempfile",
           "names": [
             {
@@ -47973,7 +47986,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 2,
+          "line": 3,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -47986,7 +47999,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 3,
+          "line": 4,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -47999,7 +48012,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 5,
           "local_dependencies": [],
           "module": "types",
           "names": [
@@ -48012,7 +48025,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -48025,7 +48038,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.campaign_runner"
@@ -48045,7 +48058,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "tools",
             "tools.run_2048_campaign"
@@ -48062,7 +48075,7 @@
       "module": "tests.test_2048_campaign",
       "path": "tests/test_2048_campaign.py",
       "source_location": {
-        "end_line": 93,
+        "end_line": 124,
         "start_line": 1
       },
       "symbols": [
@@ -48084,8 +48097,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 89,
-            "start_line": 11
+            "end_line": 90,
+            "start_line": 12
           }
         },
         {
@@ -48107,8 +48120,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 12
+            "end_line": 68,
+            "start_line": 13
           }
         },
         {
@@ -48127,8 +48140,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 22,
-            "start_line": 16
+            "end_line": 23,
+            "start_line": 17
           }
         },
         {
@@ -48150,8 +48163,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 19,
-            "start_line": 17
+            "end_line": 20,
+            "start_line": 18
           }
         },
         {
@@ -48173,8 +48186,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 22,
-            "start_line": 21
+            "end_line": 23,
+            "start_line": 22
           }
         },
         {
@@ -48193,8 +48206,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 34,
-            "start_line": 24
+            "end_line": 35,
+            "start_line": 25
           }
         },
         {
@@ -48216,8 +48229,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 28,
-            "start_line": 27
+            "end_line": 29,
+            "start_line": 28
           }
         },
         {
@@ -48239,8 +48252,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 31,
-            "start_line": 30
+            "end_line": 32,
+            "start_line": 31
           }
         },
         {
@@ -48262,8 +48275,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 34,
-            "start_line": 33
+            "end_line": 35,
+            "start_line": 34
           }
         },
         {
@@ -48285,8 +48298,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 69
+            "end_line": 90,
+            "start_line": 70
           }
         },
         {
@@ -48308,8 +48321,55 @@
           "signature": "(**_arguments)",
           "source_location": {
             "column": 8,
-            "end_line": 71,
-            "start_line": 70
+            "end_line": 72,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "unittest.skipUnless(os.name == REDACTED and os.environ.get(REDACTED) == REDACTED, REDACTED)"
+          ],
+          "kind": "class",
+          "name": "WindowsReferenceGameCampaignRestartTests",
+          "parameters": [],
+          "qualified_name": "WindowsReferenceGameCampaignRestartTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 120,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_second_episode_can_capture_after_the_first_episode_closes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsReferenceGameCampaignRestartTests.test_second_episode_can_capture_after_the_first_episode_closes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 120,
+            "start_line": 98
           }
         }
       ]
