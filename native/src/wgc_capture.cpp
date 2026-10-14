@@ -152,23 +152,20 @@ IDirect3DDevice create_capture_device(winrt::com_ptr<ID3D11Device>& native_devic
 //   戻り値: [GraphicsCaptureItem: WGC sessionが取得する単一window item]
 // }
 GraphicsCaptureItem create_capture_item(HWND window) {
+    // {
+    //   理由: [WGC sessionごとに起動するMTA worker内でinterop factoryを取得してCreateForWindowを呼ぶ]
+    // }
     winrt::hresult_error factory_error{E_FAIL};
     auto interop = winrt::try_get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>(factory_error);
     if (!interop) {
         throw factory_error;
     }
-    std::fprintf(stderr, "WGC startup: interop factory complete HWND=%p\n", window);
-    std::fflush(stderr);
     GraphicsCaptureItem item{nullptr};
-    const HRESULT create_result = interop->CreateForWindow(
+    winrt::check_hresult(interop->CreateForWindow(
         window,
         winrt::guid_of<GraphicsCaptureItem>(),
         winrt::put_abi(item)
-    );
-    std::fprintf(stderr, "WGC startup: CreateForWindow result=0x%08lX HWND=%p\n",
-        static_cast<unsigned long>(create_result), window);
-    std::fflush(stderr);
-    winrt::check_hresult(create_result);
+    ));
     return item;
 }
 
@@ -266,21 +263,13 @@ struct WgcSessionState {
     // }
     void initialize_capture(HWND target_window) {
         window = target_window;
-        std::fprintf(stderr, "WGC startup: CreateForWindow begin HWND=%p\n", target_window);
-        std::fflush(stderr);
         capture_item = create_capture_item(target_window);
-        std::fprintf(stderr, "WGC startup: CreateForWindow complete HWND=%p\n", target_window);
-        std::fflush(stderr);
         frame_pool_size = capture_item.Size();
-        std::fprintf(stderr, "WGC startup: Size complete HWND=%p\n", target_window);
-        std::fflush(stderr);
         if (frame_pool_size.Width <= 0 || frame_pool_size.Height <= 0) {
             throw winrt::hresult_error(E_INVALIDARG);
         }
 
         capture_device = create_capture_device(native_device);
-        std::fprintf(stderr, "WGC startup: D3D device complete HWND=%p\n", target_window);
-        std::fflush(stderr);
         // {
         //   理由: [CreateFreeThreadedを実行する現在のMTA workerからStatics2 factoryを取得してframe poolを作る]
         // }
@@ -292,22 +281,14 @@ struct WgcSessionState {
         if (!frame_pool_factory) {
             throw frame_pool_factory_error;
         }
-        std::fprintf(stderr, "WGC startup: frame pool factory complete HWND=%p\n", target_window);
-        std::fflush(stderr);
         frame_pool = frame_pool_factory.CreateFreeThreaded(
             capture_device,
             kCapturePixelFormat,
             kCaptureFramePoolBufferCount,
             frame_pool_size
         );
-        std::fprintf(stderr, "WGC startup: frame pool complete HWND=%p\n", target_window);
-        std::fflush(stderr);
         capture_session = frame_pool.CreateCaptureSession(capture_item);
-        std::fprintf(stderr, "WGC startup: capture session complete HWND=%p\n", target_window);
-        std::fflush(stderr);
         capture_session.StartCapture();
-        std::fprintf(stderr, "WGC startup: StartCapture complete HWND=%p\n", target_window);
-        std::fflush(stderr);
     }
 
     // {
