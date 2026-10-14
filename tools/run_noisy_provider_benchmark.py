@@ -85,12 +85,14 @@ def run_out_of_set_fixture() -> bool:
 
 def measure_engine_steps(
     engine: GamePlayerEngine,
+    provider: TimedNoisyLanguageProvider,
     candidates: list[ActionCandidate],
     step_count: int,
     *,
     offset: int = 0,
-) -> list[int]:
+) -> tuple[list[int], list[int]]:
     step_times_ns: list[int] = []
+    non_provider_core_times_ns: list[int] = []
     allowed_action_ids = {candidate.action_id for candidate in candidates if not candidate.dangerous}
     for step_index in range(offset, offset + step_count):
         observation = ScreenObservation(
@@ -99,14 +101,23 @@ def measure_engine_steps(
             240,
             features={"signature": f"synthetic-state-{step_index}"},
         )
+        selection_sample_start = len(provider.selection_times_ns)
+        outcome_sample_start = len(provider.outcome_times_ns)
         start_ns = time.perf_counter_ns()
         decision = engine.step(observation, candidates, purpose="advance synthetic board")
-        step_times_ns.append(time.perf_counter_ns() - start_ns)
+        elapsed_ns = time.perf_counter_ns() - start_ns
+        provider_elapsed_ns = sum(provider.selection_times_ns[selection_sample_start:]) + sum(
+            provider.outcome_times_ns[outcome_sample_start:]
+        )
+        if provider_elapsed_ns > elapsed_ns:
+            raise RuntimeError("measured provider time exceeded its enclosing Engine step")
+        step_times_ns.append(elapsed_ns)
+        non_provider_core_times_ns.append(elapsed_ns - provider_elapsed_ns)
         if decision.action_id not in allowed_action_ids:
             raise RuntimeError(f"provider selected an unsafe candidate: {decision.action_id}")
         if engine.last_reliability_result is None or engine.last_reliability_result.status.value == "REJECT":
             raise RuntimeError("Core rejected a noisy provider action from its allowed candidates")
-    return step_times_ns
+    return step_times_ns, non_provider_core_times_ns
 
 
 def write_report(output_path: Path, report: dict[str, object]) -> None:
@@ -129,10 +140,13 @@ def run_benchmark(steps: int, warmup_steps: int, seed: int, budget_multiplier: f
     expected_budget_names = (
         "provider_selection_p95_ms",
         "provider_outcome_p95_ms",
-        "core_step_p95_ms",
+        "core_step_total_p95_ms",
+        "core_step_non_provider_p95_ms",
     )
     if set(budgets) != set(expected_budget_names) or any(value <= 0 for value in budgets.values()):
-        raise ValueError("noisy provider budgets must define positive limits for all three benchmark measurements")
+        raise ValueError(
+            "noisy provider budgets must define positive limits for provider, total Core, and non-provider Core timing"
+        )
 
     timed_provider = TimedNoisyLanguageProvider(NoisyLanguageProvider(seed))
     candidates = [
@@ -149,10 +163,16 @@ def run_benchmark(steps: int, warmup_steps: int, seed: int, budget_multiplier: f
                 event_journal=journal,
                 migrate_legacy=False,
             )
-            measure_engine_steps(engine, candidates, warmup_steps)
+            measure_engine_steps(engine, timed_provider, candidates, warmup_steps)
             timed_provider.selection_times_ns.clear()
             timed_provider.outcome_times_ns.clear()
-            engine_step_times_ns = measure_engine_steps(engine, candidates, steps, offset=warmup_steps)
+            engine_step_times_ns, core_without_provider_times_ns = measure_engine_steps(
+                engine,
+                timed_provider,
+                candidates,
+                steps,
+                offset=warmup_steps,
+            )
             engine_outcome_assessment_count = len(timed_provider.outcome_times_ns)
 
     observation = ScreenObservation("synthetic-outcome", 320, 240)
@@ -162,12 +182,14 @@ def run_benchmark(steps: int, warmup_steps: int, seed: int, budget_multiplier: f
     measurements = {
         "provider_selection_p95_ms": percentile_ms(timed_provider.selection_times_ns, 0.95),
         "provider_outcome_p95_ms": percentile_ms(timed_provider.outcome_times_ns, 0.95),
-        "core_step_p95_ms": percentile_ms(engine_step_times_ns, 0.95),
+        "core_step_total_p95_ms": percentile_ms(engine_step_times_ns, 0.95),
+        "core_step_non_provider_p95_ms": percentile_ms(core_without_provider_times_ns, 0.95),
     }
     timing_samples = {
         "provider_selection_p95_ms": timed_provider.selection_times_ns,
         "provider_outcome_p95_ms": timed_provider.outcome_times_ns,
-        "core_step_p95_ms": engine_step_times_ns,
+        "core_step_total_p95_ms": engine_step_times_ns,
+        "core_step_non_provider_p95_ms": core_without_provider_times_ns,
     }
     performance = {}
     for name in expected_budget_names:
@@ -178,7 +200,7 @@ def run_benchmark(steps: int, warmup_steps: int, seed: int, budget_multiplier: f
         }
     out_of_set_fixture_rejected = run_out_of_set_fixture()
     report: dict[str, object] = {
-        "schema": "noisy-provider-benchmark/v1",
+        "schema": "noisy-provider-benchmark/v2",
         "python_version": platform.python_version(),
         "platform": sys.platform,
         "core_persistence": "sqlite_session_journal",
@@ -192,6 +214,7 @@ def run_benchmark(steps: int, warmup_steps: int, seed: int, budget_multiplier: f
         "engine_outcome_assessment_count": engine_outcome_assessment_count,
         "direct_outcome_assessment_count": steps,
         "outcome_timing_sources": ["engine_semantic_fallback", "direct_provider_call"],
+        "non_provider_core_timing_method": "engine step duration minus provider calls measured within that step",
         "out_of_set_fixture_rejected": out_of_set_fixture_rejected,
         "percentile_method": "p50=median; p95=nearest-rank",
         "measurements": performance,
