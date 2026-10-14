@@ -30,6 +30,8 @@ from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 from ai_game_player.windows_abi import configure_user32_prototypes
 from tools.reference_game_2048_launcher import (
     HWND_TOP,
+    GAME_DEVICE_SCALE_FACTOR,
+    BrowserWindowSession,
     LoopbackStaticServer,
     ReferenceGame2048Launcher,
     SWP_NOACTIVATE,
@@ -321,6 +323,29 @@ class BrowserDiscoveryTest(unittest.TestCase):
         flags = user32.SetWindowPos.call_args.args[6]
         self.assertEqual(insert_after.value or 0, HWND_TOP)
         self.assertEqual(flags, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW)
+
+    def test_browser_window_uses_the_configured_game_device_scale_factor(self):
+        session = BrowserWindowSession(Path("browser.exe"), Path("source"))
+        profile = Mock(name="browser_profile")
+        profile.name = "isolated-profile"
+        process = Mock(pid=5678)
+
+        with (
+            patch("tools.reference_game_2048_launcher.os.name", "nt"),
+            patch.object(Path, "is_file", return_value=True),
+            patch("tools.reference_game_2048_launcher.tempfile.TemporaryDirectory", return_value=profile),
+            patch("tools.reference_game_2048_launcher.subprocess.Popen", return_value=process) as start_browser,
+            patch.object(session, "_wait_for_window", return_value=Mock()),
+            patch("tools.reference_game_2048_launcher.focus_resize_browser_window", return_value=True),
+        ):
+            session.start("http://127.0.0.1:8000/")
+
+        browser_arguments = start_browser.call_args.args[0]
+        self.assertIn(
+            f"--force-device-scale-factor={GAME_DEVICE_SCALE_FACTOR}",
+            browser_arguments,
+        )
+        session.close()
 
 
 @unittest.skipUnless(

@@ -28,6 +28,8 @@ python tools/run_reference_game_2048.py
 
 launcherはEdgeを優先して検索し、見つからない場合はChromeを検索します。`--browser`へ実行ファイルのpathを指定すれば検索結果を上書きできます。launcherは `127.0.0.1` のephemeral portだけでゲームを配信し、専用browser profileを使った `--app` windowを起動します。window titleに2048を含み、起動したbrowser processが所有するHWNDだけを選び、desktop内に最大1180×850でresizeします。launcherは前面化も要求しますが、Windowsがforeground変更を拒否する場合は既存windowを残して起動成功とし、JSON出力の `window_is_foreground` を `false` にします。desktopが640×480未満の場合、launcherはゲームwindowを表示できないことをエラーで伝えます。
 
+launcherはChromiumのdevice scale factor（CSS pixelを画面pixelへ描く倍率）を0.75に設定します。画面の縦横が小さいWindows desktopでも、2048の盤面全体をcapture frameに表示するためです。
+
 HWND（Windowsがwindowへ割り当てる識別番号）は、launcherが起動したbrowser process IDと2048を含むwindow titleの両方に一致するwindowから取得します。ephemeral portはWindowsが空き番号から選ぶ一時portです。専用browser profileは既存の通常ブラウザー設定やwindowを再利用しないために使います。`--app` windowは2048だけを開く専用windowです。
 
 Edge/Chromeが標準pathにない場合、利用者は実行ファイルpathを指定します。

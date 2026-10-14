@@ -17,6 +17,7 @@ from .reference_game_2048_source import PinnedGameSource
 
 WINDOW_WIDTH = 1180
 WINDOW_HEIGHT = 850
+GAME_DEVICE_SCALE_FACTOR = 0.75
 WINDOW_LEFT = 60
 WINDOW_TOP = 60
 WINDOW_WAIT_SECONDS = 25.0
@@ -107,6 +108,7 @@ class BrowserWindowSession:
                 f"--user-data-dir={self._profile.name}",
                 f"--window-size={WINDOW_WIDTH},{WINDOW_HEIGHT}",
                 f"--window-position={WINDOW_LEFT},{WINDOW_TOP}",
+                f"--force-device-scale-factor={GAME_DEVICE_SCALE_FACTOR}",
                 "--no-first-run",
                 "--no-default-browser-check",
                 "--disable-default-apps",
