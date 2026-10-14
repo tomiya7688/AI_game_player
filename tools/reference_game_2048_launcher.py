@@ -299,6 +299,10 @@ def focus_resize_browser_window(window_handle: int, expected_process_id: int) ->
         wintypes.UINT,
     ]
     user32.SetWindowPos.restype = wintypes.BOOL
+    user32.InvalidateRect.argtypes = [wintypes.HWND, ctypes.c_void_p, wintypes.BOOL]
+    user32.InvalidateRect.restype = wintypes.BOOL
+    user32.UpdateWindow.argtypes = [wintypes.HWND]
+    user32.UpdateWindow.restype = wintypes.BOOL
     user32.SetForegroundWindow.argtypes = [wintypes.HWND]
     user32.SetForegroundWindow.restype = wintypes.BOOL
     user32.GetForegroundWindow.argtypes = []
@@ -325,6 +329,8 @@ def focus_resize_browser_window(window_handle: int, expected_process_id: int) ->
         raise ctypes.WinError(ctypes.get_last_error())
     z_order_flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW
     if not user32.SetWindowPos(handle, wintypes.HWND(HWND_TOP), 0, 0, 0, 0, z_order_flags):
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not user32.InvalidateRect(handle, None, True) or not user32.UpdateWindow(handle):
         raise ctypes.WinError(ctypes.get_last_error())
     user32.SetForegroundWindow(handle)
     return user32.GetForegroundWindow() == window_handle

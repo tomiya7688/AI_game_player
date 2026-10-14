@@ -222,6 +222,8 @@ class BrowserDiscoveryTest(unittest.TestCase):
             self.assertFalse(focus_resize_browser_window(window_handle, process_id))
 
         user32.SetWindowPos.assert_called_once()
+        user32.InvalidateRect.assert_called_once()
+        user32.UpdateWindow.assert_called_once()
         insert_after = user32.SetWindowPos.call_args.args[1]
         flags = user32.SetWindowPos.call_args.args[6]
         self.assertEqual(insert_after.value or 0, HWND_TOP)

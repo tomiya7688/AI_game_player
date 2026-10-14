@@ -271,7 +271,7 @@ class WindowsScreenCapture:
     #   責務: [_capture_with_wgc: 同じHWNDのWGC sessionを再利用してnative frameを取得する]
     #   引数: [window_handle: IsWindowで有効性を確認したcapture対象HWND]
     #   戻り値: [ScreenFrame | None: WGC frame、またはGDI fallbackを使う場合のNone]
-    #   エラー: [WGC開始・取得・metadata失敗: 原因をlast_backend_errorへ残しsessionを閉じてNoneを返す]
+    #   エラー: [WGC frame timeout: 原因を記録してGDI fallbackを返しsessionを維持して次回captureで再試行, その他のWGC失敗: 原因を記録してsessionを閉じ以降のcaptureでWGCを無効化]
     # }
     def _capture_with_wgc(self, window_handle: int) -> ScreenFrame | None:
         if self._user32 is not None and self._wgc_capture_factory is None:
@@ -321,6 +321,10 @@ class WindowsScreenCapture:
             return frame
         except Exception as error:
             self.last_backend_error = f"{type(error).__name__}: {error}"
+            from ai_game_player.runtime.native import NativeRuntimeError, NativeStatus
+
+            if isinstance(error, NativeRuntimeError) and error.status_code == NativeStatus.TIMEOUT:
+                return None
             self._close_wgc_session()
             self._wgc_disabled = True
             return None
