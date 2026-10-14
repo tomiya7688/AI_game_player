@@ -354,9 +354,13 @@ class BrowserDiscoveryTest(unittest.TestCase):
 )
 class WindowsReferenceGameIntegrationTest(unittest.TestCase):
     def test_launches_locked_game_in_owned_window_and_cleans_up(self):
+        print("2048 integration: test body started", flush=True)
         with tempfile.TemporaryDirectory() as temporary:
+            print("2048 integration: temporary workspace created", flush=True)
             launcher = ReferenceGame2048Launcher(Path(temporary) / "source-cache")
+            print("2048 integration: starting pinned source and browser launcher", flush=True)
             launcher.start()
+            print("2048 integration: pinned source and browser launcher started", flush=True)
             process = launcher.browser_process
             window = launcher.window_info
             game_url = launcher.url
@@ -369,13 +373,24 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                 with urlopen(game_url, timeout=5) as response:
                     html = response.read().decode("utf-8")
                 self.assertIn("2048", html)
+                print("2048 integration: loopback server returned the pinned game page", flush=True)
                 capture = WindowsScreenCapture()
                 try:
                     adapter = ReferenceGame2048Adapter()
                     frame_analyzer = FrameAnalyzer()
                     deadline = time.monotonic() + LIVE_BOARD_RENDER_TIMEOUT_SECONDS
+                    capture_attempt = 0
                     while True:
+                        capture_attempt += 1
+                        if capture_attempt == 1:
+                            print("2048 integration: starting HWND frame capture", flush=True)
                         frame = capture.capture(window.handle)
+                        if capture_attempt == 1:
+                            print(
+                                f"2048 integration: HWND frame captured at {frame.width}x{frame.height}; "
+                                f"backend_error={capture.last_backend_error!r}",
+                                flush=True,
+                            )
                         observation = frame_analyzer.analyze(frame, "live-2048")
                         adapted, candidates = adapter.adapt(frame, observation)
                         game_state = adapted.features["game_2048"]
@@ -384,6 +399,7 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         time.sleep(LIVE_BOARD_POLL_INTERVAL_SECONDS)
                 finally:
                     capture.close()
+                    print("2048 integration: HWND capture resources closed", flush=True)
                 failure_diagnostic = None
                 if game_state["board"] is None:
                     diagnostic_directory = Path("build/e2e")

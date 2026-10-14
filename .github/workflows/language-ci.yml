@@ -109,7 +109,7 @@ jobs:
         env:
           PYTHONPATH: "src;."
           KADOKA_RUN_2048_INTEGRATION: "1"
-        run: python -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
       - uses: actions/upload-artifact@v4
         if: always()
         with:
