@@ -6,7 +6,7 @@
 
 ## 現在の実装範囲
 
-`src/ai_game_player/campaign_runner.py` はLevel固有の `CampaignEpisode` と `CampaignConfig` を外部へ公開するimport入口です。`campaign_contract.py` は状態・操作結果・設定・failure分類の型を定義し、`campaign_loop.py` はepisode lifecycleとdeadline loopを実行し、`campaign_execution.py` はartifactと最終reportを管理します。`campaign_artifacts.py` はJSONL eventとmetric集計だけを担当します。Issue #247の2048実装は `tools/run_2048_campaign.py` がepisodeを作り、固定版2048のwindowだけを操作します。
+`src/ai_game_player/campaign_runner.py` はLevel固有の `CampaignEpisode` と `CampaignConfig` を外部へ公開するimport入口です。`campaign_contract.py` は状態・操作結果・設定・failure分類の型を定義し、`campaign_loop.py` はepisode lifecycleとdeadline loopを実行し、`campaign_execution.py` はartifactと最終reportを管理します。`campaign_artifacts.py` はJSONL eventとmetric集計だけを担当します。Issue #247の2048実装は `tools/run_2048_campaign.py` がepisodeを作り、固定版2048のwindowだけを操作します。2048 episodeの `observe()` は画面状態を取得した後に `DecisionPipeline.record_observation()` を呼び、FailSafeRuntimeの観測完了時刻を更新します。Windows CIで記録したaction-to-observationの最大値は2,666msであるため、2048 episodeの観測期限を5秒に設定します。観測時刻が5秒間更新されない場合、FailSafe watchdogは追加の実入力を拒否します。
 
 PR用profileは600秒、Release用profileは1800秒です。利用者は `--duration-seconds` で実行時間を上書きできます。Campaign Runnerの成功条件は設定時間までlive OS inputを少なくとも1回検証し、設定したstep、terminal restart、cleanup条件に違反せず終了することです。2048のscoreやtile値は記録値であり、成功判定のしきい値ではありません。
 

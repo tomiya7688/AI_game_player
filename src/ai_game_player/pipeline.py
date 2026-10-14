@@ -28,7 +28,7 @@ from ai_game_player.runtime_log import RuntimeLog
 # {
 #   責務: [DecisionPipeline: 画面観測から検証済み判断、安全評価、世代guard付き実行までを接続する]
 #   フィールド: [source: 画面と候補を返す入力元, engine: Decision Context作成と回答検証, safety_evaluator: 操作リスク評価, executor: dry-runまたはOS入力, controller: 停止・再開世代, event_journal: 任意のSession event保存先]
-#   処理: [判断snapshotに含まれる候補実体を実行まで保ち、Action SafetyとDecision Reliabilityを別の根拠として記録する]
+#   処理: [判断snapshotに含まれる候補実体を実行まで保ち、Action SafetyとDecision Reliabilityを別の根拠として記録する。game adapterが新しい画面の観測完了時刻をFailSafeRuntimeへ記録する入口も提供する]
 #   履歴: [指定Journalへ判断・実行・安全eventを追記し、RuntimeLog bindingはこのPipelineが所有するtokenで解除する]
 # }
 class DecisionPipeline:
@@ -160,11 +160,28 @@ class DecisionPipeline:
                 self._runtime_log_detached = True
             raise
 
+    # {
+    #   責務: [record_observation: 新しい画面の観測完了時刻をFailSafeRuntimeへ記録する]
+    #   処理: [game adapterが画面の状態取得を終えた直後に呼び出し、ActionExecutorへ時刻更新を委譲する]
+    #   引数: []
+    #   戻り値: [None: 結果値を返さない]
+    #   エラー: [RuntimeError: FailSafeRuntimeが観測時刻の更新を受理しない場合]
+    # }
+    def record_observation(self) -> None:
+        self.executor.record_observation()
+
+    # {
+    #   責務: [_read_candidates: 画面観測と設定済み候補から判断用の候補一覧を作る]
+    #   処理: [1: sourceから画面と設定済み候補を取得する, 2: FailSafeRuntimeが実行中なら観測完了時刻を更新する, 3: OCR候補と画像候補を設定済み候補へ統合する]
+    #   引数: [ocr_texts: 呼び出し側が指定するOCR結果。NoneならScreenObservationのocr_candidatesを使用する]
+    #   戻り値: [ScreenObservationと統合済みActionCandidate一覧の組]
+    #   エラー: [source、OCR検出、候補変換の処理で発生した例外を呼び出し元へ伝える]
+    # }
     def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:
         observation, configured = self.source.read()
         runtime = self.executor.fail_safe_runtime
         if runtime is not None and runtime.state == FailSafeState.ACTIVE:
-            self.executor.record_observation()
+            self.record_observation()
         detected = self.ocr.detect(observation, ocr_texts if ocr_texts is not None else observation.features.get("ocr_candidates", []))
         image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
         return observation, self.merger.merge(configured, detected, image)

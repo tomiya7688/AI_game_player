@@ -122,7 +122,7 @@ python tools/run_windows_e2e.py --duration 600 --steps 100000
 
 ## Pinned 2048 Campaign Runner
 
-Campaign Runnerは、固定版2048を専用Edge/Chrome windowで起動し、画面認識・候補選択・window message input・再観測をprofileのdeadlineまで繰り返します。game-overを画面から認識した場合は現在のbrowser episodeを閉じ、新しいepisodeを起動して続行します。一定回数の同一状態が続いた場合も、上限付きで新しいepisodeを起動して復旧を試します。攻略scoreやtile値の目標は設定しません。
+Campaign Runnerは、固定版2048を専用Edge/Chrome windowで起動し、画面認識・候補選択・window message input・再観測をprofileのdeadlineまで繰り返します。2048 episodeは画面状態を取得した後、DecisionPipelineからFailSafeRuntimeへ観測完了時刻を記録します。Windows CIで記録したaction-to-observationの最大値は2,666msです。FailSafeの観測期限は、この実測値より長い5秒に設定します。FailSafe watchdog（観測時刻の更新を監視する仕組み）は、5秒間新しい状態を記録できない場合に2048の実入力を停止します。game-overを画面から認識した場合は現在のbrowser episodeを閉じ、新しいepisodeを起動して続行します。一定回数の同一状態が続いた場合も、上限付きで新しいepisodeを起動して復旧を試します。攻略scoreやtile値の目標は設定しません。
 
 Campaign RunnerのPR profileは600秒、Release profileは1800秒です。duration overrideを付けると選択profileの実行時間だけを置き換えます。
 

@@ -23,6 +23,7 @@ from ai_game_player.campaign_runner import (
     CampaignState,
 )
 from ai_game_player.decision_context import DecisionContext
+from ai_game_player.fail_safe_runtime import FailSafeConfig
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -186,6 +187,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 window_handle=window.handle,
                 window_process_id=window.process_id,
                 input_mode="window_message",
+                # {
+                #   理由: [action後のWGC captureとscreen analysisを含む周期が2秒を超えても新しい観測を通知できるよう5秒待ち、無観測が続く場合はwatchdogで停止する]
+                # }
+                fail_safe_config=FailSafeConfig(observation_timeout_seconds=5.0),
             )
             self.pipeline.rearm_safety()
         except Exception:
@@ -195,7 +200,17 @@ class ReferenceGame2048Episode(CampaignEpisode):
     def observe(self) -> CampaignState:
         if self.source is None:
             raise CampaignFailure("capture_failure", "2048 episode has no window observation source")
-        return self.source.capture_playable_state()
+        state = self.source.capture_playable_state()
+        pipeline = self.pipeline
+        if pipeline is not None:
+            try:
+                pipeline.record_observation()
+            except Exception as error:
+                raise CampaignFailure(
+                    "safety_block",
+                    f"2048 screen capture completed but the fail-safe observation lease could not be refreshed: {type(error).__name__}: {error}",
+                ) from error
+        return state
 
     def act(self) -> CampaignActionResult:
         if self.pipeline is None:
@@ -204,6 +219,12 @@ class ReferenceGame2048Episode(CampaignEpisode):
             result = self.pipeline.run_and_execute(purpose=CAMPAIGN_PURPOSE)
         except Exception as error:
             safety_result = self.pipeline.last_safety_result
+            runtime = self.pipeline.executor.fail_safe_runtime
+            fail_safe_detail = (
+                f"; fail-safe state={runtime.state.value}, reason={runtime.reason}"
+                if runtime is not None
+                else ""
+            )
             if safety_result is not None and safety_result.status.value == "block":
                 category = "safety_block"
             elif "safety" in str(error).casefold() or "blocked" in str(error).casefold():
@@ -214,7 +235,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 category = "decision_failure"
             raise CampaignFailure(
                 category,
-                f"2048 pipeline action failed: {type(error).__name__}: {error}",
+                f"2048 pipeline action failed: {type(error).__name__}: {error}{fail_safe_detail}",
             ) from error
         return CampaignActionResult(result.action_id, result.executed, result.mode, result.detail)
 

@@ -65,6 +65,16 @@ class PipelineExecuteTest(unittest.TestCase):
 
         self.assertIs(pipeline.executor.automated_cursor_position_callback, callback)
 
+    def test_pipeline_exposes_the_fail_safe_observation_refresh_to_game_adapters(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = DecisionPipeline(Source(), Path(directory))
+            calls = []
+            pipeline.executor.record_observation = lambda: calls.append("recorded")
+
+            pipeline.record_observation()
+
+        self.assertEqual(calls, ["recorded"])
+
     def test_stop_invalidates_executor_for_original_run_after_rearm(self):
         controller = RunController()
         with tempfile.TemporaryDirectory() as directory:
