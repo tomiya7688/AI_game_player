@@ -6,6 +6,7 @@ import tempfile
 import time
 import unittest
 import zipfile
+from collections import Counter
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -13,6 +14,7 @@ from unittest.mock import patch
 
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
+from ai_game_player.game_2048_board import BOARD_REGION_COLORS
 from ai_game_player.screen_capture import WindowsScreenCapture
 from tools.reference_game_2048_launcher import (
     LoopbackStaticServer,
@@ -220,6 +222,40 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         time.sleep(LIVE_BOARD_POLL_INTERVAL_SECONDS)
                 finally:
                     capture.close()
+                if game_state["board"] is None:
+                    diagnostic_directory = Path("build/e2e")
+                    diagnostic_directory.mkdir(parents=True, exist_ok=True)
+                    palette_counts = Counter(
+                        (
+                            frame.bgra[offset + 2],
+                            frame.bgra[offset + 1],
+                            frame.bgra[offset],
+                        )
+                        for offset in range(0, len(frame.bgra), 4)
+                        if (
+                            frame.bgra[offset + 2],
+                            frame.bgra[offset + 1],
+                            frame.bgra[offset],
+                        )
+                        in BOARD_REGION_COLORS
+                    )
+                    diagnostic = {
+                        "width": frame.width,
+                        "height": frame.height,
+                        "window_title": window.title,
+                        "window_is_foreground": launcher.window_is_foreground,
+                        "mean_rgb": observation.features.get("mean_rgb"),
+                        "palette_pixel_counts": {
+                            ",".join(str(channel) for channel in rgb): count
+                            for rgb, count in sorted(palette_counts.items())
+                        },
+                        "board_region": repr(adapter.board_recognizer._find_board_region(frame)),
+                        "capture_backend_error": capture.last_backend_error,
+                    }
+                    (diagnostic_directory / "2048-live-capture.json").write_text(
+                        json.dumps(diagnostic, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
                 self.assertIsNotNone(
                     game_state["board"],
                     f"frame={frame.width}x{frame.height}, mean={observation.features.get('mean_rgb')}, "
