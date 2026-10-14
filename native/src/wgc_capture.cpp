@@ -147,33 +147,18 @@ IDirect3DDevice create_capture_device(winrt::com_ptr<ID3D11Device>& native_devic
 }
 
 // {
-//   責務: [create_capture_item: 現在のMTA workerでinterop factoryを取得し指定HWND用のGraphicsCaptureItemを作る]
+//   責務: [create_capture_item: 指定HWNDに結び付いたGraphicsCaptureItemを作る]
 //   引数: [window: capture対象として検証済みのWindows HWND]
 //   戻り値: [GraphicsCaptureItem: WGC sessionが取得する単一window item]
 // }
 GraphicsCaptureItem create_capture_item(HWND window) {
-    // {
-    //   理由: [WGC sessionごとに終了するMTA workerの外へactivation factoryを保持せず、現在のworker apartmentでfactoryを再取得する]
-    // }
-    winrt::hresult_error factory_error{E_FAIL};
-    auto interop = winrt::try_get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>(factory_error);
-    if (!interop) {
-        throw factory_error;
-    }
-    std::fprintf(stderr, "WGC item: interop factory acquired for HWND %p\n", window);
-    std::fflush(stderr);
+    auto interop = winrt::get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
     GraphicsCaptureItem item{nullptr};
-    std::fprintf(stderr, "WGC item: calling CreateForWindow for HWND %p\n", window);
-    std::fflush(stderr);
-    const HRESULT create_result = interop->CreateForWindow(
+    winrt::check_hresult(interop->CreateForWindow(
         window,
         winrt::guid_of<GraphicsCaptureItem>(),
         winrt::put_abi(item)
-    );
-    std::fprintf(stderr, "WGC item: CreateForWindow returned 0x%08lX for HWND %p\n",
-        static_cast<unsigned long>(create_result), window);
-    std::fflush(stderr);
-    winrt::check_hresult(create_result);
+    ));
     return item;
 }
 
@@ -201,10 +186,11 @@ bool query_wgc_support_once() noexcept {
 }  // namespace
 
 // {
-//   責務: [kadoka_wgc_frame: 取得済みframeのmetadataと参照中Direct3D textureを保持する]
-//   フィールド: [texture: leaseが解放されるまで保持するBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime, copy_mutex: 同じdevice contextを使うlease間の共有lock]
+//   責務: [kadoka_wgc_frame: copy完了まで取得frameをpoolへ返さずmetadataとDirect3D textureを保持する]
+//   フィールド: [capture_frame: releaseまでpoolへ返さないWGC frame, texture: lease中にcopyするBGRA texture, width/height: frameの有効pixel範囲, frame_id: session内lease番号, timestamp_ns: WGC SystemRelativeTime, copy_mutex: 同じdevice contextを使うlease間の共有lock]
 // }
 struct kadoka_wgc_frame {
+    Direct3D11CaptureFrame capture_frame{nullptr};
     winrt::com_ptr<ID3D11Texture2D> texture;
     uint32_t width = 0;
     uint32_t height = 0;
@@ -270,42 +256,21 @@ struct WgcSessionState {
     // }
     void initialize_capture(HWND target_window) {
         window = target_window;
-        std::fprintf(stderr, "WGC startup: creating capture item for HWND %p\n", target_window);
-        std::fflush(stderr);
         capture_item = create_capture_item(target_window);
-        std::fprintf(stderr, "WGC startup: capture item created for HWND %p\n", target_window);
-        std::fflush(stderr);
-        std::fprintf(stderr, "WGC startup: reading capture item size for HWND %p\n", target_window);
-        std::fflush(stderr);
         frame_pool_size = capture_item.Size();
-        std::fprintf(stderr, "WGC startup: capture item size read for HWND %p (%ldx%ld)\n",
-            target_window, static_cast<long>(frame_pool_size.Width), static_cast<long>(frame_pool_size.Height));
-        std::fflush(stderr);
         if (frame_pool_size.Width <= 0 || frame_pool_size.Height <= 0) {
             throw winrt::hresult_error(E_INVALIDARG);
         }
 
-        std::fprintf(stderr, "WGC startup: creating Direct3D device for HWND %p\n", target_window);
-        std::fflush(stderr);
         capture_device = create_capture_device(native_device);
-        std::fprintf(stderr, "WGC startup: Direct3D device created for HWND %p\n", target_window);
-        std::fflush(stderr);
-        std::fprintf(stderr, "WGC startup: creating frame pool for HWND %p\n", target_window);
-        std::fflush(stderr);
         frame_pool = Direct3D11CaptureFramePool::CreateFreeThreaded(
             capture_device,
             kCapturePixelFormat,
             kCaptureFramePoolBufferCount,
             frame_pool_size
         );
-        std::fprintf(stderr, "WGC startup: frame pool created for HWND %p\n", target_window);
-        std::fflush(stderr);
         capture_session = frame_pool.CreateCaptureSession(capture_item);
-        std::fprintf(stderr, "WGC startup: capture session created for HWND %p\n", target_window);
-        std::fflush(stderr);
         capture_session.StartCapture();
-        std::fprintf(stderr, "WGC startup: capture started for HWND %p\n", target_window);
-        std::fflush(stderr);
     }
 
     // {
@@ -358,8 +323,6 @@ struct WgcSessionState {
     //   戻り値: [void: 再呼び出し可能な終了処理]
     // }
     void release_capture_resources() noexcept {
-        std::fprintf(stderr, "WGC close: releasing session HWND %p\n", window);
-        std::fflush(stderr);
         try {
             if (capture_session) {
                 capture_session.Close();
@@ -367,8 +330,6 @@ struct WgcSessionState {
         } catch (...) {
             // Native shutdown must continue releasing the frame pool.
         }
-        std::fprintf(stderr, "WGC close: capture session closed for HWND %p\n", window);
-        std::fflush(stderr);
         try {
             if (frame_pool) {
                 frame_pool.Close();
@@ -376,15 +337,11 @@ struct WgcSessionState {
         } catch (...) {
             // Releasing the projected references below still tears down local ownership.
         }
-        std::fprintf(stderr, "WGC close: frame pool closed for HWND %p\n", window);
-        std::fflush(stderr);
         capture_session = nullptr;
         frame_pool = nullptr;
         capture_item = nullptr;
         capture_device = nullptr;
         native_device = nullptr;
-        std::fprintf(stderr, "WGC close: resource references cleared for HWND %p\n", window);
-        std::fflush(stderr);
     }
 
     // {
@@ -576,7 +533,10 @@ struct WgcSessionState {
                 frame_lease->timestamp_ns =
                     static_cast<uint64_t>(capture_time_units) * kNanosecondsPerWinRtTimeUnit;
             }
-            captured_frame.Close();
+            // {
+            //   理由: [capture_frameをCloseするとframe poolが同じsurfaceを再利用するため、callerのBGRA copyが終わるlease releaseまでframeを保持する]
+            // }
+            frame_lease->capture_frame = std::move(captured_frame);
             return frame_lease;
         }
         return nullptr;
@@ -780,7 +740,8 @@ int32_t kadoka_wgc_frame_get_info(const kadoka_wgc_frame* frame, kadoka_wgc_fram
 //   戻り値: [int32_t: copy結果のstatus code]
 // }
 int32_t kadoka_wgc_frame_copy_bgra(kadoka_wgc_frame* frame, uint8_t* output_bgra, uint64_t output_capacity) {
-    if (frame == nullptr || frame->texture == nullptr || frame->copy_mutex == nullptr ||
+    if (frame == nullptr || frame->capture_frame == nullptr ||
+        frame->texture == nullptr || frame->copy_mutex == nullptr ||
         frame->width == 0u || frame->height == 0u ||
         static_cast<uint64_t>(frame->width) * kBytesPerPixel >
             std::numeric_limits<uint64_t>::max() / frame->height) {
@@ -794,21 +755,23 @@ int32_t kadoka_wgc_frame_copy_bgra(kadoka_wgc_frame* frame, uint8_t* output_bgra
 }
 
 // {
-//   責務: [kadoka_wgc_frame_release: frame leaseとtexture referenceを解放しpointerをnullへ戻す]
+//   責務: [kadoka_wgc_frame_release: 保持中WGC frameをpoolへ返しframe leaseを解放してpointerをnullへ戻す]
 //   引数: [frame: 解放するframe lease pointer]
-//   戻り値: [int32_t: 解放処理のstatus code。null pointerまたはnull leaseではINVALID_ARGUMENT]
+//   戻り値: [int32_t: pool返却とlease解放が成功した場合はOK、close失敗はCAPTURE_FAILED、null pointerはINVALID_ARGUMENT]
 // }
 int32_t kadoka_wgc_frame_release(kadoka_wgc_frame** frame) {
     if (frame == nullptr || *frame == nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
-    std::fprintf(stderr, "WGC lease: releasing frame %p\n", static_cast<void*>(*frame));
-    std::fflush(stderr);
+    int32_t release_status = KADOKA_RUNTIME_STATUS_OK;
+    try {
+        (*frame)->capture_frame.Close();
+    } catch (...) {
+        release_status = KADOKA_RUNTIME_STATUS_CAPTURE_FAILED;
+    }
     delete *frame;
     *frame = nullptr;
-    std::fprintf(stderr, "WGC lease: frame released\n");
-    std::fflush(stderr);
-    return KADOKA_RUNTIME_STATUS_OK;
+    return release_status;
 }
 
 // {
@@ -820,15 +783,9 @@ int32_t kadoka_wgc_close(kadoka_wgc_session** session) {
     if (session == nullptr || *session == nullptr || (*session)->state == nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
-    std::fprintf(stderr, "WGC close: requesting session worker shutdown\n");
-    std::fflush(stderr);
     (*session)->state->close();
-    std::fprintf(stderr, "WGC close: session worker joined\n");
-    std::fflush(stderr);
     delete *session;
     *session = nullptr;
-    std::fprintf(stderr, "WGC close: session handle deleted\n");
-    std::fflush(stderr);
     return KADOKA_RUNTIME_STATUS_OK;
 }
 

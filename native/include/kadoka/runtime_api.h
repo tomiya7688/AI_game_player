@@ -77,7 +77,7 @@ typedef struct kadoka_wgc_frame kadoka_wgc_frame;
 
 // {
 //   責務: [kadoka_wgc_frame_info: frame leaseのpacked BGRA寸法、WGC frame ID、QPC時刻、native textureを示す]
-//   フィールド: [width/height/stride_bytes: copy APIの画素寸法, frame_id: session内で単調増加するlease ID, timestamp_ns: SystemRelativeTimeのnanoseconds, native_surface_handle: frame releaseまでnative callerだけが使うopaque texture handle]
+//   フィールド: [width/height/stride_bytes: copy APIの画素寸法, frame_id: session内で単調増加するlease ID, timestamp_ns: SystemRelativeTimeのnanoseconds, native_surface_handle: frame releaseまでnative callerだけが使うopaque texture handle。releaseまでWGC frame pool slotも保持する]
 // }
 typedef struct kadoka_wgc_frame_info {
     uint32_t struct_size;
