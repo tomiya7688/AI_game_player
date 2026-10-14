@@ -7016,6 +7016,2015 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.campaign_contract"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            },
+            {
+              "alias": null,
+              "name": "timezone"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_contract"
+          ],
+          "module": "ai_game_player.campaign_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "CAMPAIGN_ERROR_DETAIL_LIMIT"
+            },
+            {
+              "alias": null,
+              "name": "CampaignState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 96,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_contract"
+          ],
+          "module": "ai_game_player.campaign_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignFailure"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.campaign_artifacts",
+      "path": "src/ai_game_player/campaign_artifacts.py",
+      "source_location": {
+        "end_line": 122,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "append_campaign_event",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "append_campaign_event",
+          "return_annotation": "None",
+          "signature": "(path: Path, event: dict[str, object]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 23,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "episode_event",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_name"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_number"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "CampaignState",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "episode_event",
+          "return_annotation": "dict[str, object]",
+          "signature": "(event_name: str, episode_number: int, reason: str, state: CampaignState) -> dict[str, object]",
+          "source_location": {
+            "column": 0,
+            "end_line": 40,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "update_metrics",
+          "parameters": [
+            {
+              "annotation": "CampaignState",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "last_score"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "peak_score"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "max_tile"
+            }
+          ],
+          "qualified_name": "update_metrics",
+          "return_annotation": "tuple[int | None, int | None, int]",
+          "signature": "(state: CampaignState, last_score: int | None, peak_score: int | None, max_tile: int) -> tuple[int | None, int | None, int]",
+          "source_location": {
+            "column": 0,
+            "end_line": 59,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "latency_summary",
+          "parameters": [
+            {
+              "annotation": "list[float]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "values_ms"
+            }
+          ],
+          "qualified_name": "latency_summary",
+          "return_annotation": "dict[str, float | int | None]",
+          "signature": "(values_ms: list[float]) -> dict[str, float | int | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 87,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "percentile",
+          "parameters": [
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "fraction"
+            }
+          ],
+          "qualified_name": "latency_summary.percentile",
+          "return_annotation": "float",
+          "signature": "(fraction: float) -> float",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "classify_campaign_error",
+          "parameters": [
+            {
+              "annotation": "Exception",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "classify_campaign_error",
+          "return_annotation": "str",
+          "signature": "(error: Exception) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 113,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "bounded_error_detail",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            }
+          ],
+          "qualified_name": "bounded_error_detail",
+          "return_annotation": "str",
+          "signature": "(detail: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 122,
+            "start_line": 116
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Protocol"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.campaign_contract",
+      "path": "src/ai_game_player/campaign_contract.py",
+      "source_location": {
+        "end_line": 198,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CampaignState",
+          "parameters": [],
+          "qualified_name": "CampaignState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 62,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignState.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CampaignActionResult",
+          "parameters": [],
+          "qualified_name": "CampaignActionResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 88,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignActionResult.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CampaignConfig",
+          "parameters": [],
+          "qualified_name": "CampaignConfig",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 127,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignConfig.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 127,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CampaignFailure",
+          "parameters": [],
+          "qualified_name": "CampaignFailure",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 146,
+            "start_line": 134
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "category"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            }
+          ],
+          "qualified_name": "CampaignFailure.__init__",
+          "return_annotation": "None",
+          "signature": "(self, category: str, detail: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 146,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CampaignEpisode",
+          "parameters": [],
+          "qualified_name": "CampaignEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 184,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "observe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignEpisode.observe",
+          "return_annotation": "CampaignState",
+          "signature": "(self) -> CampaignState",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "act",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignEpisode.act",
+          "return_annotation": "CampaignActionResult",
+          "signature": "(self) -> CampaignActionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_outcome",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "confidence"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            }
+          ],
+          "qualified_name": "CampaignEpisode.record_outcome",
+          "return_annotation": "None",
+          "signature": "(self, status: str, confidence: float, evidence: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignEpisode.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_is_finite_number",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_is_finite_number",
+          "return_annotation": "bool",
+          "signature": "(value: object) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 198,
+            "start_line": 187
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.campaign_artifacts",
+        "ai_game_player.campaign_contract",
+        "ai_game_player.campaign_loop"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_artifacts"
+          ],
+          "module": "ai_game_player.campaign_artifacts",
+          "names": [
+            {
+              "alias": null,
+              "name": "append_campaign_event"
+            },
+            {
+              "alias": null,
+              "name": "bounded_error_detail"
+            },
+            {
+              "alias": null,
+              "name": "classify_campaign_error"
+            },
+            {
+              "alias": null,
+              "name": "latency_summary"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_contract"
+          ],
+          "module": "ai_game_player.campaign_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignConfig"
+            },
+            {
+              "alias": null,
+              "name": "CampaignEpisode"
+            },
+            {
+              "alias": null,
+              "name": "CampaignFailure"
+            },
+            {
+              "alias": null,
+              "name": "CampaignState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_loop"
+          ],
+          "module": "ai_game_player.campaign_loop",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignLoop"
+            },
+            {
+              "alias": null,
+              "name": "CampaignProgress"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.campaign_execution",
+      "path": "src/ai_game_player/campaign_execution.py",
+      "source_location": {
+        "end_line": 209,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CampaignRunner",
+          "parameters": [],
+          "qualified_name": "CampaignRunner",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 209,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CampaignConfig",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            },
+            {
+              "annotation": "Callable[[], float]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "clock"
+            },
+            {
+              "annotation": "Callable[[float], None]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "sleeper"
+            }
+          ],
+          "qualified_name": "CampaignRunner.__init__",
+          "return_annotation": "None",
+          "signature": "(self, config: CampaignConfig, *, clock: Callable[[], float] = …, sleeper: Callable[[float], None] = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report_path"
+            },
+            {
+              "annotation": "dict[str, object] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "metadata"
+            },
+            {
+              "annotation": "Callable[[CampaignState], bool] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "milestone_probe"
+            }
+          ],
+          "qualified_name": "CampaignRunner.run",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, report_path: Path, *, metadata: dict[str, object] | None = …, milestone_probe: Callable[[CampaignState], bool] | None = …) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_prepare_output_paths",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report_path"
+            }
+          ],
+          "qualified_name": "CampaignRunner._prepare_output_paths",
+          "return_annotation": "None",
+          "signature": "(self, trace_path: Path, report_path: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 131,
+            "start_line": 112
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_record_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "category"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            }
+          ],
+          "qualified_name": "CampaignRunner._record_failure",
+          "return_annotation": "None",
+          "signature": "(self, trace_path: Path, progress: CampaignProgress, category: str, detail: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_build_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "metadata"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            }
+          ],
+          "qualified_name": "CampaignRunner._build_report",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self, progress: CampaignProgress, metadata: dict[str, object], trace_path: Path) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 187,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_write_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report_path"
+            },
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "CampaignRunner._write_report",
+          "return_annotation": "None",
+          "signature": "(self, trace_path: Path, report_path: Path, report: dict[str, object]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 209,
+            "start_line": 195
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.campaign_artifacts",
+        "ai_game_player.campaign_contract"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_artifacts"
+          ],
+          "module": "ai_game_player.campaign_artifacts",
+          "names": [
+            {
+              "alias": null,
+              "name": "append_campaign_event"
+            },
+            {
+              "alias": null,
+              "name": "bounded_error_detail"
+            },
+            {
+              "alias": null,
+              "name": "episode_event"
+            },
+            {
+              "alias": null,
+              "name": "update_metrics"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_contract"
+          ],
+          "module": "ai_game_player.campaign_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignConfig"
+            },
+            {
+              "alias": null,
+              "name": "CampaignEpisode"
+            },
+            {
+              "alias": null,
+              "name": "CampaignFailure"
+            },
+            {
+              "alias": null,
+              "name": "CampaignState"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.campaign_loop",
+      "path": "src/ai_game_player/campaign_loop.py",
+      "source_location": {
+        "end_line": 417,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "CampaignProgress",
+          "parameters": [],
+          "qualified_name": "CampaignProgress",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CampaignLoop",
+          "parameters": [],
+          "qualified_name": "CampaignLoop",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 401,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CampaignConfig",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            },
+            {
+              "annotation": "Callable[[], float]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "clock"
+            },
+            {
+              "annotation": "Callable[[float], None]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "sleeper"
+            }
+          ],
+          "qualified_name": "CampaignLoop.__init__",
+          "return_annotation": "None",
+          "signature": "(self, config: CampaignConfig, *, clock: Callable[[], float] = …, sleeper: Callable[[float], None] = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 65,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "Callable[[CampaignState], bool] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "milestone_probe"
+            }
+          ],
+          "qualified_name": "CampaignLoop.execute",
+          "return_annotation": "bool",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress, milestone_probe: Callable[[CampaignState], bool] | None = …) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_run_until_deadline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "Callable[[CampaignState], bool] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "milestone_probe"
+            }
+          ],
+          "qualified_name": "CampaignLoop._run_until_deadline",
+          "return_annotation": "bool",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress, milestone_probe: Callable[[CampaignState], bool] | None) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 111,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_start_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_name"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "CampaignLoop._start_episode",
+          "return_annotation": "None",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress, event_name: str, reason: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_restart_terminal_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "CampaignState",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "terminal_state"
+            }
+          ],
+          "qualified_name": "CampaignLoop._restart_terminal_episode",
+          "return_annotation": "None",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress, terminal_state: CampaignState) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 162,
+            "start_line": 145
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_replace_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "CampaignLoop._replace_episode",
+          "return_annotation": "None",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress, reason: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 187,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_run_action_step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            },
+            {
+              "annotation": "CampaignState",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "before"
+            },
+            {
+              "annotation": "Callable[[CampaignState], bool] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "milestone_probe"
+            }
+          ],
+          "qualified_name": "CampaignLoop._run_action_step",
+          "return_annotation": "bool",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress, before: CampaignState, milestone_probe: Callable[[CampaignState], bool] | None) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 277,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_probe_milestone",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[CampaignState], bool] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "milestone_probe"
+            },
+            {
+              "annotation": "CampaignState",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "CampaignLoop._probe_milestone",
+          "return_annotation": "bool",
+          "signature": "(self, milestone_probe: Callable[[CampaignState], bool] | None, state: CampaignState) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 304,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_recover_stalled_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            }
+          ],
+          "qualified_name": "CampaignLoop._recover_stalled_episode",
+          "return_annotation": "None",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], trace_path: Path, progress: CampaignProgress) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 337,
+            "start_line": 312
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            }
+          ],
+          "qualified_name": "CampaignLoop.close_episode",
+          "return_annotation": "None",
+          "signature": "(self, progress: CampaignProgress) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 356,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close_after_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trace_path"
+            },
+            {
+              "annotation": "CampaignProgress",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "progress"
+            }
+          ],
+          "qualified_name": "CampaignLoop.close_after_run",
+          "return_annotation": "None",
+          "signature": "(self, trace_path: Path, progress: CampaignProgress) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 380,
+            "start_line": 363
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_create_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], CampaignEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_factory"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_number"
+            }
+          ],
+          "qualified_name": "CampaignLoop._create_episode",
+          "return_annotation": "CampaignEpisode",
+          "signature": "(self, episode_factory: Callable[[int], CampaignEpisode], episode_number: int) -> CampaignEpisode",
+          "source_location": {
+            "column": 4,
+            "end_line": 401,
+            "start_line": 388
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_outcome_for_state_change",
+          "parameters": [
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_changed"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "terminal"
+            }
+          ],
+          "qualified_name": "_outcome_for_state_change",
+          "return_annotation": "tuple[str, float, str]",
+          "signature": "(state_changed: bool, terminal: bool) -> tuple[str, float, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 417,
+            "start_line": 404
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.campaign_artifacts",
+        "ai_game_player.campaign_contract",
+        "ai_game_player.campaign_execution"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_artifacts"
+          ],
+          "module": "ai_game_player.campaign_artifacts",
+          "names": [
+            {
+              "alias": null,
+              "name": "append_campaign_event"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_contract"
+          ],
+          "module": "ai_game_player.campaign_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "CAMPAIGN_ERROR_DETAIL_LIMIT"
+            },
+            {
+              "alias": null,
+              "name": "CAMPAIGN_FAILURE_CATEGORIES"
+            },
+            {
+              "alias": null,
+              "name": "DEFAULT_CAMPAIGN_MAX_STEPS"
+            },
+            {
+              "alias": null,
+              "name": "DEFAULT_RECOVERY_LIMIT"
+            },
+            {
+              "alias": null,
+              "name": "DEFAULT_STALL_ACTION_LIMIT"
+            },
+            {
+              "alias": null,
+              "name": "DEFAULT_TERMINAL_RESTART_LIMIT"
+            },
+            {
+              "alias": null,
+              "name": "PR_CAMPAIGN_DURATION_SECONDS"
+            },
+            {
+              "alias": null,
+              "name": "RELEASE_CAMPAIGN_DURATION_SECONDS"
+            },
+            {
+              "alias": null,
+              "name": "CampaignActionResult"
+            },
+            {
+              "alias": null,
+              "name": "CampaignConfig"
+            },
+            {
+              "alias": null,
+              "name": "CampaignEpisode"
+            },
+            {
+              "alias": null,
+              "name": "CampaignFailure"
+            },
+            {
+              "alias": null,
+              "name": "CampaignState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_execution"
+          ],
+          "module": "ai_game_player.campaign_execution",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignRunner"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.campaign_runner",
+      "path": "src/ai_game_player/campaign_runner.py",
+      "source_location": {
+        "end_line": 38,
+        "start_line": 1
+      },
+      "symbols": []
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -49637,6 +51646,890 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.campaign_runner"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_runner"
+          ],
+          "module": "ai_game_player.campaign_runner",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignActionResult"
+            },
+            {
+              "alias": null,
+              "name": "CampaignConfig"
+            },
+            {
+              "alias": null,
+              "name": "CampaignFailure"
+            },
+            {
+              "alias": null,
+              "name": "CampaignRunner"
+            },
+            {
+              "alias": null,
+              "name": "CampaignState"
+            },
+            {
+              "alias": null,
+              "name": "PR_CAMPAIGN_DURATION_SECONDS"
+            },
+            {
+              "alias": null,
+              "name": "RELEASE_CAMPAIGN_DURATION_SECONDS"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_campaign_runner",
+      "path": "tests/test_campaign_runner.py",
+      "source_location": {
+        "end_line": 318,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeClock",
+          "parameters": [],
+          "qualified_name": "FakeClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeClock.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 19,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeClock.__call__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "advance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seconds"
+            }
+          ],
+          "qualified_name": "FakeClock.advance",
+          "return_annotation": null,
+          "signature": "(self, seconds)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeEpisode",
+          "parameters": [],
+          "qualified_name": "FakeEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 51,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "states"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "failure"
+            }
+          ],
+          "qualified_name": "FakeEpisode.__init__",
+          "return_annotation": null,
+          "signature": "(self, states, *, failure = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 34,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "observe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeEpisode.observe",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "act",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeEpisode.act",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 45,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_outcome",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "confidence"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            }
+          ],
+          "qualified_name": "FakeEpisode.record_outcome",
+          "return_annotation": null,
+          "signature": "(self, status, confidence, evidence)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeEpisode.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CampaignRunnerTests",
+          "parameters": [],
+          "qualified_name": "CampaignRunnerTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 314,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_campaign",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "factory"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.run_campaign",
+          "return_annotation": null,
+          "signature": "(self, config, factory)",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_profiles_use_the_issue_600_second_and_30_minute_targets",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_profiles_use_the_issue_600_second_and_30_minute_targets",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 75,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_configuration_rejects_non_numeric_and_boolean_time_values",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_configuration_rejects_non_numeric_and_boolean_time_values",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duration_profile_records_metrics_and_live_input",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_duration_profile_records_metrics_and_live_input",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 118,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "create_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_episode_number"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_duration_profile_records_metrics_and_live_input.create_episode",
+          "return_annotation": null,
+          "signature": "(_episode_number)",
+          "source_location": {
+            "column": 8,
+            "end_line": 93,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_milestone_probe_stops_after_the_matching_observation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_milestone_probe_stops_after_the_matching_observation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 146,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_milestone_probe_rejects_non_boolean_results",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_milestone_probe_rejects_non_boolean_results",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_milestone_probe_exception_is_classified",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_milestone_probe_exception_is_classified",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "raise_during_probe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_state"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_milestone_probe_exception_is_classified.raise_during_probe",
+          "return_annotation": null,
+          "signature": "(_state)",
+          "source_location": {
+            "column": 8,
+            "end_line": 167,
+            "start_line": 166
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_screen_closes_and_restarts_the_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_terminal_screen_closes_and_restarts_the_episode",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "create_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_episode_number"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_terminal_screen_closes_and_restarts_the_episode.create_episode",
+          "return_annotation": null,
+          "signature": "(_episode_number)",
+          "source_location": {
+            "column": 8,
+            "end_line": 198,
+            "start_line": 187
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stall_recovery_is_bounded_and_failure_is_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_stall_recovery_is_bounded_and_failure_is_reported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "create_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_episode_number"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_stall_recovery_is_bounded_and_failure_is_reported.create_episode",
+          "return_annotation": null,
+          "signature": "(_episode_number)",
+          "source_location": {
+            "column": 8,
+            "end_line": 223,
+            "start_line": 220
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_failure_classifier_preserves_hard_failure_category",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_failure_classifier_preserves_hard_failure_category",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 255,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fail_to_start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_episode_number"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_failure_classifier_preserves_hard_failure_category.fail_to_start",
+          "return_annotation": null,
+          "signature": "(_episode_number)",
+          "source_location": {
+            "column": 8,
+            "end_line": 248,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_restart_limit_stops_before_a_second_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_terminal_restart_limit_stops_before_a_second_episode",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 276,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "create_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_episode_number"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_terminal_restart_limit_stops_before_a_second_episode.create_episode",
+          "return_annotation": null,
+          "signature": "(_episode_number)",
+          "source_location": {
+            "column": 8,
+            "end_line": 263,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_dry_run_does_not_satisfy_live_input_acceptance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_dry_run_does_not_satisfy_live_input_acceptance",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 298,
+            "start_line": 278
+          }
+        },
+        {
+          "bases": [
+            "FakeEpisode"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DryRunEpisode",
+          "parameters": [],
+          "qualified_name": "CampaignRunnerTests.test_dry_run_does_not_satisfy_live_input_acceptance.DryRunEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 281,
+            "start_line": 279
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "act",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_dry_run_does_not_satisfy_live_input_acceptance.DryRunEpisode.act",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 281,
+            "start_line": 280
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_artifact_is_never_overwritten",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CampaignRunnerTests.test_existing_artifact_is_never_overwritten",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 314,
+            "start_line": 300
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.candidate_merger",
         "ai_game_player.models"
       ],
@@ -89115,6 +92008,804 @@
             "column": 4,
             "end_line": 281,
             "start_line": 243
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.campaign_runner",
+        "ai_game_player.decision_context",
+        "ai_game_player.frame_analyzer",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.models",
+        "ai_game_player.ocr_recognizer",
+        "ai_game_player.pipeline",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            },
+            {
+              "alias": null,
+              "name": "timezone"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "shutil",
+          "names": [
+            {
+              "alias": null,
+              "name": "shutil"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_runner"
+          ],
+          "module": "ai_game_player.campaign_runner",
+          "names": [
+            {
+              "alias": null,
+              "name": "PR_CAMPAIGN_DURATION_SECONDS"
+            },
+            {
+              "alias": null,
+              "name": "RELEASE_CAMPAIGN_DURATION_SECONDS"
+            },
+            {
+              "alias": null,
+              "name": "CampaignActionResult"
+            },
+            {
+              "alias": null,
+              "name": "CampaignConfig"
+            },
+            {
+              "alias": null,
+              "name": "CampaignEpisode"
+            },
+            {
+              "alias": null,
+              "name": "CampaignFailure"
+            },
+            {
+              "alias": null,
+              "name": "CampaignRunner"
+            },
+            {
+              "alias": null,
+              "name": "CampaignState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_analyzer"
+          ],
+          "module": "ai_game_player.frame_analyzer",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameAnalyzer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 27,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 29,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ocr_recognizer"
+          ],
+          "module": "ai_game_player.ocr_recognizer",
+          "names": [
+            {
+              "alias": null,
+              "name": "TesseractOcrRecognizer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.pipeline"
+          ],
+          "module": "ai_game_player.pipeline",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionPipeline"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "WindowsScreenCapture"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 32,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Launcher"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 33,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "SOURCE_LOCK_PATH"
+            }
+          ]
+        }
+      ],
+      "module": "tools.run_2048_campaign",
+      "path": "tools/run_2048_campaign.py",
+      "source_location": {
+        "end_line": 341,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Cached2048ObservationSource",
+          "parameters": [],
+          "qualified_name": "Cached2048ObservationSource",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 122,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            },
+            {
+              "annotation": "object | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr_recognizer"
+            }
+          ],
+          "qualified_name": "Cached2048ObservationSource.__init__",
+          "return_annotation": "None",
+          "signature": "(self, window_handle: int, ocr_recognizer: object | None) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture_playable_state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Cached2048ObservationSource.capture_playable_state",
+          "return_annotation": "CampaignState",
+          "signature": "(self) -> CampaignState",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Cached2048ObservationSource.read",
+          "return_annotation": "tuple[ScreenObservation, list[ActionCandidate]]",
+          "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Cached2048ObservationSource.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CyclingDirectionProvider",
+          "parameters": [],
+          "qualified_name": "CyclingDirectionProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 155,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CyclingDirectionProvider.__init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 127,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "DecisionContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "personality"
+            }
+          ],
+          "qualified_name": "CyclingDirectionProvider.choose_context",
+          "return_annotation": "ActionDecision",
+          "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [
+            "CampaignEpisode"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReferenceGame2048Episode",
+          "parameters": [],
+          "qualified_name": "ReferenceGame2048Episode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 257,
+            "start_line": 158
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode_number"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cache_root"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime_root"
+            },
+            {
+              "annotation": "Path | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "browser_path"
+            },
+            {
+              "annotation": "object | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr_recognizer"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Episode.__init__",
+          "return_annotation": "None",
+          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 193,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "observe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Episode.observe",
+          "return_annotation": "CampaignState",
+          "signature": "(self) -> CampaignState",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "act",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Episode.act",
+          "return_annotation": "CampaignActionResult",
+          "signature": "(self) -> CampaignActionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 219,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_outcome",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "confidence"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Episode.record_outcome",
+          "return_annotation": "None",
+          "signature": "(self, status: str, confidence: float, evidence: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 230,
+            "start_line": 221
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Episode.close",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 232
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_git_commit",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "_git_commit",
+          "return_annotation": "str | None",
+          "signature": "(root: Path) -> str | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 272,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_arguments",
+          "parameters": [],
+          "qualified_name": "_parse_arguments",
+          "return_annotation": "argparse.Namespace",
+          "signature": "() -> argparse.Namespace",
+          "source_location": {
+            "column": 0,
+            "end_line": 284,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 337,
+            "start_line": 287
           }
         }
       ]
