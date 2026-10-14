@@ -15,8 +15,17 @@ from unittest.mock import Mock, patch
 
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
-from ai_game_player.game_2048_board import BOARD_REGION_COLORS
-from ai_game_player.screen_capture import WindowsScreenCapture
+from ai_game_player.game_2048_board import (
+    BOARD_REGION_COLORS,
+    FRAME_BYTES_PER_PIXEL,
+    MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED,
+    MAXIMUM_ROW_GROUP_Y_DELTA,
+    MINIMUM_ROW_MATCH_PIXELS,
+    MINIMUM_ROW_MATCH_WIDTH_FRACTION,
+    MINIMUM_ROW_SPAN_PIXELS,
+    MINIMUM_ROW_SPAN_WIDTH_FRACTION,
+)
+from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 from ai_game_player.windows_abi import configure_user32_prototypes
 from tools.reference_game_2048_launcher import (
     HWND_TOP,
@@ -82,6 +91,73 @@ def make_archive(entries: dict[str, bytes]) -> bytes:
         for name, content in entries.items():
             archive.writestr(name, content)
     return archive_bytes.getvalue()
+
+
+def board_row_group_diagnostics(
+    frame: ScreenFrame,
+    nearest_distance_by_rgb: dict[tuple[int, int, int], int],
+) -> dict[str, object]:
+    minimum_row_pixels = max(
+        MINIMUM_ROW_MATCH_PIXELS,
+        round(frame.width * MINIMUM_ROW_MATCH_WIDTH_FRACTION),
+    )
+    minimum_row_span = max(
+        MINIMUM_ROW_SPAN_PIXELS,
+        round(frame.width * MINIMUM_ROW_SPAN_WIDTH_FRACTION),
+    )
+    matched_rows = []
+    for y in range(frame.height):
+        matching_pixels = 0
+        left = frame.width
+        right = -1
+        row_offset = y * frame.width * FRAME_BYTES_PER_PIXEL
+        for x in range(frame.width):
+            pixel_offset = row_offset + x * FRAME_BYTES_PER_PIXEL
+            rgb = (
+                frame.bgra[pixel_offset + 2],
+                frame.bgra[pixel_offset + 1],
+                frame.bgra[pixel_offset],
+            )
+            if nearest_distance_by_rgb[rgb] > MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED:
+                continue
+            matching_pixels += 1
+            left = min(left, x)
+            right = x
+        if matching_pixels >= minimum_row_pixels and right - left + 1 >= minimum_row_span:
+            matched_rows.append((y, left, right + 1, matching_pixels))
+
+    row_groups = []
+    for row in matched_rows:
+        if row_groups and row[0] <= row_groups[-1][-1][0] + MAXIMUM_ROW_GROUP_Y_DELTA:
+            row_groups[-1].append(row)
+        else:
+            row_groups.append([row])
+
+    group_summaries = []
+    for group in row_groups:
+        top = group[0][0]
+        bottom = group[-1][0] + 1
+        left = min(row[1] for row in group)
+        right = max(row[2] for row in group)
+        width = right - left
+        height = bottom - top
+        side = max(width, height)
+        shape_confidence = 1.0 - abs(width - height) / side if side else 0.0
+        density = sum(row[3] for row in group) / (width * height) if width and height else 0.0
+        group_summaries.append(
+            {
+                "bounds": [left, top, right, bottom],
+                "row_count": len(group),
+                "shape_confidence": round(shape_confidence, 4),
+                "color_density": round(density, 4),
+            }
+        )
+    group_summaries.sort(key=lambda summary: summary["row_count"], reverse=True)
+    return {
+        "matched_row_count": len(matched_rows),
+        "group_count": len(row_groups),
+        "largest_groups": group_summaries[:10],
+    }
 
 
 class PinnedGameSourceTest(unittest.TestCase):
@@ -304,11 +380,13 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                     )
                     distance_thresholds = (36, 144, 324, 900)
                     distance_bucket_counts = Counter()
+                    nearest_distance_by_rgb = {}
                     for rgb, count in frame_color_counts.items():
                         nearest_distance = min(
                             sum((actual - expected) ** 2 for actual, expected in zip(rgb, palette_rgb))
                             for palette_rgb in BOARD_REGION_COLORS
                         )
+                        nearest_distance_by_rgb[rgb] = nearest_distance
                         bucket = next(
                             (str(threshold) for threshold in distance_thresholds if nearest_distance <= threshold),
                             "over_900",
@@ -328,6 +406,7 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         },
                         "nearest_palette_distance_pixel_counts": dict(sorted(distance_bucket_counts.items())),
                         "board_region": repr(adapter.board_recognizer._find_board_region(frame)),
+                        "board_row_groups": board_row_group_diagnostics(frame, nearest_distance_by_rgb),
                         "capture_backend_error": capture.last_backend_error,
                     }
                     failure_diagnostic = json.dumps(diagnostic, ensure_ascii=False, sort_keys=True)
