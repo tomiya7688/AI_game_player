@@ -79,6 +79,8 @@ class TkAfterScheduler:
 #   フィールド: [
 #     window_handles: 表示名ごとのHWND
 #     window_process_ids: 表示名ごとの列挙時PID
+#     selected_window_display_name_var: Play Workspaceで選んだ対象windowの表示名
+#     window_selection_status_var: 対象windowの候補と選択状態を説明する表示
 #     live_execution: 実入力の許可状態
 #     live_execution_toggle: Sessionの実行中に実入力設定を変更できないことを示すcheckbox
 #     _session_dry_run: 現在のSessionが開始時に固定した入力モード
@@ -102,8 +104,8 @@ class Application:
     #     __init__: UIと実行制御の初期状態を構築する
     #   ]
     #   処理: [
-    #     1: 保存済みの判断・入力・capture region設定を読み、実行制御を初期化する
-    #     2: 対象ウィンドウの識別情報を保持する
+#     1: 保存済みの判断・入力・capture region設定を読み、実行制御を初期化する
+#     2: Play Workspaceの上部に対象ウィンドウ選択欄を作り、HWNDとPIDを管理する
     #     3: worker結果と最新画面評価IDを初期化する
     #     4: 自動カーソル位置のworker/UI間同期を初期化する
     #     5: capture modeとROIのUI入力を作り、設定保存とcapture serviceへ接続する
@@ -160,6 +162,35 @@ class Application:
         self.shell.pack(fill=tk.BOTH, expand=True)
         frame = ttk.Frame(self.shell.play_host, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
+        game_window_selection_panel = ttk.LabelFrame(frame, text="ゲーム / ウィンドウ")
+        game_window_selection_panel.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(game_window_selection_panel, text="対象ウィンドウ").pack(side=tk.LEFT)
+        self.selected_window_display_name_var = tk.StringVar()
+        self.window_selection_status_var = tk.StringVar(
+            value="ゲームを起動して「一覧更新」を押してください。"
+        )
+        self.window_selector_combobox = ttk.Combobox(
+            game_window_selection_panel,
+            textvariable=self.selected_window_display_name_var,
+            state="readonly",
+            width=42,
+        )
+        self.window_selector_combobox.pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            game_window_selection_panel,
+            text="一覧更新",
+            command=self.refresh_windows,
+        ).pack(side=tk.LEFT)
+        ttk.Label(
+            game_window_selection_panel,
+            textvariable=self.window_selection_status_var,
+            wraplength=680,
+            justify=tk.LEFT,
+        ).pack(side=tk.LEFT, padx=8, fill=tk.X, expand=True)
+        self.selected_window_display_name_var.trace_add(
+            "write",
+            lambda *_args: self._update_window_selection_status(),
+        )
         self.provider = tk.StringVar(value=config.provider)
         self.model = tk.StringVar(value=config.model)
         self.endpoint = tk.StringVar(value=config.endpoint)
@@ -206,13 +237,6 @@ class Application:
         self.live_execution_toggle.pack(side=tk.LEFT, padx=5)
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
-        window_settings = ttk.Frame(frame)
-        window_settings.pack(fill=tk.X, pady=(6, 0))
-        ttk.Label(window_settings, text="対象ウィンドウ").pack(side=tk.LEFT)
-        self.window_choice = tk.StringVar()
-        self.window_combo = ttk.Combobox(window_settings, textvariable=self.window_choice, state="readonly", width=42)
-        self.window_combo.pack(side=tk.LEFT, padx=5)
-        ttk.Button(window_settings, text="一覧更新", command=self.refresh_windows).pack(side=tk.LEFT)
         capture_settings = ttk.Frame(frame)
         capture_settings.pack(fill=tk.X, pady=(6, 0))
         ttk.Label(capture_settings, text="取得範囲").pack(side=tk.LEFT)
@@ -337,7 +361,7 @@ class Application:
     # }
     def _create_session_runtime(self) -> SessionRuntime:
         self._validate_live_execution()
-        selected_window = self.window_choice.get()
+        selected_window = self.selected_window_display_name_var.get()
         return self.workflow_service.create_session_runtime(
             self._application_settings(),
             game_directory=Path("data/games/sandbox"),
@@ -442,7 +466,7 @@ class Application:
         try:
             if os.name == "nt":
                 self._apply_capture_region()
-                selected_handle = self.window_handles.get(self.window_choice.get())
+                selected_handle = self.window_handles.get(self.selected_window_display_name_var.get())
                 observation = self.observation_service.capture_observation(selected_handle)
                 self.obs.delete("1.0", tk.END)
                 self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))
@@ -527,7 +551,7 @@ class Application:
         if not self.live_execution.get():
             return
 
-        selected_window = self.window_choice.get()
+        selected_window = self.selected_window_display_name_var.get()
         target_handle = self.window_handles.get(selected_window)
         expected_process_id = self.window_process_ids.get(selected_window)
         if target_handle is None or expected_process_id is None:
@@ -626,25 +650,57 @@ class Application:
     #   処理: [
     #     1: Windowsの対象一覧を取得する
     #     2: 表示名からHWNDと列挙時PIDへの対応を保存する
-    #     3: 選択UIの候補を更新する
+    #     3: 既存の選択が一覧に残る場合は維持し、消えた場合は選び直しを求める
+    #     4: 候補数と選択状態に応じた案内をPlay Workspaceへ表示する
+    #     5: 一覧取得失敗時は候補と選択を消し、古いHWNDを実行対象に残さない
     #   ]
     #   引数: []
     #   戻り値: []
     #   副作用: [
-    #     window_handles、window_process_ids、選択UIを更新する
+    #     window_handles、window_process_ids、選択UI、選択状態の案内を更新する
     #   ]
     # }
     def refresh_windows(self) -> None:
         try:
+            previous_window_display_name = self.selected_window_display_name_var.get()
             self.windows = WindowsWindowSelector().list_windows()
             self.window_handles = {window.display_name: window.handle for window in self.windows}
             self.window_process_ids = {window.display_name: window.process_id for window in self.windows}
-            self.window_combo["values"] = list(self.window_handles)
-            if self.window_handles and not self.window_choice.get():
-                self.window_choice.set(next(iter(self.window_handles)))
+            self.window_selector_combobox["values"] = list(self.window_handles)
+            if previous_window_display_name in self.window_handles:
+                self.selected_window_display_name_var.set(previous_window_display_name)
+            elif previous_window_display_name:
+                self.selected_window_display_name_var.set("")
+            elif self.window_handles:
+                self.selected_window_display_name_var.set(next(iter(self.window_handles)))
+            self._update_window_selection_status()
         except Exception as exc:
+            self.windows = []
+            self.window_handles = {}
+            self.window_process_ids = {}
+            self.window_selector_combobox["values"] = []
+            self.selected_window_display_name_var.set("")
+            self.window_selection_status_var.set(
+                "ウィンドウ一覧を取得できませんでした。エラー内容を確認して再試行してください。"
+            )
             self.runtime_log.write("error", str(exc), {"operation": "window_list"})
             messagebox.showerror("ウィンドウ一覧エラー", str(exc))
+
+    # {
+    #   責務: [_update_window_selection_status: 対象候補と現在の選択状態を利用者へ案内する]
+    #   処理: [選択済み、未選択、候補なしの状態に応じてPlay Workspaceの案内を切り替える]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def _update_window_selection_status(self) -> None:
+        selected_window = self.selected_window_display_name_var.get()
+        if selected_window in self.window_handles:
+            selection_message = f"選択中の対象: {selected_window}"
+        elif self.window_handles:
+            selection_message = "対象ウィンドウを選択してください。"
+        else:
+            selection_message = "ゲームを起動して「一覧更新」を押してください。"
+        self.window_selection_status_var.set(selection_message)
 
     # {
     #   責務: [_assess_observation: UI状態へ触れず画面状態の評価を計算する]
@@ -680,7 +736,7 @@ class Application:
     def capture_screen(self, *, loop_step: bool = False) -> ScreenObservation | None:
         try:
             self._apply_capture_region()
-            selected_handle = self.window_handles.get(self.window_choice.get())
+            selected_handle = self.window_handles.get(self.selected_window_display_name_var.get())
             observation = self.observation_service.capture_observation(selected_handle)
             self.obs.delete("1.0", tk.END)
             self.obs.insert("1.0", json.dumps(observation.to_dict(), ensure_ascii=False, indent=2))

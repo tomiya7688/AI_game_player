@@ -41,6 +41,15 @@ class FakeVariable:
     def get(self):
         return self.value
 
+    # {
+    #   責務: [set: fake変数へテスト値を設定する]
+    #   処理: [値を更新し、後続getで返す値を置き換える]
+    #   引数: [value: 新しい保持値]
+    #   戻り値: []
+    # }
+    def set(self, value):
+        self.value = value
+
 
 # {
 #   責務: [FakeUser32: 対象ウィンドウの有効性と所有PIDを模擬する]
@@ -175,7 +184,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         application = self.make_uninitialized_application()
         application.live_execution = FakeVariable(live)
         application.input_mode = FakeVariable(mode)
-        application.window_choice = FakeVariable("Game")
+        application.selected_window_display_name_var = FakeVariable("Game")
         application.window_handles = handles or {}
         application.window_process_ids = {name: 456 for name in application.window_handles}
         application._execution_in_progress = False
@@ -303,7 +312,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
             with self.subTest(loop_step=loop_step):
                 application = self.make_uninitialized_application()
                 application.window_handles = {}
-                application.window_choice = FakeVariable("Game")
+                application.selected_window_display_name_var = FakeVariable("Game")
                 application.capture_mode = FakeVariable(CaptureRegionMode.FULL_SCREEN.value)
                 application._active_capture_region = CaptureRegion(CaptureRegionMode.FULL_SCREEN)
                 application.obs = SimpleNamespace(delete=lambda *_args: None, insert=lambda *_args: None)
@@ -374,7 +383,7 @@ class LiveExecutionValidationTests(unittest.TestCase):
         displayed_evaluations = []
         application = self.make_uninitialized_application()
         application.window_handles = {}
-        application.window_choice = FakeVariable("Game")
+        application.selected_window_display_name_var = FakeVariable("Game")
         application.capture_mode = FakeVariable(CaptureRegionMode.FULL_SCREEN.value)
         application._active_capture_region = CaptureRegion(CaptureRegionMode.FULL_SCREEN)
         application._apply_capture_region = lambda: None
@@ -413,8 +422,9 @@ class LiveExecutionValidationTests(unittest.TestCase):
         second_window = WindowInfo(0x202, "Game", 456)
         application = self.make_uninitialized_application()
         application.runtime_log = RecordingLog()
-        application.window_combo = {}
-        application.window_choice = FakeVariable(first_window.display_name)
+        application.window_selector_combobox = {}
+        application.selected_window_display_name_var = FakeVariable(first_window.display_name)
+        application.window_selection_status_var = FakeVariable("")
 
         with (
             patch.object(
@@ -429,14 +439,23 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertEqual(application.runtime_log.records, [])
 
         self.assertEqual(
-            application.window_combo["values"],
+            application.window_selector_combobox["values"],
             [first_window.display_name, second_window.display_name],
         )
         self.assertEqual(application.window_handles[first_window.display_name], first_window.handle)
         self.assertEqual(application.window_handles[second_window.display_name], second_window.handle)
         self.assertEqual(application.window_process_ids[second_window.display_name], second_window.process_id)
+        self.assertEqual(
+            application.window_selection_status_var.get(),
+            f"選択中の対象: {first_window.display_name}",
+        )
 
-        application.window_choice.value = second_window.display_name
+        application.selected_window_display_name_var.value = second_window.display_name
+        application._update_window_selection_status()
+        self.assertEqual(
+            application.window_selection_status_var.get(),
+            f"選択中の対象: {second_window.display_name}",
+        )
         captured_handles = []
         observation = ScreenObservation("selected-window", 100, 100, [])
         application._apply_capture_region = lambda: None
@@ -472,6 +491,79 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertEqual(runtime, "session-runtime")
         self.assertEqual(runtime_arguments[0]["window_handle"], second_window.handle)
         self.assertEqual(runtime_arguments[0]["window_process_id"], second_window.process_id)
+
+    def test_refresh_windows_clears_a_target_that_is_no_longer_available(self):
+        previous_window = WindowInfo(0x101, "Old Game", 456)
+        available_window = WindowInfo(0x202, "Other Game", 789)
+        application = self.make_uninitialized_application()
+        application.runtime_log = RecordingLog()
+        application.window_selector_combobox = {}
+        application.selected_window_display_name_var = FakeVariable(previous_window.display_name)
+        application.window_selection_status_var = FakeVariable("")
+
+        with patch.object(
+            app_module,
+            "WindowsWindowSelector",
+            return_value=SimpleNamespace(list_windows=lambda: [available_window]),
+        ):
+            application.refresh_windows()
+
+        self.assertEqual(application.window_selector_combobox["values"], [available_window.display_name])
+        self.assertEqual(application.selected_window_display_name_var.get(), "")
+        self.assertEqual(application.window_selection_status_var.get(), "対象ウィンドウを選択してください。")
+        self.assertEqual(application.window_handles, {available_window.display_name: available_window.handle})
+
+    def test_refresh_windows_without_candidates_clears_selection_and_explains_next_step(self):
+        previous_window = WindowInfo(0x101, "Closed Game", 456)
+        application = self.make_uninitialized_application()
+        application.runtime_log = RecordingLog()
+        application.window_selector_combobox = {}
+        application.selected_window_display_name_var = FakeVariable(previous_window.display_name)
+        application.window_selection_status_var = FakeVariable("")
+
+        with patch.object(
+            app_module,
+            "WindowsWindowSelector",
+            return_value=SimpleNamespace(list_windows=lambda: []),
+        ):
+            application.refresh_windows()
+
+        self.assertEqual(application.window_selector_combobox["values"], [])
+        self.assertEqual(application.selected_window_display_name_var.get(), "")
+        self.assertEqual(
+            application.window_selection_status_var.get(),
+            "ゲームを起動して「一覧更新」を押してください。",
+        )
+
+    def test_refresh_windows_failure_clears_stale_target_and_reports_recovery(self):
+        previous_window = WindowInfo(0x101, "Unavailable Game", 456)
+        application = self.make_uninitialized_application()
+        application.runtime_log = RecordingLog()
+        application.window_selector_combobox = {}
+        application.selected_window_display_name_var = FakeVariable(previous_window.display_name)
+        application.window_selection_status_var = FakeVariable("")
+
+        def fail_to_list_windows():
+            raise OSError("window enumeration failed")
+
+        with (
+            patch.object(
+                app_module,
+                "WindowsWindowSelector",
+                return_value=SimpleNamespace(list_windows=fail_to_list_windows),
+            ),
+            patch.object(app_module.messagebox, "showerror") as show_error,
+        ):
+            application.refresh_windows()
+
+        self.assertEqual(application.window_selector_combobox["values"], [])
+        self.assertEqual(application.selected_window_display_name_var.get(), "")
+        self.assertEqual(application.window_handles, {})
+        self.assertEqual(
+            application.window_selection_status_var.get(),
+            "ウィンドウ一覧を取得できませんでした。エラー内容を確認して再試行してください。",
+        )
+        show_error.assert_called_once()
 
     # {
     #   責務: [test_standalone_assessment_updates_display_after_stop: 停止中に完了した手動評価を画面へ反映する]
