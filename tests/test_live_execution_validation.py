@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from ai_game_player import app as app_module
+from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.app import Application
 from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode
 from ai_game_player.game_session import SessionStatus
@@ -243,6 +244,51 @@ class LiveExecutionValidationTests(unittest.TestCase):
         self.assertIsNone(application._execution_task_id)
         self.assertTrue(any("記録に失敗しました" in status for status in statuses))
         show_error.assert_called_once_with("実行エラー", "pipeline failed")
+
+    def test_completed_decision_and_execution_keep_latest_action_in_shell(self):
+        action_summaries = []
+
+        for operation, result in (
+            (
+                "decision",
+                app_module.ActionDecision("move-left", "左側が空いています", "Rule"),
+            ),
+            (
+                "execute",
+                ExecutionResult("move-left", True, "window_message", "入力しました"),
+            ),
+        ):
+            with self.subTest(operation=operation):
+                application = self.make_uninitialized_application()
+                application.controller.start()
+                run_token = application.controller.rearm_token
+                application._background_results = queue.Queue()
+                application._background_results.put(
+                    ("pipeline", 1, run_token, operation, result, None, False, None, None)
+                )
+                application._execution_in_progress = True
+                application._execution_task_id = 1
+                application._closing = False
+                application.session_controller = SimpleNamespace(has_pending_step=False)
+                application.runtime_log = RecordingLog()
+                application.root = SimpleNamespace(after=lambda *_args: None)
+                application.shell = SimpleNamespace(
+                    set_latest_action=lambda action_id, detail: action_summaries.append((action_id, detail))
+                )
+                application._set_status = lambda _message: None
+                application._complete_session_step = lambda *_args: None
+                if operation == "decision":
+                    application.provider = FakeVariable("Rule")
+
+                application._poll_background_results()
+
+        self.assertEqual(
+            action_summaries,
+            [
+                ("move-left", "左側が空いています"),
+                ("move-left", "window_message / 入力しました"),
+            ],
+        )
 
     # {
     #   責務: [test_manual_capture_assessment_does_not_use_execution_generation: 手動画面取得の評価を実行停止状態から分離する]

@@ -89,7 +89,20 @@ class TkShellSmokeTests(unittest.TestCase):
 
             self.assertEqual(tuple(shell.workspace_pages), WORKSPACES)
             self.assertEqual(shell.player_seat_host.winfo_manager(), "pack")
+            self.assertEqual(shell.latest_action_label.winfo_manager(), "pack")
             self.assertEqual(shell.bottom_host.winfo_manager(), "pack")
+            self.assertEqual(shell.latest_action_var.get(), "直近Action: まだありません")
+            shell.set_latest_action("move-left", "window_message / 入力しました")
+            shell.set_status("連続実行中")
+            self.assertEqual(
+                shell.latest_action_var.get(),
+                "直近Action: move-left / window_message / 入力しました",
+            )
+            shell.set_latest_action("", "応答にAction IDがありません")
+            self.assertEqual(
+                shell.latest_action_var.get(),
+                "直近Action: 不明 / 応答にAction IDがありません",
+            )
             self.assertEqual(len(shell.upper.panes()), 3)
             self.assertEqual(len(shell.vertical.panes()), 2)
 
