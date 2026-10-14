@@ -152,13 +152,23 @@ IDirect3DDevice create_capture_device(winrt::com_ptr<ID3D11Device>& native_devic
 //   戻り値: [GraphicsCaptureItem: WGC sessionが取得する単一window item]
 // }
 GraphicsCaptureItem create_capture_item(HWND window) {
-    auto interop = winrt::get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
+    winrt::hresult_error factory_error{E_FAIL};
+    auto interop = winrt::try_get_activation_factory<GraphicsCaptureItem, IGraphicsCaptureItemInterop>(factory_error);
+    if (!interop) {
+        throw factory_error;
+    }
+    std::fprintf(stderr, "WGC startup: interop factory complete HWND=%p\n", window);
+    std::fflush(stderr);
     GraphicsCaptureItem item{nullptr};
-    winrt::check_hresult(interop->CreateForWindow(
+    const HRESULT create_result = interop->CreateForWindow(
         window,
         winrt::guid_of<GraphicsCaptureItem>(),
         winrt::put_abi(item)
-    ));
+    );
+    std::fprintf(stderr, "WGC startup: CreateForWindow result=0x%08lX HWND=%p\n",
+        static_cast<unsigned long>(create_result), window);
+    std::fflush(stderr);
+    winrt::check_hresult(create_result);
     return item;
 }
 
