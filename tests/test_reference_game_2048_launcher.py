@@ -1,3 +1,4 @@
+import ctypes
 import hashlib
 import io
 import json
@@ -16,6 +17,7 @@ from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.game_2048_board import BOARD_REGION_COLORS
 from ai_game_player.screen_capture import WindowsScreenCapture
+from ai_game_player.windows_abi import configure_user32_prototypes
 from tools.reference_game_2048_launcher import (
     HWND_TOP,
     LoopbackStaticServer,
@@ -270,6 +272,21 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                 if game_state["board"] is None:
                     diagnostic_directory = Path("build/e2e")
                     diagnostic_directory.mkdir(parents=True, exist_ok=True)
+                    user32 = ctypes.windll.user32
+                    configure_user32_prototypes(user32)
+                    window_rect = (ctypes.c_long * 4)()
+                    rect_available = bool(user32.GetWindowRect(window.handle, ctypes.byref(window_rect)))
+                    visible_unoccluded = None
+                    if rect_available:
+                        left, top, right, bottom = window_rect
+                        visible_unoccluded = WindowsScreenCapture._is_visible_and_unoccluded(
+                            user32,
+                            window.handle,
+                            left,
+                            top,
+                            right,
+                            bottom,
+                        )
                     palette_counts = Counter(
                         (
                             frame.bgra[offset + 2],
@@ -289,6 +306,8 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         "height": frame.height,
                         "window_title": window.title,
                         "window_is_foreground": launcher.window_is_foreground,
+                        "window_rect": list(window_rect) if rect_available else None,
+                        "window_visible_unoccluded": visible_unoccluded,
                         "mean_rgb": observation.features.get("mean_rgb"),
                         "palette_pixel_counts": {
                             ",".join(str(channel) for channel in rgb): count
