@@ -10,6 +10,9 @@ from urllib.error import URLError
 from urllib.request import urlopen
 from unittest.mock import patch
 
+from ai_game_player.frame_analyzer import FrameAnalyzer
+from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
+from ai_game_player.screen_capture import WindowsScreenCapture
 from tools.reference_game_2048_launcher import (
     LoopbackStaticServer,
     ReferenceGame2048Launcher,
@@ -199,6 +202,21 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                 with urlopen(game_url, timeout=5) as response:
                     html = response.read().decode("utf-8")
                 self.assertIn("2048", html)
+                capture = WindowsScreenCapture()
+                try:
+                    frame = capture.capture(window.handle)
+                    observation = FrameAnalyzer().analyze(frame, "live-2048")
+                    adapter = ReferenceGame2048Adapter()
+                    adapted, candidates = adapter.adapt(frame, observation)
+                finally:
+                    capture.close()
+                game_state = adapted.features["game_2048"]
+                self.assertIsNotNone(
+                    game_state["board"],
+                    f"frame={frame.width}x{frame.height}, mean={observation.features.get('mean_rgb')}, "
+                    f"confidence={game_state['confidence']}",
+                )
+                self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
             finally:
                 launcher.close()
             process.wait(timeout=10)

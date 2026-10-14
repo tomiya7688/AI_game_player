@@ -46,6 +46,31 @@ $env:KADOKA_RUN_2048_INTEGRATION = "1"
 python -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
 ```
 
+## 2048 Screen Adapterをpixel fixtureとWindows実画面で検証する
+
+この節は2048 Screen Adapterを変更する実装者向けです。Adapterは同じcapture時点のBGRA pixel（青・緑・赤・alphaの順で保持する画面byte列）とOCR（画像内の文字を読む処理）のObservationから盤面・現在score・game-over状態を作ります。AdapterはOCRが`GAME OVER`を読むか、満杯のboardに隣り合う同値tileがなく合法moveが存在しない場合にgame-overを返します。Adapterはboard confidenceが0.65以上でgame-overでない場合にUP/DOWN/LEFT/RIGHTのkeyboard候補を返します。confidenceは色と形状の一致度を表すheuristic値であり、正しさの確率ではありません。boardを認識できない場合、Adapterはboard confidenceを0、board矩形とstate signatureを`null`にし、arrow候補を返しません。明示的な`GAME OVER`文字列をOCRが検出した場合は、boardが未知でもgame-overを`true`にします。4方向候補は各方向で盤面が変化する保証ではなく、画面で認識したboardへの入力案です。Adapterはbrowser DOMやgame内部stateを判断入力に使いません。
+
+`tests/fixtures/2048/standard.json` は `tools/reference_games/2048.source.lock.json` が固定するupstream commit `478b6ec346e3787f589e4af751378d06ded4cbbc` のCSS色、4x4の配置、cell寸法、game-over overlay、score OCR候補を記録します。`tests/test_game_2048_adapter.py` はこのデータから320×380 pixelのBGRA画面を合成し、Adapterの入力へ渡します。このfixtureはブラウザーから保存したPNGではなく、画面認識を同じpixel条件で再現する合成fixtureです。
+
+合成fixtureを使った回帰テストは次のコマンドで実行します。
+
+```powershell
+$env:PYTHONPATH = "src;."
+python -m unittest discover -s tests -p "test_game_2048_adapter.py" -v
+```
+
+テストは16 cellの値、`SCORE`と`BEST`を区別した現在score、game-over overlayとOCR文言、board・score・終了状態から計算するSHA-256 state signature、4方向候補、および2048以外の画面で候補を作らないことを確認します。合成fixtureの成功だけではWindowsの実window captureを検証したことになりません。
+
+Windows上で固定版ゲームの実画面をcaptureする回帰テストは、launcher integration testで実行します。
+
+```powershell
+$env:PYTHONPATH = "src;."
+$env:KADOKA_RUN_2048_INTEGRATION = "1"
+python -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
+```
+
+このintegration testは起動したPIDの2048 windowを選び、HWND captureからboardと4方向候補を検査します。初回は `codeload.github.com` から固定版sourceを取得する必要があります。source取得またはwindow captureに失敗した実行は実画面検証の成功とせず、失敗理由を解消して再実行します。GitHub ActionsのWindows jobも同じ環境変数でこのintegration testを実行します。
+
 ## PR Gateの経路
 
 ```text
