@@ -337,6 +337,8 @@ struct WgcSessionState {
     //   戻り値: [void: 再呼び出し可能な終了処理]
     // }
     void release_capture_resources() noexcept {
+        std::fprintf(stderr, "WGC close: releasing session HWND %p\n", window);
+        std::fflush(stderr);
         try {
             if (capture_session) {
                 capture_session.Close();
@@ -344,6 +346,8 @@ struct WgcSessionState {
         } catch (...) {
             // Native shutdown must continue releasing the frame pool.
         }
+        std::fprintf(stderr, "WGC close: capture session closed for HWND %p\n", window);
+        std::fflush(stderr);
         try {
             if (frame_pool) {
                 frame_pool.Close();
@@ -351,11 +355,15 @@ struct WgcSessionState {
         } catch (...) {
             // Releasing the projected references below still tears down local ownership.
         }
+        std::fprintf(stderr, "WGC close: frame pool closed for HWND %p\n", window);
+        std::fflush(stderr);
         capture_session = nullptr;
         frame_pool = nullptr;
         capture_item = nullptr;
         capture_device = nullptr;
         native_device = nullptr;
+        std::fprintf(stderr, "WGC close: resource references cleared for HWND %p\n", window);
+        std::fflush(stderr);
     }
 
     // {
@@ -773,8 +781,12 @@ int32_t kadoka_wgc_frame_release(kadoka_wgc_frame** frame) {
     if (frame == nullptr || *frame == nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
+    std::fprintf(stderr, "WGC lease: releasing frame %p\n", static_cast<void*>(*frame));
+    std::fflush(stderr);
     delete *frame;
     *frame = nullptr;
+    std::fprintf(stderr, "WGC lease: frame released\n");
+    std::fflush(stderr);
     return KADOKA_RUNTIME_STATUS_OK;
 }
 
@@ -787,9 +799,15 @@ int32_t kadoka_wgc_close(kadoka_wgc_session** session) {
     if (session == nullptr || *session == nullptr || (*session)->state == nullptr) {
         return KADOKA_RUNTIME_STATUS_INVALID_ARGUMENT;
     }
+    std::fprintf(stderr, "WGC close: requesting session worker shutdown\n");
+    std::fflush(stderr);
     (*session)->state->close();
+    std::fprintf(stderr, "WGC close: session worker joined\n");
+    std::fflush(stderr);
     delete *session;
     *session = nullptr;
+    std::fprintf(stderr, "WGC close: session handle deleted\n");
+    std::fflush(stderr);
     return KADOKA_RUNTIME_STATUS_OK;
 }
 
