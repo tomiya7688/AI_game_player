@@ -888,7 +888,7 @@ class Application:
 
     # {
     #   責務: [_poll_background_results: worker結果をGUIスレッドで適用する]
-    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する]
+    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、判断・実行ActionはSession状態とは別にshellへ保持し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する]
     #   引数: []
     #   戻り値: []
     # }
@@ -978,9 +978,11 @@ class Application:
 
             if operation == "execute" and isinstance(result, ExecutionResult):
                 self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
+                self.shell.set_latest_action(result.action_id, f"{result.mode} / {result.detail}")
                 self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
             elif operation == "decision" and isinstance(result, ActionDecision):
                 self._set_status(f"選択: {result.action_id} / {result.reason}")
+                self.shell.set_latest_action(result.action_id, result.reason)
                 self.runtime_log.write("decision", result.reason, {"action_id": result.action_id, "provider": self.provider.get()})
 
             self._complete_session_step()

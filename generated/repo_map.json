@@ -2103,7 +2103,7 @@
       "module": "ai_game_player.app",
       "path": "src/ai_game_player/app.py",
       "source_location": {
-        "end_line": 1171,
+        "end_line": 1173,
         "start_line": 1
       },
       "symbols": [
@@ -2236,7 +2236,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1161,
+            "end_line": 1163,
             "start_line": 99
           }
         },
@@ -3208,7 +3208,7 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 989,
+            "end_line": 991,
             "start_line": 895
           }
         },
@@ -3231,8 +3231,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1031,
-            "start_line": 999
+            "end_line": 1033,
+            "start_line": 1001
           }
         },
         {
@@ -3254,8 +3254,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1052,
-            "start_line": 1039
+            "end_line": 1054,
+            "start_line": 1041
           }
         },
         {
@@ -3283,8 +3283,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1064,
-            "start_line": 1060
+            "end_line": 1066,
+            "start_line": 1062
           }
         },
         {
@@ -3306,8 +3306,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1073,
-            "start_line": 1072
+            "end_line": 1075,
+            "start_line": 1074
           }
         },
         {
@@ -3329,8 +3329,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1082,
-            "start_line": 1081
+            "end_line": 1084,
+            "start_line": 1083
           }
         },
         {
@@ -3358,8 +3358,8 @@
           "signature": "(self, command: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1114,
-            "start_line": 1090
+            "end_line": 1116,
+            "start_line": 1092
           }
         },
         {
@@ -3381,8 +3381,8 @@
           "signature": "(self) -> ApplicationSettings",
           "source_location": {
             "column": 4,
-            "end_line": 1132,
-            "start_line": 1122
+            "end_line": 1134,
+            "start_line": 1124
           }
         },
         {
@@ -3410,8 +3410,8 @@
           "signature": "(self, evaluation: list[dict[str, object]]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1142,
-            "start_line": 1140
+            "end_line": 1144,
+            "start_line": 1142
           }
         },
         {
@@ -3433,8 +3433,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1161,
-            "start_line": 1150
+            "end_line": 1163,
+            "start_line": 1152
           }
         },
         {
@@ -3449,8 +3449,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 1167,
-            "start_line": 1164
+            "end_line": 1169,
+            "start_line": 1166
           }
         }
       ]
@@ -38943,7 +38943,7 @@
       "module": "ai_game_player.ui.shell",
       "path": "src/ai_game_player/ui/shell.py",
       "source_location": {
-        "end_line": 207,
+        "end_line": 246,
         "start_line": 1
       },
       "symbols": [
@@ -39270,8 +39270,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 207,
-            "start_line": 98
+            "end_line": 246,
+            "start_line": 102
           }
         },
         {
@@ -39317,8 +39317,8 @@
           "signature": "(self, master: tk.Misc, state: ShellState, on_stop: Callable[[], None], on_state_change: Callable[[ShellState], None]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 101
+            "end_line": 185,
+            "start_line": 105
           }
         },
         {
@@ -39342,8 +39342,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 175
+            "end_line": 189,
+            "start_line": 188
           }
         },
         {
@@ -39367,8 +39367,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 179
+            "end_line": 193,
+            "start_line": 192
           }
         },
         {
@@ -39392,8 +39392,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 183
+            "end_line": 197,
+            "start_line": 196
           }
         },
         {
@@ -39421,8 +39421,43 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 187,
-            "start_line": 186
+            "end_line": 200,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "set_latest_action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            }
+          ],
+          "qualified_name": "ApplicationShell.set_latest_action",
+          "return_annotation": "None",
+          "signature": "(self, action_id: str, detail: str = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 214,
+            "start_line": 208
           }
         },
         {
@@ -39456,8 +39491,8 @@
           "signature": "(self, workspace: str, persist: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 195,
-            "start_line": 189
+            "end_line": 222,
+            "start_line": 216
           }
         },
         {
@@ -39479,8 +39514,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 201,
-            "start_line": 197
+            "end_line": 234,
+            "start_line": 230
           }
         },
         {
@@ -39502,8 +39537,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 203
+            "end_line": 246,
+            "start_line": 242
           }
         }
       ]
@@ -46920,7 +46955,7 @@
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 115,
+        "end_line": 128,
         "start_line": 1
       },
       "symbols": [
@@ -47147,7 +47182,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 111,
+            "end_line": 124,
             "start_line": 76
           }
         },
@@ -47170,7 +47205,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 111,
+            "end_line": 124,
             "start_line": 77
           }
         }
@@ -61520,6 +61555,7 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.action_executor",
         "ai_game_player.app",
         "ai_game_player.capture_region",
         "ai_game_player.game_session",
@@ -61631,6 +61667,22 @@
           "line": 9,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.action_executor"
+          ],
+          "module": "ai_game_player.action_executor",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionResult"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.app"
           ],
           "module": "ai_game_player.app",
@@ -61644,7 +61696,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.capture_region"
@@ -61664,7 +61716,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_session"
@@ -61680,7 +61732,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -61696,7 +61748,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.observation_service"
@@ -61712,7 +61764,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -61728,7 +61780,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -61744,7 +61796,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -61760,7 +61812,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.window_selector"
@@ -61777,7 +61829,7 @@
       "module": "tests.test_live_execution_validation",
       "path": "tests/test_live_execution_validation.py",
       "source_location": {
-        "end_line": 773,
+        "end_line": 819,
         "start_line": 1
       },
       "symbols": [
@@ -61797,8 +61849,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 41,
-            "start_line": 24
+            "end_line": 42,
+            "start_line": 25
           }
         },
         {
@@ -61826,8 +61878,8 @@
           "signature": "(self, value)",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 31
+            "end_line": 33,
+            "start_line": 32
           }
         },
         {
@@ -61849,8 +61901,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 41,
-            "start_line": 40
+            "end_line": 42,
+            "start_line": 41
           }
         },
         {
@@ -61869,8 +61921,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 78,
-            "start_line": 48
+            "end_line": 79,
+            "start_line": 49
           }
         },
         {
@@ -61904,8 +61956,8 @@
           "signature": "(self, valid_handles, process_id = …)",
           "source_location": {
             "column": 4,
-            "end_line": 58,
-            "start_line": 55
+            "end_line": 59,
+            "start_line": 56
           }
         },
         {
@@ -61933,8 +61985,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 66
+            "end_line": 69,
+            "start_line": 67
           }
         },
         {
@@ -61968,8 +62020,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 4,
-            "end_line": 78,
-            "start_line": 76
+            "end_line": 79,
+            "start_line": 77
           }
         },
         {
@@ -61988,8 +62040,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 102,
-            "start_line": 85
+            "end_line": 103,
+            "start_line": 86
           }
         },
         {
@@ -62011,8 +62063,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 93,
-            "start_line": 92
+            "end_line": 94,
+            "start_line": 93
           }
         },
         {
@@ -62040,8 +62092,8 @@
           "signature": "(self, *record)",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 101
+            "end_line": 103,
+            "start_line": 102
           }
         },
         {
@@ -62060,8 +62112,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 109
+            "end_line": 154,
+            "start_line": 110
           }
         },
         {
@@ -62083,8 +62135,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 116
+            "end_line": 127,
+            "start_line": 117
           }
         },
         {
@@ -62106,8 +62158,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 131,
-            "start_line": 128
+            "end_line": 132,
+            "start_line": 129
           }
         },
         {
@@ -62135,8 +62187,8 @@
           "signature": "(self, reason = …)",
           "source_location": {
             "column": 4,
-            "end_line": 137,
-            "start_line": 133
+            "end_line": 138,
+            "start_line": 134
           }
         },
         {
@@ -62170,8 +62222,8 @@
           "signature": "(self, command = …, interval_ms = …)",
           "source_location": {
             "column": 4,
-            "end_line": 142,
-            "start_line": 139
+            "end_line": 143,
+            "start_line": 140
           }
         },
         {
@@ -62199,8 +62251,8 @@
           "signature": "(self, command = …)",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 144
+            "end_line": 148,
+            "start_line": 145
           }
         },
         {
@@ -62234,8 +62286,8 @@
           "signature": "(self, result = …, error = …)",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 149
+            "end_line": 151,
+            "start_line": 150
           }
         },
         {
@@ -62263,8 +62315,8 @@
           "signature": "(self, observation)",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 152
+            "end_line": 154,
+            "start_line": 153
           }
         },
         {
@@ -62285,8 +62337,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 769,
-            "start_line": 160
+            "end_line": 815,
+            "start_line": 161
           }
         },
         {
@@ -62308,8 +62360,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 161
+            "end_line": 166,
+            "start_line": 162
           }
         },
         {
@@ -62349,8 +62401,8 @@
           "signature": "(self, *, live = …, mode = …, handles = …)",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 173
+            "end_line": 182,
+            "start_line": 174
           }
         },
         {
@@ -62372,8 +62424,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 194,
-            "start_line": 189
+            "end_line": 195,
+            "start_line": 190
           }
         },
         {
@@ -62395,8 +62447,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 204,
-            "start_line": 202
+            "end_line": 205,
+            "start_line": 203
           }
         },
         {
@@ -62418,8 +62470,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 245,
-            "start_line": 212
+            "end_line": 246,
+            "start_line": 213
           }
         },
         {
@@ -62438,8 +62490,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 215,
-            "start_line": 213
+            "end_line": 216,
+            "start_line": 214
           }
         },
         {
@@ -62467,8 +62519,31 @@
           "signature": "(self, *_record)",
           "source_location": {
             "column": 12,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 216,
+            "start_line": 215
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_completed_decision_and_execution_keep_latest_action_in_shell",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveExecutionValidationTests.test_completed_decision_and_execution_keep_latest_action_in_shell",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 291,
+            "start_line": 248
           }
         },
         {
@@ -62490,8 +62565,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 309,
-            "start_line": 253
+            "end_line": 355,
+            "start_line": 299
           }
         },
         {
@@ -62513,8 +62588,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 363,
-            "start_line": 317
+            "end_line": 409,
+            "start_line": 363
           }
         },
         {
@@ -62536,8 +62611,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 428,
-            "start_line": 365
+            "end_line": 474,
+            "start_line": 411
           }
         },
         {
@@ -62559,8 +62634,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 460,
-            "start_line": 436
+            "end_line": 506,
+            "start_line": 482
           }
         },
         {
@@ -62582,8 +62657,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 478,
-            "start_line": 468
+            "end_line": 524,
+            "start_line": 514
           }
         },
         {
@@ -62605,8 +62680,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 496,
-            "start_line": 486
+            "end_line": 542,
+            "start_line": 532
           }
         },
         {
@@ -62628,8 +62703,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 513,
-            "start_line": 504
+            "end_line": 559,
+            "start_line": 550
           }
         },
         {
@@ -62651,8 +62726,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 539,
-            "start_line": 521
+            "end_line": 585,
+            "start_line": 567
           }
         },
         {
@@ -62674,8 +62749,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 558,
-            "start_line": 547
+            "end_line": 604,
+            "start_line": 593
           }
         },
         {
@@ -62697,8 +62772,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 577,
-            "start_line": 566
+            "end_line": 623,
+            "start_line": 612
           }
         },
         {
@@ -62720,8 +62795,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 606,
-            "start_line": 579
+            "end_line": 652,
+            "start_line": 625
           }
         },
         {
@@ -62743,8 +62818,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 626,
-            "start_line": 608
+            "end_line": 672,
+            "start_line": 654
           }
         },
         {
@@ -62766,8 +62841,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 654,
-            "start_line": 628
+            "end_line": 700,
+            "start_line": 674
           }
         },
         {
@@ -62782,8 +62857,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 641,
-            "start_line": 640
+            "end_line": 687,
+            "start_line": 686
           }
         },
         {
@@ -62805,8 +62880,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 671,
-            "start_line": 656
+            "end_line": 717,
+            "start_line": 702
           }
         },
         {
@@ -62828,8 +62903,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 697,
-            "start_line": 679
+            "end_line": 743,
+            "start_line": 725
           }
         },
         {
@@ -62851,8 +62926,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 726,
-            "start_line": 699
+            "end_line": 772,
+            "start_line": 745
           }
         },
         {
@@ -62874,8 +62949,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 750,
-            "start_line": 734
+            "end_line": 796,
+            "start_line": 780
           }
         },
         {
@@ -62897,8 +62972,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 769,
-            "start_line": 758
+            "end_line": 815,
+            "start_line": 804
           }
         }
       ]
