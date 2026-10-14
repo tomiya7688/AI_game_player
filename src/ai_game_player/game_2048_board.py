@@ -35,6 +35,7 @@ MINIMUM_BOARD_CONFIDENCE = 0.65
 MINIMUM_BOARD_SIDE_PIXELS = 80
 MAXIMUM_COLOR_DISTANCE_SQUARED = 36
 MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED = 324
+MAXIMUM_BOARD_ROW_COLOR_GAP_PIXELS = 16
 MINIMUM_ROW_MATCH_PIXELS = 24
 MINIMUM_ROW_MATCH_WIDTH_FRACTION = 0.05
 MINIMUM_ROW_SPAN_PIXELS = 50
@@ -183,7 +184,7 @@ class Game2048BoardRecognizer:
 
     # {
     #   責務: [_find_board_region: row内の2048 CSS色分布から最大の正方形board候補を特定する]
-    #   処理: [board背景・empty cell・tile色からRGB二乗距離324以内の連続rowをまとめ、縦横比と画素密度を検査する]
+    #   処理: [paletteとのRGB二乗距離324以内のpixelをrow内gap16で帯状にまとめ、最長帯を縦横比と画素密度で検査する]
     #   引数: [frame: 検索対象となるBGRA画面]
     #   戻り値: [BoardRegionまたはNone: 条件を満たす盤面矩形と形状確信度]
     # }
@@ -199,9 +200,7 @@ class Game2048BoardRecognizer:
         matched_rows: list[tuple[int, int, int, int]] = []
         for y in range(frame.height):
             row_offset = y * frame.width * FRAME_BYTES_PER_PIXEL
-            matching_pixels = 0
-            left = frame.width
-            right = -1
+            matching_x_positions: list[int] = []
             for x in range(frame.width):
                 pixel_offset = row_offset + x * FRAME_BYTES_PER_PIXEL
                 rgb = (
@@ -211,11 +210,27 @@ class Game2048BoardRecognizer:
                 )
                 if not _is_board_region_color(rgb):
                     continue
-                matching_pixels += 1
-                left = min(left, x)
-                right = x
-            if matching_pixels >= minimum_row_pixels and right - left + 1 >= minimum_row_span:
-                matched_rows.append((y, left, right + 1, matching_pixels))
+                matching_x_positions.append(x)
+            if not matching_x_positions:
+                continue
+            row_color_spans: list[tuple[int, int, int]] = []
+            span_left = matching_x_positions[0]
+            span_right = span_left
+            span_pixel_count = 1
+            for x in matching_x_positions[1:]:
+                if x - span_right - 1 > MAXIMUM_BOARD_ROW_COLOR_GAP_PIXELS:
+                    row_color_spans.append((span_left, span_right + 1, span_pixel_count))
+                    span_left = x
+                    span_pixel_count = 0
+                span_right = x
+                span_pixel_count += 1
+            row_color_spans.append((span_left, span_right + 1, span_pixel_count))
+            left, right, matching_pixels = max(
+                row_color_spans,
+                key=lambda span: (span[2], span[1] - span[0]),
+            )
+            if matching_pixels >= minimum_row_pixels and right - left >= minimum_row_span:
+                matched_rows.append((y, left, right, matching_pixels))
 
         row_groups: list[list[tuple[int, int, int, int]]] = []
         for row in matched_rows:

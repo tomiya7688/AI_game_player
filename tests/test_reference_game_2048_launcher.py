@@ -19,6 +19,7 @@ from ai_game_player.game_2048_board import (
     BOARD_REGION_COLORS,
     FRAME_BYTES_PER_PIXEL,
     MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED,
+    MAXIMUM_BOARD_ROW_COLOR_GAP_PIXELS,
     MAXIMUM_ROW_GROUP_Y_DELTA,
     MINIMUM_ROW_MATCH_PIXELS,
     MINIMUM_ROW_MATCH_WIDTH_FRACTION,
@@ -107,9 +108,7 @@ def board_row_group_diagnostics(
     )
     matched_rows = []
     for y in range(frame.height):
-        matching_pixels = 0
-        left = frame.width
-        right = -1
+        matching_x_positions = []
         row_offset = y * frame.width * FRAME_BYTES_PER_PIXEL
         for x in range(frame.width):
             pixel_offset = row_offset + x * FRAME_BYTES_PER_PIXEL
@@ -120,11 +119,27 @@ def board_row_group_diagnostics(
             )
             if nearest_distance_by_rgb[rgb] > MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED:
                 continue
-            matching_pixels += 1
-            left = min(left, x)
-            right = x
-        if matching_pixels >= minimum_row_pixels and right - left + 1 >= minimum_row_span:
-            matched_rows.append((y, left, right + 1, matching_pixels))
+            matching_x_positions.append(x)
+        if not matching_x_positions:
+            continue
+        row_color_spans = []
+        span_left = matching_x_positions[0]
+        span_right = span_left
+        span_pixel_count = 1
+        for x in matching_x_positions[1:]:
+            if x - span_right - 1 > MAXIMUM_BOARD_ROW_COLOR_GAP_PIXELS:
+                row_color_spans.append((span_left, span_right + 1, span_pixel_count))
+                span_left = x
+                span_pixel_count = 0
+            span_right = x
+            span_pixel_count += 1
+        row_color_spans.append((span_left, span_right + 1, span_pixel_count))
+        left, right, matching_pixels = max(
+            row_color_spans,
+            key=lambda span: (span[2], span[1] - span[0]),
+        )
+        if matching_pixels >= minimum_row_pixels and right - left >= minimum_row_span:
+            matched_rows.append((y, left, right, matching_pixels))
 
     row_groups = []
     for row in matched_rows:
