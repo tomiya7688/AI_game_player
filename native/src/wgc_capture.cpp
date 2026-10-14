@@ -341,16 +341,19 @@ struct WgcSessionState {
     //   戻り値: [void: 再呼び出し可能な終了処理]
     // }
     void release_capture_resources() noexcept {
-        try {
-            if (capture_session) {
-                capture_session.Close();
-            }
-        } catch (...) {
-            // Native shutdown must continue releasing the frame pool.
-        }
+        // {
+        //   理由: [WindowsのWGC C++ sampleと同じくframe poolをcapture sessionより先にCloseし、終了順序を揃える]
+        // }
         try {
             if (frame_pool) {
                 frame_pool.Close();
+            }
+        } catch (...) {
+            // Native shutdown must continue closing the capture session.
+        }
+        try {
+            if (capture_session) {
+                capture_session.Close();
             }
         } catch (...) {
             // Releasing the projected references below still tears down local ownership.
