@@ -94896,7 +94896,7 @@
       "module": "tools.run_noisy_provider_benchmark",
       "path": "tools/run_noisy_provider_benchmark.py",
       "source_location": {
-        "end_line": 234,
+        "end_line": 257,
         "start_line": 1
       },
       "symbols": [
@@ -95156,6 +95156,12 @@
               "name": "engine"
             },
             {
+              "annotation": "TimedNoisyLanguageProvider",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            },
+            {
               "annotation": "list[ActionCandidate]",
               "has_default": false,
               "kind": "positional_or_keyword",
@@ -95175,11 +95181,11 @@
             }
           ],
           "qualified_name": "measure_engine_steps",
-          "return_annotation": "list[int]",
-          "signature": "(engine: GamePlayerEngine, candidates: list[ActionCandidate], step_count: int, *, offset: int = …) -> list[int]",
+          "return_annotation": "tuple[list[int], list[int]]",
+          "signature": "(engine: GamePlayerEngine, provider: TimedNoisyLanguageProvider, candidates: list[ActionCandidate], step_count: int, *, offset: int = …) -> tuple[list[int], list[int]]",
           "source_location": {
             "column": 0,
-            "end_line": 109,
+            "end_line": 120,
             "start_line": 86
           }
         },
@@ -95208,8 +95214,8 @@
           "signature": "(output_path: Path, report: dict[str, object]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 114,
-            "start_line": 112
+            "end_line": 125,
+            "start_line": 123
           }
         },
         {
@@ -95261,8 +95267,8 @@
           "signature": "(steps: int, warmup_steps: int, seed: int, budget_multiplier: float, budgets_path: Path, output_path: Path) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 206,
-            "start_line": 117
+            "end_line": 229,
+            "start_line": 128
           }
         },
         {
@@ -95277,8 +95283,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 230,
-            "start_line": 209
+            "end_line": 253,
+            "start_line": 232
           }
         }
       ]
