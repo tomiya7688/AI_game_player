@@ -12,6 +12,7 @@
 
 - [現在の機能と制約](key_info.md)
 - [参加領域とレビュー先](doc/contributor/subsystem_ownership_map.md)
+- [セキュリティ脅威モデル](doc/security/threat_model.md)
 - [クラス図](doc/class_diagram.mmd)
 - [シーケンス図](doc/sequence_diagram.mmd)
 - [評価指標](doc/評価指標機能説明書.md)
