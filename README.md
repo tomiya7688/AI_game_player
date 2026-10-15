@@ -11,6 +11,7 @@
 主要コードは `src/ai_game_player/` にあり、観測（capture/source）、評価（evaluator/outcome）、判断（provider/engine）、実行（action_executor/windows_input）、履歴・ログを分離しています。
 
 - [現在の機能と制約](key_info.md)
+- [参加領域とレビュー先](doc/contributor/subsystem_ownership_map.md)
 - [クラス図](doc/class_diagram.mmd)
 - [シーケンス図](doc/sequence_diagram.mmd)
 - [評価指標](doc/評価指標機能説明書.md)
