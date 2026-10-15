@@ -36,6 +36,7 @@ from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 
 SCREEN_READY_TIMEOUT_SECONDS = 45.0
 SCREEN_READY_POLL_SECONDS = 0.5
+CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS = 5.0
 CAMPAIGN_PURPOSE = "perform live arrow-key actions and measure the 2048 screen loop"
 DIRECTION_ACTION_IDS = (
     "2048-move-up",
@@ -54,9 +55,17 @@ class Cached2048ObservationSource:
         self._cached_read: tuple[ScreenObservation, list[ActionCandidate]] | None = None
 
     def capture_playable_state(self) -> CampaignState:
-        deadline = time.monotonic() + SCREEN_READY_TIMEOUT_SECONDS
+        started_at = time.monotonic()
+        deadline = started_at + SCREEN_READY_TIMEOUT_SECONDS
         last_state: dict[str, object] = {}
+        capture_attempts = 0
+        last_board_detected = False
+        last_game_over: bool | None = None
+        last_candidate_count = 0
+        last_frame_signature = ""
+        frame_signatures: set[str] = set()
         while time.monotonic() < deadline:
+            capture_attempts += 1
             try:
                 frame = self.capture.capture(self.window_handle)
             except Exception as error:
@@ -73,6 +82,11 @@ class Cached2048ObservationSource:
                     f"2048 screen analysis failed: {type(error).__name__}: {error}",
                 ) from error
 
+            frame_signature = observation.features.get("signature")
+            if isinstance(frame_signature, str) and frame_signature:
+                last_frame_signature = frame_signature
+                frame_signatures.add(frame_signature)
+
             raw_state = adapted.features.get("game_2048")
             if not isinstance(raw_state, dict):
                 raise CampaignFailure(
@@ -83,6 +97,9 @@ class Cached2048ObservationSource:
             board = raw_state.get("board")
             signature = raw_state.get("state_signature")
             terminal = raw_state.get("game_over")
+            last_board_detected = isinstance(board, list)
+            last_game_over = terminal if type(terminal) is bool else None
+            last_candidate_count = len(candidates)
             if (
                 isinstance(board, list)
                 and isinstance(signature, str)
@@ -109,7 +126,15 @@ class Cached2048ObservationSource:
         raise CampaignFailure(
             "recognition_failure",
             "2048 board did not become actionable within "
-            f"{SCREEN_READY_TIMEOUT_SECONDS:g} seconds; board_confidence={confidence!r}",
+            f"{SCREEN_READY_TIMEOUT_SECONDS:g} seconds; "
+            f"capture_attempts={capture_attempts}; "
+            f"elapsed_seconds={time.monotonic() - started_at:.3f}; "
+            f"board_detected={last_board_detected}; "
+            f"game_over={last_game_over!r}; "
+            f"actionable_candidate_count={last_candidate_count}; "
+            f"distinct_frame_signatures={len(frame_signatures)}; "
+            f"last_frame_signature={last_frame_signature or 'unavailable'}; "
+            f"board_confidence={confidence!r}",
         )
 
     def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
@@ -169,6 +194,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
         self.launcher = ReferenceGame2048Launcher(cache_root, browser_path)
         self.source: Cached2048ObservationSource | None = None
         self.pipeline: DecisionPipeline | None = None
+        self._safety_rearmed = False
         self._closed = False
         try:
             self.launcher.start()
@@ -190,9 +216,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 # {
                 #   理由: [action後のWGC captureとscreen analysisを含む周期が2秒を超えても新しい観測を通知できるよう5秒待ち、無観測が続く場合はwatchdogで停止する]
                 # }
-                fail_safe_config=FailSafeConfig(observation_timeout_seconds=5.0),
+                fail_safe_config=FailSafeConfig(
+                    observation_timeout_seconds=CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
+                ),
             )
-            self.pipeline.rearm_safety()
         except Exception:
             self.close()
             raise
@@ -200,15 +227,28 @@ class ReferenceGame2048Episode(CampaignEpisode):
     def observe(self) -> CampaignState:
         if self.source is None:
             raise CampaignFailure("capture_failure", "2048 episode has no window observation source")
+        capture_started_at = time.monotonic()
         state = self.source.capture_playable_state()
+        capture_elapsed_seconds = time.monotonic() - capture_started_at
         pipeline = self.pipeline
         if pipeline is not None:
+            first_observation = not self._safety_rearmed
             try:
+                # {
+                #   理由: [playable boardの取得は最大45秒待つため、5秒の観測leaseは最初の新鮮なboard取得直後に開始し、episode起動中の失効を防ぐ]
+                # }
+                if first_observation:
+                    pipeline.rearm_safety()
+                    self._safety_rearmed = True
                 pipeline.record_observation()
             except Exception as error:
                 raise CampaignFailure(
                     "safety_block",
-                    f"2048 screen capture completed but the fail-safe observation lease could not be refreshed: {type(error).__name__}: {error}",
+                    "2048 screen capture completed in "
+                    f"{capture_elapsed_seconds:.3f} seconds, but the fail-safe runtime "
+                    "could not accept the fresh observation; "
+                    f"first_observation={first_observation}; "
+                    f"error={type(error).__name__}: {error}",
                 ) from error
         return state
 
