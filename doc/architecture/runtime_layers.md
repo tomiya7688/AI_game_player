@@ -74,7 +74,7 @@ The optional `FAST_CV` capability exposes a coarse frame-preprocessing operation
 - `src/ai_game_player/runtime/`: language-neutral runtime capability contracts and backend selection.
 - `native/`: C/C++ runtime ABI and native implementations.
 - `profiles/`: user-selectable configuration profiles; basic operation must not require manual editing.
-- `plugins/`: extension contract notes/examples; plugins may not depend on private internals.
+- The repository does not currently contain a `plugins/` directory. MOD / Processing Hook contracts and runtime work are tracked by parent Issue #58 and child Issues #150–#153; do not treat a plugin implementation path as present before those changes add one.
 - `doc/`: detailed architecture and feature contracts.
 
 ## Distribution rule
