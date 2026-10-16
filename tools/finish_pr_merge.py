@@ -348,16 +348,22 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
 #     なし: ghが成功を返した場合だけ呼び出し元へ戻る
 #   ],
 #   エラー: [
-#     MergeGateError: check失敗、認証/APIエラー、gh起動失敗、または待機timeout
+#     MergeGateError: check失敗、認証/APIエラー、gh起動失敗、または待機timeout。対象PRとcheck一覧の確認commandを表示する
 #   ]
 # }
 def _wait_for_status_checks(pull_request: PullRequestReference) -> None:
     print("[WAIT] GitHub Actions checks are running; waiting for every check to finish.", flush=True)
-    _run_successful_gh_command(
-        ["pr", "checks", pull_request.url, "--watch", "--fail-fast"],
-        CHECK_COMMAND_TIMEOUT_SECONDS,
-        "Waiting for pull request status checks",
-    )
+    try:
+        _run_successful_gh_command(
+            ["pr", "checks", pull_request.url, "--watch", "--fail-fast"],
+            CHECK_COMMAND_TIMEOUT_SECONDS,
+            "Waiting for pull request status checks",
+        )
+    except MergeGateError as error:
+        raise MergeGateError(
+            f"Status checks did not finish successfully for {pull_request.url}; merge was stopped. "
+            f"Inspect the checks with 'gh pr checks {pull_request.url}' before retrying. {error}"
+        ) from error
 
 
 # {

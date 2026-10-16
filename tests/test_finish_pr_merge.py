@@ -103,6 +103,8 @@ class FinishPullRequestMergeTests(unittest.TestCase):
 
         self.assertEqual(3, exit_code)
         self.assertIn("CI check failed", standard_error.getvalue())
+        self.assertIn(PULL_REQUEST_URL, standard_error.getvalue())
+        self.assertIn(f"gh pr checks {PULL_REQUEST_URL}", standard_error.getvalue())
         self.assertEqual(2, run_gh_mock.call_count)
         self.assertNotIn("merge", run_gh_mock.call_args_list[-1].args[0])
 
