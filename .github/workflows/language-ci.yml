@@ -171,31 +171,57 @@ jobs:
   lua:
     name: Lua syntax
     needs: detect-optional-languages
-    if: needs.detect-optional-languages.outputs.lua == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Validate Lua source detection
+        env:
+          SOURCE_PRESENT: ${{ needs.detect-optional-languages.outputs.lua }}
+        run: |
+          case "$SOURCE_PRESENT" in
+            true) echo "Lua sources detected; syntax checks will run." ;;
+            false) echo "No Lua sources detected; no Lua syntax checks apply." ;;
+            *) echo "Invalid Lua source detection result." >&2; exit 1 ;;
+          esac
       - uses: actions/checkout@v4
+        if: needs.detect-optional-languages.outputs.lua == 'true'
         with:
           persist-credentials: false
       - name: Install Lua 5.4
+        if: needs.detect-optional-languages.outputs.lua == 'true'
         run: sudo apt-get update && sudo apt-get install -y lua5.4
       - name: Check Lua syntax
+        if: needs.detect-optional-languages.outputs.lua == 'true'
         shell: bash
         run: find . -type f -name '*.lua' -not -path './.git/*' -print0 | xargs -0 -n1 luac5.4 -p
 
   dotnet:
     name: .NET build and test
     needs: detect-optional-languages
-    if: needs.detect-optional-languages.outputs.dotnet == 'true'
     runs-on: windows-latest
     steps:
+      - name: Validate .NET source detection
+        shell: pwsh
+        env:
+          SOURCE_PRESENT: ${{ needs.detect-optional-languages.outputs.dotnet }}
+        run: |
+          if ($env:SOURCE_PRESENT -notin @('true', 'false')) {
+            throw 'Invalid .NET source detection result.'
+          }
+          if ($env:SOURCE_PRESENT -eq 'false') {
+            Write-Host 'No .NET project or solution detected; no .NET checks apply.'
+          } else {
+            Write-Host '.NET sources detected; build and tests will run.'
+          }
       - uses: actions/checkout@v4
+        if: needs.detect-optional-languages.outputs.dotnet == 'true'
         with:
           persist-credentials: false
       - uses: actions/setup-dotnet@v4
+        if: needs.detect-optional-languages.outputs.dotnet == 'true'
         with:
           dotnet-version: '10.0.x'
       - name: Restore, build and test
+        if: needs.detect-optional-languages.outputs.dotnet == 'true'
         shell: pwsh
         run: |
           $target = Get-ChildItem -Recurse -Filter *.sln | Select-Object -First 1
@@ -210,22 +236,37 @@ jobs:
   node:
     name: JavaScript / TypeScript
     needs: detect-optional-languages
-    if: needs.detect-optional-languages.outputs.node == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Validate JavaScript / TypeScript source detection
+        env:
+          SOURCE_PRESENT: ${{ needs.detect-optional-languages.outputs.node }}
+        run: |
+          case "$SOURCE_PRESENT" in
+            true) echo "JavaScript / TypeScript sources detected; package checks will run." ;;
+            false) echo "No package.json detected; no JavaScript / TypeScript checks apply." ;;
+            *) echo "Invalid JavaScript / TypeScript source detection result." >&2; exit 1 ;;
+          esac
       - uses: actions/checkout@v4
+        if: needs.detect-optional-languages.outputs.node == 'true'
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
+        if: needs.detect-optional-languages.outputs.node == 'true'
         with:
           node-version: '22'
       - name: Require reproducible dependency lock
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: test -f package-lock.json
       - name: Install dependencies
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm ci
       - name: Test
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm test --if-present
       - name: Typecheck
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm run typecheck --if-present
       - name: Build
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm run build --if-present
