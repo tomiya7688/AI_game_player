@@ -17,6 +17,8 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Configure native runtime
         run: cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
       - name: Build native runtime
@@ -29,6 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Configure sanitized native tests
         run: cmake -S native -B build/native-sanitized -DCMAKE_BUILD_TYPE=Debug -DKADOKA_ENABLE_SANITIZERS=ON -DKADOKA_ENABLE_GCC_ANALYZER=ON
       - name: Build sanitized native tests
@@ -48,6 +52,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -81,6 +87,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -138,6 +146,8 @@ jobs:
       node: ${{ steps.detect.outputs.node }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - id: detect
         name: Detect language inputs
         shell: bash
@@ -165,6 +175,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install Lua 5.4
         run: sudo apt-get update && sudo apt-get install -y lua5.4
       - name: Check Lua syntax
@@ -178,6 +190,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -200,6 +214,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

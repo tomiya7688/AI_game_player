@@ -89076,6 +89076,374 @@
       ]
     },
     {
+      "dependencies": [
+        "tools",
+        "tools.workflow_security_check"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "date"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "tools",
+            "tools.workflow_security_check"
+          ],
+          "module": "tools.workflow_security_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "DANGEROUS_WORKFLOW_TRIGGER"
+            },
+            {
+              "alias": null,
+              "name": "INHERITED_REUSABLE_WORKFLOW_SECRETS"
+            },
+            {
+              "alias": null,
+              "name": "MISSING_WORKFLOW_PERMISSIONS"
+            },
+            {
+              "alias": null,
+              "name": "OVERBROAD_WORKFLOW_PERMISSIONS"
+            },
+            {
+              "alias": null,
+              "name": "PERSISTED_CHECKOUT_CREDENTIALS"
+            },
+            {
+              "alias": null,
+              "name": "UNTRUSTED_WORKFLOW_ARTIFACT"
+            },
+            {
+              "alias": null,
+              "name": "UNSAFE_SHELL_INTERPOLATION"
+            },
+            {
+              "alias": null,
+              "name": "scan_workflow_path"
+            },
+            {
+              "alias": null,
+              "name": "scan_workflow_text"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_workflow_security_check",
+      "path": "tests/test_workflow_security_check.py",
+      "source_location": {
+        "end_line": 182,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowSecurityCheckTests",
+          "parameters": [],
+          "qualified_name": "WorkflowSecurityCheckTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 178,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_minimal_permissions_and_environment_based_input_pass",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_minimal_permissions_and_environment_based_input_pass",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_and_overbroad_permission_mappings_are_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_missing_and_overbroad_permission_mappings_are_reported",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 57,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_write_permission_in_a_scope_is_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_write_permission_in_a_scope_is_reported",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pull_request_target_and_direct_event_shell_interpolation_are_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_pull_request_target_and_direct_event_shell_interpolation_are_reported",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_inline_workflow_run_and_direct_secret_shell_interpolation_are_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_inline_workflow_run_and_direct_secret_shell_interpolation_are_reported",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_workflow_run_artifact_download_checkout_and_secret_inheritance_are_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_workflow_run_artifact_download_checkout_and_secret_inheritance_are_reported",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 134,
+            "start_line": 109
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_true_checkout_credential_persistence_is_reported_at_its_setting",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_true_checkout_credential_persistence_is_reported_at_its_setting",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_valid_waiver_suppresses_only_the_named_permission_rule",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_valid_waiver_suppresses_only_the_named_permission_rule",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 154
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expired_waiver_does_not_suppress_a_permission_finding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_expired_waiver_does_not_suppress_a_permission_finding",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_current_workflow_directory_has_no_security_findings",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowSecurityCheckTests.test_current_workflow_directory_has_no_security_findings",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 178,
+            "start_line": 176
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [],
       "module": "tools",
@@ -96583,6 +96951,624 @@
             "column": 8,
             "end_line": 211,
             "start_line": 209
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Iterator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "date"
+            },
+            {
+              "alias": null,
+              "name": "datetime"
+            },
+            {
+              "alias": null,
+              "name": "timezone"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.workflow_security_check",
+      "path": "tools/workflow_security_check.py",
+      "source_location": {
+        "end_line": 411,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "WorkflowFinding",
+          "parameters": [],
+          "qualified_name": "WorkflowFinding",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 61,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_split_yaml_comment",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            }
+          ],
+          "qualified_name": "_split_yaml_comment",
+          "return_annotation": "tuple[str, str | None]",
+          "signature": "(line: str) -> tuple[str, str | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 82,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_remove_yaml_comment",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            }
+          ],
+          "qualified_name": "_remove_yaml_comment",
+          "return_annotation": "str",
+          "signature": "(line: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 86,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_has_valid_waiver",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rule"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            }
+          ],
+          "qualified_name": "_has_valid_waiver",
+          "return_annotation": "bool",
+          "signature": "(line: str, rule: str, current_date: date) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_add_finding",
+          "parameters": [
+            {
+              "annotation": "list[WorkflowFinding]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "findings"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rule"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line_number"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source_line"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            }
+          ],
+          "qualified_name": "_add_finding",
+          "return_annotation": "None",
+          "signature": "(findings: list[WorkflowFinding], workflow_path: Path, rule: str, line_number: int, message: str, source_line: str, current_date: date) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 119,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_permissions",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            },
+            {
+              "annotation": "list[WorkflowFinding]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "findings"
+            }
+          ],
+          "qualified_name": "_check_permissions",
+          "return_annotation": "None",
+          "signature": "(lines: list[str], workflow_path: Path, current_date: date, findings: list[WorkflowFinding]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 171,
+            "start_line": 122
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_find_dangerous_trigger",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "uncommented_line"
+            }
+          ],
+          "qualified_name": "_find_dangerous_trigger",
+          "return_annotation": "str | None",
+          "signature": "(uncommented_line: str) -> str | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 189,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_triggers_and_artifacts",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            },
+            {
+              "annotation": "list[WorkflowFinding]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "findings"
+            }
+          ],
+          "qualified_name": "_check_triggers_and_artifacts",
+          "return_annotation": "None",
+          "signature": "(lines: list[str], workflow_path: Path, current_date: date, findings: list[WorkflowFinding]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 230,
+            "start_line": 192
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_iter_run_script_lines",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            }
+          ],
+          "qualified_name": "_iter_run_script_lines",
+          "return_annotation": "Iterator[tuple[int, str, str]]",
+          "signature": "(lines: list[str]) -> Iterator[tuple[int, str, str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 254,
+            "start_line": 233
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_shell_interpolation",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            },
+            {
+              "annotation": "list[WorkflowFinding]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "findings"
+            }
+          ],
+          "qualified_name": "_check_shell_interpolation",
+          "return_annotation": "None",
+          "signature": "(lines: list[str], workflow_path: Path, current_date: date, findings: list[WorkflowFinding]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 280,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_checkout_credentials",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            },
+            {
+              "annotation": "list[WorkflowFinding]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "findings"
+            }
+          ],
+          "qualified_name": "_check_checkout_credentials",
+          "return_annotation": "None",
+          "signature": "(lines: list[str], workflow_path: Path, current_date: date, findings: list[WorkflowFinding]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 324,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_reusable_workflow_secrets",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            },
+            {
+              "annotation": "list[WorkflowFinding]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "findings"
+            }
+          ],
+          "qualified_name": "_check_reusable_workflow_secrets",
+          "return_annotation": "None",
+          "signature": "(lines: list[str], workflow_path: Path, current_date: date, findings: list[WorkflowFinding]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 340,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "scan_workflow_text",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_text"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            }
+          ],
+          "qualified_name": "scan_workflow_text",
+          "return_annotation": "list[WorkflowFinding]",
+          "signature": "(workflow_text: str, workflow_path: Path, current_date: date | None = …) -> list[WorkflowFinding]",
+          "source_location": {
+            "column": 0,
+            "end_line": 357,
+            "start_line": 343
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "scan_workflow_path",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_path"
+            },
+            {
+              "annotation": "date | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "current_date"
+            }
+          ],
+          "qualified_name": "scan_workflow_path",
+          "return_annotation": "list[WorkflowFinding]",
+          "signature": "(workflow_path: Path, current_date: date | None = …) -> list[WorkflowFinding]",
+          "source_location": {
+            "column": 0,
+            "end_line": 379,
+            "start_line": 360
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 407,
+            "start_line": 382
           }
         }
       ]

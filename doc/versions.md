@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #287: GitHub Actions workflow checkerでトップレベルtoken権限、write/all-scope grant、危険trigger、run scriptへのevent/input/output/secret直接展開、checkout credential永続化、workflow_run artifact、Reusable workflowのsecret継承を検査する。例外には規則ID、UTC有効期限、10文字以上の理由が必要で、期限切れ例外は抑止しない。7つのworkflowに`contents: read`が既に定義されていることを確認し、19個の読み取り用checkoutに`persist-credentials: false`を設定する。`finish_task.bat`と`.github/workflows/tests.yml`からcheckerを実行する。
 - Issue #341: ExecutionHistoryとKnowledgeStoreは共通のJSON配列writerで保存し、HistoryStoreは同じ原子保存基盤のstage APIで遅延確定する。共通保存基盤は同一ディレクトリの一時ファイルへ書き、ファイル内容をOSへ同期した後に置換する。ExecutionHistoryは不正JSONを上書きせず報告し、書込・置換失敗時に既存ファイルを保持する。
 - Issue #122: 現行実装と未実装の対策を区別したThreat Modelを追加する。ゲーム画面由来の間接Prompt Injection、UI偽装・誤対象、Provider / Remote data、Plugin、Artifact、path / archive、supply-chain、Resource exhaustion、反復入力を信頼境界ごとに記録し、各脅威のprevent / detect / contain / recover、残余リスク、関連test・CI・担当領域、更新条件を示す。Provider endpointはloopback既定だが画面から変更できること、Remote consent・Plugin隔離・外部Artifact intake・main required-check設定が未確認または未実装であることを明記する。
 - Issue #77: Contributor向けSubsystem Ownership Mapを追加し、9つのAreaについて現行コード、契約境界、関連Issue、作業スキル、レビュー感度、未指名の担当候補を整理する。READMEから地図へ移動できるようにし、未指名の領域別レビュアーを推測でCODEOWNERSへ割り当てない方針を記録する。現行リポジトリに存在しない`plugins/`の案内をruntime architectureから除き、MOD / Processing Hookの実装Issueを示す。
