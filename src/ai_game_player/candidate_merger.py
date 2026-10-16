@@ -14,22 +14,62 @@ class CandidateMerger:
         self.proximity = proximity
         self.iou_threshold = iou_threshold
 
+    # {
+    #   責務: [merge: 自動操作・認識文字・画像由来の候補を重複排除して判断一覧へ統合する]
+    #   処理: [候補の優先順位と確信度に従って代表候補を選び、入力元を含まない従来形式の一覧を返す]
+    #   引数: [automation: 利用者設定または自動操作から得た候補, ocr: 文字認識結果, image: 画像解析結果]
+    #   戻り値: [list[ActionCandidate]: 同じ画面要素を重複させず代表候補だけを含む一覧]
+    # }
     def merge(
         self,
         automation: list[ActionCandidate],
         ocr: Sequence[CandidateInput],
         image: Sequence[CandidateInput] | None = None,
     ) -> list[ActionCandidate]:
-        result: list[CandidateView] = [self._view(candidate, "automation") for candidate in automation]
+        return [
+            candidate
+            for candidate, _sources in self.merge_with_sources(automation, ocr, image)
+        ]
+
+    # {
+    #   責務: [merge_with_sources: 候補を統合し、代表候補に寄与した入力元も呼び出し元へ返す]
+    #   処理: [候補の優先順位と確信度で代表を選び、重複統合した入力元を自動操作・認識文字・画像の順で記録する]
+    #   引数: [automation: 利用者設定または自動操作から得た候補, ocr: 文字認識結果, image: 画像解析結果]
+    #   戻り値: [list[tuple[ActionCandidate, tuple[str, ...]]]: 代表候補とその候補を検出した入力元の組]
+    # }
+    def merge_with_sources(
+        self,
+        automation: list[ActionCandidate],
+        ocr: Sequence[CandidateInput],
+        image: Sequence[CandidateInput] | None = None,
+    ) -> list[tuple[ActionCandidate, tuple[str, ...]]]:
+        result: list[tuple[CandidateView, set[str]]] = [
+            (self._view(candidate, "automation"), {"automation"})
+            for candidate in automation
+        ]
         for group, candidates in (("ocr", ocr), ("image", image or [])):
             for value in candidates:
                 incoming = self._view(value, group)
-                duplicate = next((index for index, existing in enumerate(result) if self._same(existing, incoming)), None)
+                duplicate = next(
+                    (
+                        index
+                        for index, (existing, _sources) in enumerate(result)
+                        if self._same(existing, incoming)
+                    ),
+                    None,
+                )
                 if duplicate is None:
-                    result.append(incoming)
-                elif self._prefer(incoming, result[duplicate]):
-                    result[duplicate] = incoming
-        return [candidate for candidate, _, _ in result]
+                    result.append((incoming, {group}))
+                    continue
+                existing, existing_sources = result[duplicate]
+                merged_sources = existing_sources | {group}
+                representative = incoming if self._prefer(incoming, existing) else existing
+                result[duplicate] = (representative, merged_sources)
+        source_order = ("automation", "ocr", "image")
+        return [
+            (view[0], tuple(source for source in source_order if source in sources))
+            for view, sources in result
+        ]
 
     def _view(self, value: CandidateInput, group: str) -> CandidateView:
         if isinstance(value, DetectedElement):

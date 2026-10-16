@@ -44,3 +44,12 @@ class CandidateMergerTest(unittest.TestCase):
         result = CandidateMerger().merge([], [low, high])
         self.assertEqual([candidate.action_id for candidate in result], ["ocr-high"])
         self.assertEqual(result[0].confidence, .9)
+
+    def test_merged_candidate_reports_every_contributing_source(self):
+        configured = ActionCandidate("start", "click", "START", 50, 20, 1.0, bbox=(0, 0, 100, 40))
+        ocr = DetectedElement("ocr-start", "text", (0, 0, 100, 40), "tesseract", .8, "START")
+        image = DetectedElement("image-start", "region", (0, 0, 100, 40), "bright_region", 0.0)
+
+        merged = CandidateMerger().merge_with_sources([configured], [ocr], [image])
+
+        self.assertEqual(merged, [(configured, ("automation", "ocr", "image"))])

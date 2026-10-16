@@ -2,7 +2,54 @@
 
 ## Unreleased
 
-- Issue #341: ExecutionHistory・HistoryStore・KnowledgeStoreのJSON配列保存を共通化し、同一ディレクトリの一時ファイルへのflush/fsync後に原子的置換する。不正JSONを上書きせず報告し、書込・置換失敗時に既存ファイルを保持する。
+- Issue #341: ExecutionHistoryとKnowledgeStoreは共通のJSON配列writerで保存し、HistoryStoreは同じ原子保存基盤のstage APIで遅延確定する。共通保存基盤は同一ディレクトリの一時ファイルへ書き、ファイル内容をOSへ同期した後に置換する。ExecutionHistoryは不正JSONを上書きせず報告し、書込・置換失敗時に既存ファイルを保持する。
+- Issue #122: 現行実装と未実装の対策を区別したThreat Modelを追加する。ゲーム画面由来の間接Prompt Injection、UI偽装・誤対象、Provider / Remote data、Plugin、Artifact、path / archive、supply-chain、Resource exhaustion、反復入力を信頼境界ごとに記録し、各脅威のprevent / detect / contain / recover、残余リスク、関連test・CI・担当領域、更新条件を示す。Provider endpointはloopback既定だが画面から変更できること、Remote consent・Plugin隔離・外部Artifact intake・main required-check設定が未確認または未実装であることを明記する。
+- Issue #77: Contributor向けSubsystem Ownership Mapを追加し、9つのAreaについて現行コード、契約境界、関連Issue、作業スキル、レビュー感度、未指名の担当候補を整理する。READMEから地図へ移動できるようにし、未指名の領域別レビュアーを推測でCODEOWNERSへ割り当てない方針を記録する。現行リポジトリに存在しない`plugins/`の案内をruntime architectureから除き、MOD / Processing Hookの実装Issueを示す。
+- Issue #247: `CampaignRunner`に600秒PR/1800秒Releaseのprofile、対象ゲームごとに差し替える`CampaignEpisode`契約、deadlineまでのlive-input閉ループ、任意の`CampaignState` milestone callback、game-over後のepisode再起動、回数制限付きstall recoveryとstep上限を追加。callbackはaction後の状態を判定し、到達・判定失敗をstop reasonへ分ける。状態遷移をJSONLへ追記し、stop reason/failure category、milestone有効・到達状態、episode/restart/recovery数、last/peak score・score観測数・max tile、action-to-observation latency、Gitとpinned-game metadataをJSON reportへ保存する。2048のUP/DOWN/LEFT/RIGHT候補は対応するWindows仮想キーコードでNative SafetyGuardへ渡す。2048 episodeは画面状態を取得した後にFailSafeRuntimeの観測完了時刻を更新する。Windows CIで記録したaction-to-observationの最大値2,666msを超える猶予を設けるため、episodeの観測期限は5秒とする。5秒間観測時刻が更新されなければwatchdogが追加の実入力を拒否する。2048 CLIは専用browser HWNDへのwindow-message inputを使い、CIでPR profileを実行する。偽episodeの単体テストでduration、milestone、live-input条件、game-over restart、bounded recovery、hard failure分類、既存artifact保護を検証し、矢印キー変換、観測時刻の更新、FailSafe停止理由のartifact記録も単体テストする。
+- Issue #245: MIT版2048のソースを固定commitから取得するsource lockへGit tree SHAと全34ファイルのGit blob SHAを記録し、cacheに欠落・追加・変更されたファイルがあれば再利用を拒否する。検証済みsourceはloopback限定HTTP serverと専用Edge/Chrome profileでWindows上に起動し、launcherは起動したPIDと2048のwindow titleで対象を識別してdesktop内に最大1180×850で配置する。Windowsのforeground制限で前面化できない場合も起動を失敗させず、その状態をJSON出力へ記録する。終了時は起動したbrowser process tree・一時profile・HTTP serverを閉じ、検証済みsource cacheは再利用のため保持する。
+- Issue #246: pinned 2048画面のCSS色と4x4配置からboardを復元し、同じcapture時点のOCR Observationから現在scoreとgame-over状態を得るScreen Adapterを追加する。状態にはboard矩形・cell/board confidence・再現可能なstate signatureを記録し、board confidenceが0.65以上かつgame-overでない場合だけUP/DOWN/LEFT/RIGHTのkeyboard候補を返す。CSS・grid・OCRデータから作る合成pixel fixtureでboard/score/terminal/action経路を検証し、Windows launcher integration testでは起動windowのcaptureからboardと4候補を検査する。launcherは小さいWindows desktopで盤面全体をcaptureするためChromium device scale factorを0.75にする。
+- Issue #138: Play Workspaceの先頭へ「ゲーム / ウィンドウ」選択欄を配置する。ウィンドウ一覧の更新後も存在する選択対象は維持し、消えた選択対象は自動で別ウィンドウへ切り替えず再選択を求める。候補がない場合と一覧取得が失敗した場合は、利用者へ次の操作を表示する。
+- Issue #337: GUIの画面取得後、Observation内のOCR・画像候補と任意のAutomation候補をCandidateMergerで統合し、安全評価欄へ入力元と評価結果を表示する。Automation候補JSONは空配列のまま使える。画面previewは実行中Sessionの候補sourceを書き換えず、step開始時に評価した同じObservationと候補だけをSession sourceへ登録する。confidence `0.0` の画像候補は拒否する。
+- Issue #333: PythonとNative Runtimeのbright-region検出が明るさ・画素密度から実行信頼度を作らないようにする。両経路の明領域をUI要素として未確認のconfidence `0.0` で返し、画像候補だけの判断を候補評価器が拒否する。閉ループE2Eはsample gameのactive control情報と画面検出矩形を照合して実入力を検証する。
+- Issue #370: 同じタイトルのウィンドウをタイトルとHWNDで個別表示する処理に回帰テストを追加する。選んだウィンドウのHWNDが画面取得と実入力用Session runtimeの両方へ渡ることを確認する。
+- Issue #371: 連続実行が開始時に固定したdry-run／実入力modeを画面へ明示し、stepまたはloopの実行中は実入力許可checkboxを無効にする。Session modeとcheckbox表示が待機区間に食い違う状態を防ぐ。
+- Issue #369: window選択・入力・captureが使うuser32/gdi32関数にWindows ABIの引数・戻り値型を宣言し、HWND・HDC・HBITMAP・pointer値をx64で切り詰めず受け渡す。EnumWindows callback、CreateDIBSectionの構造体/pixel pointer、GDI handle戻り値、SendMessageTimeoutWの戻り値をABIに合わせ、64-bit相当HWNDを通すfake関数とWindows native DLLのprototype設定を検証する。
+- Issue #367: Windows入力APIが失敗した場合のエラーを具体化。SetCursorPosが失敗したクリックは押下を送らず、PostMessageWのキー・マウス送信失敗は対象操作と次の確認手順を日本語で表示する。API失敗時に成功結果を返さないことを実行境界のテストで確認し、偽Win32 APIの回帰テストでクリック抑止、Session停止の案内、押下状態の保持と解放再試行を検証する。
+- Issue #60: capture modeをdesktop全体・選択window全体・主画面上の固定pixel ROI・window内の正規化ROIから選択できるようにする。captureごとにwindow-relative領域を解決し、ROI外のpixelを画像/OCR解析へ渡さない。ROI内候補を選択windowまたはscreen座標へ変換し、逆変換とnormalized coordinates、mode・source・confidenceをObservation metadataへ保持する。capture regionを`data/config.json`へ保存し、旧configにはwindow全体を適用する。
+- Issue #39: `UnknownnessMonitor`へ認識・prototype距離・知識検索miss・評価器不一致・遷移曖昧さの正規化済み根拠を入力し、perceptual/semantic/action/transition/knowledgeの5scopeを別々に重み付き融合する。観測ごとの`instant_unknown`と、連続2回の閾値超過で開始し連続2回の回復で解除する`persistent_unknown`を分け、現在および保持中の根拠・確信度・出所を`unknownness/v1`で出力する。検出器入力を実行pipelineへ接続する処理とunknown時の行動選択は含まない。
+- Issue #43: Decision Provider出力を形式・型・許可候補・判断時の画面状態・理由と候補の矛盾で決定論的に検証し、4段階の状態と根拠・出所をDecision traceおよびAction Safety監査へ記録する。TRUSTは実施検査に通過した状態であり、正しさの保証ではない。REJECTはfail closed、非TRUSTはlive input前にverificationを要求する。レビュー対応で候補語境界・任意の後続修飾語・一文字候補・二重否定・クリック／押下の能動形と受動形、前置詞・冠詞・UI部品名を含む明示的な否定を検証し、英語・日本語とも候補一覧にある複合名の別候補を区別する。未実行判断だけを行動履歴から除外し、直前に実行した操作のOutcome結果はその操作のtraceと後続Decision Contextに保持する。終端結果でも変化・安定Evidenceを重み付けして `state_changed` を独立判定し、競合が強い場合は状態変化として扱わない。旧Ollama APIは省略された理由を空文字列へ補い、文字列以外の理由を拒否する。空候補の通信前拒否、schema失敗時のprovider provenance、Evaluator許可候補による独立groundingも追加検証し、Action SafetyとDecision Reliabilityの宣言コメントを責務・入力の意味・判断条件・結果まで説明する形へ改める。
+- Issue #259: 選択HWND専用のWindows Graphics Capture sessionをNative Runtime C ABI v1へ追加。寸法・packed BGRA・session内frame ID・monotonic時刻・lease中だけ有効なDirect3D texture handleを返し、caller-owned bufferへのcopyとtimeout付きframe取得を提供する。Pythonの`WindowsScreenCapture`は選択windowでsessionを再利用し、WGC非対応・取得失敗時は理由を保持してGDI fallbackを試す。Windows resize integration testとPython fake ABI・fallback・ObservationService lifecycle testを追加。
+
+- Issue #38: ゲーム固有presetに依存しないrolling SelfCheckMonitorを追加。scene/action/state cycle、連続no-progress、confidenceを考慮したexpected/actual outcomeの不一致、汎用Scene時間超過、confidenceとreliabilityに基づくevaluator disagreementをseverity・evidence付きeventとして報告する。判定保留Outcomeは停滞・不一致判定から除外し、継続中の不一致がWarningからCriticalへ上がった場合は再通知する。
+
+- Issue #32: `Application`が保持していた互換用Tkinter loop callbackと重複loop状態を削除し、開始・停止・step・連続実行を`GameSessionController`へ一本化。実行時責務境界の説明と、Application commandの委譲を検証する回帰テストを追加。
+
+- Issue #146: `LiveObservationService`がcaptureを直接実行する構造を、bounded latest queueを持つ`SharedFrameProducer`からObservation cadenceでsampleする構造へ変更。window変更時に未読の旧source frameを破棄し、freshness上限を超えたframeを拒否する。出力する`features.capture_metadata`にproducer-scoped frame ID、source世代、Event Journalと同じprocess-monotonic時計で表すcapture nanosecondsを含める。Application終了時にcapture producerを停止し、fake capture/analyzerによるstale・window変更・error・lifecycleのテストを追加。
+
+- Issue #142: Pythonのmodule/import/dependency/class/function/method/signature/data-model/source-locationを標準ASTから抽出するRepository Map Generatorとversion付きJSON Schemaを追加。include/exclude設定、出力先の上書き防止、platform-independent順序、PEP 263 encoding検出、decorator literal秘匿、atomic output、stale checkを提供し、本文・実行時挙動を推測せず`generated/repo_map.json`を生成する。
+
+- Issue #143: start_task.batが取得したIssue本文、Git statusの変更パス、Repository Mapを使い、関連module/symbolとtest候補を理由・ヒューリスティックconfidence付きで`.codex/next_issue.md`へ追加する。ファイル本文やdiff hunksは読まず、既存の文字数上限とIssue本文優先の切り詰め、必須`finish_task.bat`確認を維持する。
+
+- Issue #258: 1つのcapture backendから得た`ScreenFrame`を複数のconsumerへ配るShared Frame Producerを追加。`frame_id`とsource世代を付け、BGRA寸法・monotonic timestampを検証する。最新frame置換と順序維持のbounded queue、drop metrics、source切替、停止とcapture失敗通知をfake backendで検証する。
+
+- Issue #262: legacy History・DecisionTrace・Execution・Safety・RuntimeLogをSession Event Journalへ接続。旧JSON/JSONLを削除せず、recordをstable event ID付きで移行し、decision/execution/safetyの配列JSON全体を書き直さずにSession内Journalへ追記する。
+
+- Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。
+- Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingはproviderが報告したinput-copy metricsを受け入れ、capacity retryを含む各ABI呼び出しの値を合算する。FrameAnalyzer注入点と同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
+- Issue #147: GUIからProvider・Pipeline・候補評価器の生成をRuntimeCompositionへ分離。GameSessionControllerが保持するPipelineとProviderをSession中に共有し、終了時はPipelineを先に閉じてProviderを解放する。部分初期化・終了失敗をFakeで検証し、失敗したresourceだけを再試行できるようにする。
+
+- Issue #145: start/stop/one-step/continuous-loopをTkinterからGUI-freeのGameSessionControllerへ移動。repeat/outcome stop policy、generation-guarded timer cancellation、error/terminal lifecycleとSession-scoped DecisionPipeline/Engineの再利用・一括shutdownを追加し、fake runtime/schedulerで検証。
+
+- Issue #145 review follow-up: 実入力許可の解除で即時停止し、各実行stepでも再検証。loop observer例外をFAILEDへ遷移させ、終了に失敗したruntimeを保持して再開を拒否。状態通知失敗を隔離し、各経路を回帰テスト。
+- Issue #331: 判断時に評価・許可された候補オブジェクトを実行まで引き継ぎ、操作IDから元候補を再検索しないようにする。操作IDが重複する候補はすべて拒否し、Providerが候補リストを同じIDの別候補へ置き換えても元の評価済み候補だけを実行する。Decision Contextには一括評価した重複拒否理由を記録し、既存の`GamePlayerEngine.step()`拡張も実行経路で呼び出す。
+
+- Issue #332: Ollamaの画面評価・候補判断をUI thread外で実行し、推論中の停止を受理する。実行中のキー保持・待機もRunControllerの停止状態とstep開始世代を監視して中断し、保持キーを解除する。停止後・再開後に返った旧推論結果は判断履歴と実入力へ進めず、停止理由をログへ記録する。mouse方式の連続実行では、入力workerがSetCursorPosの開始・完了とクリック先をUIへ通知し、自動カーソル移動を手動移動による停止と誤認しない。未通知の手動カーソル移動による停止は維持する。
+
+- PR #345: 重複した画面評価workerは起動順IDで新旧を判定し、最新より古い結果を観測履歴・評価表示へ反映しない。停止中に完了した手動画面評価は実行世代に関係なく評価表示へ反映する。古い評価結果が現在有効な連続実行stepに属する場合は連続実行を停止する。「再開」操作で実行世代が更新された場合も旧連続実行状態と予約callbackを解除し、旧workerの結果を破棄した後に連続実行を再開できる状態に戻す。
+
+- PR #345: 判断履歴と判断traceを一時ファイルへ先に準備し、RunControllerが実行世代を検証してから両ファイルとエンジンの前回判断状態を公開する。Stopが一時ファイル準備中に届いた場合、workerは未公開データを破棄する。
+
+ - Issue #336: 実入力開始時に対象HWND/PIDの選択・有効性を検証し、HWND再利用による別プロセスへの入力を実行直前に拒否する。連続実行は対象未選択で開始せず、各ステップ失敗時に停止する。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 

@@ -52,6 +52,34 @@ class ExecutionHistoryTest(unittest.TestCase):
             self.assertEqual(list(Path(directory).glob(".execution_history.json.*.tmp")), [])
 
     # {
+    #   責務: [test_failed_temporary_write_preserves_previous_history: 一時ファイルの書込失敗時に既存履歴を保護する]
+    #   処理: [一時ファイルへ一部を書いた後で失敗させ、既存内容と一時ファイルの後始末を検証する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def test_failed_temporary_write_preserves_previous_history(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "execution_history.json"
+            original = '[{"action_id":"before","executed":false,"mode":"dry_run","detail":""}]'
+            path.write_text(original, encoding="utf-8")
+
+            def fail_after_partial_write(_entries, temporary_file, **_options):
+                temporary_file.write("[")
+                raise OSError("disk error")
+
+            with patch(
+                "ai_game_player.atomic_json.json.dump",
+                side_effect=fail_after_partial_write,
+            ):
+                with self.assertRaisesRegex(OSError, "disk error"):
+                    ExecutionHistory(path).append(
+                        ExecutionResult("after", True, "live", "done")
+                    )
+
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
+            self.assertEqual(list(Path(directory).glob(".execution_history.json.*.tmp")), [])
+
+    # {
     #   責務: [test_malformed_json_is_reported_without_overwrite: 不正JSONを上書きせず報告する]
     #   処理: [不正内容でappendしValueErrorと原文保持を検証する]
     #   引数: []

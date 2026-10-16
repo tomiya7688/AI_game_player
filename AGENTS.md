@@ -50,6 +50,7 @@ Non-negotiable constraints:
 | Recognition / OCR / candidates | `frame_analyzer.py`, `ocr_recognizer.py`, `ocr_detector.py`, `region_detector.py`, `candidate_merger.py`, matching `tests/test_*.py` | `doc/画像解析機能説明書.md`, `doc/OCR候補検出機能説明書.md`, `doc/候補統合機能説明書.md` |
 | Capture / observation | `screen_capture.py`, `captured_source.py`, `observation_source.py`, matching tests | `doc/画面キャプチャ機能説明書.md`, `doc/観測入力機能説明書.md` |
 | Decision / provider / outcome | `pipeline.py`, `engine.py`, `provider.py`, `evaluator.py`, `outcome.py`, matching tests | `doc/判断パイプライン機能説明書.md`, `doc/評価指標機能説明書.md` |
+| Session control / lifecycle | `game_session.py`, `run_control.py`, `app.py`, `tests/test_game_session.py` | Issue #145; read only when session lifetime or continuous execution is in scope |
 | Execution / safety | `action_executor.py`, `windows_input.py`, `run_control.py`, `execution_mode.py`, matching tests | `doc/操作実行機能説明書.md` |
 | Runtime architecture / native boundary | `src/ai_game_player/runtime/`, `native/include/kadoka/runtime_api.h`, matching tests | `doc/architecture/runtime_layers.md`, Issues #56/#57 |
 | Architecture / quality gates | `doc/UPDCommander導入方針.md`, `src/ai_game_player/applications/quality/`, `tools/bug_check.py`, `tools/performance_check.py` | `.github/workflows/upd-architecture-ci.yml`, `.github/workflows/performance-ci.yml`, `.github/workflows/bug-ci.yml` |

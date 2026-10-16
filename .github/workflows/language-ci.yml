@@ -22,7 +22,7 @@ jobs:
       - name: Build native runtime
         run: cmake --build build/native --config Release --parallel
       - name: Test native runtime
-        run: ctest --test-dir build/native -C Release --output-on-failure
+        run: ctest --repeat until-fail:5 --test-dir build/native -C Release --output-on-failure
 
   native-sanitizers:
     name: Native C++ ASan + UBSan + GCC analyzer
@@ -76,18 +76,52 @@ jobs:
           if-no-files-found: error
 
   windows-e2e:
-    name: Windows closed-loop sample E2E
+    name: Windows sample loop and 2048 campaign E2E
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - name: Run capture-recognition-decision-live-input loop to milestone
+      - name: Run sample-control-confirmed live input loop to milestone
         shell: pwsh
         env:
           PYTHONPATH: "src;."
         run: python tools/run_windows_e2e.py --steps 24
+      - name: Build Native Runtime for Windows Graphics Capture
+        shell: pwsh
+        run: |
+          cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) {
+            throw "Native Runtime CMake configuration failed with exit code $LASTEXITCODE"
+          }
+          cmake --build build/native --config Release --parallel
+          if ($LASTEXITCODE -ne 0) {
+            throw "Native Runtime build failed with exit code $LASTEXITCODE"
+          }
+          $nativeRuntime = Get-ChildItem -Path build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
+          if (-not $nativeRuntime) {
+            throw "Native Runtime build completed without producing kadoka_native_runtime.dll"
+          }
+          "KADOKA_NATIVE_RUNTIME=$($nativeRuntime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Launch the pinned 2048 game in its owned browser window
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          KADOKA_RUN_2048_INTEGRATION: "1"
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
+      - name: Verify a second live 2048 episode can capture after restart
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          KADOKA_RUN_2048_INTEGRATION: "1"
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_2048_campaign.py" -v
+      - name: Run the 600-second pinned-game campaign
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr
       - uses: actions/upload-artifact@v4
         if: always()
         with:

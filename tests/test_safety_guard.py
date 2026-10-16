@@ -131,6 +131,18 @@ class FakeExecutor:
 
 
 class SafetyGuardTest(unittest.TestCase):
+    def test_native_safety_validator_maps_arrow_labels_to_windows_virtual_keys(self):
+        expected_codes = {
+            "LEFT": 0x25,
+            "UP": 0x26,
+            "RIGHT": 0x27,
+            "DOWN": 0x28,
+        }
+
+        for label, expected_code in expected_codes.items():
+            with self.subTest(label=label):
+                self.assertEqual(NativeSafetyValidator._key_descriptor(label), (expected_code, 0))
+
     @unittest.skipUnless(os.environ.get("KADOKA_NATIVE_RUNTIME"), "requires the native Safety CI library")
     def test_native_safety_validator_loads_built_library_and_validates_actions(self):
         validator = NativeSafetyValidator.try_load()
@@ -148,9 +160,16 @@ class SafetyGuardTest(unittest.TestCase):
             height=480,
             max_hold_seconds=0.5,
         )
+        arrow_allowed, arrow_reason = validator.validate(
+            ActionCandidate("native-arrow-key", "key", "UP"),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
 
         self.assertEqual((allowed, allowed_reason), (True, 0))
         self.assertEqual((denied, denied_reason), (False, 5))
+        self.assertEqual((arrow_allowed, arrow_reason), (True, 0))
 
     def test_native_safety_validator_loads_and_calls_the_ctypes_abi_contract(self):
         class FakeNativeFunction:

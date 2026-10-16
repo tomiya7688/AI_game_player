@@ -3,6 +3,28 @@ import ast
 from pathlib import Path
 
 
+# {
+#   責務: [
+#     render_sequence_diagram: 対象method内の直接呼び出しをsource順のMermaid図へ変換する
+#   ]
+#   処理: [
+#     1: source fileをASTへ変換する
+#     2: 対象classとmethodを探す
+#     3: method直下の呼び出しを行位置順に並べる
+#     4: 呼び出し順をMermaid sequence diagramへ出力する
+#   ]
+#   引数: [
+#     source_file: 解析するPython source file
+#     class_name: 呼び出しを抽出するclass名
+#     method_name: 呼び出しを抽出するmethod名
+#   ]
+#   戻り値: [
+#     str: Mermaid形式のsequence diagram
+#   ]
+#   エラー: [
+#     ValueError: 指定したclassまたはmethodが存在しない
+#   ]
+# }
 def render_sequence_diagram(source_file: Path, class_name: str, method_name: str) -> str:
     tree = ast.parse(source_file.read_text(encoding="utf-8"), filename=str(source_file))
     target = next((node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == class_name), None)
@@ -12,9 +34,15 @@ def render_sequence_diagram(source_file: Path, class_name: str, method_name: str
     if method is None:
         raise ValueError(f"method not found: {class_name}.{method_name}")
     lines = ["sequenceDiagram", "    participant caller as Caller", f"    participant target as {class_name}"]
-    for node in ast.walk(method):
-        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
-            continue
+    call_nodes = sorted(
+        (
+            node
+            for node in ast.walk(method)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+        ),
+        key=lambda node: (node.lineno, node.col_offset),
+    )
+    for node in call_nodes:
         receiver = ast.unparse(node.func.value)
         participant = receiver.replace("self", class_name)
         lines.append(f"    caller->>target: {participant}.{node.func.attr}()")
