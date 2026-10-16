@@ -1,0 +1,106 @@
+{
+  "source_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "browser_version": "155.0.4283.45",
+  "capture_method": "playwright-headless-page-screenshot",
+  "viewport_css_pixels": {
+    "width": 1180,
+    "height": 850
+  },
+  "device_scale_factor": 1.0,
+  "width": 1180,
+  "height": 850,
+  "bgra_sha256": "8a077cc5f820bec6a4d4e5ab71ad4e64d944b7b51d79197dd2469bd84efd00d9",
+  "expected_board": [
+    [
+      2,
+      4,
+      8,
+      16
+    ],
+    [
+      4,
+      8,
+      16,
+      32
+    ],
+    [
+      8,
+      16,
+      32,
+      64
+    ],
+    [
+      16,
+      32,
+      64,
+      2
+    ]
+  ],
+  "expected_game_over": true,
+  "recognition": {
+    "board": [
+      [
+        2,
+        4,
+        8,
+        16
+      ],
+      [
+        4,
+        8,
+        16,
+        32
+      ],
+      [
+        8,
+        16,
+        32,
+        64
+      ],
+      [
+        16,
+        32,
+        64,
+        2
+      ]
+    ],
+    "board_bbox": [
+      340,
+      274,
+      500,
+      500
+    ],
+    "cell_confidence": [
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "confidence": 1.0,
+    "game_over": true,
+    "score": null,
+    "score_confidence": 0.0,
+    "state_signature": "bc0f7d7f03b70ce4d4a02029ae00e2e9a3cf24831cca90c4644a9a5c3a6a35f5"
+  },
+  "candidate_count": 0
+}

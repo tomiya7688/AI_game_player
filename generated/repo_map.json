@@ -49167,6 +49167,200 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.models",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "zlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "zlib"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "SOURCE_LOCK_PATH"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_2048_terminal_render",
+      "path": "tests/test_2048_terminal_render.py",
+      "source_location": {
+        "end_line": 39,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Rendered2048TerminalTests",
+          "parameters": [],
+          "qualified_name": "Rendered2048TerminalTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_terminal_text_and_retry_button_preserve_board_recognition_without_ocr",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Rendered2048TerminalTests.test_terminal_text_and_retry_button_preserve_board_recognition_without_ocr",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 35,
+            "start_line": 19
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.models"
       ],
@@ -95048,6 +95242,244 @@
             "column": 4,
             "end_line": 281,
             "start_line": 243
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.models",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "zlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "zlib"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "LoopbackStaticServer"
+            },
+            {
+              "alias": null,
+              "name": "find_browser_executable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "PinnedGameSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 29,
+          "local_dependencies": [],
+          "module": "PIL",
+          "names": [
+            {
+              "alias": null,
+              "name": "Image"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [],
+          "module": "playwright.sync_api",
+          "names": [
+            {
+              "alias": null,
+              "name": "sync_playwright"
+            }
+          ]
+        }
+      ],
+      "module": "tools.render_2048_terminal_fixture",
+      "path": "tools/render_2048_terminal_fixture.py",
+      "source_location": {
+        "end_line": 110,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 106,
+            "start_line": 24
           }
         }
       ]

@@ -97,3 +97,20 @@ PNGは画面確認用の無損失RGB画像です。`.bgra`は上から下へのr
 `failure_detail`の`failure_evidence=`には保存を完了したmanifestのpathが入ります。保存に失敗した場合は`failure_evidence_error=`に理由を追記し、元の`recognition_failure`を維持します。reportのmetadataは`failure_evidence_enabled`と`screenshot_policy`（`off`または`recognition_failure_only`）で保存設定を示します。設定の有効化だけではファイルが保存されたことを意味しないため、manifestの存在とhashを確認してください。
 
 `language-ci`のWindows campaignは保存オプションを指定し、失敗時も既存の`kadoka-windows-e2e-trace` artifactへbundleを含めます。診断保存によって、認識confidenceの最低値、観測の5秒期限、認識失敗時の停止分類は変えません。
+
+## 終了画面の文字と再試行ボタンを保存画素で検査する
+
+認識器を変更する開発者向けに、`tests/fixtures/2048/terminal-render/`へ固定版2048の終了画面を保存しています。PNGは目視確認用、`.bgra.zlib`はzlibで圧縮したpacked BGRA、JSONは寸法・画素のSHA-256・生成元commit・ブラウザ版・期待する盤面を記録します。fixtureのライセンスと生成条件は同directoryの`README.md`にあります。
+
+`tests/test_2048_terminal_render.py`は、0.75倍・1倍の保存画素だけをAdapterへ渡し、OCRなしで16 cellの値、終了状態、候補0件、confidence 0.65以上を確認します。通常のunit testはブラウザ、Pillow、playwrightを使いません。headless描画を再生するテストなので、WindowsのHWND captureや実入力、自然なゲーム進行による終了を検証しません。保存した終了画面を認識できることだけでは、Issue #459の過去のCI失敗が解消したとは判断できません。
+
+Windows上でfixtureを再生成する開発者は、EdgeまたはChromeと任意の開発依存を用意して次のコマンドを実行してください。生成ツールはhash検証済みの固定版ソースをlocalhostで配信し、専用headlessブラウザの保存状態に決定的な終了盤面を設定します。ゲーム本体の描画処理とCSSで終了画面を表示し、overlayのanimation完了後に撮影します。認識器にはゲーム内部状態やDOMを渡しません。
+
+```powershell
+python -m pip install Pillow playwright
+$env:PYTHONPATH = "src;."
+python -m tools.render_2048_terminal_fixture --output-directory tests/fixtures/2048/terminal-render
+python -m unittest discover -s tests -p test_2048_terminal_render.py -v
+```
+
+生成ツールは指定先の同名PNG・BGRA・JSONを上書きします。初期出力先は`build/e2e/terminal-render`です。再生成後はPNGの文字とボタンを目視確認し、JSONの生成条件とunit test結果を確認してください。ブラウザのfont・描画環境によって画素hashが変わるため、再生成時のhash一致は合格条件にしません。保存済みBGRAと対応するJSONのhash一致はunit testで検査します。

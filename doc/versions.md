@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #459: 固定版2048をheadlessブラウザで描画した、文字と再試行ボタンを含む終了画面の再生fixtureを追加する。0.75倍・1倍のBGRAとSHA-256、生成元commit、ブラウザ版を保存し、通常のunit testでOCRなしの盤面復元・終了判定・操作候補なしを確認する。生成ツールは任意依存Pillow・playwrightを使い、通常テストは追加依存なしで保存済み画素を検査する。HWND取得や過去のCI失敗の再現を証明するテストではない。
 - Issue #459: 固定版2048のCLIに既定OFFの`--save-failure-evidence`を追加する。認識失敗時だけ最後に受理した画面と最新取得画面をPNG・正確なBGRAで保存し、認識結果、寸法、取得時刻、frame ID、SHA-256、失敗診断をmanifestへ対応付ける。CIで保存を有効にし、artifactから認識失敗の原因を調べられるようにする。診断保存の失敗は元の認識失敗を置き換えず、保存先は新規directoryとして既存証拠を保持する。
 - Issue #459: 2048 campaignが新しいwindow frameを取得した直後、画像解析や操作候補の検証を待たずにFailSafeRuntimeへ観測時刻を記録する。最初のplayable boardでFailSafeをre-armする順序と5秒の安全期限は変えず、画面状態の取得・解析が続く間は実入力を開始しない。認識timeout reportには、盤面confidenceに加えて候補生成に必要な最低confidenceも記録する。raw frame取得後に観測更新callbackが動く順序と、episode初回・2回目の観測更新を回帰テストで確認する。
 - Issue #287: GitHub Actions workflow checkerでトップレベルtoken権限、write/all-scope grant、危険trigger、run scriptへのevent/input/output/secret直接展開、checkout credential永続化、workflow_run artifact、Reusable workflowのsecret継承を検査する。例外には規則ID、UTC有効期限、10文字以上の理由が必要で、期限切れ例外は抑止しない。7つのworkflowに`contents: read`が既に定義されていることを確認し、19個の読み取り用checkoutに`persist-credentials: false`を設定する。`finish_task.bat`と`.github/workflows/tests.yml`からcheckerを実行する。
