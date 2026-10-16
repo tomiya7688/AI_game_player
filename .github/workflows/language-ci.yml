@@ -129,7 +129,7 @@ jobs:
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr
+        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:

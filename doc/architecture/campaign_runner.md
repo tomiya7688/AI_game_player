@@ -6,7 +6,9 @@
 
 ## 現在の実装範囲
 
-`src/ai_game_player/campaign_runner.py` はLevel固有の `CampaignEpisode` と `CampaignConfig` を外部へ公開するimport入口です。`campaign_contract.py` は状態・操作結果・設定・failure分類の型を定義し、`campaign_loop.py` はepisode lifecycleとdeadline loopを実行し、`campaign_execution.py` はartifactと最終reportを管理します。`campaign_artifacts.py` はJSONL eventとmetric集計だけを担当します。Issue #247の2048実装は `tools/run_2048_campaign.py` がepisodeを作り、固定版2048のwindowだけを操作します。2048 episodeの `observe()` は画面状態を取得した後に `DecisionPipeline.record_observation()` を呼び、FailSafeRuntimeの観測完了時刻を更新します。Windows CIで記録したaction-to-observationの最大値は2,666msであるため、2048 episodeの観測期限を5秒に設定します。観測時刻が5秒間更新されない場合、FailSafe watchdogは追加の実入力を拒否します。
+`src/ai_game_player/campaign_runner.py` はLevel固有の `CampaignEpisode` と `CampaignConfig` を外部へ公開するimport入口です。`campaign_contract.py` は状態・操作結果・設定・failure分類の型を定義し、`campaign_loop.py` はepisode lifecycleとdeadline loopを実行し、`campaign_execution.py` はartifactと最終reportを管理します。`campaign_artifacts.py` はJSONL eventとmetric集計だけを担当します。Issue #247の2048実装は `tools/run_2048_campaign.py` がepisodeを作り、固定版2048のwindowだけを操作します。
+
+2048 episodeは初回の操作可能な盤面を取得した後にFailSafeRuntimeをre-armし、`DecisionPipeline.record_observation()`で観測時刻を記録します。同じepisodeの2回目以降は、新しいwindow frameを取得した直後に観測時刻を記録し、画像解析と候補検証を続けます。盤面と候補を受理するまで次のactionへ進みません。観測期限は5秒で、観測時刻が5秒間更新されない場合はFailSafe watchdogが追加の実入力を拒否します。
 
 PR用profileは600秒、Release用profileは1800秒です。利用者は `--duration-seconds` で実行時間を上書きできます。Campaign Runnerの成功条件は設定時間までlive OS inputを少なくとも1回検証し、設定したstep、terminal restart、cleanup条件に違反せず終了することです。2048のscoreやtile値は記録値であり、成功判定のしきい値ではありません。
 
@@ -67,8 +69,31 @@ Runnerの `success` は `duration_reached` または `milestone_reached` で停�
 
 ## Artifactsとmetric
 
-`trace.jsonl` はcampaign開始、episode開始、terminal検出、action、stall recovery、failure、summaryを1行1 JSON objectで保存します。画面の生画像は記録しません。`report.json` はduration、elapsed time、stop reason、action/step数、episode/restart/recovery数、last/peak score、scoreを得た観測数、最大tile、actionから次画面観測までのlatency集計、git/source metadataを保存します。`TesseractOcrRecognizer`とTesseract executableが利用可能な環境ではAdapterが現在scoreを記録します。OCRが利用できない場合、`last_score`と`peak_score`は`null`になり、`score_samples`は0、`metadata.score_ocr_enabled`は`false`です。最大tileは画像から認識したboardから集計します。
+`trace.jsonl` はcampaign開始、episode開始、terminal検出、action、stall recovery、failure、summaryを1行1 JSON objectで保存します。画面の生画像は既定では記録しません。`report.json` はduration、elapsed time、stop reason、action/step数、episode/restart/recovery数、last/peak score、scoreを得た観測数、最大tile、actionから次画面観測までのlatency集計、git/source metadataを保存します。`TesseractOcrRecognizer`とTesseract executableが利用可能な環境ではAdapterが現在scoreを記録します。OCRが利用できない場合、`last_score`と`peak_score`は`null`になり、`score_samples`は0、`metadata.score_ocr_enabled`は`false`です。最大tileは画像から認識したboardから集計します。
 
 Runnerは既存のtraceまたはreportを上書きしません。出力先を使い回さず、新しいrun directoryへ保存します。CLIはUTC時刻を含むrun directoryを作成します。
 
 `campaign_started` eventと`report.json`は、milestone callbackが設定されたかを `milestone_enabled` で示します。reportはcallbackが目標到達を返したかを `milestone_reached` で示します。traceはaction後に目標へ到達したとき `milestone_reached` eventを記録します。
+
+## 固定版2048の認識失敗を画像から調査する手順
+
+Windowsで固定版2048の開発用campaignを実行する開発者は、`--save-failure-evidence`を指定すると、認識失敗の原因を画像と画素データから調べられます。CLIは専用Edge / Chrome windowを起動して実入力を送信します。保存対象はCLIが起動した固定版2048のwindowであり、desktop全体ではありません。
+
+```powershell
+$env:PYTHONPATH = "src;."
+python tools/run_2048_campaign.py --profile pr --save-failure-evidence
+```
+
+オプションを指定しない場合、CLIは画面を保存しません。指定した場合も、正常な観測中は最後に受理したframeを一枚だけメモリに保持します。認識timeout、画像解析例外、Adapterの状態欠落のいずれかで停止すると、対象episodeのruntime directory内に新しい`recognition-failure-*` directoryを作成します。既存bundleを上書きしません。
+
+| ファイル | 調査できる内容 |
+| --- | --- |
+| `manifest.json` | 元の失敗理由、対象HWND、試行数などの診断値と、各frameの寸法・取得時刻・frame ID・BGRA SHA-256・盤面とconfidence |
+| `last-playable.png` / `.bgra` | 最後に受理した盤面。episode内で一度も受理していなければ保存しません |
+| `last-captured.png` / `.bgra` | 認識に失敗した最後の取得画面。新たなcaptureは行わず、実際に解析したframeを保存します |
+
+PNGは画面確認用の無損失RGB画像です。`.bgra`は上から下へのrow順、paddingなし、1 pixelあたりB・G・R・Aの4 byteです。認識器へ同じ画素を再入力する場合は、manifestのwidth・heightと`.bgra`から`ScreenFrame`を作成してください。PNGではalphaを表示に使いませんが、BGRAには元のalphaも保存します。
+
+`failure_detail`の`failure_evidence=`には保存を完了したmanifestのpathが入ります。保存に失敗した場合は`failure_evidence_error=`に理由を追記し、元の`recognition_failure`を維持します。reportのmetadataは`failure_evidence_enabled`と`screenshot_policy`（`off`または`recognition_failure_only`）で保存設定を示します。設定の有効化だけではファイルが保存されたことを意味しないため、manifestの存在とhashを確認してください。
+
+`language-ci`のWindows campaignは保存オプションを指定し、失敗時も既存の`kadoka-windows-e2e-trace` artifactへbundleを含めます。診断保存によって、認識confidenceの最低値、観測の5秒期限、認識失敗時の停止分類は変えません。

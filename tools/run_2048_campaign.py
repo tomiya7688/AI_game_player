@@ -30,7 +30,8 @@ from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.pipeline import DecisionPipeline
-from ai_game_player.screen_capture import WindowsScreenCapture
+from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
+from tools.recognition_failure_evidence import RecognitionFailureEvidence
 from tools.reference_game_2048_launcher import ReferenceGame2048Launcher
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 
@@ -48,11 +49,17 @@ DIRECTION_ACTION_IDS = (
 
 
 class Cached2048ObservationSource:
-    def __init__(self, window_handle: int, ocr_recognizer: object | None) -> None:
+    def __init__(
+        self,
+        window_handle: int,
+        ocr_recognizer: object | None,
+        failure_evidence: RecognitionFailureEvidence | None = None,
+    ) -> None:
         self.window_handle = window_handle
         self.capture = WindowsScreenCapture()
         self.analyzer = FrameAnalyzer(ocr_recognizer)
         self.adapter = ReferenceGame2048Adapter()
+        self.failure_evidence = failure_evidence
         self._cached_read: tuple[ScreenObservation, list[ActionCandidate]] | None = None
 
     def capture_playable_state(
@@ -68,6 +75,7 @@ class Cached2048ObservationSource:
         last_candidate_count = 0
         last_frame_signature = ""
         frame_signatures: set[str] = set()
+        last_frame: ScreenFrame | None = None
         while time.monotonic() < deadline:
             capture_attempts += 1
             try:
@@ -77,15 +85,18 @@ class Cached2048ObservationSource:
                     "capture_failure",
                     f"2048 window capture failed: {type(error).__name__}: {error}",
                 ) from error
+            last_frame = frame
             if on_fresh_frame is not None:
                 on_fresh_frame()
             try:
                 observation = self.analyzer.analyze(frame, "live-2048-campaign")
                 adapted, candidates = self.adapter.adapt(frame, observation)
             except Exception as error:
-                raise CampaignFailure(
-                    "recognition_failure",
+                raise self._recognition_failure(
                     f"2048 screen analysis failed: {type(error).__name__}: {error}",
+                    frame,
+                    {},
+                    {"capture_attempts": capture_attempts},
                 ) from error
 
             frame_signature = observation.features.get("signature")
@@ -95,9 +106,11 @@ class Cached2048ObservationSource:
 
             raw_state = adapted.features.get("game_2048")
             if not isinstance(raw_state, dict):
-                raise CampaignFailure(
-                    "recognition_failure",
+                raise self._recognition_failure(
                     "2048 screen adapter did not return its game state",
+                    frame,
+                    {},
+                    {"capture_attempts": capture_attempts},
                 )
             last_state = raw_state
             board = raw_state.get("board")
@@ -125,6 +138,8 @@ class Cached2048ObservationSource:
                     default=0,
                 )
                 self._cached_read = (adapted, candidates)
+                if self.failure_evidence is not None:
+                    self.failure_evidence.record_playable(frame, raw_state)
                 return CampaignState(signature, terminal, score, max_tile)
             time.sleep(SCREEN_READY_POLL_SECONDS)
 
@@ -134,8 +149,7 @@ class Cached2048ObservationSource:
             "minimum_candidate_confidence",
             None,
         )
-        raise CampaignFailure(
-            "recognition_failure",
+        raise self._recognition_failure(
             "2048 board did not become actionable within "
             f"{SCREEN_READY_TIMEOUT_SECONDS:g} seconds; "
             f"capture_attempts={capture_attempts}; "
@@ -147,7 +161,40 @@ class Cached2048ObservationSource:
             f"last_frame_signature={last_frame_signature or 'unavailable'}; "
             f"candidate_confidence_threshold={candidate_confidence_threshold!r}; "
             f"board_confidence={confidence!r}",
+            last_frame,
+            last_state,
+            {
+                "capture_attempts": capture_attempts,
+                "last_frame_signature": last_frame_signature,
+                "distinct_frame_signatures": len(frame_signatures),
+                "candidate_confidence_threshold": candidate_confidence_threshold,
+                "actionable_candidate_count": last_candidate_count,
+            },
         )
+
+    def _recognition_failure(
+        self,
+        detail: str,
+        frame: ScreenFrame | None,
+        game_state: dict[str, object],
+        diagnostics: dict[str, object],
+    ) -> CampaignFailure:
+        if self.failure_evidence is not None:
+            try:
+                manifest = self.failure_evidence.save_failure(
+                    frame,
+                    game_state,
+                    {
+                        **diagnostics,
+                        "failure_detail": detail,
+                        "window_handle": self.window_handle,
+                        "capture_backend_error": getattr(self.capture, "last_backend_error", None),
+                    },
+                )
+                detail += f"; failure_evidence={manifest}"
+            except Exception as error:
+                detail += f"; failure_evidence_error={type(error).__name__}: {error}"
+        return CampaignFailure("recognition_failure", detail)
 
     def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
         cached_read = self._cached_read
@@ -201,6 +248,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
         runtime_root: Path,
         browser_path: Path | None,
         ocr_recognizer: object | None,
+        save_failure_evidence: bool = False,
     ) -> None:
         self.episode_number = episode_number
         self.launcher = ReferenceGame2048Launcher(cache_root, browser_path)
@@ -216,7 +264,12 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     "episode_start_failure",
                     "2048 launcher did not provide a browser HWND and owning process ID",
                 )
-            self.source = Cached2048ObservationSource(window.handle, ocr_recognizer)
+            evidence = (
+                RecognitionFailureEvidence(runtime_root / f"episode-{episode_number:04d}")
+                if save_failure_evidence
+                else None
+            )
+            self.source = Cached2048ObservationSource(window.handle, ocr_recognizer, evidence)
             self.pipeline = DecisionPipeline(
                 self.source,
                 runtime_root / f"episode-{episode_number:04d}",
@@ -373,6 +426,11 @@ def _parse_arguments() -> argparse.Namespace:
     parser.add_argument("--cache-dir", type=Path, default=Path("build/reference_games/2048"))
     parser.add_argument("--artifact-dir", type=Path, default=Path("build/e2e"))
     parser.add_argument("--browser", type=Path, help="Edge or Chrome executable; omitted to search installed browsers")
+    parser.add_argument(
+        "--save-failure-evidence",
+        action="store_true",
+        help="on recognition failure, save the last accepted and latest owned 2048 window frames (PNG/BGRA)",
+    )
     return parser.parse_args()
 
 
@@ -409,6 +467,7 @@ def main() -> int:
                 runtime_root,
                 arguments.browser,
                 ocr_recognizer,
+                save_failure_evidence=arguments.save_failure_evidence,
             ),
             output_root / "trace.jsonl",
             output_root / "report.json",
@@ -419,7 +478,8 @@ def main() -> int:
                 "profile": arguments.profile,
                 "input_mode": "window_message",
                 "score_ocr_enabled": ocr_recognizer is not None,
-                "screenshots_stored": False,
+                "failure_evidence_enabled": arguments.save_failure_evidence,
+                "screenshot_policy": "recognition_failure_only" if arguments.save_failure_evidence else "off",
             },
         )
         print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
