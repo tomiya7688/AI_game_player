@@ -44,8 +44,15 @@ REVIEW_THREADS_QUERY = """query($owner: String!, $name: String!, $number: Int!, 
 
 
 # {
-#   責務: [PullRequestReference: GitHub pull request URLと、API照会に使うowner・repository・番号を同じ識別対象として保持する]
-#   保持状態: [url: 正規化したHTTPSのpull request URL, owner: GitHubアカウントまたは組織名, repository: リポジトリ名, number: 正のpull request番号]
+#   責務: [
+#     PullRequestReference: GitHub pull request URLとAPI照会用の識別情報を一つの値として保持する
+#   ],
+#   保持状態: [
+#     url: GitHub APIとCLIへ渡す正規化済みHTTPS URL,
+#     owner: リポジトリを所有するGitHubアカウントまたは組織,
+#     repository: API照会対象のリポジトリ名,
+#     number: APIが特定する正のpull request番号
+#   ]
 # }
 @dataclass(frozen=True)
 class PullRequestReference:
@@ -56,8 +63,14 @@ class PullRequestReference:
 
 
 # {
-#   責務: [PullRequestSnapshot: merge前に確認したpull requestの公開状態・競合状態・head commitを一組で保持する]
-#   保持状態: [state: OPENであることを確認した状態名, mergeable: MERGEABLEであることを確認した状態名, head_sha: CIとreview確認の対象となるcommit SHA]
+#   責務: [
+#     PullRequestSnapshot: CI・review確認の対象PRについて、merge前に検証した状態を一組で保持する
+#   ],
+#   保持状態: [
+#     state: GitHubが返したPR状態。merge gateではOPENだけを受け入れる,
+#     mergeable: GitHubが返した競合状態。merge gateではMERGEABLEだけを受け入れる,
+#     head_sha: CIとreview確認を固定するPR先端commitのSHA
+#   ]
 # }
 @dataclass(frozen=True)
 class PullRequestSnapshot:
@@ -67,8 +80,16 @@ class PullRequestSnapshot:
 
 
 # {
-#   責務: [UnresolvedReviewThread: mergeを止めた未解決inline review threadの場所と、利用者が修正に必要な投稿情報を保持する]
-#   保持状態: [path: 指摘対象のリポジトリ内パス, line: 指摘行または不明値, author: 投稿者名, body: 指摘本文, url: 指摘を開くGitHub URL]
+#   責務: [
+#     UnresolvedReviewThread: mergeを止めたinline review指摘を、修正場所と投稿内容が分かる形で保持する
+#   ],
+#   保持状態: [
+#     path: 指摘対象ファイルのリポジトリ内パス,
+#     line: 指摘行。GitHubが行番号を返さない場合はNone,
+#     author: 指摘を投稿したGitHub利用者名,
+#     body: 未解決thread内の最初のreviewコメント本文,
+#     url: 利用者が指摘を開くためのGitHub URL
+#   ]
 # }
 @dataclass(frozen=True)
 class UnresolvedReviewThread:
@@ -80,19 +101,35 @@ class UnresolvedReviewThread:
 
 
 # {
-#   責務: [MergeGateError: PRの状態・CI・reviewを安全に確認できずmergeを中止した理由をCLIへ伝える]
-#   保持状態: [RuntimeErrorのmessage: 利用者が次の確認を判断するための停止理由]
+#   責務: [
+#     MergeGateError: PR状態・CI・reviewを安全に確認できずmergeを中止した理由をCLIへ伝える
+#   ],
+#   保持状態: [
+#     args: RuntimeErrorが保持する、利用者の次の確認を決める停止理由
+#   ]
 # }
 class MergeGateError(RuntimeError):
     pass
 
 
 # {
-#   責務: [parse_pull_request_reference: 入力文字列がGitHub上の単一PRを指すことを検証し、API照会用の識別情報へ変換する]
-#   処理: [HTTPS、github.com、余分な認証情報・port・query・fragmentがないことを確認し、owner・repository・正の番号を抽出する]
-#   引数: [pull_request_url: finish_pr.batから渡されたPR URL]
-#   戻り値: [PullRequestReference: canonicalなURLとGitHub API照会に使うPR識別情報]
-#   エラー: [MergeGateError: URL形式、ホスト、pathまたはPR番号が許可条件を満たさない]
+#   責務: [
+#     parse_pull_request_reference: 入力URLがGitHub上の単一PRを指すことを検証し、API照会用の識別情報へ変換する
+#   ],
+#   処理: [
+#     1: URLを解析し、HTTPSのgithub.com以外や認証情報・port・query・fragment付きURLを拒否する,
+#     2: pathからowner・repository・PR番号を分離し、正の番号であることを確認する,
+#     3: 正規化URLとGitHub照会用識別情報を返す
+#   ],
+#   引数: [
+#     pull_request_url: finish_pr.batが現在のbranchのPRから取得したURL
+#   ],
+#   戻り値: [
+#     PullRequestReference: canonical URLとowner・repository・番号をまとめた照会対象
+#   ],
+#   エラー: [
+#     MergeGateError: URLのhost・path・PR番号が安全な照会条件を満たさない
+#   ]
 # }
 def parse_pull_request_reference(pull_request_url: str) -> PullRequestReference:
     try:
@@ -128,11 +165,23 @@ def parse_pull_request_reference(pull_request_url: str) -> PullRequestReference:
 
 
 # {
-#   責務: [_run_gh: GitHub CLIを引数配列で実行し、shell解釈を介さず終了結果を呼び出し元へ返す]
-#   処理: [UTF-8出力を取得し、指定秒数で打ち切る。実行不能・timeoutもmerge停止理由へ変換する]
-#   引数: [arguments: ghの後ろに渡す個別のCLI引数, timeout_seconds: commandを待つ上限秒数]
-#   戻り値: [CompletedProcess[str]: 標準出力・標準エラー・終了codeを含む実行結果]
-#   エラー: [MergeGateError: ghがPATHにない、OSが起動できない、または制限時間を超過する]
+#   責務: [
+#     _run_gh: GitHub CLIを個別引数で実行し、shell解釈を介さず実行結果を呼び出し元へ返す
+#   ],
+#   処理: [
+#     1: ghと引数配列を起動し、UTF-8の標準出力・標準エラーを取得する,
+#     2: 指定秒数を超えた実行を打ち切り、OS実行失敗とともに停止理由へ変換する
+#   ],
+#   引数: [
+#     arguments: ghへ渡す個別のCLI引数。shell文字列として再解釈しない,
+#     timeout_seconds: commandの完了を待つ上限秒数
+#   ],
+#   戻り値: [
+#     CompletedProcess[str]: 標準出力・標準エラー・終了codeを含む実行結果
+#   ],
+#   エラー: [
+#     MergeGateError: ghがPATHにない、OSが起動できない、または制限時間を超過する
+#   ]
 # }
 def _run_gh(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
     try:
@@ -156,10 +205,20 @@ def _run_gh(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedP
 
 
 # {
-#   責務: [_command_details: GitHub CLI失敗時に原因を特定できる範囲の診断文を選び、表示上限内に整える]
-#   処理: [stderrを優先し、stderrが空ならstdoutを使う。診断文は最大MAX_DISPLAYED_TEXT_LENGTH文字に制限する]
-#   引数: [command_result: _run_ghが返した失敗または成功の実行結果]
-#   戻り値: [str: trim済みの診断文。出力がない場合はその事実を示す固定文]
+#   責務: [
+#     _command_details: GitHub CLI失敗時の診断文を選び、利用者に表示できる長さへ整える
+#   ],
+#   処理: [
+#     1: stderrを優先し、stderrが空ならstdoutを選ぶ,
+#     2: 前後の空白を除き、最大MAX_DISPLAYED_TEXT_LENGTH文字の診断文を残す,
+#     3: 標準出力と標準エラーが空なら固定の診断文を返す
+#   ],
+#   引数: [
+#     command_result: _run_ghが返したGitHub CLIの実行結果
+#   ],
+#   戻り値: [
+#     str: trim済みで表示上限内の診断文
+#   ]
 # }
 def _command_details(command_result: subprocess.CompletedProcess[str]) -> str:
     command_text = (command_result.stderr or command_result.stdout or "").strip()
@@ -171,11 +230,24 @@ def _command_details(command_result: subprocess.CompletedProcess[str]) -> str:
 
 
 # {
-#   責務: [_run_successful_gh_command: GitHub CLIを実行し、終了codeが0以外なら診断文付きで処理を中止する]
-#   処理: [timeout付き実行の後、成功時だけCompletedProcessを返し、失敗時はaction名・終了code・診断をMergeGateErrorへまとめる]
-#   引数: [arguments: ghへ渡す個別のCLI引数, timeout_seconds: command完了を待つ上限秒数, action_description: 失敗理由に表示する操作名]
-#   戻り値: [CompletedProcess[str]: 終了codeが0のGitHub CLI実行結果]
-#   エラー: [MergeGateError: GitHub CLIが0以外で終了するか起動に失敗する]
+#   責務: [
+#     _run_successful_gh_command: GitHub CLIを実行し、終了codeが0以外なら診断文付きで処理を中止する
+#   ],
+#   処理: [
+#     1: _run_ghへ個別引数とtimeoutを渡してcommandを実行する,
+#     2: 終了codeが0なら実行結果を返し、0以外なら操作名・診断文とともに停止する
+#   ],
+#   引数: [
+#     arguments: ghへ渡す個別のCLI引数,
+#     timeout_seconds: command完了を待つ上限秒数,
+#     action_description: エラーに表示する操作名
+#   ],
+#   戻り値: [
+#     CompletedProcess[str]: 終了codeが0であるGitHub CLI実行結果
+#   ],
+#   エラー: [
+#     MergeGateError: GitHub CLIが0以外で終了するか起動に失敗する
+#   ]
 # }
 def _run_successful_gh_command(
     arguments: list[str], timeout_seconds: int, action_description: str
@@ -190,10 +262,23 @@ def _run_successful_gh_command(
 
 
 # {
-#   責務: [_decode_json_output: GitHub CLIの標準出力をJSONとして解析し、後続処理が形状を検証できる値にする]
-#   引数: [command_result: JSONを標準出力へ返したGitHub CLI実行結果, action_description: 解析失敗に表示する操作名]
-#   戻り値: [object: JSON object・array・scalarのいずれか。具体的な形状検証は呼び出し側が行う]
-#   エラー: [MergeGateError: 標準出力が有効なJSONではない]
+#   責務: [
+#     _decode_json_output: GitHub CLIの標準出力をJSONとして読み、呼び出し側が形状を検証できる値へ変換する
+#   ],
+#   処理: [
+#     1: 標準出力をJSON parserへ渡す,
+#     2: JSON構文が不正なら操作名を含めてmerge停止理由にする
+#   ],
+#   引数: [
+#     command_result: JSONを標準出力へ返したGitHub CLI実行結果,
+#     action_description: 解析失敗に表示する操作名
+#   ],
+#   戻り値: [
+#     object: JSON object・array・scalarのいずれか。具体的な形状は呼び出し側が検証する
+#   ],
+#   エラー: [
+#     MergeGateError: 標準出力が有効なJSONではない
+#   ]
 # }
 def _decode_json_output(command_result: subprocess.CompletedProcess[str], action_description: str) -> object:
     try:
@@ -203,11 +288,23 @@ def _decode_json_output(command_result: subprocess.CompletedProcess[str], action
 
 
 # {
-#   責務: [_read_pull_request_snapshot: GitHubからPR状態を取得し、OPEN・MERGEABLE・有効なhead SHAを確認する]
-#   処理: [gh pr viewのJSONでstate、mergeable、headRefOidを読み、欠落や未知状態を許さない]
-#   引数: [pull_request: 検査対象のGitHub pull request識別情報]
-#   戻り値: [PullRequestSnapshot: merge gateが確認した状態とhead commit]
-#   エラー: [MergeGateError: API失敗、JSON不正、PR終了、merge不可、またはhead SHA不正]
+#   責務: [
+#     _read_pull_request_snapshot: GitHubからPR状態を取得し、OPEN・MERGEABLE・有効なhead SHAを確認する
+#   ],
+#   処理: [
+#     1: gh pr viewからstate・mergeable・headRefOidをJSONで取得する,
+#     2: 3項目の存在と型を確認し、stateがOPEN、mergeabilityがMERGEABLEであることを確かめる,
+#     3: headRefOidがSHA-1またはSHA-256形式なら検証済みsnapshotを返す
+#   ],
+#   引数: [
+#     pull_request: 状態を確認するGitHub pull request識別情報
+#   ],
+#   戻り値: [
+#     PullRequestSnapshot: merge gateが検証したPR状態とhead commit
+#   ],
+#   エラー: [
+#     MergeGateError: API失敗、JSON不正、PR終了、merge不可、またはhead SHA不正
+#   ]
 # }
 def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullRequestSnapshot:
     command_result = _run_successful_gh_command(
@@ -237,11 +334,22 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
 
 
 # {
-#   責務: [_wait_for_status_checks: すべてのPR status checkが完了するまでGitHub CLIで待機し、非成功を停止理由にする]
-#   処理: [gh pr checks --watch --fail-fastを最大CHECK_COMMAND_TIMEOUT_SECONDS秒実行する]
-#   引数: [pull_request: status checkを待つGitHub pull request識別情報]
-#   戻り値: [なし: すべて成功した場合だけ呼び出し元へ戻る]
-#   エラー: [MergeGateError: check失敗、認証/APIエラー、gh起動失敗、または待機timeout]
+#   責務: [
+#     _wait_for_status_checks: PR status checkが成功するか失敗を検出するまで待機し、非成功をmerge停止理由にする
+#   ],
+#   処理: [
+#     1: gh pr checks --watch --fail-fastを実行し、最大CHECK_COMMAND_TIMEOUT_SECONDS秒待つ,
+#     2: ghが失敗またはtimeoutした場合はmergeを中止する
+#   ],
+#   引数: [
+#     pull_request: status checkを待つGitHub pull request識別情報
+#   ],
+#   戻り値: [
+#     なし: ghが成功を返した場合だけ呼び出し元へ戻る
+#   ],
+#   エラー: [
+#     MergeGateError: check失敗、認証/APIエラー、gh起動失敗、または待機timeout
+#   ]
 # }
 def _wait_for_status_checks(pull_request: PullRequestReference) -> None:
     print("[WAIT] GitHub Actions checks are running; waiting for every check to finish.", flush=True)
@@ -253,11 +361,24 @@ def _wait_for_status_checks(pull_request: PullRequestReference) -> None:
 
 
 # {
-#   責務: [_read_status_checks: GitHubが返す全PR status checkの状態bucketを検査し、すべてpassの場合に限って一覧を返す]
-#   処理: [空一覧、項目形式不正、name・state・bucket欠落、pass以外のbucketを検出してmergeを停止する]
-#   引数: [pull_request: status check一覧を取得するGitHub pull request識別情報]
-#   戻り値: [list[dict[str, object]]: name・state・bucketを検証済みのstatus check一覧]
-#   エラー: [MergeGateError: API・JSON・項目形式が不正、checkが0件、または1件以上がpass以外]
+#   責務: [
+#     _read_status_checks: GitHubの全PR status checkを検証し、すべてpassの場合に限って一覧を返す
+#   ],
+#   処理: [
+#     1: gh pr checksのJSON配列を取得し、空配列でないことを確かめる,
+#     2: 各要素のname・state・bucketが文字列であることを確認する,
+#     3: pass以外のbucketがあればcheck名と状態を示して停止する,
+#     4: 全checkがpassなら検証済み一覧を返す
+#   ],
+#   引数: [
+#     pull_request: status check一覧を取得するGitHub pull request識別情報
+#   ],
+#   戻り値: [
+#     list[dict[str, object]]: name・state・bucketを検証したstatus check一覧
+#   ],
+#   エラー: [
+#     MergeGateError: API・JSON・項目形式が不正、checkが0件、または1件以上がpass以外
+#   ]
 # }
 def _read_status_checks(pull_request: PullRequestReference) -> list[dict[str, object]]:
     command_result = _run_successful_gh_command(
@@ -297,11 +418,23 @@ def _read_status_checks(pull_request: PullRequestReference) -> list[dict[str, ob
 
 
 # {
-#   責務: [_decode_review_thread_page: GraphQLの1ページを検証し、そのページの未解決review指摘とpagination状態を取り出す]
-#   処理: [PRがOPENであること、各threadの解決状態・位置・最初のcomment、次ページ情報の型を確認する]
-#   引数: [response_data: gh api graphqlが返したJSON値]
-#   戻り値: [tuple[list[UnresolvedReviewThread], bool, str | None]: 未解決指摘一覧、次ページ有無、次ページcursor]
-#   エラー: [MergeGateError: GraphQLエラー、必須項目欠落、または想定外のJSON形状]
+#   責務: [
+#     _decode_review_thread_page: GraphQL応答の1ページを検証し、未解決指摘とpagination状態を取り出す
+#   ],
+#   処理: [
+#     1: repositoryとPRが取得でき、PR stateがOPENであることを確認する,
+#     2: 各threadの解決状態を確認し、未解決threadの位置・投稿者・本文・URLを検証する,
+#     3: 次ページ有無とcursorの型を確認して検証済み情報を返す
+#   ],
+#   引数: [
+#     response_data: gh api graphqlが返した1ページ分のJSON値
+#   ],
+#   戻り値: [
+#     tuple[list[UnresolvedReviewThread], bool, str | None]: 未解決指摘、次ページ有無、次ページcursor
+#   ],
+#   エラー: [
+#     MergeGateError: GraphQLエラー、必須項目欠落、または想定外のJSON形状
+#   ]
 # }
 def _decode_review_thread_page(
     response_data: object,
@@ -366,11 +499,24 @@ def _decode_review_thread_page(
 
 
 # {
-#   責務: [_read_unresolved_review_threads: PRのinline review threadを全ページ取得し、未解決の指摘だけを返す]
-#   処理: [GraphQL cursor paginationを継続し、ページが進まない・上限を超える・API応答を検証できない場合はfail closedで停止する]
-#   引数: [pull_request: review threadを確認するGitHub pull request識別情報]
-#   戻り値: [list[UnresolvedReviewThread]: 全ページから集めた未解決inline review指摘]
-#   エラー: [MergeGateError: GitHub APIまたはpagination応答を完全に確認できない]
+#   責務: [
+#     _read_unresolved_review_threads: PRのinline review threadを全ページ取得し、未解決指摘だけを返す
+#   ],
+#   処理: [
+#     1: GraphQL APIをcursor paginationで呼び出してthreadページを取得する,
+#     2: 各ページを検証し、未解決threadだけを一覧に加える,
+#     3: 最終ページまで取得できた場合に一覧を返す,
+#     4: cursorが進まない、ページ上限を超える、または応答を検証できない場合は停止する
+#   ],
+#   引数: [
+#     pull_request: review threadを確認するGitHub pull request識別情報
+#   ],
+#   戻り値: [
+#     list[UnresolvedReviewThread]: 全ページから取得した未解決inline review指摘
+#   ],
+#   エラー: [
+#     MergeGateError: GitHub APIまたはpagination応答を完全に確認できない
+#   ]
 # }
 def _read_unresolved_review_threads(
     pull_request: PullRequestReference,
@@ -415,11 +561,22 @@ def _read_unresolved_review_threads(
 
 
 # {
-#   責務: [_stop_for_unresolved_review_threads: 未解決inline review指摘を修正に必要な位置・投稿者・本文とともに表示してmergeを止める]
-#   処理: [指摘が0件なら追加のKadoka reviewを待たずに続行し、指摘があれば全件をstderrへ表示する]
-#   引数: [threads: GitHubから取得した未解決inline review thread一覧]
-#   戻り値: [なし: 指摘が0件の場合だけ呼び出し元へ戻る]
-#   エラー: [MergeGateError: 1件以上の未解決inline review threadがある]
+#   責務: [
+#     _stop_for_unresolved_review_threads: 未解決inline review指摘を修正に必要な情報とともに表示してmergeを止める
+#   ],
+#   処理: [
+#     1: 指摘一覧が空なら追加のKadoka reviewを待たずに呼び出し元へ戻る,
+#     2: 指摘があればファイル・行・投稿者・本文・URLをstderrへ表示して停止する
+#   ],
+#   引数: [
+#     threads: GitHubから取得した未解決inline review thread一覧
+#   ],
+#   戻り値: [
+#     なし: 指摘一覧が空の場合だけ呼び出し元へ戻る
+#   ],
+#   エラー: [
+#     MergeGateError: 1件以上の未解決inline review threadがある
+#   ]
 # }
 def _stop_for_unresolved_review_threads(threads: list[UnresolvedReviewThread]) -> None:
     if not threads:
@@ -437,11 +594,25 @@ def _stop_for_unresolved_review_threads(threads: list[UnresolvedReviewThread]) -
 
 
 # {
-#   責務: [merge_pull_request_when_safe: PR状態、CI、未解決inline review、head commitを順に確認し、安全条件を満たした同一commitだけmergeする]
-#   処理: [PR URL検証、初期snapshot取得、全status check待機と再検証、全review thread確認、head SHA再確認後にmatch-head-commit付きmergeを行う]
-#   引数: [pull_request_url: merge対象としてfinish_pr.batが選んだGitHub pull request URL]
-#   戻り値: [なし: gateとmergeがすべて成功した場合に完了する]
-#   エラー: [MergeGateError: PR状態、CI、review、head commit、GitHub CLIまたはmergeのいずれかが安全条件を満たさない]
+#   責務: [
+#     merge_pull_request_when_safe: PR状態・CI・inline reviewを確認し、安全条件を満たした同一commitだけmergeする
+#   ],
+#   処理: [
+#     1: PR URLを検証し、初期状態とhead commitを記録する,
+#     2: status checkの完了を待ち、すべてpassであることを再確認する,
+#     3: 全inline review threadを取得し、未解決指摘がないことを確認する,
+#     4: PR状態とhead commitが確認開始時から変わっていないことを確かめる,
+#     5: 確認済みhead SHAを--match-head-commitへ渡してmergeする
+#   ],
+#   引数: [
+#     pull_request_url: finish_pr.batが現在のbranchから取得したmerge対象PRのURL
+#   ],
+#   戻り値: [
+#     なし: gateとmergeがすべて成功した場合に完了する
+#   ],
+#   エラー: [
+#     MergeGateError: PR状態・CI・review・head commit・GitHub CLI・mergeが安全条件を満たさない
+#   ]
 # }
 def merge_pull_request_when_safe(pull_request_url: str) -> None:
     pull_request = parse_pull_request_reference(pull_request_url)
@@ -476,10 +647,20 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
 
 
 # {
-#   責務: [main: CLI引数のPR URLにmerge gateを適用し、成功または安全停止をプロセス終了codeで表す]
-#   処理: [必須URLをparseし、gate成功時は0、MergeGateError発生時は理由をstderrへ出して3を返す]
-#   引数: [arguments: テストから渡すCLI引数。Noneの場合はargparseが実プロセス引数を読む]
-#   戻り値: [int: merge成功なら0、安全停止なら3]
+#   責務: [
+#     main: CLIで受け取ったPR URLにmerge gateを適用し、結果をprocess終了codeで表す
+#   ],
+#   処理: [
+#     1: argparseで必須のPR URLを読み取り、merge gateを呼び出す,
+#     2: 成功時は終了code 0を返す,
+#     3: MergeGateErrorの理由をstderrへ表示し、終了code 3を返す
+#   ],
+#   引数: [
+#     arguments: テスト用CLI引数。Noneならargparseが現在のprocess引数を読む
+#   ],
+#   戻り値: [
+#     int: merge成功なら0、安全停止なら3
+#   ]
 # }
 def main(arguments: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
