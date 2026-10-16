@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 from datetime import datetime, timezone
 import json
 import os
@@ -54,7 +55,10 @@ class Cached2048ObservationSource:
         self.adapter = ReferenceGame2048Adapter()
         self._cached_read: tuple[ScreenObservation, list[ActionCandidate]] | None = None
 
-    def capture_playable_state(self) -> CampaignState:
+    def capture_playable_state(
+        self,
+        on_fresh_frame: Callable[[], None] | None = None,
+    ) -> CampaignState:
         started_at = time.monotonic()
         deadline = started_at + SCREEN_READY_TIMEOUT_SECONDS
         last_state: dict[str, object] = {}
@@ -73,6 +77,8 @@ class Cached2048ObservationSource:
                     "capture_failure",
                     f"2048 window capture failed: {type(error).__name__}: {error}",
                 ) from error
+            if on_fresh_frame is not None:
+                on_fresh_frame()
             try:
                 observation = self.analyzer.analyze(frame, "live-2048-campaign")
                 adapted, candidates = self.adapter.adapt(frame, observation)
@@ -123,6 +129,11 @@ class Cached2048ObservationSource:
             time.sleep(SCREEN_READY_POLL_SECONDS)
 
         confidence = last_state.get("confidence")
+        candidate_confidence_threshold = getattr(
+            self.adapter,
+            "minimum_candidate_confidence",
+            None,
+        )
         raise CampaignFailure(
             "recognition_failure",
             "2048 board did not become actionable within "
@@ -134,6 +145,7 @@ class Cached2048ObservationSource:
             f"actionable_candidate_count={last_candidate_count}; "
             f"distinct_frame_signatures={len(frame_signatures)}; "
             f"last_frame_signature={last_frame_signature or 'unavailable'}; "
+            f"candidate_confidence_threshold={candidate_confidence_threshold!r}; "
             f"board_confidence={confidence!r}",
         )
 
@@ -227,19 +239,38 @@ class ReferenceGame2048Episode(CampaignEpisode):
     def observe(self) -> CampaignState:
         if self.source is None:
             raise CampaignFailure("capture_failure", "2048 episode has no window observation source")
-        capture_started_at = time.monotonic()
-        state = self.source.capture_playable_state()
-        capture_elapsed_seconds = time.monotonic() - capture_started_at
         pipeline = self.pipeline
-        if pipeline is not None:
-            first_observation = not self._safety_rearmed
+        first_observation = not self._safety_rearmed
+        capture_started_at = time.monotonic()
+
+        def refresh_observation_after_frame() -> None:
+            try:
+                if pipeline is not None:
+                    pipeline.record_observation()
+            except Exception as error:
+                raise CampaignFailure(
+                    "safety_block",
+                    "2048 fresh screen frame arrived, but FailSafeRuntime rejected its observation update; "
+                    f"first_observation={first_observation}; "
+                    f"capture_elapsed_seconds={time.monotonic() - capture_started_at:.3f}; "
+                    f"error={type(error).__name__}: {error}",
+                ) from error
+
+        state = self.source.capture_playable_state(
+            on_fresh_frame=(
+                refresh_observation_after_frame
+                if pipeline is not None and not first_observation
+                else None
+            )
+        )
+        capture_elapsed_seconds = time.monotonic() - capture_started_at
+        if pipeline is not None and first_observation:
             try:
                 # {
                 #   理由: [playable boardの取得は最大45秒待つため、5秒の観測leaseは最初の新鮮なboard取得直後に開始し、episode起動中の失効を防ぐ]
                 # }
-                if first_observation:
-                    pipeline.rearm_safety()
-                    self._safety_rearmed = True
+                pipeline.rearm_safety()
+                self._safety_rearmed = True
                 pipeline.record_observation()
             except Exception as error:
                 raise CampaignFailure(
