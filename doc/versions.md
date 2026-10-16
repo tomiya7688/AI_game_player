@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #465: `finish_pr.bat`はPR作成後にCI status checkの完了を待ち、GitHub CLIが返す全checkのbucketが`pass`であることを確認する。checkがない場合、pending、failed、cancelled、skipped、未知状態、認証・API・JSON解析エラーの場合はmergeしない。GitHub GraphQL APIからreview threadを全ページ確認し、未解決commentの場所・投稿者・本文を表示して停止する。checkとreview確認中にhead commitが変わった場合も停止し、確認済みhead SHAを`gh pr merge --match-head-commit`へ渡す。ゲート停止後は既存PRを再利用して確認を再開できる。11件の単体テストで成功、CI異常、空check、comment、認証失敗、head更新を検証する。
 - Issue #287: GitHub Actions workflow checkerでトップレベルtoken権限、write/all-scope grant、危険trigger、run scriptへのevent/input/output/secret直接展開、checkout credential永続化、workflow_run artifact、Reusable workflowのsecret継承を検査する。例外には規則ID、UTC有効期限、10文字以上の理由が必要で、期限切れ例外は抑止しない。7つのworkflowに`contents: read`が既に定義されていることを確認し、19個の読み取り用checkoutに`persist-credentials: false`を設定する。`finish_task.bat`と`.github/workflows/tests.yml`からcheckerを実行する。
 - Issue #341: ExecutionHistoryとKnowledgeStoreは共通のJSON配列writerで保存し、HistoryStoreは同じ原子保存基盤のstage APIで遅延確定する。共通保存基盤は同一ディレクトリの一時ファイルへ書き、ファイル内容をOSへ同期した後に置換する。ExecutionHistoryは不正JSONを上書きせず報告し、書込・置換失敗時に既存ファイルを保持する。
 - Issue #122: 現行実装と未実装の対策を区別したThreat Modelを追加する。ゲーム画面由来の間接Prompt Injection、UI偽装・誤対象、Provider / Remote data、Plugin、Artifact、path / archive、supply-chain、Resource exhaustion、反復入力を信頼境界ごとに記録し、各脅威のprevent / detect / contain / recover、残余リスク、関連test・CI・担当領域、更新条件を示す。Provider endpointはloopback既定だが画面から変更できること、Remote consent・Plugin隔離・外部Artifact intake・main required-check設定が未確認または未実装であることを明記する。

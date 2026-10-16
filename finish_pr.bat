@@ -15,6 +15,7 @@ set "NEXT_BRANCH=%~2"
 
 where git >nul 2>&1 || (echo [ERROR] git was not found in PATH. & exit /b 1)
 where gh >nul 2>&1 || (echo [ERROR] GitHub CLI ^(gh^) was not found in PATH. & exit /b 1)
+where python >nul 2>&1 || (echo [ERROR] Python was not found in PATH. & exit /b 1)
 gh auth status >nul 2>&1 || (echo [ERROR] GitHub CLI is not authenticated. Run: gh auth login & exit /b 1)
 
 for /f "delims=" %%B in ('git branch --show-current') do set "CURRENT_BRANCH=%%B"
@@ -28,8 +29,19 @@ if errorlevel 1 (echo [STOP] finish_task.bat failed. Nothing will be committed. 
 echo [2/9] Staging changes except generated Codex context...
 git add -A
 if exist .codex git reset -- .codex >nul 2>&1
+if exist AGENTS.override.md git reset -- AGENTS.override.md >nul 2>&1
 git diff --cached --quiet
-if not errorlevel 1 (echo [STOP] No staged changes to commit. & exit /b 2)
+if errorlevel 2 (echo [STOP] Could not inspect staged changes. & exit /b 1)
+if errorlevel 1 goto COMMIT_CHANGES
+
+echo [INFO] No staged changes; looking for an existing Pull Request to resume...
+set "PR_URL="
+for /f "delims=" %%U in ('gh pr view --json url --jq ".url" 2^>nul') do set "PR_URL=%%U"
+if not defined PR_URL (echo [STOP] No staged changes and no Pull Request exists for the current branch. & exit /b 2)
+echo Reusing PR: %PR_URL%
+goto VALIDATE_PR
+
+:COMMIT_CHANGES
 
 echo [3/9] Validating compact diff summary...
 git diff --cached --check
@@ -66,15 +78,16 @@ if not defined PR_URL (
 )
 if not defined PR_URL (echo [STOP] Pull Request URL could not be resolved. & exit /b 1)
 
+:VALIDATE_PR
 echo PR: %PR_URL%
 set "MERGEABLE="
 for /f "delims=" %%M in ('gh pr view "%PR_URL%" --json mergeable --jq ".mergeable"') do set "MERGEABLE=%%M"
 if /i "%MERGEABLE%"=="CONFLICTING" (echo [STOP] Pull Request has conflicts. Inspect only the conflicting files/diff. & exit /b 3)
 if /i not "%MERGEABLE%"=="MERGEABLE" (echo [STOP] Pull Request mergeability is "%MERGEABLE%". Inspect PR state before merging. & exit /b 3)
 
-echo [8/9] Merging Pull Request...
-gh pr merge "%PR_URL%" --merge --delete-branch
-if errorlevel 1 (echo [STOP] PR merge failed. Inspect checks/conflicts. & exit /b 3)
+echo [8/9] Waiting for successful CI and checking unresolved review comments...
+python tools\finish_pr_merge.py "%PR_URL%"
+if errorlevel 1 (echo [STOP] CI, review-thread, or merge validation failed. The script will not continue to main. & exit /b 3)
 
 echo [9/9] Returning to main and creating next branch...
 git switch main
