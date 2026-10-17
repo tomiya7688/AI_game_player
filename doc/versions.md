@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #459: 保存済み2048失敗bundleを再解析する`python -m tools.replay_2048_recognition`を追加する。manifestとBGRAの寸法・SHA-256を検証し、OCRなしの現行Adapterへ同じ画素を渡して盤面・confidenceを記録値と比較する。bundle外の参照、破損、標準外JSON数値、過大入力を拒否し、元の資料は変更しない。比較元なしをnullとして、再解析成功とゲームの正常動作を区別する。
 - Issue #459: 固定版2048をheadlessブラウザで描画した、文字と再試行ボタンを含む終了画面の再生fixtureを追加する。0.75倍・1倍のBGRAとSHA-256、生成元commit、ブラウザ版を保存し、通常のunit testでOCRなしの盤面復元・終了判定・操作候補なしを確認する。生成ツールは任意依存Pillow・playwrightを使い、通常テストは追加依存なしで保存済み画素を検査する。HWND取得や過去のCI失敗の再現を証明するテストではない。
 - Issue #459: 固定版2048のCLIに既定OFFの`--save-failure-evidence`を追加する。認識失敗時だけ最後に受理した画面と最新取得画面をPNG・正確なBGRAで保存し、認識結果、寸法、取得時刻、frame ID、SHA-256、失敗診断をmanifestへ対応付ける。CIで保存を有効にし、artifactから認識失敗の原因を調べられるようにする。診断保存の失敗は元の認識失敗を置き換えず、保存先は新規directoryとして既存証拠を保持する。
 - Issue #459: 2048 campaignが新しいwindow frameを取得した直後、画像解析や操作候補の検証を待たずにFailSafeRuntimeへ観測時刻を記録する。最初のplayable boardでFailSafeをre-armする順序と5秒の安全期限は変えず、画面状態の取得・解析が続く間は実入力を開始しない。認識timeout reportには、盤面confidenceに加えて候補生成に必要な最低confidenceも記録する。raw frame取得後に観測更新callbackが動く順序と、episode初回・2回目の観測更新を回帰テストで確認する。

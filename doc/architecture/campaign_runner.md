@@ -94,6 +94,19 @@ python tools/run_2048_campaign.py --profile pr --save-failure-evidence
 
 PNGは画面確認用の無損失RGB画像です。`.bgra`は上から下へのrow順、paddingなし、1 pixelあたりB・G・R・Aの4 byteです。認識器へ同じ画素を再入力する場合は、manifestのwidth・heightと`.bgra`から`ScreenFrame`を作成してください。PNGではalphaを表示に使いませんが、BGRAには元のalphaも保存します。
 
+開発者は、artifactを展開した後、リポジトリルートで次のコマンドを実行すると、保存済み画素を現行Adapterで再解析できます。pathは実際に展開した`manifest.json`へ置き換えてください。コマンドはブラウザ・画面取得・実入力・OCR・追加ライブラリを使わず、元のmanifestや画像を変更しません。
+
+```powershell
+$env:PYTHONPATH = "src;."
+python -m tools.replay_2048_recognition "build/e2e/example/recognition-failure-example/manifest.json"
+```
+
+再解析コマンドはv1 schema、frame寸法、BGRA byte数、SHA-256を検証してから認識します。manifestは1 MiB、各BGRAは64 MiBを上限とし、bundle直下の固定名BGRA以外や、bundle外へ解決されるリンクは読みません。上限超過や破損の場合は元artifactと寸法を確認してください。JSON標準外のNaN・Infinityも拒否します。
+
+標準出力のJSONには各frameの`recorded_game_state`、`replayed_game_state`、`visual_matches`、候補数が入ります。`visual_matches.board`と`visual_matches.confidence`は、記録値と一致すればtrue、不一致ならfalse、解析例外などで記録値がなければnullです。元のOCR入力を保存していないため、score・state_signature・OCRに由来する終了判定は一致比較に含めません。現行Adapterを変更した場合、不一致は認識器の挙動が変わったことを示し、保存データの破損とは区別します。
+
+終了値0は再解析完了かつ比較済み項目に不一致なし、1は盤面またはconfidenceに不一致、2は入力・hash・解析のエラーです。記録も再解析も盤面未検出なら一致となるため、終了値0はゲームが操作可能だったことやCI失敗の解消を意味しません。nullの項目は比較未実施として確認してください。
+
 `failure_detail`の`failure_evidence=`には保存を完了したmanifestのpathが入ります。保存に失敗した場合は`failure_evidence_error=`に理由を追記し、元の`recognition_failure`を維持します。reportのmetadataは`failure_evidence_enabled`と`screenshot_policy`（`off`または`recognition_failure_only`）で保存設定を示します。設定の有効化だけではファイルが保存されたことを意味しないため、manifestの存在とhashを確認してください。
 
 `language-ci`のWindows campaignは保存オプションを指定し、失敗時も既存の`kadoka-windows-e2e-trace` artifactへbundleを含めます。診断保存によって、認識confidenceの最低値、観測の5秒期限、認識失敗時の停止分類は変えません。
