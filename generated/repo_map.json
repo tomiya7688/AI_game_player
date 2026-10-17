@@ -22768,7 +22768,7 @@
       "module": "ai_game_player.game_2048_board",
       "path": "src/ai_game_player/game_2048_board.py",
       "source_location": {
-        "end_line": 341,
+        "end_line": 368,
         "start_line": 1
       },
       "symbols": [
@@ -22791,8 +22791,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> tuple[int, int, int]",
           "source_location": {
             "column": 0,
-            "end_line": 63,
-            "start_line": 53
+            "end_line": 64,
+            "start_line": 54
           }
         },
         {
@@ -22807,8 +22807,8 @@
           "signature": "() -> frozenset[tuple[int, int, int]]",
           "source_location": {
             "column": 0,
-            "end_line": 73,
-            "start_line": 66
+            "end_line": 74,
+            "start_line": 67
           }
         },
         {
@@ -22823,8 +22823,8 @@
           "signature": "() -> dict[tuple[int, int, int], int]",
           "source_location": {
             "column": 0,
-            "end_line": 87,
-            "start_line": 76
+            "end_line": 88,
+            "start_line": 77
           }
         },
         {
@@ -22848,8 +22848,31 @@
           "signature": "(rgb: tuple[int, int, int]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 107,
-            "start_line": 95
+            "end_line": 108,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "group_board_color_rows",
+          "parameters": [
+            {
+              "annotation": "list[tuple[int, int, int, int]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "matched_rows"
+            }
+          ],
+          "qualified_name": "group_board_color_rows",
+          "return_annotation": "list[list[tuple[int, int, int, int]]]",
+          "signature": "(matched_rows: list[tuple[int, int, int, int]]) -> list[list[tuple[int, int, int, int]]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 139,
+            "start_line": 117
           }
         },
         {
@@ -22870,8 +22893,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 120,
-            "start_line": 111
+            "end_line": 152,
+            "start_line": 143
           }
         },
         {
@@ -22892,8 +22915,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 132,
-            "start_line": 124
+            "end_line": 164,
+            "start_line": 156
           }
         },
         {
@@ -22912,8 +22935,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 325,
-            "start_line": 135
+            "end_line": 352,
+            "start_line": 167
           }
         },
         {
@@ -22941,8 +22964,8 @@
           "signature": "(self, minimum_confidence: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 140
+            "end_line": 181,
+            "start_line": 172
           }
         },
         {
@@ -22970,8 +22993,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRecognition | None",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 158
+            "end_line": 215,
+            "start_line": 190
           }
         },
         {
@@ -22999,8 +23022,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRegion | None",
           "source_location": {
             "column": 4,
-            "end_line": 272,
-            "start_line": 191
+            "end_line": 299,
+            "start_line": 223
           }
         },
         {
@@ -23046,8 +23069,8 @@
           "signature": "(self, frame: ScreenFrame, region: BoardRegion, row: int, column: int) -> tuple[int | None, float]",
           "source_location": {
             "column": 4,
-            "end_line": 325,
-            "start_line": 280
+            "end_line": 352,
+            "start_line": 307
           }
         },
         {
@@ -23069,8 +23092,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> int | None",
           "source_location": {
             "column": 0,
-            "end_line": 341,
-            "start_line": 328
+            "end_line": 368,
+            "start_line": 355
           }
         }
       ]
@@ -49160,6 +49183,295 @@
             "column": 4,
             "end_line": 295,
             "start_line": 273
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.game_2048_board",
+        "ai_game_player.models",
+        "ai_game_player.screen_capture"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "zlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "zlib"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_board"
+          ],
+          "module": "ai_game_player.game_2048_board",
+          "names": [
+            {
+              "alias": null,
+              "name": "Game2048BoardRecognizer"
+            },
+            {
+              "alias": null,
+              "name": "group_board_color_rows"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_2048_gdi_row_gap",
+      "path": "tests/test_2048_gdi_row_gap.py",
+      "source_location": {
+        "end_line": 55,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Gdi2048RowGapTests",
+          "parameters": [],
+          "qualified_name": "Gdi2048RowGapTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 51,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 17,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_real_failure_frame_preserves_board_across_two_missing_palette_rows",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_real_failure_frame_preserves_board_across_two_missing_palette_rows",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_gap_larger_than_board_padding_does_not_join_separate_regions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_gap_larger_than_board_padding_does_not_join_separate_regions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_grouping_preserves_empty_input_and_large_separation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_grouping_preserves_empty_input_and_large_separation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 47,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nearby_score_band_is_not_bridged_into_board",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_nearby_score_band_is_not_bridged_into_board",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 49
           }
         }
       ]
@@ -77749,7 +78061,7 @@
             },
             {
               "alias": null,
-              "name": "MAXIMUM_ROW_GROUP_Y_DELTA"
+              "name": "group_board_color_rows"
             },
             {
               "alias": null,
@@ -77884,7 +78196,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 290,
+          "line": 285,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -77897,7 +78209,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 291,
+          "line": 286,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -77911,7 +78223,7 @@
       "module": "tests.test_reference_game_2048_launcher",
       "path": "tests/test_reference_game_2048_launcher.py",
       "source_location": {
-        "end_line": 489,
+        "end_line": 484,
         "start_line": 1
       },
       "symbols": [
@@ -78072,7 +78384,7 @@
           "signature": "(frame: ScreenFrame, nearest_distance_by_rgb: dict[tuple[int, int, int], int]) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 177,
+            "end_line": 172,
             "start_line": 99
           }
         },
@@ -78094,8 +78406,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 249,
-            "start_line": 180
+            "end_line": 244,
+            "start_line": 175
           }
         },
         {
@@ -78117,8 +78429,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 202,
-            "start_line": 181
+            "end_line": 197,
+            "start_line": 176
           }
         },
         {
@@ -78140,8 +78452,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 219,
-            "start_line": 205
+            "end_line": 214,
+            "start_line": 200
           }
         },
         {
@@ -78163,8 +78475,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 221
+            "end_line": 228,
+            "start_line": 216
           }
         },
         {
@@ -78186,8 +78498,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 235
+            "end_line": 244,
+            "start_line": 230
           }
         },
         {
@@ -78208,8 +78520,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 266,
-            "start_line": 252
+            "end_line": 261,
+            "start_line": 247
           }
         },
         {
@@ -78231,8 +78543,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 266,
-            "start_line": 253
+            "end_line": 261,
+            "start_line": 248
           }
         },
         {
@@ -78253,8 +78565,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 348,
-            "start_line": 269
+            "end_line": 343,
+            "start_line": 264
           }
         },
         {
@@ -78276,8 +78588,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 270
+            "end_line": 282,
+            "start_line": 265
           }
         },
         {
@@ -78299,8 +78611,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 325,
-            "start_line": 289
+            "end_line": 320,
+            "start_line": 284
           }
         },
         {
@@ -78322,8 +78634,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 348,
-            "start_line": 327
+            "end_line": 343,
+            "start_line": 322
           }
         },
         {
@@ -78346,8 +78658,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 485,
-            "start_line": 355
+            "end_line": 480,
+            "start_line": 350
           }
         },
         {
@@ -78369,8 +78681,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 485,
-            "start_line": 356
+            "end_line": 480,
+            "start_line": 351
           }
         }
       ]

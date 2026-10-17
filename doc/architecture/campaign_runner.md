@@ -127,3 +127,11 @@ python -m unittest discover -s tests -p test_2048_terminal_render.py -v
 ```
 
 生成ツールは指定先の同名PNG・BGRA・JSONを上書きします。初期出力先は`build/e2e/terminal-render`です。再生成後はPNGの文字とボタンを目視確認し、JSONの生成条件とunit test結果を確認してください。ブラウザのfont・描画環境によって画素hashが変わるため、再生成時のhash一致は合格条件にしません。保存済みBGRAと対応するJSONのhash一致はunit testで検査します。
+
+## CIの実失敗画像で盤面の短い行欠落を検査する
+
+認識器の開発者向けに、`tests/fixtures/2048/gdi-row-gap.bgra.zlib`と対応JSONへ、run `39037879872`のartifact `12103297123`から取得した失敗画素を保存しています。画像はゲーム終了画面ではなく、操作可能な盤面です。manifestにはWGC timeoutとGDI fallbackが記録されています。保存BGRAのSHA-256は`48dbf6cb3a407b2fb96864052edfb7f60e4975ef8c35ae2dd5b6cda2337e6e2b`で、CIとローカルの修正前Adapterはともにboard未検出・confidence 0でした。
+
+失敗画像ではy=475・476の2行で最長palette帯が行検出条件を満たさず、旧処理は375×375 pixelの盤面を高さ243と130 pixelの候補へ分断しました。両候補は既存の縦横比条件を満たさず、操作候補が0件になりました。現在の`group_board_color_rows`は、行間距離を2 pixelまたは帯幅の3%以内で橋渡しします。3%は固定版CSSの盤面余白15/500です。2 pixelを超える欠落では帯が横方向に重なり、左右どちらかの端が同じ余白内に揃うことも要求し、近くのscore欄と盤面を分けます。盤面全体の縦横比・密度・認識confidenceの条件は変更しません。
+
+`tests/test_2048_gdi_row_gap.py`は元の画素hash、期待する16 cellと盤面矩形、4方向の候補を確認します。余白より大きい欠落の拒否とscore欄の分離も確認します。通常画面と終了画面の既存テストも合わせて実行してください。実画像による再現は、この行分断による認識失敗の根拠です。WGC timeoutの原因や、過去に起きた他のconfidence低下まで特定したことを意味しません。
