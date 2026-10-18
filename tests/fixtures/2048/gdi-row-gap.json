@@ -1,0 +1,13 @@
+{
+  "artifact_id": 12103297123,
+  "workflow_run_id": 39037879872,
+  "head_commit": "efa1a40211fc9ed701b464bffd9d29fa2cacc965",
+  "source_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "capture_method": "GDI fallback after WGC timeout",
+  "width": 904,
+  "height": 648,
+  "bgra_sha256": "48dbf6cb3a407b2fb96864052edfb7f60e4975ef8c35ae2dd5b6cda2337e6e2b",
+  "expected_board": [[2, 0, 2, 0], [4, 64, 8, 0], [8, 32, 2, 32], [2, 4, 16, 2]],
+  "expected_board_bbox": [260, 232, 375, 375],
+  "description": "CIの実失敗画素を変更せずzlib圧縮した回帰資料。y=475,476の2行で最長palette帯が行検出条件を満たさず、旧認識器は盤面を高さ243と130に分断して正方形候補を失った。"
+}

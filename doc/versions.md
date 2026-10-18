@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Issue #459 / PR #469追加レビュー: 保存証拠の全階層で重複JSONキーと非有限float（NaN・Infinity・1e999などの変換overflow）を拒否する。boardはnullまたは4×4、cellはnull・整数0・2以上の2冪整数、confidenceはbool/nullを除く0〜1の数値として比較前に検証する。比較元が不正なframeが一つでもあれば全frameの画素読込・認識を開始せず、CLI終了値2で理由を表示する。記録値の欠落は比較不能null、正当な認識結果の差は終了値1のままとする。
+- Issue #459: CIの実失敗画像で盤面未検出を再現し、盤面色の帯が2行欠落しただけで正方形候補を上下に分断していた処理を修正する。縦方向の短い欠落を固定版CSSの盤面余白3%以内で橋渡しし、従来の2 pixelを超える欠落では横端の一致も要求して近接score欄の混入を防ぐ。実失敗BGRAのhash・期待盤面を回帰fixtureへ残し、大きい欠落の拒否・score欄の分離・通常画面・終了画面を検査する。confidence閾値と安全期限は変更しない。WGC timeoutそのものや他の認識失敗をすべて解消したとは扱わない。
+- Issues #459 / #465: language-ciの任意言語jobが対象なしでskippedとなり、全check成功を要求する統合判定を満たせない状態を解消する。Lua・.NET・JavaScript/TypeScriptの各jobは検出値がtrue/falseであることを検証し、falseの場合は対象なしをログへ記録して成功する。trueの場合だけ既存のsetup・build・testを実行し、未定義や不正な検出値は失敗させる。PR #467で用意したworkflow変更を診断機能の統合に先行して適用する。
+- Issue #459: 保存済み2048失敗bundleを再解析する`python -m tools.replay_2048_recognition`を追加する。manifestとBGRAの寸法・SHA-256を検証し、OCRなしの現行Adapterへ同じ画素を渡して盤面・confidenceを記録値と比較する。bundle外の参照、破損、標準外JSON数値、過大入力を拒否し、元の資料は変更しない。比較元なしをnullとして、再解析成功とゲームの正常動作を区別する。
+- Issue #459: 固定版2048をheadlessブラウザで描画した、文字と再試行ボタンを含む終了画面の再生fixtureを追加する。0.75倍・1倍のBGRAとSHA-256、生成元commit、ブラウザ版を保存し、通常のunit testでOCRなしの盤面復元・終了判定・操作候補なしを確認する。生成ツールは任意依存Pillow・playwrightを使い、通常テストは追加依存なしで保存済み画素を検査する。HWND取得や過去のCI失敗の再現を証明するテストではない。
+- Issue #459: 固定版2048のCLIに既定OFFの`--save-failure-evidence`を追加する。認識失敗時だけ最後に受理した画面と最新取得画面をPNG・正確なBGRAで保存し、認識結果、寸法、取得時刻、frame ID、SHA-256、失敗診断をmanifestへ対応付ける。CIで保存を有効にし、artifactから認識失敗の原因を調べられるようにする。診断保存の失敗は元の認識失敗を置き換えず、保存先は新規directoryとして既存証拠を保持する。
 - Issue #459: 2048 campaignが新しいwindow frameを取得した直後、画像解析や操作候補の検証を待たずにFailSafeRuntimeへ観測時刻を記録する。最初のplayable boardでFailSafeをre-armする順序と5秒の安全期限は変えず、画面状態の取得・解析が続く間は実入力を開始しない。認識timeout reportには、盤面confidenceに加えて候補生成に必要な最低confidenceも記録する。raw frame取得後に観測更新callbackが動く順序と、episode初回・2回目の観測更新を回帰テストで確認する。
 - Issue #287: GitHub Actions workflow checkerでトップレベルtoken権限、write/all-scope grant、危険trigger、run scriptへのevent/input/output/secret直接展開、checkout credential永続化、workflow_run artifact、Reusable workflowのsecret継承を検査する。例外には規則ID、UTC有効期限、10文字以上の理由が必要で、期限切れ例外は抑止しない。7つのworkflowに`contents: read`が既に定義されていることを確認し、19個の読み取り用checkoutに`persist-credentials: false`を設定する。`finish_task.bat`と`.github/workflows/tests.yml`からcheckerを実行する。
 - Issue #341: ExecutionHistoryとKnowledgeStoreは共通のJSON配列writerで保存し、HistoryStoreは同じ原子保存基盤のstage APIで遅延確定する。共通保存基盤は同一ディレクトリの一時ファイルへ書き、ファイル内容をOSへ同期した後に置換する。ExecutionHistoryは不正JSONを上書きせず報告し、書込・置換失敗時に既存ファイルを保持する。

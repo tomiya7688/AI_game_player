@@ -41,6 +41,7 @@ MINIMUM_ROW_MATCH_WIDTH_FRACTION = 0.05
 MINIMUM_ROW_SPAN_PIXELS = 50
 MINIMUM_ROW_SPAN_WIDTH_FRACTION = 0.08
 MAXIMUM_ROW_GROUP_Y_DELTA = 2
+BOARD_OUTER_PADDING_FRACTION = 0.03
 MINIMUM_BOARD_SIDE_FRAME_FRACTION = 0.15
 MINIMUM_BOARD_SHAPE_CONFIDENCE = 0.78
 MINIMUM_BOARD_COLOR_DENSITY = 0.25
@@ -105,6 +106,37 @@ def _is_board_region_color(rgb: tuple[int, int, int]) -> bool:
         <= MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED
         for palette_rgb in BOARD_REGION_COLORS
     )
+
+
+# {
+#   責務: [group_board_color_rows: 縦方向に並ぶ盤面色の帯を、短い検出欠落だけを橋渡ししてgroupへ分ける]
+#   処理: [行間距離を2 pixelまたは帯幅の3%まで許容する。3%は固定版CSSの盤面余白15/500である。従来の2 pixelを超える欠落ではgroup先頭帯と新しい帯が重なり、左右どちらかの端が同じ余白内で一致する場合だけ橋渡しし、横位置の異なるscore欄などを分離する]
+#   引数: [matched_rows: y昇順のtuple群。各tupleはy、左端x、右端x（範囲外）、palette一致pixel数]
+#   戻り値: [list: 同じ盤面候補として縦横比・密度を検査する行group。元のtupleと入力listは変更しない]
+# }
+def group_board_color_rows(
+    matched_rows: list[tuple[int, int, int, int]],
+) -> list[list[tuple[int, int, int, int]]]:
+    row_groups: list[list[tuple[int, int, int, int]]] = []
+    for row in matched_rows:
+        maximum_y_delta = MAXIMUM_ROW_GROUP_Y_DELTA
+        aligned_across_gap = True
+        if row_groups:
+            previous_row = row_groups[-1][-1]
+            reference_row = row_groups[-1][0]
+            nearby_span_width = max(row[2] - row[1], reference_row[2] - reference_row[1])
+            maximum_y_delta = max(
+                maximum_y_delta, round(nearby_span_width * BOARD_OUTER_PADDING_FRACTION)
+            )
+            if row[0] - previous_row[0] > MAXIMUM_ROW_GROUP_Y_DELTA:
+                overlap = min(row[2], reference_row[2]) - max(row[1], reference_row[1])
+                edge_distance = min(abs(row[1] - reference_row[1]), abs(row[2] - reference_row[2]))
+                aligned_across_gap = overlap > 0 and edge_distance <= maximum_y_delta
+        if row_groups and aligned_across_gap and row[0] <= row_groups[-1][-1][0] + maximum_y_delta:
+            row_groups[-1].append(row)
+        else:
+            row_groups.append([row])
+    return row_groups
 
 
 @dataclass(frozen=True)
@@ -184,7 +216,7 @@ class Game2048BoardRecognizer:
 
     # {
     #   責務: [_find_board_region: row内の2048 CSS色分布から最大の正方形board候補を特定する]
-    #   処理: [paletteとのRGB二乗距離324以内のpixelをrow内gap16で帯状にまとめ、最長帯を縦横比と画素密度で検査する]
+    #   処理: [paletteとのRGB二乗距離324以内のpixelをrow内gap16で帯状にまとめる。縦方向は盤面余白相当の短い欠落だけを橋渡しし、最長帯を縦横比と画素密度で検査する]
     #   引数: [frame: 検索対象となるBGRA画面]
     #   戻り値: [BoardRegionまたはNone: 条件を満たす盤面矩形と形状確信度]
     # }
@@ -232,12 +264,7 @@ class Game2048BoardRecognizer:
             if matching_pixels >= minimum_row_pixels and right - left >= minimum_row_span:
                 matched_rows.append((y, left, right, matching_pixels))
 
-        row_groups: list[list[tuple[int, int, int, int]]] = []
-        for row in matched_rows:
-            if row_groups and row[0] <= row_groups[-1][-1][0] + MAXIMUM_ROW_GROUP_Y_DELTA:
-                row_groups[-1].append(row)
-            else:
-                row_groups.append([row])
+        row_groups = group_board_color_rows(matched_rows)
 
         candidates: list[tuple[float, BoardRegion]] = []
         minimum_side = max(
