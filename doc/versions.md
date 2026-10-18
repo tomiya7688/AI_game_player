@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #459 / PR #469追加レビュー: 保存証拠の全階層で重複JSONキーと非有限float（NaN・Infinity・1e999などの変換overflow）を拒否する。boardはnullまたは4×4、cellはnull・整数0・2以上の2冪整数、confidenceはbool/nullを除く0〜1の数値として比較前に検証する。比較元が不正なframeが一つでもあれば全frameの画素読込・認識を開始せず、CLI終了値2で理由を表示する。記録値の欠落は比較不能null、正当な認識結果の差は終了値1のままとする。
 - Issue #459: CIの実失敗画像で盤面未検出を再現し、盤面色の帯が2行欠落しただけで正方形候補を上下に分断していた処理を修正する。縦方向の短い欠落を固定版CSSの盤面余白3%以内で橋渡しし、従来の2 pixelを超える欠落では横端の一致も要求して近接score欄の混入を防ぐ。実失敗BGRAのhash・期待盤面を回帰fixtureへ残し、大きい欠落の拒否・score欄の分離・通常画面・終了画面を検査する。confidence閾値と安全期限は変更しない。WGC timeoutそのものや他の認識失敗をすべて解消したとは扱わない。
 - Issues #459 / #465: language-ciの任意言語jobが対象なしでskippedとなり、全check成功を要求する統合判定を満たせない状態を解消する。Lua・.NET・JavaScript/TypeScriptの各jobは検出値がtrue/falseであることを検証し、falseの場合は対象なしをログへ記録して成功する。trueの場合だけ既存のsetup・build・testを実行し、未定義や不正な検出値は失敗させる。PR #467で用意したworkflow変更を診断機能の統合に先行して適用する。
 - Issue #459: 保存済み2048失敗bundleを再解析する`python -m tools.replay_2048_recognition`を追加する。manifestとBGRAの寸法・SHA-256を検証し、OCRなしの現行Adapterへ同じ画素を渡して盤面・confidenceを記録値と比較する。bundle外の参照、破損、標準外JSON数値、過大入力を拒否し、元の資料は変更しない。比較元なしをnullとして、再解析成功とゲームの正常動作を区別する。

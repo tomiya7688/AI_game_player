@@ -103,6 +103,10 @@ python -m tools.replay_2048_recognition "build/e2e/example/recognition-failure-e
 
 再解析コマンドはv1 schema、frame寸法、BGRA byte数、SHA-256を検証してから認識します。manifestは1 MiB、各BGRAは64 MiBを上限とし、bundle直下の固定名BGRA以外や、bundle外へ解決されるリンクは読みません。上限超過や破損の場合は元artifactと寸法を確認してください。JSON標準外のNaN・Infinityも拒否します。
 
+JSONの検証は未知の診断項目も含む全階層に適用します。同じobject内の重複キーと、`1e999`のようにfloatへ変換すると無限大になる指数表記も拒否します。比較元の`game_state`はobjectである必要があります。`confidence`があればbool/nullを除く0〜1の数値、`board`があればnullまたは4×4配列、各cellはnull・整数0・2以上の2冪整数を指定してください。整数に見えるfloatのcellは受理しません。board/confidenceの項目欠落は従来どおり比較不能として許可します。
+
+全frameの比較元を先に検証するため、後続frameのboard/confidenceが不正でも先行frameの画素読込・認識は始まりません。型違いを認識結果の差として扱わず、入力エラーの終了値2で理由を表示します。frameの寸法・ファイル・hash検査は、比較元の検証を終えた後にframeごとに行います。元の資料を修正したり、不正な値を正規化して一致に見せたりはしません。
+
 標準出力のJSONには各frameの`recorded_game_state`、`replayed_game_state`、`visual_matches`、候補数が入ります。`visual_matches.board`と`visual_matches.confidence`は、記録値と一致すればtrue、不一致ならfalse、解析例外などで記録値がなければnullです。元のOCR入力を保存していないため、score・state_signature・OCRに由来する終了判定は一致比較に含めません。現行Adapterを変更した場合、不一致は認識器の挙動が変わったことを示し、保存データの破損とは区別します。
 
 終了値0は再解析完了かつ比較済み項目に不一致なし、1は盤面またはconfidenceに不一致、2は入力・hash・解析のエラーです。記録も再解析も盤面未検出なら一致となるため、終了値0はゲームが操作可能だったことやCI失敗の解消を意味しません。nullの項目は比較未実施として確認してください。

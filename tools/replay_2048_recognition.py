@@ -11,15 +11,12 @@ from ai_game_player.capture_geometry import BGRA_BYTES_PER_PIXEL
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
+from tools.recognition_evidence_validation import parse_evidence_json, validate_recorded_visual_state
 
 
 MAX_MANIFEST_BYTES = 1024 * 1024
 MAX_FRAME_BYTES = 64 * 1024 * 1024
 FRAME_FILES = {"last_playable": "last-playable.bgra", "last_capture": "last-captured.bgra"}
-
-
-def _reject_nonfinite_json(value: str) -> None:
-    raise ValueError(f"manifestにJSON標準外の数値{value}があります。元artifactを確認してください")
 
 
 class RecognitionEvidenceReplay:
@@ -36,26 +33,28 @@ class RecognitionEvidenceReplay:
             encoded = stream.read(MAX_MANIFEST_BYTES + 1)
         if len(encoded) > MAX_MANIFEST_BYTES:
             raise ValueError("manifestが1 MiBを超えています。元artifactのmanifestを確認してください")
-        payload = json.loads(encoded, parse_constant=_reject_nonfinite_json)
+        payload = parse_evidence_json(encoded)
         if not isinstance(payload, dict) or payload.get("schema") != "2048-recognition-evidence/v1":
             raise ValueError("manifestのschemaが2048-recognition-evidence/v1ではありません")
         frames = payload.get("frames")
         if not isinstance(frames, dict) or not frames or frames.keys() - FRAME_FILES.keys():
             raise ValueError("manifestのframesにはlast_playableまたはlast_captureが必要です")
+        # 後続frameの比較元が不正なら、先行frameの画素読込・認識も開始しない。
+        for role, metadata in frames.items():
+            if not isinstance(metadata, dict):
+                raise ValueError(f"{role}: frame情報はJSON objectで指定してください")
+            validate_recorded_visual_state(role, metadata.get("game_state"))
         results = {role: self._replay_frame(role, metadata) for role, metadata in frames.items()}
         return {"schema": "2048-recognition-replay/v1", "ocr_enabled": False, "frames": results}
 
-    def _replay_frame(self, role: str, metadata: object) -> dict[str, object]:
-        if not isinstance(metadata, dict):
-            raise ValueError(f"{role}: frame情報はJSON objectで指定してください")
+    def _replay_frame(self, role: str, metadata: dict) -> dict[str, object]:
+        """runで比較元を検証済みのframeを読み、画素認識の結果と記録値の比較を返す。"""
         frame = self._read_frame(role, metadata)
         adapted, candidates = self.adapter.adapt(
             frame, ScreenObservation("2048-evidence-replay", frame.width, frame.height)
         )
         current = adapted.features["game_2048"]
-        recorded = metadata.get("game_state")
-        if not isinstance(recorded, dict):
-            raise ValueError(f"{role}: game_stateがJSON objectではありません")
+        recorded = metadata["game_state"]
         # score・state_signature・OCR由来の終了判定は画素だけでは同じ入力を再現できない。
         comparison = {
             key: recorded[key] == current[key] if key in recorded else None
