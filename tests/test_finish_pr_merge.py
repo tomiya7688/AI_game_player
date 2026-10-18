@@ -58,6 +58,12 @@ def _passing_checks_response(checks: list[dict[str, object]] | None = None) -> C
 
 
 class FinishPullRequestMergeTests(unittest.TestCase):
+    def setUp(self):
+        # event別REST検証はtest_finish_pr_workflow_runs.pyでmerge入口を含めて検査する。
+        workflow_patch = patch("tools.finish_pr_merge._require_workflow_runs")
+        workflow_patch.start()
+        self.addCleanup(workflow_patch.stop)
+
     @patch("tools.finish_pr_merge._run_gh")
     def test_all_checks_pass_and_empty_review_threads_allow_merge(self, run_gh_mock: unittest.mock.Mock) -> None:
         run_gh_mock.side_effect = [

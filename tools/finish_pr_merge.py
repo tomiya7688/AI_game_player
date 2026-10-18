@@ -8,6 +8,11 @@ import sys
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
+try:
+    from tools.pr_workflow_evidence import WorkflowRunGate, WorkflowEvidenceError
+except ModuleNotFoundError:
+    from pr_workflow_evidence import WorkflowRunGate, WorkflowEvidenceError
+
 API_COMMAND_TIMEOUT_SECONDS = 60
 CHECK_COMMAND_TIMEOUT_SECONDS = 60 * 60
 MAX_REVIEW_THREAD_PAGES = 100
@@ -599,6 +604,23 @@ def _stop_for_unresolved_review_threads(threads: list[UnresolvedReviewThread]) -
     raise MergeGateError("Unresolved inline review comments block PR merge.")
 
 
+def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str) -> None:
+    """check一覧と別に、固定headのpush/PR必須workflowの最新attemptをREST APIで検証する。"""
+    def read_json(endpoint: str) -> object:
+        result = _run_successful_gh_command(
+            ["api", "--method", "GET", endpoint], API_COMMAND_TIMEOUT_SECONDS, "Workflow Run lookup"
+        )
+        return _decode_json_output(result, "Workflow Run lookup")
+
+    try:
+        WorkflowRunGate(
+            f"{pull_request.owner}/{pull_request.repository}", pull_request.number, head_sha, read_json
+        ).verify()
+    except WorkflowEvidenceError as error:
+        raise MergeGateError(str(error)) from error
+    print("[OK] Required 7 workflows passed for both push and pull_request events.", flush=True)
+
+
 # {
 #   責務: [
 #     merge_pull_request_when_safe: PR状態・CI・inline reviewを確認し、安全条件を満たした同一commitだけmergeする
@@ -607,8 +629,9 @@ def _stop_for_unresolved_review_threads(threads: list[UnresolvedReviewThread]) -
 #     1: PR URLを検証し、初期状態とhead commitを記録する,
 #     2: status checkの完了を待ち、すべてpassであることを再確認する,
 #     3: 全inline review threadを取得し、未解決指摘がないことを確認する,
-#     4: PR状態とhead commitが確認開始時から変わっていないことを確かめる,
-#     5: 確認済みhead SHAを--match-head-commitへ渡してmergeする
+#     4: 固定headのpush・PR各eventで必須workflowの最新attemptがすべて成功したことをREST APIで検証する,
+#     5: PR状態とhead commitが確認開始時から変わっていないことを確かめる,
+#     6: 確認済みhead SHAを--match-head-commitへ渡してmergeする
 #   ],
 #   引数: [
 #     pull_request_url: finish_pr.batが現在のbranchから取得したmerge対象PRのURL
@@ -627,6 +650,7 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
     _read_status_checks(pull_request)
     unresolved_threads = _read_unresolved_review_threads(pull_request)
     _stop_for_unresolved_review_threads(unresolved_threads)
+    _require_workflow_runs(pull_request, initial_snapshot.head_sha)
 
     current_snapshot = _read_pull_request_snapshot(pull_request)
     if current_snapshot.head_sha != initial_snapshot.head_sha:
@@ -671,7 +695,8 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
 def main(arguments: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Wait for every GitHub PR status check, reject unresolved inline review threads, "
+            "Wait for GitHub PR checks, require successful push and PR workflow runs, "
+            "reject unresolved inline review threads, "
             "and merge only the verified head commit."
         )
     )

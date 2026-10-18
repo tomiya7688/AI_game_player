@@ -135,6 +135,7 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         source.analyzer = FakeAnalyzer()
         source.adapter = FakeAdapter()
         source._cached_read = None
+        source.failure_evidence = None
 
         with patch.object(run_2048_campaign, "SCREEN_READY_POLL_SECONDS", 0):
             state = source.capture_playable_state(
@@ -215,6 +216,7 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         source.analyzer = FakeAnalyzer()
         source.adapter = FakeAdapter()
         source._cached_read = None
+        source.failure_evidence = None
         current_time = [0.0]
 
         def advance_monotonic_clock():

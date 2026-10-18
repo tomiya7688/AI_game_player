@@ -20,7 +20,7 @@ from ai_game_player.game_2048_board import (
     FRAME_BYTES_PER_PIXEL,
     MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED,
     MAXIMUM_BOARD_ROW_COLOR_GAP_PIXELS,
-    MAXIMUM_ROW_GROUP_Y_DELTA,
+    group_board_color_rows,
     MINIMUM_ROW_MATCH_PIXELS,
     MINIMUM_ROW_MATCH_WIDTH_FRACTION,
     MINIMUM_ROW_SPAN_PIXELS,
@@ -143,12 +143,7 @@ def board_row_group_diagnostics(
         if matching_pixels >= minimum_row_pixels and right - left >= minimum_row_span:
             matched_rows.append((y, left, right, matching_pixels))
 
-    row_groups = []
-    for row in matched_rows:
-        if row_groups and row[0] <= row_groups[-1][-1][0] + MAXIMUM_ROW_GROUP_Y_DELTA:
-            row_groups[-1].append(row)
-        else:
-            row_groups.append([row])
+    row_groups = group_board_color_rows(matched_rows)
 
     group_summaries = []
     for group in row_groups:
