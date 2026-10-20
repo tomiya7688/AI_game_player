@@ -13,6 +13,16 @@ Do not begin by reading the entire repository, every document, all Issues, gener
 
 When **Goal / Required / Acceptance** are all known well enough to implement and validate the task, stop broad exploration. Resume exploration only for a concrete missing fact discovered during implementation or validation. Report unavoidable gaps as `Unverified` instead of reading unrelated areas defensively.
 
+## Multi-agent collaboration (mandatory for Claude Code, Codex, ChatGPT, Copilot, humans)
+
+Full rules: `doc/ワークフロー/ワークフロー.md` ("複数AI・人が共同で作業するときの共通ルール"). Coding rules: `doc/コーディングルール.md` — always follow them.
+
+1. **Pull every session start:** `git fetch origin main` (and `git pull --ff-only origin main` if on `main`). If it fails, report it; do not build on a stale base.
+2. **Claim the Issue** before starting: no existing open PR/branch for it, then comment "着手: <agent>, <branch>". Never touch an Issue another agent claimed.
+3. **One Issue = one worktree = one branch (`<agent>/issue-N-slug`) = one PR.** Never edit other agents' worktrees or uncommitted changes.
+4. **Before the PR:** pull again and merge `origin/main`; run `finish_task.bat`; self-review `git diff origin/main...HEAD` against the 7 points in the coding rules and record them in the PR "Self-review" section.
+5. **After the PR:** wait for all required CI (push and pull_request) to succeed with no unresolved review threads; merge only if the self-review has no open finding. Otherwise leave the PR as Draft, record why on the PR and Issue, and hand off. Never bypass CI/review (`--no-verify`, `--admin`, force push to `main`).
+
 ## Compressed project state (Issue #19)
 
 Goal: establish a safe closed loop for one GUI game without hand-editing candidate JSON.
