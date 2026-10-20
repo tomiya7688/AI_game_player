@@ -62241,6 +62241,1468 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.finish_pr_merge"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "redirect_stderr"
+            },
+            {
+              "alias": null,
+              "name": "redirect_stdout"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "StringIO"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "CompletedProcess"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "tools",
+            "tools.finish_pr_merge"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "finish_pr_merge"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_finish_pr_merge",
+      "path": "tests/test_finish_pr_merge.py",
+      "source_location": {
+        "end_line": 302,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_completed_process",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "stdout"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "stderr"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "return_code"
+            }
+          ],
+          "qualified_name": "_completed_process",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(stdout: str = …, stderr: str = …, return_code: int = …) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 22,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_pull_request_snapshot",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "head_sha"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "_pull_request_snapshot",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(head_sha: str = …, state: str = …) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_review_thread_response",
+          "parameters": [
+            {
+              "annotation": "list[dict[str, object]] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "threads"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "has_next_page"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "end_cursor"
+            }
+          ],
+          "qualified_name": "_review_thread_response",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(threads: list[dict[str, object]] | None = …, has_next_page: bool = …, end_cursor: str | None = …) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 52,
+            "start_line": 31
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_passing_checks_response",
+          "parameters": [
+            {
+              "annotation": "list[dict[str, object]] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "checks"
+            }
+          ],
+          "qualified_name": "_passing_checks_response",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(checks: list[dict[str, object]] | None = …) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 57,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FinishPullRequestMergeTests",
+          "parameters": [],
+          "qualified_name": "FinishPullRequestMergeTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 298,
+            "start_line": 60
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 65,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch(REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_all_checks_pass_and_empty_review_threads_allow_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "unittest.mock.Mock",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "run_gh_mock"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_all_checks_pass_and_empty_review_threads_allow_merge",
+          "return_annotation": "None",
+          "signature": "(self, run_gh_mock: unittest.mock.Mock) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 99,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_failed_check_wait_command_stops_before_review_lookup_or_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_failed_check_wait_command_stops_before_review_lookup_or_merge",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 101
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pending_failed_cancelled_skipped_and_unknown_checks_block_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_pending_failed_cancelled_skipped_and_unknown_checks_block_merge",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 117
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_no_status_checks_block_merge_even_when_watch_exits_successfully",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_no_status_checks_block_merge_even_when_watch_exits_successfully",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unresolved_review_comment_location_and_body_are_displayed_and_block_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_unresolved_review_comment_location_and_body_are_displayed_and_block_merge",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_github_authentication_error_stops_before_status_checks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_github_authentication_error_stops_before_status_checks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 202,
+            "start_line": 191
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_pull_request_state_stops_before_status_checks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_unknown_pull_request_state_stops_before_status_checks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 204
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_changed_head_commit_stops_before_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_changed_head_commit_stops_before_merge",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 235,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_review_thread_pagination_checks_comments_on_later_pages",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_review_thread_pagination_checks_comments_on_later_pages",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 269,
+            "start_line": 237
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_github_and_malformed_pull_request_urls_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_non_github_and_malformed_pull_request_urls_are_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 286,
+            "start_line": 271
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_batch_script_calls_merge_gate_before_switching_to_main",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_batch_script_calls_merge_gate_before_switching_to_main",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 298,
+            "start_line": 288
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.finish_pr_merge",
+        "tools.pr_workflow_evidence"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "deepcopy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "redirect_stdout"
+            },
+            {
+              "alias": null,
+              "name": "redirect_stderr"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "StringIO"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "CompletedProcess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "parse_qs"
+            },
+            {
+              "alias": null,
+              "name": "urlsplit"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "tools",
+            "tools.finish_pr_merge"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "finish_pr_merge"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "tools",
+            "tools.pr_workflow_evidence"
+          ],
+          "module": "tools.pr_workflow_evidence",
+          "names": [
+            {
+              "alias": null,
+              "name": "REQUIRED_WORKFLOW_PATHS"
+            },
+            {
+              "alias": null,
+              "name": "WorkflowRunGate"
+            },
+            {
+              "alias": null,
+              "name": "WorkflowEvidenceError"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_finish_pr_workflow_runs",
+      "path": "tests/test_finish_pr_workflow_runs.py",
+      "source_location": {
+        "end_line": 215,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "completed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "completed",
+          "return_annotation": null,
+          "signature": "(payload)",
+          "source_location": {
+            "column": 0,
+            "end_line": 20,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_runs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "make_runs",
+          "return_annotation": null,
+          "signature": "(event)",
+          "source_location": {
+            "column": 0,
+            "end_line": 39,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowMergeEntryTests",
+          "parameters": [],
+          "qualified_name": "WorkflowMergeEntryTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 65,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_successful_check_list_does_not_hide_failed_push_workflow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_successful_check_list_does_not_hide_failed_push_workflow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 65,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_gh",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_successful_check_list_does_not_hide_failed_push_workflow.run_gh",
+          "return_annotation": null,
+          "signature": "(arguments, timeout)",
+          "source_location": {
+            "column": 8,
+            "end_line": 59,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowRunGateTests",
+          "parameters": [],
+          "qualified_name": "WorkflowRunGateTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 211,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read_json",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "endpoint"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.read_json",
+          "return_annotation": null,
+          "signature": "(self, endpoint)",
+          "source_location": {
+            "column": 4,
+            "end_line": 83,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "verify",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.verify",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 86,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "newest",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "conclusion"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.newest",
+          "return_annotation": null,
+          "signature": "(self, conclusion = …, status = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_all_fourteen_required_pairs_pass",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_all_fourteen_required_pairs_pass",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 95,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_required_policy_matches_repository_workflows",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_required_policy_matches_repository_workflows",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_event_runs_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_missing_event_runs_stop",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_required_path_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_missing_required_path_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 111,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_newest_failed_run_is_not_hidden_by_previous_success",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_newest_failed_run_is_not_hidden_by_previous_success",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 113
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_newest_pending_run_is_not_hidden_by_previous_success",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_newest_pending_run_is_not_hidden_by_previous_success",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 121,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_newest_success_does_not_reuse_old_failed_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_newest_success_does_not_reuse_old_failed_run",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 126,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_current_rerun_attempt_must_be_successful",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_current_rerun_attempt_must_be_successful",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 131,
+            "start_line": 128
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wrong_head_or_event_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_wrong_head_or_event_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wrong_or_malformed_repository_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_wrong_or_malformed_repository_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unavailable_or_other_pr_association_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_unavailable_or_other_pr_association_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_run_id_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_duplicate_run_id_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 160,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_run_id_or_attempt_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_invalid_run_id_or_attempt_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 169,
+            "start_line": 162
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_malformed_api_response_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_malformed_api_response_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 171
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_incomplete_page_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_incomplete_page_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "add_pagination_runs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.add_pagination_runs",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_count_change_between_pages_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_count_change_between_pages_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 194,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_all_pages_are_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_all_pages_are_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 199,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_api_result_limit_is_not_accepted_as_complete",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_api_result_limit_is_not_accepted_as_complete",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 204,
+            "start_line": 201
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_creation_time_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_invalid_creation_time_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 211,
+            "start_line": 206
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.capture_geometry",
         "ai_game_player.capture_region",
@@ -93837,6 +95299,626 @@
       ]
     },
     {
+      "dependencies": [
+        "tools",
+        "tools.pr_workflow_evidence"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "tools",
+            "tools.pr_workflow_evidence"
+          ],
+          "module": "tools.pr_workflow_evidence",
+          "names": [
+            {
+              "alias": null,
+              "name": "WorkflowRunGate"
+            },
+            {
+              "alias": null,
+              "name": "WorkflowEvidenceError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "pr_workflow_evidence",
+          "names": [
+            {
+              "alias": null,
+              "name": "WorkflowRunGate"
+            },
+            {
+              "alias": null,
+              "name": "WorkflowEvidenceError"
+            }
+          ]
+        }
+      ],
+      "module": "tools.finish_pr_merge",
+      "path": "tools/finish_pr_merge.py",
+      "source_location": {
+        "end_line": 715,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PullRequestReference",
+          "parameters": [],
+          "qualified_name": "PullRequestReference",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 67,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PullRequestSnapshot",
+          "parameters": [],
+          "qualified_name": "PullRequestSnapshot",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 84,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "UnresolvedReviewThread",
+          "parameters": [],
+          "qualified_name": "UnresolvedReviewThread",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MergeGateError",
+          "parameters": [],
+          "qualified_name": "MergeGateError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 117,
+            "start_line": 116
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "parse_pull_request_reference",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request_url"
+            }
+          ],
+          "qualified_name": "parse_pull_request_reference",
+          "return_annotation": "PullRequestReference",
+          "signature": "(pull_request_url: str) -> PullRequestReference",
+          "source_location": {
+            "column": 0,
+            "end_line": 169,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_run_gh",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout_seconds"
+            }
+          ],
+          "qualified_name": "_run_gh",
+          "return_annotation": "subprocess.CompletedProcess[str]",
+          "signature": "(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 209,
+            "start_line": 191
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_command_details",
+          "parameters": [
+            {
+              "annotation": "subprocess.CompletedProcess[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "command_result"
+            }
+          ],
+          "qualified_name": "_command_details",
+          "return_annotation": "str",
+          "signature": "(command_result: subprocess.CompletedProcess[str]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 234,
+            "start_line": 228
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_run_successful_gh_command",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout_seconds"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_description"
+            }
+          ],
+          "qualified_name": "_run_successful_gh_command",
+          "return_annotation": "subprocess.CompletedProcess[str]",
+          "signature": "(arguments: list[str], timeout_seconds: int, action_description: str) -> subprocess.CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 266,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_decode_json_output",
+          "parameters": [
+            {
+              "annotation": "subprocess.CompletedProcess[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "command_result"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_description"
+            }
+          ],
+          "qualified_name": "_decode_json_output",
+          "return_annotation": "object",
+          "signature": "(command_result: subprocess.CompletedProcess[str], action_description: str) -> object",
+          "source_location": {
+            "column": 0,
+            "end_line": 292,
+            "start_line": 288
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_pull_request_snapshot",
+          "parameters": [
+            {
+              "annotation": "PullRequestReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request"
+            }
+          ],
+          "qualified_name": "_read_pull_request_snapshot",
+          "return_annotation": "PullRequestSnapshot",
+          "signature": "(pull_request: PullRequestReference) -> PullRequestSnapshot",
+          "source_location": {
+            "column": 0,
+            "end_line": 338,
+            "start_line": 314
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_wait_for_status_checks",
+          "parameters": [
+            {
+              "annotation": "PullRequestReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request"
+            }
+          ],
+          "qualified_name": "_wait_for_status_checks",
+          "return_annotation": "None",
+          "signature": "(pull_request: PullRequestReference) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 371,
+            "start_line": 359
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_status_checks",
+          "parameters": [
+            {
+              "annotation": "PullRequestReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request"
+            }
+          ],
+          "qualified_name": "_read_status_checks",
+          "return_annotation": "list[dict[str, object]]",
+          "signature": "(pull_request: PullRequestReference) -> list[dict[str, object]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 428,
+            "start_line": 394
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_decode_review_thread_page",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "response_data"
+            }
+          ],
+          "qualified_name": "_decode_review_thread_page",
+          "return_annotation": "tuple[list[UnresolvedReviewThread], bool, str | None]",
+          "signature": "(response_data: object) -> tuple[list[UnresolvedReviewThread], bool, str | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 509,
+            "start_line": 450
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_unresolved_review_threads",
+          "parameters": [
+            {
+              "annotation": "PullRequestReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request"
+            }
+          ],
+          "qualified_name": "_read_unresolved_review_threads",
+          "return_annotation": "list[UnresolvedReviewThread]",
+          "signature": "(pull_request: PullRequestReference) -> list[UnresolvedReviewThread]",
+          "source_location": {
+            "column": 0,
+            "end_line": 571,
+            "start_line": 532
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_stop_for_unresolved_review_threads",
+          "parameters": [
+            {
+              "annotation": "list[UnresolvedReviewThread]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "threads"
+            }
+          ],
+          "qualified_name": "_stop_for_unresolved_review_threads",
+          "return_annotation": "None",
+          "signature": "(threads: list[UnresolvedReviewThread]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 604,
+            "start_line": 592
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_workflow_runs",
+          "parameters": [
+            {
+              "annotation": "PullRequestReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "head_sha"
+            }
+          ],
+          "qualified_name": "_require_workflow_runs",
+          "return_annotation": "None",
+          "signature": "(pull_request: PullRequestReference, head_sha: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 621,
+            "start_line": 607
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_json",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "endpoint"
+            }
+          ],
+          "qualified_name": "_require_workflow_runs.read_json",
+          "return_annotation": "object",
+          "signature": "(endpoint: str) -> object",
+          "source_location": {
+            "column": 4,
+            "end_line": 613,
+            "start_line": 609
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "merge_pull_request_when_safe",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pull_request_url"
+            }
+          ],
+          "qualified_name": "merge_pull_request_when_safe",
+          "return_annotation": "None",
+          "signature": "(pull_request_url: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 676,
+            "start_line": 646
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(arguments: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 711,
+            "start_line": 695
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -95046,6 +97128,231 @@
             "column": 0,
             "end_line": 38,
             "start_line": 11
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            },
+            {
+              "alias": null,
+              "name": "timezone"
+            }
+          ]
+        }
+      ],
+      "module": "tools.pr_workflow_evidence",
+      "path": "tools/pr_workflow_evidence.py",
+      "source_location": {
+        "end_line": 116,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowEvidenceError",
+          "parameters": [],
+          "qualified_name": "WorkflowEvidenceError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 17,
+            "start_line": 16
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowRunGate",
+          "parameters": [],
+          "qualified_name": "WorkflowRunGate",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 116,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repository"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pr_number"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "head_sha"
+            },
+            {
+              "annotation": "Callable[[str], object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "read_json"
+            }
+          ],
+          "qualified_name": "WorkflowRunGate.__init__",
+          "return_annotation": "None",
+          "signature": "(self, repository: str, pr_number: int, head_sha: str, read_json: Callable[[str], object]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 27,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "verify",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGate.verify",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_read_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "WorkflowRunGate._read_event",
+          "return_annotation": "list[dict]",
+          "signature": "(self, event: str) -> list[dict]",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_validate_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "run"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "set[int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seen_ids"
+            }
+          ],
+          "qualified_name": "WorkflowRunGate._validate_run",
+          "return_annotation": "datetime",
+          "signature": "(self, run: dict, event: str, seen_ids: set[int]) -> datetime",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 80
           }
         }
       ]

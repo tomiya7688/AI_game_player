@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Issue #465 追加レビュー: check一覧と別に、固定PR headのpush・pull_request Workflow RunをREST APIで照合する。必須7 workflow×2 eventについて作成時刻（同時刻はrun ID）で最新runを選び、現在attemptがcompleted/successの場合だけmergeへ進む。欠落・未成功・別head/event/repo/PR・重複ID・件数変動・不完全page・1000件上限到達・API/JSON異常は停止する。check・review・head固定の既存検証は維持する。
+- Issue #465 診断文: CI待機が失敗した場合、merge gateは対象PRのURLと`gh pr checks`の確認commandを表示する。長いwatch出力で失敗jobの行が省略されても、開発者が対象PRのcheck一覧を確認できるようにする。
+- Issue #465: `finish_pr.bat`はPR作成後にCI status checkの完了を待ち、GitHub CLIが返す全checkのbucketが`pass`であることを確認する。checkがない場合、pending、failed、cancelled、skipped、未知状態、認証・API・JSON解析エラーの場合はmergeしない。GitHub GraphQL APIからreview threadを全ページ確認し、未解決commentの場所・投稿者・本文を表示して停止する。checkとreview確認中にhead commitが変わった場合も停止し、確認済みhead SHAを`gh pr merge --match-head-commit`へ渡す。ゲート停止後は既存PRを再利用して確認を再開できる。11件の単体テストで成功、CI異常、空check、comment、認証失敗、head更新を検証する。
 - Issue #459 / PR #469追加レビュー: 保存証拠の全階層で重複JSONキーと非有限float（NaN・Infinity・1e999などの変換overflow）を拒否する。boardはnullまたは4×4、cellはnull・整数0・2以上の2冪整数、confidenceはbool/nullを除く0〜1の数値として比較前に検証する。比較元が不正なframeが一つでもあれば全frameの画素読込・認識を開始せず、CLI終了値2で理由を表示する。記録値の欠落は比較不能null、正当な認識結果の差は終了値1のままとする。
 - Issue #459: CIの実失敗画像で盤面未検出を再現し、盤面色の帯が2行欠落しただけで正方形候補を上下に分断していた処理を修正する。縦方向の短い欠落を固定版CSSの盤面余白3%以内で橋渡しし、従来の2 pixelを超える欠落では横端の一致も要求して近接score欄の混入を防ぐ。実失敗BGRAのhash・期待盤面を回帰fixtureへ残し、大きい欠落の拒否・score欄の分離・通常画面・終了画面を検査する。confidence閾値と安全期限は変更しない。WGC timeoutそのものや他の認識失敗をすべて解消したとは扱わない。
 - Issues #459 / #465: language-ciの任意言語jobが対象なしでskippedとなり、全check成功を要求する統合判定を満たせない状態を解消する。Lua・.NET・JavaScript/TypeScriptの各jobは検出値がtrue/falseであることを検証し、falseの場合は対象なしをログへ記録して成功する。trueの場合だけ既存のsetup・build・testを実行し、未定義や不正な検出値は失敗させる。PR #467で用意したworkflow変更を診断機能の統合に先行して適用する。
