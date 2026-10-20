@@ -1,0 +1,288 @@
+from dataclasses import dataclass, field
+from math import isfinite
+from typing import Any, Mapping
+
+from ai_game_player.decision_context import DecisionContext
+from ai_game_player.models import ActionDecision
+
+BASELINE_PROVIDER_ID = "baseline_weighted_score"
+BASELINE_VERSION = "1"
+SELECT = "select"
+ABSTAIN = "abstain"
+OBSERVE_MORE = "observe_more"
+DEFAULT_WEIGHTS: dict[str, float] = {"utility": 1.0, "recognition": 0.3, "knowledge_prior": 0.5}
+
+
+# {
+#   責務: [
+#     BaselineProviderProfile: 学習Model・GPU・通信なしで動く判断元が、満たす条件と対応する判断能力を機械可読に宣言する
+#   ]
+#   フィールド: [
+#     provider_kind: deterministic・quantitative・decision_treeのいずれか,
+#     supported_capabilities: この判断元がModelなしで成立させる判断能力名,
+#     expected_latency_class: 1回の判断に要する時間の区分,
+#     fallback_priority: 小さいほどModel不可時に先に使う優先順位,
+#     deterministic_version: 同じ入力から同じ結果を返す実装の版
+#   ]
+# }
+@dataclass(frozen=True)
+class BaselineProviderProfile:
+    provider_id: str
+    provider_kind: str
+    supported_capabilities: tuple[str, ...]
+    expected_latency_class: str = "microseconds"
+    required_features: tuple[str, ...] = ("candidates.utility_score", "candidates.recognition_confidence")
+    optional_knowledge_inputs: tuple[str, ...] = ("knowledge_snapshot",)
+    fallback_priority: int = 100
+    deterministic_version: str = BASELINE_VERSION
+    requires_learned_model: bool = False
+    requires_gpu: bool = False
+    requires_network: bool = False
+
+    def __post_init__(self) -> None:
+        if self.provider_kind not in {"deterministic", "quantitative", "decision_tree"}:
+            raise ValueError("provider_kind must be deterministic, quantitative or decision_tree")
+        if self.requires_learned_model or self.requires_gpu or self.requires_network:
+            raise ValueError("a baseline provider must not require a learned model, GPU or network")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "provider_id": self.provider_id,
+            "provider_kind": self.provider_kind,
+            "requires_learned_model": self.requires_learned_model,
+            "requires_gpu": self.requires_gpu,
+            "requires_network": self.requires_network,
+            "supported_capabilities": list(self.supported_capabilities),
+            "expected_latency_class": self.expected_latency_class,
+            "required_features": list(self.required_features),
+            "optional_knowledge_inputs": list(self.optional_knowledge_inputs),
+            "fallback_priority": self.fallback_priority,
+            "deterministic_version": self.deterministic_version,
+        }
+
+
+# {
+#   責務: [
+#     BaselineDecision: 1回のModel不要判断の結果と、採用規則・候補別スコア・寄与内訳を保持する
+#   ]
+#   フィールド: [
+#     kind: select（候補を選ぶ）・abstain（選ばない）・observe_more（再観測を求める）,
+#     selected_action_id: kindがselectのときだけ許可候補のID,
+#     score_by_action: 許可候補ごとの総合スコア,
+#     margin: 最良と次点のスコア差。候補が1件なら最良スコア,
+#     confidence: 選択候補の認識確信度と評価確信度の小さい方,
+#     rule_id: 結論を決めた規則名,
+#     contributions: 候補ごとのスコア寄与の内訳,
+#     knowledge_snapshot_version: 利用したKnowledge Snapshotの版。未使用または不正ならNone,
+#     provenance: 入力の扱い（Snapshot拒否など）を説明する文
+#   ]
+# }
+@dataclass(frozen=True)
+class BaselineDecision:
+    kind: str
+    selected_action_id: str | None
+    score_by_action: dict[str, float]
+    margin: float
+    confidence: float
+    rule_id: str
+    provider_id: str
+    version: str
+    contributions: dict[str, dict[str, float]] = field(default_factory=dict)
+    knowledge_snapshot_version: str | None = None
+    provenance: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "selected_action_id": self.selected_action_id,
+            "score_by_action": self.score_by_action,
+            "margin": self.margin,
+            "confidence": self.confidence,
+            "rule_id": self.rule_id,
+            "provider_id": self.provider_id,
+            "version": self.version,
+            "contributions": self.contributions,
+            "knowledge_snapshot_version": self.knowledge_snapshot_version,
+            "provenance": list(self.provenance),
+        }
+
+
+# {
+#   責務: [
+#     BaselineWithheld: Baselineが候補を選ばなかったことを、既存EngineのValueError経路へ安全に伝える
+#   ]
+#   フィールド: [decision: 保留（abstainまたはobserve_more）の理由と内訳を持つ判断]
+# }
+class BaselineWithheld(ValueError):
+    def __init__(self, decision: BaselineDecision) -> None:
+        super().__init__(f"baseline withheld action: {decision.kind} ({decision.rule_id})")
+        self.decision = decision
+
+
+# {
+#   責務: [
+#     BaselineDecisionProvider: 学習Modelなしで、許可候補の評価値・認識確信度・Knowledge priorの重み付き和から候補を選ぶ参照実装
+#   ]
+#   フィールド: [
+#     weights: utility・recognition・knowledge_priorの各重み,
+#     min_margin: 最良と次点の差がこの値未満ならabstainする閾値。0なら同点でも選ぶ,
+#     min_recognition: 最良候補の認識確信度がこの値未満ならobserve_moreする閾値,
+#     profile: 機械可読な能力宣言
+#   ]
+#   処理: [
+#     1: DecisionContextの許可候補だけを採点する
+#     2: 選択前に認識確信度とスコア差を検査し、不足なら選ばず保留を返す
+#     3: 規則名とスコア内訳をBaselineDecisionに残す
+#   ]
+# }
+class BaselineDecisionProvider:
+    def __init__(
+        self,
+        weights: Mapping[str, float] | None = None,
+        min_margin: float = 0.05,
+        min_recognition: float = 0.6,
+        knowledge_snapshot: Mapping[str, Any] | None = None,
+        fallback_priority: int = 100,
+    ) -> None:
+        merged = dict(DEFAULT_WEIGHTS)
+        for key, raw in (weights or {}).items():
+            if key not in DEFAULT_WEIGHTS:
+                raise ValueError(f"unknown baseline weight: {key}")
+            value = float(raw)
+            if not isfinite(value) or value < 0:
+                raise ValueError(f"baseline weight must be finite and non-negative: {key}")
+            merged[key] = value
+        if not isfinite(min_margin) or min_margin < 0:
+            raise ValueError("min_margin must be finite and non-negative")
+        if not isfinite(min_recognition) or not 0 <= min_recognition <= 1:
+            raise ValueError("min_recognition must be between 0 and 1")
+        self.weights = merged
+        self.min_margin = min_margin
+        self.min_recognition = min_recognition
+        self.knowledge_snapshot = knowledge_snapshot
+        self.profile = BaselineProviderProfile(
+            BASELINE_PROVIDER_ID,
+            "quantitative",
+            ("candidate_choice", "candidate_scoring", "observe_more_abstain"),
+            fallback_priority=fallback_priority,
+        )
+
+    # {
+    #   責務: [decide: 許可候補を採点し、選択・abstain・observe_moreのいずれかとその根拠を返す]
+    #   処理: [
+    #     1: Knowledge Snapshotを検証し、壊れていれば無効にして理由をprovenanceへ残す
+    #     2: 許可候補ごとにutility・recognition・knowledge_priorの寄与を計算して合計する
+    #     3: 最良候補の認識確信度が低ければobserve_more、スコア差が小さければabstainにする
+    #   ]
+    #   引数: [context: 許可状態・評価値・認識確信度を含む判断材料。許可されていない候補は採点しない]
+    #   戻り値: [BaselineDecision: 判断の種別・候補別スコア・採用規則・寄与内訳]
+    #   エラー: [ValueError: 許可候補が1件もない場合]
+    # }
+    def decide(self, context: DecisionContext) -> BaselineDecision:
+        allowed_ids = set(context.allowed_action_ids)
+        allowed = [c for c in context.candidates if c.allowed and c.action_id in allowed_ids]
+        if not allowed:
+            raise ValueError("許可された操作候補がありません")
+        priors, version, provenance = self._read_snapshot()
+        contributions: dict[str, dict[str, float]] = {}
+        scores: dict[str, float] = {}
+        for candidate in allowed:
+            parts = {
+                "utility": self.weights["utility"] * candidate.utility_score,
+                "recognition": self.weights["recognition"] * (candidate.recognition_confidence - 0.5),
+                "knowledge_prior": self.weights["knowledge_prior"] * priors.get(candidate.action_id, 0.0),
+            }
+            contributions[candidate.action_id] = {name: round(value, 6) for name, value in parts.items()}
+            scores[candidate.action_id] = round(sum(parts.values()), 6)
+        ranked = sorted(allowed, key=lambda c: (-scores[c.action_id], -c.recognition_confidence, c.action_id))
+        best = ranked[0]
+        margin = scores[best.action_id] - scores[ranked[1].action_id] if len(ranked) > 1 else scores[best.action_id]
+        confidence = min(best.recognition_confidence, best.utility_confidence)
+        if best.recognition_confidence < self.min_recognition:
+            kind, rule_id = OBSERVE_MORE, "R1_low_recognition_confidence"
+        elif len(ranked) > 1 and margin < self.min_margin:
+            kind, rule_id = ABSTAIN, "R2_low_margin"
+        else:
+            kind, rule_id = SELECT, "R3_highest_weighted_score"
+        return BaselineDecision(
+            kind,
+            best.action_id if kind == SELECT else None,
+            scores,
+            round(margin, 6),
+            round(confidence, 6),
+            rule_id,
+            BASELINE_PROVIDER_ID,
+            BASELINE_VERSION,
+            contributions,
+            version,
+            tuple(provenance),
+        )
+
+    # {
+    #   責務: [choose_context: 既存DecisionEngineのcontext API互換で、選択時だけActionDecisionを返す]
+    #   処理: [判断を保留した場合はBaselineWithheldを送出し、Engineが実行へ進まないようにする]
+    #   引数: [context: 画面状態・許可候補・評価値を含む判断材料, personality: 共通API互換用。参照しない]
+    #   戻り値: [ActionDecision: 選択候補、採用規則とスコアを含む理由、画面参照]
+    #   エラー: [BaselineWithheld: abstainまたはobserve_moreの場合, ValueError: 許可候補がない場合]
+    # }
+    def choose_context(self, context: DecisionContext, personality: str = "") -> ActionDecision:
+        decision = self.decide(context)
+        if decision.kind != SELECT:
+            raise BaselineWithheld(decision)
+        reason = (
+            f"{decision.rule_id}: score={decision.score_by_action[decision.selected_action_id]:.3f}, "
+            f"margin={decision.margin:.3f}"
+        )
+        return ActionDecision(
+            str(decision.selected_action_id),
+            reason,
+            f"{decision.provider_id}/{decision.version}",
+            context.snapshot_id,
+            str(context.state.get("screen_id", "")),
+            str(context.state.get("signature", "")),
+        )
+
+    # {
+    #   責務: [_read_snapshot: 任意のKnowledge Snapshotから候補別priorを取り出し、壊れた入力は静的policyへ戻す]
+    #   処理: [versionが文字列、priorsが-1〜1の有限値のobjectである場合だけ採用し、それ以外は全prior 0として理由を残す]
+    #   引数: []
+    #   戻り値: [tuple: (候補IDごとのprior, Snapshotの版またはNone, 入力の扱いを説明する文のlist)]
+    # }
+    def _read_snapshot(self) -> tuple[dict[str, float], str | None, list[str]]:
+        snapshot = self.knowledge_snapshot
+        if snapshot is None:
+            return {}, None, []
+        try:
+            version = snapshot["version"]
+            raw = snapshot["priors"]
+            if not isinstance(version, str) or not version or not isinstance(raw, Mapping):
+                raise ValueError("invalid snapshot shape")
+            priors = {}
+            for action_id, value in raw.items():
+                number = float(value)
+                if not isfinite(number) or not -1.0 <= number <= 1.0:
+                    raise ValueError("prior out of range")
+                priors[str(action_id)] = number
+            return priors, version, []
+        except (KeyError, TypeError, ValueError) as exc:
+            return {}, None, [f"knowledge_snapshot_rejected:{type(exc).__name__}; default static policy used"]
+
+
+# {
+#   責務: [baseline_capability_matrix: 判断能力ごとにModel不要のfallbackがあるかを機械可読に返す]
+#   処理: [Baselineが対応する能力はprovider_idを、未対応の能力はNoneを持たせる]
+#   引数: [profiles: 検査するBaseline Profile一覧, required: 1.0で必須とする判断能力名]
+#   戻り値: [dict: 能力名からfallbackのprovider_idまたはNoneへの対応]
+# }
+def baseline_capability_matrix(
+    profiles: list[BaselineProviderProfile],
+    required: tuple[str, ...] = ("candidate_choice", "candidate_scoring", "observe_more_abstain"),
+) -> dict[str, str | None]:
+    matrix: dict[str, str | None] = {}
+    for capability in required:
+        providers = sorted(
+            (p for p in profiles if capability in p.supported_capabilities),
+            key=lambda p: (p.fallback_priority, p.provider_id),
+        )
+        matrix[capability] = providers[0].provider_id if providers else None
+    return matrix
