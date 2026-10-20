@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #459: 2048 campaignの操作失敗reportへ、最後の観測要求の経過時間と画面取得・観測通知・画像解析・盤面認識・証拠保持・再試行待機の累積msを追加する。処理区間の例外でも計測を保持し、元の停止分類と理由を変更しない。安全期限の延長や自動re-armは行わず、過去artifactから判別できなかった処理別遅延を次回の失敗で調査するための診断とする。
+
 - Issue #465 追加レビュー: check一覧と別に、固定PR headのpush・pull_request Workflow RunをREST APIで照合する。必須7 workflow×2 eventについて作成時刻（同時刻はrun ID）で最新runを選び、現在attemptがcompleted/successの場合だけmergeへ進む。欠落・未成功・別head/event/repo/PR・重複ID・件数変動・不完全page・1000件上限到達・API/JSON異常は停止する。check・review・head固定の既存検証は維持する。
 - Issue #465 診断文: CI待機が失敗した場合、merge gateは対象PRのURLと`gh pr checks`の確認commandを表示する。長いwatch出力で失敗jobの行が省略されても、開発者が対象PRのcheck一覧を確認できるようにする。
 - Issue #465: `finish_pr.bat`はPR作成後にCI status checkの完了を待ち、GitHub CLIが返す全checkのbucketが`pass`であることを確認する。checkがない場合、pending、failed、cancelled、skipped、未知状態、認証・API・JSON解析エラーの場合はmergeしない。GitHub GraphQL APIからreview threadを全ページ確認し、未解決commentの場所・投稿者・本文を表示して停止する。checkとreview確認中にhead commitが変わった場合も停止し、確認済みhead SHAを`gh pr merge --match-head-commit`へ渡す。ゲート停止後は既存PRを再利用して確認を再開できる。11件の単体テストで成功、CI異常、空check、comment、認証失敗、head更新を検証する。

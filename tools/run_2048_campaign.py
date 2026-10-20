@@ -32,6 +32,7 @@ from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 from tools.recognition_failure_evidence import RecognitionFailureEvidence
+from tools.observation_timing import ObservationTiming
 from tools.reference_game_2048_launcher import ReferenceGame2048Launcher
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 
@@ -66,6 +67,7 @@ class Cached2048ObservationSource:
         self,
         on_fresh_frame: Callable[[], None] | None = None,
     ) -> CampaignState:
+        self.observation_timing = ObservationTiming()
         started_at = time.monotonic()
         deadline = started_at + SCREEN_READY_TIMEOUT_SECONDS
         last_state: dict[str, object] = {}
@@ -79,7 +81,8 @@ class Cached2048ObservationSource:
         while time.monotonic() < deadline:
             capture_attempts += 1
             try:
-                frame = self.capture.capture(self.window_handle)
+                with self.observation_timing.measure("capture"):
+                    frame = self.capture.capture(self.window_handle)
             except Exception as error:
                 raise CampaignFailure(
                     "capture_failure",
@@ -87,10 +90,13 @@ class Cached2048ObservationSource:
                 ) from error
             last_frame = frame
             if on_fresh_frame is not None:
-                on_fresh_frame()
+                with self.observation_timing.measure("observation_refresh"):
+                    on_fresh_frame()
             try:
-                observation = self.analyzer.analyze(frame, "live-2048-campaign")
-                adapted, candidates = self.adapter.adapt(frame, observation)
+                with self.observation_timing.measure("frame_analysis"):
+                    observation = self.analyzer.analyze(frame, "live-2048-campaign")
+                with self.observation_timing.measure("board_adaptation"):
+                    adapted, candidates = self.adapter.adapt(frame, observation)
             except Exception as error:
                 raise self._recognition_failure(
                     f"2048 screen analysis failed: {type(error).__name__}: {error}",
@@ -139,9 +145,11 @@ class Cached2048ObservationSource:
                 )
                 self._cached_read = (adapted, candidates)
                 if self.failure_evidence is not None:
-                    self.failure_evidence.record_playable(frame, raw_state)
+                    with self.observation_timing.measure("evidence_retention"):
+                        self.failure_evidence.record_playable(frame, raw_state)
                 return CampaignState(signature, terminal, score, max_tile)
-            time.sleep(SCREEN_READY_POLL_SECONDS)
+            with self.observation_timing.measure("retry_wait"):
+                time.sleep(SCREEN_READY_POLL_SECONDS)
 
         confidence = last_state.get("confidence")
         candidate_confidence_threshold = getattr(
@@ -359,9 +367,15 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 category = "decision_failure"
             raise CampaignFailure(
                 category,
-                f"2048 pipeline action failed: {type(error).__name__}: {error}{fail_safe_detail}",
+                f"2048 pipeline action failed: {type(error).__name__}: {error}{fail_safe_detail}"
+                f"; observation_timing={json.dumps(self._observation_timing_snapshot(), sort_keys=True)}",
             ) from error
         return CampaignActionResult(result.action_id, result.executed, result.mode, result.detail)
+
+    def _observation_timing_snapshot(self) -> dict[str, object] | None:
+        """最後の観測区間の計測を返す。観測前なら未計測を示すNoneを返す。"""
+        timing = getattr(getattr(self, "source", None), "observation_timing", None)
+        return timing.snapshot() if timing is not None else None
 
     def record_outcome(self, status: str, confidence: float, evidence: str) -> None:
         if self.pipeline is None:
