@@ -158,6 +158,23 @@ classDiagram
         +publish()
         +discard()
     }
+    class BaselineProviderProfile {
+        +__post_init__()
+        +to_dict()
+    }
+    class BaselineDecision {
+        +to_dict()
+    }
+    ValueError <|-- BaselineWithheld
+    class BaselineWithheld {
+        +__init__()
+    }
+    class BaselineDecisionProvider {
+        +__init__()
+        +decide()
+        +choose_context()
+        +_read_snapshot()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
