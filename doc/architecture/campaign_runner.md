@@ -1,5 +1,13 @@
 # Campaign Runnerの実行契約
 
+## 2048の操作失敗から観測処理の遅延を調べる
+
+2048 campaignを調査する開発者は、`report.json`の`failure_detail`に付く`observation_timing`を確認してください。`ReferenceGame2048Episode.act`が例外で終了した場合、最後の観測要求の計測値を停止理由とともに残します。観測前の失敗では値はnullです。通常の成功reportには処理別計測を追加しません。
+
+`elapsed_ms`は最後の観測要求の開始から失敗診断までの経過msで、観測後の判断処理も含みます。`stage_ms`は、その観測要求中の`capture`（画面取得）、`observation_refresh`（取得直後の観測通知）、`frame_analysis`（画像特徴と任意OCRの解析）、`board_adaptation`（2048盤面と操作候補の認識）、`evidence_retention`（診断用画面参照と認識結果の保持）、`retry_wait`（操作可能盤面を待つ待機）の累積msです。実行しなかった区間のキーはありません。複数回取得した場合は同じ区間へ加算します。区間内で例外が起きた場合も経過時間を保持します。`active_stage`は実行中の区間名で、区間終了後はnullです。
+
+計測には単調時計を使います。処理時間はOSの待機やスケジューリング遅延も含むため、CPU処理時間や遅延の根本原因を直接示しません。計測だけでleaseを更新したり、自動re-armしたり、5秒の観測期限を延長したりしません。元の停止分類とFailSafeRuntimeの理由も保持します。既存artifactに処理別計測がない場合、取得済みframeの観測時刻と失敗時刻だけで画像解析・盤面認識のどちらが遅れたかを断定しないでください。
+
 ## 目的と対象読者
 
 この文書は、Campaign Runnerを再利用するE2E試験の実装者が、試験時間、episode切替、停止分類、保存結果を同じ契約で扱うための仕様です。episodeはゲームを一度起動してから閉じるまでの試行単位です。画面認識、操作候補の生成、ゲーム攻略方針は対象ゲームごとのepisodeへ委ねます。
@@ -133,6 +141,8 @@ python -m unittest discover -s tests -p test_2048_terminal_render.py -v
 生成ツールは指定先の同名PNG・BGRA・JSONを上書きします。初期出力先は`build/e2e/terminal-render`です。再生成後はPNGの文字とボタンを目視確認し、JSONの生成条件とunit test結果を確認してください。ブラウザのfont・描画環境によって画素hashが変わるため、再生成時のhash一致は合格条件にしません。保存済みBGRAと対応するJSONのhash一致はunit testで検査します。
 
 ## CIの実失敗画像で盤面の短い行欠落を検査する
+
+push run `39409678110`のartifact `12259118469`には、別の操作可能盤面の分断も記録されました。`gdi-internal-fragments.bgra.zlib`と対応JSONは未加工画素、hash、期待する16 cellを保持します。y=384,385と475,476の欠落後に、先頭帯の両端に一致しない内側の短い帯が現れ、旧処理は375×375盤面を3分割しました。現在の処理は、最後に採用した行から既存余白以内にある内側断片を採用せず、端が一致する帯の再出現を待ちます。断片自体は最後の採用行を更新しないため、断片が続いても橋渡し可能な距離は延びません。保存PNGの各cellと照合した期待盤面、confidence 1.0、4候補を回帰テストで確認します。この認識失敗の修正は、lease失効やWGC timeoutの根本原因の解消を意味しません。
 
 認識器の開発者向けに、`tests/fixtures/2048/gdi-row-gap.bgra.zlib`と対応JSONへ、run `39037879872`のartifact `12103297123`から取得した失敗画素を保存しています。画像はゲーム終了画面ではなく、操作可能な盤面です。manifestにはWGC timeoutとGDI fallbackが記録されています。保存BGRAのSHA-256は`48dbf6cb3a407b2fb96864052edfb7f60e4975ef8c35ae2dd5b6cda2337e6e2b`で、CIとローカルの修正前Adapterはともにboard未検出・confidence 0でした。
 
