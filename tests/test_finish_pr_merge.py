@@ -73,6 +73,8 @@ class FinishPullRequestMergeTests(unittest.TestCase):
             _review_thread_response(),
             _pull_request_snapshot(),
             _completed_process("Merged"),
+            _completed_process(json.dumps({"number": 466, "state": "closed", "merged": True,
+                                           "head": {"sha": PULL_REQUEST_HEAD_SHA}, "merge_commit_sha": "b" * 40})),
         ]
         standard_output = StringIO()
         standard_error = StringIO()
@@ -84,7 +86,7 @@ class FinishPullRequestMergeTests(unittest.TestCase):
         self.assertIn("No unresolved inline review comments", standard_output.getvalue())
         self.assertIn("All 1 reported status checks passed", standard_output.getvalue())
         self.assertEqual("", standard_error.getvalue())
-        merge_arguments = run_gh_mock.call_args_list[-1].args[0]
+        merge_arguments = run_gh_mock.call_args_list[-2].args[0]
         self.assertEqual(
             [
                 "pr",
@@ -93,7 +95,6 @@ class FinishPullRequestMergeTests(unittest.TestCase):
                 "--merge",
                 "--match-head-commit",
                 PULL_REQUEST_HEAD_SHA,
-                "--delete-branch",
             ],
             merge_arguments,
         )
