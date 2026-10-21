@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+- Issue #459: push run 39409678110の実失敗画素で盤面分断を再現した。短い行欠落直後に現れる盤面内側の短い帯をgroup境界にせず、既存余白以内で端が一致する帯が戻る場合だけ橋渡しする。内部断片によって許容距離は延長しない。画素hash・16 cell・矩形・confidence・4候補と、長い欠落の拒否を回帰テストする。認識閾値・安全期限は変更しない。
+
 - Issue #459: 2048 campaignの操作失敗reportへ、最後の観測要求の経過時間と画面取得・観測通知・画像解析・盤面認識・証拠保持・再試行待機の累積msを追加する。処理区間の例外でも計測を保持し、元の停止分類と理由を変更しない。安全期限の延長や自動re-armは行わず、過去artifactから判別できなかった処理別遅延を次回の失敗で調査するための診断とする。
 
+- 共同作業ルール: Claude Code・Codex・ChatGPT・GitHub Copilot・人が同じ`main`へ変更を入れるための共通ルールを追加する。`doc/ワークフロー/ワークフロー.md`へ、毎回のpull、Issueの占有、1 Issue=1 worktree=1 branch=1 PR、PR前の再pullと`origin/main`取り込み、自己レビュー、CI全成功と未解決threadなしの場合だけのマージ、マージしてはいけない条件、引き継ぎ手順を記載する。`doc/コーディングルール.md`は、クラス・関数・コマンド指向の規則に加え、本番コードの構造化コメント、文章の書き方、自己レビュー7観点を含む正本とする。`AGENTS.md`、`CLAUDE.md`、`.github/copilot-instructions.md`を同じルールへの入口にし、PRテンプレートへSelf-review欄を追加し、`start_task.bat`は`git fetch origin main`に失敗すると開始しない。
 - Issue #465 追加レビュー: check一覧と別に、固定PR headのpush・pull_request Workflow RunをREST APIで照合する。必須7 workflow×2 eventについて作成時刻（同時刻はrun ID）で最新runを選び、現在attemptがcompleted/successの場合だけmergeへ進む。欠落・未成功・別head/event/repo/PR・重複ID・件数変動・不完全page・1000件上限到達・API/JSON異常は停止する。check・review・head固定の既存検証は維持する。
 - Issue #465 診断文: CI待機が失敗した場合、merge gateは対象PRのURLと`gh pr checks`の確認commandを表示する。長いwatch出力で失敗jobの行が省略されても、開発者が対象PRのcheck一覧を確認できるようにする。
 - Issue #465: `finish_pr.bat`はPR作成後にCI status checkの完了を待ち、GitHub CLIが返す全checkのbucketが`pass`であることを確認する。checkがない場合、pending、failed、cancelled、skipped、未知状態、認証・API・JSON解析エラーの場合はmergeしない。GitHub GraphQL APIからreview threadを全ページ確認し、未解決commentの場所・投稿者・本文を表示して停止する。checkとreview確認中にhead commitが変わった場合も停止し、確認済みhead SHAを`gh pr merge --match-head-commit`へ渡す。ゲート停止後は既存PRを再利用して確認を再開できる。11件の単体テストで成功、CI異常、空check、comment、認証失敗、head更新を検証する。

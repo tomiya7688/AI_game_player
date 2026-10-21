@@ -142,6 +142,8 @@ python -m unittest discover -s tests -p test_2048_terminal_render.py -v
 
 ## CIの実失敗画像で盤面の短い行欠落を検査する
 
+push run `39409678110`のartifact `12259118469`には、別の操作可能盤面の分断も記録されました。`gdi-internal-fragments.bgra.zlib`と対応JSONは未加工画素、hash、期待する16 cellを保持します。y=384,385と475,476の欠落後に、先頭帯の両端に一致しない内側の短い帯が現れ、旧処理は375×375盤面を3分割しました。現在の処理は、最後に採用した行から既存余白以内にある内側断片を採用せず、端が一致する帯の再出現を待ちます。断片自体は最後の採用行を更新しないため、断片が続いても橋渡し可能な距離は延びません。保存PNGの各cellと照合した期待盤面、confidence 1.0、4候補を回帰テストで確認します。この認識失敗の修正は、lease失効やWGC timeoutの根本原因の解消を意味しません。
+
 認識器の開発者向けに、`tests/fixtures/2048/gdi-row-gap.bgra.zlib`と対応JSONへ、run `39037879872`のartifact `12103297123`から取得した失敗画素を保存しています。画像はゲーム終了画面ではなく、操作可能な盤面です。manifestにはWGC timeoutとGDI fallbackが記録されています。保存BGRAのSHA-256は`48dbf6cb3a407b2fb96864052edfb7f60e4975ef8c35ae2dd5b6cda2337e6e2b`で、CIとローカルの修正前Adapterはともにboard未検出・confidence 0でした。
 
 失敗画像ではy=475・476の2行で最長palette帯が行検出条件を満たさず、旧処理は375×375 pixelの盤面を高さ243と130 pixelの候補へ分断しました。両候補は既存の縦横比条件を満たさず、操作候補が0件になりました。現在の`group_board_color_rows`は、行間距離を2 pixelまたは帯幅の3%以内で橋渡しします。3%は固定版CSSの盤面余白15/500です。2 pixelを超える欠落では帯が横方向に重なり、左右どちらかの端が同じ余白内に揃うことも要求し、近くのscore欄と盤面を分けます。盤面全体の縦横比・密度・認識confidenceの条件は変更しません。

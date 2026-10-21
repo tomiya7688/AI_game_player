@@ -22768,7 +22768,7 @@
       "module": "ai_game_player.game_2048_board",
       "path": "src/ai_game_player/game_2048_board.py",
       "source_location": {
-        "end_line": 368,
+        "end_line": 375,
         "start_line": 1
       },
       "symbols": [
@@ -22871,7 +22871,7 @@
           "signature": "(matched_rows: list[tuple[int, int, int, int]]) -> list[list[tuple[int, int, int, int]]]",
           "source_location": {
             "column": 0,
-            "end_line": 139,
+            "end_line": 146,
             "start_line": 117
           }
         },
@@ -22893,8 +22893,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 152,
-            "start_line": 143
+            "end_line": 159,
+            "start_line": 150
           }
         },
         {
@@ -22915,8 +22915,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 164,
-            "start_line": 156
+            "end_line": 171,
+            "start_line": 163
           }
         },
         {
@@ -22935,8 +22935,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 352,
-            "start_line": 167
+            "end_line": 359,
+            "start_line": 174
           }
         },
         {
@@ -22964,8 +22964,8 @@
           "signature": "(self, minimum_confidence: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 172
+            "end_line": 188,
+            "start_line": 179
           }
         },
         {
@@ -22993,8 +22993,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRecognition | None",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 190
+            "end_line": 222,
+            "start_line": 197
           }
         },
         {
@@ -23022,8 +23022,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRegion | None",
           "source_location": {
             "column": 4,
-            "end_line": 299,
-            "start_line": 223
+            "end_line": 306,
+            "start_line": 230
           }
         },
         {
@@ -23069,8 +23069,8 @@
           "signature": "(self, frame: ScreenFrame, region: BoardRegion, row: int, column: int) -> tuple[int | None, float]",
           "source_location": {
             "column": 4,
-            "end_line": 352,
-            "start_line": 307
+            "end_line": 359,
+            "start_line": 314
           }
         },
         {
@@ -23092,8 +23092,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> int | None",
           "source_location": {
             "column": 0,
-            "end_line": 368,
-            "start_line": 355
+            "end_line": 375,
+            "start_line": 362
           }
         }
       ]
@@ -49333,7 +49333,7 @@
       "module": "tests.test_2048_gdi_row_gap",
       "path": "tests/test_2048_gdi_row_gap.py",
       "source_location": {
-        "end_line": 55,
+        "end_line": 84,
         "start_line": 1
       },
       "symbols": [
@@ -49355,7 +49355,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 51,
+            "end_line": 80,
             "start_line": 13
           }
         },
@@ -49433,6 +49433,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_real_failure_with_internal_fragments_preserves_all_sixteen_cells",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_real_failure_with_internal_fragments_preserves_all_sixteen_cells",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 58,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_grouping_preserves_empty_input_and_large_separation",
           "parameters": [
             {
@@ -49447,8 +49470,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 47,
-            "start_line": 44
+            "end_line": 63,
+            "start_line": 60
           }
         },
         {
@@ -49470,8 +49493,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 49
+            "end_line": 67,
+            "start_line": 65
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_short_internal_fragments_do_not_split_a_returning_full_width_band",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_short_internal_fragments_do_not_split_a_returning_full_width_band",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_internal_fragments_do_not_extend_the_gap_budget",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Gdi2048RowGapTests.test_internal_fragments_do_not_extend_the_gap_budget",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 75
           }
         }
       ]
