@@ -6,6 +6,8 @@
 
 ## 生成元2048のライセンス
 
+`gdi-internal-fragments.bgra.zlib`はpush run `39409678110`のartifact `12259118469`から取得した未加工画素です。対応JSONはhash、寸法、保存PNGから確認した16 cell、盤面矩形を記録します。短い欠落直後に現れる盤面内側の断片による3分割を再現し、同じ`test_2048_gdi_row_gap.py`で検査します。元のWGC timeoutやlease失効の原因を再現する資料ではありません。この画面の2048描画にも次のMIT表記を適用します。
+
 The MIT License (MIT)
 
 Copyright (c) 2014 Gabriele Cirulli

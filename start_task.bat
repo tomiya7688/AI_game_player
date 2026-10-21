@@ -15,6 +15,11 @@ where python >nul 2>&1 || (
   exit /b 1
 )
 
+git fetch origin main || (
+  echo [ERROR] git fetch origin main failed. Do not start work on a stale base; report this and retry.
+  exit /b 1
+)
+
 python tools\issue_context.py %*
 if errorlevel 1 exit /b 1
 

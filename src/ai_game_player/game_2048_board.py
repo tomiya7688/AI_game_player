@@ -110,7 +110,7 @@ def _is_board_region_color(rgb: tuple[int, int, int]) -> bool:
 
 # {
 #   責務: [group_board_color_rows: 縦方向に並ぶ盤面色の帯を、短い検出欠落だけを橋渡ししてgroupへ分ける]
-#   処理: [行間距離を2 pixelまたは帯幅の3%まで許容する。3%は固定版CSSの盤面余白15/500である。従来の2 pixelを超える欠落ではgroup先頭帯と新しい帯が重なり、左右どちらかの端が同じ余白内で一致する場合だけ橋渡しし、横位置の異なるscore欄などを分離する]
+#   処理: [行間距離を2 pixelまたは帯幅の3%まで許容する。3%は固定版CSSの盤面余白15/500である。2 pixelを超える欠落では先頭帯と重なり左右どちらかの端が同じ余白内で一致する帯だけを接続する。短い欠落中に現れる先頭帯の内側の断片は採用せず、最後に採用した行から余白以内で全幅帯が戻る場合だけ橋渡しする。内部断片だけで橋渡し可能な距離を延長しない]
 #   引数: [matched_rows: y昇順のtuple群。各tupleはy、左端x、右端x（範囲外）、palette一致pixel数]
 #   戻り値: [list: 同じ盤面候補として縦横比・密度を検査する行group。元のtupleと入力listは変更しない]
 # }
@@ -132,6 +132,13 @@ def group_board_color_rows(
                 overlap = min(row[2], reference_row[2]) - max(row[1], reference_row[1])
                 edge_distance = min(abs(row[1] - reference_row[1]), abs(row[2] - reference_row[2]))
                 aligned_across_gap = overlap > 0 and edge_distance <= maximum_y_delta
+                contained_fragment = row[1] >= reference_row[1] and row[2] <= reference_row[2]
+                if (
+                    not aligned_across_gap
+                    and contained_fragment
+                    and row[0] - previous_row[0] <= maximum_y_delta
+                ):
+                    continue
         if row_groups and aligned_across_gap and row[0] <= row_groups[-1][-1][0] + maximum_y_delta:
             row_groups[-1].append(row)
         else:

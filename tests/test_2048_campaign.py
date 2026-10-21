@@ -157,6 +157,11 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             ],
         )
         self.assertEqual(len(source.read()[1]), 1)
+        self.assertEqual(
+            {"capture", "observation_refresh", "frame_analysis", "board_adaptation", "retry_wait"},
+            set(source.observation_timing.snapshot()["stage_ms"]),
+        )
+        self.assertIsNone(source.observation_timing.snapshot()["active_stage"])
 
     def test_fresh_frame_observation_rejection_remains_a_safety_block(self):
         def reject_observation():
