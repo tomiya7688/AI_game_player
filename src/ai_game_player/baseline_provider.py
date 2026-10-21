@@ -39,12 +39,23 @@ class BaselineProviderProfile:
     requires_gpu: bool = False
     requires_network: bool = False
 
+    # {
+    #   責務: [__post_init__: Profileがモデル・GPU・通信を要求せず、種別が既知であることを生成時に保証する]
+    #   引数: []
+    #   戻り値: [なし]
+    #   エラー: [ValueError: provider_kindが未知の値、またはrequires_learned_model・requires_gpu・requires_networkのいずれかがTrueの場合]
+    # }
     def __post_init__(self) -> None:
         if self.provider_kind not in {"deterministic", "quantitative", "decision_tree"}:
             raise ValueError("provider_kind must be deterministic, quantitative or decision_tree")
         if self.requires_learned_model or self.requires_gpu or self.requires_network:
             raise ValueError("a baseline provider must not require a learned model, GPU or network")
 
+    # {
+    #   責務: [to_dict: Profileの宣言をJSON化できる辞書へ変換し、機械可読な能力確認に使えるようにする]
+    #   引数: []
+    #   戻り値: [dict: 全フィールドを含む辞書。タプルはlistに変換される]
+    # }
     def to_dict(self) -> dict[str, Any]:
         return {
             "provider_id": self.provider_id,
@@ -91,6 +102,11 @@ class BaselineDecision:
     knowledge_snapshot_version: str | None = None
     provenance: tuple[str, ...] = ()
 
+    # {
+    #   責務: [to_dict: 判断結果と採用規則・スコア内訳をTraceへ保存できる辞書へ変換する]
+    #   引数: []
+    #   戻り値: [dict: 全フィールドを含むJSON化可能な辞書]
+    # }
     def to_dict(self) -> dict[str, Any]:
         return {
             "kind": self.kind,
@@ -114,6 +130,11 @@ class BaselineDecision:
 #   フィールド: [decision: 保留（abstainまたはobserve_more）の理由と内訳を持つ判断]
 # }
 class BaselineWithheld(ValueError):
+    # {
+    #   責務: [__init__: 保留した判断を保持し、保留の種別と規則名を含む例外文を作る]
+    #   引数: [decision: 選択しなかったBaselineDecision（abstainまたはobserve_more）]
+    #   戻り値: [なし]
+    # }
     def __init__(self, decision: BaselineDecision) -> None:
         super().__init__(f"baseline withheld action: {decision.kind} ({decision.rule_id})")
         self.decision = decision
@@ -136,6 +157,18 @@ class BaselineWithheld(ValueError):
 #   ]
 # }
 class BaselineDecisionProvider:
+    # {
+    #   責務: [__init__: 重みと閾値を検証して保持し、Model不要を宣言するProfileを作る]
+    #   引数: [
+    #     weights: utility・recognition・knowledge_priorの重みの上書き。有限な0以上の値のみ,
+    #     min_margin: 最良と次点のスコア差がこの値未満ならabstainする閾値,
+    #     min_recognition: 最良候補の認識確信度がこの値未満ならobserve_moreする閾値（0〜1）,
+    #     knowledge_snapshot: 任意のKnowledge Snapshot。versionとpriorsを持つ辞書,
+    #     fallback_priority: Model不可時に使う順序。小さいほど先
+    #   ]
+    #   戻り値: [なし]
+    #   エラー: [ValueError: 未知の重み名、非有限または負の値、範囲外の閾値の場合]
+    # }
     def __init__(
         self,
         weights: Mapping[str, float] | None = None,
