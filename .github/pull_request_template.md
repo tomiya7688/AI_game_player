@@ -18,6 +18,13 @@
 6. Tests:
 7. Docs and doc/versions.md:
 
+## AI review (CodeRabbit / GitHub Copilot)
+
+<!-- Per bot: findings count, fixed, rejected (with reason), or "not run: quota/no response". Free tiers may be exhausted; that is not a blocker. -->
+
+- CodeRabbit:
+- GitHub Copilot:
+
 ## Regression coverage (bug fixes)
 
 - Related issue:
