@@ -152,14 +152,21 @@ if errorlevel 1 (echo [STOP] CI, review-thread, or merge validation failed. The 
 
 echo [9/9] Returning to main and creating next branch...
 git switch main
-if errorlevel 1 exit /b 1
+if errorlevel 1 goto LOCAL_INCOMPLETE
 git pull --ff-only origin main
-if errorlevel 1 (echo [STOP] main could not be fast-forwarded. Inspect local/main state. & exit /b 3)
+if errorlevel 1 goto LOCAL_INCOMPLETE
 
 git show-ref --verify --quiet "refs/heads/%NEXT_BRANCH%"
-if not errorlevel 1 (echo [STOP] Local branch "%NEXT_BRANCH%" already exists. & exit /b 3)
+if not errorlevel 1 goto LOCAL_INCOMPLETE
 git switch -c "%NEXT_BRANCH%"
-if errorlevel 1 exit /b 1
+if errorlevel 1 goto LOCAL_INCOMPLETE
 
 echo [DONE] PR merged, main updated, and branch "%NEXT_BRANCH%" created.
 exit /b 0
+
+:LOCAL_INCOMPLETE
+echo [LOCAL INCOMPLETE] PR %PR_URL% is already merged. Local checkout/sync/next-branch creation is unfinished.
+echo Requested next branch: %NEXT_BRANCH%. Keep existing branches and changes intact.
+echo Do not repeat the merge. Inspect git status and git worktree list; do not change another worker's checkout.
+echo After resolving the local condition, follow the post-merge recovery steps in doc/ワークフロー/ワークフロー.md.
+exit /b 4

@@ -631,7 +631,8 @@ def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str) ->
 #     3: 全inline review threadを取得し、未解決指摘がないことを確認する,
 #     4: 固定headのpush・PR各eventで必須workflowの最新attemptがすべて成功したことをREST APIで検証する,
 #     5: PR状態とhead commitが確認開始時から変わっていないことを確かめる,
-#     6: 確認済みhead SHAを--match-head-commitへ渡してmergeする
+#     6: 確認済みhead SHAを--match-head-commitへ渡し、ローカルbranch削除を伴わずmergeする,
+#     7: CLI終了値にかかわらずREST APIで同じPRとheadの統合済み状態を確認する。結果不明なら再mergeせず停止する
 #   ],
 #   引数: [
 #     pull_request_url: finish_pr.batが現在のbranchから取得したmerge対象PRのURL
@@ -660,20 +661,55 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
         )
 
     print("[WAIT] All checks passed and no unresolved inline review comments remain; merging the PR.", flush=True)
-    _run_successful_gh_command(
-        [
-            "pr",
-            "merge",
-            pull_request.url,
-            "--merge",
-            "--match-head-commit",
-            current_snapshot.head_sha,
-            "--delete-branch",
-        ],
-        API_COMMAND_TIMEOUT_SECONDS,
-        "Pull request merge",
+    merge_diagnostic = None
+    try:
+        merge_result = _run_gh(
+            [
+                "pr", "merge", pull_request.url, "--merge",
+                "--match-head-commit", current_snapshot.head_sha,
+            ],
+            API_COMMAND_TIMEOUT_SECONDS,
+        )
+        if merge_result.returncode != 0:
+            merge_diagnostic = _command_details(merge_result)
+    except MergeGateError as error:
+        merge_diagnostic = str(error)
+    try:
+        merge_sha = _confirm_remote_merge(pull_request, current_snapshot.head_sha)
+    except MergeGateError as error:
+        raise MergeGateError(
+            f"Remote merge outcome is unconfirmed for {pull_request.url}; do not repeat the merge blindly. "
+            f"Inspect: gh pr view {pull_request.url} --json state,headRefOid,mergeCommit. "
+            f"Confirmation: {error}; merge command: {merge_diagnostic or 'exit code 0'}"
+        ) from error
+    if merge_diagnostic is not None:
+        print(f"[WARN] Merge command reported an error, but API confirmed the fixed-head merge: {merge_diagnostic}")
+    print(f"[MERGED] Remote PR merge confirmed: {merge_sha}. Local checkout/sync is a separate step.")
+
+
+def _confirm_remote_merge(pull_request: PullRequestReference, expected_head: str) -> str:
+    """PR番号・固定head・統合済み状態・merge SHAをRESTで検証し、merge SHAを返す。"""
+    endpoint = f"repos/{pull_request.owner}/{pull_request.repository}/pulls/{pull_request.number}"
+    response = _decode_json_output(
+        _run_successful_gh_command(["api", "--method", "GET", endpoint], API_COMMAND_TIMEOUT_SECONDS, "Merge confirmation"),
+        "Merge confirmation",
     )
-    print("[DONE] Pull request merged after CI and review-thread checks passed.")
+    if not isinstance(response, dict):
+        raise MergeGateError("Merge confirmation did not return an object")
+    head = response.get("head")
+    merge_sha = response.get("merge_commit_sha")
+    if (
+        type(response.get("number")) is not int
+        or response["number"] != pull_request.number
+        or response.get("merged") is not True
+        or response.get("state") != "closed"
+        or not isinstance(head, dict)
+        or head.get("sha") != expected_head
+        or not isinstance(merge_sha, str)
+        or PR_HEAD_SHA_PATTERN.fullmatch(merge_sha) is None
+    ):
+        raise MergeGateError("API did not confirm a closed, merged PR with the verified head and valid merge SHA")
+    return merge_sha
 
 
 # {
