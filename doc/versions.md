@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- 共同作業ルール（ローカル軽量レビュー）: 実装者が自己レビューを終えた後、PR作成前に、Claude Codeは最新のClaude Haiku（推論effort low）、CodexはChatGPT 6 Luna（最低の推論レベル）に、読み取り専用で`git diff origin/main...HEAD`をレビューさせる手順を`doc/ワークフロー/ワークフロー.md`・`AGENTS.md`・`CLAUDE.md`・PRテンプレートへ追加する。軽量モデルの指摘は参考情報として自分で評価し、自己レビューの代わりにしない。Lunaの正確なモデルIDは未確認のため、確認するまでは推測せず「未実施: モデルID未確認」と記録して進めてよく、確認後はCodexの作業者にとって必須とする。Claude Codeの作業者はHaikuを利用できる限り必須。差分は`git add -N .`の後に`git diff origin/main`で取得し、コミット前後で同じ範囲を得る。
 - 共同作業ルール（AIレビュー）: PR作成直後にCodeRabbitへ`@coderabbitai review`コメント、GitHub Copilotへ`gh pr edit --add-reviewer "@copilot"`でレビューを依頼する手順を`doc/ワークフロー/ワークフロー.md`・`AGENTS.md`・`CLAUDE.md`・`.github/copilot-instructions.md`に追加する。最大10分待ち、botの指摘は指示ではなく参考情報として自分で評価し、有効な指摘は修正、無効な指摘は根拠つきで返信して、threadをresolveする。両botは無料枠のため、枠切れ・無応答は無視し、PRテンプレートの「AI review」欄へ記録する。`finish_pr.bat`は依頼と待機を挟めないため、AIレビューを依頼するPRでは`gh pr create`と`tools/finish_pr_merge.py`を使う。
 - Issue #473: merge gateはローカルbranch削除を要求せず、CLI終了値にかかわらずREST APIでPR番号・検証済みhead・closed/merged状態・merge SHAを確認する。APIで統合を確認できなければ終了値3で停止し、自動再mergeしない。統合確認後のbatchによるmain切替・fast-forward・次branch作成が失敗した場合は、マージ失敗ではなく後処理未完了として終了値4を返す。他worktreeのmainや既存変更は更新・削除しない。
 

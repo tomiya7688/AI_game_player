@@ -18,6 +18,13 @@
 6. Tests:
 7. Docs and doc/versions.md:
 
+## Local light review
+
+<!-- After your own self-review and before the PR. Model and effort used (Claude Code: Haiku low / Codex: ChatGPT 6 Luna low), findings, fixed, rejected with reason, or "not run: reason". Never a substitute for Self-review. -->
+
+- Model / effort:
+- Findings / fixed / rejected:
+
 ## AI review (CodeRabbit / GitHub Copilot)
 
 <!-- Per bot: findings count, fixed, rejected (with reason), or "not run: quota/no response". Free tiers may be exhausted; that is not a blocker. -->
