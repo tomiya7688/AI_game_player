@@ -4,6 +4,7 @@
 
 - Issue #473: merge gateはローカルbranch削除を要求せず、CLI終了値にかかわらずREST APIでPR番号・検証済みhead・closed/merged状態・merge SHAを確認する。APIで統合を確認できなければ終了値3で停止し、自動再mergeしない。統合確認後のbatchによるmain切替・fast-forward・次branch作成が失敗した場合は、マージ失敗ではなく後処理未完了として終了値4を返す。他worktreeのmainや既存変更は更新・削除しない。
 
+- Issue #418: 学習Model・GPU・通信を使わない参照判断元`BaselineDecisionProvider`を追加する。許可候補だけを、評価値・認識確信度・任意Knowledge Snapshotのpriorの重み付き和で採点し、`select`・`abstain`・`observe_more`のいずれかを規則名（R1低認識確信度・R2低margin・R3最高スコア）と候補別の寄与内訳付きで返す。保留時は`BaselineWithheld`を送出して既存Engineの実行へ進ませず、選択時は既存`DecisionVerifier`を通る。壊れたSnapshotは無効化して静的policyへ戻し理由をprovenanceに残す。`BaselineProviderProfile`と`baseline_capability_matrix`で、判断能力ごとのModel不要fallbackの有無を機械可読に確認できる。#161 Realtime Routerとの接続、candidate choice以外の判断能力のBaselineは対象外で未実装。
 - Issue #459: push run 39409678110の実失敗画素で盤面分断を再現した。短い行欠落直後に現れる盤面内側の短い帯をgroup境界にせず、既存余白以内で端が一致する帯が戻る場合だけ橋渡しする。内部断片によって許容距離は延長しない。画素hash・16 cell・矩形・confidence・4候補と、長い欠落の拒否を回帰テストする。認識閾値・安全期限は変更しない。
 
 - Issue #459: 2048 campaignの操作失敗reportへ、最後の観測要求の経過時間と画面取得・観測通知・画像解析・盤面認識・証拠保持・再試行待機の累積msを追加する。処理区間の例外でも計測を保持し、元の停止分類と理由を変更しない。安全期限の延長や自動re-armは行わず、過去artifactから判別できなかった処理別遅延を次回の失敗で調査するための診断とする。
