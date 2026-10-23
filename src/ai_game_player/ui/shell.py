@@ -120,7 +120,7 @@ class ApplicationShell(ttk.Frame):
         ttk.Label(command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
         ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
         ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
-        self.stop_button = ttk.Button(command, text="■ 停止", command=on_stop)
+        self.stop_button = ttk.Button(command, text="■ 停止 (Esc / F12)", command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
