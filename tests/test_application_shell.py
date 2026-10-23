@@ -148,8 +148,15 @@ class TkShellSmokeTests(unittest.TestCase):
             # Verify that only 1 callback command is registered for <Escape> (no duplicate)
             self.assertEqual(len(tcl_cmds), 1)
 
-            # Invoke the registered Tcl callback with valid dummy event arguments
-            dummy_args = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", 0, "Escape", 0, str(root), 2, 0, 0, "", "", "", 0, "", 0, "", "", "", str(root), str(root)]
+            # Invoke the registered Tcl callback with valid dummy event arguments matching root._subst_format
+            event_values = {
+                "%#": "0", "%b": "0", "%f": "0", "%h": "0", "%k": "27",
+                "%s": "0", "%t": "0", "%w": "0", "%x": "0", "%y": "0",
+                "%A": "", "%E": "0", "%K": "Escape", "%N": "27", "%W": str(root),
+                "%T": "2", "%X": "0", "%Y": "0", "%D": "0",
+            }
+            subst = getattr(root, "_subst_format", ())
+            dummy_args = [event_values.get(token, "0") for token in subst]
             for cmd in tcl_cmds:
                 root.tk.call(cmd, *dummy_args)
 
