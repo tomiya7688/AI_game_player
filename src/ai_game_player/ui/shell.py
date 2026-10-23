@@ -102,6 +102,22 @@ class ShellController:
 class ApplicationShell(ttk.Frame):
     """Resizable IDE layout with replaceable, independent workspace mount points."""
 
+    # {
+    #   責務: [__init__: ApplicationShellの共通ヘッダー、Workspace領域、Inspector、Bottom Panel、および停止ボタンを構築・配置する]
+    #   処理: [
+    #     1: ShellControllerとUI変数を初期化する
+    #     2: アプリケーションタイトル、Inspector/Bottom Panel切り替えボタン、およびEscキー案内のついた停止ボタンをヘッダーに配置する
+    #     3: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
+    #     4: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceを表示する
+    #   ]
+    #   引数: [
+    #     master: 親となるTkinterウィジェット
+    #     state: 初期表示のWorkspaceおよびPanel表示状態
+    #     on_stop: 停止ボタン押下時に呼び出すコールバック関数
+    #     on_state_change: Shell表示状態変更時に呼び出すコールバック関数
+    #   ]
+    #   戻り値: []
+    # }
     def __init__(
         self,
         master: tk.Misc,
@@ -122,7 +138,6 @@ class ApplicationShell(ttk.Frame):
         ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
         self.stop_button = ttk.Button(command, text="■ 停止 (Esc)", command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
-        master.winfo_toplevel().bind("<Escape>", lambda _event: on_stop(), add="+")
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)

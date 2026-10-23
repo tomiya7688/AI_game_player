@@ -140,9 +140,9 @@ class TkShellSmokeTests(unittest.TestCase):
             shell.pack(fill=tk.BOTH, expand=True)
             root.update_idletasks()
 
-            # Trigger <Escape> event on root
-            root.event_generate("<Escape>")
-            root.update_idletasks()
+            script = root.bind("<Escape>")
+            self.assertTrue(bool(script))
+            root.eval(script)
 
             # Expect exactly 1 stop call from root's binding (no duplicate from ApplicationShell)
             self.assertEqual(stop_calls, ["root"])
