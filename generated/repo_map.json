@@ -52126,7 +52126,7 @@
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 128,
+        "end_line": 154,
         "start_line": 1
       },
       "symbols": [
@@ -52353,7 +52353,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 124,
+            "end_line": 150,
             "start_line": 76
           }
         },
@@ -52376,8 +52376,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
+            "end_line": 127,
             "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_application_shell_does_not_register_duplicate_escape_binding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TkShellSmokeTests.test_application_shell_does_not_register_duplicate_escape_binding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 129
           }
         }
       ]

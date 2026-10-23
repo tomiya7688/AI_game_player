@@ -120,6 +120,32 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(shell.state.workspace, "History")
             self.assertEqual(changed[-1].workspace, "History")
             self.assertEqual(stopped, [True])
+
+            # Verify that stop button label displays the keyboard shortcut hint.
+            self.assertEqual(shell.stop_button.cget("text"), "■ 停止 (Esc)")
+        finally:
+            root.destroy()
+
+    def test_application_shell_does_not_register_duplicate_escape_binding(self):
+        try:
+            root = tk.Tk()
+        except TclError as exc:
+            self.skipTest(f"Tk desktop is unavailable: {exc}")
+        try:
+            root.withdraw()
+            stop_calls = []
+            # Bind <Escape> on root as Application.__init__ does
+            root.bind("<Escape>", lambda _event: stop_calls.append("root"))
+            shell = ApplicationShell(root, ShellState(), lambda: stop_calls.append("shell"), lambda _s: None)
+            shell.pack(fill=tk.BOTH, expand=True)
+            root.update_idletasks()
+
+            # Trigger <Escape> event on root
+            root.event_generate("<Escape>")
+            root.update_idletasks()
+
+            # Expect exactly 1 stop call from root's binding (no duplicate from ApplicationShell)
+            self.assertEqual(stop_calls, ["root"])
         finally:
             root.destroy()
 
