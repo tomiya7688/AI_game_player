@@ -52121,12 +52121,25 @@
               "name": "ShellStateStore"
             }
           ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 146,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
         }
       ],
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 154,
+        "end_line": 163,
         "start_line": 1
       },
       "symbols": [
@@ -52353,7 +52366,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 150,
+            "end_line": 159,
             "start_line": 76
           }
         },
@@ -52399,7 +52412,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 150,
+            "end_line": 159,
             "start_line": 129
           }
         }

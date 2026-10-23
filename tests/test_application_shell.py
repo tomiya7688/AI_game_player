@@ -142,9 +142,18 @@ class TkShellSmokeTests(unittest.TestCase):
 
             script = root.bind("<Escape>")
             self.assertTrue(bool(script))
-            root.eval(script)
 
-            # Expect exactly 1 stop call from root's binding (no duplicate from ApplicationShell)
+            import re
+            tcl_cmds = re.findall(r'\[([^\s%\]]+)', script)
+            # Verify that only 1 callback command is registered for <Escape> (no duplicate)
+            self.assertEqual(len(tcl_cmds), 1)
+
+            # Invoke the registered Tcl callback with valid dummy event arguments
+            dummy_args = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", 0, "Escape", 0, str(root), 2, 0, 0, "", "", "", 0, "", 0, "", "", "", str(root), str(root)]
+            for cmd in tcl_cmds:
+                root.tk.call(cmd, *dummy_args)
+
+            # Expect exactly 1 stop call from root's binding
             self.assertEqual(stop_calls, ["root"])
         finally:
             root.destroy()
