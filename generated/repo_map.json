@@ -42640,9 +42640,22 @@
           ]
         },
         {
-          "kind": "from",
+          "kind": "import",
           "level": 0,
           "line": 4,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -42659,7 +42672,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -42672,7 +42685,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -42685,7 +42698,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "tkinter",
           "names": [
@@ -42698,7 +42711,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "tkinter",
           "names": [
@@ -42712,7 +42725,7 @@
       "module": "ai_game_player.ui.shell",
       "path": "src/ai_game_player/ui/shell.py",
       "source_location": {
-        "end_line": 262,
+        "end_line": 264,
         "start_line": 1
       },
       "symbols": [
@@ -42734,8 +42747,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 33,
-            "start_line": 22
+            "end_line": 34,
+            "start_line": 23
           }
         },
         {
@@ -42757,8 +42770,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 33,
-            "start_line": 29
+            "end_line": 34,
+            "start_line": 30
           }
         },
         {
@@ -42777,8 +42790,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 68,
-            "start_line": 36
+            "end_line": 69,
+            "start_line": 37
           }
         },
         {
@@ -42806,8 +42819,8 @@
           "signature": "(self, path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 40,
-            "start_line": 39
+            "end_line": 41,
+            "start_line": 40
           }
         },
         {
@@ -42829,8 +42842,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 42
+            "end_line": 56,
+            "start_line": 43
           }
         },
         {
@@ -42858,8 +42871,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 57
+            "end_line": 69,
+            "start_line": 58
           }
         },
         {
@@ -42878,8 +42891,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 95,
-            "start_line": 71
+            "end_line": 96,
+            "start_line": 72
           }
         },
         {
@@ -42913,8 +42926,8 @@
           "signature": "(self, state: ShellState, on_change: Callable[[ShellState], None] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 76,
-            "start_line": 74
+            "end_line": 77,
+            "start_line": 75
           }
         },
         {
@@ -42942,8 +42955,8 @@
           "signature": "(self, workspace: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 81,
-            "start_line": 78
+            "end_line": 82,
+            "start_line": 79
           }
         },
         {
@@ -42965,8 +42978,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 83
+            "end_line": 87,
+            "start_line": 84
           }
         },
         {
@@ -42988,8 +43001,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 91,
-            "start_line": 88
+            "end_line": 92,
+            "start_line": 89
           }
         },
         {
@@ -43017,8 +43030,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 95,
-            "start_line": 93
+            "end_line": 96,
+            "start_line": 94
           }
         },
         {
@@ -43039,8 +43052,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 262,
-            "start_line": 102
+            "end_line": 264,
+            "start_line": 103
           }
         },
         {
@@ -43086,8 +43099,8 @@
           "signature": "(self, master: tk.Misc, state: ShellState, on_stop: Callable[[], None], on_state_change: Callable[[ShellState], None]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 201,
-            "start_line": 121
+            "end_line": 203,
+            "start_line": 122
           }
         },
         {
@@ -43111,8 +43124,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 204
+            "end_line": 207,
+            "start_line": 206
           }
         },
         {
@@ -43136,8 +43149,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 209,
-            "start_line": 208
+            "end_line": 211,
+            "start_line": 210
           }
         },
         {
@@ -43161,8 +43174,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 213,
-            "start_line": 212
+            "end_line": 215,
+            "start_line": 214
           }
         },
         {
@@ -43190,8 +43203,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 215
+            "end_line": 218,
+            "start_line": 217
           }
         },
         {
@@ -43225,8 +43238,8 @@
           "signature": "(self, action_id: str, detail: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 230,
-            "start_line": 224
+            "end_line": 232,
+            "start_line": 226
           }
         },
         {
@@ -43260,8 +43273,8 @@
           "signature": "(self, workspace: str, persist: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 238,
-            "start_line": 232
+            "end_line": 240,
+            "start_line": 234
           }
         },
         {
@@ -43283,8 +43296,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 250,
-            "start_line": 246
+            "end_line": 252,
+            "start_line": 248
           }
         },
         {
@@ -43306,8 +43319,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 262,
-            "start_line": 258
+            "end_line": 264,
+            "start_line": 260
           }
         }
       ]
@@ -52042,6 +52055,19 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
           "module": "tkinter",
           "names": [
             {
@@ -52053,7 +52079,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 3,
+          "line": 4,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -52066,7 +52092,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 5,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -52079,7 +52105,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [],
           "module": "tkinter",
           "names": [
@@ -52093,6 +52119,32 @@
           "kind": "from",
           "level": 0,
           "line": 7,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ui",
@@ -52126,7 +52178,7 @@
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 157,
+        "end_line": 179,
         "start_line": 1
       },
       "symbols": [
@@ -52148,8 +52200,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 44,
-            "start_line": 16
+            "end_line": 47,
+            "start_line": 19
           }
         },
         {
@@ -52171,8 +52223,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 18,
-            "start_line": 17
+            "end_line": 21,
+            "start_line": 20
           }
         },
         {
@@ -52194,8 +52246,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 20
+            "end_line": 27,
+            "start_line": 23
           }
         },
         {
@@ -52217,8 +52269,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 26
+            "end_line": 35,
+            "start_line": 29
           }
         },
         {
@@ -52240,8 +52292,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 44,
-            "start_line": 34
+            "end_line": 47,
+            "start_line": 37
           }
         },
         {
@@ -52262,8 +52314,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 73,
-            "start_line": 47
+            "end_line": 76,
+            "start_line": 50
           }
         },
         {
@@ -52285,8 +52337,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 48
+            "end_line": 59,
+            "start_line": 51
           }
         },
         {
@@ -52308,8 +52360,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 58
+            "end_line": 70,
+            "start_line": 61
           }
         },
         {
@@ -52331,8 +52383,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 73,
-            "start_line": 69
+            "end_line": 76,
+            "start_line": 72
           }
         },
         {
@@ -52353,8 +52405,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 76
+            "end_line": 175,
+            "start_line": 79
           }
         },
         {
@@ -52376,8 +52428,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 127,
-            "start_line": 77
+            "end_line": 130,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stop_shortcut_hint_matches_windows_monitor_availability",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TkShellSmokeTests.test_stop_shortcut_hint_matches_windows_monitor_availability",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 132
           }
         },
         {
@@ -52399,8 +52474,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 129
+            "end_line": 175,
+            "start_line": 151
           }
         }
       ]

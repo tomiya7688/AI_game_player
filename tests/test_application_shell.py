@@ -1,8 +1,11 @@
 import tempfile
+import os
 import tkinter as tk
 import unittest
 from pathlib import Path
 from tkinter import TclError
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from ai_game_player.ui.shell import (
     WORKSPACES,
@@ -121,10 +124,29 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(changed[-1].workspace, "History")
             self.assertEqual(stopped, [True])
 
-            # Verify that stop button label displays the keyboard shortcut hint.
-            self.assertEqual(shell.stop_button.cget("text"), "■ 停止 (Esc)")
+            expected_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
+            self.assertEqual(shell.stop_button.cget("text"), expected_label)
         finally:
             root.destroy()
+
+    def test_stop_shortcut_hint_matches_windows_monitor_availability(self):
+        for platform_name, expected_label in (("nt", "■ 停止 (Esc / F12)"), ("posix", "■ 停止 (Esc)")):
+            with self.subTest(platform=platform_name):
+                try:
+                    root = tk.Tk()
+                except TclError as exc:
+                    self.skipTest(f"Tk desktop is unavailable: {exc}")
+                try:
+                    root.withdraw()
+                    stop_calls = []
+                    # ShellのOS参照だけを置き換え、テスト環境全体のos.nameは変更しない。
+                    with patch("ai_game_player.ui.shell.os", SimpleNamespace(name=platform_name)):
+                        shell = ApplicationShell(root, ShellState(), lambda: stop_calls.append(True), lambda state: None)
+                    self.assertEqual(shell.stop_button.cget("text"), expected_label)
+                    shell.stop_button.invoke()
+                    self.assertEqual(stop_calls, [True])
+                finally:
+                    root.destroy()
 
     def test_application_shell_does_not_register_duplicate_escape_binding(self):
         try:

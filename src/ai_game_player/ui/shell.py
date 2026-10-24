@@ -1,6 +1,7 @@
 """IDE-style application shell. This module contains presentation only."""
 
 import json
+import os
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Callable
@@ -106,7 +107,7 @@ class ApplicationShell(ttk.Frame):
     #   責務: [__init__: ApplicationShellの共通ヘッダー、Workspace領域、Inspector、Bottom Panel、および停止ボタンを構築・配置する]
     #   処理: [
     #     1: ShellControllerとUI変数を初期化する
-    #     2: アプリケーションタイトル、Inspector/Bottom Panel切り替えボタン、およびEscキー案内のついた停止ボタンをヘッダーに配置する
+    #     2: アプリケーションタイトルとPanel切替ボタンを配置し、停止ボタンにはEscとWindows上のF12停止監視の案内を表示する
     #     3: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
     #     4: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceを表示する
     #   ]
@@ -136,7 +137,8 @@ class ApplicationShell(ttk.Frame):
         ttk.Label(command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
         ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
         ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
-        self.stop_button = ttk.Button(command, text="■ 停止 (Esc)", command=on_stop)
+        stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
+        self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
