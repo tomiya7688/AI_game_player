@@ -268,6 +268,13 @@ class NativeSafetyValidator:
         "F12": 0x7B,
         "LWIN": 0x5B,
         "RWIN": 0x5C,
+        # {
+        #   理由: [2048 Adapterが返す方向名をWindows仮想キーへ対応させ、Native SafetyGuardへ無効なキーコード0を渡さない]
+        # }
+        "LEFT": 0x25,
+        "UP": 0x26,
+        "RIGHT": 0x27,
+        "DOWN": 0x28,
     }
 
     class _Action(ctypes.Structure):

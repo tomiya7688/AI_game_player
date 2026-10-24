@@ -17,18 +17,22 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Configure native runtime
         run: cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
       - name: Build native runtime
         run: cmake --build build/native --config Release --parallel
       - name: Test native runtime
-        run: ctest --test-dir build/native -C Release --output-on-failure
+        run: ctest --repeat until-fail:5 --test-dir build/native -C Release --output-on-failure
 
   native-sanitizers:
     name: Native C++ ASan + UBSan + GCC analyzer
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Configure sanitized native tests
         run: cmake -S native -B build/native-sanitized -DCMAKE_BUILD_TYPE=Debug -DKADOKA_ENABLE_SANITIZERS=ON -DKADOKA_ENABLE_GCC_ANALYZER=ON
       - name: Build sanitized native tests
@@ -48,6 +52,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -76,18 +82,54 @@ jobs:
           if-no-files-found: error
 
   windows-e2e:
-    name: Windows closed-loop sample E2E
+    name: Windows sample loop and 2048 campaign E2E
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - name: Run capture-recognition-decision-live-input loop to milestone
+      - name: Run sample-control-confirmed live input loop to milestone
         shell: pwsh
         env:
           PYTHONPATH: "src;."
         run: python tools/run_windows_e2e.py --steps 24
+      - name: Build Native Runtime for Windows Graphics Capture
+        shell: pwsh
+        run: |
+          cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) {
+            throw "Native Runtime CMake configuration failed with exit code $LASTEXITCODE"
+          }
+          cmake --build build/native --config Release --parallel
+          if ($LASTEXITCODE -ne 0) {
+            throw "Native Runtime build failed with exit code $LASTEXITCODE"
+          }
+          $nativeRuntime = Get-ChildItem -Path build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
+          if (-not $nativeRuntime) {
+            throw "Native Runtime build completed without producing kadoka_native_runtime.dll"
+          }
+          "KADOKA_NATIVE_RUNTIME=$($nativeRuntime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Launch the pinned 2048 game in its owned browser window
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          KADOKA_RUN_2048_INTEGRATION: "1"
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_reference_game_2048_launcher.py" -v
+      - name: Verify a second live 2048 episode can capture after restart
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          KADOKA_RUN_2048_INTEGRATION: "1"
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_2048_campaign.py" -v
+      - name: Run the 600-second pinned-game campaign
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -104,6 +146,8 @@ jobs:
       node: ${{ steps.detect.outputs.node }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - id: detect
         name: Detect language inputs
         shell: bash
@@ -127,27 +171,57 @@ jobs:
   lua:
     name: Lua syntax
     needs: detect-optional-languages
-    if: needs.detect-optional-languages.outputs.lua == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Validate Lua source detection
+        env:
+          SOURCE_PRESENT: ${{ needs.detect-optional-languages.outputs.lua }}
+        run: |
+          case "$SOURCE_PRESENT" in
+            true) echo "Lua sources detected; syntax checks will run." ;;
+            false) echo "No Lua sources detected; no Lua syntax checks apply." ;;
+            *) echo "Invalid Lua source detection result." >&2; exit 1 ;;
+          esac
       - uses: actions/checkout@v4
+        if: needs.detect-optional-languages.outputs.lua == 'true'
+        with:
+          persist-credentials: false
       - name: Install Lua 5.4
+        if: needs.detect-optional-languages.outputs.lua == 'true'
         run: sudo apt-get update && sudo apt-get install -y lua5.4
       - name: Check Lua syntax
+        if: needs.detect-optional-languages.outputs.lua == 'true'
         shell: bash
         run: find . -type f -name '*.lua' -not -path './.git/*' -print0 | xargs -0 -n1 luac5.4 -p
 
   dotnet:
     name: .NET build and test
     needs: detect-optional-languages
-    if: needs.detect-optional-languages.outputs.dotnet == 'true'
     runs-on: windows-latest
     steps:
+      - name: Validate .NET source detection
+        shell: pwsh
+        env:
+          SOURCE_PRESENT: ${{ needs.detect-optional-languages.outputs.dotnet }}
+        run: |
+          if ($env:SOURCE_PRESENT -notin @('true', 'false')) {
+            throw 'Invalid .NET source detection result.'
+          }
+          if ($env:SOURCE_PRESENT -eq 'false') {
+            Write-Host 'No .NET project or solution detected; no .NET checks apply.'
+          } else {
+            Write-Host '.NET sources detected; build and tests will run.'
+          }
       - uses: actions/checkout@v4
+        if: needs.detect-optional-languages.outputs.dotnet == 'true'
+        with:
+          persist-credentials: false
       - uses: actions/setup-dotnet@v4
+        if: needs.detect-optional-languages.outputs.dotnet == 'true'
         with:
           dotnet-version: '10.0.x'
       - name: Restore, build and test
+        if: needs.detect-optional-languages.outputs.dotnet == 'true'
         shell: pwsh
         run: |
           $target = Get-ChildItem -Recurse -Filter *.sln | Select-Object -First 1
@@ -162,20 +236,37 @@ jobs:
   node:
     name: JavaScript / TypeScript
     needs: detect-optional-languages
-    if: needs.detect-optional-languages.outputs.node == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Validate JavaScript / TypeScript source detection
+        env:
+          SOURCE_PRESENT: ${{ needs.detect-optional-languages.outputs.node }}
+        run: |
+          case "$SOURCE_PRESENT" in
+            true) echo "JavaScript / TypeScript sources detected; package checks will run." ;;
+            false) echo "No package.json detected; no JavaScript / TypeScript checks apply." ;;
+            *) echo "Invalid JavaScript / TypeScript source detection result." >&2; exit 1 ;;
+          esac
       - uses: actions/checkout@v4
+        if: needs.detect-optional-languages.outputs.node == 'true'
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
+        if: needs.detect-optional-languages.outputs.node == 'true'
         with:
           node-version: '22'
       - name: Require reproducible dependency lock
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: test -f package-lock.json
       - name: Install dependencies
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm ci
       - name: Test
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm test --if-present
       - name: Typecheck
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm run typecheck --if-present
       - name: Build
+        if: needs.detect-optional-languages.outputs.node == 'true'
         run: npm run build --if-present

@@ -1,6 +1,7 @@
 """IDE-style application shell. This module contains presentation only."""
 
 import json
+import os
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Callable
@@ -95,9 +96,29 @@ class ShellController:
         self.on_change(state)
 
 
+# {
+#   責務: [ApplicationShell: 共通Workspace配置、全画面共通の停止操作、現在のSession状態、およびPlay Workspaceの直近Actionを表示する]
+#   フィールド: [controller: WorkspaceとPanel表示状態, workspace_pages: Workspaceごとの表示領域, status_var: 現在のSession状態, latest_action_var: 最後に選択または実行したAction]
+# }
 class ApplicationShell(ttk.Frame):
     """Resizable IDE layout with replaceable, independent workspace mount points."""
 
+    # {
+    #   責務: [__init__: ApplicationShellの共通ヘッダー、Workspace領域、Inspector、Bottom Panel、および停止ボタンを構築・配置する]
+    #   処理: [
+    #     1: ShellControllerとUI変数を初期化する
+    #     2: アプリケーションタイトルとPanel切替ボタンを配置し、停止ボタンにはEscとWindows上のF12停止監視の案内を表示する
+    #     3: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
+    #     4: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceを表示する
+    #   ]
+    #   引数: [
+    #     master: 親となるTkinterウィジェット
+    #     state: 初期表示のWorkspaceおよびPanel表示状態
+    #     on_stop: 停止ボタン押下時に呼び出すコールバック関数
+    #     on_state_change: Shell表示状態変更時に呼び出すコールバック関数
+    #   ]
+    #   戻り値: []
+    # }
     def __init__(
         self,
         master: tk.Misc,
@@ -116,7 +137,8 @@ class ApplicationShell(ttk.Frame):
         ttk.Label(command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
         ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
         ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
-        self.stop_button = ttk.Button(command, text="■ 停止", command=on_stop)
+        stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
+        self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
@@ -167,6 +189,15 @@ class ApplicationShell(ttk.Frame):
         if state.bottom_panel_visible:
             self.vertical.add(self.bottom_panel, weight=1)
 
+        self.latest_action_var = tk.StringVar(master=self, value="直近Action: まだありません")
+        self.latest_action_label = ttk.Label(
+            self.workspace_pages["Play"],
+            textvariable=self.latest_action_var,
+            anchor=tk.W,
+            justify=tk.LEFT,
+            wraplength=700,
+        )
+        self.latest_action_label.pack(fill=tk.X, pady=(0, 6))
         self.player_seat_host = ttk.Frame(self.workspace_pages["Play"])
         self.player_seat_host.pack(fill=tk.X)
         self.select_workspace(state.workspace, persist=False)
@@ -186,6 +217,20 @@ class ApplicationShell(ttk.Frame):
     def set_status(self, message: str) -> None:
         self.status_var.set(message)
 
+    # {
+    #   責務: [set_latest_action: 一時的なSession状態とは別に最後の判断または実行Actionを保持する]
+    #   処理: [Action IDと判断理由または実行結果をPlay Workspace上部へ表示する]
+    #   引数: [action_id: 判断または実行された操作候補の識別子, detail: 選択理由または実行結果]
+    #   戻り値: []
+    # }
+    def set_latest_action(self, action_id: str, detail: str = "") -> None:
+        displayed_action_id = action_id.strip() or "不明"
+        displayed_detail = detail.strip()
+        summary = f"直近Action: {displayed_action_id}"
+        if displayed_detail:
+            summary = f"{summary} / {displayed_detail}"
+        self.latest_action_var.set(summary)
+
     def select_workspace(self, workspace: str, persist: bool = True) -> None:
         if workspace not in self.workspace_pages:
             raise ValueError(f"Unknown workspace: {workspace}")
@@ -194,14 +239,26 @@ class ApplicationShell(ttk.Frame):
         if persist:
             self.controller.select_workspace(workspace)
 
+    # {
+    #   責務: [toggle_inspector: Inspector paneの表示状態を切り替える]
+    #   処理: [表示時は現在のPane数に依存せず右端へ追加し、非表示時はPaneから外す]
+    #   引数: []
+    #   戻り値: []
+    # }
     def toggle_inspector(self) -> None:
         if self.controller.toggle_inspector():
-            self.upper.insert(2, self.inspector, weight=0)
+            self.upper.add(self.inspector, weight=0)
         else:
             self.upper.forget(self.inspector)
 
+    # {
+    #   責務: [toggle_bottom_panel: Bottom Panelの表示状態を切り替える]
+    #   処理: [表示時は現在のPane数に依存せず下端へ追加し、非表示時はPaneから外す]
+    #   引数: []
+    #   戻り値: []
+    # }
     def toggle_bottom_panel(self) -> None:
         if self.controller.toggle_bottom_panel():
-            self.vertical.insert(1, self.bottom_panel, weight=1)
+            self.vertical.add(self.bottom_panel, weight=1)
         else:
             self.vertical.forget(self.bottom_panel)

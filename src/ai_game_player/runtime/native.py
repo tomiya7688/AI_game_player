@@ -12,10 +12,27 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any
 
+from ai_game_player.bright_region_detector import (
+    BGRA_BYTES_PER_PIXEL,
+    DEFAULT_BRIGHTNESS_THRESHOLD,
+    DEFAULT_MIN_REGION_PIXELS,
+    MAX_CHANNEL_VALUE,
+    MIN_BRIGHT_REGION_EXTENT,
+    UNVERIFIED_BRIGHT_REGION_CONFIDENCE,
+)
+from ai_game_player.frame_preprocessor import FramePrimitiveBatch
+from ai_game_player.models import DetectedElement
 from ai_game_player.runtime.contracts import RuntimeCapability, RuntimeDescriptor
+from ai_game_player.screen_capture import ScreenFrame
 
 
 NATIVE_ABI_VERSION = 1
+CAP_FAST_CV = 1 << 3
+MAX_INT32 = (1 << 31) - 1
+MAX_UINT32 = (1 << 32) - 1
+MAX_UINT64 = (1 << 64) - 1
+INITIAL_REGION_BUFFER_CAPACITY = 256
+WGC_DEFAULT_TIMEOUT_MS = 2_000
 
 
 class NativeStatus(IntEnum):
@@ -24,6 +41,9 @@ class NativeStatus(IntEnum):
     UNSUPPORTED_ABI = -2
     ALLOCATION_FAILED = -3
     NOT_IMPLEMENTED = -4
+    BUFFER_TOO_SMALL = -5
+    TIMEOUT = -6
+    CAPTURE_FAILED = -7
 
 
 class NativeBatchKind(IntEnum):
@@ -93,6 +113,71 @@ class _BatchResult(ctypes.Structure):
     ]
 
 
+class _FrameInput(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("width", ctypes.c_uint32),
+        ("height", ctypes.c_uint32),
+        ("stride_bytes", ctypes.c_uint32),
+        ("brightness_threshold", ctypes.c_uint32),
+        ("min_region_pixels", ctypes.c_uint32),
+        ("reserved", ctypes.c_uint32),
+        ("bgra_size", ctypes.c_uint64),
+        ("bgra", ctypes.POINTER(ctypes.c_uint8)),
+    ]
+
+
+class _FrameRegion(ctypes.Structure):
+    _fields_ = [
+        ("x", ctypes.c_int32),
+        ("y", ctypes.c_int32),
+        ("width", ctypes.c_int32),
+        ("height", ctypes.c_int32),
+        ("reserved", ctypes.c_uint32),
+        ("pixel_count", ctypes.c_uint64),
+    ]
+
+
+class _FrameResult(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("mean_red", ctypes.c_uint32),
+        ("mean_green", ctypes.c_uint32),
+        ("mean_blue", ctypes.c_uint32),
+        ("mean_brightness", ctypes.c_uint32),
+        ("perceptual_hash", ctypes.c_uint64),
+        ("region_count", ctypes.c_uint32),
+        ("region_capacity", ctypes.c_uint32),
+        ("regions", ctypes.POINTER(_FrameRegion)),
+        ("input_frame_bytes_processed", ctypes.c_uint64),
+        ("output_bytes_written", ctypes.c_uint64),
+        ("input_copy_count", ctypes.c_uint64),
+        ("input_copy_bytes", ctypes.c_uint64),
+        ("processing_ns", ctypes.c_uint64),
+        ("reserved", ctypes.c_uint32),
+    ]
+
+
+# {
+#   責務: [_WgcFrameInfo: C ABIから受け取るWindows Graphics Capture frame metadataを表す]
+#   フィールド: [width/height/stride_bytes: packed BGRA画像寸法, frame_id: WGC session内の到着順ID, timestamp_ns: QPC基準のmonotonic nanoseconds, native_surface_handle: lease存続中だけ有効なopaque Direct3D texture handle]
+# }
+class _WgcFrameInfo(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("width", ctypes.c_uint32),
+        ("height", ctypes.c_uint32),
+        ("stride_bytes", ctypes.c_uint32),
+        ("reserved", ctypes.c_uint32),
+        ("frame_id", ctypes.c_uint64),
+        ("timestamp_ns", ctypes.c_uint64),
+        ("native_surface_handle", ctypes.c_uint64),
+    ]
+
+
 @dataclass(frozen=True)
 class NativeRuntimeInfo:
     abi_version: int
@@ -125,14 +210,39 @@ def _bind(library: object, name: str, argtypes: list[Any], restype: Any) -> Any:
     return function
 
 
+# {
+#   責務: [_bind_optional: optional C ABI functionが存在する場合だけctypes signatureを設定する]
+#   引数: [library: Native Runtime DLLまたはtest double, name: export symbol名, argtypes: C ABI引数型, restype: C ABI戻り値型]
+#   戻り値: [function | None: signature設定済みfunction、exportなしならNone]
+# }
+def _bind_optional(library: object, name: str, argtypes: list[Any], restype: Any) -> Any | None:
+    try:
+        function = getattr(library, name)
+    except AttributeError:
+        return None
+    function.argtypes = argtypes
+    function.restype = restype
+    return function
+
+
 def _check(operation: str, status: int) -> None:
     if status != NativeStatus.OK:
         raise NativeRuntimeError(operation, status)
 
 
+# {
+#   責務: [NativeRuntime: optional C ABI v1 libraryのlifecycle、frame processing、WGC session creationを管理する]
+#   フィールド: [library/handle: native codeとinstance lifetime, _lock: ABI callとshutdownの直列化, _descriptor: reported runtime capabilities]
+# }
 class NativeRuntime:
     """Owns one native instance; serializes batch calls and shutdown."""
 
+    # {
+    #   責務: [__init__: C ABI v1 symbol、runtime info、optional WGC exports、native handleを初期化する]
+    #   引数: [library: C ABI v1 exportsを持つDLLまたはtest double, library_path: load元のoptional filesystem path]
+    #   戻り値: []
+    #   エラー: [必須symbol不足・ABI不一致・Native Runtime初期化失敗: 互換性のないlibraryを拒否して送出]
+    # }
     def __init__(self, library: object, *, library_path: Path | None = None) -> None:
         self._library = library  # Retain the DLL for at least the handle lifetime.
         self.library_path = library_path
@@ -147,11 +257,55 @@ class NativeRuntime:
         init = _bind(library, "kadoka_runtime_init", [ctypes.POINTER(_Options), ctypes.POINTER(ctypes.c_void_p)], ctypes.c_int32)
         self._shutdown = _bind(library, "kadoka_runtime_shutdown", [ctypes.POINTER(ctypes.c_void_p)], ctypes.c_int32)
         self._process_batch = _bind(library, "kadoka_runtime_process_batch", [ctypes.c_void_p, ctypes.POINTER(_BatchRequest), ctypes.POINTER(_BatchResult)], ctypes.c_int32)
+        self._wgc_is_supported = _bind_optional(
+            library, "kadoka_wgc_is_supported", [ctypes.POINTER(ctypes.c_uint32)], ctypes.c_int32
+        )
+        self._wgc_open_window = _bind_optional(
+            library,
+            "kadoka_wgc_open_window",
+            [ctypes.c_void_p, ctypes.c_uint64, ctypes.POINTER(ctypes.c_void_p)],
+            ctypes.c_int32,
+        )
+        self._wgc_next_frame = _bind_optional(
+            library,
+            "kadoka_wgc_next_frame",
+            [ctypes.c_void_p, ctypes.c_uint32, ctypes.POINTER(ctypes.c_void_p)],
+            ctypes.c_int32,
+        )
+        self._wgc_frame_get_info = _bind_optional(
+            library,
+            "kadoka_wgc_frame_get_info",
+            [ctypes.c_void_p, ctypes.POINTER(_WgcFrameInfo)],
+            ctypes.c_int32,
+        )
+        self._wgc_frame_copy_bgra = _bind_optional(
+            library,
+            "kadoka_wgc_frame_copy_bgra",
+            [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64],
+            ctypes.c_int32,
+        )
+        self._wgc_frame_release = _bind_optional(
+            library,
+            "kadoka_wgc_frame_release",
+            [ctypes.POINTER(ctypes.c_void_p)],
+            ctypes.c_int32,
+        )
+        self._wgc_close = _bind_optional(
+            library, "kadoka_wgc_close", [ctypes.POINTER(ctypes.c_void_p)], ctypes.c_int32
+        )
+        self._preprocess_frame = None
         info = _Info(ctypes.sizeof(_Info), 0, 0)
         _check("query", int(query(ctypes.byref(info))))
         if info.struct_size != ctypes.sizeof(_Info) or info.abi_version != NATIVE_ABI_VERSION:
             raise NativeContractError("Native Runtime returned an incompatible info structure")
         self.info = NativeRuntimeInfo(int(info.abi_version), int(info.capabilities))
+        if self.info.capability_bits & CAP_FAST_CV:
+            self._preprocess_frame = _bind(
+                library,
+                "kadoka_runtime_preprocess_frame",
+                [ctypes.c_void_p, ctypes.POINTER(_FrameInput), ctypes.POINTER(_FrameResult)],
+                ctypes.c_int32,
+            )
         capabilities = frozenset(
             capability for bit, capability in (
                 (1, RuntimeCapability.CAPTURE), (2, RuntimeCapability.INPUT),
@@ -205,6 +359,348 @@ class NativeRuntime:
             _check("process_batch", status)
             return NativeBatchResult(int(result.batch_id), int(result.abi_version), NativeStatus(status))
 
+    # {
+    #   責務: [is_wgc_capture_supported: Native Runtimeが現在のWindows環境でWGC captureを開始できるか確認する]
+    #   戻り値: [bool: WGC APIが存在し、OSがcaptureを許可する場合はTrue]
+    #   エラー: [Native Runtime close済みまたはABI問い合わせ失敗: 利用可能状態を誤認しないよう例外を送出]
+    # }
+    def is_wgc_capture_supported(self) -> bool:
+        if self._wgc_is_supported is None:
+            return False
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("wgc_is_supported (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            is_supported = ctypes.c_uint32()
+            status = int(self._wgc_is_supported(ctypes.byref(is_supported)))
+            _check("wgc_is_supported", status)
+            if is_supported.value not in (0, 1):
+                self._healthy = False
+                raise NativeContractError("Native Runtime returned an invalid WGC support flag")
+            return bool(is_supported.value)
+
+    # {
+    #   責務: [open_wgc_window: 指定HWNDをNative Runtimeへ渡してcapture sessionを所有するobjectを作る]
+    #   引数: [window_handle: 有効なWindows HWNDを整数で表した値]
+    #   戻り値: [NativeWgcWindow: capture frame取得とsession終了を行うwindow backend]
+    #   エラー: [非Windows、非対応OS、無効HWND、Native API失敗: capture開始できない理由を送出]
+    # }
+    def open_wgc_window(self, window_handle: int) -> NativeWgcWindow:
+        pointer_maximum = (1 << (ctypes.sizeof(ctypes.c_void_p) * 8)) - 1
+        if (
+            isinstance(window_handle, bool)
+            or not isinstance(window_handle, int)
+            or not 0 < window_handle <= pointer_maximum
+        ):
+            raise ValueError("window_handle must be a non-zero Windows pointer-sized integer")
+        wgc_symbols = (
+            self._wgc_is_supported,
+            self._wgc_open_window,
+            self._wgc_next_frame,
+            self._wgc_frame_get_info,
+            self._wgc_frame_copy_bgra,
+            self._wgc_frame_release,
+            self._wgc_close,
+        )
+        if any(symbol is None for symbol in wgc_symbols):
+            raise NativeRuntimeError("open_wgc_window (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        wgc_open_window = self._wgc_open_window
+        if wgc_open_window is None:
+            raise NativeRuntimeError("open_wgc_window (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("open_wgc_window (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            if not self.is_wgc_capture_supported():
+                raise NativeRuntimeError("open_wgc_window (unsupported platform)", NativeStatus.NOT_IMPLEMENTED)
+            session = ctypes.c_void_p()
+            status = int(wgc_open_window(self._handle, window_handle, ctypes.byref(session)))
+            _check("wgc_open_window", status)
+            if not session.value:
+                self._healthy = False
+                raise NativeContractError("Native Runtime opened WGC without returning a session handle")
+            return NativeWgcWindow(self, session)
+
+    # {
+    #   責務: [_capture_wgc_frame: frame leaseからmetadataとcaller-owned BGRA pixelを取得する]
+    #   引数: [session: window capture session, timeout_ms: WGC frame arrivalを待つ上限ミリ秒]
+    #   戻り値: [ScreenFrame: tightly packed BGRA pixelとQPC由来timestampを持つframe]
+    #   エラー: [timeout・HWND消失・壊れたmetadata・pixel copy失敗: 失敗statusを呼び出し元へ送出]
+    # }
+    def _capture_wgc_frame(self, session: ctypes.c_void_p, timeout_ms: int) -> ScreenFrame:
+        if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 0 <= timeout_ms <= MAX_UINT32:
+            raise ValueError("timeout_ms must be an unsigned 32-bit integer")
+        next_frame = self._wgc_next_frame
+        get_frame_info = self._wgc_frame_get_info
+        copy_frame_bgra = self._wgc_frame_copy_bgra
+        release_frame = self._wgc_frame_release
+        if next_frame is None or get_frame_info is None or copy_frame_bgra is None or release_frame is None:
+            raise NativeRuntimeError("wgc_capture (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("wgc_next_frame (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            frame = ctypes.c_void_p()
+            status = int(next_frame(session, timeout_ms, ctypes.byref(frame)))
+            _check("wgc_next_frame", status)
+            if not frame.value:
+                self._healthy = False
+                raise NativeContractError("Native Runtime returned success without a WGC frame lease")
+
+            try:
+                frame_info = _WgcFrameInfo()
+                frame_info.struct_size = ctypes.sizeof(_WgcFrameInfo)
+                _check("wgc_frame_get_info", int(get_frame_info(frame, ctypes.byref(frame_info))))
+                required_capacity = frame_info.width * frame_info.height * BGRA_BYTES_PER_PIXEL
+                if (
+                    frame_info.struct_size != ctypes.sizeof(_WgcFrameInfo)
+                    or frame_info.abi_version != NATIVE_ABI_VERSION
+                    or frame_info.width <= 0
+                    or frame_info.height <= 0
+                    or frame_info.width > MAX_INT32
+                    or frame_info.height > MAX_INT32
+                    or frame_info.width * BGRA_BYTES_PER_PIXEL > MAX_UINT32
+                    or frame_info.stride_bytes != frame_info.width * BGRA_BYTES_PER_PIXEL
+                    or required_capacity > ctypes.c_size_t(-1).value
+                    or frame_info.frame_id <= 0
+                    or frame_info.timestamp_ns <= 0
+                    or frame_info.native_surface_handle == 0
+                    or frame_info.reserved != 0
+                ):
+                    self._healthy = False
+                    raise NativeContractError("Native Runtime returned invalid WGC frame metadata")
+                pixel_buffer = (ctypes.c_uint8 * required_capacity)()
+                copy_status = int(
+                    copy_frame_bgra(frame, pixel_buffer, required_capacity)
+                )
+                _check("wgc_frame_copy_bgra", copy_status)
+                return ScreenFrame(
+                    frame_info.width,
+                    frame_info.height,
+                    bytes(pixel_buffer),
+                    captured_at=frame_info.timestamp_ns / 1_000_000_000,
+                    frame_id=frame_info.frame_id,
+                )
+            finally:
+                release_status = int(release_frame(ctypes.byref(frame)))
+                if release_status != NativeStatus.OK:
+                    self._healthy = False
+                    raise NativeContractError("Native Runtime failed to release the WGC frame lease")
+
+    # {
+    #   責務: [preprocess: C ABIのframe解析から画素統計・hash・明領域を作り、Python参照経路と同じ意味で返す]
+    #   処理: [pixel countを矩形検証に使い、明領域にはUI未確認を表すconfidence 0を設定する]
+    #   引数: [frame: packed BGRA frame, brightness_threshold: 明画素とする輝度下限, min_region_pixels: 検出領域の最低画素数]
+    #   戻り値: [FramePrimitiveBatch: frame統計・hash・未確認の明領域・Native処理metrics]
+    #   エラー: [ValueError: frame寸法またはABI入力範囲が不正, NativeRuntimeError: 機能未対応またはC ABI失敗, NativeContractError: ABI出力が契約違反]
+    # }
+    def preprocess(
+        self,
+        frame: ScreenFrame,
+        *,
+        brightness_threshold: int = DEFAULT_BRIGHTNESS_THRESHOLD,
+        min_region_pixels: int = DEFAULT_MIN_REGION_PIXELS,
+    ) -> FramePrimitiveBatch:
+        if (
+            isinstance(frame.width, bool) or not isinstance(frame.width, int)
+            or isinstance(frame.height, bool) or not isinstance(frame.height, int)
+            or frame.width <= 0 or frame.height <= 0
+            or len(frame.bgra) != frame.width * frame.height * BGRA_BYTES_PER_PIXEL
+        ):
+            raise ValueError("BGRA buffer size does not match frame dimensions")
+        if self._preprocess_frame is None:
+            raise NativeRuntimeError("preprocess_frame (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        if (
+            frame.width > MAX_INT32 or frame.height > MAX_INT32
+            or frame.width * BGRA_BYTES_PER_PIXEL > MAX_UINT32
+            or isinstance(brightness_threshold, bool) or not isinstance(brightness_threshold, int)
+            or not 0 <= brightness_threshold <= MAX_CHANNEL_VALUE
+            or isinstance(min_region_pixels, bool) or not isinstance(min_region_pixels, int)
+            or not 1 <= min_region_pixels <= MAX_UINT32
+        ):
+            raise ValueError("frame preprocessing parameters are outside the C ABI range")
+
+        frame_pixel_count = frame.width * frame.height
+        frame_payload_bytes = frame_pixel_count * BGRA_BYTES_PER_PIXEL
+        initial_region_capacity = min(
+            INITIAL_REGION_BUFFER_CAPACITY,
+            frame_pixel_count // min_region_pixels,
+        )
+        bgra_buffer_owner = ctypes.c_char_p(frame.bgra)
+        bgra_data_pointer = ctypes.cast(bgra_buffer_owner, ctypes.POINTER(ctypes.c_uint8))
+        with self._lock:
+            if not self.is_healthy():
+                raise NativeRuntimeError("preprocess_frame (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+            region_capacity = initial_region_capacity
+            total_processing_ns = 0
+            total_input_frame_bytes_processed = 0
+            total_output_bytes_written = 0
+            total_input_copy_count = 0
+            total_input_copy_bytes = 0
+            while True:
+                region_buffer = (_FrameRegion * region_capacity)() if region_capacity else None
+                region_buffer_pointer = (
+                    ctypes.cast(region_buffer, ctypes.POINTER(_FrameRegion))
+                    if region_buffer is not None else ctypes.POINTER(_FrameRegion)()
+                )
+                frame_input = _FrameInput(
+                    ctypes.sizeof(_FrameInput),
+                    NATIVE_ABI_VERSION,
+                    frame.width,
+                    frame.height,
+                    frame.width * BGRA_BYTES_PER_PIXEL,
+                    brightness_threshold,
+                    min_region_pixels,
+                    0,
+                    len(frame.bgra),
+                    bgra_data_pointer,
+                )
+                frame_result = _FrameResult()
+                frame_result.struct_size = ctypes.sizeof(_FrameResult)
+                frame_result.abi_version = NATIVE_ABI_VERSION
+                frame_result.region_capacity = region_capacity
+                frame_result.regions = region_buffer_pointer
+                native_status = int(
+                    self._preprocess_frame(
+                        self._handle,
+                        ctypes.byref(frame_input),
+                        ctypes.byref(frame_result),
+                    )
+                )
+                if native_status == NativeStatus.BUFFER_TOO_SMALL:
+                    if not self._valid_frame_result(
+                        frame_result,
+                        region_capacity,
+                        frame_pixel_count,
+                        frame.width,
+                        frame.height,
+                        min_region_pixels,
+                        region_buffer,
+                        frame_payload_bytes=frame_payload_bytes,
+                        buffer_too_small=True,
+                    ):
+                        self._healthy = False
+                        raise NativeContractError("Native Runtime returned an invalid frame result")
+                    total_processing_ns += int(frame_result.processing_ns)
+                    total_input_frame_bytes_processed += int(frame_result.input_frame_bytes_processed)
+                    total_output_bytes_written += int(frame_result.output_bytes_written)
+                    total_input_copy_count += int(frame_result.input_copy_count)
+                    total_input_copy_bytes += int(frame_result.input_copy_bytes)
+                    region_capacity = int(frame_result.region_count)
+                    continue
+                if native_status == NativeStatus.OK:
+                    if not self._valid_frame_result(
+                        frame_result,
+                        region_capacity,
+                        frame_pixel_count,
+                        frame.width,
+                        frame.height,
+                        min_region_pixels,
+                        region_buffer,
+                        frame_payload_bytes=frame_payload_bytes,
+                        buffer_too_small=False,
+                    ):
+                        self._healthy = False
+                        raise NativeContractError("Native Runtime returned an invalid frame result")
+                _check("preprocess_frame", native_status)
+                total_processing_ns += int(frame_result.processing_ns)
+                total_input_frame_bytes_processed += int(frame_result.input_frame_bytes_processed)
+                total_output_bytes_written += int(frame_result.output_bytes_written)
+                total_input_copy_count += int(frame_result.input_copy_count)
+                total_input_copy_bytes += int(frame_result.input_copy_bytes)
+                detected_elements = tuple(
+                    DetectedElement(
+                        f"bright-region-{region_index}",
+                        "region",
+                        (
+                            int(region.x),
+                            int(region.y),
+                            int(region.width),
+                            int(region.height),
+                        ),
+                        "bright_region",
+                        UNVERIFIED_BRIGHT_REGION_CONFIDENCE,
+                    )
+                    for region_index, region in enumerate(
+                        () if region_buffer is None
+                        else region_buffer[:frame_result.region_count]
+                    )
+                )
+                return FramePrimitiveBatch(
+                    mean_rgb={
+                        "r": int(frame_result.mean_red),
+                        "g": int(frame_result.mean_green),
+                        "b": int(frame_result.mean_blue),
+                    },
+                    mean_brightness=int(frame_result.mean_brightness),
+                    perceptual_hash=f"{int(frame_result.perceptual_hash):016x}",
+                    detected_elements=detected_elements,
+                    processing_ns=total_processing_ns,
+                    input_frame_bytes_processed=total_input_frame_bytes_processed,
+                    output_bytes_written=total_output_bytes_written,
+                    input_copy_count=total_input_copy_count,
+                    input_copy_bytes=total_input_copy_bytes,
+                )
+
+    @staticmethod
+    def _valid_frame_result(
+        frame_result: _FrameResult,
+        region_capacity: int,
+        frame_pixel_count: int,
+        frame_width: int,
+        frame_height: int,
+        minimum_region_pixels: int,
+        region_buffer: Any,
+        *,
+        frame_payload_bytes: int,
+        buffer_too_small: bool,
+    ) -> bool:
+        if (
+            frame_result.struct_size != ctypes.sizeof(_FrameResult)
+            or frame_result.abi_version != NATIVE_ABI_VERSION
+            or frame_result.region_capacity != region_capacity
+            or frame_result.reserved != 0
+            or any(value > MAX_CHANNEL_VALUE for value in (
+                frame_result.mean_red,
+                frame_result.mean_green,
+                frame_result.mean_blue,
+                frame_result.mean_brightness,
+            ))
+            or frame_result.input_frame_bytes_processed != frame_payload_bytes
+            or frame_result.region_count > frame_pixel_count // minimum_region_pixels
+        ):
+            return False
+        expected_region_buffer_pointer = (
+            ctypes.cast(region_buffer, ctypes.c_void_p).value
+            if region_buffer is not None else None
+        )
+        native_region_buffer_pointer = ctypes.cast(frame_result.regions, ctypes.c_void_p).value
+        if native_region_buffer_pointer != expected_region_buffer_pointer:
+            return False
+        if buffer_too_small:
+            return bool(
+                frame_result.region_count > region_capacity
+                and frame_result.output_bytes_written == 0
+            )
+        if frame_result.region_count > region_capacity:
+            return False
+        expected_region_payload_bytes = frame_result.region_count * ctypes.sizeof(_FrameRegion)
+        if frame_result.output_bytes_written != expected_region_payload_bytes:
+            return False
+        if frame_result.region_count and not frame_result.regions:
+            return False
+        for region_index in range(frame_result.region_count):
+            region = frame_result.regions[region_index]
+            if (
+                region.reserved != 0
+                or region.x < 0 or region.y < 0
+                or region.width < MIN_BRIGHT_REGION_EXTENT
+                or region.height < MIN_BRIGHT_REGION_EXTENT
+                or region.x + region.width > frame_width
+                or region.y + region.height > frame_height
+                or region.pixel_count < minimum_region_pixels
+                or region.pixel_count > region.width * region.height
+            ):
+                return False
+        return True
+
     def close(self) -> None:
         with self._lock:
             if not self._handle.value:
@@ -220,6 +716,72 @@ class NativeRuntime:
         return self
 
     def __exit__(self, exc_type: type[BaseException] | None, exc: BaseException | None, traceback: TracebackType | None) -> None:
+        self.close()
+
+
+# {
+#   責務: [NativeWgcWindow: HWND専用のNative WGC sessionを保持し、frame leaseを解放してScreenFrameを返す]
+#   フィールド: [runtime: C ABI libraryとlifecycleを保持するNative Runtime, session: closeまで有効なopaque WGC session handle]
+# }
+class NativeWgcWindow:
+    # {
+    #   責務: [__init__: 初期化済みNative RuntimeとWGC session handleを保持する]
+    #   引数: [runtime: WGC APIを公開するNative Runtime, session: kadoka_wgc_open_windowが返したsession handle]
+    #   戻り値: []
+    # }
+    def __init__(self, runtime: NativeRuntime, session: ctypes.c_void_p) -> None:
+        self._runtime = runtime
+        self._session = session
+
+    # {
+    #   責務: [capture: 次に届くframeをNative RuntimeからBGRA ScreenFrameへ変換する]
+    #   引数: [timeout_ms: 新しいWGC frameを待つ上限ミリ秒]
+    #   戻り値: [ScreenFrame: native frame IDとmonotonic timestampを保持する画面]
+    #   エラー: [timeout・HWND消失・Native Runtime異常: capture failureとして送出]
+    # }
+    def capture(self, timeout_ms: int = WGC_DEFAULT_TIMEOUT_MS) -> ScreenFrame:
+        if not self._session.value:
+            raise NativeRuntimeError("wgc_capture (closed session)", NativeStatus.INVALID_ARGUMENT)
+        return self._runtime._capture_wgc_frame(self._session, timeout_ms)
+
+    # {
+    #   責務: [close: WGC sessionとframe poolを終了し、native session handleを解放する]
+    #   戻り値: []
+    #   エラー: [Native Runtimeがsession資源を解放できない場合: close failureを送出]
+    # }
+    def close(self) -> None:
+        if not self._session.value:
+            return
+        close_session = self._runtime._wgc_close
+        if close_session is None:
+            raise NativeRuntimeError("wgc_close (unsupported capability)", NativeStatus.NOT_IMPLEMENTED)
+        with self._runtime._lock:
+            status = int(close_session(ctypes.byref(self._session)))
+            _check("wgc_close", status)
+            if self._session.value:
+                self._runtime._healthy = False
+                raise NativeContractError("Native Runtime close did not clear the WGC session handle")
+
+    # {
+    #   責務: [__enter__: open済みWGC sessionをcontext manager bodyへ渡す]
+    #   戻り値: [NativeWgcWindow: close前のcapture session]
+    # }
+    def __enter__(self) -> NativeWgcWindow:
+        if not self._session.value or not self._runtime.is_healthy():
+            raise NativeRuntimeError("wgc_enter (closed/unhealthy)", NativeStatus.INVALID_ARGUMENT)
+        return self
+
+    # {
+    #   責務: [__exit__: context manager終了時にWGC session資源を解放する]
+    #   引数: [exc_type/exc/traceback: bodyが失敗した場合にPythonが渡す例外情報]
+    #   戻り値: []
+    # }
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         self.close()
 
 
