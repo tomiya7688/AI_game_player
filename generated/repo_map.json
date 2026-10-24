@@ -42712,7 +42712,7 @@
       "module": "ai_game_player.ui.shell",
       "path": "src/ai_game_player/ui/shell.py",
       "source_location": {
-        "end_line": 246,
+        "end_line": 262,
         "start_line": 1
       },
       "symbols": [
@@ -43039,7 +43039,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 246,
+            "end_line": 262,
             "start_line": 102
           }
         },
@@ -43086,8 +43086,8 @@
           "signature": "(self, master: tk.Misc, state: ShellState, on_stop: Callable[[], None], on_state_change: Callable[[ShellState], None]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 105
+            "end_line": 201,
+            "start_line": 121
           }
         },
         {
@@ -43111,8 +43111,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 189,
-            "start_line": 188
+            "end_line": 205,
+            "start_line": 204
           }
         },
         {
@@ -43136,8 +43136,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 192
+            "end_line": 209,
+            "start_line": 208
           }
         },
         {
@@ -43161,8 +43161,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 197,
-            "start_line": 196
+            "end_line": 213,
+            "start_line": 212
           }
         },
         {
@@ -43190,8 +43190,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 199
+            "end_line": 216,
+            "start_line": 215
           }
         },
         {
@@ -43225,8 +43225,8 @@
           "signature": "(self, action_id: str, detail: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 214,
-            "start_line": 208
+            "end_line": 230,
+            "start_line": 224
           }
         },
         {
@@ -43260,8 +43260,8 @@
           "signature": "(self, workspace: str, persist: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 222,
-            "start_line": 216
+            "end_line": 238,
+            "start_line": 232
           }
         },
         {
@@ -43283,8 +43283,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 234,
-            "start_line": 230
+            "end_line": 250,
+            "start_line": 246
           }
         },
         {
@@ -43306,8 +43306,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 246,
-            "start_line": 242
+            "end_line": 262,
+            "start_line": 258
           }
         }
       ]
@@ -52126,7 +52126,7 @@
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 128,
+        "end_line": 157,
         "start_line": 1
       },
       "symbols": [
@@ -52353,7 +52353,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 124,
+            "end_line": 153,
             "start_line": 76
           }
         },
@@ -52376,8 +52376,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
+            "end_line": 127,
             "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_application_shell_does_not_register_duplicate_escape_binding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TkShellSmokeTests.test_application_shell_does_not_register_duplicate_escape_binding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 129
           }
         }
       ]
