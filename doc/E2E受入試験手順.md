@@ -31,6 +31,14 @@ launcherはChromiumのdevice scale factor（CSS pixelを画面pixelへ描く倍�
 
 HWND（Windowsがwindowへ割り当てる識別番号）は、launcherが起動したbrowser process IDと2048を含むwindow titleの両方に一致するwindowから取得します。ephemeral portはWindowsが空き番号から選ぶ一時portです。専用browser profileは既存の通常ブラウザー設定やwindowを再利用しないために使います。`--app` windowは2048だけを開く専用windowです。
 
+### 起動失敗と一時プロファイル削除失敗を調べる
+
+起動したプロセスが終了した場合、launcherは`launched_pid`と`exit_code`をエラーへ記録します。25秒以内に対象ウィンドウを見つけられない場合は、`launched_pid`、直近の列挙で同じPIDが所有したタイトル付きウィンドウ数`owned_titled_windows`、別PIDでタイトルに2048を含むウィンドウ数`other_2048_windows`を記録します。件数は診断用であり、別PIDのウィンドウを操作対象に採用しません。ウィンドウのタイトル文字列はエラーへ記録しません。`owned_titled_windows=0`だけでは、タイトルのないウィンドウやWindows側の非表示状態まで存在しないと断定できません。
+
+ブラウザー終了直後に専用プロファイルの削除が`PermissionError`になった場合、launcherは0.1秒間隔、最大10回で削除を試みます。待機時間の合計は最大0.9秒で、OSの削除処理自体にかかる時間は別です。最後まで削除できない場合や別のI/Oエラーは報告し、失敗したプロファイルの所有者を保持して`close()`を再実行できるようにします。起動と後処理が両方失敗した場合は、起動エラーを主例外として残します。後処理エラーは起動失敗の原因とはせず、処理中に発生した別の例外を示す`__context__`へ保持します。
+
+E2E実装者は、起動失敗のPID・終了コード・件数と、後処理失敗の例外を分けて確認してください。これらの診断だけでは、CI上の起動タイムアウトの原因や、600秒のゲーム操作の成功は確定しません。
+
 Edge/Chromeが標準pathにない場合、利用者は実行ファイルpathを指定します。
 
 ```powershell
