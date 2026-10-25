@@ -117,10 +117,20 @@ class SafetyEvent:
         return self.__dict__.copy()
 
 
+DEFAULT_SAFETY_LOG_MEMORY_LIMIT = 4096
+
+
 class SafetyLog:
-    def __init__(self, path: Path | None = None) -> None:
+    def __init__(
+        self,
+        path: Path | None = None,
+        *,
+        max_in_memory_events: int = DEFAULT_SAFETY_LOG_MEMORY_LIMIT,
+    ) -> None:
+        if max_in_memory_events < 1:
+            raise ValueError("max_in_memory_events must be positive")
         self.path = path
-        self._events: list[SafetyEvent] = []
+        self._events: deque[SafetyEvent] = deque(maxlen=max_in_memory_events)
         self._lock = threading.Lock()
 
     def append(self, event: SafetyEvent) -> None:
