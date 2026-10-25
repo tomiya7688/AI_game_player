@@ -1,0 +1,29 @@
+name: temporary-generate-repo-map
+
+on:
+  push:
+    branches:
+      - security/bound-safety-log-memory-20261025
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Generate repository map
+        run: python tools/generate_docs.py
+      - name: Upload generated repository map
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-map
+          path: generated/repo_map.json
+          if-no-files-found: error
