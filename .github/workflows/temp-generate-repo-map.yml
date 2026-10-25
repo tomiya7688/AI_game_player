@@ -6,7 +6,7 @@ on:
       - security/bound-safety-log-memory-20261025
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate:
@@ -14,16 +14,20 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
       - name: Generate repository map
         run: python tools/generate_docs.py
-      - name: Upload generated repository map
-        uses: actions/upload-artifact@v4
-        with:
-          name: repo-map
-          path: generated/repo_map.json
-          if-no-files-found: error
+      - name: Commit generated repository map
+        shell: bash
+        run: |
+          if git diff --quiet -- generated/repo_map.json; then
+            echo "repository map already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add generated/repo_map.json
+          git commit -m "Update generated repository map"
+          git push origin HEAD:security/bound-safety-log-memory-20261025
