@@ -39318,7 +39318,7 @@
       "module": "ai_game_player.safety_guard",
       "path": "src/ai_game_player/safety_guard.py",
       "source_location": {
-        "end_line": 570,
+        "end_line": 580,
         "start_line": 1
       },
       "symbols": [
@@ -39635,8 +39635,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 137,
-            "start_line": 120
+            "end_line": 147,
+            "start_line": 123
           }
         },
         {
@@ -39657,15 +39657,21 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "max_in_memory_events"
             }
           ],
           "qualified_name": "SafetyLog.__init__",
           "return_annotation": "None",
-          "signature": "(self, path: Path | None = …) -> None",
+          "signature": "(self, path: Path | None = …, *, max_in_memory_events: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 121
+            "end_line": 134,
+            "start_line": 124
           }
         },
         {
@@ -39693,8 +39699,8 @@
           "signature": "(self, event: SafetyEvent) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 126
+            "end_line": 143,
+            "start_line": 136
           }
         },
         {
@@ -39716,8 +39722,8 @@
           "signature": "(self) -> list[SafetyEvent]",
           "source_location": {
             "column": 4,
-            "end_line": 137,
-            "start_line": 135
+            "end_line": 147,
+            "start_line": 145
           }
         },
         {
@@ -39736,8 +39742,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 166,
-            "start_line": 140
+            "end_line": 176,
+            "start_line": 150
           }
         },
         {
@@ -39759,8 +39765,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 141
+            "end_line": 154,
+            "start_line": 151
           }
         },
         {
@@ -39784,8 +39790,8 @@
           "signature": "(self) -> SafetyState",
           "source_location": {
             "column": 4,
-            "end_line": 148,
-            "start_line": 147
+            "end_line": 158,
+            "start_line": 157
           }
         },
         {
@@ -39809,8 +39815,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 151
+            "end_line": 163,
+            "start_line": 161
           }
         },
         {
@@ -39832,8 +39838,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 156,
-            "start_line": 155
+            "end_line": 166,
+            "start_line": 165
           }
         },
         {
@@ -39861,8 +39867,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 158
+            "end_line": 171,
+            "start_line": 168
           }
         },
         {
@@ -39884,8 +39890,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 166,
-            "start_line": 163
+            "end_line": 176,
+            "start_line": 173
           }
         },
         {
@@ -39904,8 +39910,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 218,
-            "start_line": 169
+            "end_line": 228,
+            "start_line": 179
           }
         },
         {
@@ -39945,8 +39951,8 @@
           "signature": "(self, emergency_stop: EmergencyStop, poller: Callable[[], bool] | None = …, interval_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 172
+            "end_line": 194,
+            "start_line": 182
           }
         },
         {
@@ -39968,8 +39974,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 191,
-            "start_line": 186
+            "end_line": 201,
+            "start_line": 196
           }
         },
         {
@@ -39991,8 +39997,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 197,
-            "start_line": 193
+            "end_line": 207,
+            "start_line": 203
           }
         },
         {
@@ -40014,8 +40020,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 199
+            "end_line": 217,
+            "start_line": 209
           }
         },
         {
@@ -40037,8 +40043,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 209
+            "end_line": 222,
+            "start_line": 219
           }
         },
         {
@@ -40055,8 +40061,8 @@
           "signature": "() -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 215
+            "end_line": 228,
+            "start_line": 225
           }
         },
         {
@@ -40075,8 +40081,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 254,
-            "start_line": 221
+            "end_line": 264,
+            "start_line": 231
           }
         },
         {
@@ -40104,8 +40110,8 @@
           "signature": "(self, window_handle: int) -> TargetState",
           "source_location": {
             "column": 4,
-            "end_line": 254,
-            "start_line": 222
+            "end_line": 264,
+            "start_line": 232
           }
         },
         {
@@ -40124,8 +40130,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 360,
-            "start_line": 257
+            "end_line": 370,
+            "start_line": 267
           }
         },
         {
@@ -40146,8 +40152,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 292,
-            "start_line": 280
+            "end_line": 302,
+            "start_line": 290
           }
         },
         {
@@ -40168,8 +40174,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 299,
-            "start_line": 294
+            "end_line": 309,
+            "start_line": 304
           }
         },
         {
@@ -40197,8 +40203,8 @@
           "signature": "(self, library: object) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 307,
-            "start_line": 301
+            "end_line": 317,
+            "start_line": 311
           }
         },
         {
@@ -40222,8 +40228,8 @@
           "signature": "(cls) -> REDACTED",
           "source_location": {
             "column": 4,
-            "end_line": 325,
-            "start_line": 310
+            "end_line": 335,
+            "start_line": 320
           }
         },
         {
@@ -40269,8 +40275,8 @@
           "signature": "(self, candidate: ActionCandidate, width: int, height: int, max_hold_seconds: float) -> tuple[bool, int]",
           "source_location": {
             "column": 4,
-            "end_line": 344,
-            "start_line": 327
+            "end_line": 354,
+            "start_line": 337
           }
         },
         {
@@ -40300,8 +40306,8 @@
           "signature": "(cls, label: str) -> tuple[int, int]",
           "source_location": {
             "column": 4,
-            "end_line": 360,
-            "start_line": 347
+            "end_line": 370,
+            "start_line": 357
           }
         },
         {
@@ -40320,8 +40326,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 546,
-            "start_line": 363
+            "end_line": 556,
+            "start_line": 373
           }
         },
         {
@@ -40385,8 +40391,8 @@
           "signature": "(self, config: SafetyGuardConfig | None = …, *, window_handle: int | None = …, target_probe: TargetProbe | None = …, emergency_stop: EmergencyStop | None = …, log: SafetyLog | None = …, clock: Callable[[], float] = …, native_validator: NativeSafetyValidator | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 392,
-            "start_line": 369
+            "end_line": 402,
+            "start_line": 379
           }
         },
         {
@@ -40414,8 +40420,8 @@
           "signature": "(self, candidate: ActionCandidate) -> SafetyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 407,
-            "start_line": 394
+            "end_line": 417,
+            "start_line": 404
           }
         },
         {
@@ -40443,8 +40449,8 @@
           "signature": "(self, state_changed: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 411,
-            "start_line": 409
+            "end_line": 421,
+            "start_line": 419
           }
         },
         {
@@ -40472,8 +40478,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 414,
-            "start_line": 413
+            "end_line": 424,
+            "start_line": 423
           }
         },
         {
@@ -40495,8 +40501,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 423,
-            "start_line": 416
+            "end_line": 433,
+            "start_line": 426
           }
         },
         {
@@ -40524,8 +40530,8 @@
           "signature": "(self, candidate: ActionCandidate) -> SafetyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 510,
-            "start_line": 425
+            "end_line": 520,
+            "start_line": 435
           }
         },
         {
@@ -40553,8 +40559,8 @@
           "signature": "(self, next_action_id: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 522,
-            "start_line": 512
+            "end_line": 532,
+            "start_line": 522
           }
         },
         {
@@ -40582,8 +40588,8 @@
           "signature": "(self, now: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 526,
-            "start_line": 524
+            "end_line": 536,
+            "start_line": 534
           }
         },
         {
@@ -40617,8 +40623,8 @@
           "signature": "(self, code: str, reason: str) -> SafetyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 529,
-            "start_line": 528
+            "end_line": 539,
+            "start_line": 538
           }
         },
         {
@@ -40652,8 +40658,8 @@
           "signature": "(self, candidate: ActionCandidate, decision: SafetyDecision) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 542,
-            "start_line": 531
+            "end_line": 552,
+            "start_line": 541
           }
         },
         {
@@ -40677,8 +40683,8 @@
           "signature": "(label: str) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 546,
-            "start_line": 545
+            "end_line": 556,
+            "start_line": 555
           }
         },
         {
@@ -40693,8 +40699,8 @@
           "signature": "() -> EmergencyStop",
           "source_location": {
             "column": 0,
-            "end_line": 555,
-            "start_line": 554
+            "end_line": 565,
+            "start_line": 564
           }
         },
         {
@@ -40709,8 +40715,8 @@
           "signature": "() -> EmergencyStopMonitor | None",
           "source_location": {
             "column": 0,
-            "end_line": 566,
-            "start_line": 558
+            "end_line": 576,
+            "start_line": 568
           }
         },
         {
@@ -40725,8 +40731,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 570,
-            "start_line": 569
+            "end_line": 580,
+            "start_line": 579
           }
         }
       ]
@@ -62559,19 +62565,6 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [],
-          "module": "time",
-          "names": [
-            {
-              "alias": null,
-              "name": "time"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 4,
-          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -62583,7 +62576,33 @@
         {
           "kind": "from",
           "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
           "line": 5,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -62596,7 +62615,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -62609,7 +62628,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.fail_safe_runtime"
@@ -62642,10 +62661,105 @@
       "module": "tests.test_fail_safe_initial_observation_grace",
       "path": "tests/test_fail_safe_initial_observation_grace.py",
       "source_location": {
-        "end_line": 58,
+        "end_line": 112,
         "start_line": 1
       },
       "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ManualClock",
+          "parameters": [],
+          "qualified_name": "ManualClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ManualClock.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ManualClock.__call__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "advance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seconds"
+            }
+          ],
+          "qualified_name": "ManualClock.advance",
+          "return_annotation": null,
+          "signature": "(self, seconds)",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 27
+          }
+        },
         {
           "bases": [
             "unittest.TestCase"
@@ -62655,7 +62769,9 @@
             "enum": false,
             "protocol": false
           },
-          "decorators": [],
+          "decorators": [
+            "patch(REDACTED, return_value=True)"
+          ],
           "kind": "class",
           "name": "FailSafeInitialObservationGraceTest",
           "parameters": [],
@@ -62664,16 +62780,80 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 17
+            "end_line": 108,
+            "start_line": 32
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch(REDACTED, return_value=True)"
+            "contextmanager"
           ],
+          "kind": "method",
+          "name": "armed_runtime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.armed_runtime",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_watchdog",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_directory"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "clock"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "duration"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.run_watchdog",
+          "return_annotation": null,
+          "signature": "(self, state_directory, clock, duration = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
           "kind": "method",
           "name": "test_rearm_allows_initial_observation_grace_without_granting_input",
           "parameters": [
@@ -62695,8 +62875,66 @@
           "signature": "(self, _target_matches)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 19
+            "end_line": 89,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watchdog_keeps_active_state_at_exact_observation_deadline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_target_matches"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.test_watchdog_keeps_active_state_at_exact_observation_deadline",
+          "return_annotation": null,
+          "signature": "(self, _target_matches)",
+          "source_location": {
+            "column": 4,
+            "end_line": 98,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watchdog_rejects_missing_observation_after_grace_expires",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_target_matches"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.test_watchdog_rejects_missing_observation_after_grace_expires",
+          "return_annotation": null,
+          "signature": "(self, _target_matches)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 100
           }
         }
       ]
@@ -86250,6 +86488,123 @@
             "column": 4,
             "end_line": 524,
             "start_line": 508
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.safety_guard"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "SafetyEvent"
+            },
+            {
+              "alias": null,
+              "name": "SafetyLog"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_safety_log_memory",
+      "path": "tests/test_safety_log_memory.py",
+      "source_location": {
+        "end_line": 31,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SafetyLogMemoryTests",
+          "parameters": [],
+          "qualified_name": "SafetyLogMemoryTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 27,
+            "start_line": 6
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_in_memory_events_keep_only_the_configured_tail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyLogMemoryTests.test_in_memory_events_keep_only_the_configured_tail",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 23,
+            "start_line": 7
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_positive_memory_limit_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyLogMemoryTests.test_non_positive_memory_limit_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 27,
+            "start_line": 25
           }
         }
       ]
