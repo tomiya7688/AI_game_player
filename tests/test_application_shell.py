@@ -148,6 +148,30 @@ class TkShellSmokeTests(unittest.TestCase):
                 finally:
                     root.destroy()
 
+    def test_shell_button_tooltips(self):
+        try:
+            root = tk.Tk()
+        except TclError as exc:
+            self.skipTest(f"Tk desktop is unavailable: {exc}")
+        try:
+            root.withdraw()
+            shell = ApplicationShell(root, ShellState(), lambda: None, lambda _s: None)
+            shell.pack(fill=tk.BOTH, expand=True)
+            root.update_idletasks()
+
+            btn = shell.inspector_button
+            btn.event_generate("<Enter>")
+            root.update_idletasks()
+            children_after_enter = [child for child in btn.winfo_children() if isinstance(child, tk.Toplevel)]
+            self.assertEqual(len(children_after_enter), 1)
+
+            btn.event_generate("<Leave>")
+            root.update_idletasks()
+            children_after_leave = [child for child in btn.winfo_children() if isinstance(child, tk.Toplevel)]
+            self.assertEqual(len(children_after_leave), 0)
+        finally:
+            root.destroy()
+
     def test_application_shell_does_not_register_duplicate_escape_binding(self):
         try:
             root = tk.Tk()

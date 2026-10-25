@@ -69,6 +69,44 @@ class ShellStateStore:
         temporary.replace(self.path)
 
 
+def add_tooltip(widget: tk.Widget, text: str) -> None:
+    """Attaches a hover tooltip to a Tkinter widget for improved UX and clarity."""
+    tooltip_window: tk.Toplevel | None = None
+
+    def show_tooltip(_event: tk.Event | None = None) -> None:
+        nonlocal tooltip_window
+        if tooltip_window or not text:
+            return
+        x = widget.winfo_rootx() + 10
+        y = widget.winfo_rooty() + widget.winfo_height() + 5
+        tooltip_window = tw = tk.Toplevel(widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(
+            tw,
+            text=text,
+            justify=tk.LEFT,
+            background="#ffffe1",
+            foreground="#000000",
+            relief=tk.SOLID,
+            borderwidth=1,
+            font=("TkDefaultFont", 9, "normal"),
+            padx=4,
+            pady=2,
+        )
+        label.pack()
+
+    def hide_tooltip(_event: tk.Event | None = None) -> None:
+        nonlocal tooltip_window
+        if tooltip_window:
+            tooltip_window.destroy()
+            tooltip_window = None
+
+    widget.bind("<Enter>", show_tooltip, add="+")
+    widget.bind("<Leave>", hide_tooltip, add="+")
+    widget.bind("<FocusOut>", hide_tooltip, add="+")
+
+
 class ShellController:
     """Tracks shell selection and panel visibility without owning game behavior."""
 
@@ -135,11 +173,18 @@ class ApplicationShell(ttk.Frame):
         command = ttk.Frame(self, padding=(8, 6))
         command.pack(fill=tk.X)
         ttk.Label(command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
-        ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
-        ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
+        self.inspector_button = ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector)
+        self.inspector_button.pack(side=tk.RIGHT)
+        add_tooltip(self.inspector_button, "右側のInspectorパネルを開閉します")
+
+        self.bottom_panel_button = ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel)
+        self.bottom_panel_button.pack(side=tk.RIGHT, padx=6)
+        add_tooltip(self.bottom_panel_button, "下部のコンソール/タイムラインパネルを開閉します")
+
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
+        add_tooltip(self.stop_button, "実行中のAI操作を即座に安全に停止します (Escキー)")
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)
