@@ -9,6 +9,8 @@ from typing import Callable
 import tkinter as tk
 from tkinter import ttk
 
+from ai_game_player.ui.tooltip import ToolTip
+
 WORKSPACES = ("Play", "Vision", "Reasoning", "Evaluation", "History", "Mods")
 WORKSPACE_HINTS = {
     "Vision": "画面認識と候補の表示領域です。Workspaceの内容は個別機能から接続します。",
@@ -140,6 +142,7 @@ class ApplicationShell(ttk.Frame):
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
+        ToolTip(self.stop_button, "ゲーム制御・連続実行を即時停止します (Esc/F12キー対応)")
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)

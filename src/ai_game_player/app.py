@@ -32,6 +32,7 @@ from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
+from ai_game_player.ui.tooltip import ToolTip
 
 
 # {
@@ -235,6 +236,7 @@ class Application:
             command=self._on_live_execution_changed,
         )
         self.live_execution_toggle.pack(side=tk.LEFT, padx=5)
+        ToolTip(self.live_execution_toggle, "チェックを入れるとマウス/キーボードの実操作をゲームへ送信します (実行中は変更不可)")
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         capture_settings = ttk.Frame(frame)
