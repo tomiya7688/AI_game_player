@@ -42725,7 +42725,7 @@
       "module": "ai_game_player.ui.shell",
       "path": "src/ai_game_player/ui/shell.py",
       "source_location": {
-        "end_line": 264,
+        "end_line": 309,
         "start_line": 1
       },
       "symbols": [
@@ -42877,6 +42877,81 @@
         },
         {
           "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "add_tooltip",
+          "parameters": [
+            {
+              "annotation": "tk.Widget",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "widget"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "add_tooltip",
+          "return_annotation": "None",
+          "signature": "(widget: tk.Widget, text: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 107,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "show_tooltip",
+          "parameters": [
+            {
+              "annotation": "tk.Event | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "_event"
+            }
+          ],
+          "qualified_name": "add_tooltip.show_tooltip",
+          "return_annotation": "None",
+          "signature": "(_event: tk.Event | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "hide_tooltip",
+          "parameters": [
+            {
+              "annotation": "tk.Event | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "_event"
+            }
+          ],
+          "qualified_name": "add_tooltip.hide_tooltip",
+          "return_annotation": "None",
+          "signature": "(_event: tk.Event | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 103,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
           "data_model": {
             "dataclass": false,
             "enum": false,
@@ -42891,8 +42966,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 96,
-            "start_line": 72
+            "end_line": 134,
+            "start_line": 110
           }
         },
         {
@@ -42926,8 +43001,8 @@
           "signature": "(self, state: ShellState, on_change: Callable[[ShellState], None] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 77,
-            "start_line": 75
+            "end_line": 115,
+            "start_line": 113
           }
         },
         {
@@ -42955,8 +43030,8 @@
           "signature": "(self, workspace: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 79
+            "end_line": 120,
+            "start_line": 117
           }
         },
         {
@@ -42978,8 +43053,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 84
+            "end_line": 125,
+            "start_line": 122
           }
         },
         {
@@ -43001,8 +43076,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 92,
-            "start_line": 89
+            "end_line": 130,
+            "start_line": 127
           }
         },
         {
@@ -43030,8 +43105,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 94
+            "end_line": 134,
+            "start_line": 132
           }
         },
         {
@@ -43052,8 +43127,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 264,
-            "start_line": 103
+            "end_line": 309,
+            "start_line": 141
           }
         },
         {
@@ -43099,8 +43174,8 @@
           "signature": "(self, master: tk.Misc, state: ShellState, on_stop: Callable[[], None], on_state_change: Callable[[ShellState], None]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 122
+            "end_line": 248,
+            "start_line": 160
           }
         },
         {
@@ -43124,8 +43199,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 206
+            "end_line": 252,
+            "start_line": 251
           }
         },
         {
@@ -43149,8 +43224,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 210
+            "end_line": 256,
+            "start_line": 255
           }
         },
         {
@@ -43174,8 +43249,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 260,
+            "start_line": 259
           }
         },
         {
@@ -43203,8 +43278,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 217
+            "end_line": 263,
+            "start_line": 262
           }
         },
         {
@@ -43238,8 +43313,8 @@
           "signature": "(self, action_id: str, detail: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 226
+            "end_line": 277,
+            "start_line": 271
           }
         },
         {
@@ -43273,8 +43348,8 @@
           "signature": "(self, workspace: str, persist: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 234
+            "end_line": 285,
+            "start_line": 279
           }
         },
         {
@@ -43296,8 +43371,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 252,
-            "start_line": 248
+            "end_line": 297,
+            "start_line": 293
           }
         },
         {
@@ -43319,8 +43394,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 264,
-            "start_line": 260
+            "end_line": 309,
+            "start_line": 305
           }
         }
       ]
@@ -52178,7 +52253,7 @@
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 179,
+        "end_line": 203,
         "start_line": 1
       },
       "symbols": [
@@ -52405,7 +52480,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 175,
+            "end_line": 199,
             "start_line": 79
           }
         },
@@ -52460,6 +52535,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_shell_button_tooltips",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TkShellSmokeTests.test_shell_button_tooltips",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 173,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_application_shell_does_not_register_duplicate_escape_binding",
           "parameters": [
             {
@@ -52474,8 +52572,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 151
+            "end_line": 199,
+            "start_line": 175
           }
         }
       ]
