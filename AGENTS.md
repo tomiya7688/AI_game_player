@@ -93,6 +93,7 @@ Non-negotiable constraints:
 
 - Follow `doc/ワークフロー/ワークフロー.md`.
 - Read and apply `doc/レビュー基準.md` to every PR; code and documentation changes must follow `doc/コーディング規約.md`.
+- Follow Issue #19: implementation PRs must map specified methods to actual implementation, runtime wiring, evidence, justified replacements, and deferred deliverables with Open Issue references. Separate Core, Runtime, and Real-play completion; the automated gate belongs to Issue #508.
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
 - `finish_task.bat` includes generated docs, unit tests, compile checks, high-confidence bug checks, runtime performance budgets, and `git diff --check`.
 - UPD architecture rules are enforced by `upd-architecture-ci`; the checker is a development/CI dependency and must not enter the normal game runtime import path.
