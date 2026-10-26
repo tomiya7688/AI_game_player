@@ -62559,19 +62559,6 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [],
-          "module": "time",
-          "names": [
-            {
-              "alias": null,
-              "name": "time"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 4,
-          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -62583,7 +62570,33 @@
         {
           "kind": "from",
           "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
           "line": 5,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -62596,7 +62609,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -62609,7 +62622,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.fail_safe_runtime"
@@ -62642,10 +62655,105 @@
       "module": "tests.test_fail_safe_initial_observation_grace",
       "path": "tests/test_fail_safe_initial_observation_grace.py",
       "source_location": {
-        "end_line": 58,
+        "end_line": 115,
         "start_line": 1
       },
       "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ManualClock",
+          "parameters": [],
+          "qualified_name": "ManualClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ManualClock.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ManualClock.__call__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "advance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seconds"
+            }
+          ],
+          "qualified_name": "ManualClock.advance",
+          "return_annotation": null,
+          "signature": "(self, seconds)",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 27
+          }
+        },
         {
           "bases": [
             "unittest.TestCase"
@@ -62655,7 +62763,9 @@
             "enum": false,
             "protocol": false
           },
-          "decorators": [],
+          "decorators": [
+            "patch(REDACTED, return_value=True)"
+          ],
           "kind": "class",
           "name": "FailSafeInitialObservationGraceTest",
           "parameters": [],
@@ -62664,16 +62774,80 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 17
+            "end_line": 111,
+            "start_line": 32
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch(REDACTED, return_value=True)"
+            "contextmanager"
           ],
+          "kind": "method",
+          "name": "armed_runtime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.armed_runtime",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_watchdog",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_directory"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "clock"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "duration"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.run_watchdog",
+          "return_annotation": null,
+          "signature": "(self, state_directory, clock, duration = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
           "kind": "method",
           "name": "test_rearm_allows_initial_observation_grace_without_granting_input",
           "parameters": [
@@ -62695,8 +62869,66 @@
           "signature": "(self, _target_matches)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 19
+            "end_line": 89,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watchdog_keeps_active_state_at_exact_observation_deadline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_target_matches"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.test_watchdog_keeps_active_state_at_exact_observation_deadline",
+          "return_annotation": null,
+          "signature": "(self, _target_matches)",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watchdog_rejects_missing_observation_after_grace_expires",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_target_matches"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.test_watchdog_rejects_missing_observation_after_grace_expires",
+          "return_annotation": null,
+          "signature": "(self, _target_matches)",
+          "source_location": {
+            "column": 4,
+            "end_line": 111,
+            "start_line": 102
           }
         }
       ]
