@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from dataclasses import asdict
 from pathlib import Path
 
 from ai_game_player.safety_guard import SafetyEvent, SafetyLog
@@ -57,7 +58,7 @@ class SafetyLogRetentionTests(unittest.TestCase):
                 json.loads(line)
                 for line in path.read_text(encoding="utf-8").splitlines()
             ]
-            self.assertEqual(persisted, [event.to_dict() for event in expected])
+            self.assertEqual(persisted, [asdict(event) for event in expected])
             self.assertEqual(log.events(), expected[-MEMORY_EVENT_LIMIT:])
 
 

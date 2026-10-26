@@ -86763,6 +86763,19 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
           "module": "pathlib",
           "names": [
             {
@@ -86774,7 +86787,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.safety_guard"
@@ -86795,7 +86808,7 @@
       "module": "tests.test_safety_log",
       "path": "tests/test_safety_log.py",
       "source_location": {
-        "end_line": 65,
+        "end_line": 66,
         "start_line": 1
       },
       "symbols": [
@@ -86818,8 +86831,8 @@
           "signature": "(sequence: int) -> SafetyEvent",
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 13
+            "end_line": 23,
+            "start_line": 14
           }
         },
         {
@@ -86840,8 +86853,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 61,
-            "start_line": 25
+            "end_line": 62,
+            "start_line": 26
           }
         },
         {
@@ -86863,8 +86876,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 43,
-            "start_line": 26
+            "end_line": 44,
+            "start_line": 27
           }
         },
         {
@@ -86886,8 +86899,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 61,
-            "start_line": 45
+            "end_line": 62,
+            "start_line": 46
           }
         }
       ]
