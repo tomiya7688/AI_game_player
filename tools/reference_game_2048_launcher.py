@@ -21,6 +21,8 @@ GAME_DEVICE_SCALE_FACTOR = 0.75
 WINDOW_LEFT = 60
 WINDOW_TOP = 60
 WINDOW_WAIT_SECONDS = 25.0
+PROFILE_CLEANUP_MAX_ATTEMPTS = 10
+PROFILE_CLEANUP_RETRY_SECONDS = 0.1
 HWND_TOP = 0
 SWP_NOSIZE = 0x0001
 SWP_NOMOVE = 0x0002
@@ -125,8 +127,12 @@ class BrowserWindowSession:
             )
             self.window_info = self._wait_for_window(timeout_seconds)
             self.window_is_foreground = focus_resize_browser_window(self.window_info.handle, self.process.pid)
-        except Exception:
-            self.close()
+        except Exception as startup_error:
+            # 後処理の失敗は起動失敗の原因ではないため、暗黙の例外文脈として残す。
+            try:
+                self.close()
+            except Exception:
+                raise startup_error
             raise
 
     def wait_until_closed(self, poll_seconds: float = 0.25) -> int:
@@ -140,11 +146,27 @@ class BrowserWindowSession:
         try:
             self._stop_process_tree()
         finally:
-            if self._profile is not None:
+            try:
+                self._cleanup_profile()
+            finally:
+                self.window_info = None
+                self.window_is_foreground = None
+
+    def _cleanup_profile(self) -> None:
+        """Release this session's profile, allowing only bounded permission-lock retries."""
+        if self._profile is None:
+            return
+        for attempt in range(PROFILE_CLEANUP_MAX_ATTEMPTS):
+            try:
                 self._profile.cleanup()
+            except PermissionError:
+                # Windowsの終了直後に残る一時ロックだけを待つ。最終失敗は隠さない。
+                if attempt + 1 == PROFILE_CLEANUP_MAX_ATTEMPTS:
+                    raise
+                time.sleep(PROFILE_CLEANUP_RETRY_SECONDS)
+            else:
                 self._profile = None
-            self.window_info = None
-            self.window_is_foreground = None
+                return
 
     def _wait_for_window(self, timeout_seconds: float):
         if self.process is None:
@@ -153,16 +175,33 @@ class BrowserWindowSession:
 
         deadline = time.monotonic() + timeout_seconds
         selector = WindowsWindowSelector()
+        owned_titled_window_count = 0
+        other_game_window_count = 0
         while time.monotonic() < deadline:
-            if self.process.poll() is not None:
-                raise RuntimeError(f"browser exited during startup with code {self.process.returncode}")
+            exit_code = self.process.poll()
+            if exit_code is not None:
+                raise RuntimeError(
+                    f"browser exited during startup: launched_pid={self.process.pid}, exit_code={exit_code}"
+                )
+            owned_titled_window_count = 0
+            other_game_window_count = 0
             for window in selector.list_windows():
-                if window.process_id == self.process.pid and "2048" in window.title.casefold():
-                    return window
+                if not window.title:
+                    continue
+                is_game_title = "2048" in window.title.casefold()
+                if window.process_id == self.process.pid:
+                    owned_titled_window_count += 1
+                    if is_game_title:
+                        return window
+                elif is_game_title:
+                    other_game_window_count += 1
             time.sleep(0.1)
+        # 別アプリのタイトルは記録せず、直近の列挙結果の件数だけでPID不一致を切り分ける。
         raise TimeoutError(
             "the 2048 browser window was not found under the launched process ID; "
-            "check the browser executable and Windows desktop session"
+            "check the browser executable and Windows desktop session; "
+            f"launched_pid={self.process.pid}, owned_titled_windows={owned_titled_window_count}, "
+            f"other_2048_windows={other_game_window_count}"
         )
 
     def _stop_process_tree(self) -> None:
@@ -223,8 +262,11 @@ class ReferenceGame2048Launcher:
             self.server.start(self.source_path)
             self.browser = BrowserWindowSession(browser_path, self.source_path)
             self.browser.start(self.server.url, window_wait_seconds)
-        except Exception:
-            self.close()
+        except Exception as startup_error:
+            try:
+                self.close()
+            except Exception:
+                raise startup_error
             raise
 
     def wait_until_closed(self) -> int:
@@ -233,14 +275,12 @@ class ReferenceGame2048Launcher:
         return self.browser.wait_until_closed()
 
     def close(self) -> None:
-        if self.browser is not None:
-            browser = self.browser
-            self.browser = None
-            try:
-                browser.close()
-            finally:
-                self.server.close()
-        else:
+        try:
+            if self.browser is not None:
+                # cleanup失敗時も所有者を残し、利用者がcloseを再実行できるようにする。
+                self.browser.close()
+                self.browser = None
+        finally:
             self.server.close()
 
     def __enter__(self) -> ReferenceGame2048Launcher:
