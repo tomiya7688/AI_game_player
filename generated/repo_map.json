@@ -25176,7 +25176,7 @@
       "module": "ai_game_player.journal_adapters",
       "path": "src/ai_game_player/journal_adapters.py",
       "source_location": {
-        "end_line": 225,
+        "end_line": 231,
         "start_line": 1
       },
       "symbols": [
@@ -25291,7 +25291,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 186,
+            "end_line": 187,
             "start_line": 57
           }
         },
@@ -25375,7 +25375,7 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 101,
+            "end_line": 98,
             "start_line": 97
           }
         },
@@ -25404,8 +25404,8 @@
           "signature": "(self, record: Mapping[str, Any]) -> StagedJournalAppend",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 110
+            "end_line": 118,
+            "start_line": 107
           }
         },
         {
@@ -25420,8 +25420,8 @@
           "signature": "() -> EventEnvelope",
           "source_location": {
             "column": 8,
-            "end_line": 119,
-            "start_line": 115
+            "end_line": 116,
+            "start_line": 112
           }
         },
         {
@@ -25455,8 +25455,8 @@
           "signature": "(self, record: Mapping[str, Any], event_id: str | None = …) -> EventEnvelope",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 129
+            "end_line": 141,
+            "start_line": 126
           }
         },
         {
@@ -25478,8 +25478,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 153
+            "end_line": 168,
+            "start_line": 150
           }
         },
         {
@@ -25513,8 +25513,8 @@
           "signature": "(self, index: int, record: Mapping[str, Any]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 177
+            "end_line": 187,
+            "start_line": 176
           }
         },
         {
@@ -25536,8 +25536,8 @@
           "signature": "(value: object) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 196,
-            "start_line": 195
+            "end_line": 197,
+            "start_line": 196
           }
         },
         {
@@ -25559,8 +25559,8 @@
           "signature": "(value: Any) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 209,
-            "start_line": 206
+            "end_line": 210,
+            "start_line": 207
           }
         },
         {
@@ -25582,8 +25582,8 @@
           "signature": "(value: Any) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 225,
-            "start_line": 218
+            "end_line": 231,
+            "start_line": 219
           }
         }
       ]
@@ -39318,7 +39318,7 @@
       "module": "ai_game_player.safety_guard",
       "path": "src/ai_game_player/safety_guard.py",
       "source_location": {
-        "end_line": 579,
+        "end_line": 570,
         "start_line": 1
       },
       "symbols": [
@@ -39635,8 +39635,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 146,
-            "start_line": 123
+            "end_line": 137,
+            "start_line": 120
           }
         },
         {
@@ -39657,21 +39657,15 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "path"
-            },
-            {
-              "annotation": "int",
-              "has_default": true,
-              "kind": "positional_or_keyword",
-              "name": "max_memory_events"
             }
           ],
           "qualified_name": "SafetyLog.__init__",
           "return_annotation": "None",
-          "signature": "(self, path: Path | None = …, max_memory_events: int = …) -> None",
+          "signature": "(self, path: Path | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 124
+            "end_line": 124,
+            "start_line": 121
           }
         },
         {
@@ -39699,8 +39693,8 @@
           "signature": "(self, event: SafetyEvent) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 142,
-            "start_line": 135
+            "end_line": 133,
+            "start_line": 126
           }
         },
         {
@@ -39722,8 +39716,8 @@
           "signature": "(self) -> list[SafetyEvent]",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 144
+            "end_line": 137,
+            "start_line": 135
           }
         },
         {
@@ -39742,8 +39736,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 175,
-            "start_line": 149
+            "end_line": 166,
+            "start_line": 140
           }
         },
         {
@@ -39765,8 +39759,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 150
+            "end_line": 144,
+            "start_line": 141
           }
         },
         {
@@ -39790,8 +39784,8 @@
           "signature": "(self) -> SafetyState",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 156
+            "end_line": 148,
+            "start_line": 147
           }
         },
         {
@@ -39815,8 +39809,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 162,
-            "start_line": 160
+            "end_line": 153,
+            "start_line": 151
           }
         },
         {
@@ -39838,8 +39832,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 164
+            "end_line": 156,
+            "start_line": 155
           }
         },
         {
@@ -39867,8 +39861,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 170,
-            "start_line": 167
+            "end_line": 161,
+            "start_line": 158
           }
         },
         {
@@ -39890,8 +39884,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 172
+            "end_line": 166,
+            "start_line": 163
           }
         },
         {
@@ -39910,8 +39904,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 227,
-            "start_line": 178
+            "end_line": 218,
+            "start_line": 169
           }
         },
         {
@@ -39951,8 +39945,8 @@
           "signature": "(self, emergency_stop: EmergencyStop, poller: Callable[[], bool] | None = …, interval_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 181
+            "end_line": 184,
+            "start_line": 172
           }
         },
         {
@@ -39974,8 +39968,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 195
+            "end_line": 191,
+            "start_line": 186
           }
         },
         {
@@ -39997,8 +39991,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 206,
-            "start_line": 202
+            "end_line": 197,
+            "start_line": 193
           }
         },
         {
@@ -40020,8 +40014,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 208
+            "end_line": 207,
+            "start_line": 199
           }
         },
         {
@@ -40043,8 +40037,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 221,
-            "start_line": 218
+            "end_line": 212,
+            "start_line": 209
           }
         },
         {
@@ -40061,8 +40055,8 @@
           "signature": "() -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 227,
-            "start_line": 224
+            "end_line": 218,
+            "start_line": 215
           }
         },
         {
@@ -40081,8 +40075,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 263,
-            "start_line": 230
+            "end_line": 254,
+            "start_line": 221
           }
         },
         {
@@ -40110,8 +40104,8 @@
           "signature": "(self, window_handle: int) -> TargetState",
           "source_location": {
             "column": 4,
-            "end_line": 263,
-            "start_line": 231
+            "end_line": 254,
+            "start_line": 222
           }
         },
         {
@@ -40130,8 +40124,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 369,
-            "start_line": 266
+            "end_line": 360,
+            "start_line": 257
           }
         },
         {
@@ -40152,8 +40146,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 301,
-            "start_line": 289
+            "end_line": 292,
+            "start_line": 280
           }
         },
         {
@@ -40174,8 +40168,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 308,
-            "start_line": 303
+            "end_line": 299,
+            "start_line": 294
           }
         },
         {
@@ -40203,8 +40197,8 @@
           "signature": "(self, library: object) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 316,
-            "start_line": 310
+            "end_line": 307,
+            "start_line": 301
           }
         },
         {
@@ -40228,8 +40222,8 @@
           "signature": "(cls) -> REDACTED",
           "source_location": {
             "column": 4,
-            "end_line": 334,
-            "start_line": 319
+            "end_line": 325,
+            "start_line": 310
           }
         },
         {
@@ -40275,8 +40269,8 @@
           "signature": "(self, candidate: ActionCandidate, width: int, height: int, max_hold_seconds: float) -> tuple[bool, int]",
           "source_location": {
             "column": 4,
-            "end_line": 353,
-            "start_line": 336
+            "end_line": 344,
+            "start_line": 327
           }
         },
         {
@@ -40306,8 +40300,8 @@
           "signature": "(cls, label: str) -> tuple[int, int]",
           "source_location": {
             "column": 4,
-            "end_line": 369,
-            "start_line": 356
+            "end_line": 360,
+            "start_line": 347
           }
         },
         {
@@ -40326,8 +40320,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 555,
-            "start_line": 372
+            "end_line": 546,
+            "start_line": 363
           }
         },
         {
@@ -40391,8 +40385,8 @@
           "signature": "(self, config: SafetyGuardConfig | None = …, *, window_handle: int | None = …, target_probe: TargetProbe | None = …, emergency_stop: EmergencyStop | None = …, log: SafetyLog | None = …, clock: Callable[[], float] = …, native_validator: NativeSafetyValidator | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 401,
-            "start_line": 378
+            "end_line": 392,
+            "start_line": 369
           }
         },
         {
@@ -40420,8 +40414,8 @@
           "signature": "(self, candidate: ActionCandidate) -> SafetyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 416,
-            "start_line": 403
+            "end_line": 407,
+            "start_line": 394
           }
         },
         {
@@ -40449,8 +40443,8 @@
           "signature": "(self, state_changed: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 420,
-            "start_line": 418
+            "end_line": 411,
+            "start_line": 409
           }
         },
         {
@@ -40478,8 +40472,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 423,
-            "start_line": 422
+            "end_line": 414,
+            "start_line": 413
           }
         },
         {
@@ -40501,8 +40495,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 432,
-            "start_line": 425
+            "end_line": 423,
+            "start_line": 416
           }
         },
         {
@@ -40530,8 +40524,8 @@
           "signature": "(self, candidate: ActionCandidate) -> SafetyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 519,
-            "start_line": 434
+            "end_line": 510,
+            "start_line": 425
           }
         },
         {
@@ -40559,8 +40553,8 @@
           "signature": "(self, next_action_id: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 531,
-            "start_line": 521
+            "end_line": 522,
+            "start_line": 512
           }
         },
         {
@@ -40588,8 +40582,8 @@
           "signature": "(self, now: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 535,
-            "start_line": 533
+            "end_line": 526,
+            "start_line": 524
           }
         },
         {
@@ -40623,8 +40617,8 @@
           "signature": "(self, code: str, reason: str) -> SafetyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 538,
-            "start_line": 537
+            "end_line": 529,
+            "start_line": 528
           }
         },
         {
@@ -40658,8 +40652,8 @@
           "signature": "(self, candidate: ActionCandidate, decision: SafetyDecision) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 551,
-            "start_line": 540
+            "end_line": 542,
+            "start_line": 531
           }
         },
         {
@@ -40683,8 +40677,8 @@
           "signature": "(label: str) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 555,
-            "start_line": 554
+            "end_line": 546,
+            "start_line": 545
           }
         },
         {
@@ -40699,8 +40693,8 @@
           "signature": "() -> EmergencyStop",
           "source_location": {
             "column": 0,
-            "end_line": 564,
-            "start_line": 563
+            "end_line": 555,
+            "start_line": 554
           }
         },
         {
@@ -40715,8 +40709,8 @@
           "signature": "() -> EmergencyStopMonitor | None",
           "source_location": {
             "column": 0,
-            "end_line": 575,
-            "start_line": 567
+            "end_line": 566,
+            "start_line": 558
           }
         },
         {
@@ -40731,8 +40725,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 579,
-            "start_line": 578
+            "end_line": 570,
+            "start_line": 569
           }
         }
       ]
@@ -62565,19 +62559,6 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [],
-          "module": "time",
-          "names": [
-            {
-              "alias": null,
-              "name": "time"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 4,
-          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -62589,7 +62570,33 @@
         {
           "kind": "from",
           "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
           "line": 5,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -62602,7 +62609,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -62615,7 +62622,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.fail_safe_runtime"
@@ -62648,10 +62655,105 @@
       "module": "tests.test_fail_safe_initial_observation_grace",
       "path": "tests/test_fail_safe_initial_observation_grace.py",
       "source_location": {
-        "end_line": 58,
+        "end_line": 115,
         "start_line": 1
       },
       "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ManualClock",
+          "parameters": [],
+          "qualified_name": "ManualClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ManualClock.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ManualClock.__call__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "advance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seconds"
+            }
+          ],
+          "qualified_name": "ManualClock.advance",
+          "return_annotation": null,
+          "signature": "(self, seconds)",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 27
+          }
+        },
         {
           "bases": [
             "unittest.TestCase"
@@ -62661,7 +62763,9 @@
             "enum": false,
             "protocol": false
           },
-          "decorators": [],
+          "decorators": [
+            "patch(REDACTED, return_value=True)"
+          ],
           "kind": "class",
           "name": "FailSafeInitialObservationGraceTest",
           "parameters": [],
@@ -62670,16 +62774,80 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 17
+            "end_line": 111,
+            "start_line": 32
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [
-            "patch(REDACTED, return_value=True)"
+            "contextmanager"
           ],
+          "kind": "method",
+          "name": "armed_runtime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.armed_runtime",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_watchdog",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_directory"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "clock"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "duration"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.run_watchdog",
+          "return_annotation": null,
+          "signature": "(self, state_directory, clock, duration = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
           "kind": "method",
           "name": "test_rearm_allows_initial_observation_grace_without_granting_input",
           "parameters": [
@@ -62701,8 +62869,66 @@
           "signature": "(self, _target_matches)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 19
+            "end_line": 89,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watchdog_keeps_active_state_at_exact_observation_deadline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_target_matches"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.test_watchdog_keeps_active_state_at_exact_observation_deadline",
+          "return_annotation": null,
+          "signature": "(self, _target_matches)",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watchdog_rejects_missing_observation_after_grace_expires",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_target_matches"
+            }
+          ],
+          "qualified_name": "FailSafeInitialObservationGraceTest.test_watchdog_rejects_missing_observation_after_grace_expires",
+          "return_annotation": null,
+          "signature": "(self, _target_matches)",
+          "source_location": {
+            "column": 4,
+            "end_line": 111,
+            "start_line": 102
           }
         }
       ]
@@ -70203,6 +70429,233 @@
             "column": 12,
             "end_line": 991,
             "start_line": 990
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.event_journal",
+        "ai_game_player.journal_adapters"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "decimal",
+          "names": [
+            {
+              "alias": null,
+              "name": "Decimal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.journal_adapters"
+          ],
+          "module": "ai_game_player.journal_adapters",
+          "names": [
+            {
+              "alias": null,
+              "name": "LegacyEventAdapter"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_journal_record_copy",
+      "path": "tests/test_journal_record_copy.py",
+      "source_location": {
+        "end_line": 70,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "JournalRecordCopyTest",
+          "parameters": [],
+          "qualified_name": "JournalRecordCopyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 66,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_string_subclass_keys_do_not_share_mutable_attributes_with_cache",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JournalRecordCopyTest.test_string_subclass_keys_do_not_share_mutable_attributes_with_cache",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 27,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [
+            "str"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "AnnotatedKey",
+          "parameters": [],
+          "qualified_name": "JournalRecordCopyTest.test_string_subclass_keys_do_not_share_mutable_attributes_with_cache.AnnotatedKey",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 14,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_json_records_are_copied_and_converted_in_one_pass",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JournalRecordCopyTest.test_json_records_are_copied_and_converted_in_one_pass",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tuple_containing_mutable_values_still_returns_an_independent_copy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JournalRecordCopyTest.test_tuple_containing_mutable_values_still_returns_an_independent_copy",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 66,
+            "start_line": 55
           }
         }
       ]
@@ -85112,7 +85565,7 @@
       "module": "tests.test_safety_guard",
       "path": "tests/test_safety_guard.py",
       "source_location": {
-        "end_line": 563,
+        "end_line": 528,
         "start_line": 1
       },
       "symbols": [
@@ -85731,7 +86184,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 559,
+            "end_line": 524,
             "start_line": 133
           }
         },
@@ -85889,52 +86342,6 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_safety_log_bounds_memory_but_keeps_full_file_audit",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "SafetyGuardTest.test_safety_log_bounds_memory_but_keeps_full_file_audit",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 272,
-            "start_line": 243
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_safety_log_rejects_non_positive_memory_limit",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "SafetyGuardTest.test_safety_log_rejects_non_positive_memory_limit",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 276,
-            "start_line": 274
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
           "name": "test_windows_target_probe_reads_pid_visibility_and_client_geometry_without_os_calls",
           "parameters": [
             {
@@ -85949,8 +86356,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 296,
-            "start_line": 278
+            "end_line": 261,
+            "start_line": 243
           }
         },
         {
@@ -85972,8 +86379,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 309,
-            "start_line": 298
+            "end_line": 274,
+            "start_line": 263
           }
         },
         {
@@ -85995,8 +86402,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 321,
-            "start_line": 310
+            "end_line": 286,
+            "start_line": 275
           }
         },
         {
@@ -86024,8 +86431,8 @@
           "signature": "(self, **config_overrides)",
           "source_location": {
             "column": 4,
-            "end_line": 333,
-            "start_line": 322
+            "end_line": 298,
+            "start_line": 287
           }
         },
         {
@@ -86047,8 +86454,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 349,
-            "start_line": 335
+            "end_line": 314,
+            "start_line": 300
           }
         },
         {
@@ -86070,8 +86477,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 360,
-            "start_line": 351
+            "end_line": 325,
+            "start_line": 316
           }
         },
         {
@@ -86093,8 +86500,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 388,
-            "start_line": 362
+            "end_line": 353,
+            "start_line": 327
           }
         },
         {
@@ -86116,8 +86523,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 400,
-            "start_line": 390
+            "end_line": 365,
+            "start_line": 355
           }
         },
         {
@@ -86139,8 +86546,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 412,
-            "start_line": 402
+            "end_line": 377,
+            "start_line": 367
           }
         },
         {
@@ -86162,8 +86569,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 422,
-            "start_line": 414
+            "end_line": 387,
+            "start_line": 379
           }
         },
         {
@@ -86185,8 +86592,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 450,
-            "start_line": 424
+            "end_line": 415,
+            "start_line": 389
           }
         },
         {
@@ -86208,8 +86615,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 489,
-            "start_line": 452
+            "end_line": 454,
+            "start_line": 417
           }
         },
         {
@@ -86231,8 +86638,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 502,
-            "start_line": 491
+            "end_line": 467,
+            "start_line": 456
           }
         },
         {
@@ -86254,8 +86661,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 528,
-            "start_line": 504
+            "end_line": 493,
+            "start_line": 469
           }
         },
         {
@@ -86277,8 +86684,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 541,
-            "start_line": 530
+            "end_line": 506,
+            "start_line": 495
           }
         },
         {
@@ -86300,8 +86707,187 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 559,
-            "start_line": 543
+            "end_line": 524,
+            "start_line": 508
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.safety_guard"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "SafetyEvent"
+            },
+            {
+              "alias": null,
+              "name": "SafetyLog"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_safety_log",
+      "path": "tests/test_safety_log.py",
+      "source_location": {
+        "end_line": 65,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "safety_event",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sequence"
+            }
+          ],
+          "qualified_name": "safety_event",
+          "return_annotation": "SafetyEvent",
+          "signature": "(sequence: int) -> SafetyEvent",
+          "source_location": {
+            "column": 0,
+            "end_line": 22,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SafetyLogRetentionTests",
+          "parameters": [],
+          "qualified_name": "SafetyLogRetentionTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 61,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_memory_only_log_retains_latest_events_in_order",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyLogRetentionTests.test_memory_only_log_retains_latest_events_in_order",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_file_audit_keeps_all_events_after_memory_rollover",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyLogRetentionTests.test_file_audit_keeps_all_events_after_memory_rollover",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 45
           }
         }
       ]

@@ -4,6 +4,7 @@ cd /d "%~dp0"
 set "PYTHONPATH=src;."
 
 python tools\generate_docs.py || exit /b 1
+call format_code.bat --check tests/test_fail_safe_initial_observation_grace.py || exit /b 1
 python -m ruff check src tools tests || exit /b 1
 python -m mypy || exit /b 1
 if not exist build\coverage mkdir build\coverage

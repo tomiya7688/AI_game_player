@@ -89,16 +89,13 @@ class LegacyEventAdapter:
 
     # {
     #   責務: [records: 旧readerと同じrecord形状で旧・現Sessionの記録を返す]
-    #   処理: [adapterが読み込んだlegacy recordとSession内で追加したrecordのcopyを返す]
+    #   処理: [legacy recordとSession内で追加したrecordを一度の再帰走査で複製し、Decimalを旧reader互換のfloatへ変換する]
     #   引数: [self: 互換recordを保持するadapter]
     #   戻り値: [list[dict[str, Any]]: 旧形式を保ったevent record列]
     # }
     @property
     def records(self) -> list[dict[str, Any]]:
-        return [
-            _legacy_compatible_record(record)
-            for record in deepcopy(self._records)
-        ]
+        return [_legacy_compatible_record(record) for record in self._records]
 
     # {
     #   責務: [prepare_append: legacy API用recordをcommit時まで保留したJournal appendへ変換する]
@@ -164,7 +161,9 @@ class LegacyEventAdapter:
             values = json.loads(text, parse_float=Decimal)
             if not isinstance(values, list):
                 raise ValueError(f"{self.source_path.name} must contain an array")
-        if not isinstance(values, list) or any(not isinstance(item, dict) for item in values):
+        if not isinstance(values, list) or any(
+            not isinstance(item, dict) for item in values
+        ):
             raise ValueError(f"{self.source_path.name} records must be JSON objects")
         return values
 
@@ -182,7 +181,9 @@ class LegacyEventAdapter:
             separators=(",", ":"),
             default=_decimal_json_default,
         )
-        identity = f"{self.event_type}\0{self.source_path.name}\0{index}\0{canonical_record}"
+        identity = (
+            f"{self.event_type}\0{self.source_path.name}\0{index}\0{canonical_record}"
+        )
         return f"legacy-{hashlib.sha256(identity.encode('utf-8')).hexdigest()}"
 
 
@@ -211,7 +212,7 @@ def _decimal_json_default(value: Any) -> str:
 
 # {
 #   責務: [_legacy_compatible_record: Decimal保持したJournal recordを旧JSON readerの型へ戻す]
-#   処理: [旧json.loadsが小数へ使っていたfloatへ変換し、nested objectとarrayを再帰的にcopyする]
+#   処理: [Decimalをfloatへ変換しながら辞書と配列を一度だけ複製する。その他の可変値はdeepcopyで分離し、呼出側によるcacheの変更を防ぐ]
 #   引数: [value: Journal payloadから取り出した旧形式record]
 #   戻り値: [dict[str, Any]: 旧readerと同じfloat互換のJSON record]
 # }
@@ -219,7 +220,12 @@ def _legacy_compatible_record(value: Any) -> Any:
     if isinstance(value, Decimal):
         return float(value)
     if isinstance(value, dict):
-        return {key: _legacy_compatible_record(item) for key, item in value.items()}
+        return {
+            key if type(key) is str else deepcopy(key): _legacy_compatible_record(item)
+            for key, item in value.items()
+        }
     if isinstance(value, list):
         return [_legacy_compatible_record(item) for item in value]
-    return value
+    if type(value) in (str, int, float, bool, type(None)):
+        return value
+    return deepcopy(value)

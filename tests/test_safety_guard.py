@@ -240,41 +240,6 @@ class SafetyGuardTest(unittest.TestCase):
             },
         )
 
-    def test_safety_log_bounds_memory_but_keeps_full_file_audit(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "safety.jsonl"
-            log = SafetyLog(path, max_memory_events=2)
-            guard = SafetyGuard(
-                SafetyGuardConfig(
-                    require_target=False,
-                    require_foreground=False,
-                    max_session_actions=10,
-                ),
-                emergency_stop=EmergencyStop(),
-                log=log,
-                native_validator=None,
-            )
-            for action_id in ("first", "second", "third"):
-                decision = guard.check(ActionCandidate(action_id, "wait", "0"))
-                self.assertTrue(decision.allowed)
-
-            self.assertEqual(
-                [event.action_id for event in log.events()],
-                ["second", "third"],
-            )
-            persisted = [
-                json.loads(line)
-                for line in path.read_text(encoding="utf-8").splitlines()
-            ]
-            self.assertEqual(
-                [event["action_id"] for event in persisted],
-                ["first", "second", "third"],
-            )
-
-    def test_safety_log_rejects_non_positive_memory_limit(self):
-        with self.assertRaises(ValueError):
-            SafetyLog(max_memory_events=0)
-
     def test_windows_target_probe_reads_pid_visibility_and_client_geometry_without_os_calls(self):
         user32 = FakeWindowUser32()
 
