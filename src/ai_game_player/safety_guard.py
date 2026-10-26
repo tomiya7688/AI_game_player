@@ -120,7 +120,7 @@ class SafetyEvent:
 class SafetyLog:
     def __init__(self, path: Path | None = None) -> None:
         self.path = path
-        self._events: list[SafetyEvent] = []
+        self._events: deque[SafetyEvent] = deque(maxlen=4096)
         self._lock = threading.Lock()
 
     def append(self, event: SafetyEvent) -> None:

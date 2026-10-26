@@ -25176,7 +25176,7 @@
       "module": "ai_game_player.journal_adapters",
       "path": "src/ai_game_player/journal_adapters.py",
       "source_location": {
-        "end_line": 225,
+        "end_line": 231,
         "start_line": 1
       },
       "symbols": [
@@ -25291,7 +25291,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 186,
+            "end_line": 187,
             "start_line": 57
           }
         },
@@ -25375,7 +25375,7 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 101,
+            "end_line": 98,
             "start_line": 97
           }
         },
@@ -25404,8 +25404,8 @@
           "signature": "(self, record: Mapping[str, Any]) -> StagedJournalAppend",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 110
+            "end_line": 118,
+            "start_line": 107
           }
         },
         {
@@ -25420,8 +25420,8 @@
           "signature": "() -> EventEnvelope",
           "source_location": {
             "column": 8,
-            "end_line": 119,
-            "start_line": 115
+            "end_line": 116,
+            "start_line": 112
           }
         },
         {
@@ -25455,8 +25455,8 @@
           "signature": "(self, record: Mapping[str, Any], event_id: str | None = …) -> EventEnvelope",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 129
+            "end_line": 141,
+            "start_line": 126
           }
         },
         {
@@ -25478,8 +25478,8 @@
           "signature": "(self) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 153
+            "end_line": 168,
+            "start_line": 150
           }
         },
         {
@@ -25513,8 +25513,8 @@
           "signature": "(self, index: int, record: Mapping[str, Any]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 177
+            "end_line": 187,
+            "start_line": 176
           }
         },
         {
@@ -25536,8 +25536,8 @@
           "signature": "(value: object) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 196,
-            "start_line": 195
+            "end_line": 197,
+            "start_line": 196
           }
         },
         {
@@ -25559,8 +25559,8 @@
           "signature": "(value: Any) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 209,
-            "start_line": 206
+            "end_line": 210,
+            "start_line": 207
           }
         },
         {
@@ -25582,8 +25582,8 @@
           "signature": "(value: Any) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 225,
-            "start_line": 218
+            "end_line": 231,
+            "start_line": 219
           }
         }
       ]
@@ -70429,6 +70429,233 @@
             "column": 12,
             "end_line": 991,
             "start_line": 990
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.event_journal",
+        "ai_game_player.journal_adapters"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "decimal",
+          "names": [
+            {
+              "alias": null,
+              "name": "Decimal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.journal_adapters"
+          ],
+          "module": "ai_game_player.journal_adapters",
+          "names": [
+            {
+              "alias": null,
+              "name": "LegacyEventAdapter"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_journal_record_copy",
+      "path": "tests/test_journal_record_copy.py",
+      "source_location": {
+        "end_line": 70,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "JournalRecordCopyTest",
+          "parameters": [],
+          "qualified_name": "JournalRecordCopyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 66,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_string_subclass_keys_do_not_share_mutable_attributes_with_cache",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JournalRecordCopyTest.test_string_subclass_keys_do_not_share_mutable_attributes_with_cache",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 27,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [
+            "str"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "AnnotatedKey",
+          "parameters": [],
+          "qualified_name": "JournalRecordCopyTest.test_string_subclass_keys_do_not_share_mutable_attributes_with_cache.AnnotatedKey",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 14,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_json_records_are_copied_and_converted_in_one_pass",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JournalRecordCopyTest.test_json_records_are_copied_and_converted_in_one_pass",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tuple_containing_mutable_values_still_returns_an_independent_copy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JournalRecordCopyTest.test_tuple_containing_mutable_values_still_returns_an_independent_copy",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 66,
+            "start_line": 55
           }
         }
       ]
