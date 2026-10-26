@@ -93,6 +93,8 @@ class FailSafeInitialObservationGraceTest(unittest.TestCase):
     ):
         with self.armed_runtime() as (_runtime, clock, state_directory):
             clock.advance(0.25)
+            # watchdogは期限判定後に実行時間上限を確認するため、0秒でも1回判定します。
+            # sleepで時計を進めず、期限ちょうどの状態を確認します。
             self.assertEqual(self.run_watchdog(state_directory, clock, duration=0.0), 0)
             lease = AtomicJsonStore(state_directory / "lease.json").read()
             self.assertEqual(lease["state"], FailSafeState.ACTIVE.value)
@@ -101,6 +103,7 @@ class FailSafeInitialObservationGraceTest(unittest.TestCase):
         self, _target_matches
     ):
         with self.armed_runtime() as (_runtime, clock, state_directory):
+            # 猶予0.25秒を約1マイクロ秒だけ超え、期限内との境界を確認します。
             clock.advance(0.250001)
             self.assertEqual(self.run_watchdog(state_directory, clock), 0)
             lease = AtomicJsonStore(state_directory / "lease.json").read()
