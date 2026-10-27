@@ -125,6 +125,10 @@ class ModelLessCorePathTest(unittest.TestCase):
             trace["decision"]["provider"].startswith("baseline_weighted_score/")
         )
         self.assertIn("R3_highest_weighted_score", trace["decision"]["reason"])
+        # Pin the weighted score itself, not only the winner: ranking by raw
+        # recognition confidence would also pick START in this fixture.
+        # score = 0.3 * (0.95 - 0.5) = 0.135; margin over HELP = 0.3 * 0.25 = 0.075.
+        self.assertIn("score=0.135, margin=0.075", trace["decision"]["reason"])
         self.assertEqual(
             pipeline.engine.last_reliability_result.status, ReliabilityStatus.TRUST
         )
