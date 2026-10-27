@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Issue #418: 学習Modelを読み込まないmodel-less CI profileとして`tests/test_model_less_core_path.py`を追加する。`JsonObservationSource`が読むObservation fixture（`tests/fixtures/model_less/`）から、OCRテキストによる候補生成、`BaselineDecisionProvider`の判断、`DecisionVerifier`の検証、dry-run実行までを通す。テスト中は`socket`の`connect`・`connect_ex`・`sendto`・`create_connection`・`getaddrinfo`と`urlopen`を遮断し、通信の試行を記録して0件であることを確認する（他のHTTPクライアントや非同期I/Oは対象外）。同点の候補では`abstain`、認識確信度が低い候補では`observe_more`で保留し、どちらも実行履歴が増えないことを確認する。既存のPython unit test CIで実行され、Model artifactは不要。GPU状態は検査しない。#161 Realtime Routerは未実装（P5）のため、Router経由のBaselineへのfallbackは未対応。
 - Issue #318 / PR #346追加レビュー: クラスの状態キーを「フィールド」へ統一し、Issue #19の指定手法・本番接続・検証・延期成果物の対照表をレビュー基準へ反映します。Core / Runtime / Real-playの証拠と未確認・明示対象外を区別し、安全検査とプライバシー同意の迂回を差し戻します。自動ゲート実装はIssue #508で追跡します。
 
 - Issue #318: JSON-like Comment Outsを本体コードの宣言コメント規約として明確化し、レビュー基準・コーディング規約を追加。命名、責務分離、処理単位コメント、エラー・安全性・性能・CI/E2E、仕様書と日本語説明の差し戻し条件を定義。コメントは記法だけでなく対象・条件・理由・結果まで説明し、説明不足のレビュー指摘には欠けた意味と修正案を示す基準を追加。C/C++のstructと公開フィールドを対象に含め、C++公開契約のヘッダーをコメントの正本とする配置規則を定義。Python/C++例の宣言名・戻り値・例外を示した契約を一致させ、参照するDraft v0.9仕様とテンプレートのリンクを同一の不変コミットに固定。
