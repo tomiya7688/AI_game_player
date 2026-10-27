@@ -1686,6 +1686,7 @@
         "ai_game_player.runtime_log",
         "ai_game_player.ui",
         "ai_game_player.ui.shell",
+        "ai_game_player.ui.tooltip",
         "ai_game_player.window_selector"
       ],
       "imports": [
@@ -2098,12 +2099,29 @@
               "name": "ShellStateStore"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 35,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ui",
+            "ai_game_player.ui.tooltip"
+          ],
+          "module": "ai_game_player.ui.tooltip",
+          "names": [
+            {
+              "alias": null,
+              "name": "ToolTip"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.app",
       "path": "src/ai_game_player/app.py",
       "source_location": {
-        "end_line": 1229,
+        "end_line": 1241,
         "start_line": 1
       },
       "symbols": [
@@ -2123,8 +2141,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 72,
-            "start_line": 48
+            "end_line": 73,
+            "start_line": 49
           }
         },
         {
@@ -2152,8 +2170,8 @@
           "signature": "(self, root: tk.Misc) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 53
+            "end_line": 55,
+            "start_line": 54
           }
         },
         {
@@ -2187,8 +2205,8 @@
           "signature": "(self, delay_ms: int, callback) -> object",
           "source_location": {
             "column": 4,
-            "end_line": 63,
-            "start_line": 62
+            "end_line": 64,
+            "start_line": 63
           }
         },
         {
@@ -2216,8 +2234,8 @@
           "signature": "(self, token: object) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 71
+            "end_line": 73,
+            "start_line": 72
           }
         },
         {
@@ -2236,8 +2254,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1219,
-            "start_line": 101
+            "end_line": 1231,
+            "start_line": 102
           }
         },
         {
@@ -2277,8 +2295,8 @@
           "signature": "(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = …, observation_service: LiveObservationService | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 307,
-            "start_line": 122
+            "end_line": 319,
+            "start_line": 123
           }
         },
         {
@@ -2306,8 +2324,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 309
+            "end_line": 325,
+            "start_line": 321
           }
         },
         {
@@ -2335,8 +2353,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 317,
-            "start_line": 315
+            "end_line": 329,
+            "start_line": 327
           }
         },
         {
@@ -2358,8 +2376,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 336,
-            "start_line": 325
+            "end_line": 348,
+            "start_line": 337
           }
         },
         {
@@ -2381,8 +2399,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 345,
-            "start_line": 344
+            "end_line": 357,
+            "start_line": 356
           }
         },
         {
@@ -2410,8 +2428,8 @@
           "signature": "(self, error: Exception | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 354,
-            "start_line": 353
+            "end_line": 366,
+            "start_line": 365
           }
         },
         {
@@ -2433,8 +2451,8 @@
           "signature": "(self) -> SessionRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 374,
-            "start_line": 362
+            "end_line": 386,
+            "start_line": 374
           }
         },
         {
@@ -2468,8 +2486,8 @@
           "signature": "(self, runtime: SessionRuntime, command: str) -> SessionStep",
           "source_location": {
             "column": 4,
-            "end_line": 403,
-            "start_line": 382
+            "end_line": 415,
+            "start_line": 394
           }
         },
         {
@@ -2491,8 +2509,8 @@
           "signature": "(self) -> CaptureRegion",
           "source_location": {
             "column": 4,
-            "end_line": 431,
-            "start_line": 411
+            "end_line": 443,
+            "start_line": 423
           }
         },
         {
@@ -2514,8 +2532,8 @@
           "signature": "(self) -> CaptureRegion",
           "source_location": {
             "column": 4,
-            "end_line": 457,
-            "start_line": 439
+            "end_line": 469,
+            "start_line": 451
           }
         },
         {
@@ -2537,8 +2555,8 @@
           "signature": "(self) -> LoopObservation",
           "source_location": {
             "column": 4,
-            "end_line": 483,
-            "start_line": 465
+            "end_line": 495,
+            "start_line": 477
           }
         },
         {
@@ -2566,8 +2584,8 @@
           "signature": "(self, snapshot: SessionSnapshot) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 504,
-            "start_line": 491
+            "end_line": 516,
+            "start_line": 503
           }
         },
         {
@@ -2595,8 +2613,8 @@
           "signature": "(self, error: Exception) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 515,
-            "start_line": 512
+            "end_line": 527,
+            "start_line": 524
           }
         },
         {
@@ -2618,8 +2636,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 533,
-            "start_line": 523
+            "end_line": 545,
+            "start_line": 535
           }
         },
         {
@@ -2641,8 +2659,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 567,
-            "start_line": 550
+            "end_line": 579,
+            "start_line": 562
           }
         },
         {
@@ -2664,8 +2682,8 @@
           "signature": "(self) -> tuple[int, int] | None",
           "source_location": {
             "column": 4,
-            "end_line": 575,
-            "start_line": 569
+            "end_line": 587,
+            "start_line": 581
           }
         },
         {
@@ -2699,8 +2717,8 @@
           "signature": "(self, position: tuple[int, int] | None, move_in_progress: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 590,
-            "start_line": 583
+            "end_line": 602,
+            "start_line": 595
           }
         },
         {
@@ -2722,8 +2740,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 625,
-            "start_line": 598
+            "end_line": 637,
+            "start_line": 610
           }
         },
         {
@@ -2745,8 +2763,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 634,
-            "start_line": 627
+            "end_line": 646,
+            "start_line": 639
           }
         },
         {
@@ -2768,8 +2786,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 644,
-            "start_line": 636
+            "end_line": 656,
+            "start_line": 648
           }
         },
         {
@@ -2791,8 +2809,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 687,
-            "start_line": 663
+            "end_line": 699,
+            "start_line": 675
           }
         },
         {
@@ -2814,8 +2832,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 703,
-            "start_line": 695
+            "end_line": 715,
+            "start_line": 707
           }
         },
         {
@@ -2867,8 +2885,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 728,
-            "start_line": 711
+            "end_line": 740,
+            "start_line": 723
           }
         },
         {
@@ -2896,8 +2914,8 @@
           "signature": "(self, *, loop_step: bool = …) -> ScreenObservation | None",
           "source_location": {
             "column": 4,
-            "end_line": 759,
-            "start_line": 736
+            "end_line": 771,
+            "start_line": 748
           }
         },
         {
@@ -2931,8 +2949,8 @@
           "signature": "(self, observation: ScreenObservation, *, register_for_session: bool = …) -> PreparedObservation",
           "source_location": {
             "column": 4,
-            "end_line": 781,
-            "start_line": 768
+            "end_line": 793,
+            "start_line": 780
           }
         },
         {
@@ -2972,8 +2990,8 @@
           "signature": "(self, observation: ScreenObservation, *, loop_step: bool, run_token: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 820,
-            "start_line": 789
+            "end_line": 832,
+            "start_line": 801
           }
         },
         {
@@ -3043,8 +3061,8 @@
           "signature": "(self, task_id: int, run_token: int | None, loop_step: bool, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 845,
-            "start_line": 828
+            "end_line": 857,
+            "start_line": 840
           }
         },
         {
@@ -3108,8 +3126,8 @@
           "signature": "(self, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 887,
-            "start_line": 853
+            "end_line": 899,
+            "start_line": 865
           }
         },
         {
@@ -3179,8 +3197,8 @@
           "signature": "(self, task_id: int, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 934,
-            "start_line": 895
+            "end_line": 946,
+            "start_line": 907
           }
         },
         {
@@ -3208,8 +3226,8 @@
           "signature": "(self, run_token: int | None) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 943,
-            "start_line": 942
+            "end_line": 955,
+            "start_line": 954
           }
         },
         {
@@ -3231,8 +3249,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1047,
-            "start_line": 951
+            "end_line": 1059,
+            "start_line": 963
           }
         },
         {
@@ -3254,8 +3272,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1089,
-            "start_line": 1057
+            "end_line": 1101,
+            "start_line": 1069
           }
         },
         {
@@ -3277,8 +3295,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1110,
-            "start_line": 1097
+            "end_line": 1122,
+            "start_line": 1109
           }
         },
         {
@@ -3306,8 +3324,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1122,
-            "start_line": 1118
+            "end_line": 1134,
+            "start_line": 1130
           }
         },
         {
@@ -3329,8 +3347,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1131,
-            "start_line": 1130
+            "end_line": 1143,
+            "start_line": 1142
           }
         },
         {
@@ -3352,8 +3370,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1140,
-            "start_line": 1139
+            "end_line": 1152,
+            "start_line": 1151
           }
         },
         {
@@ -3381,8 +3399,8 @@
           "signature": "(self, command: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1172,
-            "start_line": 1148
+            "end_line": 1184,
+            "start_line": 1160
           }
         },
         {
@@ -3404,8 +3422,8 @@
           "signature": "(self) -> ApplicationSettings",
           "source_location": {
             "column": 4,
-            "end_line": 1190,
-            "start_line": 1180
+            "end_line": 1202,
+            "start_line": 1192
           }
         },
         {
@@ -3433,8 +3451,8 @@
           "signature": "(self, evaluation: list[dict[str, object]]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1200,
-            "start_line": 1198
+            "end_line": 1212,
+            "start_line": 1210
           }
         },
         {
@@ -3456,8 +3474,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1219,
-            "start_line": 1208
+            "end_line": 1231,
+            "start_line": 1220
           }
         },
         {
@@ -3472,8 +3490,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 1225,
-            "start_line": 1222
+            "end_line": 1237,
+            "start_line": 1234
           }
         }
       ]
@@ -42624,7 +42642,11 @@
       "symbols": []
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.ui",
+        "ai_game_player.ui.tooltip"
+      ],
       "imports": [
         {
           "kind": "import",
@@ -42720,12 +42742,29 @@
               "name": "ttk"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ui",
+            "ai_game_player.ui.tooltip"
+          ],
+          "module": "ai_game_player.ui.tooltip",
+          "names": [
+            {
+              "alias": null,
+              "name": "ToolTip"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.ui.shell",
       "path": "src/ai_game_player/ui/shell.py",
       "source_location": {
-        "end_line": 264,
+        "end_line": 273,
         "start_line": 1
       },
       "symbols": [
@@ -42747,8 +42786,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 23
+            "end_line": 36,
+            "start_line": 25
           }
         },
         {
@@ -42770,8 +42809,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 34,
-            "start_line": 30
+            "end_line": 36,
+            "start_line": 32
           }
         },
         {
@@ -42790,8 +42829,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 69,
-            "start_line": 37
+            "end_line": 71,
+            "start_line": 39
           }
         },
         {
@@ -42819,8 +42858,8 @@
           "signature": "(self, path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 41,
-            "start_line": 40
+            "end_line": 43,
+            "start_line": 42
           }
         },
         {
@@ -42842,8 +42881,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 43
+            "end_line": 58,
+            "start_line": 45
           }
         },
         {
@@ -42871,8 +42910,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 58
+            "end_line": 71,
+            "start_line": 60
           }
         },
         {
@@ -42891,8 +42930,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 96,
-            "start_line": 72
+            "end_line": 98,
+            "start_line": 74
           }
         },
         {
@@ -42926,8 +42965,8 @@
           "signature": "(self, state: ShellState, on_change: Callable[[ShellState], None] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 77,
-            "start_line": 75
+            "end_line": 79,
+            "start_line": 77
           }
         },
         {
@@ -42955,8 +42994,8 @@
           "signature": "(self, workspace: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 79
+            "end_line": 84,
+            "start_line": 81
           }
         },
         {
@@ -42978,8 +43017,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 84
+            "end_line": 89,
+            "start_line": 86
           }
         },
         {
@@ -43001,8 +43040,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 92,
-            "start_line": 89
+            "end_line": 94,
+            "start_line": 91
           }
         },
         {
@@ -43030,8 +43069,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 94
+            "end_line": 98,
+            "start_line": 96
           }
         },
         {
@@ -43052,8 +43091,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 264,
-            "start_line": 103
+            "end_line": 273,
+            "start_line": 105
           }
         },
         {
@@ -43099,8 +43138,8 @@
           "signature": "(self, master: tk.Misc, state: ShellState, on_stop: Callable[[], None], on_state_change: Callable[[ShellState], None]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 122
+            "end_line": 212,
+            "start_line": 124
           }
         },
         {
@@ -43124,8 +43163,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 206
+            "end_line": 216,
+            "start_line": 215
           }
         },
         {
@@ -43149,8 +43188,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 210
+            "end_line": 220,
+            "start_line": 219
           }
         },
         {
@@ -43174,8 +43213,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 224,
+            "start_line": 223
           }
         },
         {
@@ -43203,8 +43242,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 217
+            "end_line": 227,
+            "start_line": 226
           }
         },
         {
@@ -43238,8 +43277,8 @@
           "signature": "(self, action_id: str, detail: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 226
+            "end_line": 241,
+            "start_line": 235
           }
         },
         {
@@ -43273,8 +43312,8 @@
           "signature": "(self, workspace: str, persist: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 234
+            "end_line": 249,
+            "start_line": 243
           }
         },
         {
@@ -43296,8 +43335,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 252,
-            "start_line": 248
+            "end_line": 261,
+            "start_line": 257
           }
         },
         {
@@ -43319,8 +43358,245 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 264,
-            "start_line": 260
+            "end_line": 273,
+            "start_line": 269
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "tkinter",
+          "names": [
+            {
+              "alias": "tk",
+              "name": "tkinter"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.ui.tooltip",
+      "path": "src/ai_game_player/ui/tooltip.py",
+      "source_location": {
+        "end_line": 163,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ToolTip",
+          "parameters": [],
+          "qualified_name": "ToolTip",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 163,
+            "start_line": 16
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "tk.Widget",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "widget"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "delay_ms"
+            }
+          ],
+          "qualified_name": "ToolTip.__init__",
+          "return_annotation": "None",
+          "signature": "(self, widget: tk.Widget, text: str, delay_ms: int = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_on_enter",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "tk.Event | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "_event"
+            }
+          ],
+          "qualified_name": "ToolTip._on_enter",
+          "return_annotation": "None",
+          "signature": "(self, _event: tk.Event | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 56,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_on_leave",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "tk.Event | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "_event"
+            }
+          ],
+          "qualified_name": "ToolTip._on_leave",
+          "return_annotation": "None",
+          "signature": "(self, _event: tk.Event | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_schedule",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTip._schedule",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_cancel",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTip._cancel",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "show",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTip.show",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 145,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "hide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTip.hide",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 157
           }
         }
       ]
@@ -91222,6 +91498,170 @@
             "column": 4,
             "end_line": 368,
             "start_line": 360
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.ui",
+        "ai_game_player.ui.tooltip"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "tkinter",
+          "names": [
+            {
+              "alias": "tk",
+              "name": "tkinter"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "tkinter",
+          "names": [
+            {
+              "alias": null,
+              "name": "TclError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ui",
+            "ai_game_player.ui.tooltip"
+          ],
+          "module": "ai_game_player.ui.tooltip",
+          "names": [
+            {
+              "alias": null,
+              "name": "ToolTip"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_tooltip",
+      "path": "tests/test_tooltip.py",
+      "source_location": {
+        "end_line": 75,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ToolTipTests",
+          "parameters": [],
+          "qualified_name": "ToolTipTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 8
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tooltip_initialization",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTipTests.test_tooltip_initialization",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 9
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tooltip_show_and_hide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTipTests.test_tooltip_show_and_hide",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tooltip_event_bindings",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ToolTipTests.test_tooltip_event_bindings",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 52
           }
         }
       ]

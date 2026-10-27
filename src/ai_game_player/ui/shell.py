@@ -9,6 +9,8 @@ from typing import Callable
 import tkinter as tk
 from tkinter import ttk
 
+from ai_game_player.ui.tooltip import ToolTip
+
 WORKSPACES = ("Play", "Vision", "Reasoning", "Evaluation", "History", "Mods")
 WORKSPACE_HINTS = {
     "Vision": "画面認識と候補の表示領域です。Workspaceの内容は個別機能から接続します。",
@@ -135,11 +137,18 @@ class ApplicationShell(ttk.Frame):
         command = ttk.Frame(self, padding=(8, 6))
         command.pack(fill=tk.X)
         ttk.Label(command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
-        ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
-        ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
+        inspector_btn = ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector)
+        inspector_btn.pack(side=tk.RIGHT)
+        ToolTip(inspector_btn, "右側の詳細インスペクターパネルの表示・非表示を切り替えます")
+
+        bottom_btn = ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel)
+        bottom_btn.pack(side=tk.RIGHT, padx=6)
+        ToolTip(bottom_btn, "下部のタイムライン・コンソール・トレースパネルの表示・非表示を切り替えます")
+
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
+        ToolTip(self.stop_button, "現在実行中のAI判断および連続実行セッションを直ちに停止します")
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)

@@ -32,6 +32,7 @@ from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
+from ai_game_player.ui.tooltip import ToolTip
 
 
 # {
@@ -176,11 +177,13 @@ class Application:
             width=42,
         )
         self.window_selector_combobox.pack(side=tk.LEFT, padx=5)
-        ttk.Button(
+        refresh_windows_btn = ttk.Button(
             game_window_selection_panel,
             text="一覧更新",
             command=self.refresh_windows,
-        ).pack(side=tk.LEFT)
+        )
+        refresh_windows_btn.pack(side=tk.LEFT)
+        ToolTip(refresh_windows_btn, "起動中のゲームウィンドウ一覧を更新します")
         ttk.Label(
             game_window_selection_panel,
             textvariable=self.window_selection_status_var,
@@ -235,6 +238,7 @@ class Application:
             command=self._on_live_execution_changed,
         )
         self.live_execution_toggle.pack(side=tk.LEFT, padx=5)
+        ToolTip(self.live_execution_toggle, "AIによる実際のキー・マウス入力操作を許可します（未チェック時はdry-run）")
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         capture_settings = ttk.Frame(frame)
@@ -257,7 +261,9 @@ class Application:
             ttk.Entry(capture_settings, textvariable=variable, width=7).pack(side=tk.LEFT, padx=(2, 5))
         ttk.Label(capture_settings, text="固定領域はscreen px、window-relativeは0〜1の比率").pack(side=tk.LEFT)
         ttk.Label(frame, text="画面観測JSON").pack(anchor=tk.W)
-        ttk.Button(frame, text="画面取得（Windows）", command=self.capture_screen).pack(anchor=tk.W)
+        capture_btn = ttk.Button(frame, text="画面取得（Windows）", command=self.capture_screen)
+        capture_btn.pack(anchor=tk.W)
+        ToolTip(capture_btn, "選択中の対象ウィンドウから最新のゲーム画面を取得します")
         self.obs = tk.Text(frame, height=10)
         self.obs.pack(fill=tk.BOTH, expand=True)
         self.obs.insert("1.0", json.dumps({"screen_id": "title", "width": 1280, "height": 720, "ocr_text": ["NEW GAME", "OPTION"]}, ensure_ascii=False, indent=2))
@@ -271,12 +277,18 @@ class Application:
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
         ttk.Label(frame, text="停止方法: 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
-        ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
+        run_btn = ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run)
+        run_btn.pack(side=tk.LEFT)
+        ToolTip(run_btn, "現在の画面に対してAIによる判断を1ステップのみ行います（操作入力は行いません）")
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
+        ToolTip(self.execute_button, "AIの判断結果に基づいて1ステップの操作を実行します")
         self.loop_button = ttk.Button(controls, command=self.start_loop)
         self.loop_button.pack(side=tk.LEFT)
-        ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
+        ToolTip(self.loop_button, "AIの判断と操作実行を連続して自動ループ実行します")
+        rearm_btn = ttk.Button(controls, text="再開", command=self.start)
+        rearm_btn.pack(side=tk.LEFT)
+        ToolTip(rearm_btn, "停止状態を解除して実行可能状態に戻します")
         self.live_status = ttk.Label(frame)
         self.live_status.pack(anchor=tk.W)
         self._refresh_execution_controls()

@@ -1255,6 +1255,15 @@ classDiagram
         +toggle_inspector()
         +toggle_bottom_panel()
     }
+    class ToolTip {
+        +__init__()
+        +_on_enter()
+        +_on_leave()
+        +_schedule()
+        +_cancel()
+        +show()
+        +hide()
+    }
     class EmbeddingVector {
         +__post_init__()
         +dimension()
