@@ -149,6 +149,16 @@ class JobContextTest(unittest.TestCase):
                 _matrix_job("        os: [a, b]\n", name="Same"),
                 "same name",
             ),
+            "block scalar name": (
+                "jobs:\n  j:\n    name: >-\n      Build\n",
+                "YAML syntax",
+            ),
+            "anchored name": ("jobs:\n  j:\n    name: &n Build\n", "YAML syntax"),
+            "merge key in job": (
+                "jobs:\n  j:\n    <<: *defaults\n    name: J\n",
+                "unsupported key",
+            ),
+            "quoted job key": ('jobs:\n  "j":\n    name: J\n', "not supported"),
         }
         for label, (workflow, reason) in cases.items():
             with self.subTest(label):

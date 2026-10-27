@@ -54,6 +54,8 @@ CIの障害などで、必須checkを満たせない緊急修正を`main`へ入�
 5. 再適用できたことを、`gh api repos/tomiya7688/AI_game_player/rulesets/24724858 --jq '.enforcement, ([.rules[] | select(.type=="required_status_checks") | .parameters.required_status_checks[]] | length)'`で確認する。出力が`active`と必須checkの件数（現在27）であれば保護が戻っている。
 6. 緊急修正の回帰テストと、満たせなかったcheckの修復を、Issueの後続作業として記録する。
 
+緊急手順の途中で作業が中断し、`Mainguard`が無効のまま残る場合に備えて、作業者（人とAI）はセッション開始時のpullと同時に、上の確認コマンドで`enforcement`が`active`であることを確認します。`disabled`であれば、作業を始める前に対象Issueへ記録してリポジトリ所有者へ知らせ、所有者が手順4・5で再適用します。AI作業者は自分で再適用しません。
+
 Ruleset全体を無効化している間は、必須checkだけでなく、直接push・force push・削除の禁止も外れます。無効化している時間は、対象PRのマージに必要な最短時間にしてください。
 
 ## job名やworkflowを変更するとき
@@ -67,6 +69,7 @@ GitHubは必須checkをjobの表示名（`name:`、matrixの値を展開した�
    2. リポジトリ所有者が更新後のJSONを適用する。この時点から、他の未マージPRは新しい名前のcheckを報告していないためマージできなくなる。
    3. 直後に名前を変えたPRをマージする。
    4. 他の作業者へ、`origin/main`を取り込んでCIを再実行するよう、各PRまたはIssueで知らせる。
+   5. 手順2の適用後に、名前を変えたPRを直ちにマージできなかった場合（CIの再失敗、競合など）は、`git show origin/main:.github/rulesets/main-protection.json`で取り出した`main`の定義を同じ`gh api --method PUT`コマンドで再適用して元に戻し、他のPRがマージできる状態に復旧してから原因を直す。
 4. `tools/ruleset_check.py`がjob名を予測できるのは、`name:`の`${{ matrix.KEY }}`がインラインリスト（`os: [a, b]`）または`include:`だけのmatrixから決まる場合です。次の形は推測せずにエラーにします: `name:`のないmatrix job、再利用workflowを呼ぶjob（`uses:`）、job単位の`if:`、matrix以外の`${{ }}`式を含む名前、引用符のない数値・真偽値（YAMLでは`3.10`が`3.1`として表示されるため）、リストと`include:`の混在、`exclude:`、ブロック形式のリスト、複数のworkflowで同じ名前になるjob。こうした形を使う場合は、先にツールとテストを拡張します。
 5. 同じツールは、rulesetファイルが`enforcement: active`、既定ブランチ対象、bypassなし、全checkの`integration_id`が15368であること、削除・force push・PRの規則を含むことも検査します。GitHub上に適用済みの設定は読みません。
 

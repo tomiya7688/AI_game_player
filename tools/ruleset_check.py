@@ -78,6 +78,10 @@ def _scalar(value: str, where: str, *, is_job_name: bool = False) -> str:
     value = re.sub(r"\s+#.*$", "", value).strip()
     if not value or value.startswith("#"):
         raise RulesetCheckError(f"{where}: empty value")
+    if is_job_name and re.match(r"^[>|&*!{\[]", value):
+        raise RulesetCheckError(
+            f"{where}: job name {value!r} uses YAML syntax that this checker does not evaluate"
+        )
     if not is_job_name and _PLAIN_SPECIAL.search(value):
         raise RulesetCheckError(
             f"{where}: quote the value {value!r}; it contains YAML syntax"
@@ -119,6 +123,9 @@ def _job_blocks(text: str) -> list[tuple[str, list[str]]]:
         match = _JOB_KEY.match(line)
         if match:
             blocks.append((match.group(1), []))
+        elif re.match(r"^  [^\s#]", line):
+            # Quoted job keys, anchors, merge keys and flow mappings are not modelled.
+            raise RulesetCheckError(f"workflow job is not supported: {line.strip()}")
         elif blocks:
             blocks[-1][1].append(line)
     return blocks
@@ -205,6 +212,11 @@ def job_contexts(workflow_text: str, workflow_name: str = "workflow") -> list[st
     for job_id, body in _job_blocks(workflow_text):
         fields = {m.group(1): m.group(2) for m in map(_JOB_FIELD.match, body) if m}
         where = f"{workflow_name}: job {job_id}"
+        for line in body:
+            if re.match(r"^    [^\s#]", line) and not _JOB_FIELD.match(line):
+                raise RulesetCheckError(
+                    f"{where} uses an unsupported key: {line.strip()}"
+                )
         if "uses" in fields:
             raise RulesetCheckError(
                 f"{where} calls a reusable workflow; its check name is not modelled"
