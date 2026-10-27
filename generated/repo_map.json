@@ -63914,7 +63914,7 @@
       "module": "tests.test_finish_pr_merge",
       "path": "tests/test_finish_pr_merge.py",
       "source_location": {
-        "end_line": 303,
+        "end_line": 391,
         "start_line": 1
       },
       "symbols": [
@@ -64058,7 +64058,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 299,
+            "end_line": 387,
             "start_line": 60
           }
         },
@@ -64167,6 +64167,75 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_skipped_advisory_review_app_check_does_not_block_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_skipped_advisory_review_app_check_does_not_block_merge",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 168,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_advisory_exception_does_not_cover_failures_or_actions_jobs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_advisory_exception_does_not_cover_failures_or_actions_jobs",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_advisory_skips_do_not_hide_a_real_failure_or_stand_in_for_ci",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FinishPullRequestMergeTests.test_advisory_skips_do_not_hide_a_real_failure_or_stand_in_for_ci",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_no_status_checks_block_merge_even_when_watch_exits_successfully",
           "parameters": [
             {
@@ -64181,8 +64250,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 156,
-            "start_line": 140
+            "end_line": 244,
+            "start_line": 228
           }
         },
         {
@@ -64204,8 +64273,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 158
+            "end_line": 278,
+            "start_line": 246
           }
         },
         {
@@ -64227,8 +64296,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 192
+            "end_line": 291,
+            "start_line": 280
           }
         },
         {
@@ -64250,8 +64319,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 205
+            "end_line": 304,
+            "start_line": 293
           }
         },
         {
@@ -64273,8 +64342,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 236,
-            "start_line": 218
+            "end_line": 324,
+            "start_line": 306
           }
         },
         {
@@ -64296,8 +64365,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 270,
-            "start_line": 238
+            "end_line": 358,
+            "start_line": 326
           }
         },
         {
@@ -64319,8 +64388,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 272
+            "end_line": 375,
+            "start_line": 360
           }
         },
         {
@@ -64342,8 +64411,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 299,
-            "start_line": 289
+            "end_line": 387,
+            "start_line": 377
           }
         }
       ]
@@ -84361,6 +84430,667 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.ruleset_check"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "tools",
+            "tools.ruleset_check"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "ruleset_check"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_ruleset_check",
+      "path": "tests/test_ruleset_check.py",
+      "source_location": {
+        "end_line": 382,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_matrix_job",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "matrix"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_matrix_job",
+          "return_annotation": "str",
+          "signature": "(matrix: str, name: str = …) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 15,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_ruleset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "contexts"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "_ruleset",
+          "return_annotation": "dict",
+          "signature": "(contexts, **overrides) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 44,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "JobContextTest",
+          "parameters": [],
+          "qualified_name": "JobContextTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 156,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expands_inline_lists_as_a_cartesian_product",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JobContextTest.test_expands_inline_lists_as_a_cartesian_product",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expands_include_only_matrix_and_keeps_quoted_commas",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JobContextTest.test_expands_include_only_matrix_and_keeps_quoted_commas",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 74,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_uses_job_id_without_name_and_strips_name_comment",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JobContextTest.test_uses_job_id_without_name_and_strips_name_comment",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_strips_comments_after_quoted_values_and_inline_lists",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JobContextTest.test_strips_comments_after_quoted_values_and_inline_lists",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_forms_it_cannot_predict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "JobContextTest.test_rejects_forms_it_cannot_predict",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 156,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ExpectedContextsTest",
+          "parameters": [],
+          "qualified_name": "ExpectedContextsTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 205,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_workflows",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "directory"
+            },
+            {
+              "annotation": "dict[str, str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "texts"
+            }
+          ],
+          "qualified_name": "ExpectedContextsTest._workflows",
+          "return_annotation": "Path",
+          "signature": "(self, directory: str, texts: dict[str, str]) -> Path",
+          "source_location": {
+            "column": 4,
+            "end_line": 164,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_collects_required_workflows_and_rejects_missing_or_duplicate_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectedContextsTest.test_collects_required_workflows_and_rejects_missing_or_duplicate_names",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 205,
+            "start_line": 166
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RulesetContextsTest",
+          "parameters": [],
+          "qualified_name": "RulesetContextsTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 289,
+            "start_line": 208
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_check",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "RulesetContextsTest._check",
+          "return_annotation": "set[str]",
+          "signature": "(self, data) -> set[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 213,
+            "start_line": 209
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_accepts_valid_ruleset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RulesetContextsTest.test_accepts_valid_ruleset",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 215
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_weakened_or_malformed_rulesets",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RulesetContextsTest.test_rejects_weakened_or_malformed_rulesets",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 289,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "without_rule",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rule_type"
+            }
+          ],
+          "qualified_name": "RulesetContextsTest.test_rejects_weakened_or_malformed_rulesets.without_rule",
+          "return_annotation": null,
+          "signature": "(rule_type)",
+          "source_location": {
+            "column": 8,
+            "end_line": 229,
+            "start_line": 226
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MainTest",
+          "parameters": [],
+          "qualified_name": "MainTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 378,
+            "start_line": 292
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "MainTest._run",
+          "return_annotation": "tuple[int, str, str]",
+          "signature": "(self, *argv) -> tuple[int, str, str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 297,
+            "start_line": 293
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repository_ruleset_matches_required_workflow_jobs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_repository_ruleset_matches_required_workflow_jobs",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 301,
+            "start_line": 299
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reports_renamed_job_and_stale_ruleset_entry",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_reports_renamed_job_and_stale_ruleset_entry",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 327,
+            "start_line": 303
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_returns_2_for_unreadable_inputs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_returns_2_for_unreadable_inputs",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 363,
+            "start_line": 329
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_print_expected_matches_the_ruleset_file",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_print_expected_matches_the_ruleset_file",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 378,
+            "start_line": 365
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.run_control"
       ],
@@ -97850,7 +98580,7 @@
       "module": "tools.finish_pr_merge",
       "path": "tools/finish_pr_merge.py",
       "source_location": {
-        "end_line": 751,
+        "end_line": 773,
         "start_line": 1
       },
       "symbols": [
@@ -97872,8 +98602,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 67,
-            "start_line": 63
+            "end_line": 71,
+            "start_line": 67
           }
         },
         {
@@ -97894,8 +98624,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 84,
-            "start_line": 81
+            "end_line": 88,
+            "start_line": 85
           }
         },
         {
@@ -97916,8 +98646,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 105,
-            "start_line": 100
+            "end_line": 109,
+            "start_line": 104
           }
         },
         {
@@ -97938,8 +98668,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 116
+            "end_line": 121,
+            "start_line": 120
           }
         },
         {
@@ -97961,8 +98691,8 @@
           "signature": "(pull_request_url: str) -> PullRequestReference",
           "source_location": {
             "column": 0,
-            "end_line": 169,
-            "start_line": 139
+            "end_line": 173,
+            "start_line": 143
           }
         },
         {
@@ -97990,8 +98720,8 @@
           "signature": "(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 209,
-            "start_line": 191
+            "end_line": 213,
+            "start_line": 195
           }
         },
         {
@@ -98013,8 +98743,8 @@
           "signature": "(command_result: subprocess.CompletedProcess[str]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 234,
-            "start_line": 228
+            "end_line": 238,
+            "start_line": 232
           }
         },
         {
@@ -98048,8 +98778,8 @@
           "signature": "(arguments: list[str], timeout_seconds: int, action_description: str) -> subprocess.CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 266,
-            "start_line": 257
+            "end_line": 270,
+            "start_line": 261
           }
         },
         {
@@ -98077,8 +98807,8 @@
           "signature": "(command_result: subprocess.CompletedProcess[str], action_description: str) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 292,
-            "start_line": 288
+            "end_line": 296,
+            "start_line": 292
           }
         },
         {
@@ -98100,8 +98830,8 @@
           "signature": "(pull_request: PullRequestReference) -> PullRequestSnapshot",
           "source_location": {
             "column": 0,
-            "end_line": 338,
-            "start_line": 314
+            "end_line": 342,
+            "start_line": 318
           }
         },
         {
@@ -98123,8 +98853,8 @@
           "signature": "(pull_request: PullRequestReference) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 371,
-            "start_line": 359
+            "end_line": 375,
+            "start_line": 363
           }
         },
         {
@@ -98146,8 +98876,8 @@
           "signature": "(pull_request: PullRequestReference) -> list[dict[str, object]]",
           "source_location": {
             "column": 0,
-            "end_line": 428,
-            "start_line": 394
+            "end_line": 450,
+            "start_line": 398
           }
         },
         {
@@ -98169,8 +98899,8 @@
           "signature": "(response_data: object) -> tuple[list[UnresolvedReviewThread], bool, str | None]",
           "source_location": {
             "column": 0,
-            "end_line": 509,
-            "start_line": 450
+            "end_line": 531,
+            "start_line": 472
           }
         },
         {
@@ -98192,8 +98922,8 @@
           "signature": "(pull_request: PullRequestReference) -> list[UnresolvedReviewThread]",
           "source_location": {
             "column": 0,
-            "end_line": 571,
-            "start_line": 532
+            "end_line": 593,
+            "start_line": 554
           }
         },
         {
@@ -98215,8 +98945,8 @@
           "signature": "(threads: list[UnresolvedReviewThread]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 604,
-            "start_line": 592
+            "end_line": 626,
+            "start_line": 614
           }
         },
         {
@@ -98244,8 +98974,8 @@
           "signature": "(pull_request: PullRequestReference, head_sha: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 621,
-            "start_line": 607
+            "end_line": 643,
+            "start_line": 629
           }
         },
         {
@@ -98267,8 +98997,8 @@
           "signature": "(endpoint: str) -> object",
           "source_location": {
             "column": 4,
-            "end_line": 613,
-            "start_line": 609
+            "end_line": 635,
+            "start_line": 631
           }
         },
         {
@@ -98290,8 +99020,8 @@
           "signature": "(pull_request_url: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 687,
-            "start_line": 647
+            "end_line": 709,
+            "start_line": 669
           }
         },
         {
@@ -98319,8 +99049,8 @@
           "signature": "(pull_request: PullRequestReference, expected_head: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 712,
-            "start_line": 690
+            "end_line": 734,
+            "start_line": 712
           }
         },
         {
@@ -98342,8 +99072,8 @@
           "signature": "(arguments: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 747,
-            "start_line": 731
+            "end_line": 769,
+            "start_line": 753
           }
         }
       ]
@@ -102412,6 +103142,381 @@
             "column": 0,
             "end_line": 108,
             "start_line": 94
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.pr_workflow_evidence"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [],
+          "module": "itertools",
+          "names": [
+            {
+              "alias": null,
+              "name": "itertools"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 27,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 29,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 41,
+          "local_dependencies": [
+            "tools",
+            "tools.pr_workflow_evidence"
+          ],
+          "module": "tools.pr_workflow_evidence",
+          "names": [
+            {
+              "alias": null,
+              "name": "REQUIRED_WORKFLOW_PATHS"
+            }
+          ]
+        }
+      ],
+      "module": "tools.ruleset_check",
+      "path": "tools/ruleset_check.py",
+      "source_location": {
+        "end_line": 384,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RulesetCheckError",
+          "parameters": [],
+          "qualified_name": "RulesetCheckError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 63,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_scalar",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "where"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "is_job_name"
+            }
+          ],
+          "qualified_name": "_scalar",
+          "return_annotation": "str",
+          "signature": "(value: str, where: str, *, is_job_name: bool = …) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 89,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_inline_list",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "where"
+            }
+          ],
+          "qualified_name": "_inline_list",
+          "return_annotation": "list[str]",
+          "signature": "(text: str, where: str) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 104,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_job_blocks",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_job_blocks",
+          "return_annotation": "list[tuple[str, list[str]]]",
+          "signature": "(text: str) -> list[tuple[str, list[str]]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 124,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_matrix_combinations",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "job_id"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "body"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "where"
+            }
+          ],
+          "qualified_name": "_matrix_combinations",
+          "return_annotation": "list[dict[str, str]] | None",
+          "signature": "(job_id: str, body: list[str], where: str) -> list[dict[str, str]] | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 199,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "job_contexts",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_text"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "workflow_name"
+            }
+          ],
+          "qualified_name": "job_contexts",
+          "return_annotation": "list[str]",
+          "signature": "(workflow_text: str, workflow_name: str = …) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 244,
+            "start_line": 202
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "expected_contexts",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workflow_dir"
+            }
+          ],
+          "qualified_name": "expected_contexts",
+          "return_annotation": "set[str]",
+          "signature": "(workflow_dir: Path) -> set[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 266,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "ruleset_contexts",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ruleset_path"
+            }
+          ],
+          "qualified_name": "ruleset_contexts",
+          "return_annotation": "set[str]",
+          "signature": "(ruleset_path: Path) -> set[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 277,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validated_contexts",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "_validated_contexts",
+          "return_annotation": "set[str]",
+          "signature": "(data: object) -> set[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 336,
+            "start_line": 280
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 380,
+            "start_line": 339
           }
         }
       ]
