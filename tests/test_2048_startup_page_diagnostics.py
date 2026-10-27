@@ -63,32 +63,51 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
                 server.close()
 
     def test_browser_timeout_keeps_identity_and_counts_after_cleanup(self):
-        launcher = ReferenceGame2048Launcher(Path("unused-cache"), Path("browser.exe"))
-        error = TimeoutError(
-            "launched_pid=8500, owned_titled_windows=3, other_2048_windows=0"
-        )
-        browser = Mock()
-        browser.start.side_effect = error
-        with (
-            patch("tools.reference_game_2048_launcher.os", SimpleNamespace(name="nt")),
-            patch("tools.reference_game_2048_launcher.PinnedGameSource") as source,
-            patch(
-                "tools.reference_game_2048_launcher.BrowserWindowSession",
-                return_value=browser,
-            ),
-            patch.object(launcher.server, "start"),
-            patch.object(type(launcher.server), "url", "http://127.0.0.1:9876/"),
-        ):
-            self.assertIsNot(launcher_module.os, os)
-            source.return_value.materialize.return_value = Path("source")
-            with self.assertRaises(TimeoutError) as caught:
-                launcher.start()
-        self.assertIs(caught.exception, error)
-        self.assertIn("owned_titled_windows=3", str(error))
-        self.assertIn("game_page_http_200=0, game_page_http_other=0", str(error))
-        self.assertNotIn("9876", str(error))
-        browser.close.assert_called_once()
-        self.assertIsNone(launcher.browser)
+        with tempfile.TemporaryDirectory() as directory:
+            source_path = Path(directory)
+            (source_path / "index.html").write_text("2048", encoding="utf-8")
+            launcher = ReferenceGame2048Launcher(source_path, Path("browser.exe"))
+            error = TimeoutError(
+                "launched_pid=8500, owned_titled_windows=3, other_2048_windows=0"
+            )
+            browser = Mock()
+
+            def request_game_page_then_timeout(game_url, _window_wait_seconds):
+                with urlopen(game_url, timeout=3) as response:
+                    self.assertEqual(response.read(), b"2048")
+                raise error
+
+            browser.start.side_effect = request_game_page_then_timeout
+            try:
+                with (
+                    patch(
+                        "tools.reference_game_2048_launcher.os",
+                        SimpleNamespace(name="nt"),
+                    ),
+                    patch(
+                        "tools.reference_game_2048_launcher.PinnedGameSource"
+                    ) as source,
+                    patch(
+                        "tools.reference_game_2048_launcher.BrowserWindowSession",
+                        return_value=browser,
+                    ),
+                ):
+                    self.assertIsNot(launcher_module.os, os)
+                    source.return_value.materialize.return_value = source_path
+                    with self.assertRaises(TimeoutError) as caught:
+                        launcher.start()
+                self.assertIs(caught.exception, error)
+                self.assertIn("owned_titled_windows=3", str(error))
+                self.assertIn(
+                    "game_page_http_200=1, game_page_http_other=0", str(error)
+                )
+                self.assertNotIn(browser.start.call_args.args[0], str(error))
+                browser.close.assert_called_once()
+                self.assertIsNone(launcher.browser)
+                with self.assertRaises(RuntimeError):
+                    _ = launcher.server.url
+            finally:
+                launcher.close()
 
     def test_other_startup_error_is_not_replaced_or_rewritten(self):
         launcher = ReferenceGame2048Launcher(Path("unused-cache"), Path("browser.exe"))

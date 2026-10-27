@@ -50178,7 +50178,7 @@
       "module": "tests.test_2048_startup_page_diagnostics",
       "path": "tests/test_2048_startup_page_diagnostics.py",
       "source_location": {
-        "end_line": 146,
+        "end_line": 165,
         "start_line": 1
       },
       "symbols": [
@@ -50200,7 +50200,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 146,
+            "end_line": 165,
             "start_line": 18
           }
         },
@@ -50246,8 +50246,37 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 91,
+            "end_line": 110,
             "start_line": 65
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "request_game_page_then_timeout",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "game_url"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_window_wait_seconds"
+            }
+          ],
+          "qualified_name": "PageResponseDiagnosticsTests.test_browser_timeout_keeps_identity_and_counts_after_cleanup.request_game_page_then_timeout",
+          "return_annotation": null,
+          "signature": "(game_url, _window_wait_seconds)",
+          "source_location": {
+            "column": 12,
+            "end_line": 78,
+            "start_line": 75
           }
         },
         {
@@ -50269,8 +50298,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 105,
-            "start_line": 93
+            "end_line": 124,
+            "start_line": 112
           }
         },
         {
@@ -50292,8 +50321,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 107
+            "end_line": 165,
+            "start_line": 126
           }
         },
         {
@@ -50314,8 +50343,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 109,
-            "start_line": 108
+            "end_line": 128,
+            "start_line": 127
           }
         }
       ]
