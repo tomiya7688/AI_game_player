@@ -1,11 +1,14 @@
 import tempfile
 import socket
+import os
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from unittest.mock import Mock, patch
 
+from tools import reference_game_2048_launcher as launcher_module
 from tools.reference_game_2048_launcher import (
     LoopbackStaticServer,
     ReferenceGame2048Launcher,
@@ -67,7 +70,7 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
         browser = Mock()
         browser.start.side_effect = error
         with (
-            patch("tools.reference_game_2048_launcher.os.name", "nt"),
+            patch("tools.reference_game_2048_launcher.os", SimpleNamespace(name="nt")),
             patch("tools.reference_game_2048_launcher.PinnedGameSource") as source,
             patch(
                 "tools.reference_game_2048_launcher.BrowserWindowSession",
@@ -76,6 +79,7 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
             patch.object(launcher.server, "start"),
             patch.object(type(launcher.server), "url", "http://127.0.0.1:9876/"),
         ):
+            self.assertIsNot(launcher_module.os, os)
             source.return_value.materialize.return_value = Path("source")
             with self.assertRaises(TimeoutError) as caught:
                 launcher.start()
@@ -90,7 +94,7 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
         launcher = ReferenceGame2048Launcher(Path("unused-cache"), Path("browser.exe"))
         error = RuntimeError("browser exited during startup")
         with (
-            patch("tools.reference_game_2048_launcher.os.name", "nt"),
+            patch("tools.reference_game_2048_launcher.os", SimpleNamespace(name="nt")),
             patch(
                 "tools.reference_game_2048_launcher.PinnedGameSource", side_effect=error
             ),
@@ -120,7 +124,10 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
                 browser = Mock()
                 browser.start.side_effect = error
                 with (
-                    patch("tools.reference_game_2048_launcher.os.name", "nt"),
+                    patch(
+                        "tools.reference_game_2048_launcher.os",
+                        SimpleNamespace(name="nt"),
+                    ),
                     patch("tools.reference_game_2048_launcher.PinnedGameSource"),
                     patch(
                         "tools.reference_game_2048_launcher.BrowserWindowSession",

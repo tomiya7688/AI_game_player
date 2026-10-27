@@ -50044,6 +50044,19 @@
           "level": 0,
           "line": 3,
           "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -50055,7 +50068,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 4,
+          "line": 5,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -50068,7 +50081,20 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
           "local_dependencies": [],
           "module": "urllib.error",
           "names": [
@@ -50081,7 +50107,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 8,
           "local_dependencies": [],
           "module": "urllib.request",
           "names": [
@@ -50098,7 +50124,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 9,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -50115,7 +50141,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 11,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "launcher_module",
+              "name": "reference_game_2048_launcher"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_launcher"
@@ -50136,7 +50178,7 @@
       "module": "tests.test_2048_startup_page_diagnostics",
       "path": "tests/test_2048_startup_page_diagnostics.py",
       "source_location": {
-        "end_line": 139,
+        "end_line": 146,
         "start_line": 1
       },
       "symbols": [
@@ -50158,8 +50200,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 139,
-            "start_line": 15
+            "end_line": 146,
+            "start_line": 18
           }
         },
         {
@@ -50181,8 +50223,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 60,
-            "start_line": 16
+            "end_line": 63,
+            "start_line": 19
           }
         },
         {
@@ -50204,8 +50246,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 62
+            "end_line": 91,
+            "start_line": 65
           }
         },
         {
@@ -50227,8 +50269,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 89
+            "end_line": 105,
+            "start_line": 93
           }
         },
         {
@@ -50250,8 +50292,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 103
+            "end_line": 146,
+            "start_line": 107
           }
         },
         {
@@ -50272,8 +50314,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 105,
-            "start_line": 104
+            "end_line": 109,
+            "start_line": 108
           }
         }
       ]
