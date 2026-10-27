@@ -1,0 +1,162 @@
+{
+  "name": "Mainguard",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": [
+        "~DEFAULT_BRANCH"
+      ],
+      "exclude": []
+    }
+  },
+  "bypass_actors": [],
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": ".NET build and test",
+            "integration_id": 15368
+          },
+          {
+            "context": "C++20 native (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "C++20 native (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Detect optional language sources",
+            "integration_id": 15368
+          },
+          {
+            "context": "Fail-safe runtime contract (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Fail-safe runtime contract (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "JavaScript / TypeScript",
+            "integration_id": 15368
+          },
+          {
+            "context": "Lua syntax",
+            "integration_id": 15368
+          },
+          {
+            "context": "Native C++ ASan + UBSan + GCC analyzer",
+            "integration_id": 15368
+          },
+          {
+            "context": "Native Safety ABI (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Native Safety ABI (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Out-of-process watchdog failure injection (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Out-of-process watchdog failure injection (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Python 3.10",
+            "integration_id": 15368
+          },
+          {
+            "context": "Python 3.14",
+            "integration_id": 15368
+          },
+          {
+            "context": "Python branch coverage (3.14)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Python quality (Ruff + syntax)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Runtime performance budget (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Runtime performance budget (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "SafetyGuard Python (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "SafetyGuard Python (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Static bug checker (Python 3.10)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Static bug checker (Python 3.14)",
+            "integration_id": 15368
+          },
+          {
+            "context": "UPD Commander architecture checker",
+            "integration_id": 15368
+          },
+          {
+            "context": "Windows application bundle + startup smoke",
+            "integration_id": 15368
+          },
+          {
+            "context": "Windows sample loop and 2048 campaign E2E",
+            "integration_id": 15368
+          },
+          {
+            "context": "Windows stop-from-any-state live-target smoke",
+            "integration_id": 15368
+          }
+        ]
+      }
+    },
+    {
+      "type": "copilot_code_review",
+      "parameters": {
+        "review_on_push": true,
+        "review_draft_pull_requests": false
+      }
+    }
+  ]
+}
