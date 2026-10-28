@@ -135,8 +135,10 @@ class ApplicationShell(ttk.Frame):
         command = ttk.Frame(self, padding=(8, 6))
         command.pack(fill=tk.X)
         ttk.Label(command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")).pack(side=tk.LEFT)
-        ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
-        ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
+        self.inspector_toggle_button = ttk.Button(command, text="", command=self.toggle_inspector)
+        self.inspector_toggle_button.pack(side=tk.RIGHT)
+        self.bottom_panel_toggle_button = ttk.Button(command, text="", command=self.toggle_bottom_panel)
+        self.bottom_panel_toggle_button.pack(side=tk.RIGHT, padx=6)
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
@@ -201,6 +203,7 @@ class ApplicationShell(ttk.Frame):
         self.player_seat_host = ttk.Frame(self.workspace_pages["Play"])
         self.player_seat_host.pack(fill=tk.X)
         self.select_workspace(state.workspace, persist=False)
+        self._update_panel_toggle_labels()
 
     @property
     def state(self) -> ShellState:
@@ -240,6 +243,18 @@ class ApplicationShell(ttk.Frame):
             self.controller.select_workspace(workspace)
 
     # {
+    #   責務: [_update_panel_toggle_labels: Inspector/Bottom Panelボタンの表示テキストを現在の表示状態に合わせ更新する]
+    #   処理: [表示中なら「〜を非表示」、非表示なら「〜を表示」と表記し、ボタン操作の動作結果を明示する]
+    #   引数: []
+    #   戻り値: []
+    # }
+    def _update_panel_toggle_labels(self) -> None:
+        inspector_text = "Inspectorを非表示" if self.state.inspector_visible else "Inspectorを表示"
+        bottom_text = "Bottom Panelを非表示" if self.state.bottom_panel_visible else "Bottom Panelを表示"
+        self.inspector_toggle_button.config(text=inspector_text)
+        self.bottom_panel_toggle_button.config(text=bottom_text)
+
+    # {
     #   責務: [toggle_inspector: Inspector paneの表示状態を切り替える]
     #   処理: [表示時は現在のPane数に依存せず右端へ追加し、非表示時はPaneから外す]
     #   引数: []
@@ -250,6 +265,7 @@ class ApplicationShell(ttk.Frame):
             self.upper.add(self.inspector, weight=0)
         else:
             self.upper.forget(self.inspector)
+        self._update_panel_toggle_labels()
 
     # {
     #   責務: [toggle_bottom_panel: Bottom Panelの表示状態を切り替える]
@@ -262,3 +278,4 @@ class ApplicationShell(ttk.Frame):
             self.vertical.add(self.bottom_panel, weight=1)
         else:
             self.vertical.forget(self.bottom_panel)
+        self._update_panel_toggle_labels()

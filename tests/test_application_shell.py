@@ -109,14 +109,22 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(len(shell.upper.panes()), 3)
             self.assertEqual(len(shell.vertical.panes()), 2)
 
+            self.assertEqual(shell.inspector_toggle_button.cget("text"), "Inspectorを非表示")
+            self.assertEqual(shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを非表示")
+
             shell.toggle_inspector()
             self.assertEqual(len(shell.upper.panes()), 2)
+            self.assertEqual(shell.inspector_toggle_button.cget("text"), "Inspectorを表示")
             shell.toggle_inspector()
             self.assertEqual(shell.upper.panes()[-1], str(shell.inspector))
+            self.assertEqual(shell.inspector_toggle_button.cget("text"), "Inspectorを非表示")
+
             shell.toggle_bottom_panel()
             self.assertEqual(len(shell.vertical.panes()), 1)
+            self.assertEqual(shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを表示")
             shell.toggle_bottom_panel()
             self.assertEqual(shell.vertical.panes()[-1], str(shell.bottom_panel))
+            self.assertEqual(shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを非表示")
 
             shell.select_workspace("History")
             shell.stop_button.invoke()

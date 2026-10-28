@@ -42725,7 +42725,7 @@
       "module": "ai_game_player.ui.shell",
       "path": "src/ai_game_player/ui/shell.py",
       "source_location": {
-        "end_line": 264,
+        "end_line": 281,
         "start_line": 1
       },
       "symbols": [
@@ -43052,7 +43052,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 264,
+            "end_line": 281,
             "start_line": 103
           }
         },
@@ -43099,7 +43099,7 @@
           "signature": "(self, master: tk.Misc, state: ShellState, on_stop: Callable[[], None], on_state_change: Callable[[ShellState], None]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 203,
+            "end_line": 206,
             "start_line": 122
           }
         },
@@ -43124,8 +43124,8 @@
           "signature": "(self) -> ShellState",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 206
+            "end_line": 210,
+            "start_line": 209
           }
         },
         {
@@ -43149,8 +43149,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 210
+            "end_line": 214,
+            "start_line": 213
           }
         },
         {
@@ -43174,8 +43174,8 @@
           "signature": "(self) -> ttk.Frame",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 218,
+            "start_line": 217
           }
         },
         {
@@ -43203,8 +43203,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 217
+            "end_line": 221,
+            "start_line": 220
           }
         },
         {
@@ -43238,8 +43238,8 @@
           "signature": "(self, action_id: str, detail: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 226
+            "end_line": 235,
+            "start_line": 229
           }
         },
         {
@@ -43273,8 +43273,31 @@
           "signature": "(self, workspace: str, persist: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 234
+            "end_line": 243,
+            "start_line": 237
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_update_panel_toggle_labels",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ApplicationShell._update_panel_toggle_labels",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 255,
+            "start_line": 251
           }
         },
         {
@@ -43296,8 +43319,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 252,
-            "start_line": 248
+            "end_line": 268,
+            "start_line": 263
           }
         },
         {
@@ -43319,8 +43342,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 264,
-            "start_line": 260
+            "end_line": 281,
+            "start_line": 276
           }
         }
       ]
@@ -52178,7 +52201,7 @@
       "module": "tests.test_application_shell",
       "path": "tests/test_application_shell.py",
       "source_location": {
-        "end_line": 179,
+        "end_line": 187,
         "start_line": 1
       },
       "symbols": [
@@ -52405,7 +52428,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 175,
+            "end_line": 183,
             "start_line": 79
           }
         },
@@ -52428,7 +52451,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 130,
+            "end_line": 138,
             "start_line": 80
           }
         },
@@ -52451,8 +52474,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 132
+            "end_line": 157,
+            "start_line": 140
           }
         },
         {
@@ -52474,8 +52497,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 151
+            "end_line": 183,
+            "start_line": 159
           }
         }
       ]
