@@ -92886,6 +92886,978 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.trust_inventory"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "tools",
+            "tools.trust_inventory"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "trust_inventory"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_trust_inventory",
+      "path": "tests/test_trust_inventory.py",
+      "source_location": {
+        "end_line": 476,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_fake_der",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "common_name"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "organisation"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "tag"
+            }
+          ],
+          "qualified_name": "_fake_der",
+          "return_annotation": "bytes",
+          "signature": "(common_name: str, organisation: str = …, tag: int = …) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_pem",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "der"
+            }
+          ],
+          "qualified_name": "_pem",
+          "return_annotation": "str",
+          "signature": "(der: bytes) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_probe_printing",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "_probe_printing",
+          "return_annotation": "str",
+          "signature": "(payload: dict) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 51,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "VersionCheckTest",
+          "parameters": [],
+          "qualified_name": "VersionCheckTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 82,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_classifies_against_the_482_minimums",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "VersionCheckTest.test_classifies_against_the_482_minimums",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pre_release_and_unparsable_versions_are_unknown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "VersionCheckTest.test_pre_release_and_unparsable_versions_are_unknown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BundleScanTest",
+          "parameters": [],
+          "qualified_name": "BundleScanTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 176,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_bundle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "directory"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "content"
+            }
+          ],
+          "qualified_name": "BundleScanTest._bundle",
+          "return_annotation": "Path",
+          "signature": "(self, directory: str, content: bytes) -> Path",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reports_target_certificates_with_fingerprint_and_common_name",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_reports_target_certificates_with_fingerprint_and_common_name",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_utf16_names_match_without_case",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_utf16_names_match_without_case",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 114,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_empty_certificate_block_is_invalid_and_relative_path_is_not_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_empty_certificate_block_is_invalid_and_relative_path_is_not_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 127,
+            "start_line": 116
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_matches_case_insensitive_and_utf16_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_matches_case_insensitive_and_utf16_names",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 136,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_truncated_common_name_is_not_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_truncated_common_name_is_not_reported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_directory_is_not_read_as_a_bundle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_directory_is_not_read_as_a_bundle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_clean_empty_invalid_and_unreadable_bundles_are_distinguished",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleScanTest.test_clean_empty_invalid_and_unreadable_bundles_are_distinguished",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "InterpreterProbeTest",
+          "parameters": [],
+          "qualified_name": "InterpreterProbeTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 329,
+            "start_line": 179
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_inspects_the_running_interpreter_without_executing_tools",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_inspects_the_running_interpreter_without_executing_tools",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 180
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_probe_runs_without_isolation_from_an_empty_temporary_directory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_probe_runs_without_isolation_from_an_empty_temporary_directory",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 217,
+            "start_line": 202
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fake_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "command"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_probe_runs_without_isolation_from_an_empty_temporary_directory.fake_run",
+          "return_annotation": null,
+          "signature": "(command, **kwargs)",
+          "source_location": {
+            "column": 8,
+            "end_line": 208,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_probe_ignores_modules_in_the_callers_working_directory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_probe_ignores_modules_in_the_callers_working_directory",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 230,
+            "start_line": 219
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_records_certificate_environment_variables",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_records_certificate_environment_variables",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 237,
+            "start_line": 232
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_interpreter_timeout_and_bad_output_are_reported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_missing_interpreter_timeout_and_bad_output_are_reported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 264,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_classifies_tooling_and_scans_pip_bundle_and_windows_stores",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InterpreterProbeTest.test_classifies_tooling_and_scans_pip_bundle_and_windows_stores",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 329,
+            "start_line": 266
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RepositoryScanTest",
+          "parameters": [],
+          "qualified_name": "RepositoryScanTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 381,
+            "start_line": 332
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lists_tooling_lines_masks_credentials_and_reports_unreadable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositoryScanTest.test_lists_tooling_lines_masks_credentials_and_reports_unreadable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 361,
+            "start_line": 333
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_masks_prefixed_keys_options_bearer_and_at_signs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositoryScanTest.test_masks_prefixed_keys_options_bearer_and_at_signs",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 373,
+            "start_line": 363
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_masks_credentials_in_urls",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositoryScanTest.test_masks_credentials_in_urls",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 381,
+            "start_line": 375
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MainTest",
+          "parameters": [],
+          "qualified_name": "MainTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 472,
+            "start_line": 384
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exit_codes_and_report_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_exit_codes_and_report_files",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 432,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bundle_only_run_does_not_inspect_an_interpreter",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_bundle_only_run_does_not_inspect_an_interpreter",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 448,
+            "start_line": 434
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unexpected_trust_values_are_dropped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_unexpected_trust_values_are_dropped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 456,
+            "start_line": 450
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_help_documents_exit_codes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_help_documents_exit_codes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 462,
+            "start_line": 458
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_markdown_escapes_backticks_and_newlines",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_markdown_escapes_backticks_and_newlines",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 472,
+            "start_line": 464
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.screen_capture",
@@ -107755,6 +108727,851 @@
             "column": 8,
             "end_line": 211,
             "start_line": 209
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 39,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 40,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 41,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 42,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 43,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 44,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 45,
+          "local_dependencies": [],
+          "module": "stat",
+          "names": [
+            {
+              "alias": null,
+              "name": "stat"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 46,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 47,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 48,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 49,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 50,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.trust_inventory",
+      "path": "tools/trust_inventory.py",
+      "source_location": {
+        "end_line": 773,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "TargetMatch",
+          "parameters": [],
+          "qualified_name": "TargetMatch",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 168,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TargetMatch.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 168,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "BundleResult",
+          "parameters": [],
+          "qualified_name": "BundleResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 190,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleResult.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 190,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "EnvironmentReport",
+          "parameters": [],
+          "qualified_name": "EnvironmentReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 220,
+            "start_line": 194
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EnvironmentReport.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 220,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_release_tuple",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_release_tuple",
+          "return_annotation": "tuple[int, ...]",
+          "signature": "(text: str) -> tuple[int, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 227,
+            "start_line": 223
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "check_version",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "installed"
+            }
+          ],
+          "qualified_name": "check_version",
+          "return_annotation": "str",
+          "signature": "(name: str, installed: str | None) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 248,
+            "start_line": 230
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "common_names",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "der"
+            }
+          ],
+          "qualified_name": "common_names",
+          "return_annotation": "list[str]",
+          "signature": "(der: bytes) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 280,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_target_names",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "der"
+            }
+          ],
+          "qualified_name": "_target_names",
+          "return_annotation": "list[str]",
+          "signature": "(der: bytes) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 292,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "scan_der_certificates",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "list[bytes]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "certificates"
+            }
+          ],
+          "qualified_name": "scan_der_certificates",
+          "return_annotation": "list[TargetMatch]",
+          "signature": "(source: str, certificates: list[bytes]) -> list[TargetMatch]",
+          "source_location": {
+            "column": 0,
+            "end_line": 310,
+            "start_line": 295
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_pem_bundle",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "read_pem_bundle",
+          "return_annotation": "list[bytes]",
+          "signature": "(data: bytes) -> list[bytes]",
+          "source_location": {
+            "column": 0,
+            "end_line": 325,
+            "start_line": 313
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "inspect_bundle_file",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "inspect_bundle_file",
+          "return_annotation": "BundleResult",
+          "signature": "(path: Path) -> BundleResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 366,
+            "start_line": 328
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "inspect_bundle",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "inspect_bundle",
+          "return_annotation": "EnvironmentReport",
+          "signature": "(path: Path, label: str | None = …) -> EnvironmentReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 377,
+            "start_line": 369
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_probe_command",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "python"
+            }
+          ],
+          "qualified_name": "_probe_command",
+          "return_annotation": "list[str]",
+          "signature": "(python: str) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 390,
+            "start_line": 380
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_probe_output",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stdout"
+            }
+          ],
+          "qualified_name": "_parse_probe_output",
+          "return_annotation": "dict[str, object] | None",
+          "signature": "(stdout: str) -> dict[str, object] | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 402,
+            "start_line": 393
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_dict",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_dict",
+          "return_annotation": "dict",
+          "signature": "(value: object) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 406,
+            "start_line": 405
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_trust_value",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_trust_value",
+          "return_annotation": "object",
+          "signature": "(value: object) -> object",
+          "source_location": {
+            "column": 0,
+            "end_line": 415,
+            "start_line": 409
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_windows_store_matches",
+          "parameters": [
+            {
+              "annotation": "EnvironmentReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entries"
+            }
+          ],
+          "qualified_name": "_windows_store_matches",
+          "return_annotation": "None",
+          "signature": "(report: EnvironmentReport, entries: object) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 458,
+            "start_line": 418
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "inspect_interpreter",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "python"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "inspect_interpreter",
+          "return_annotation": "EnvironmentReport",
+          "signature": "(python: str, label: str | None = …) -> EnvironmentReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 513,
+            "start_line": 461
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_redact",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "limit"
+            }
+          ],
+          "qualified_name": "_redact",
+          "return_annotation": "str",
+          "signature": "(text: str, limit: int = …) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 537,
+            "start_line": 531
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "scan_repository",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "scan_repository",
+          "return_annotation": "tuple[list[dict[str, object]], list[str]]",
+          "signature": "(root: Path) -> tuple[list[dict[str, object]], list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 590,
+            "start_line": 562
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_md",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_md",
+          "return_annotation": "str",
+          "signature": "(value: object) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 595,
+            "start_line": 593
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_match_line",
+          "parameters": [
+            {
+              "annotation": "TargetMatch",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "match"
+            }
+          ],
+          "qualified_name": "_match_line",
+          "return_annotation": "str",
+          "signature": "(match: TargetMatch) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 604,
+            "start_line": 598
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bundle_lines",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "title"
+            },
+            {
+              "annotation": "BundleResult | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle"
+            }
+          ],
+          "qualified_name": "_bundle_lines",
+          "return_annotation": "list[str]",
+          "signature": "(title: str, bundle: BundleResult | None) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 618,
+            "start_line": 607
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_markdown",
+          "parameters": [
+            {
+              "annotation": "list[EnvironmentReport]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reports"
+            },
+            {
+              "annotation": "list[dict[str, object]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repository"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "unreadable"
+            }
+          ],
+          "qualified_name": "_markdown",
+          "return_annotation": "str",
+          "signature": "(reports: list[EnvironmentReport], repository: list[dict[str, object]], unreadable: list[str]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 693,
+            "start_line": 621
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 769,
+            "start_line": 704
           }
         }
       ]
