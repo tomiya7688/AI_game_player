@@ -64,7 +64,7 @@ PROBE_MARKER = "TRUST_INVENTORY_JSON:"
 MAX_LINE_LENGTH = 200
 MAX_BUNDLE_BYTES = 20 * 1024 * 1024
 _PEM_BLOCK = re.compile(
-    rb"-----BEGIN CERTIFICATE-----\s*(.+?)\s*-----END CERTIFICATE-----", re.DOTALL
+    rb"-----BEGIN CERTIFICATE-----([^-]*?)-----END CERTIFICATE-----", re.DOTALL
 )
 CERTIFICATE_ENVIRONMENT_VARIABLES = (
     "SSL_CERT_FILE",
@@ -693,11 +693,41 @@ def _markdown(
     return "\n".join(lines) + "\n"
 
 
+def _redacted_environment(report: dict[str, object]) -> dict[str, object]:
+    """Mask credentials in the free-text fields of one report before it is written as JSON."""
+    details = dict(_dict(report.get("details")))
+    for key in ("stderr", "stdout"):
+        if isinstance(details.get(key), str):
+            details[key] = _redact(details[key], 500)
+    if isinstance(details.get("environment"), dict):
+        details["environment"] = {
+            name: None if value is None else _redact(str(value))
+            for name, value in details["environment"].items()
+        }
+    return {**report, "details": details}
+
+
+def _output_conflict(
+    json_path: Path | None, markdown_path: Path | None, bundles: list[Path]
+) -> str | None:
+    """Refuse report paths that would overwrite each other or an inspected CA bundle."""
+    outputs = [
+        path.resolve() for path in (json_path, markdown_path) if path is not None
+    ]
+    if len(outputs) == 2 and outputs[0] == outputs[1]:
+        return "--json and --markdown point to the same file"
+    inspected = {bundle.resolve() for bundle in bundles}
+    for output in outputs:
+        if output in inspected:
+            return f"report path {output} is an inspected --bundle file"
+    return None
+
+
 EXIT_CODES_HELP = """exit codes:
   0  every requested interpreter and bundle was inspected; certificates naming
      eMudhra/emSign do not change the exit code (this is an inventory, not a gate)
   1  at least one interpreter or bundle could not be inspected (see "status")
-  2  a report file could not be written
+  2  a report file could not be written, or the report paths conflict
 """
 
 
@@ -733,12 +763,16 @@ def main(argv: list[str] | None = None) -> int:
     reports.extend(inspect_bundle(path) for path in args.bundle)
     repository, unreadable = scan_repository(REPO_ROOT)
     payload = {
-        "environments": [r.to_dict() for r in reports],
+        "environments": [_redacted_environment(r.to_dict()) for r in reports],
         "repository": repository,
         "repository_unreadable": unreadable,
         "repository_scan_globs": list(REPOSITORY_SCAN_GLOBS),
     }
     text = _markdown(reports, repository, unreadable)
+    conflict = _output_conflict(args.json, args.markdown, args.bundle)
+    if conflict:
+        print(f"TRUST INVENTORY ERROR: {conflict}", file=sys.stderr)
+        return 2
     try:
         if args.json:
             args.json.parent.mkdir(parents=True, exist_ok=True)

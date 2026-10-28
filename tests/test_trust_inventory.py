@@ -117,7 +117,7 @@ class BundleScanTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "empty-block.pem"
             path.write_bytes(
-                b"-----BEGIN CERTIFICATE-----\n=\n-----END CERTIFICATE-----\n"
+                b"-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----\n"
             )
             self.assertEqual(
                 trust_inventory.inspect_bundle_file(path).status,
@@ -460,6 +460,53 @@ class MainTest(unittest.TestCase):
         with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
             trust_inventory.main(["--help"])
         self.assertIn("this is an inventory, not a gate", out.getvalue())
+
+    def test_json_report_masks_credentials(self):
+        report = trust_inventory.EnvironmentReport(
+            "label",
+            "not inspected: probe exited 1",
+            {
+                "stderr": "GITHUB_TOKEN=secret123",
+                "environment": {
+                    "PIP_CERT": "https://u:pw@host/ca.pem",
+                    "SSL_CERT_FILE": None,
+                },
+            },
+        )
+        redacted = trust_inventory._redacted_environment(report.to_dict())
+        self.assertEqual(redacted["details"]["stderr"], "GITHUB_TOKEN=***")
+        self.assertEqual(
+            redacted["details"]["environment"]["PIP_CERT"], "https://***@host/ca.pem"
+        )
+        self.assertIsNone(redacted["details"]["environment"]["SSL_CERT_FILE"])
+        self.assertEqual(report.details["stderr"], "GITHUB_TOKEN=secret123")
+
+    def test_conflicting_report_paths_are_refused_before_writing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            bundle = folder / "b.pem"
+            original = _pem(_fake_der("Example"))
+            bundle.write_text(original, encoding="ascii")
+            cases = (
+                ["--bundle", str(bundle), "--json", str(bundle)],
+                [
+                    "--bundle",
+                    str(bundle),
+                    "--json",
+                    str(folder / "r"),
+                    "--markdown",
+                    str(folder / "r"),
+                ],
+            )
+            for argv in cases:
+                with (
+                    self.subTest(argv=argv),
+                    contextlib.redirect_stderr(io.StringIO()) as err,
+                ):
+                    self.assertEqual(trust_inventory.main(argv), 2)
+                    self.assertIn("TRUST INVENTORY ERROR", err.getvalue())
+            self.assertEqual(bundle.read_text(encoding="ascii"), original)
+            self.assertFalse((folder / "r").exists())
 
     def test_markdown_escapes_backticks_and_newlines(self):
         report = trust_inventory.EnvironmentReport(

@@ -93066,7 +93066,7 @@
       "module": "tests.test_trust_inventory",
       "path": "tests/test_trust_inventory.py",
       "source_location": {
-        "end_line": 476,
+        "end_line": 523,
         "start_line": 1
       },
       "symbols": [
@@ -93735,7 +93735,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 472,
+            "end_line": 519,
             "start_line": 384
           }
         },
@@ -93836,6 +93836,52 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_json_report_masks_credentials",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_json_report_masks_credentials",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 482,
+            "start_line": 464
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_conflicting_report_paths_are_refused_before_writing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_conflicting_report_paths_are_refused_before_writing",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 509,
+            "start_line": 484
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_markdown_escapes_backticks_and_newlines",
           "parameters": [
             {
@@ -93850,8 +93896,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 472,
-            "start_line": 464
+            "end_line": 519,
+            "start_line": 511
           }
         }
       ]
@@ -108898,7 +108944,7 @@
       "module": "tools.trust_inventory",
       "path": "tools/trust_inventory.py",
       "source_location": {
-        "end_line": 773,
+        "end_line": 807,
         "start_line": 1
       },
       "symbols": [
@@ -109556,6 +109602,64 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
+          "name": "_redacted_environment",
+          "parameters": [
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_redacted_environment",
+          "return_annotation": "dict[str, object]",
+          "signature": "(report: dict[str, object]) -> dict[str, object]",
+          "source_location": {
+            "column": 0,
+            "end_line": 707,
+            "start_line": 696
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_output_conflict",
+          "parameters": [
+            {
+              "annotation": "Path | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "json_path"
+            },
+            {
+              "annotation": "Path | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "markdown_path"
+            },
+            {
+              "annotation": "list[Path]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundles"
+            }
+          ],
+          "qualified_name": "_output_conflict",
+          "return_annotation": "str | None",
+          "signature": "(json_path: Path | None, markdown_path: Path | None, bundles: list[Path]) -> str | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 723,
+            "start_line": 710
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
           "name": "main",
           "parameters": [
             {
@@ -109570,8 +109674,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 769,
-            "start_line": 704
+            "end_line": 803,
+            "start_line": 734
           }
         }
       ]
