@@ -1,3 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
+from http.server import SimpleHTTPRequestHandler
+import threading
 import tempfile
 import socket
 import os
@@ -39,7 +42,12 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
                 index.unlink()
                 with self.assertRaises(HTTPError) as missing_page:
                     urlopen(url + "index.html?another-private-query", timeout=3)
+                self.assertEqual(missing_page.exception.code, 404)
                 missing_page.exception.close()
+                self.assertEqual(
+                    server.page_response_summary(),
+                    "game_page_http_200=2, game_page_http_other=1",
+                )
                 port = int(url.split(":")[-1].strip("/"))
                 with socket.create_connection(
                     ("127.0.0.1", port), timeout=3
@@ -58,6 +66,89 @@ class PageResponseDiagnosticsTests(unittest.TestCase):
                 self.assertEqual(
                     server.page_response_summary(),
                     "game_page_http_200=0, game_page_http_other=0",
+                )
+            finally:
+                server.close()
+
+    def test_late_previous_generation_response_does_not_pollute_restart(self):
+        response_started = threading.Event()
+        release_response = threading.Event()
+        original_send_response = SimpleHTTPRequestHandler.send_response
+
+        def delayed_send_response(handler, code, message=None):
+            original_send_response(handler, code, message)
+            if not response_started.is_set():
+                response_started.set()
+                if not release_response.wait(timeout=10):
+                    raise TimeoutError("test did not release old server handler")
+
+        with tempfile.TemporaryDirectory() as directory:
+            source_path = Path(directory)
+            (source_path / "index.html").write_text("2048", encoding="utf-8")
+            server = LoopbackStaticServer()
+
+            def request_page(url):
+                with urlopen(url, timeout=10) as response:
+                    return response.read()
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                try:
+                    old_url = server.start(source_path)
+                    with patch.object(
+                        SimpleHTTPRequestHandler, "send_response", delayed_send_response
+                    ):
+                        pending_response = executor.submit(request_page, old_url)
+                        self.assertTrue(response_started.wait(timeout=5))
+                        server.close()
+                        new_url = server.start(source_path)
+                        release_response.set()
+                        self.assertEqual(pending_response.result(timeout=5), b"2048")
+                    self.assertEqual(
+                        server.page_response_summary(),
+                        "game_page_http_200=0, game_page_http_other=0",
+                    )
+                    self.assertEqual(request_page(new_url), b"2048")
+                    self.assertEqual(
+                        server.page_response_summary(),
+                        "game_page_http_200=1, game_page_http_other=0",
+                    )
+                finally:
+                    release_response.set()
+                    server.close()
+
+    def test_concurrent_starts_publish_only_one_owned_server(self):
+        start_together = threading.Barrier(2)
+        with tempfile.TemporaryDirectory() as directory:
+            source_path = Path(directory)
+            (source_path / "index.html").write_text("2048", encoding="utf-8")
+            server = LoopbackStaticServer()
+
+            def start_server():
+                start_together.wait(timeout=5)
+                try:
+                    return server.start(source_path)
+                except RuntimeError as error:
+                    return error
+
+            try:
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    attempts = [executor.submit(start_server) for _ in range(2)]
+                    results = [attempt.result(timeout=5) for attempt in attempts]
+                urls = [result for result in results if isinstance(result, str)]
+                failures = [
+                    result for result in results if isinstance(result, RuntimeError)
+                ]
+                self.assertEqual(len(urls), 1)
+                self.assertEqual(len(failures), 1)
+                self.assertEqual(
+                    str(failures[0]), "local game server is already running"
+                )
+                self.assertEqual(server.url, urls[0])
+                with urlopen(urls[0], timeout=3) as response:
+                    self.assertEqual(response.read(), b"2048")
+                self.assertEqual(
+                    server.page_response_summary(),
+                    "game_page_http_200=1, game_page_http_other=0",
                 )
             finally:
                 server.close()

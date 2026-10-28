@@ -30,6 +30,52 @@ SWP_NOACTIVATE = 0x0010
 SWP_SHOWWINDOW = 0x0040
 
 
+# {
+#   責務: [PageResponseCounts: 一回のローカルHTTPサーバー起動に属するページGET応答件数だけを保持する],
+#   フィールド: [
+#     _lock: HTTP処理スレッド間で件数の更新と参照を排他制御するロック,
+#     _ok: HTTP200応答の件数,
+#     _other: HTTP200以外の応答件数
+#   ]
+# }
+class PageResponseCounts:
+    """Keep only HTTP status counts for one server generation, including late handlers."""
+
+    # {
+    #   責務: [__init__: 一起動分の応答件数と専用ロックを初期化する],
+    #   処理: [件数を0にし、別起動のカウンターとは共有しない],
+    #   引数: [self: 初期化する応答件数の保持先],
+    #   戻り値: [None: 初期化した状態をselfに保持する]
+    # }
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._ok = 0
+        self._other = 0
+
+    # {
+    #   責務: [record: この起動に属するページGET応答を一件加算する],
+    #   処理: [専用ロック内でHTTP200とそれ以外を分けて加算する],
+    #   引数: [self: handlerが捕捉した起動別カウンター, status_code: 生成したHTTP応答コード],
+    #   戻り値: [None: 件数だけを更新し、要求URLや本文は保存しない]
+    # }
+    def record(self, status_code: int) -> None:
+        with self._lock:
+            if status_code == 200:
+                self._ok += 1
+            else:
+                self._other += 1
+
+    # {
+    #   責務: [summary: 同一起動のHTTP200件数と非200件数を診断文へ変換する],
+    #   処理: [専用ロック内で二つの件数を読み、固定キーの文字列へまとめる],
+    #   引数: [self: 参照する起動別カウンター],
+    #   戻り値: [str: 応答生成件数。ブラウザーの受信や描画完了を示す値ではない]
+    # }
+    def summary(self) -> str:
+        with self._lock:
+            return f"game_page_http_200={self._ok}, game_page_http_other={self._other}"
+
+
 class LoopbackStaticServer:
     """Serve one materialized game directory on a private, ephemeral localhost port."""
 
@@ -37,9 +83,8 @@ class LoopbackStaticServer:
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
         self._url: str | None = None
-        self._page_response_lock = threading.Lock()
-        self._page_ok_responses = 0
-        self._page_other_responses = 0
+        self._lifecycle_lock = threading.Lock()
+        self._page_responses = PageResponseCounts()
 
     def page_response_summary(self) -> str:
         """Return GET-page HTTP response counts, not proof of browser receipt or rendering.
@@ -47,11 +92,8 @@ class LoopbackStaticServer:
         Only counters are retained: request URLs, query values, titles and response
         bodies are never copied into this diagnostic. Counts cover one server start.
         """
-        with self._page_response_lock:
-            return (
-                f"game_page_http_200={self._page_ok_responses}, "
-                f"game_page_http_other={self._page_other_responses}"
-            )
+        with self._lifecycle_lock:
+            return self._page_responses.summary()
 
     @property
     def url(self) -> str:
@@ -60,16 +102,19 @@ class LoopbackStaticServer:
         return self._url
 
     def start(self, source_path: Path) -> str:
+        # Publish one complete server generation before another start or close proceeds.
+        with self._lifecycle_lock:
+            return self._start_locked(source_path)
+
+    def _start_locked(self, source_path: Path) -> str:
         if self._server is not None:
             raise RuntimeError("local game server is already running")
         if not source_path.is_dir() or not (source_path / "index.html").is_file():
             raise FileNotFoundError(
                 f"2048 source directory has no index.html: {source_path}"
             )
-        with self._page_response_lock:
-            self._page_ok_responses = 0
-            self._page_other_responses = 0
-        owner = self
+        # Old daemon handlers may finish after close; they retain only their own counters.
+        page_responses = PageResponseCounts()
 
         class QuietRequestHandler(SimpleHTTPRequestHandler):
             def log_message(self, format: str, *args: object) -> None:
@@ -82,11 +127,7 @@ class LoopbackStaticServer:
                     "/",
                     "/index.html",
                 ):
-                    with owner._page_response_lock:
-                        if code == 200:
-                            owner._page_ok_responses += 1
-                        else:
-                            owner._page_other_responses += 1
+                    page_responses.record(code)
 
         handler = partial(QuietRequestHandler, directory=str(source_path))
         server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
@@ -98,12 +139,17 @@ class LoopbackStaticServer:
         except RuntimeError:
             server.server_close()
             raise
+        self._page_responses = page_responses
         self._server = server
         self._thread = thread
         self._url = f"http://127.0.0.1:{server.server_address[1]}/"
         return self._url
 
     def close(self) -> None:
+        with self._lifecycle_lock:
+            self._close_locked()
+
+    def _close_locked(self) -> None:
         server = self._server
         thread = self._thread
         self._server = None
