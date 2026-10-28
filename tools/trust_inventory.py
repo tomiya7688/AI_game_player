@@ -467,7 +467,10 @@ def inspect_interpreter(python: str, label: str | None = None) -> EnvironmentRep
     )
     try:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as empty_directory:
-            completed = subprocess.run(
+            # No shell is used: the argument list is the interpreter chosen by the
+            # caller with --python, "-c" and the fixed PROBE_SCRIPT, so no part of
+            # it is built from untrusted text.
+            completed = subprocess.run(  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit
                 _probe_command(python),
                 capture_output=True,
                 text=True,
