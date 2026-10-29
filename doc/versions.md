@@ -28,6 +28,8 @@
 
 ## Unreleased
 
+- Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
+
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
 
 - Issue #475 / PR #593: InspectorとBottom Panelの切替ボタンに、次に行う操作を「を表示」「を非表示」で表示します。保存済みの非表示状態から起動した場合もラベルを合わせ、クリック後はPanel配置・保存状態・ラベルを同期します。停止操作とPanel状態の保存形式は変更しません。

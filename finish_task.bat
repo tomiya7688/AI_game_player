@@ -14,6 +14,7 @@ python -m coverage xml || exit /b 1
 python -m coverage html || exit /b 1
 python -m compileall -q src tools tests || exit /b 1
 python tools\bug_check.py src tools tests --output build\bug-check\local-report.json || exit /b 1
+python tools\runtime_boundary_check.py || exit /b 1
 python tools\performance_check.py --budget-multiplier 1.5 --output build\performance\local-report.json || exit /b 1
 python tools\workflow_security_check.py .github\workflows || exit /b 1
 python tools\ruleset_check.py || exit /b 1
