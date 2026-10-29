@@ -124,6 +124,22 @@ class RuntimeBoundaryCheckTest(unittest.TestCase):
                     )
                     self.assertEqual(_native_contract(path), (1, {"capture": 1}))
 
+    def test_native_abi_version_redefinition_is_rejected(self):
+        for second in ("1u", "2u", "unsupported"):
+            with (
+                self.subTest(second=second),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                path = Path(directory) / "runtime_api.h"
+                path.write_text(
+                    "#define KADOKA_RUNTIME_ABI_VERSION 1u\n"
+                    f"#define KADOKA_RUNTIME_ABI_VERSION {second}\n"
+                    "#define KADOKA_CAP_CAPTURE (1 << 0)\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(ValueError, "exactly one"):
+                    _native_contract(path)
+
     def test_read_errors_identify_the_failed_input_path(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

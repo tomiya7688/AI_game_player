@@ -74,9 +74,14 @@ def read_python_contract(path: Path) -> tuple[int, set[str]]:
 def read_native_contract(path: Path) -> tuple[int, dict[str, int]]:
     """Cの整数宣言を限定的に読み、versionと能力ビットを返します。"""
     text = path.read_text(encoding="utf-8")
-    version = re.search(
-        r"^#define\s+KADOKA_RUNTIME_ABI_VERSION\s+(\d+)[uU]?\s*$", text, re.MULTILINE
+    declarations = re.findall(
+        r"^#define\s+KADOKA_RUNTIME_ABI_VERSION\b([^\r\n]*)", text, re.MULTILINE
     )
+    if len(declarations) != 1:
+        raise ValueError(
+            "exactly one KADOKA_RUNTIME_ABI_VERSION declaration is required"
+        )
+    version = re.fullmatch(r"\s*(\d+)[uU]?\s*", declarations[0])
     if version is None or int(version.group(1)) <= 0:
         raise ValueError("positive KADOKA_RUNTIME_ABI_VERSION was not found")
     bits: dict[str, int] = {}

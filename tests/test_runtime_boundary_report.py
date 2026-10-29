@@ -92,6 +92,36 @@ class BenchmarkReportTest(unittest.TestCase):
             attempt.fail(OSError("interrupted replacement"))
             self.assertEqual(json.loads(path.read_text())["status"], "failed")
 
+    def test_transient_read_failure_can_be_recorded_as_failed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            attempt = BenchmarkReportAttempt(path)
+            attempt.begin()
+            with mock.patch.object(
+                Path, "read_text", side_effect=OSError("temporary read failure")
+            ):
+                with self.assertRaisesRegex(OSError, "temporary read failure"):
+                    attempt.publish({"value": 1})
+            self.assertTrue(attempt.fail(OSError("temporary read failure")))
+            self.assertEqual(json.loads(path.read_text())["status"], "failed")
+
+    def test_read_failure_followed_by_newer_writer_preserves_newer_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            old = BenchmarkReportAttempt(path)
+            old.begin()
+            with mock.patch.object(
+                Path, "read_text", side_effect=OSError("temporary read failure")
+            ):
+                with self.assertRaises(OSError):
+                    old.publish({"value": "old"})
+            new = BenchmarkReportAttempt(path)
+            new.begin()
+            new.publish({"value": "new"})
+            before = path.read_bytes()
+            self.assertFalse(old.fail(OSError("old read failure")))
+            self.assertEqual(path.read_bytes(), before)
+
     def test_finished_attempt_cannot_be_reused(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "report.json"

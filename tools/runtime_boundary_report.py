@@ -46,10 +46,8 @@ class BenchmarkReportAttempt:
 
     def _owns_output(self) -> bool:
         """ロック保持中に、保存先がこの試行のIDをまだ持つか確認します。"""
-        try:
-            value = json.loads(self.output.read_text(encoding="utf-8"))
-        except (OSError, UnicodeError, ValueError):
-            return False
+        # 読込失敗は所有者の交代ではありません。失敗処理が所有権を再確認します。
+        value = json.loads(self.output.read_text(encoding="utf-8"))
         return isinstance(value, dict) and value.get("run_id") == self.run_id
 
     def begin(self) -> None:

@@ -87715,7 +87715,7 @@
       "module": "tests.test_runtime_boundary",
       "path": "tests/test_runtime_boundary.py",
       "source_location": {
-        "end_line": 218,
+        "end_line": 234,
         "start_line": 1
       },
       "symbols": [
@@ -87737,7 +87737,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 218,
+            "end_line": 234,
             "start_line": 19
           }
         },
@@ -88057,6 +88057,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_native_abi_version_redefinition_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryCheckTest.test_native_abi_version_redefinition_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 141,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_read_errors_identify_the_failed_input_path",
           "parameters": [
             {
@@ -88071,8 +88094,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 142,
-            "start_line": 127
+            "end_line": 158,
+            "start_line": 143
           }
         },
         {
@@ -88094,8 +88117,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 144
+            "end_line": 165,
+            "start_line": 160
           }
         },
         {
@@ -88117,8 +88140,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 166,
-            "start_line": 151
+            "end_line": 182,
+            "start_line": 167
           }
         },
         {
@@ -88140,8 +88163,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 168
+            "end_line": 234,
+            "start_line": 184
           }
         }
       ]
@@ -88687,7 +88710,7 @@
       "module": "tests.test_runtime_boundary_report",
       "path": "tests/test_runtime_boundary_report.py",
       "source_location": {
-        "end_line": 106,
+        "end_line": 136,
         "start_line": 1
       },
       "symbols": [
@@ -88738,7 +88761,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 106,
+            "end_line": 136,
             "start_line": 22
           }
         },
@@ -88839,6 +88862,52 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_transient_read_failure_can_be_recorded_as_failed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BenchmarkReportTest.test_transient_read_failure_can_be_recorded_as_failed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_read_failure_followed_by_newer_writer_preserves_newer_result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BenchmarkReportTest.test_read_failure_followed_by_newer_writer_preserves_newer_result",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_finished_attempt_cannot_be_reused",
           "parameters": [
             {
@@ -88853,8 +88922,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 95
+            "end_line": 136,
+            "start_line": 125
           }
         }
       ]
@@ -113104,7 +113173,7 @@
       "module": "tools.runtime_boundary_contract",
       "path": "tools/runtime_boundary_contract.py",
       "source_location": {
-        "end_line": 138,
+        "end_line": 143,
         "start_line": 1
       },
       "symbols": [
@@ -113202,7 +113271,7 @@
           "signature": "(path: Path) -> tuple[int, dict[str, int]]",
           "source_location": {
             "column": 0,
-            "end_line": 96,
+            "end_line": 101,
             "start_line": 74
           }
         },
@@ -113225,8 +113294,8 @@
           "signature": "(path: Path) -> tuple[int, dict[str, int]]",
           "source_location": {
             "column": 0,
-            "end_line": 138,
-            "start_line": 99
+            "end_line": 143,
+            "start_line": 104
           }
         }
       ]
@@ -113626,7 +113695,7 @@
       "module": "tools.runtime_boundary_report",
       "path": "tools/runtime_boundary_report.py",
       "source_location": {
-        "end_line": 92,
+        "end_line": 90,
         "start_line": 1
       },
       "symbols": [
@@ -113646,7 +113715,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 92,
+            "end_line": 90,
             "start_line": 22
           }
         },
@@ -113756,7 +113825,7 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 53,
+            "end_line": 51,
             "start_line": 47
           }
         },
@@ -113779,8 +113848,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 61,
-            "start_line": 55
+            "end_line": 59,
+            "start_line": 53
           }
         },
         {
@@ -113808,8 +113877,8 @@
           "signature": "(self, report: dict[str, object]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 74,
-            "start_line": 63
+            "end_line": 72,
+            "start_line": 61
           }
         },
         {
@@ -113837,8 +113906,8 @@
           "signature": "(self, error: Exception) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 92,
-            "start_line": 76
+            "end_line": 90,
+            "start_line": 74
           }
         }
       ]
