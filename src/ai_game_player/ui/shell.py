@@ -69,6 +69,65 @@ class ShellStateStore:
         temporary.replace(self.path)
 
 
+# {
+#   責務: [ToolTip: ウィジェットにマウスホバーした際に補足説明のポップアップを表示する]
+#   フィールド: [widget: ホバー対象ウィジェット, text: 表示する説明テキスト, tip_window: ポップアップウィンドウのインスタンス]
+# }
+class ToolTip:
+    """Lightweight tooltip widget for displaying contextual help on hover."""
+
+    # {
+    #   責務: [__init__: ToolTipを初期化しマウスEnter/Leaveイベントを接続する]
+    #   処理: [ウィジェットへのEnter/Leaveイベントをバインドし、初期状態のtip_windowをNoneに設定する]
+    #   引数: [widget: 対象のTkinterウィジェット, text: ポップアップに表示するテキスト]
+    #   戻り値: []
+    # }
+    def __init__(self, widget: tk.Widget, text: str) -> None:
+        self.widget = widget
+        self.text = text
+        self.tip_window: tk.Toplevel | None = None
+        self.widget.bind("<Enter>", self.show_tip, add="+")
+        self.widget.bind("<Leave>", self.hide_tip, add="+")
+
+    # {
+    #   責務: [show_tip: マウスホバー時に説明テキストのポップアップを表示する]
+    #   処理: [ポップアップ未表示かつテキストがある場合、ウィジェット直下にToplevelウィンドウを作成してテキストを表示する]
+    #   引数: [_event: Tkinterイベントオブジェクト（任意）]
+    #   戻り値: []
+    # }
+    def show_tip(self, _event: object = None) -> None:
+        if self.tip_window or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 20
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+        self.tip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(
+            tw,
+            text=self.text,
+            justify=tk.LEFT,
+            background="#ffffe0",
+            relief=tk.SOLID,
+            borderwidth=1,
+            font=("TkDefaultFont", 9, "normal"),
+            padx=4,
+            pady=2,
+        )
+        label.pack()
+
+    # {
+    #   責務: [hide_tip: マウス離脱時にポップアップを非表示にする]
+    #   処理: [表示中のToplevelウィンドウを破棄してtip_windowをNoneにリセットする]
+    #   引数: [_event: Tkinterイベントオブジェクト（任意）]
+    #   戻り値: []
+    # }
+    def hide_tip(self, _event: object = None) -> None:
+        if self.tip_window:
+            self.tip_window.destroy()
+            self.tip_window = None
+
+
 class ShellController:
     """Tracks shell selection and panel visibility without owning game behavior."""
 
@@ -138,8 +197,14 @@ class ApplicationShell(ttk.Frame):
         ttk.Button(command, text="Inspectorを表示/非表示", command=self.toggle_inspector).pack(side=tk.RIGHT)
         ttk.Button(command, text="Bottom Panelを表示/非表示", command=self.toggle_bottom_panel).pack(side=tk.RIGHT, padx=6)
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
+        stop_button_tooltip = (
+            "Escキー、F12キー、または手動マウス移動で安全に停止できます"
+            if os.name == "nt"
+            else "Escキーまたは手動マウス移動で安全に停止できます"
+        )
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
+        self.stop_tooltip = ToolTip(self.stop_button, stop_button_tooltip)
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)

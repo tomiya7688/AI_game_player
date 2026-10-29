@@ -1,6 +1,7 @@
 import tempfile
 import os
 import tkinter as tk
+from tkinter import ttk
 import unittest
 from pathlib import Path
 from tkinter import TclError
@@ -13,6 +14,7 @@ from ai_game_player.ui.shell import (
     ShellController,
     ShellState,
     ShellStateStore,
+    ToolTip,
 )
 
 
@@ -171,6 +173,35 @@ class TkShellSmokeTests(unittest.TestCase):
 
             # Shell生成後も親の停止処理だけが1回呼ばれる。
             self.assertEqual(stop_calls, ["root"])
+        finally:
+            root.destroy()
+
+
+    def test_tooltip_show_and_hide_behavior(self):
+        try:
+            root = tk.Tk()
+        except TclError as exc:
+            self.skipTest(f"Tk desktop is unavailable: {exc}")
+        try:
+            root.withdraw()
+            button = ttk.Button(root, text="Test")
+            button.pack()
+            tooltip = ToolTip(button, "Help text")
+            self.assertIsNone(tooltip.tip_window)
+
+            tooltip.show_tip()
+            self.assertIsNotNone(tooltip.tip_window)
+
+            # Calling show_tip again when already showing should be a no-op
+            tooltip.show_tip()
+            self.assertIsNotNone(tooltip.tip_window)
+
+            tooltip.hide_tip()
+            self.assertIsNone(tooltip.tip_window)
+
+            # Calling hide_tip when already hidden should be a no-op
+            tooltip.hide_tip()
+            self.assertIsNone(tooltip.tip_window)
         finally:
             root.destroy()
 
