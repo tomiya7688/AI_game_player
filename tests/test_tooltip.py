@@ -34,6 +34,7 @@ class ToolTipTests(unittest.TestCase):
         self.assertIsNone(tooltip._after_id)
         popup = tooltip._tip_window
         self.assertIsNotNone(popup)
+        self.assertTrue(popup.winfo_viewable())
         self.assertEqual(popup.winfo_children()[0].cget("text"), "実際の説明")
         tooltip.show()
         self.assertIs(tooltip._tip_window, popup)
