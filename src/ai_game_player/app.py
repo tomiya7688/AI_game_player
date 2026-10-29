@@ -104,21 +104,20 @@ class Application:
     #     __init__: UIと実行制御の初期状態を構築する
     #   ]
     #   処理: [
-    #     1: 保存済みの判断設定・入力方式・画面取得領域を読み、実行制御を初期化する
-    #     2: Play作業画面の上部に対象ウィンドウ選択欄を作り、OSのウィンドウ識別値とプロセスIDを管理する
-    #     3: バックグラウンド処理の結果受取状態と、最新の画面評価の識別子を初期化する
-    #     4: 自動入力によるカーソル位置をバックグラウンド処理と画面側で共有する状態を初期化する
-    #     5: 画面取得方式と取得領域のUI入力を作り、設定の保存処理と画面取得部品へ接続する
-    #     6: 任意入力の操作候補JSONと、候補評価の表示欄を作る
-    #     7: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
-    #     8: 停止ボタンとアプリにフォーカスがある状態のEscを案内し、OS別の追加手段を補足説明で確認する手順を表示する
+#     1: 保存済みの判断・入力・capture region設定を読み、実行制御を初期化する
+#     2: Play Workspaceの上部に対象ウィンドウ選択欄を作り、HWNDとPIDを管理する
+    #     3: worker結果と最新画面評価IDを初期化する
+    #     4: 自動カーソル位置のworker/UI間同期を初期化する
+    #     5: capture modeとROIのUI入力を作り、設定保存とcapture serviceへ接続する
+    #     6: 任意のAutomation候補入力と候補評価表示を作る
+    #     7: UI commandと表示を接続し、composition rootをsession制御へ注入する
     #   ]
     #   引数: [
-    #     root: UIを配置する、作成済みのTkルートウィンドウ
-    #     runtime_composition: 推論方法・評価器・操作判断パイプラインを生成する構成。Noneは標準構成
-    #     observation_service: ゲーム画面を取得・解析する部品。Noneは保存済み領域を使うWindows標準構成
+    #     root: Tkinterのルートウィンドウ
+    #     runtime_composition: Provider・Evaluator・Pipelineを生成するcomposition root、未指定時は標準構成
+    #     observation_service: 画面をcapture・解析するservice、省略時は保存済みROIを適用するWindows標準構成
     #   ]
-    #   戻り値: [None: Widgetと実行制御を初期化し、Tkイベントループで操作を受け付ける準備をする]
+    #   戻り値: []
     # }
     def __init__(
         self,
@@ -271,14 +270,7 @@ class Application:
         self.actions.insert("1.0", "[]")
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
-        ttk.Label(
-            frame,
-            text=(
-                "停止方法: 停止ボタン / 本アプリにフォーカスがある状態のEsc\n"
-                "OS別の追加手段は、停止ボタンにマウスを置くかTabでフォーカスを合わせて確認してください"
-            ),
-            justify=tk.LEFT,
-        ).pack(anchor=tk.W)
+        ttk.Label(frame, text="停止方法: 停止ボタン / Esc / F12 / 手動マウス移動").pack(anchor=tk.W)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
