@@ -5,10 +5,12 @@
 ## 基本フロー
 
 ```text
-画面キャプチャ → OCR/候補生成 → 安全評価 → Rule/Ollama判断 → 実行 → 結果評価 → 次の観測
+画面観測・候補生成 → 候補評価 → 前回操作の結果評価 → 判断材料の構築 → AI判断・検証 → 安全評価 → 入力（許可時） → 次の画面観測
 ```
 
-主要コードは `src/ai_game_player/` にあり、観測（capture/source）、評価（evaluator/outcome）、判断（provider/engine）、実行（action_executor/windows_input）、履歴・ログを分離しています。
+前回の操作記録がある場合、エンジンは新しい画面観測を使って前回操作の結果を評価し、その結果を今回の判断材料へ含めます。候補評価は判断材料を構築する前に行います。
+
+主要コードは[`src/ai_game_player/`](src/ai_game_player/)にあります。観測、判断、安全評価、入力、記録の実装を調べる開発者は、[Python実装の読み方と責務別の入口](src/ai_game_player/README.md)から読み始めてください。
 
 - [現在の機能と制約](key_info.md)
 - [参加領域とレビュー先](doc/contributor/subsystem_ownership_map.md)
@@ -16,6 +18,21 @@
 - [クラス図](doc/class_diagram.mmd)
 - [シーケンス図](doc/sequence_diagram.mmd)
 - [評価指標](doc/評価指標機能説明書.md)
+
+## ソースコードを読む
+
+開発者は、調べる処理に応じて次の入口を開いてください。各リンクはGitHub上のファイルまたはディレクトリへ移動します。
+
+- [Python実装の索引と読む順序](src/ai_game_player/README.md)
+- [Pythonパッケージ全体](src/ai_game_player/)
+- [アプリケーションの品質ゲート](src/ai_game_player/applications/)
+- [Pythonとネイティブ実装の接続](src/ai_game_player/runtime/)
+- [GUIの画面構築と補足表示](src/ai_game_player/ui/)
+- [C++のネイティブ実装](native/)
+- [テスト](tests/)
+- [開発用ツール](tools/)
+
+責務別ディレクトリへの移行計画は[Issue #356](https://github.com/tomiya7688/AI_game_player/issues/356)で管理しています。現在の配置と移行計画の区別は、Python実装の索引で説明しています。
 
 ## 現在できること
 
