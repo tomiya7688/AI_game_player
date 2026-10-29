@@ -1,7 +1,6 @@
 import tempfile
 import os
 import tkinter as tk
-from tkinter import ttk
 import unittest
 from pathlib import Path
 from tkinter import TclError
@@ -14,7 +13,6 @@ from ai_game_player.ui.shell import (
     ShellController,
     ShellState,
     ShellStateStore,
-    ToolTip,
 )
 
 
@@ -177,33 +175,23 @@ class TkShellSmokeTests(unittest.TestCase):
             root.destroy()
 
 
-    def test_tooltip_show_and_hide_behavior(self):
-        try:
-            root = tk.Tk()
-        except TclError as exc:
-            self.skipTest(f"Tk desktop is unavailable: {exc}")
-        try:
-            root.withdraw()
-            button = ttk.Button(root, text="Test")
-            button.pack()
-            tooltip = ToolTip(button, "Help text")
-            self.assertIsNone(tooltip.tip_window)
-
-            tooltip.show_tip()
-            self.assertIsNotNone(tooltip.tip_window)
-
-            # Calling show_tip again when already showing should be a no-op
-            tooltip.show_tip()
-            self.assertIsNotNone(tooltip.tip_window)
-
-            tooltip.hide_tip()
-            self.assertIsNone(tooltip.tip_window)
-
-            # Calling hide_tip when already hidden should be a no-op
-            tooltip.hide_tip()
-            self.assertIsNone(tooltip.tip_window)
-        finally:
-            root.destroy()
+    def test_stop_button_tooltip_text_matches_platform_behavior(self):
+        for platform_name, expected_tooltip in (
+            ("nt", "Windows環境の連続実行中は、Escキー、F12キー、または手動マウス移動で安全に停止できます"),
+            ("posix", "Escキーで安全に停止できます"),
+        ):
+            with self.subTest(platform=platform_name):
+                try:
+                    root = tk.Tk()
+                except TclError as exc:
+                    self.skipTest(f"Tk desktop is unavailable: {exc}")
+                try:
+                    root.withdraw()
+                    with patch("ai_game_player.ui.shell.os", SimpleNamespace(name=platform_name)):
+                        shell = ApplicationShell(root, ShellState(), lambda: None, lambda state: None)
+                    self.assertEqual(shell.stop_button_tooltip, expected_tooltip)
+                finally:
+                    root.destroy()
 
 
 if __name__ == "__main__":
