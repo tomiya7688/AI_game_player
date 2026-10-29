@@ -56,10 +56,11 @@
       "capability": "fast_cv",
       "preferred_language": "cpp",
       "boundary_unit": "frame",
-      "status": "native_when_measured",
-      "reason": "Keep OpenCV/NumPy-backed work high-level while native code owns measured Python loops or latency-sensitive frame primitives.",
+      "status": "partially_native",
+      "reason": "Pythonの画像処理に加えてC ABIのフレーム前処理primitiveが実装済み。未移行のPython loopだけを実測対象とし、Nativeを使うかはbackend選択と測定で判断する。",
       "current_languages": [
-        "python"
+        "python",
+        "cpp"
       ]
     },
     {
