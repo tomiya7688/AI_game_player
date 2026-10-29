@@ -58,6 +58,7 @@ Non-negotiable constraints:
 
 | Area | Read first | Read only if needed |
 |---|---|---|
+| Code / documentation quality | `doc/レビュー基準.md`, `doc/コーディング規約.md` | `doc/コーディングルール.md` (shared entry and seven self-review checks) |
 | Recognition / OCR / candidates | `frame_analyzer.py`, `ocr_recognizer.py`, `ocr_detector.py`, `region_detector.py`, `candidate_merger.py`, matching `tests/test_*.py` | `doc/画像解析機能説明書.md`, `doc/OCR候補検出機能説明書.md`, `doc/候補統合機能説明書.md` |
 | Capture / observation | `screen_capture.py`, `captured_source.py`, `observation_source.py`, matching tests | `doc/画面キャプチャ機能説明書.md`, `doc/観測入力機能説明書.md` |
 | Decision / provider / outcome | `pipeline.py`, `engine.py`, `provider.py`, `evaluator.py`, `outcome.py`, matching tests | `doc/判断パイプライン機能説明書.md`, `doc/評価指標機能説明書.md` |
@@ -78,6 +79,9 @@ Non-negotiable constraints:
 - `AI_CONTEXT.md`: smallest AI entrypoint, source-of-truth pointers, context priority, and exploration stop conditions.
 - `README.md`: human-facing introduction, setup, and safe usage.
 - `AGENTS.md`: this AI/Codex router and compressed working policy.
+- `doc/レビュー基準.md`: required code, test, safety, and documentation review gates. Apply it to every PR review.
+- `doc/コーディング規約.md`: coding, JSON-like declaration comments, and Japanese documentation rules for new or changed work.
+- `doc/コーディングルール.md`: shared entry to the detailed standards and the seven self-review checks required in each PR.
 - `key_info.md`: implemented capabilities and current limitations.
 - `doc/architecture/runtime_layers.md`: cross-language runtime boundary and repository ownership rules.
 - `doc/UPDCommander導入方針.md`: UPD Commander staged adoption, architecture checker, performance gate, and bug gate policy.
@@ -88,6 +92,8 @@ Non-negotiable constraints:
 ## Completion
 
 - Follow `doc/ワークフロー/ワークフロー.md`.
+- Read and apply `doc/レビュー基準.md` to every PR; code and documentation changes must follow `doc/コーディング規約.md`.
+- Follow Issue #19: implementation PRs must map specified methods to actual implementation, runtime wiring, evidence, justified replacements, and deferred deliverables with Open Issue references. Separate Core, Runtime, and Real-play completion; the automated gate belongs to Issue #508.
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
 - `finish_task.bat` includes generated docs, unit tests, compile checks, high-confidence bug checks, runtime performance budgets, and `git diff --check`.
 - UPD architecture rules are enforced by `upd-architecture-ci`; the checker is a development/CI dependency and must not enter the normal game runtime import path.

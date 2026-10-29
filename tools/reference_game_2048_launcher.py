@@ -30,6 +30,52 @@ SWP_NOACTIVATE = 0x0010
 SWP_SHOWWINDOW = 0x0040
 
 
+# {
+#   責務: [PageResponseCounts: 一回のローカルHTTPサーバー起動に属するページGET応答件数だけを保持する],
+#   フィールド: [
+#     _lock: HTTP処理スレッド間で件数の更新と参照を排他制御するロック,
+#     _ok: HTTP200応答の件数,
+#     _other: HTTP200以外の応答件数
+#   ]
+# }
+class PageResponseCounts:
+    """Keep only HTTP status counts for one server generation, including late handlers."""
+
+    # {
+    #   責務: [__init__: 一起動分の応答件数と専用ロックを初期化する],
+    #   処理: [件数を0にし、別起動のカウンターとは共有しない],
+    #   引数: [self: 初期化する応答件数の保持先],
+    #   戻り値: [None: 初期化した状態をselfに保持する]
+    # }
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._ok = 0
+        self._other = 0
+
+    # {
+    #   責務: [record: この起動に属するページGET応答を一件加算する],
+    #   処理: [専用ロック内でHTTP200とそれ以外を分けて加算する],
+    #   引数: [self: handlerが捕捉した起動別カウンター, status_code: 生成したHTTP応答コード],
+    #   戻り値: [None: 件数だけを更新し、要求URLや本文は保存しない]
+    # }
+    def record(self, status_code: int) -> None:
+        with self._lock:
+            if status_code == 200:
+                self._ok += 1
+            else:
+                self._other += 1
+
+    # {
+    #   責務: [summary: 同一起動のHTTP200件数と非200件数を診断文へ変換する],
+    #   処理: [専用ロック内で二つの件数を読み、固定キーの文字列へまとめる],
+    #   引数: [self: 参照する起動別カウンター],
+    #   戻り値: [str: 応答生成件数。ブラウザーの受信や描画完了を示す値ではない]
+    # }
+    def summary(self) -> str:
+        with self._lock:
+            return f"game_page_http_200={self._ok}, game_page_http_other={self._other}"
+
+
 class LoopbackStaticServer:
     """Serve one materialized game directory on a private, ephemeral localhost port."""
 
@@ -37,6 +83,17 @@ class LoopbackStaticServer:
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
         self._url: str | None = None
+        self._lifecycle_lock = threading.Lock()
+        self._page_responses = PageResponseCounts()
+
+    def page_response_summary(self) -> str:
+        """Return GET-page HTTP response counts, not proof of browser receipt or rendering.
+
+        Only counters are retained: request URLs, query values, titles and response
+        bodies are never copied into this diagnostic. Counts cover one server start.
+        """
+        with self._lifecycle_lock:
+            return self._page_responses.summary()
 
     @property
     def url(self) -> str:
@@ -45,29 +102,54 @@ class LoopbackStaticServer:
         return self._url
 
     def start(self, source_path: Path) -> str:
+        # Publish one complete server generation before another start or close proceeds.
+        with self._lifecycle_lock:
+            return self._start_locked(source_path)
+
+    def _start_locked(self, source_path: Path) -> str:
         if self._server is not None:
             raise RuntimeError("local game server is already running")
         if not source_path.is_dir() or not (source_path / "index.html").is_file():
-            raise FileNotFoundError(f"2048 source directory has no index.html: {source_path}")
+            raise FileNotFoundError(
+                f"2048 source directory has no index.html: {source_path}"
+            )
+        # Old daemon handlers may finish after close; they retain only their own counters.
+        page_responses = PageResponseCounts()
 
         class QuietRequestHandler(SimpleHTTPRequestHandler):
             def log_message(self, format: str, *args: object) -> None:
                 return
 
+            def send_response(self, code: int, message: str | None = None) -> None:
+                super().send_response(code, message)
+                # A response header is not evidence that the browser received or rendered it.
+                if self.command == "GET" and self.path.partition("?")[0] in (
+                    "/",
+                    "/index.html",
+                ):
+                    page_responses.record(code)
+
         handler = partial(QuietRequestHandler, directory=str(source_path))
         server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-        thread = threading.Thread(target=server.serve_forever, name="2048-static-server", daemon=True)
+        thread = threading.Thread(
+            target=server.serve_forever, name="2048-static-server", daemon=True
+        )
         try:
             thread.start()
         except RuntimeError:
             server.server_close()
             raise
+        self._page_responses = page_responses
         self._server = server
         self._thread = thread
         self._url = f"http://127.0.0.1:{server.server_address[1]}/"
         return self._url
 
     def close(self) -> None:
+        with self._lifecycle_lock:
+            self._close_locked()
+
+    def _close_locked(self) -> None:
         server = self._server
         thread = self._thread
         self._server = None
@@ -101,7 +183,9 @@ class BrowserWindowSession:
         if timeout_seconds <= 0:
             raise ValueError("browser window timeout must be positive")
         if not self.browser_path.is_file():
-            raise FileNotFoundError(f"browser executable was not found: {self.browser_path}")
+            raise FileNotFoundError(
+                f"browser executable was not found: {self.browser_path}"
+            )
         try:
             self._profile = tempfile.TemporaryDirectory(prefix="kadoka-2048-browser-")
             arguments = [
@@ -126,7 +210,9 @@ class BrowserWindowSession:
                 creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
             )
             self.window_info = self._wait_for_window(timeout_seconds)
-            self.window_is_foreground = focus_resize_browser_window(self.window_info.handle, self.process.pid)
+            self.window_is_foreground = focus_resize_browser_window(
+                self.window_info.handle, self.process.pid
+            )
         except Exception as startup_error:
             # 後処理の失敗は起動失敗の原因ではないため、暗黙の例外文脈として残す。
             try:
@@ -263,6 +349,17 @@ class ReferenceGame2048Launcher:
             self.browser = BrowserWindowSession(browser_path, self.source_path)
             self.browser.start(self.server.url, window_wait_seconds)
         except Exception as startup_error:
+            if (
+                self.browser is not None
+                and type(startup_error) is TimeoutError
+                and len(startup_error.args) == 1
+                and isinstance(startup_error.args[0], str)
+            ):
+                # Only the window wait's plain-message exception may gain log context.
+                # Preserve errno/filename arguments and custom exception contracts untouched.
+                startup_error.args = (
+                    f"{startup_error}; {self.server.page_response_summary()}",
+                )
             try:
                 self.close()
             except Exception:
@@ -325,11 +422,21 @@ def focus_resize_browser_window(window_handle: int, expected_process_id: int) ->
     user32 = ctypes.WinDLL("user32", use_last_error=True)
     user32.IsWindow.argtypes = [wintypes.HWND]
     user32.IsWindow.restype = wintypes.BOOL
-    user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+    user32.GetWindowThreadProcessId.argtypes = [
+        wintypes.HWND,
+        ctypes.POINTER(wintypes.DWORD),
+    ]
     user32.GetWindowThreadProcessId.restype = wintypes.DWORD
     user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
     user32.ShowWindow.restype = wintypes.BOOL
-    user32.MoveWindow.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.BOOL]
+    user32.MoveWindow.argtypes = [
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.BOOL,
+    ]
     user32.MoveWindow.restype = wintypes.BOOL
     user32.SetWindowPos.argtypes = [
         wintypes.HWND,
@@ -354,23 +461,31 @@ def focus_resize_browser_window(window_handle: int, expected_process_id: int) ->
 
     handle = wintypes.HWND(window_handle)
     actual_process_id = wintypes.DWORD()
-    if not user32.IsWindow(handle) or not user32.GetWindowThreadProcessId(handle, ctypes.byref(actual_process_id)):
+    if not user32.IsWindow(handle) or not user32.GetWindowThreadProcessId(
+        handle, ctypes.byref(actual_process_id)
+    ):
         raise RuntimeError("the selected 2048 browser window is no longer valid")
     if actual_process_id.value != expected_process_id:
-        raise RuntimeError("the selected 2048 browser window belongs to a different process")
+        raise RuntimeError(
+            "the selected 2048 browser window belongs to a different process"
+        )
     screen_width = user32.GetSystemMetrics(0)
     screen_height = user32.GetSystemMetrics(1)
     width = min(WINDOW_WIDTH, screen_width - 2 * WINDOW_LEFT)
     height = min(WINDOW_HEIGHT, screen_height - 2 * WINDOW_TOP)
     if width < 640 or height < 480:
-        raise RuntimeError("the Windows desktop must be at least 640×480 to display the 2048 game")
+        raise RuntimeError(
+            "the Windows desktop must be at least 640×480 to display the 2048 game"
+        )
     left = min(WINDOW_LEFT, screen_width - width)
     top = min(WINDOW_TOP, screen_height - height)
     user32.ShowWindow(handle, 9)
     if not user32.MoveWindow(handle, left, top, width, height, True):
         raise ctypes.WinError(ctypes.get_last_error())
     z_order_flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW
-    if not user32.SetWindowPos(handle, wintypes.HWND(HWND_TOP), 0, 0, 0, 0, z_order_flags):
+    if not user32.SetWindowPos(
+        handle, wintypes.HWND(HWND_TOP), 0, 0, 0, 0, z_order_flags
+    ):
         raise ctypes.WinError(ctypes.get_last_error())
     if not user32.InvalidateRect(handle, None, True) or not user32.UpdateWindow(handle):
         raise ctypes.WinError(ctypes.get_last_error())

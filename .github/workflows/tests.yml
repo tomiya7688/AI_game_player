@@ -19,8 +19,13 @@ jobs:
         with:
           python-version: '3.14'
       - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff format --check --force-exclude tests/test_fail_safe_initial_observation_grace.py
       - run: python -m ruff check src tools tests
       - run: python tools/workflow_security_check.py .github/workflows
+      - run: python tools/ruleset_check.py
+      - name: Python trust inventory (Issue #513, read-only)
+        shell: bash
+        run: python tools/trust_inventory.py --markdown "$GITHUB_STEP_SUMMARY"
       - name: Require bounded SafetyLog retention
         shell: bash
         run: |
