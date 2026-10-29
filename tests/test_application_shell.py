@@ -269,9 +269,13 @@ class TkShellSmokeTests(unittest.TestCase):
                     self.assertIn("本アプリにフォーカスがある状態のEsc", help_text)
                     self.assertIn("停止を要求します", help_text)
                     if platform_name == "nt":
-                        self.assertIn("F12", help_text)
-                        self.assertIn("Windowsの連続実行中", help_text)
-                        self.assertIn("自動操作以外のマウス移動", help_text)
+                        self.assertIn(
+                            "WindowsではF12でも停止を要求できます。", help_text
+                        )
+                        self.assertIn(
+                            "Windowsの連続実行中は、自動操作以外のマウス移動を検出すると停止を要求します",
+                            help_text,
+                        )
                     else:
                         self.assertNotIn("F12", help_text)
                         self.assertNotIn("マウス移動", help_text)

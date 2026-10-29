@@ -32,6 +32,7 @@ from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
+from ai_game_player.ui.stop_help_hint import StopHelpHint
 
 
 # {
@@ -111,7 +112,7 @@ class Application:
     #     5: 画面取得方式と取得領域のUI入力を作り、設定の保存処理と画面取得部品へ接続する
     #     6: 任意入力の操作候補JSONと、候補評価の表示欄を作る
     #     7: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
-    #     8: 停止ボタンとアプリにフォーカスがある状態のEscを案内し、OS別の追加手段を補足説明で確認する手順を表示する
+    #     8: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -271,14 +272,7 @@ class Application:
         self.actions.insert("1.0", "[]")
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
-        ttk.Label(
-            frame,
-            text=(
-                "停止方法: 停止ボタン / 本アプリにフォーカスがある状態のEsc\n"
-                "OS別の追加手段は、停止ボタンにマウスを置くかTabでフォーカスを合わせて確認してください"
-            ),
-            justify=tk.LEFT,
-        ).pack(anchor=tk.W)
+        StopHelpHint(frame).pack(anchor=tk.W, fill=tk.X)
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
