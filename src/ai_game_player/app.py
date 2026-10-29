@@ -33,6 +33,7 @@ from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 from ai_game_player.ui.stop_help_hint import StopHelpHint
+from ai_game_player.ui.tooltip import ToolTip
 
 
 # {
@@ -113,6 +114,7 @@ class Application:
     #     6: 任意入力の操作候補JSONと、候補評価の表示欄を作る
     #     7: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
     #     8: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
+    #     9: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -237,6 +239,11 @@ class Application:
             command=self._on_live_execution_changed,
         )
         self.live_execution_toggle.pack(side=tk.LEFT, padx=5)
+        ToolTip(
+            self.live_execution_toggle,
+            "実入力を許可してから操作を実行すると、アプリは選択したゲームウィンドウへ入力を送ります。"
+            "判断だけの実行では入力しません。連続実行中や処理の完了待ちは変更できません。",
+        )
         ttk.Label(prompt_settings, text="入力方式").pack(side=tk.LEFT)
         ttk.Combobox(prompt_settings, textvariable=self.input_mode, values=("window_message", "mouse"), state="readonly", width=16).pack(side=tk.LEFT, padx=5)
         capture_settings = ttk.Frame(frame)
