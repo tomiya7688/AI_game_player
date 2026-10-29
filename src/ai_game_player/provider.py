@@ -4,7 +4,6 @@ from urllib.request import Request, urlopen
 
 from ai_game_player.decision_context import DecisionContext
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
-from ai_game_player.no_allowed_candidates_error import NoAllowedCandidatesError
 
 
 # {
@@ -47,26 +46,16 @@ class RuleProvider:
     #     ActionDecision: 選択候補・比較値を含む理由・画面観測ID・画面ID・状態照合値
     #   ]
     #   エラー: [
-    #     NoAllowedCandidatesError: 判断材料の候補自体が空で、入力実行前に判断を中止した場合。ValueErrorとしても捕捉できる
-    #     ValueError: 候補は存在するが、全件が実行不許可の場合。完了再確認の対象にしない
+    #     ValueError: 判断材料に実行許可された候補が1件もない場合
     #   ]
     # }
-    def choose_context(
-        self, context: DecisionContext, personality: str = ""
-    ) -> ActionDecision:
+    def choose_context(self, context: DecisionContext, personality: str = "") -> ActionDecision:
         allowed = [candidate for candidate in context.candidates if candidate.allowed]
         if not allowed:
-            if context.candidates:
-                raise ValueError("許可された操作候補がありません")
-            raise NoAllowedCandidatesError("許可された操作候補がありません")
+            raise ValueError("許可された操作候補がありません")
         candidate = max(
             allowed,
-            key=lambda value: (
-                value.utility_score,
-                value.utility_confidence,
-                value.recognition_confidence,
-                value.action_id,
-            ),
+            key=lambda value: (value.utility_score, value.utility_confidence, value.recognition_confidence, value.action_id),
         )
         reason = f"utility={candidate.utility_score:.3f}, confidence={candidate.utility_confidence:.3f}"
         if "repetition" in {entry.evaluator for entry in candidate.evaluations}:

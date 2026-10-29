@@ -1,48 +1,6 @@
-## 2026-10-29 実入力の許可欄の補足説明（Issue #475 / PR #507）
-
-- 「実入力を許可」のホバーまたはキーボードフォーカスで、許可後に操作を実行した場合の入力、判断だけの場合の入力なし、連続実行中・処理完了待ちの設定変更制限を説明します。
-- PR #511で統合した共通ToolTipを使います。PR #507の重複した旧ToolTip・停止案内は最新mainを保持し、実入力の既定値・チェックボックスの処理・停止処理は変更しません。
-
-## 2026-10-29 サンプルE2Eの完了公開と候補取得の競合（Issue #597）
-
-- 実入力後の完了確認では未完了でも、次の判断時に許可候補が空になった場合は完了条件を再確認します。先行する実入力と操作記録があり、停止要求や実行世代の変更がなく、完了確認が厳密なTrueを返した場合だけ、追加入力せず到達成功を記録します。
-- 完了の再確認は判断呼出し中の規則判断の許可候補なし例外に限定します。観測・完了確認コールバックの例外は再確認しません。不正な候補、安全拒否、キャプチャ失敗、停止、完了確認の例外を成功へ変換しません。再確認の読取失敗は元の候補なし例外とともに記録します。
-- サンプル状態の読取ではcompletedのbool値を要求します。ファイル欠落、読取失敗、不正JSON、欠落・非boolのcompletedは例外を伝え、未完了として隠しません。
-- 再確認による成功は独立したmilestoneイベントに記録し、実行していない操作や安全評価を追加しません。実入力の確認、600秒の継続条件、CIの合否基準は維持します。
-
-## 2026-10-29 停止ボタンの条件付き案内（Issue #475 / PR #595）
-
-- 停止ボタンのToolTipへ、Escは本アプリにフォーカスがある場合、F12はWindowsの場合に停止を要求することを記載しました。
-- Windowsの連続実行中は、自動操作以外のマウス移動を検出すると停止を要求することも説明します。非Windowsの案内にはF12とマウス移動停止を含めません。
-- Play画面の固定案内も、共通の停止方法と詳しい条件を確認する操作へ揃え、利用できる追加手段が必ずあるようには案内しません。文章はPlay領域の幅に合わせて折り返します。
-- PR #511の共通ToolTipへ案内を接続し、停止処理自体は変更しません。停止完了までの時間を保証する文面は使いません。
-
-## 2026-10-29 ヘッダーの補足説明（Issue #475 / PR #511）
-
-- Inspector・Bottom Panel・停止ボタンへ、400msのホバーまたはキーボードフォーカスで説明を表示します。説明窓はフォーカスを奪わず、退出・クリック・Esc・非表示・対象破棄で閉じます。説明窓の位置はTkが報告する仮想画面の範囲へ調整します。
-- 共通ToolTipは対象破棄時に表示タイマーも取り消します。停止ショートカットの説明はOSに合わせ、停止・実入力の処理自体は変更しません。
-- PR #511の設定画面ボタンへの案内追加は、この基盤変更から分離してIssue #475で継続します。今回の対象は共通部品とヘッダー3ボタンです。
-
 # Versions
 
 ## Unreleased
-
-- Issue #475 / PR #593: InspectorとBottom Panelの切替ボタンに、次に行う操作を「を表示」「を非表示」で表示します。保存済みの非表示状態から起動した場合もラベルを合わせ、クリック後はPanel配置・保存状態・ラベルを同期します。停止操作とPanel状態の保存形式は変更しません。
-
-- Issue #475 / PR #488: 既にmainにあるSafetyLogの直近4096件保持を維持し、メモリ上限超過後もファイルへ全監査イベントが残る回帰テストを追加します。メモリのみの保持順、返却一覧の分離、許可・拒否イベントと日本語のJSONL保存を検査します。保持上限・公開API・安全判定は変更しません。
-
-- Issue #513: Python環境と証明書信頼源の棚卸しツール`tools/trust_inventory.py`と、2026-10-28時点の確認結果`doc/Python証明書信頼棚卸し.md`を追加する。指定したPythonで確認スクリプトを実行し（`PYTHONDONTWRITEBYTECODE=1`、空の一時ディレクトリから起動）、pip・certifi・uv・sigstore・truststoreのversion、pip・certifiのimport元、`certifi.where()`の実ファイル、pip同梱certifi、証明書関連の環境変数、OpenSSLの既定パス、WindowsのROOT・CA・Disallowedストアと信頼設定を記録する。外部コマンドは実行しない。CA bundleとWindowsストアのうちeMudhra/emSignを含む証明書を、SHA-256とcommonName付きで列挙する。bundleは絶対パスの通常ファイル20MB以下だけを1回読み、読めない・空・不正なものは「未検査」として0件と区別する。リポジトリ内のpip・certifi等の利用・固定箇所と子プロセス出力・環境変数の値を、認証情報を伏せて出力する。終了コードは確認不能1・書込失敗2・検出の有無に関わらず確認できれば0。`tests.yml`のquality jobでCIのPython環境を確認しstep summaryへ出力する。パッケージの更新・設定変更はしない。インシデント対象の証明書の特定、PyInstaller配布物・CI実値・pip設定の確認は未実施。
-- Issue #459（起動失敗の限定診断）: 2048の専用ブラウザー起動がタイムアウトした場合、ゲームページGETに対してローカルサーバーが生成したHTTP 200応答とそれ以外の応答の件数をエラー文へ追加します。件数はサーバー起動ごとに分離し、再起動前の遅延応答は新しい起動の件数へ加算しません。同じサーバーの起動・終了を排他制御し、同時起動による管理漏れを防ぎます。生のURL・query・タイトル・本文は保存しません。応答生成はブラウザーでの受信や描画完了の証拠ではありません。起動PID・2048タイトル照合、25秒の期限、停止条件は変更せず、既存の起動失敗の根本原因解消とは扱いません。
-
-- Issue #418: 学習Modelを読み込まないmodel-less CI profileとして`tests/test_model_less_core_path.py`を追加する。`JsonObservationSource`が読むObservation fixture（`tests/fixtures/model_less/`）から、OCRテキストによる候補生成、`BaselineDecisionProvider`の判断、`DecisionVerifier`の検証、dry-run実行までを通す。テスト中は`socket`の`connect`・`connect_ex`・`sendto`・`create_connection`・`getaddrinfo`と`urlopen`を遮断し、通信の試行を記録して0件であることを確認する（他のHTTPクライアントや非同期I/Oは対象外）。同点の候補では`abstain`、認識確信度が低い候補では`observe_more`で保留し、どちらも実行履歴が増えないことを確認する。既存のPython unit test CIで実行され、Model artifactは不要。GPU状態は検査しない。#161 Realtime Routerは未実装（P5）のため、Router経由のBaselineへのfallbackは未対応。
-- Issue #92: `main`ブランチ保護の正本として`.github/rulesets/main-protection.json`（Repository Ruleset `Mainguard`）と方針文書`doc/main保護方針.md`を追加する。必須7 workflowの全27 jobをGitHub Actions（integration_id 15368）からの必須status checkとし、PR必須・未解決threadの禁止・削除とforce pushの禁止・Copilot自動レビューを設定する。承認数0、最新化の要求なし、bypassなしとし、その理由と緊急時の手順、merge queueを導入しない評価を記載する。`tools/ruleset_check.py`は必須workflowのjob名（matrixのインラインリストと`include:`を展開）とrulesetの必須checkを比べ、差があれば`tests.yml`と`finish_task.bat`で失敗する。名前を予測できない形（`name:`のないmatrix job、`uses:`、job単位の`if:`、matrix以外の式、引用符のない数値・真偽値、`exclude:`など）と、workflow間で重複するjob名はエラーにする。rulesetファイルが有効・既定ブランチ対象・bypassなし・全checkのintegration_idが15368・削除/force push/PR規則ありであることも検査する。必須workflowの一覧は`tools/pr_workflow_evidence.py`の`REQUIRED_WORKFLOW_PATHS`を共有する。マージゲート`tools/finish_pr_merge.py`は、workflow欄が空文字のGitHub App check `CodeRabbit`・`Sourcery review`が`skipping`の場合に限り記録して停止しない（無料枠切れでPR #512のマージが止まったため）。失敗・保留・取消、workflow欄の欠落、同名のActions job、任意checkしか報告されない場合は従来どおり停止する。GitHub上のrulesetの有効化はリポジトリ所有者の許可後に行う。
-- Issue #318 / PR #346追加レビュー: クラスの状態キーを「フィールド」へ統一し、Issue #19の指定手法・本番接続・検証・延期成果物の対照表をレビュー基準へ反映します。Core / Runtime / Real-playの証拠と未確認・明示対象外を区別し、安全検査とプライバシー同意の迂回を差し戻します。自動ゲート実装はIssue #508で追跡します。
-
-- Issue #318: JSON-like Comment Outsを本体コードの宣言コメント規約として明確化し、レビュー基準・コーディング規約を追加。命名、責務分離、処理単位コメント、エラー・安全性・性能・CI/E2E、仕様書と日本語説明の差し戻し条件を定義。コメントは記法だけでなく対象・条件・理由・結果まで説明し、説明不足のレビュー指摘には欠けた意味と修正案を示す基準を追加。C/C++のstructと公開フィールドを対象に含め、C++公開契約のヘッダーをコメントの正本とする配置規則を定義。Python/C++例の宣言名・戻り値・例外を示した契約を一致させ、参照するDraft v0.9仕様とテンプレートのリンクを同一の不変コミットに固定。
-
-- Issue #487: 初回観測猶予の単体テストで制御可能な時計を共有し、実際のsleepなしで猶予内・期限ちょうど・期限切れと実観測前の入力拒否を検証します。本番の安全期限は変更しません。固定版Ruffによる対象指定の整形コマンドと、このテストのformat/checkをローカル・CIへ追加します。
-
-- Issue #490: Session Journalの旧reader互換履歴を返す際、全記録の`deepcopy`後に再び辞書・配列を複製していた処理を一度の走査へ変更します。Decimalからfloatへの変換、返却値と内部cacheの分離、SQLiteのcommit契約は維持します。JSON以外の可変値は引き続き`deepcopy`で分離します。Providerの候補検証と性能予算は変更しません。
 
 - Issue #459（browser起動・後処理の部分対応）: 専用2048 browser profileの一時的な削除アクセス拒否を0.1秒間隔・最大10回で待ち、恒久的失敗と別のI/Oエラーは隠さず報告します。起動失敗が後処理例外に置き換わらないよう主例外を保持し、失敗した後処理の所有者も保持します。起動検出失敗にはPID・終了コード・直近のタイトル付きウィンドウ件数を記録し、他アプリのタイトルは記録しません。対象PID・タイトル照合と停止条件は変更しません。CIの起動タイムアウトの根本原因を特定した変更ではありません。
 

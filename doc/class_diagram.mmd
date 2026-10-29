@@ -751,9 +751,6 @@ classDiagram
     class ActionDecision {
         +to_dict()
     }
-    ValueError <|-- NoAllowedCandidatesError
-    class NoAllowedCandidatesError {
-    }
     class NoisyLanguageProvider {
         +__init__()
         +choose_context()
@@ -1255,22 +1252,15 @@ classDiagram
         +set_status()
         +set_latest_action()
         +select_workspace()
-        +_update_panel_toggle_labels()
         +toggle_inspector()
         +toggle_bottom_panel()
     }
-    ttk.Label <|-- StopHelpHint
-    class StopHelpHint {
-        +__init__()
-        +_fit_text_to_width()
-    }
     class ToolTip {
         +__init__()
-        +_schedule()
-        +show()
-        +_position_popup()
-        +hide()
-        +_on_destroy()
+        +_schedule_tip()
+        +_unschedule()
+        +_show_tip()
+        +_hide_tip()
     }
     class EmbeddingVector {
         +__post_init__()

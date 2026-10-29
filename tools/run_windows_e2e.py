@@ -160,17 +160,19 @@ def match_sample_control_to_image(
 
 
 # {
-#   責務: [read_completed: サンプルゲームが公開したJSONから完了状態の真偽値を読み取る]
-#   処理: [状態ファイルを読み、JSONオブジェクトのcompletedがbool型であることを検証する]
-#   引数: [path: 今回のサンプルゲームが書き出す状態JSONのパス]
-#   戻り値: [bool: completedがTrueなら完了、Falseなら未完了]
-#   エラー: [OSError: 状態ファイルを読めない場合, ValueError: JSON不正、オブジェクト以外、completedの欠落または非bool値の場合。未完了へ変換しない]
+#   責務: [read_completed: サンプルゲームの到達状態を読み取る]
+#   処理: [JSONを安全に解析しcompleted値を返す]
+#   引数: [path: 状態JSONのパス]
+#   戻り値: [bool: completed状態]
 # }
 def read_completed(path: Path) -> bool:
-    value = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(value, dict) or not isinstance(value.get("completed"), bool):
-        raise ValueError("sample completion state requires a boolean completed field")
-    return value["completed"]
+    if not path.exists():
+        return False
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return bool(value.get("completed")) if isinstance(value, dict) else False
 
 
 # {
