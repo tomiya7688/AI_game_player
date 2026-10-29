@@ -66,6 +66,15 @@ class LiveInputToolTipTests(unittest.TestCase):
                     )
                     application._refresh_execution_controls()
                     self.assertTrue(checkbox.instate(["disabled"]))
+                    checkbox.event_generate("<Enter>")
+                    root.after(450, root.quit)
+                    root.mainloop()
+                    self.assertIsNotNone(tooltip._tip_window)
+                    self.assertEqual(
+                        tooltip._tip_window.winfo_children()[0].cget("text"), expected
+                    )
+                    checkbox.event_generate("<Leave>")
+                    self.assertIsNone(tooltip._tip_window)
             finally:
                 application.session_controller = original_controller
                 application._refresh_execution_controls()
