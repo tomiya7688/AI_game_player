@@ -13971,7 +13971,9 @@
         "ai_game_player",
         "ai_game_player.loop_guard",
         "ai_game_player.models",
-        "ai_game_player.pipeline"
+        "ai_game_player.no_allowed_candidates_error",
+        "ai_game_player.pipeline",
+        "ai_game_player.run_control"
       ],
       "imports": [
         {
@@ -14064,6 +14066,22 @@
           "line": 8,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.no_allowed_candidates_error"
+          ],
+          "module": "ai_game_player.no_allowed_candidates_error",
+          "names": [
+            {
+              "alias": null,
+              "name": "NoAllowedCandidatesError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.pipeline"
           ],
           "module": "ai_game_player.pipeline",
@@ -14073,12 +14091,28 @@
               "name": "DecisionPipeline"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.e2e_runner",
       "path": "src/ai_game_player/e2e_runner.py",
       "source_location": {
-        "end_line": 158,
+        "end_line": 338,
         "start_line": 1
       },
       "symbols": [
@@ -14107,8 +14141,8 @@
           "signature": "(path: Path, event: dict[str, object]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 14,
-            "start_line": 11
+            "end_line": 16,
+            "start_line": 13
           }
         },
         {
@@ -14190,8 +14224,61 @@
           "signature": "(pipeline: DecisionPipeline, observation_probe: Callable[[], ScreenObservation], log_path: Path, *, milestone_probe: Callable[[], bool] | None = …, loop_guard: LoopGuard | None = …, max_steps: int = …, max_wall_seconds: float = …, minimum_duration_seconds: float = …, settle_seconds: float = …, step_delay_seconds: float = …, purpose: str = …) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 132,
-            "start_line": 17
+            "end_line": 272,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_milestone_after_empty_candidates",
+          "parameters": [
+            {
+              "annotation": "Exception",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            },
+            {
+              "annotation": "DecisionPipeline",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pipeline"
+            },
+            {
+              "annotation": "Callable[[], bool] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "milestone_probe"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "completed_steps"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "live_verified"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected_rearm_token"
+            }
+          ],
+          "qualified_name": "_milestone_after_empty_candidates",
+          "return_annotation": "bool",
+          "signature": "(error: Exception, pipeline: DecisionPipeline, milestone_probe: Callable[[], bool] | None, completed_steps: int, live_verified: bool, expected_rearm_token: int) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 312,
+            "start_line": 289
           }
         },
         {
@@ -14243,8 +14330,8 @@
           "signature": "(path: Path, success: bool, steps: int, started: float, stop_reason: str, live_verified: bool) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 145,
-            "start_line": 135
+            "end_line": 325,
+            "start_line": 315
           }
         },
         {
@@ -14266,8 +14353,8 @@
           "signature": "(exc: Exception) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 158,
-            "start_line": 148
+            "end_line": 338,
+            "start_line": 328
           }
         }
       ]
@@ -28223,6 +28310,40 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [],
+      "module": "ai_game_player.no_allowed_candidates_error",
+      "path": "src/ai_game_player/no_allowed_candidates_error.py",
+      "source_location": {
+        "end_line": 9,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "NoAllowedCandidatesError",
+          "parameters": [],
+          "qualified_name": "NoAllowedCandidatesError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 9,
+            "start_line": 8
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.decision_context",
@@ -33604,6 +33725,7 @@
         "ai_game_player",
         "ai_game_player.decision_context",
         "ai_game_player.models",
+        "ai_game_player.no_allowed_candidates_error",
         "ai_game_player.outcome"
       ],
       "imports": [
@@ -33693,7 +33815,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.no_allowed_candidates_error"
+          ],
+          "module": "ai_game_player.no_allowed_candidates_error",
+          "names": [
+            {
+              "alias": null,
+              "name": "NoAllowedCandidatesError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -33709,7 +33847,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 109,
+          "line": 120,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.outcome"
@@ -33726,7 +33864,7 @@
       "module": "ai_game_player.provider",
       "path": "src/ai_game_player/provider.py",
       "source_location": {
-        "end_line": 278,
+        "end_line": 289,
         "start_line": 1
       },
       "symbols": [
@@ -33746,8 +33884,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 70,
-            "start_line": 20
+            "end_line": 81,
+            "start_line": 21
           }
         },
         {
@@ -33781,8 +33919,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None = …)",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 21
+            "end_line": 25,
+            "start_line": 22
           }
         },
         {
@@ -33828,8 +33966,8 @@
           "signature": "(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = …, purpose: str = …, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 30,
-            "start_line": 26
+            "end_line": 31,
+            "start_line": 27
           }
         },
         {
@@ -33863,8 +34001,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 70,
-            "start_line": 52
+            "end_line": 81,
+            "start_line": 54
           }
         },
         {
@@ -33883,8 +34021,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 278,
-            "start_line": 89
+            "end_line": 289,
+            "start_line": 100
           }
         },
         {
@@ -33914,8 +34052,8 @@
           "signature": "(endpoint: str = …, timeout: int = …) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 91
+            "end_line": 112,
+            "start_line": 102
           }
         },
         {
@@ -33955,8 +34093,8 @@
           "signature": "(self, model: str, endpoint: str = …, timeout: int = …)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 103
+            "end_line": 117,
+            "start_line": 114
           }
         },
         {
@@ -33990,8 +34128,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None = …)",
           "source_location": {
             "column": 4,
-            "end_line": 134,
-            "start_line": 108
+            "end_line": 145,
+            "start_line": 119
           }
         },
         {
@@ -34037,8 +34175,8 @@
           "signature": "(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = …, purpose: str = …, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 159
+            "end_line": 191,
+            "start_line": 170
           }
         },
         {
@@ -34072,8 +34210,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 210,
-            "start_line": 202
+            "end_line": 221,
+            "start_line": 213
           }
         },
         {
@@ -34101,8 +34239,8 @@
           "signature": "(self, context: dict[str, object]) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 231
+            "end_line": 289,
+            "start_line": 242
           }
         }
       ]
@@ -60294,8 +60432,14 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.e2e_runner",
+        "ai_game_player.engine",
         "ai_game_player.loop_guard",
-        "ai_game_player.models"
+        "ai_game_player.models",
+        "ai_game_player.no_allowed_candidates_error",
+        "ai_game_player.provider",
+        "ai_game_player.run_control",
+        "tools",
+        "tools.run_windows_e2e"
       ],
       "imports": [
         {
@@ -60394,7 +60538,91 @@
           "names": [
             {
               "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
               "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.no_allowed_candidates_error"
+          ],
+          "module": "ai_game_player.no_allowed_candidates_error",
+          "names": [
+            {
+              "alias": null,
+              "name": "NoAllowedCandidatesError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.engine"
+          ],
+          "module": "ai_game_player.engine",
+          "names": [
+            {
+              "alias": null,
+              "name": "GamePlayerEngine"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.provider"
+          ],
+          "module": "ai_game_player.provider",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuleProvider"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "tools",
+            "tools.run_windows_e2e"
+          ],
+          "module": "tools.run_windows_e2e",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_completed"
             }
           ]
         }
@@ -60402,7 +60630,7 @@
       "module": "tests.test_e2e_runner",
       "path": "tests/test_e2e_runner.py",
       "source_location": {
-        "end_line": 144,
+        "end_line": 405,
         "start_line": 1
       },
       "symbols": [
@@ -60422,8 +60650,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 16,
-            "start_line": 11
+            "end_line": 21,
+            "start_line": 16
           }
         },
         {
@@ -60451,8 +60679,8 @@
           "signature": "(self, action_id: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 16,
-            "start_line": 12
+            "end_line": 21,
+            "start_line": 17
           }
         },
         {
@@ -60471,8 +60699,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 24,
-            "start_line": 19
+            "end_line": 29,
+            "start_line": 24
           }
         },
         {
@@ -60494,8 +60722,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 21,
-            "start_line": 20
+            "end_line": 26,
+            "start_line": 25
           }
         },
         {
@@ -60523,8 +60751,8 @@
           "signature": "(self, limit: int = …)",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 23
+            "end_line": 29,
+            "start_line": 28
           }
         },
         {
@@ -60543,8 +60771,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 29,
-            "start_line": 27
+            "end_line": 34,
+            "start_line": 32
           }
         },
         {
@@ -60566,8 +60794,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 29,
-            "start_line": 28
+            "end_line": 34,
+            "start_line": 33
           }
         },
         {
@@ -60586,8 +60814,37 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 33,
-            "start_line": 32
+            "end_line": 43,
+            "start_line": 37
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "ensure_running",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected_rearm_token"
+            }
+          ],
+          "qualified_name": "FakeController.ensure_running",
+          "return_annotation": null,
+          "signature": "(self, expected_rearm_token)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 41
           }
         },
         {
@@ -60606,8 +60863,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 59,
-            "start_line": 36
+            "end_line": 71,
+            "start_line": 46
           }
         },
         {
@@ -60629,8 +60886,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 41,
-            "start_line": 37
+            "end_line": 51,
+            "start_line": 47
           }
         },
         {
@@ -60658,8 +60915,8 @@
           "signature": "(self, purpose: str = …)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 43
+            "end_line": 66,
+            "start_line": 53
           }
         },
         {
@@ -60699,8 +60956,106 @@
           "signature": "(self, status: str, confidence: float, evidence: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 59,
-            "start_line": 58
+            "end_line": 71,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [
+            "FakePipeline"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CompletionBoundaryPipeline",
+          "parameters": [],
+          "qualified_name": "CompletionBoundaryPipeline",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 93,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "final_steps"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "mode"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "stop_on_failure"
+            }
+          ],
+          "qualified_name": "CompletionBoundaryPipeline.__init__",
+          "return_annotation": null,
+          "signature": "(self, error, final_steps = …, mode = …, stop_on_failure = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_and_execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "purpose"
+            }
+          ],
+          "qualified_name": "CompletionBoundaryPipeline.run_and_execute",
+          "return_annotation": null,
+          "signature": "(self, purpose = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 84
           }
         },
         {
@@ -60721,8 +61076,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 140,
-            "start_line": 62
+            "end_line": 401,
+            "start_line": 96
           }
         },
         {
@@ -60744,8 +61099,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 63
+            "end_line": 137,
+            "start_line": 97
           }
         },
         {
@@ -60760,8 +61115,337 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 72,
-            "start_line": 66
+            "end_line": 109,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_boundary_case",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pipeline"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "milestone_probe"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.run_boundary_case",
+          "return_annotation": null,
+          "signature": "(self, pipeline, milestone_probe = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rule_engine_preserves_empty_candidate_error_type",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_rule_engine_preserves_empty_candidate_error_type",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 164,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejected_existing_candidates_do_not_use_completion_recovery",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_rejected_existing_candidates_do_not_use_completion_recovery",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 178,
+            "start_line": 166
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_completion_during_next_candidate_read_ends_without_extra_input",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_completion_during_next_candidate_read_ends_without_extra_input",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 197,
+            "start_line": 180
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_completed_probe_does_not_replace_other_failures",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_completed_probe_does_not_replace_other_failures",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_empty_candidates_require_completion_live_input_and_running_controller",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_empty_candidates_require_completion_live_input_and_running_controller",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 237,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_milestone_recheck_error_invalid_value_and_stop_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_milestone_recheck_error_invalid_value_and_stop_fail_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 267,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "probe",
+          "parameters": [],
+          "qualified_name": "E2ERunnerTest.test_milestone_recheck_error_invalid_value_and_stop_fail_closed.probe",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 16,
+            "end_line": 254,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_callback_empty_candidate_errors_are_not_retried_as_completion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_callback_empty_candidate_errors_are_not_retried_as_completion",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 304,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "observe",
+          "parameters": [],
+          "qualified_name": "E2ERunnerTest.test_callback_empty_candidate_errors_are_not_retried_as_completion.observe",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 16,
+            "end_line": 280,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "milestone",
+          "parameters": [],
+          "qualified_name": "E2ERunnerTest.test_callback_empty_candidate_errors_are_not_retried_as_completion.milestone",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 16,
+            "end_line": 288,
+            "start_line": 282
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stop_and_restart_during_completion_probe_invalidates_result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_stop_and_restart_during_completion_probe_invalidates_result",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 321,
+            "start_line": 306
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "milestone",
+          "parameters": [],
+          "qualified_name": "E2ERunnerTest.test_stop_and_restart_during_completion_probe_invalidates_result.milestone",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 318,
+            "start_line": 312
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sample_completion_reader_requires_a_boolean_flag",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_sample_completion_reader_requires_a_boolean_flag",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 342,
+            "start_line": 323
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_sample_state_is_logged_as_probe_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "E2ERunnerTest.test_invalid_sample_state_is_logged_as_probe_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 356,
+            "start_line": 344
           }
         },
         {
@@ -60783,8 +61467,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 99
+            "end_line": 377,
+            "start_line": 358
           }
         },
         {
@@ -60799,8 +61483,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 103,
-            "start_line": 102
+            "end_line": 362,
+            "start_line": 361
           }
         },
         {
@@ -60822,8 +61506,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 140,
-            "start_line": 120
+            "end_line": 401,
+            "start_line": 379
           }
         },
         {
@@ -60838,8 +61522,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 124,
-            "start_line": 123
+            "end_line": 385,
+            "start_line": 382
           }
         }
       ]
@@ -109262,7 +109946,7 @@
       "module": "tools.run_windows_e2e",
       "path": "tools/run_windows_e2e.py",
       "source_location": {
-        "end_line": 278,
+        "end_line": 276,
         "start_line": 1
       },
       "symbols": [
@@ -109415,8 +110099,8 @@
           "signature": "(path: Path) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 175,
-            "start_line": 168
+            "end_line": 173,
+            "start_line": 169
           }
         },
         {
@@ -109450,8 +110134,8 @@
           "signature": "(title: str, state_file: Path, timeout_seconds: float = …) -> WindowInfo",
           "source_location": {
             "column": 0,
-            "end_line": 193,
-            "start_line": 185
+            "end_line": 191,
+            "start_line": 183
           }
         },
         {
@@ -109466,8 +110150,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 274,
-            "start_line": 202
+            "end_line": 272,
+            "start_line": 200
           }
         }
       ]

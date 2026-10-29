@@ -751,6 +751,9 @@ classDiagram
     class ActionDecision {
         +to_dict()
     }
+    ValueError <|-- NoAllowedCandidatesError
+    class NoAllowedCandidatesError {
+    }
     class NoisyLanguageProvider {
         +__init__()
         +choose_context()
