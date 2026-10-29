@@ -23,10 +23,6 @@ PR_HEAD_SHA_PATTERN = re.compile(
     rf"^(?:[0-9a-f]{{{GIT_SHA1_HEX_LENGTH}}}|[0-9a-f]{{{GIT_SHA256_HEX_LENGTH}}})$",
     re.IGNORECASE,
 )
-# Checks posted by optional AI review apps (not by a GitHub Actions workflow). They are
-# not required checks (doc/main保護方針.md) and report "skipping" when the free quota
-# is exhausted, so only that outcome is tolerated; a failure still blocks the merge.
-ADVISORY_REVIEW_CHECK_NAMES = frozenset({"CodeRabbit", "Sourcery review"})
 REVIEW_THREADS_QUERY = """query($owner: String!, $name: String!, $number: Int!, $cursor: String) {
   repository(owner: $owner, name: $name) {
     pullRequest(number: $number) {
@@ -382,8 +378,8 @@ def _wait_for_status_checks(pull_request: PullRequestReference) -> None:
 #   処理: [
 #     1: gh pr checksのJSON配列を取得し、空配列でないことを確かめる,
 #     2: 各要素のname・state・bucketが文字列であることを確認する,
-#     3: pass以外のbucketがあればcheck名と状態を示して停止する。ただし、workflowを持たない任意AIレビューapp（ADVISORY_REVIEW_CHECK_NAMES）のskippingだけは、無料枠切れ等として記録して停止しない,
-#     4: 停止条件に当たらなければ検証済み一覧を返す
+#     3: pass以外のbucketがあればcheck名と状態を示して停止する,
+#     4: 全checkがpassなら検証済み一覧を返す
 #   ],
 #   引数: [
 #     pull_request: status check一覧を取得するGitHub pull request識別情報
@@ -408,7 +404,6 @@ def _read_status_checks(pull_request: PullRequestReference) -> list[dict[str, ob
         raise MergeGateError("GitHub reported no status checks; PR merge was stopped because CI is unverified.")
 
     invalid_checks: list[str] = []
-    advisory_skipped: list[str] = []
     validated_checks: list[dict[str, object]] = []
     for check in response_data:
         if not isinstance(check, dict):
@@ -419,14 +414,8 @@ def _read_status_checks(pull_request: PullRequestReference) -> list[dict[str, ob
         if not isinstance(check_name, str) or not isinstance(check_state, str) or not isinstance(check_bucket, str):
             raise MergeGateError("Pull request status check entry omitted its name, state, or bucket.")
         validated_checks.append(check)
-        if check_bucket == "pass":
-            continue
-        # An Actions job could reuse an advisory name; only app checks that report an empty
-        # workflow qualify. A missing or non-string workflow field is not trusted.
-        if check_name in ADVISORY_REVIEW_CHECK_NAMES and check_bucket == "skipping" and check.get("workflow") == "":
-            advisory_skipped.append(f"{check_name}: {check_bucket} ({check_state})")
-            continue
-        invalid_checks.append(f"{check_name}: {check_bucket} ({check_state})")
+        if check_bucket != "pass":
+            invalid_checks.append(f"{check_name}: {check_bucket} ({check_state})")
 
     if invalid_checks:
         details = "; ".join(invalid_checks)
@@ -435,17 +424,6 @@ def _read_status_checks(pull_request: PullRequestReference) -> list[dict[str, ob
             f"block merge. Current non-passing checks: {details}"
         )
 
-    if advisory_skipped:
-        print(
-            "[INFO] Optional AI review checks did not run (for example, free quota exhausted): "
-            + "; ".join(advisory_skipped),
-            flush=True,
-        )
-        passed_count = len(validated_checks) - len(advisory_skipped)
-        if passed_count == 0:
-            raise MergeGateError("Only optional AI review checks were reported; CI is unverified and merge was stopped.")
-        print(f"[OK] All {passed_count} other reported status checks passed.", flush=True)
-        return validated_checks
     print(f"[OK] All {len(validated_checks)} reported status checks passed.", flush=True)
     return validated_checks
 

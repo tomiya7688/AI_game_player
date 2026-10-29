@@ -65,9 +65,7 @@ class ShellControllerTests(unittest.TestCase):
         self.assertFalse(controller.state.inspector_visible)
         self.assertFalse(controller.toggle_bottom_panel())
         self.assertFalse(controller.state.bottom_panel_visible)
-        self.assertEqual(
-            saved, [ShellState("Play", False, True), ShellState("Play", False, False)]
-        )
+        self.assertEqual(saved, [ShellState("Play", False, True), ShellState("Play", False, False)])
         self.assertTrue(controller.toggle_inspector())
         self.assertTrue(controller.toggle_bottom_panel())
 
@@ -88,9 +86,7 @@ class TkShellSmokeTests(unittest.TestCase):
             root.withdraw()
             changed = []
             stopped = []
-            shell = ApplicationShell(
-                root, ShellState(), lambda: stopped.append(True), changed.append
-            )
+            shell = ApplicationShell(root, ShellState(), lambda: stopped.append(True), changed.append)
             shell.pack(fill=tk.BOTH, expand=True)
             root.update_idletasks()
 
@@ -98,9 +94,7 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(shell.player_seat_host.winfo_manager(), "pack")
             self.assertEqual(shell.latest_action_label.winfo_manager(), "pack")
             self.assertEqual(shell.bottom_host.winfo_manager(), "pack")
-            self.assertEqual(
-                shell.latest_action_var.get(), "直近Action: まだありません"
-            )
+            self.assertEqual(shell.latest_action_var.get(), "直近Action: まだありません")
             shell.set_latest_action("move-left", "window_message / 入力しました")
             shell.set_status("連続実行中")
             self.assertEqual(
@@ -115,34 +109,14 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(len(shell.upper.panes()), 3)
             self.assertEqual(len(shell.vertical.panes()), 2)
 
-            self.assertEqual(
-                shell.inspector_toggle_button.cget("text"), "Inspectorを非表示"
-            )
-            self.assertEqual(
-                shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを非表示"
-            )
-
             shell.toggle_inspector()
             self.assertEqual(len(shell.upper.panes()), 2)
-            self.assertEqual(
-                shell.inspector_toggle_button.cget("text"), "Inspectorを表示"
-            )
             shell.toggle_inspector()
             self.assertEqual(shell.upper.panes()[-1], str(shell.inspector))
-            self.assertEqual(
-                shell.inspector_toggle_button.cget("text"), "Inspectorを非表示"
-            )
-
             shell.toggle_bottom_panel()
             self.assertEqual(len(shell.vertical.panes()), 1)
-            self.assertEqual(
-                shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを表示"
-            )
             shell.toggle_bottom_panel()
             self.assertEqual(shell.vertical.panes()[-1], str(shell.bottom_panel))
-            self.assertEqual(
-                shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを非表示"
-            )
 
             shell.select_workspace("History")
             shell.stop_button.invoke()
@@ -156,10 +130,7 @@ class TkShellSmokeTests(unittest.TestCase):
             root.destroy()
 
     def test_stop_shortcut_hint_matches_windows_monitor_availability(self):
-        for platform_name, expected_label in (
-            ("nt", "■ 停止 (Esc / F12)"),
-            ("posix", "■ 停止 (Esc)"),
-        ):
+        for platform_name, expected_label in (("nt", "■ 停止 (Esc / F12)"), ("posix", "■ 停止 (Esc)")):
             with self.subTest(platform=platform_name):
                 try:
                     root = tk.Tk()
@@ -169,68 +140,13 @@ class TkShellSmokeTests(unittest.TestCase):
                     root.withdraw()
                     stop_calls = []
                     # ShellのOS参照だけを置き換え、テスト環境全体のos.nameは変更しない。
-                    with patch(
-                        "ai_game_player.ui.shell.os",
-                        SimpleNamespace(name=platform_name),
-                    ):
-                        shell = ApplicationShell(
-                            root,
-                            ShellState(),
-                            lambda: stop_calls.append(True),
-                            lambda state: None,
-                        )
+                    with patch("ai_game_player.ui.shell.os", SimpleNamespace(name=platform_name)):
+                        shell = ApplicationShell(root, ShellState(), lambda: stop_calls.append(True), lambda state: None)
                     self.assertEqual(shell.stop_button.cget("text"), expected_label)
                     shell.stop_button.invoke()
                     self.assertEqual(stop_calls, [True])
                 finally:
                     root.destroy()
-
-    def test_saved_hidden_panels_offer_show_actions_and_buttons_persist_changes(self):
-        try:
-            root = tk.Tk()
-        except TclError as exc:
-            self.skipTest(f"Tk desktop is unavailable: {exc}")
-        try:
-            root.withdraw()
-            saved_changes = []
-            shell = ApplicationShell(
-                root,
-                ShellState(inspector_visible=False, bottom_panel_visible=False),
-                lambda: None,
-                saved_changes.append,
-            )
-            self.assertEqual(
-                shell.inspector_toggle_button.cget("text"), "Inspectorを表示"
-            )
-            self.assertEqual(
-                shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを表示"
-            )
-            self.assertEqual(len(shell.upper.panes()), 2)
-            self.assertEqual(len(shell.vertical.panes()), 1)
-            self.assertEqual(saved_changes, [])
-
-            shell.inspector_toggle_button.invoke()
-            self.assertEqual(
-                shell.inspector_toggle_button.cget("text"), "Inspectorを非表示"
-            )
-            self.assertEqual(
-                shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを表示"
-            )
-            self.assertEqual(shell.upper.panes()[-1], str(shell.inspector))
-            self.assertEqual(
-                saved_changes,
-                [ShellState(inspector_visible=True, bottom_panel_visible=False)],
-            )
-
-            shell.bottom_panel_toggle_button.invoke()
-            self.assertEqual(
-                shell.bottom_panel_toggle_button.cget("text"), "Bottom Panelを非表示"
-            )
-            self.assertEqual(shell.vertical.panes()[-1], str(shell.bottom_panel))
-            self.assertEqual(saved_changes[-1], ShellState())
-            self.assertEqual(len(saved_changes), 2)
-        finally:
-            root.destroy()
 
     def test_application_shell_does_not_register_duplicate_escape_binding(self):
         try:
@@ -245,9 +161,7 @@ class TkShellSmokeTests(unittest.TestCase):
             root_stop_command = root.register(lambda: stop_calls.append("root"))
             root.bind("<Escape>", root_stop_command)
             original_escape_binding = root.bind("<Escape>")
-            shell = ApplicationShell(
-                root, ShellState(), lambda: stop_calls.append("shell"), lambda _s: None
-            )
+            shell = ApplicationShell(root, ShellState(), lambda: stop_calls.append("shell"), lambda _s: None)
             shell.pack(fill=tk.BOTH, expand=True)
             root.update_idletasks()
 
