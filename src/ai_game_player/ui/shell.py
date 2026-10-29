@@ -9,6 +9,8 @@ from typing import Callable
 import tkinter as tk
 from tkinter import ttk
 
+from ai_game_player.ui.tooltip import ToolTip
+
 WORKSPACES = ("Play", "Vision", "Reasoning", "Evaluation", "History", "Mods")
 WORKSPACE_HINTS = {
     "Vision": "画面認識と候補の表示領域です。Workspaceの内容は個別機能から接続します。",
@@ -122,7 +124,7 @@ class ApplicationShell(ttk.Frame):
     #   責務: [__init__: ApplicationShellの共通ヘッダー、Workspace領域、Inspector、Bottom Panel、および停止ボタンを構築・配置する]
     #   処理: [
     #     1: ShellControllerとUI変数を初期化する
-    #     2: アプリケーションタイトルとPanel切替ボタンを配置し、停止ボタンにはEscとWindows上のF12停止監視の案内を表示する
+    #     2: アプリケーションタイトルとPanel切替ボタンを配置し、停止ボタンにはEscとWindows上のF12停止監視の案内を表示し、ヘッダー3ボタンにホバー・フォーカス時の補足説明を付ける
     #     3: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
     #     4: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceと保存済みPanel状態に対応する切替ラベルを表示する
     #   ]
@@ -161,9 +163,22 @@ class ApplicationShell(ttk.Frame):
             command, text="", command=self.toggle_bottom_panel
         )
         self.bottom_panel_toggle_button.pack(side=tk.RIGHT, padx=6)
+        ToolTip(
+            self.inspector_toggle_button, "右側のInspectorを表示または非表示にします"
+        )
+        ToolTip(
+            self.bottom_panel_toggle_button,
+            "下部のBottom Panelを表示または非表示にします",
+        )
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
+        stop_help_text = (
+            "停止ボタンまたはEscで停止を要求します。WindowsではF12でも停止できます"
+            if os.name == "nt"
+            else "停止ボタンまたはEscで停止を要求します"
+        )
+        ToolTip(self.stop_button, stop_help_text)
         self.status_var = tk.StringVar(master=self, value="待機中")
         ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)
