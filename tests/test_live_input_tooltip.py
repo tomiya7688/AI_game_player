@@ -19,7 +19,7 @@ class LiveInputToolTipTests(unittest.TestCase):
         tooltips = []
 
         def attach_tooltip(widget, text):
-            tooltip = ToolTip(widget, text, delay_ms=1)
+            tooltip = ToolTip(widget, text)
             tooltips.append(tooltip)
             return tooltip
 
@@ -40,13 +40,14 @@ class LiveInputToolTipTests(unittest.TestCase):
             tooltip = tooltips[0]
             checkbox = application.live_execution_toggle
             self.assertIs(tooltip.widget, checkbox)
+            self.assertEqual(tooltip.delay_ms, 400)
             expected = (
                 "実入力を許可してから操作を実行すると、アプリは選択したゲームウィンドウへ入力を送ります。"
                 "判断だけの実行では入力しません。連続実行中や処理の完了待ちは変更できません。"
             )
             for event in ("<Enter>", "<FocusIn>"):
                 checkbox.event_generate(event)
-                root.after(30, root.quit)
+                root.after(450, root.quit)
                 root.mainloop()
                 self.assertIsNotNone(tooltip._tip_window)
                 self.assertEqual(
