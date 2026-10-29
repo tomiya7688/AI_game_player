@@ -23,6 +23,9 @@ jobs:
       - run: python -m ruff check src tools tests
       - run: python tools/workflow_security_check.py .github/workflows
       - run: python tools/ruleset_check.py
+      - name: Python trust inventory (Issue #513, read-only)
+        shell: bash
+        run: python tools/trust_inventory.py --markdown "$GITHUB_STEP_SUMMARY"
       - name: Require bounded SafetyLog retention
         shell: bash
         run: |
