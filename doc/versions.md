@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Issue #475 / PR #593: InspectorとBottom Panelの切替ボタンに、次に行う操作を「を表示」「を非表示」で表示します。保存済みの非表示状態から起動した場合もラベルを合わせ、クリック後はPanel配置・保存状態・ラベルを同期します。停止操作とPanel状態の保存形式は変更しません。
+
 - Issue #475 / PR #488: 既にmainにあるSafetyLogの直近4096件保持を維持し、メモリ上限超過後もファイルへ全監査イベントが残る回帰テストを追加します。メモリのみの保持順、返却一覧の分離、許可・拒否イベントと日本語のJSONL保存を検査します。保持上限・公開API・安全判定は変更しません。
 
 - Issue #513: Python環境と証明書信頼源の棚卸しツール`tools/trust_inventory.py`と、2026-10-28時点の確認結果`doc/Python証明書信頼棚卸し.md`を追加する。指定したPythonで確認スクリプトを実行し（`PYTHONDONTWRITEBYTECODE=1`、空の一時ディレクトリから起動）、pip・certifi・uv・sigstore・truststoreのversion、pip・certifiのimport元、`certifi.where()`の実ファイル、pip同梱certifi、証明書関連の環境変数、OpenSSLの既定パス、WindowsのROOT・CA・Disallowedストアと信頼設定を記録する。外部コマンドは実行しない。CA bundleとWindowsストアのうちeMudhra/emSignを含む証明書を、SHA-256とcommonName付きで列挙する。bundleは絶対パスの通常ファイル20MB以下だけを1回読み、読めない・空・不正なものは「未検査」として0件と区別する。リポジトリ内のpip・certifi等の利用・固定箇所と子プロセス出力・環境変数の値を、認証情報を伏せて出力する。終了コードは確認不能1・書込失敗2・検出の有無に関わらず確認できれば0。`tests.yml`のquality jobでCIのPython環境を確認しstep summaryへ出力する。パッケージの更新・設定変更はしない。インシデント対象の証明書の特定、PyInstaller配布物・CI実値・pip設定の確認は未実施。
