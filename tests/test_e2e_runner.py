@@ -9,6 +9,8 @@ from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.no_allowed_candidates_error import NoAllowedCandidatesError
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.provider import RuleProvider
+from ai_game_player.run_control import ExecutionCancelled
+from tools.run_windows_e2e import read_completed
 
 
 class FakeResult:
@@ -34,6 +36,11 @@ class FakeEngine:
 
 class FakeController:
     is_running = True
+    rearm_token = 0
+
+    def ensure_running(self, expected_rearm_token):
+        if not self.is_running or self.rearm_token != expected_rearm_token:
+            raise ExecutionCancelled("controller stopped or restarted")
 
 
 class FakePipeline:
@@ -258,6 +265,95 @@ class E2ERunnerTest(unittest.TestCase):
                     self.assertEqual(
                         report["stop_reason"], "recognition_or_candidate_failure"
                     )
+
+    def test_callback_empty_candidate_errors_are_not_retried_as_completion(self):
+        for failing_callback in ("observation", "milestone"):
+            with self.subTest(callback=failing_callback):
+                pipeline = FakePipeline()
+                probe_calls = []
+
+                def observe():
+                    if pipeline.steps == 2 and failing_callback == "observation":
+                        raise NoAllowedCandidatesError("observation callback failed")
+                    return ScreenObservation(
+                        "sample", 100, 80, features={"signature": str(pipeline.steps)}
+                    )
+
+                def milestone():
+                    probe_calls.append(pipeline.steps)
+                    if pipeline.steps == 1:
+                        return False
+                    if failing_callback == "milestone" and len(probe_calls) == 2:
+                        raise NoAllowedCandidatesError("milestone callback failed")
+                    return True
+
+                with tempfile.TemporaryDirectory() as directory:
+                    report = run_continuous_e2e(
+                        pipeline,
+                        observe,
+                        Path(directory) / "events.jsonl",
+                        milestone_probe=milestone,
+                        max_steps=4,
+                        settle_seconds=0,
+                    )
+                self.assertFalse(report["success"])
+                self.assertEqual(report["steps"], 1)
+                self.assertEqual(pipeline.steps, 2)
+                self.assertEqual(
+                    probe_calls, [1] if failing_callback == "observation" else [1, 2]
+                )
+
+    def test_stop_and_restart_during_completion_probe_invalidates_result(self):
+        pipeline = CompletionBoundaryPipeline(
+            NoAllowedCandidatesError("許可された操作候補がありません")
+        )
+        pipeline.controller.rearm_token = 0
+
+        def milestone():
+            if not pipeline.completed:
+                return False
+            pipeline.controller.is_running = False
+            pipeline.controller.rearm_token += 1
+            pipeline.controller.is_running = True
+            return True
+
+        report, _ = self.run_boundary_case(pipeline, milestone)
+        self.assertFalse(report["success"])
+
+    def test_sample_completion_reader_requires_a_boolean_flag(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "sample.json"
+            for completed in (False, True):
+                path.write_text(json.dumps({"completed": completed}), encoding="utf-8")
+                self.assertIs(read_completed(path), completed)
+            for invalid in (
+                "{",
+                "[]",
+                "{}",
+                '{"completed": "false"}',
+                '{"completed": 1}',
+            ):
+                with self.subTest(invalid=invalid):
+                    path.write_text(invalid, encoding="utf-8")
+                    with self.assertRaises(ValueError):
+                        read_completed(path)
+            path.unlink()
+            with self.assertRaises(OSError):
+                read_completed(path)
+
+    def test_invalid_sample_state_is_logged_as_probe_failure(self):
+        pipeline = CompletionBoundaryPipeline(
+            NoAllowedCandidatesError("許可された操作候補がありません")
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "sample.json"
+            path.write_text("{", encoding="utf-8")
+            report, events = self.run_boundary_case(
+                pipeline, lambda: read_completed(path) if pipeline.completed else False
+            )
+        self.assertFalse(report["success"])
+        self.assertEqual(report["stop_reason"], "milestone_probe_failure")
+        self.assertIn("preceding_error", events[-2])
 
     def test_repeated_observation_stops_with_classified_reason(self):
         pipeline = FakePipeline()

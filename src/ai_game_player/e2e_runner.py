@@ -7,6 +7,7 @@ from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.models import ScreenObservation
 from ai_game_player.no_allowed_candidates_error import NoAllowedCandidatesError
 from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.run_control import ExecutionCancelled
 
 
 def append_e2e_event(path: Path, event: dict[str, object]) -> None:
@@ -19,7 +20,7 @@ def append_e2e_event(path: Path, event: dict[str, object]) -> None:
 #   責務: [run_continuous_e2e: 操作・観測・完了確認を繰り返し、停止理由と実入力の有無をJSONLへ記録する]
 #   処理: [
 #     1: 各操作後の画面変化と到達条件を記録し、停止・時間・回数・同一画面の上限で終了する
-#     2: 次の判断で許可候補が空になった場合だけ、既存の実入力と継続状態を条件に完了を再確認する
+#     2: 判断呼出しで許可候補が空になった場合だけ、既存の実入力と実行世代の継続を条件に完了を再確認する
 #     3: 再確認が厳密なTrueなら追加入力せず成功を記録する。別種の例外や確認失敗は失敗として残す
 #   ]
 #   引数: [
@@ -98,8 +99,58 @@ def run_continuous_e2e(
             )
 
         step_started = time.monotonic()
+        expected_rearm_token = pipeline.controller.rearm_token
         try:
-            result = pipeline.run_and_execute(purpose=purpose)
+            try:
+                result = pipeline.run_and_execute(purpose=purpose)
+            except NoAllowedCandidatesError as exc:
+                try:
+                    milestone_after_empty = _milestone_after_empty_candidates(
+                        exc,
+                        pipeline,
+                        milestone_probe,
+                        completed_steps,
+                        live_verified,
+                        expected_rearm_token,
+                    )
+                except Exception as probe_error:
+                    append_e2e_event(
+                        log_path,
+                        {
+                            "event": "error",
+                            "step": step_index,
+                            "error": str(probe_error),
+                            "preceding_error": str(exc),
+                            "category": "milestone_probe_failure",
+                        },
+                    )
+                    return _finish(
+                        log_path,
+                        False,
+                        completed_steps,
+                        started,
+                        "milestone_probe_failure",
+                        live_verified,
+                    )
+                if milestone_after_empty:
+                    append_e2e_event(
+                        log_path,
+                        {
+                            "event": "milestone",
+                            "step": step_index,
+                            "completed_steps": completed_steps,
+                            "trigger": "no_allowed_candidates",
+                        },
+                    )
+                    return _finish(
+                        log_path,
+                        True,
+                        completed_steps,
+                        started,
+                        "milestone_reached",
+                        live_verified,
+                    )
+                raise
             live_verified = live_verified or bool(
                 result.executed and result.mode == "live"
             )
@@ -202,47 +253,6 @@ def run_continuous_e2e(
             if step_delay_seconds:
                 time.sleep(step_delay_seconds)
         except Exception as exc:
-            try:
-                milestone_after_empty = _milestone_after_empty_candidates(
-                    exc, pipeline, milestone_probe, completed_steps, live_verified
-                )
-            except Exception as probe_error:
-                append_e2e_event(
-                    log_path,
-                    {
-                        "event": "error",
-                        "step": step_index,
-                        "error": str(probe_error),
-                        "preceding_error": str(exc),
-                        "category": "milestone_probe_failure",
-                    },
-                )
-                return _finish(
-                    log_path,
-                    False,
-                    completed_steps,
-                    started,
-                    "milestone_probe_failure",
-                    live_verified,
-                )
-            if milestone_after_empty:
-                append_e2e_event(
-                    log_path,
-                    {
-                        "event": "milestone",
-                        "step": step_index,
-                        "completed_steps": completed_steps,
-                        "trigger": "no_allowed_candidates",
-                    },
-                )
-                return _finish(
-                    log_path,
-                    True,
-                    completed_steps,
-                    started,
-                    "milestone_reached",
-                    live_verified,
-                )
             category = _classify_error(exc)
             append_e2e_event(
                 log_path,
@@ -264,16 +274,17 @@ def run_continuous_e2e(
 
 # {
 #   責務: [_milestone_after_empty_candidates: 入力前の候補なし例外に限り、ゲームが完了したかを再確認する]
-#   処理: [1: 既存の実入力・完了済み操作・実行継続を確認する, 2: 到達条件の厳密なTrueと確認後の実行継続を要求する]
+#   処理: [1: 既存の実入力・完了済み操作・実行世代を確認する, 2: 到達条件の厳密なTrueと確認後の同一実行世代を要求する]
 #   引数: [
 #     error: 今回の判断・入力経路で発生した例外。候補なし以外なら再確認しない
 #     pipeline: 停止要求を確認する操作経路。入力操作や状態変更は行わない
 #     milestone_probe: ゲームの到達条件を返す関数。未指定なら再確認しない
 #     completed_steps: 例外より前に観測と記録まで終えた操作数
 #     live_verified: 先行する操作で実入力の実行結果を確認済みか
+#     expected_rearm_token: 今回の判断開始前に取得した実行世代。確認中の停止と再開を検出する
 #   ]
 #   戻り値: [bool: 候補なしの後に到達条件が成立し、停止要求もない場合だけTrue]
-#   エラー: [Exception: 到達条件の読取失敗は呼出元へ伝え、成功扱いを防ぐ]
+#   エラー: [ExecutionCancelled: 停止・旧世代はFalseへ変換する, その他のException: 到達条件の読取失敗は呼出元へ伝え、成功扱いを防ぐ]
 # }
 def _milestone_after_empty_candidates(
     error: Exception,
@@ -281,6 +292,7 @@ def _milestone_after_empty_candidates(
     milestone_probe: Callable[[], bool] | None,
     completed_steps: int,
     live_verified: bool,
+    expected_rearm_token: int,
 ) -> bool:
     if (
         not isinstance(error, NoAllowedCandidatesError)
@@ -290,7 +302,14 @@ def _milestone_after_empty_candidates(
         or milestone_probe is None
     ):
         return False
-    return milestone_probe() is True and pipeline.controller.is_running
+    try:
+        pipeline.controller.ensure_running(expected_rearm_token)
+        if milestone_probe() is not True:
+            return False
+        pipeline.controller.ensure_running(expected_rearm_token)
+    except ExecutionCancelled:
+        return False
+    return True
 
 
 def _finish(path: Path, success: bool, steps: int, started: float, stop_reason: str, live_verified: bool) -> dict[str, object]:
