@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:capability-manifest:1",
+  "title": "AI Game Player capability manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "contract_version",
+    "capabilities",
+    "config_namespace"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "manifest_id": {"$ref": "#/$defs/identifier"},
+    "contract_version": {"type": "integer", "minimum": 1},
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "required_dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "optional_dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "lifecycle": {
+      "enum": ["experimental", "beta", "stable", "deprecated"]
+    },
+    "fallback_manifest_id": {
+      "anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+    },
+    "degraded_mode": {
+      "anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+    },
+    "config_namespace": {"$ref": "#/$defs/identifier"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["optional_dependencies"],
+        "properties": {"optional_dependencies": {"minItems": 1}}
+      },
+      "then": {"required": ["degraded_mode"]}
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    }
+  }
+}

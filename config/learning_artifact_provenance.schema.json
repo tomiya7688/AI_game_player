@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:learning-artifact-provenance:1",
+  "title": "AI Game Player Learning Artifact Provenance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "artifact_id", "model_id", "base_model_version", "artifact_version", "artifact_type",
+    "source_dataset_id", "source_dataset_schema_id", "source_dataset_version", "source_dataset_digest",
+    "trainer_adapter_id", "trainer_adapter_version"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "artifact_id": {"$ref": "#/$defs/identifier"},
+    "model_id": {"$ref": "#/$defs/identifier"},
+    "base_model_version": {"$ref": "#/$defs/version"},
+    "artifact_version": {"$ref": "#/$defs/version"},
+    "artifact_type": {"$ref": "#/$defs/identifier"},
+    "source_dataset_id": {"$ref": "#/$defs/identifier"},
+    "source_dataset_schema_id": {"$ref": "#/$defs/identifier"},
+    "source_dataset_version": {"$ref": "#/$defs/version"},
+    "source_dataset_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "trainer_adapter_id": {"$ref": "#/$defs/identifier"},
+    "trainer_adapter_version": {"$ref": "#/$defs/version"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}([-+][A-Za-z0-9.-]+)?$"}
+  }
+}

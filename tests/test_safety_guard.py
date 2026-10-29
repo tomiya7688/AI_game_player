@@ -1,20 +1,70 @@
+import ctypes
 import json
+import os
 import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+import ai_game_player.safety_guard as safety_guard_module
 
 from ai_game_player.action_executor import ActionExecutor
 from ai_game_player.models import ActionCandidate
 from ai_game_player.safety_guard import (
     EmergencyStop,
     EmergencyStopMonitor,
+    NativeSafetyValidator,
     SafetyGuard,
     SafetyGuardConfig,
     SafetyLog,
     TargetState,
+    WindowsTargetProbe,
 )
 
+
+class FakeWindowUser32:
+    def __init__(self, *, valid=True, foreground_handle=100, visible=True):
+        self.valid = valid
+        self.foreground_handle = foreground_handle
+        self.visible = visible
+        self.calls = []
+
+    def IsWindow(self, _handle):
+        self.calls.append("IsWindow")
+        return self.valid
+
+    def GetWindowThreadProcessId(self, _handle, pid_pointer):
+        self.calls.append("GetWindowThreadProcessId")
+        ctypes.cast(pid_pointer, ctypes.POINTER(ctypes.c_ulong)).contents.value = 4321
+        return 7
+
+    def GetWindowRect(self, _handle, rect_pointer):
+        self.calls.append("GetWindowRect")
+        rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
+        rect[:] = (100, 200, 900, 800)
+        return 1
+
+    def GetClientRect(self, _handle, rect_pointer):
+        self.calls.append("GetClientRect")
+        rect = ctypes.cast(rect_pointer, ctypes.POINTER(ctypes.c_long * 4)).contents
+        rect[:] = (0, 0, 784, 570)
+        return 1
+
+    def ClientToScreen(self, _handle, point_pointer):
+        self.calls.append("ClientToScreen")
+        point = ctypes.cast(point_pointer, ctypes.POINTER(ctypes.c_long * 2)).contents
+        point[:] = (108, 230)
+        return 1
+
+    def IsWindowVisible(self, _handle):
+        self.calls.append("IsWindowVisible")
+        return self.visible
+
+    def GetForegroundWindow(self):
+        self.calls.append("GetForegroundWindow")
+        return self.foreground_handle
 
 class FakeClock:
     def __init__(self) -> None:
@@ -81,6 +131,159 @@ class FakeExecutor:
 
 
 class SafetyGuardTest(unittest.TestCase):
+    def test_native_safety_validator_maps_arrow_labels_to_windows_virtual_keys(self):
+        expected_codes = {
+            "LEFT": 0x25,
+            "UP": 0x26,
+            "RIGHT": 0x27,
+            "DOWN": 0x28,
+        }
+
+        for label, expected_code in expected_codes.items():
+            with self.subTest(label=label):
+                self.assertEqual(NativeSafetyValidator._key_descriptor(label), (expected_code, 0))
+
+    @unittest.skipUnless(os.environ.get("KADOKA_NATIVE_RUNTIME"), "requires the native Safety CI library")
+    def test_native_safety_validator_loads_built_library_and_validates_actions(self):
+        validator = NativeSafetyValidator.try_load()
+        self.assertIsNotNone(validator)
+
+        allowed, allowed_reason = validator.validate(
+            ActionCandidate("native-safe-click", "click", "Play", 20, 30),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+        denied, denied_reason = validator.validate(
+            ActionCandidate("native-denied-key", "key", "ALT+F4"),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+        arrow_allowed, arrow_reason = validator.validate(
+            ActionCandidate("native-arrow-key", "key", "UP"),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+
+        self.assertEqual((allowed, allowed_reason), (True, 0))
+        self.assertEqual((denied, denied_reason), (False, 5))
+        self.assertEqual((arrow_allowed, arrow_reason), (True, 0))
+
+    def test_native_safety_validator_loads_and_calls_the_ctypes_abi_contract(self):
+        class FakeNativeFunction:
+            def __init__(self):
+                self.argtypes = None
+                self.restype = None
+                self.action = None
+
+            def __call__(self, action_pointer, result_pointer):
+                action = ctypes.cast(
+                    action_pointer,
+                    ctypes.POINTER(NativeSafetyValidator._Action),
+                ).contents
+                result = ctypes.cast(
+                    result_pointer,
+                    ctypes.POINTER(NativeSafetyValidator._Result),
+                ).contents
+                self.action = {
+                    name: getattr(action, name)
+                    for name, _field_type in NativeSafetyValidator._Action._fields_
+                }
+                result.allowed = 1
+                result.reason_code = 17
+                return 0
+
+        fake_function = FakeNativeFunction()
+        library = SimpleNamespace(kadoka_safety_validate_action=fake_function)
+        configured_path = str(Path(__file__).resolve())
+
+        with (
+            patch.dict(safety_guard_module.os.environ, {"KADOKA_NATIVE_RUNTIME": configured_path}),
+            patch.object(safety_guard_module.ctypes, "CDLL", return_value=library) as load_library,
+        ):
+            validator = NativeSafetyValidator.try_load()
+
+        self.assertIsNotNone(validator)
+        load_library.assert_called_once_with(configured_path)
+        self.assertEqual(
+            fake_function.argtypes,
+            [
+                ctypes.POINTER(NativeSafetyValidator._Action),
+                ctypes.POINTER(NativeSafetyValidator._Result),
+            ],
+        )
+        self.assertIs(fake_function.restype, ctypes.c_int32)
+
+        allowed, reason = validator.validate(
+            ActionCandidate("native-check", "key", "CTRL+F4", hold_seconds=0.25),
+            width=640,
+            height=480,
+            max_hold_seconds=0.5,
+        )
+
+        self.assertEqual((allowed, reason), (True, 17))
+        self.assertEqual(
+            fake_function.action,
+            {
+                "struct_size": ctypes.sizeof(NativeSafetyValidator._Action),
+                "kind": 3,
+                "x": 0,
+                "y": 0,
+                "viewport_width": 640,
+                "viewport_height": 480,
+                "hold_seconds": 0.25,
+                "max_hold_seconds": 0.5,
+                "key_code": 0x73,
+                "modifiers": 1,
+            },
+        )
+
+    def test_windows_target_probe_reads_pid_visibility_and_client_geometry_without_os_calls(self):
+        user32 = FakeWindowUser32()
+
+        with (
+            patch.object(safety_guard_module.os, "name", "nt"),
+            patch.object(safety_guard_module.ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+        ):
+            target = WindowsTargetProbe().inspect(100)
+
+        self.assertTrue(target.valid)
+        self.assertEqual(target.pid, 4321)
+        self.assertTrue(target.visible)
+        self.assertTrue(target.foreground)
+        self.assertEqual((target.window_width, target.window_height), (800, 600))
+        self.assertEqual((target.client_offset_x, target.client_offset_y), (8, 30))
+        self.assertEqual((target.client_width, target.client_height), (784, 570))
+        self.assertNotIn("SetCursorPos", user32.calls)
+        self.assertNotIn("mouse_event", user32.calls)
+        self.assertNotIn("PostMessageW", user32.calls)
+
+    def test_windows_target_probe_reports_hidden_background_window(self):
+        user32 = FakeWindowUser32(visible=False, foreground_handle=101)
+
+        with (
+            patch.object(safety_guard_module.os, "name", "nt"),
+            patch.object(safety_guard_module.ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+        ):
+            target = WindowsTargetProbe().inspect(100)
+
+        self.assertTrue(target.valid)
+        self.assertFalse(target.visible)
+        self.assertFalse(target.foreground)
+    def test_windows_target_probe_stops_after_invalid_handle(self):
+        user32 = FakeWindowUser32(valid=False)
+
+        with (
+            patch.object(safety_guard_module.os, "name", "nt"),
+            patch.object(safety_guard_module.ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+        ):
+            target = WindowsTargetProbe().inspect(100)
+
+        self.assertFalse(target.valid)
+        self.assertEqual(target.pid, 0)
+        self.assertEqual(user32.calls, ["IsWindow"])
     def make_guard(self, **config_overrides):
         clock = FakeClock()
         config = SafetyGuardConfig(**config_overrides)

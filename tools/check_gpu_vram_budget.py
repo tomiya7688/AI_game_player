@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -63,8 +64,8 @@ def run_with_vram_budget(
         raise ValueError("command must not be empty")
     if limit_mib <= 0:
         raise ValueError("limit_mib must be positive")
-    if sample_seconds <= 0:
-        raise ValueError("sample_seconds must be positive")
+    if not math.isfinite(sample_seconds) or sample_seconds <= 0:
+        raise ValueError("sample_seconds must be finite and positive")
 
     baseline = query_total_vram_used_mib()
     measurement_available = baseline is not None
@@ -73,15 +74,27 @@ def run_with_vram_budget(
     started = time.monotonic()
     process = subprocess.Popen(list(command))
 
-    while process.poll() is None:
-        if measurement_available:
-            current = query_total_vram_used_mib()
-            if current is None:
-                measurement_available = False
-                peak_total = None
-            else:
-                peak_total = max(int(peak_total), current)
-        time.sleep(sample_seconds)
+    try:
+        while process.poll() is None:
+            if measurement_available:
+                current = query_total_vram_used_mib()
+                if current is None:
+                    measurement_available = False
+                    peak_total = None
+                else:
+                    peak_total = max(int(peak_total), current)
+            time.sleep(sample_seconds)
+
+    except BaseException:
+        # このツールが起動した子だけを回収し、計測中断の例外は呼出し元へ返します。
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=5)
+        raise
 
     exit_code = int(process.returncode or 0)
     if measurement_available:

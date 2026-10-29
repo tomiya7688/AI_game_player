@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.util
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +34,25 @@ class VramBudgetTest(unittest.TestCase):
         self.assertEqual(MODULE.parse_memory_used_mib("1024\n2048\n"), [1024, 2048])
         self.assertIsNone(MODULE.parse_memory_used_mib("N/A\n"))
 
+    @patch.object(MODULE.subprocess, "Popen")
+    def test_nonfinite_interval_is_rejected_before_child_launch(self, popen):
+        for interval in (float("nan"), float("inf"), -1.0, 0.0):
+            with self.subTest(interval=interval), self.assertRaises(ValueError):
+                MODULE.run_with_vram_budget(["fake-command"], sample_seconds=interval)
+        popen.assert_not_called()
+
+    @patch.object(MODULE.time, "sleep", side_effect=KeyboardInterrupt)
+    @patch.object(MODULE.subprocess, "Popen")
+    @patch.object(MODULE, "query_total_vram_used_mib", return_value=None)
+    def test_interrupted_sampling_reaps_the_owned_child(self, query, popen, sleep):
+        child = Mock()
+        child.poll.return_value = None
+        popen.return_value = child
+        with self.assertRaises(KeyboardInterrupt):
+            MODULE.run_with_vram_budget(["fake-command"])
+        child.terminate.assert_called_once()
+        child.wait.assert_called_once_with(timeout=5)
+
     @patch.object(MODULE.time, "sleep", lambda _: None)
     @patch.object(MODULE.subprocess, "Popen")
     @patch.object(MODULE, "query_total_vram_used_mib")
@@ -54,7 +73,9 @@ class VramBudgetTest(unittest.TestCase):
     @patch.object(MODULE.time, "sleep", lambda _: None)
     @patch.object(MODULE.subprocess, "Popen")
     @patch.object(MODULE, "query_total_vram_used_mib")
-    def test_measurement_unavailable_does_not_mask_functional_success(self, query, popen):
+    def test_measurement_unavailable_does_not_mask_functional_success(
+        self, query, popen
+    ):
         query.return_value = None
         popen.return_value = FakeProcess([0])
 

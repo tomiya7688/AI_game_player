@@ -6,9 +6,50 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 ocr = ["Pillow", "pytesseract"]
+dev = ["ruff==0.15.22", "mypy==2.3.1", "coverage==7.16.1", "jsonschema==4.26.0"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
 [project.scripts]
 ai-game-player = "ai_game_player.app:main"
+
+[tool.ruff]
+target-version = "py310"
+extend-exclude = ["build", "generated", "vendor", ".codex", ".codex-remote-attachments"]
+
+# Existing E701/E702 one-line style findings are tolerated during gradual cleanup.
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E701", "E702"]
+
+[tool.mypy]
+python_version = "3.10"
+files = [
+  "src/ai_game_player/models.py",
+  "src/ai_game_player/safety_guard.py",
+  "src/ai_game_player/action_executor.py",
+  "src/ai_game_player/windows_input.py",
+  "src/ai_game_player/candidate_merger.py",
+  "src/ai_game_player/pipeline.py",
+  "src/ai_game_player/runtime/native.py",
+]
+strict = true
+# Gradual typing: retain dependency inference but report errors only in the
+# explicitly selected roots above (Issue #86).
+follow_imports = "silent"
+
+[tool.coverage.run]
+branch = true
+source = ["src/ai_game_player"]
+data_file = "build/coverage/.coverage"
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 70.0
+
+[tool.coverage.xml]
+output = "build/coverage/coverage.xml"
+
+[tool.coverage.html]
+directory = "build/coverage/html"

@@ -22,20 +22,26 @@ jobs:
             multiplier: "1.5"
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: "3.14"
       - name: Check CPU hot-path performance budgets
         env:
           PYTHONPATH: src
         run: python tools/performance_check.py --budget-multiplier ${{ matrix.multiplier }}
-      - name: Run deterministic bad-AI robustness and non-LLM core performance
+      - name: Check noisy-provider synthetic performance and safety budgets
+        if: always() && steps.setup-python.outcome == 'success'
         env:
           PYTHONPATH: src
-        run: python tools/noisy_provider_ci.py --budget-multiplier ${{ matrix.multiplier }}
+        run: python tools/run_noisy_provider_benchmark.py --budget-multiplier ${{ matrix.multiplier }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-report-${{ matrix.os }}
-          path: build/performance
+          path: |
+            build/performance/report.json
+            build/noisy-provider/report.json
           if-no-files-found: error

@@ -201,7 +201,7 @@ Kadoka must also be tested against a Provider that is intentionally bad at reaso
 - no ML runtime or network dependency,
 - pseudo-random selection only from allowed Action IDs,
 - irrelevant word-salad reasons,
-- low-confidence unstable semantic outcome assessments,
+- low-confidence unknown semantic outcome assessments,
 - reproducible seed,
 - explicit Provider timing instrumentation.
 
@@ -209,7 +209,7 @@ This fixture has two purposes.
 
 First, robustness: Core, grounding, Safety, persistence, and loop control must not assume that a model gives sensible reasons or selects high-utility actions.
 
-Second, non-LLM performance: because the Provider is nearly free, CI records total step time and subtracts measured Provider CPU time to approximate Kadoka's non-LLM Core overhead.
+Second, non-LLM performance: because the Provider is nearly free, CI records total step time and subtracts measured Provider call elapsed time to approximate Kadoka's non-LLM Core overhead.
 
 A separate negative-test Provider intentionally returns an out-of-set Action ID. The engine must reject it before execution.
 

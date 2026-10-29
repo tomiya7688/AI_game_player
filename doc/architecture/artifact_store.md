@@ -1,0 +1,7 @@
+# Content-addressed Artifact Store
+
+`ArtifactStore` defines the backend-neutral API; `FileSystemArtifactStore` is the local immutable implementation. Each payload is addressed by its SHA-256 digest and stored separately from Experience/Event JSON. Publication writes payload and metadata into a same-filesystem staging directory, flushes both files, then atomically renames the complete directory into its digest path and syncs the parent directory where supported. Concurrent duplicate writes reuse the winner's object after validating it.
+
+`ArtifactMetadata` records schema version, digest, byte length, MIME type, semantic artifact type (for example `frame.raw`, `video.segment`, `embedding.vector`, or `model.output`), sensitivity, and creation time; its persisted shape is defined by `config/artifact_metadata.schema.json`. The returned `ArtifactReference` matches the canonical Experience schema. Duplicate bytes with conflicting MIME/type/sensitivity metadata are rejected so deduplication cannot silently relabel a stored artifact. Sensitivity is recorded as metadata; encryption-at-rest and deletion policy are not part of this Issue.
+
+`verify` and `check_integrity` compare the reference, metadata, byte count, and recomputed digest. `find_orphans` compares stored digests with caller-supplied live references and only reports candidates; it never deletes objects. Retention and delete policy remain in #164/#225. A local throughput/dedup smoke benchmark is available as `python tools/benchmark_artifact_store.py`.

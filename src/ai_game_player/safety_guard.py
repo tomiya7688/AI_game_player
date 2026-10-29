@@ -10,7 +10,7 @@ from collections import deque
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable, Protocol, cast
 
 from ai_game_player.models import ActionCandidate
 
@@ -62,7 +62,8 @@ class SafetyGuardConfig:
     @classmethod
     def from_dict(cls, value: dict[str, object]) -> "SafetyGuardConfig":
         allowed = set(cls.__dataclass_fields__)
-        return cls(**{key: item for key, item in value.items() if key in allowed})
+        config_values = {key: item for key, item in value.items() if key in allowed}
+        return cls(**cast(Any, config_values))
 
     def to_dict(self) -> dict[str, object]:
         return self.__dict__.copy()
@@ -87,6 +88,10 @@ class TargetState:
             self.client_offset_x <= x < self.client_offset_x + self.client_width
             and self.client_offset_y <= y < self.client_offset_y + self.client_height
         )
+
+
+class TargetProbe(Protocol):
+    def inspect(self, window_handle: int) -> TargetState: ...
 
 
 @dataclass(frozen=True)
@@ -115,7 +120,7 @@ class SafetyEvent:
 class SafetyLog:
     def __init__(self, path: Path | None = None) -> None:
         self.path = path
-        self._events: list[SafetyEvent] = []
+        self._events: deque[SafetyEvent] = deque(maxlen=4096)
         self._lock = threading.Lock()
 
     def append(self, event: SafetyEvent) -> None:
@@ -210,14 +215,14 @@ class EmergencyStopMonitor:
     def _windows_f12_pressed() -> bool:
         if os.name != "nt":
             return False
-        return bool(ctypes.windll.user32.GetAsyncKeyState(0x7B) & 0x8000)
+        return bool(getattr(ctypes, "windll").user32.GetAsyncKeyState(0x7B) & 0x8000)
 
 
 class WindowsTargetProbe:
     def inspect(self, window_handle: int) -> TargetState:
         if os.name != "nt":
             raise RuntimeError("Windows target validation requires Windows")
-        user32 = ctypes.windll.user32
+        user32 = getattr(ctypes, "windll").user32
         handle = int(window_handle)
         if not user32.IsWindow(handle):
             return TargetState(handle, 0, False, False, False, 0, 0, 0, 0, 0, 0)
@@ -263,6 +268,13 @@ class NativeSafetyValidator:
         "F12": 0x7B,
         "LWIN": 0x5B,
         "RWIN": 0x5C,
+        # {
+        #   理由: [2048 Adapterが返す方向名をWindows仮想キーへ対応させ、Native SafetyGuardへ無効なキーコード0を渡さない]
+        # }
+        "LEFT": 0x25,
+        "UP": 0x26,
+        "RIGHT": 0x27,
+        "DOWN": 0x28,
     }
 
     class _Action(ctypes.Structure):
@@ -287,8 +299,9 @@ class NativeSafetyValidator:
         ]
 
     def __init__(self, library: object) -> None:
-        self.library = library
-        function = library.kadoka_safety_validate_action
+        # ctypes resolves exported functions dynamically; keep that unsound edge here.
+        self.library: Any = library
+        function: Any = getattr(library, "kadoka_safety_validate_action")
         function.argtypes = [ctypes.POINTER(self._Action), ctypes.POINTER(self._Result)]
         function.restype = ctypes.c_int32
         self._function = function
@@ -358,7 +371,7 @@ class SafetyGuard:
         config: SafetyGuardConfig | None = None,
         *,
         window_handle: int | None = None,
-        target_probe: object | None = None,
+        target_probe: TargetProbe | None = None,
         emergency_stop: EmergencyStop | None = None,
         log: SafetyLog | None = None,
         clock: Callable[[], float] = time.monotonic,

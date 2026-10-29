@@ -38,13 +38,22 @@ class IssueContextPriorityTest(unittest.TestCase):
         self.assertGreater(MODULE.key(issue(1))[0], MODULE.key(issue(2, "P5"))[0])
 
     def test_parent_issue_is_not_work_issue(self):
-        self.assertFalse(MODULE.is_work_issue(issue(10, "P1", title="[Architecture Parent] Runtime")))
+        self.assertIsNone(
+            MODULE.select_issue(
+                [issue(10, "P1", title="[Architecture Parent] Runtime")]
+            )
+        )
 
     def test_policy_issue_19_is_not_work_issue(self):
-        self.assertFalse(MODULE.is_work_issue(issue(19, "P1")))
+        self.assertIsNone(MODULE.select_issue([issue(19, "P1")]))
 
     def test_normal_issue_is_work_issue(self):
-        self.assertTrue(MODULE.is_work_issue(issue(20, "P2", title="[Native] C ABI Binding")))
+        self.assertEqual(
+            MODULE.select_issue([issue(20, "P2", title="[Native] C ABI Binding")])[
+                "number"
+            ],
+            20,
+        )
 
 
 if __name__ == "__main__":

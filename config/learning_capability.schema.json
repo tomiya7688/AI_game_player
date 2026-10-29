@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:learning-capability:1",
+  "title": "AI Game Player Learning Capability Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "model_id", "model_version", "trainable", "update_strategies", "required_runtime",
+    "dataset_schema_id", "dataset_schema_version", "trainer_adapter_id", "trainer_adapter_version",
+    "output_artifact_type", "evaluation_suite", "promotion_policy", "rollback_source", "untrainable_reason"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "model_id": {"$ref": "#/$defs/identifier"},
+    "model_version": {"$ref": "#/$defs/version"},
+    "trainable": {"type": "boolean"},
+    "update_strategies": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "required_runtime": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "dataset_schema_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "dataset_schema_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+    "trainer_adapter_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "trainer_adapter_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+    "output_artifact_type": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "evaluation_suite": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "promotion_policy": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "rollback_source": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "untrainable_reason": {"type": ["string", "null"], "minLength": 1}
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "trainable": {"const": true},
+        "update_strategies": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "dataset_schema_id": {"$ref": "#/$defs/identifier"},
+        "dataset_schema_version": {"$ref": "#/$defs/version"},
+        "trainer_adapter_id": {"$ref": "#/$defs/identifier"},
+        "trainer_adapter_version": {"$ref": "#/$defs/version"},
+        "output_artifact_type": {"$ref": "#/$defs/identifier"},
+        "evaluation_suite": {"$ref": "#/$defs/identifier"},
+        "promotion_policy": {"$ref": "#/$defs/identifier"},
+        "rollback_source": {"$ref": "#/$defs/identifier"},
+        "untrainable_reason": {"type": "null"}
+      },
+      "allOf": [{"required": ["dataset_schema_id", "dataset_schema_version", "trainer_adapter_id", "trainer_adapter_version", "output_artifact_type", "evaluation_suite", "promotion_policy", "rollback_source"]}]
+    },
+    {
+      "properties": {
+        "trainable": {"const": false},
+        "update_strategies": {"type": "array", "maxItems": 0},
+        "dataset_schema_id": {"type": "null"},
+        "dataset_schema_version": {"type": "null"},
+        "trainer_adapter_id": {"type": "null"},
+        "trainer_adapter_version": {"type": "null"},
+        "output_artifact_type": {"type": "null"},
+        "evaluation_suite": {"type": "null"},
+        "promotion_policy": {"type": "null"},
+        "rollback_source": {"type": "null"},
+        "untrainable_reason": {"type": "string", "minLength": 1}
+      },
+      "required": ["untrainable_reason"]
+    }
+  ],
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}([-+][A-Za-z0-9.-]+)?$"}
+  }
+}

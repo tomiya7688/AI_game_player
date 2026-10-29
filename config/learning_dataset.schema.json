@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:learning-dataset:1",
+  "title": "AI Game Player Experience Training Dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version", "dataset_id", "model_id", "model_version", "schema_id", "schema_version",
+    "split_seed", "validation_fraction", "include_sensitive_artifacts", "source_episode_ids", "samples", "digest"
+  ],
+  "properties": {
+    "contract_version": {"const": 1},
+    "dataset_id": {"$ref": "#/$defs/identifier"},
+    "model_id": {"$ref": "#/$defs/identifier"},
+    "model_version": {"$ref": "#/$defs/version"},
+    "schema_id": {"$ref": "#/$defs/identifier"},
+    "schema_version": {"$ref": "#/$defs/version"},
+    "split_seed": {"type": "integer", "minimum": 0},
+    "validation_fraction": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+    "include_sensitive_artifacts": {"type": "boolean"},
+    "source_episode_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "samples": {"type": "array", "items": {"$ref": "#/$defs/sample"}},
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}([-+][A-Za-z0-9.-]+)?$"},
+    "artifactReference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "media_type", "sensitive"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/identifier"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "media_type": {"type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$"},
+        "sensitive": {"type": "boolean"}
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["episode_id", "step_id", "event_id"],
+      "properties": {
+        "episode_id": {"$ref": "#/$defs/identifier"},
+        "step_id": {"$ref": "#/$defs/identifier"},
+        "event_id": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "actor_id", "model_id", "model_version", "confidence", "evidence_event_id"],
+      "properties": {
+        "source": {"$ref": "#/$defs/identifier"},
+        "actor_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "confidence": {"anyOf": [{"type": "number", "minimum": 0, "maximum": 1}, {"type": "null"}]},
+        "evidence_event_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}
+      }
+    },
+    "sample": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "sample_id", "sample_type", "model_id", "model_version", "input", "target", "relation",
+        "label_source", "label_confidence", "verified", "provenance", "sources", "artifacts",
+        "sensitive_artifacts_excluded", "split"
+      ],
+      "properties": {
+        "sample_id": {"type": "string", "pattern": "^sample\\.[0-9a-f]{64}$"},
+        "sample_type": {"enum": ["decision.instruction_response", "ocr.correction", "ui.region_class", "embedding.example", "evaluator.calibration"]},
+        "model_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "model_version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "input": {}, "target": {},
+        "relation": {"anyOf": [{"enum": ["positive", "negative", "prototype"]}, {"type": "null"}]},
+        "label_source": {"enum": ["human_correction", "automatic_label", "outcome_evidence", "unattributed"]},
+        "label_confidence": {"anyOf": [{"type": "number", "minimum": 0, "maximum": 1}, {"type": "null"}]},
+        "verified": {"type": "boolean"},
+        "provenance": {"anyOf": [{"$ref": "#/$defs/provenance"}, {"type": "null"}]},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifactReference"}},
+        "sensitive_artifacts_excluded": {"type": "boolean"},
+        "split": {"enum": ["train", "validation"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"sample_type": {"const": "embedding.example"}}, "required": ["sample_type"]},
+          "then": {"properties": {"relation": {"enum": ["positive", "negative", "prototype"]}}}
+        },
+        {
+          "if": {"properties": {"label_source": {"not": {"const": "human_correction"}}}, "required": ["label_source"]},
+          "then": {"properties": {"verified": {"const": false}}}
+        }
+      ]
+    }
+  }
+}

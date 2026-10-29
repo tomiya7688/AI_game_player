@@ -8,6 +8,92 @@ permissions:
   contents: read
 
 jobs:
+  python-quality:
+    name: Python quality (Ruff + syntax)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff format --check --force-exclude tests/test_fail_safe_initial_observation_grace.py
+      - run: python -m ruff check src tools tests
+      - run: python tools/workflow_security_check.py .github/workflows
+      - run: python tools/ruleset_check.py
+      - name: Python trust inventory (Issue #513, read-only)
+        shell: bash
+        run: python tools/trust_inventory.py --markdown "$GITHUB_STEP_SUMMARY"
+      - name: Require bounded SafetyLog retention
+        shell: bash
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          source = Path("src/ai_game_player/safety_guard.py").read_text(encoding="utf-8")
+          tree = ast.parse(source)
+          safety_log = next(
+              node for node in tree.body
+              if isinstance(node, ast.ClassDef) and node.name == "SafetyLog"
+          )
+          initializer = next(
+              node for node in safety_log.body
+              if isinstance(node, ast.FunctionDef) and node.name == "__init__"
+          )
+          bounded = False
+          for node in ast.walk(initializer):
+              if not isinstance(node, ast.Call):
+                  continue
+              if not isinstance(node.func, ast.Name) or node.func.id != "deque":
+                  continue
+              for keyword in node.keywords:
+                  if keyword.arg != "maxlen":
+                      continue
+                  value = keyword.value
+                  if isinstance(value, ast.Constant) and isinstance(value.value, int) and value.value > 0:
+                      bounded = True
+          if not bounded:
+              raise SystemExit("SafetyLog must retain events in deque(maxlen=<positive integer>)")
+          print("SafetyLog retention is bounded")
+          PY
+      - run: python -m mypy
+      - run: python -m compileall -q src tools tests
+
+  python-coverage:
+    name: Python branch coverage (3.14)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e ".[dev]"
+      - run: mkdir -p build/coverage
+      - name: Run unit tests with branch coverage
+        run: python -m coverage run -m unittest discover -s tests -v
+        env:
+          PYTHONPATH: src:.
+      - name: Show branch coverage and enforce baseline
+        if: always()
+        run: python -m coverage report --show-missing
+      - name: Generate XML coverage report
+        if: always()
+        run: python -m coverage xml
+      - name: Generate HTML coverage report
+        if: always()
+        run: python -m coverage html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-coverage-reports
+          path: build/coverage
+          if-no-files-found: warn
+
   unit-tests:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
@@ -17,6 +103,8 @@ jobs:
         python-version: ['3.10', '3.14']
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}

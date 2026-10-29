@@ -18,6 +18,8 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -33,6 +35,10 @@ jobs:
         env:
           PYTHONPATH: "src"
         run: python -m unittest discover -s tests -p "test_windows_input.py" -v
+      - name: Run Windows desktop capture integration tests
+        env:
+          PYTHONPATH: "src"
+        run: python -m unittest discover -s tests -p "test_windows_capture_integration.py" -v
 
   native-safety:
     name: Native Safety ABI (${{ matrix.os }})
@@ -43,18 +49,35 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
       - name: Configure native runtime
         run: cmake -S native -B build/native-safety -DCMAKE_BUILD_TYPE=Release
       - name: Build native runtime safety tests
         run: cmake --build build/native-safety --config Release --parallel
       - name: Run Native Safety ABI CTest
         run: ctest --test-dir build/native-safety -C Release --output-on-failure -R kadoka_native_runtime_test
+      - name: Run Python-to-native Safety FFI integration
+        env:
+          PYTHONPATH: src
+          KADOKA_NATIVE_RUNTIME: ${{ runner.os == 'Windows' && 'build/native-safety/Release/kadoka_native_runtime.dll' || 'build/native-safety/libkadoka_native_runtime.so' }}
+        run: python -m unittest discover -s tests -p "test_safety_guard.py" -v
+      - name: Run Native Runtime lifecycle and version binding tests
+        env:
+          PYTHONPATH: src
+          KADOKA_NATIVE_RUNTIME: ${{ runner.os == 'Windows' && 'build/native-safety/Release/kadoka_native_runtime.dll' || 'build/native-safety/libkadoka_native_runtime.so' }}
+        run: python -m unittest discover -s tests -p "test_native_runtime.py" -v
 
   windows-emergency-stop:
     name: Windows stop-from-any-state live-target smoke
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"

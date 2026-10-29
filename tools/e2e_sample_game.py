@@ -4,12 +4,28 @@ import os
 import tkinter as tk
 from pathlib import Path
 
+ADVANCE_BUTTON_WIDTH = 220
+ADVANCE_BUTTON_HEIGHT = 80
 
-def write_state(path: Path, step: int, total_steps: int) -> None:
+
+def write_state(
+    path: Path,
+    step: int,
+    total_steps: int,
+    active_control: dict[str, object] | None,
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
     temporary.write_text(
-        json.dumps({"step": step, "total_steps": total_steps, "completed": step >= total_steps}, indent=2),
+        json.dumps(
+            {
+                "step": step,
+                "total_steps": total_steps,
+                "completed": step >= total_steps,
+                "active_control": active_control,
+            },
+            indent=2,
+        ),
         encoding="utf-8",
     )
     os.replace(temporary, path)
@@ -42,12 +58,30 @@ def main() -> int:
             button = (120, 125, 400, 225)
             canvas.create_rectangle(*button, fill="#f5f5f5", outline="#f5f5f5")
             canvas.create_text(260, 175, text="COMPLETE", fill="#101010", font=("Segoe UI", 24, "bold"))
+            write_state(args.state_file, step, args.steps, None)
             return
         positions = ((60, 90), (220, 90), (60, 210), (220, 210))
         x, y = positions[step % len(positions)]
-        button = (x, y, x + 220, y + 80)
+        button = (x, y, x + ADVANCE_BUTTON_WIDTH, y + ADVANCE_BUTTON_HEIGHT)
+        label = f"ADVANCE {step + 1}/{args.steps}"
         canvas.create_rectangle(*button, fill="#f5f5f5", outline="#f5f5f5")
-        canvas.create_text(x + 110, y + 40, text=f"ADVANCE {step + 1}/{args.steps}", fill="#101010", font=("Segoe UI", 16, "bold"))
+        canvas.create_text(
+            x + ADVANCE_BUTTON_WIDTH // 2,
+            y + ADVANCE_BUTTON_HEIGHT // 2,
+            text=label,
+            fill="#101010",
+            font=("Segoe UI", 16, "bold"),
+        )
+        write_state(
+            args.state_file,
+            step,
+            args.steps,
+            {
+                "action_id": f"advance-{step + 1}",
+                "label": label,
+                "bbox_size": [ADVANCE_BUTTON_WIDTH, ADVANCE_BUTTON_HEIGHT],
+            },
+        )
 
     def advance(event) -> None:
         nonlocal step
@@ -56,11 +90,9 @@ def main() -> int:
         left, top, right, bottom = button
         if left <= event.x <= right and top <= event.y <= bottom:
             step += 1
-            write_state(args.state_file, step, args.steps)
             render()
 
     canvas.bind("<Button-1>", advance)
-    write_state(args.state_file, step, args.steps)
     render()
     root.mainloop()
     return 0

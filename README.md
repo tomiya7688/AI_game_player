@@ -5,35 +5,39 @@
 ## 基本フロー
 
 ```text
-画面キャプチャ → OCR/候補生成 → 安全評価 → Rule/Ollama判断 → 実行 → 結果評価 → 次の観測
+画面観測・候補生成 → 候補評価 → 前回操作の結果評価 → 判断材料の構築 → AI判断・検証 → 安全評価 → 入力（許可時） → 次の画面観測
 ```
 
-主要コードは `src/ai_game_player/` にあり、観測（capture/source）、評価（evaluator/outcome）、判断（provider/engine）、実行（action_executor/windows_input）、履歴・ログを分離しています。
+前回の操作記録がある場合、エンジンは新しい画面観測を使って前回操作の結果を評価し、その結果を今回の判断材料へ含めます。候補評価は判断材料を構築する前に行います。
+
+主要コードは[`src/ai_game_player/`](src/ai_game_player/)にあります。観測、判断、安全評価、入力、記録の実装を調べる開発者は、[Python実装の読み方と責務別の入口](src/ai_game_player/README.md)から読み始めてください。
 
 - [現在の機能と制約](key_info.md)
+- [参加領域とレビュー先](doc/contributor/subsystem_ownership_map.md)
+- [セキュリティ脅威モデル](doc/security/threat_model.md)
 - [クラス図](doc/class_diagram.mmd)
 - [シーケンス図](doc/sequence_diagram.mmd)
 - [評価指標](doc/評価指標機能説明書.md)
 
 ## ソースコードを読む
 
-GitHub上では、まず **[src/ai_game_player/](src/ai_game_player/)** を入口にしてください。package内の役割と「何を読むべきか」は **[Source Map](src/ai_game_player/README.md)** にまとめています。
+開発者は、調べる処理に応じて次の入口を開いてください。各リンクはGitHub上のファイルまたはディレクトリへ移動します。
 
-主な入口:
+- [Python実装の索引と読む順序](src/ai_game_player/README.md)
+- [Pythonパッケージ全体](src/ai_game_player/)
+- [アプリケーションの品質ゲート](src/ai_game_player/applications/)
+- [Pythonとネイティブ実装の接続](src/ai_game_player/runtime/)
+- [GUIの画面構築と補足表示](src/ai_game_player/ui/)
+- [C++のネイティブ実装](native/)
+- [テスト](tests/)
+- [開発用ツール](tools/)
 
-- [CLI / package entrypoint](src/ai_game_player/__main__.py)
-- [現在のApplication UI](src/ai_game_player/app.py)
-- [Decision Pipeline](src/ai_game_player/pipeline.py)
-- [Native Runtime boundary](src/ai_game_player/runtime/)
-- [Quality Application](src/ai_game_player/applications/quality/)
-- [Tests](tests/)
-
-現在は `src/ai_game_player/` 直下にmoduleが多いため、#350で責務別subpackageへ段階的に整理しています。Source Mapは移動中も「現在どこに何があるか」の入口として維持します。
+責務別ディレクトリへの移行計画は[Issue #356](https://github.com/tomiya7688/AI_game_player/issues/356)で管理しています。現在の配置と移行計画の区別は、Python実装の索引で説明しています。
 
 ## 現在できること
 
 - 起動済みWindowsの一覧取得と対象ウィンドウ選択
-- Windows画面キャプチャ、OCR候補と手入力候補の統合
+- Windows画面取得後にOCR・画像候補と任意のAutomation候補を統合し、入力元と安全評価をGUIへ表示
 - RuleProvider / OllamaProviderによる候補判断
 - dry-run、明示許可付きWindows入力、連続実行、停止（ボタン/Esc/F12/手動マウス移動）
 - success/failure/ongoingのルール評価とOllama状態評価
@@ -46,18 +50,9 @@ $env:PYTHONPATH = "src;."
 py -3.10 -m ai_game_player
 ```
 
-現在のOllamaProviderを使う場合は `ollama serve` とモデルの取得が必要です。これは現行実装上の任意Providerであり、通常ユーザー向けの最終必須依存にはしません。実入力は対象ウィンドウ、入力方式、実入力許可を確認してから有効化してください。
+画面取得後、GUIはObservationに含まれるOCR・画像候補と「Automation候補JSON」欄の候補を統合し、評価結果に入力元を表示します。Automation候補が不要なら候補欄を空配列 `[]` のまま使えます。画像の明るい領域だけから作ったconfidence `0.0` の候補は評価で拒否され、実行候補になりません。
 
-## 推論Provider方針
-
-今後の標準経路は、Kadoka同梱のLocal Inference Serviceを自動起動し、versionedな `Kadoka Inference Provider API` 経由で利用する構成です。
-
-- 何も選ばない場合: local-onlyの同梱Provider
-- Advanced: Ollama等のlocal external Provider
-- Expert/Developer: Remote API / 独自Adapter
-- Remote送信: 明示opt-in
-
-Provider API仕様は [Inference Provider API v1](doc/architecture/inference_provider_api.md)、既定Model候補は `config/default_models.json` を参照してください。
+Ollamaを使う場合は `ollama serve` とモデルの取得が必要です。実入力は対象ウィンドウ、入力方式、実入力許可を確認してから有効化してください。
 
 ## テスト
 
@@ -68,63 +63,8 @@ py -3.10 -m unittest discover -s tests -v
 
 GitHub Actionsでもテストを実行します。
 
-## CI上の低品質AI耐性
+## Provider・1.0配布方針の設計文書
 
-Kadokaは高品質LLMだけを前提にせず、テスト専用の `NoisyLanguageProvider` も常時CIで利用します。これは実MLモデルではなく、候補内から擬似ランダムに操作を選び、意味の薄い文章を返すdeterministic fixtureです。
+開発者は、ProviderのJSON契約を[Inference Provider設計](doc/architecture/inference_provider_api.md)、モデル候補の宣言を`config/default_models.json`、参照ゲームのソース宣言を`config/e2e_reference_games.json`で確認してください。宣言の追加だけで、モデルの自動取得・推論・全ゲームのプレイが実装済みになるわけではありません。現在の起動・操作方法は、このREADMEの利用手順を確認してください。
 
-目的は攻略性能ではなく、低品質なAI出力が続いてもCore/Safetyが壊れないことと、LLM推論時間をほぼ除いたKadoka側overheadを継続測定することです。
-
-
-## 1.0.0の配布方針
-
-1.0.0はWindows x64 / local-firstを基本とし、配布物rootの実行ファイルを起動すれば、必要なruntime・Local Inference Service・model/packageが自動的に解決され、通常利用を開始できる状態を目標にします。通常ユーザーへPython、pip、CMake、compiler、Ollama等の手動導入は要求しません。
-
-Basic導線は `Launch -> Game/Window Select -> Start/Stop` です。Remote Providerはoptionalかつ明示opt-inです。詳細は `doc/release_1_0.md` を参照してください。
-
-Product/Engineの最終名称はIssue #154で管理します。現時点のKadoka表記を最終Product名として固定しません。
-
-## Privacy defaults for 1.0.0
-
-- telemetry: OFF
-- Remote Provider: OFF
-- raw frame / replay persistent storage: OFF
-- trace: local-only + bounded retention
-- diagnostic export / remote transmission: explicit user action
-
-## License
-
-- first-party code / docs / non-character software assets: MIT License
-- Kadoka / Maru character assets: Obake License
-- third-party code / runtime / model / game / asset: upstream licenseを維持
-
-詳細は `LICENSE`、`ASSET_LICENSES.md`、`THIRD_PARTY_NOTICES.md` を参照してください。
-
-**なぜ1.0だけMIT中心なのか、なぜ開発時と配布時でPlayer Assetが異なるのか、なぜ1.1以降はmulti-licenseを許容するのか**は [`doc/licensing_rationale.md`](doc/licensing_rationale.md) に説明しています。各Licenseをなぜ使い分けているかは `LICENSE_INTENT.md` に人間向けの説明を置いています。正式な利用条件は各License本文が優先します。
-
-
-### 1.0.0 License boundary
-
-1.0.0ではproject-ownedの配布payloadをMIT中心に揃えます。開発中のDefault Playerは賢者ミスクですが、正式1.0.0では同梱Player素材をMITの「すーぱーあいこん」へ差し替えます。賢者ミスクの最終Asset Licenseは未確定で、1.0.0には同梱しません。Kadoka / MaruなどObake License対象素材も1.0.0には同梱しません。third-party model/runtimeは各upstream licenseを維持し、1.0.0では必要に応じて初回起動時に自動取得・検証します。
-
-
-### 開発Playerと1.0 Release Player
-
-- Development default: 賢者ミスク
-- 1.0.0 bundled/default player asset: すーぱーあいこん（MIT）
-- Wise Misk artwork: license未確定、1.0.0配布物には含めない
-- Kadoka / Maru: Obake License、1.0.0配布物には含めない
-
-Player ProfileはModel Identityと独立しているため、開発用ProfileとRelease Profileを差し替えてもInference/Learning contractは変わりません。
-
-1.0.0のroot executableは必要なthird-party model/runtimeを自動取得・SHA-256検証し、license名を表示できるようにします。ユーザーがPython/Ollama/Model Serverを手動で準備する必要はありません。
-
-
-## 1.0.0だけのMIT Release Profile
-
-MIT中心の配布構成を維持するのは1.0.0だけです。開発時のDefault Playerは賢者ミスクですが、正式1.0.0ではMITの「すーぱーあいこん」を同梱Default Playerとして使用します。
-
-1.1以降は事前学習/fine-tune済みModelや追加Character等を直接配布できるmulti-license構成を許容し、MIT-only版の並行保守は約束しません。
-
-その代わり、1.0 Coreは小さく保ち、Provider/Profile/MOD Hook等のversioned境界を用意します。後続ReleaseではUpdate Content Sheetを公開し、1.0ユーザーが欲しい機能をMOD/Feature Packや手実装として持ち込みやすい情報を残します。
-
-Player素材はcover / player-seat / happy / sadを基本roleとし、選択画面ではLicense名を表示、全文は「詳細を見る」から確認する方針です。1.0公式Tutorialでは最初にPlayer名・画像変更を行い、その後Learningを有効にしてPlayするところまで案内します。
+[1.0受入れ・配布方針](doc/release_1_0.md)はリリース目標を記録します。[ライセンス設計の理由](doc/licensing_rationale.md)と[ライセンスの意図](LICENSE_INTENT.md)は説明文であり、利用条件は[LICENSE](LICENSE)、[素材の扱い](ASSET_LICENSES.md)、[第三者の権利表記](THIRD_PARTY_NOTICES.md)で区別して確認してください。

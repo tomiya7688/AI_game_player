@@ -1,4 +1,6 @@
-import json,tempfile,unittest
+import json
+import tempfile
+import unittest
 from pathlib import Path
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.models import ActionCandidate,ScreenObservation

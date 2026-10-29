@@ -1,0 +1,13 @@
+{
+  "artifact_id": 12259118469,
+  "workflow_run_id": 39409678110,
+  "head_commit": "b1364714eb3039fcd73feee0b9335653f5b46139",
+  "source_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "capture_method": "GDI fallback after WGC timeout",
+  "width": 904,
+  "height": 648,
+  "bgra_sha256": "2016fc187f1136e4c9fe4fe7ccac50adb45d417cfe8f86eb5d4eee4b5f4f1741",
+  "expected_board": [[0, 0, 0, 8], [2, 2, 128, 2], [32, 8, 32, 2], [0, 0, 8, 2]],
+  "expected_board_bbox": [260, 232, 375, 375],
+  "description": "CI実失敗の未加工画素をzlib圧縮。y=384,385および475,476の欠落直後に盤面内側の短い帯が現れ、端の一致条件を満たさず375x375盤面を3分割した。期待値は保存PNGの16 cellと照合した。"
+}
