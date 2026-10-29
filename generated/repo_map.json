@@ -94456,6 +94456,120 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "unquote"
+            },
+            {
+              "alias": null,
+              "name": "urlsplit"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_source_navigation",
+      "path": "tests/test_source_navigation.py",
+      "source_location": {
+        "end_line": 25,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SourceNavigationTests",
+          "parameters": [],
+          "qualified_name": "SourceNavigationTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 9
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_relative_markdown_links_point_to_existing_paths",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_relative_markdown_links_point_to_existing_paths",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 10
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.ui",
