@@ -232,6 +232,60 @@ class TkShellSmokeTests(unittest.TestCase):
         finally:
             root.destroy()
 
+    def test_stop_tooltip_displays_platform_conditions_and_preserves_stop_callback(
+        self,
+    ):
+        for platform_name in ("nt", "posix"):
+            with self.subTest(platform=platform_name):
+                try:
+                    root = tk.Tk()
+                except TclError as exc:
+                    self.skipTest(f"Tk desktop is unavailable: {exc}")
+                try:
+                    root.geometry("1100x700+30000+30000")
+                    stop_calls = []
+                    with patch(
+                        "ai_game_player.ui.shell.os",
+                        SimpleNamespace(name=platform_name),
+                    ):
+                        shell = ApplicationShell(
+                            root,
+                            ShellState(),
+                            lambda: stop_calls.append(True),
+                            lambda _state: None,
+                        )
+                    shell.pack(fill=tk.BOTH, expand=True)
+                    root.update()
+                    shell.stop_button.event_generate("<FocusIn>")
+                    root.after(450, root.quit)
+                    root.mainloop()
+                    popup = next(
+                        child
+                        for child in shell.stop_button.winfo_children()
+                        if isinstance(child, tk.Toplevel)
+                    )
+                    self.assertTrue(popup.winfo_viewable())
+                    help_text = popup.winfo_children()[0].cget("text")
+                    self.assertIn("本アプリにフォーカスがある状態のEsc", help_text)
+                    self.assertIn("停止を要求します", help_text)
+                    if platform_name == "nt":
+                        self.assertIn(
+                            "WindowsではF12でも停止を要求できます。", help_text
+                        )
+                        self.assertIn(
+                            "Windowsの連続実行中は、自動操作以外のマウス移動を検出すると停止を要求します",
+                            help_text,
+                        )
+                    else:
+                        self.assertNotIn("F12", help_text)
+                        self.assertNotIn("マウス移動", help_text)
+                    shell.stop_button.event_generate("<FocusOut>")
+                    self.assertFalse(popup.winfo_exists())
+                    shell.stop_button.invoke()
+                    self.assertEqual(stop_calls, [True])
+                finally:
+                    root.destroy()
+
     def test_application_shell_does_not_register_duplicate_escape_binding(self):
         try:
             root = tk.Tk()

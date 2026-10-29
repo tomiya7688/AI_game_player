@@ -1256,6 +1256,11 @@ classDiagram
         +toggle_inspector()
         +toggle_bottom_panel()
     }
+    ttk.Label <|-- StopHelpHint
+    class StopHelpHint {
+        +__init__()
+        +_fit_text_to_width()
+    }
     class ToolTip {
         +__init__()
         +_schedule()

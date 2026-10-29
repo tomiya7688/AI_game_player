@@ -124,9 +124,10 @@ class ApplicationShell(ttk.Frame):
     #   責務: [__init__: ApplicationShellの共通ヘッダー、Workspace領域、Inspector、Bottom Panel、および停止ボタンを構築・配置する]
     #   処理: [
     #     1: ShellControllerとUI変数を初期化する
-    #     2: アプリケーションタイトルとPanel切替ボタンを配置し、停止ボタンにはEscとWindows上のF12停止監視の案内を表示し、ヘッダー3ボタンにホバー・フォーカス時の補足説明を付ける
-    #     3: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
-    #     4: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceと保存済みPanel状態に対応する切替ラベルを表示する
+    #     2: アプリケーションタイトルとPanel切替ボタン、停止ボタンを配置する
+    #     3: ヘッダー3ボタンへ補足説明を接続し、停止案内ではEscのフォーカス条件とWindowsのF12・連続実行中の手動マウス移動を説明する
+    #     4: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
+    #     5: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceと保存済みPanel状態に対応する切替ラベルを表示する
     #   ]
     #   引数: [
     #     self: 構築したUI部品とcontrollerを保持するApplicationShell
@@ -174,9 +175,11 @@ class ApplicationShell(ttk.Frame):
         self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
         self.stop_button.pack(side=tk.RIGHT, padx=10)
         stop_help_text = (
-            "停止ボタンまたはEscで停止を要求します。WindowsではF12でも停止できます"
+            "停止ボタン、または本アプリにフォーカスがある状態のEscで停止を要求します。"
+            "WindowsではF12でも停止を要求できます。"
+            "Windowsの連続実行中は、自動操作以外のマウス移動を検出すると停止を要求します"
             if os.name == "nt"
-            else "停止ボタンまたはEscで停止を要求します"
+            else "停止ボタン、または本アプリにフォーカスがある状態のEscで停止を要求します"
         )
         ToolTip(self.stop_button, stop_help_text)
         self.status_var = tk.StringVar(master=self, value="待機中")
