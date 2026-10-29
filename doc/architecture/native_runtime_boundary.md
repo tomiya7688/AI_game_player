@@ -9,6 +9,8 @@ Pythonは画面の意味認識、操作候補の評価、判断、結果評価�
 - 配置の宣言: [`config/runtime_boundary.json`](../../config/runtime_boundary.json)
 - Pythonの契約: [`runtime/contracts.py`](../../src/ai_game_player/runtime/contracts.py)
 - C ABIの契約: [`runtime_api.h`](../../native/include/kadoka/runtime_api.h)
+- 能力ビットの読取: [`runtime_boundary_contract.py`](../../tools/runtime_boundary_contract.py)
+- レポートの公開: [`runtime_boundary_report.py`](../../tools/runtime_boundary_report.py)
 - 宣言の検査: [`runtime_boundary_check.py`](../../tools/runtime_boundary_check.py)
 - コストの測定: [`runtime_boundary_benchmark.py`](../../tools/runtime_boundary_benchmark.py)
 
@@ -26,7 +28,7 @@ Native実装はC++の型やSTLコンテナーを公開せず、C ABIを使いま
 | 経験・学習・分析、UI・開発ツール | Pythonに置き、別言語の導入による利益が確認できた場合に再検討します。 |
 | ゲーム固有の規則 | 現在はPythonです。Luaはプラグインの契約と権限境界が成立した後に再評価します。 |
 
-manifestにはPython、C++、Lua、C#、JavaScript/TypeScriptごとの採否と用途を記録します。保留する言語には再評価条件も記録してください。新たな言語を使う開発者は、呼出し頻度、遅延、Python内の反復、OS APIとの関係、安全責務、AI依存、配布・起動コストをIssueまたはPRへ記載してください。
+manifestにはPython、C++、Lua、C#、JavaScript/TypeScriptごとの採否と用途を記録します。各componentの`current_languages`は評価済みの言語IDを重複なく並べた一覧です。複数言語を含む場合も架空の言語名へ結合しません。保留する言語には再評価条件も記録してください。新たな言語を使う開発者は、呼出し頻度、遅延、Python内の反復、OS APIとの関係、安全責務、AI依存、配布・起動コストをIssueまたはPRへ記載してください。
 
 言語の切替回数は`frame / observation / candidate_set / decision / batch / control_lease`のまとまりに限定します。ピクセル、トークン、候補一件ごとのFFI・IPCは許可しません。FFIは同一プロセスの外部関数呼出し、IPCは別プロセスとの通信です。
 
@@ -45,7 +47,7 @@ python -m unittest discover -s tests -p "test_runtime_boundary*.py" -v
 
 配布欄は、self-containedの宣言、リポジトリ内にあるビルド入口、その入口に宣言したDLL名があることを検査します。この文字列検査では、実際のDLL生成、Native bufferの所有権、一般利用者のWindows環境での起動を証明できません。
 
-`finish_task.bat`と`language-ci`がこの検査を実行します。現在のC ABIやPythonの能力を増やした開発者は、配置manifest、契約、対応テストを同じ変更で更新してください。
+`finish_task.bat`と`language-ci`がこの検査を実行します。現在のC ABIやPythonの能力を増やした開発者は、配置manifest、契約、対応テストを同じ変更で更新してください。能力名だけでなく64bitの非ゼロ・単一ビット・重複も検査し、Python bindingの実割当と照合します。Cの任意の式を実行せず、整数・左シフト・ORの宣言だけを読みます。Python bindingのABI versionとCAP定数も照合します。
 
 ## 境界コストを測定する
 
@@ -72,6 +74,10 @@ python tools/runtime_boundary_benchmark.py --search-root build/native-boundary -
 | `ipc_pipe_4k_roundtrip` | spawnで起動した専用workerと4KiBを往復する処理。起動時間は測定値へ含めません。 |
 
 IPCの応答待ちは既定5秒で打ち切ります。`--ipc-timeout-seconds`で有限の正数を指定できます。workerが返答しない・終了しない場合は終了を要求して回収し、測定を失敗させます。CIの測定stepにも3分の上限があります。失敗時は`RUNTIME BOUNDARY BENCHMARK ERROR`と終了値1を返し、成功した測定として扱いません。
+
+レポートは、引数解析後に保存先を登録した時点で旧成功を`running`状態へ原子的に置換します。計測・読込に失敗した登録済み試行は`failed`を保存します。`running`は未完了であり、生存中のプロセスを保証する状態ではありません。保存自体に失敗した場合もCLIは非ゼロで終了し、成功を表示しません。
+
+同じ保存先はOSファイルロックと試行ID（`run_id`）で調停し、最後に登録した試行だけが`status: success`の測定値を公開します。古い試行の完了・失敗で新しい結果を消しません。完全なJSONを一時ファイルへ同期してから置換するため、通常の書込失敗で途中のJSONを公開しません。利用者は終了値0、成功行の`run_id`、JSONの同じIDと`status: success`を合わせて確認してください。過去の測定値を比較する場合は、試行ごとに別の`--output`を指定してください。
 
 CIはUbuntuとWindowsでNativeをビルド・テストした後に測定し、`runtime-boundary-<OS>`成果物を保存します。既存のASan・UBSan・GCC解析、CTestの反復、Windows配布物の起動検査、実ゲームE2Eは維持します。
 

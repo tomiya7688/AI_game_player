@@ -122,7 +122,7 @@ class RuntimeBoundaryCheckTest(unittest.TestCase):
                         f"#define KADOKA_RUNTIME_ABI_VERSION {literal}\n#define KADOKA_CAP_CAPTURE (1 << 0)\n",
                         encoding="utf-8",
                     )
-                    self.assertEqual(_native_contract(path), (1, {"capture"}))
+                    self.assertEqual(_native_contract(path), (1, {"capture": 1}))
 
     def test_read_errors_identify_the_failed_input_path(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -134,8 +134,85 @@ class RuntimeBoundaryCheckTest(unittest.TestCase):
             for relative in (
                 "src/ai_game_player/runtime/contracts.py",
                 "native/include/kadoka/runtime_api.h",
+                "src/ai_game_player/runtime/native.py",
             ):
                 path = root / relative
                 self.assertIn(str(path), "\n".join(check_boundary(root, manifest)))
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes((ROOT / relative).read_bytes())
+
+    def test_current_languages_must_be_evaluated_unique_names(self):
+        for languages in (["pyhton"], ["python", "python"], "python", []):
+            with self.subTest(languages=languages):
+                value = copy.deepcopy(self.manifest)
+                value["components"][0]["current_languages"] = languages
+                self.assert_manifest_rejected(value, "current")
+
+    def test_native_capability_values_are_single_unique_bits(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "runtime_api.h"
+            for capture, other in (
+                ("0", "2"),
+                ("1", "1"),
+                ("3", "2"),
+                ("(1 << 64)", "2"),
+            ):
+                with self.subTest(capture=capture, other=other):
+                    path.write_text(
+                        f"#define KADOKA_RUNTIME_ABI_VERSION 1u\n#define KADOKA_CAP_CAPTURE {capture}\n#define KADOKA_CAP_INPUT {other}\n",
+                        encoding="utf-8",
+                    )
+                    with self.assertRaises(ValueError):
+                        _native_contract(path)
+
+    def test_native_and_binding_bit_drift_is_rejected(self):
+        paths = (
+            "src/ai_game_player/runtime/contracts.py",
+            "src/ai_game_player/runtime/native.py",
+            "native/include/kadoka/runtime_api.h",
+            "tools/build_windows_bundle.ps1",
+            "doc/architecture/runtime_layers.md",
+        )
+        cases = [
+            (
+                "native/include/kadoka/runtime_api.h",
+                "KADOKA_CAP_CAPTURE (UINT64_C(1) << 0)",
+                "KADOKA_CAP_CAPTURE (UINT64_C(1) << 4)",
+                "capability bits mismatch",
+            ),
+            (
+                "src/ai_game_player/runtime/native.py",
+                "(1, RuntimeCapability.CAPTURE)",
+                "(16, RuntimeCapability.CAPTURE)",
+                "capability bits mismatch",
+            ),
+            (
+                "src/ai_game_player/runtime/native.py",
+                "CAP_FAST_CV = 1 << 3",
+                "CAP_FAST_CV = 1 << 4",
+                "constant disagrees",
+            ),
+            (
+                "src/ai_game_player/runtime/native.py",
+                "NATIVE_ABI_VERSION = 1",
+                "NATIVE_ABI_VERSION = 2",
+                "binding ABI version mismatch",
+            ),
+        ]
+        for relative, before, after, message in cases:
+            with (
+                self.subTest(relative=relative, after=after),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory)
+                for source in paths:
+                    target = root / source
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes((ROOT / source).read_bytes())
+                target = root / relative
+                original = target.read_text(encoding="utf-8")
+                self.assertIn(before, original)
+                target.write_text(original.replace(before, after), encoding="utf-8")
+                manifest = root / "manifest.json"
+                manifest.write_text(json.dumps(self.manifest), encoding="utf-8")
+                self.assertIn(message, "\n".join(check_boundary(root, manifest)))

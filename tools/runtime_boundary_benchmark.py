@@ -19,9 +19,11 @@ from typing import Callable
 
 
 if __package__:
+    from .runtime_boundary_report import BenchmarkReportAttempt
     from .runtime_boundary_metrics import measure_operation
     from .runtime_boundary_ipc import IPC_TIMEOUT_SECONDS, measure_ipc_roundtrip
 else:
+    from runtime_boundary_report import BenchmarkReportAttempt
     from runtime_boundary_metrics import measure_operation
     from runtime_boundary_ipc import IPC_TIMEOUT_SECONDS, measure_ipc_roundtrip
 
@@ -233,27 +235,32 @@ def measure_runtime_boundary_cli() -> int:
         "--ipc-timeout-seconds", type=float, default=IPC_TIMEOUT_SECONDS
     )
     args = parser.parse_args()
+    attempt = None
     try:
+        attempt = BenchmarkReportAttempt(args.output)
+        attempt.begin()
         if args.samples < 100:
             raise ValueError("samples must be at least 100")
         if not math.isfinite(args.ipc_timeout_seconds) or args.ipc_timeout_seconds <= 0:
             raise ValueError("IPC timeout must be finite and positive")
         native_library = _find_library(args.native_library, args.search_root)
         report = benchmark(native_library, args.samples, args.ipc_timeout_seconds)
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
-            json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True),
-            encoding="utf-8",
-        )
+        attempt.publish(report)
     except (OSError, ValueError, RuntimeError, EOFError) as error:
-        print(f"RUNTIME BOUNDARY BENCHMARK ERROR: {error}", file=sys.stderr)
+        try:
+            if attempt is not None:
+                attempt.fail(error)
+        except (OSError, ValueError) as status_error:
+            print(f"REPORT STATUS ERROR: {status_error}", file=sys.stderr)
+        run_id = attempt.run_id if attempt is not None else "unregistered"
+        print(f"RUNTIME BOUNDARY BENCHMARK ERROR [{run_id}]: {error}", file=sys.stderr)
         return 1
     for metric in report["metrics"]:
         print(
             f"{metric['name']}: p50={metric['p50']:.3f}us "
             f"p95={metric['p95']:.3f}us p99={metric['p99']:.3f}us"
         )
-    print(f"RUNTIME BOUNDARY BENCHMARK OK: {args.output}")
+    print(f"RUNTIME BOUNDARY BENCHMARK OK: {args.output} run_id={attempt.run_id}")
     return 0
 
 

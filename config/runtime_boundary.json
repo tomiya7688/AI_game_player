@@ -20,77 +20,97 @@
       "name": "capture",
       "capability": "capture",
       "preferred_language": "cpp",
-      "current_language": "python_and_cpp",
       "boundary_unit": "frame",
       "status": "partially_native",
-      "reason": "Pythonの画面取得に加え、任意のC++ WGC実装がある。frame単位で渡し、利用可否は実行時に確認する。"
+      "reason": "Pythonの画面取得に加え、任意のC++ WGC実装がある。frame単位で渡し、利用可否は実行時に確認する。",
+      "current_languages": [
+        "python",
+        "cpp"
+      ]
     },
     {
       "name": "input",
       "capability": "input",
       "preferred_language": "cpp",
-      "current_language": "python",
       "boundary_unit": "decision",
       "status": "native_target",
-      "reason": "OS input and release-all are latency/safety sensitive and should not depend on Python scheduling long term."
+      "reason": "OS input and release-all are latency/safety sensitive and should not depend on Python scheduling long term.",
+      "current_languages": [
+        "python"
+      ]
     },
     {
       "name": "safety",
       "capability": "safety",
       "preferred_language": "cpp",
-      "current_language": "python_and_cpp",
       "boundary_unit": "decision",
       "status": "implemented",
-      "reason": "意味判断と停止管理はPython、任意のC ABIによる決定論的検証はC++。manifestの宣言だけで独立した停止機構の成立を保証しない。"
+      "reason": "意味判断と停止管理はPython、任意のC ABIによる決定論的検証はC++。manifestの宣言だけで独立した停止機構の成立を保証しない。",
+      "current_languages": [
+        "python",
+        "cpp"
+      ]
     },
     {
       "name": "fast_cv",
       "capability": "fast_cv",
       "preferred_language": "cpp",
-      "current_language": "python_native_libraries",
       "boundary_unit": "frame",
       "status": "native_when_measured",
-      "reason": "Keep OpenCV/NumPy-backed work high-level while native code owns measured Python loops or latency-sensitive frame primitives."
+      "reason": "Keep OpenCV/NumPy-backed work high-level while native code owns measured Python loops or latency-sensitive frame primitives.",
+      "current_languages": [
+        "python"
+      ]
     },
     {
       "name": "decision_context",
       "preferred_language": "python",
-      "current_language": "python",
       "boundary_unit": "candidate_set",
       "status": "implemented",
-      "reason": "Rapidly changing AI/orchestration logic benefits from Python and is not a per-pixel hot path."
+      "reason": "Rapidly changing AI/orchestration logic benefits from Python and is not a per-pixel hot path.",
+      "current_languages": [
+        "python"
+      ]
     },
     {
       "name": "model_orchestration",
       "preferred_language": "python",
-      "current_language": "python",
       "boundary_unit": "observation",
       "status": "implemented",
-      "reason": "AI/ML ecosystem integration and experimentation dominate over interpreter overhead."
+      "reason": "AI/ML ecosystem integration and experimentation dominate over interpreter overhead.",
+      "current_languages": [
+        "python"
+      ]
     },
     {
       "name": "evaluation_outcome",
       "preferred_language": "python",
-      "current_language": "python",
       "boundary_unit": "observation",
       "status": "implemented",
-      "reason": "High-level semantic policy remains separate from deterministic native safety."
+      "reason": "High-level semantic policy remains separate from deterministic native safety.",
+      "current_languages": [
+        "python"
+      ]
     },
     {
       "name": "ui_tooling",
       "preferred_language": "python",
-      "current_language": "python",
       "boundary_unit": "batch",
       "status": "implemented",
-      "reason": "UI/tooling is not currently latency-critical enough to justify another mandatory runtime."
+      "reason": "UI/tooling is not currently latency-critical enough to justify another mandatory runtime.",
+      "current_languages": [
+        "python"
+      ]
     },
     {
       "name": "game_rules_plugins",
       "preferred_language": "python",
-      "current_language": "python",
       "boundary_unit": "candidate_set",
       "status": "lua_deferred",
-      "reason": "Lua is a strong embedded rule/plugin candidate, but adding a mandatory script runtime before the plugin contract stabilizes has negative current net benefit."
+      "reason": "Lua is a strong embedded rule/plugin candidate, but adding a mandatory script runtime before the plugin contract stabilizes has negative current net benefit.",
+      "current_languages": [
+        "python"
+      ]
     }
   ],
   "languages": {

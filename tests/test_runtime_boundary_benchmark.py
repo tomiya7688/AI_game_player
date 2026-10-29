@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import multiprocessing
+import json
 import tempfile
 import time
 import unittest
@@ -95,7 +96,9 @@ class RuntimeBoundaryBenchmarkTest(unittest.TestCase):
             arguments = ["benchmark", "--output", str(report), "--samples", "1"]
             with mock.patch("sys.argv", arguments), mock.patch("sys.stderr"):
                 self.assertEqual(measure_runtime_boundary_cli(), 1)
-            self.assertFalse(report.exists())
+            value = json.loads(report.read_text(encoding="utf-8"))
+            self.assertEqual(value["status"], "failed")
+            self.assertNotIn("metrics", value)
 
     def test_missing_native_exports_are_reported_as_abi_load_failure(self):
         for library in (

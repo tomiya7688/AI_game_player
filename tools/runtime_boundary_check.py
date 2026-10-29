@@ -7,11 +7,22 @@
 from __future__ import annotations
 
 import argparse
-import ast
 import json
-import re
 import sys
 from pathlib import Path
+
+if __package__:
+    from .runtime_boundary_contract import (
+        read_binding_contract,
+        read_native_contract as _native_contract,
+        read_python_contract as _python_contract,
+    )
+else:
+    from runtime_boundary_contract import (
+        read_binding_contract,
+        read_native_contract as _native_contract,
+        read_python_contract as _python_contract,
+    )
 
 ROOT = Path(__file__).resolve().parents[1]
 COARSE_UNITS = {
@@ -24,57 +35,6 @@ COARSE_UNITS = {
 }
 REQUIRED_LANGUAGES = {"python", "cpp", "lua", "csharp", "javascript_typescript"}
 LANGUAGE_DECISIONS = {"adopted", "deferred", "optional", "rejected"}
-
-
-def _python_contract(path: Path) -> tuple[int, set[str]]:
-    """Pythonをimportせず、契約versionと能力名をASTから読み取ります。"""
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    version = None
-    capabilities: set[str] = set()
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if (
-                    isinstance(target, ast.Name)
-                    and target.id == "RUNTIME_CONTRACT_VERSION"
-                ):
-                    if (
-                        isinstance(node.value, ast.Constant)
-                        and type(node.value.value) is int
-                    ):
-                        version = node.value.value
-        if isinstance(node, ast.ClassDef) and node.name == "RuntimeCapability":
-            for item in node.body:
-                if isinstance(item, ast.Assign) and isinstance(
-                    item.value, ast.Constant
-                ):
-                    if isinstance(item.value.value, str):
-                        capabilities.add(item.value.value)
-    if version is None or version <= 0:
-        raise ValueError("positive integer RUNTIME_CONTRACT_VERSION was not found")
-    if not capabilities:
-        raise ValueError("RuntimeCapability values were not found")
-    return version, capabilities
-
-
-def _native_contract(path: Path) -> tuple[int, set[str]]:
-    """Cヘッダーを実行せず、ABI versionと能力マクロを読み取ります。"""
-    text = path.read_text(encoding="utf-8")
-    # 整数リテラルだけを読みます。Cの式やマクロ展開は評価しません。
-    version = re.search(
-        r"^#define\s+KADOKA_RUNTIME_ABI_VERSION\s+(\d+)[uU]?\s*$", text, re.MULTILINE
-    )
-    capabilities = {
-        match.group(1).lower()
-        for match in re.finditer(
-            r"^#define\s+KADOKA_CAP_([A-Z0-9_]+)\s+", text, re.MULTILINE
-        )
-    }
-    if version is None or int(version.group(1)) <= 0:
-        raise ValueError("positive KADOKA_RUNTIME_ABI_VERSION was not found")
-    if not capabilities:
-        raise ValueError("native capability macros were not found")
-    return int(version.group(1)), capabilities
 
 
 def _string_set(value: object, label: str, errors: list[str]) -> set[str]:
@@ -135,7 +95,6 @@ def _check_components(
         for field in (
             "name",
             "preferred_language",
-            "current_language",
             "boundary_unit",
             "status",
             "reason",
@@ -158,6 +117,13 @@ def _check_components(
         language = component.get("preferred_language")
         if not isinstance(language, str) or language not in languages:
             errors.append(f"{label} uses an unevaluated language")
+        current = _string_set(
+            component.get("current_languages"), f"{label} current_languages", errors
+        )
+        if current - languages:
+            errors.append(
+                f"{label} uses an unevaluated current language: {sorted(current - languages)}"
+            )
         unit = component.get("boundary_unit")
         if not isinstance(unit, str) or unit not in units:
             errors.append(f"{label} uses an unapproved boundary unit")
@@ -223,9 +189,14 @@ def check_boundary(root: Path = ROOT, manifest_path: Path | None = None) -> list
     except (OSError, UnicodeError, SyntaxError, ValueError) as error:
         return [f"cannot read Python contract {python_path}: {error}"]
     try:
-        native_version, native_capabilities = _native_contract(native_path)
-    except (OSError, UnicodeError, ValueError) as error:
+        native_version, native_bits = _native_contract(native_path)
+    except (OSError, UnicodeError, SyntaxError, ValueError) as error:
         return [f"cannot read native contract {native_path}: {error}"]
+    binding_path = root / "src/ai_game_player/runtime/native.py"
+    try:
+        binding_version, binding_bits = read_binding_contract(binding_path)
+    except (OSError, UnicodeError, SyntaxError, ValueError) as error:
+        return [f"cannot read Python native binding {binding_path}: {error}"]
     errors: list[str] = []
     if manifest.get("schema") != "kadoka-runtime-boundary/v1":
         errors.append("manifest schema must be kadoka-runtime-boundary/v1")
@@ -238,8 +209,12 @@ def check_boundary(root: Path = ROOT, manifest_path: Path | None = None) -> list
         errors.append(
             f"contract version mismatch: manifest={version!r} python={python_version} native={native_version}"
         )
+    if binding_version != native_version:
+        errors.append("Python binding ABI version mismatch")
+    if binding_bits != native_bits:
+        errors.append("Native/Python binding capability bits mismatch")
     capabilities = _string_set(manifest.get("capabilities"), "capabilities", errors)
-    if capabilities != python_capabilities or capabilities != native_capabilities:
+    if capabilities != python_capabilities or capabilities != set(native_bits):
         errors.append("manifest/Python/native capability mismatch")
     units = _string_set(
         manifest.get("coarse_boundary_units"), "coarse_boundary_units", errors

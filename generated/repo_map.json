@@ -87715,7 +87715,7 @@
       "module": "tests.test_runtime_boundary",
       "path": "tests/test_runtime_boundary.py",
       "source_location": {
-        "end_line": 141,
+        "end_line": 218,
         "start_line": 1
       },
       "symbols": [
@@ -87737,7 +87737,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 141,
+            "end_line": 218,
             "start_line": 19
           }
         },
@@ -88071,8 +88071,77 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
+            "end_line": 142,
             "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_current_languages_must_be_evaluated_unique_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryCheckTest.test_current_languages_must_be_evaluated_unique_names",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_capability_values_are_single_unique_bits",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryCheckTest.test_native_capability_values_are_single_unique_bits",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_and_binding_bit_drift_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryCheckTest.test_native_and_binding_bit_drift_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 218,
+            "start_line": 168
           }
         }
       ]
@@ -88116,6 +88185,19 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
           "module": "tempfile",
           "names": [
             {
@@ -88127,13 +88209,422 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "time",
           "names": [
             {
               "alias": null,
               "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "mock"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "tools",
+            "tools.runtime_boundary_benchmark"
+          ],
+          "module": "tools.runtime_boundary_benchmark",
+          "names": [
+            {
+              "alias": null,
+              "name": "_find_library"
+            },
+            {
+              "alias": null,
+              "name": "_load_native"
+            },
+            {
+              "alias": null,
+              "name": "benchmark"
+            },
+            {
+              "alias": null,
+              "name": "measure_runtime_boundary_cli"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "tools",
+            "tools.runtime_boundary_ipc"
+          ],
+          "module": "tools.runtime_boundary_ipc",
+          "names": [
+            {
+              "alias": null,
+              "name": "measure_ipc_roundtrip"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "tools",
+            "tools.runtime_boundary_metrics"
+          ],
+          "module": "tools.runtime_boundary_metrics",
+          "names": [
+            {
+              "alias": null,
+              "name": "measure_operation"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_runtime_boundary_benchmark",
+      "path": "tests/test_runtime_boundary_benchmark.py",
+      "source_location": {
+        "end_line": 115,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_then_wait",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "connection"
+            }
+          ],
+          "qualified_name": "_read_then_wait",
+          "return_annotation": null,
+          "signature": "(connection)",
+          "source_location": {
+            "column": 0,
+            "end_line": 31,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeBoundaryBenchmarkTest",
+          "parameters": [],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 115,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_spawned_ipc_worker_roundtrip_succeeds_and_exits",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_spawned_ipc_worker_roundtrip_succeeds_and_exits",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 44,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unresponsive_worker_times_out_and_is_reaped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_unresponsive_worker_times_out_and_is_reaped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_ipc_timeout_does_not_start_worker",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_invalid_ipc_timeout_does_not_start_worker",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 64,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unsupported_abi_is_rejected_before_measurement",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_unsupported_abi_is_rejected_before_measurement",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_multiple_library_matches_require_explicit_path",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_multiple_library_matches_require_explicit_path",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_sample_count_does_not_call_operation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_invalid_sample_count_does_not_call_operation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_reports_failure_without_writing_success_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_cli_reports_failure_without_writing_success_report",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_native_exports_are_reported_as_abi_load_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_missing_native_exports_are_reported_as_abi_load_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 103
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.runtime_boundary_report"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "multiprocessing",
+          "names": [
+            {
+              "alias": null,
+              "name": "multiprocessing"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
             }
           ]
         },
@@ -88168,19 +88659,6 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [],
-          "module": "types",
-          "names": [
-            {
-              "alias": null,
-              "name": "SimpleNamespace"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 11,
-          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -88192,68 +88670,24 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 12,
           "local_dependencies": [
             "tools",
-            "tools.runtime_boundary_benchmark"
+            "tools.runtime_boundary_report"
           ],
-          "module": "tools.runtime_boundary_benchmark",
+          "module": "tools.runtime_boundary_report",
           "names": [
             {
               "alias": null,
-              "name": "_find_library"
-            },
-            {
-              "alias": null,
-              "name": "_load_native"
-            },
-            {
-              "alias": null,
-              "name": "benchmark"
-            },
-            {
-              "alias": null,
-              "name": "measure_runtime_boundary_cli"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 21,
-          "local_dependencies": [
-            "tools",
-            "tools.runtime_boundary_ipc"
-          ],
-          "module": "tools.runtime_boundary_ipc",
-          "names": [
-            {
-              "alias": null,
-              "name": "measure_ipc_roundtrip"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 22,
-          "local_dependencies": [
-            "tools",
-            "tools.runtime_boundary_metrics"
-          ],
-          "module": "tools.runtime_boundary_metrics",
-          "names": [
-            {
-              "alias": null,
-              "name": "measure_operation"
+              "name": "BenchmarkReportAttempt"
             }
           ]
         }
       ],
-      "module": "tests.test_runtime_boundary_benchmark",
-      "path": "tests/test_runtime_boundary_benchmark.py",
+      "module": "tests.test_runtime_boundary_report",
+      "path": "tests/test_runtime_boundary_report.py",
       "source_location": {
-        "end_line": 112,
+        "end_line": 106,
         "start_line": 1
       },
       "symbols": [
@@ -88262,22 +88696,28 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
-          "name": "_read_then_wait",
+          "name": "_publish_report_in_child",
           "parameters": [
             {
               "annotation": null,
               "has_default": false,
               "kind": "positional_or_keyword",
-              "name": "connection"
+              "name": "path"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "published"
             }
           ],
-          "qualified_name": "_read_then_wait",
+          "qualified_name": "_publish_report_in_child",
           "return_annotation": null,
-          "signature": "(connection)",
+          "signature": "(path, published)",
           "source_location": {
             "column": 0,
-            "end_line": 30,
-            "start_line": 25
+            "end_line": 19,
+            "start_line": 15
           }
         },
         {
@@ -88291,15 +88731,15 @@
           },
           "decorators": [],
           "kind": "class",
-          "name": "RuntimeBoundaryBenchmarkTest",
+          "name": "BenchmarkReportTest",
           "parameters": [],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest",
+          "qualified_name": "BenchmarkReportTest",
           "return_annotation": null,
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 112,
-            "start_line": 33
+            "end_line": 106,
+            "start_line": 22
           }
         },
         {
@@ -88307,7 +88747,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_spawned_ipc_worker_roundtrip_succeeds_and_exits",
+          "name": "test_failed_rerun_invalidates_the_previous_success",
           "parameters": [
             {
               "annotation": null,
@@ -88316,13 +88756,13 @@
               "name": "self"
             }
           ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_spawned_ipc_worker_roundtrip_succeeds_and_exits",
+          "qualified_name": "BenchmarkReportTest.test_failed_rerun_invalidates_the_previous_success",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 43,
-            "start_line": 34
+            "end_line": 34,
+            "start_line": 23
           }
         },
         {
@@ -88330,7 +88770,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_unresponsive_worker_times_out_and_is_reaped",
+          "name": "test_older_result_and_failure_cannot_replace_a_newer_success",
           "parameters": [
             {
               "annotation": null,
@@ -88339,13 +88779,13 @@
               "name": "self"
             }
           ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_unresponsive_worker_times_out_and_is_reaped",
+          "qualified_name": "BenchmarkReportTest.test_older_result_and_failure_cannot_replace_a_newer_success",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 45
+            "end_line": 48,
+            "start_line": 36
           }
         },
         {
@@ -88353,7 +88793,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_invalid_ipc_timeout_does_not_start_worker",
+          "name": "test_real_process_publication_supersedes_older_work",
           "parameters": [
             {
               "annotation": null,
@@ -88362,13 +88802,13 @@
               "name": "self"
             }
           ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_invalid_ipc_timeout_does_not_start_worker",
+          "qualified_name": "BenchmarkReportTest.test_real_process_publication_supersedes_older_work",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 63,
-            "start_line": 56
+            "end_line": 75,
+            "start_line": 50
           }
         },
         {
@@ -88376,7 +88816,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_unsupported_abi_is_rejected_before_measurement",
+          "name": "test_failed_atomic_replace_keeps_complete_json_and_cleans_staging",
           "parameters": [
             {
               "annotation": null,
@@ -88385,13 +88825,13 @@
               "name": "self"
             }
           ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_unsupported_abi_is_rejected_before_measurement",
+          "qualified_name": "BenchmarkReportTest.test_failed_atomic_replace_keeps_complete_json_and_cleans_staging",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 71,
-            "start_line": 65
+            "end_line": 93,
+            "start_line": 77
           }
         },
         {
@@ -88399,7 +88839,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_multiple_library_matches_require_explicit_path",
+          "name": "test_finished_attempt_cannot_be_reused",
           "parameters": [
             {
               "annotation": null,
@@ -88408,82 +88848,13 @@
               "name": "self"
             }
           ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_multiple_library_matches_require_explicit_path",
+          "qualified_name": "BenchmarkReportTest.test_finished_attempt_cannot_be_reused",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 84,
-            "start_line": 73
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_invalid_sample_count_does_not_call_operation",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_invalid_sample_count_does_not_call_operation",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 90,
-            "start_line": 86
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_cli_reports_failure_without_writing_success_report",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_cli_reports_failure_without_writing_success_report",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 98,
-            "start_line": 92
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_missing_native_exports_are_reported_as_abi_load_failure",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_missing_native_exports_are_reported_as_abi_load_failure",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 112,
-            "start_line": 100
+            "end_line": 106,
+            "start_line": 95
           }
         }
       ]
@@ -111862,7 +112233,8 @@
       "dependencies": [
         "tools",
         "tools.runtime_boundary_ipc",
-        "tools.runtime_boundary_metrics"
+        "tools.runtime_boundary_metrics",
+        "tools.runtime_boundary_report"
       ],
       "imports": [
         {
@@ -112014,6 +112386,22 @@
           "line": 22,
           "local_dependencies": [
             "tools",
+            "tools.runtime_boundary_report"
+          ],
+          "module": "runtime_boundary_report",
+          "names": [
+            {
+              "alias": null,
+              "name": "BenchmarkReportAttempt"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 1,
+          "line": 23,
+          "local_dependencies": [
+            "tools",
             "tools.runtime_boundary_metrics"
           ],
           "module": "runtime_boundary_metrics",
@@ -112027,7 +112415,7 @@
         {
           "kind": "from",
           "level": 1,
-          "line": 23,
+          "line": 24,
           "local_dependencies": [
             "tools",
             "tools.runtime_boundary_ipc"
@@ -112047,7 +112435,20 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 26,
+          "local_dependencies": [],
+          "module": "runtime_boundary_report",
+          "names": [
+            {
+              "alias": null,
+              "name": "BenchmarkReportAttempt"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 27,
           "local_dependencies": [],
           "module": "runtime_boundary_metrics",
           "names": [
@@ -112060,7 +112461,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 28,
           "local_dependencies": [],
           "module": "runtime_boundary_ipc",
           "names": [
@@ -112078,7 +112479,7 @@
       "module": "tools.runtime_boundary_benchmark",
       "path": "tools/runtime_boundary_benchmark.py",
       "source_location": {
-        "end_line": 262,
+        "end_line": 269,
         "start_line": 1
       },
       "symbols": [
@@ -112100,8 +112501,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 52,
-            "start_line": 40
+            "end_line": 54,
+            "start_line": 42
           }
         },
         {
@@ -112122,8 +112523,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 60,
-            "start_line": 55
+            "end_line": 62,
+            "start_line": 57
           }
         },
         {
@@ -112151,8 +112552,8 @@
           "signature": "(explicit: Path | None, search_root: Path) -> Path",
           "source_location": {
             "column": 0,
-            "end_line": 86,
-            "start_line": 63
+            "end_line": 88,
+            "start_line": 65
           }
         },
         {
@@ -112174,8 +112575,8 @@
           "signature": "(path: Path) -> tuple[ctypes.CDLL, Callable[[], int], Callable[[], None]]",
           "source_location": {
             "column": 0,
-            "end_line": 128,
-            "start_line": 89
+            "end_line": 130,
+            "start_line": 91
           }
         },
         {
@@ -112190,8 +112591,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 121
+            "end_line": 128,
+            "start_line": 123
           }
         },
         {
@@ -112206,8 +112607,8 @@
           "signature": "() -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 152,
-            "start_line": 131
+            "end_line": 154,
+            "start_line": 133
           }
         },
         {
@@ -112241,8 +112642,8 @@
           "signature": "(native_library: Path, samples: int, ipc_timeout_seconds: float = …) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 215,
-            "start_line": 155
+            "end_line": 217,
+            "start_line": 157
           }
         },
         {
@@ -112257,8 +112658,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 170,
-            "start_line": 168
+            "end_line": 172,
+            "start_line": 170
           }
         },
         {
@@ -112273,8 +112674,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 177,
-            "start_line": 172
+            "end_line": 179,
+            "start_line": 174
           }
         },
         {
@@ -112289,8 +112690,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 179
+            "end_line": 184,
+            "start_line": 181
           }
         },
         {
@@ -112305,8 +112706,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 187,
-            "start_line": 184
+            "end_line": 189,
+            "start_line": 186
           }
         },
         {
@@ -112321,14 +112722,17 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 257,
-            "start_line": 218
+            "end_line": 264,
+            "start_line": 220
           }
         }
       ]
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "tools",
+        "tools.runtime_boundary_contract"
+      ],
       "imports": [
         {
           "kind": "from",
@@ -112361,19 +112765,6 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [],
-          "module": "ast",
-          "names": [
-            {
-              "alias": null,
-              "name": "ast"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 11,
-          "local_dependencies": [],
           "module": "json",
           "names": [
             {
@@ -112385,20 +112776,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 12,
-          "local_dependencies": [],
-          "module": "re",
-          "names": [
-            {
-              "alias": null,
-              "name": "re"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 13,
+          "line": 11,
           "local_dependencies": [],
           "module": "sys",
           "names": [
@@ -112411,7 +112789,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 12,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -112420,61 +112798,60 @@
               "name": "Path"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 1,
+          "line": 15,
+          "local_dependencies": [
+            "tools",
+            "tools.runtime_boundary_contract"
+          ],
+          "module": "runtime_boundary_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_binding_contract"
+            },
+            {
+              "alias": "_native_contract",
+              "name": "read_native_contract"
+            },
+            {
+              "alias": "_python_contract",
+              "name": "read_python_contract"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [],
+          "module": "runtime_boundary_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_binding_contract"
+            },
+            {
+              "alias": "_native_contract",
+              "name": "read_native_contract"
+            },
+            {
+              "alias": "_python_contract",
+              "name": "read_python_contract"
+            }
+          ]
         }
       ],
       "module": "tools.runtime_boundary_check",
       "path": "tools/runtime_boundary_check.py",
       "source_location": {
-        "end_line": 278,
+        "end_line": 253,
         "start_line": 1
       },
       "symbols": [
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "_python_contract",
-          "parameters": [
-            {
-              "annotation": "Path",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "path"
-            }
-          ],
-          "qualified_name": "_python_contract",
-          "return_annotation": "tuple[int, set[str]]",
-          "signature": "(path: Path) -> tuple[int, set[str]]",
-          "source_location": {
-            "column": 0,
-            "end_line": 57,
-            "start_line": 29
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "_native_contract",
-          "parameters": [
-            {
-              "annotation": "Path",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "path"
-            }
-          ],
-          "qualified_name": "_native_contract",
-          "return_annotation": "tuple[int, set[str]]",
-          "signature": "(path: Path) -> tuple[int, set[str]]",
-          "source_location": {
-            "column": 0,
-            "end_line": 77,
-            "start_line": 60
-          }
-        },
         {
           "bases": [],
           "data_model": null,
@@ -112506,8 +112883,8 @@
           "signature": "(value: object, label: str, errors: list[str]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 93,
-            "start_line": 80
+            "end_line": 53,
+            "start_line": 40
           }
         },
         {
@@ -112535,8 +112912,8 @@
           "signature": "(value: object, errors: list[str]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 115,
-            "start_line": 96
+            "end_line": 75,
+            "start_line": 56
           }
         },
         {
@@ -112582,8 +112959,8 @@
           "signature": "(value: object, languages: set[str], units: set[str], capabilities: set[str], errors: list[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 175,
-            "start_line": 118
+            "end_line": 141,
+            "start_line": 78
           }
         },
         {
@@ -112617,8 +112994,8 @@
           "signature": "(root: Path, value: object, errors: list[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 202,
-            "start_line": 178
+            "end_line": 168,
+            "start_line": 144
           }
         },
         {
@@ -112646,8 +113023,8 @@
           "signature": "(root: Path = …, manifest_path: Path | None = …) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 256,
-            "start_line": 206
+            "end_line": 231,
+            "start_line": 172
           }
         },
         {
@@ -112662,8 +113039,194 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 274,
-            "start_line": 259
+            "end_line": 249,
+            "start_line": 234
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "ast",
+          "names": [
+            {
+              "alias": null,
+              "name": "ast"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.runtime_boundary_contract",
+      "path": "tools/runtime_boundary_contract.py",
+      "source_location": {
+        "end_line": 138,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_integer_value",
+          "parameters": [
+            {
+              "annotation": "ast.AST",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "node"
+            },
+            {
+              "annotation": "dict[str, int] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "names"
+            }
+          ],
+          "qualified_name": "_integer_value",
+          "return_annotation": "int",
+          "signature": "(node: ast.AST, names: dict[str, int] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 29,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_bits",
+          "parameters": [
+            {
+              "annotation": "dict[str, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "values"
+            }
+          ],
+          "qualified_name": "_validate_bits",
+          "return_annotation": "None",
+          "signature": "(values: dict[str, int]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_python_contract",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "read_python_contract",
+          "return_annotation": "tuple[int, set[str]]",
+          "signature": "(path: Path) -> tuple[int, set[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_native_contract",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "read_native_contract",
+          "return_annotation": "tuple[int, dict[str, int]]",
+          "signature": "(path: Path) -> tuple[int, dict[str, int]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 96,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_binding_contract",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "read_binding_contract",
+          "return_annotation": "tuple[int, dict[str, int]]",
+          "signature": "(path: Path) -> tuple[int, dict[str, int]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 138,
+            "start_line": 99
           }
         }
       ]
@@ -112951,6 +113514,331 @@
             "column": 0,
             "end_line": 40,
             "start_line": 19
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.atomic_json",
+        "ai_game_player.cross_process_lock"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "uuid",
+          "names": [
+            {
+              "alias": null,
+              "name": "uuid"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "stage_json_write"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.cross_process_lock"
+          ],
+          "module": "ai_game_player.cross_process_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "cross_process_file_lock"
+            }
+          ]
+        }
+      ],
+      "module": "tools.runtime_boundary_report",
+      "path": "tools/runtime_boundary_report.py",
+      "source_location": {
+        "end_line": 92,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BenchmarkReportAttempt",
+          "parameters": [],
+          "qualified_name": "BenchmarkReportAttempt",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 92,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt.__init__",
+          "return_annotation": null,
+          "signature": "(self, output: Path)",
+          "source_location": {
+            "column": 4,
+            "end_line": 30,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_write",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt._write",
+          "return_annotation": "None",
+          "signature": "(self, value: dict[str, object]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_marker",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt._marker",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self, status: str) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 45,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_owns_output",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt._owns_output",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "begin",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt.begin",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "publish",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt.publish",
+          "return_annotation": "None",
+          "signature": "(self, report: dict[str, object]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 74,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Exception",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "BenchmarkReportAttempt.fail",
+          "return_annotation": "bool",
+          "signature": "(self, error: Exception) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 92,
+            "start_line": 76
           }
         }
       ]
