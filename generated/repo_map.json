@@ -88168,6 +88168,19 @@
           "level": 0,
           "line": 10,
           "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -88179,7 +88192,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "tools",
             "tools.runtime_boundary_benchmark"
@@ -88189,6 +88202,10 @@
             {
               "alias": null,
               "name": "_find_library"
+            },
+            {
+              "alias": null,
+              "name": "_load_native"
             },
             {
               "alias": null,
@@ -88203,7 +88220,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 21,
           "local_dependencies": [
             "tools",
             "tools.runtime_boundary_ipc"
@@ -88219,7 +88236,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 22,
           "local_dependencies": [
             "tools",
             "tools.runtime_boundary_metrics"
@@ -88236,7 +88253,7 @@
       "module": "tests.test_runtime_boundary_benchmark",
       "path": "tests/test_runtime_boundary_benchmark.py",
       "source_location": {
-        "end_line": 96,
+        "end_line": 112,
         "start_line": 1
       },
       "symbols": [
@@ -88259,8 +88276,8 @@
           "signature": "(connection)",
           "source_location": {
             "column": 0,
-            "end_line": 28,
-            "start_line": 23
+            "end_line": 30,
+            "start_line": 25
           }
         },
         {
@@ -88281,8 +88298,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 96,
-            "start_line": 31
+            "end_line": 112,
+            "start_line": 33
           }
         },
         {
@@ -88304,8 +88321,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 41,
-            "start_line": 32
+            "end_line": 43,
+            "start_line": 34
           }
         },
         {
@@ -88327,8 +88344,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 52,
-            "start_line": 43
+            "end_line": 54,
+            "start_line": 45
           }
         },
         {
@@ -88350,8 +88367,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 61,
-            "start_line": 54
+            "end_line": 63,
+            "start_line": 56
           }
         },
         {
@@ -88373,8 +88390,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 63
+            "end_line": 71,
+            "start_line": 65
           }
         },
         {
@@ -88396,8 +88413,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 71
+            "end_line": 84,
+            "start_line": 73
           }
         },
         {
@@ -88419,8 +88436,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 84
+            "end_line": 90,
+            "start_line": 86
           }
         },
         {
@@ -88442,8 +88459,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 90
+            "end_line": 98,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_native_exports_are_reported_as_abi_load_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeBoundaryBenchmarkTest.test_missing_native_exports_are_reported_as_abi_load_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 100
           }
         }
       ]
@@ -112038,7 +112078,7 @@
       "module": "tools.runtime_boundary_benchmark",
       "path": "tools/runtime_boundary_benchmark.py",
       "source_location": {
-        "end_line": 257,
+        "end_line": 262,
         "start_line": 1
       },
       "symbols": [
@@ -112134,7 +112174,7 @@
           "signature": "(path: Path) -> tuple[ctypes.CDLL, Callable[[], int], Callable[[], None]]",
           "source_location": {
             "column": 0,
-            "end_line": 123,
+            "end_line": 128,
             "start_line": 89
           }
         },
@@ -112150,8 +112190,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 116
+            "end_line": 126,
+            "start_line": 121
           }
         },
         {
@@ -112166,8 +112206,8 @@
           "signature": "() -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 147,
-            "start_line": 126
+            "end_line": 152,
+            "start_line": 131
           }
         },
         {
@@ -112201,8 +112241,8 @@
           "signature": "(native_library: Path, samples: int, ipc_timeout_seconds: float = …) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 210,
-            "start_line": 150
+            "end_line": 215,
+            "start_line": 155
           }
         },
         {
@@ -112217,8 +112257,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 163
+            "end_line": 170,
+            "start_line": 168
           }
         },
         {
@@ -112233,8 +112273,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 167
+            "end_line": 177,
+            "start_line": 172
           }
         },
         {
@@ -112249,8 +112289,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 177,
-            "start_line": 174
+            "end_line": 182,
+            "start_line": 179
           }
         },
         {
@@ -112265,8 +112305,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 179
+            "end_line": 187,
+            "start_line": 184
           }
         },
         {
@@ -112281,8 +112321,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 252,
-            "start_line": 213
+            "end_line": 257,
+            "start_line": 218
           }
         }
       ]

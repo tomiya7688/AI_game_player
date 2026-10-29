@@ -90,11 +90,16 @@ def _load_native(
     path: Path,
 ) -> tuple[ctypes.CDLL, Callable[[], int], Callable[[], None]]:
     library = ctypes.CDLL(str(path))
-    abi = library.kadoka_runtime_abi_version
+    try:
+        abi = library.kadoka_runtime_abi_version
+        validate = library.kadoka_safety_validate_action
+    except AttributeError as error:
+        raise ValueError(
+            f"Native Runtime C ABI symbol is missing in {path}: {error}"
+        ) from error
     abi.argtypes = []
     abi.restype = ctypes.c_uint32
 
-    validate = library.kadoka_safety_validate_action
     validate.argtypes = [ctypes.POINTER(_SafetyAction), ctypes.POINTER(_SafetyResult)]
     validate.restype = ctypes.c_int32
     action = _SafetyAction(

@@ -7,10 +7,12 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from tools.runtime_boundary_benchmark import (
     _find_library,
+    _load_native,
     benchmark,
     measure_runtime_boundary_cli,
 )
@@ -94,3 +96,17 @@ class RuntimeBoundaryBenchmarkTest(unittest.TestCase):
             with mock.patch("sys.argv", arguments), mock.patch("sys.stderr"):
                 self.assertEqual(measure_runtime_boundary_cli(), 1)
             self.assertFalse(report.exists())
+
+    def test_missing_native_exports_are_reported_as_abi_load_failure(self):
+        for library in (
+            SimpleNamespace(),
+            SimpleNamespace(kadoka_runtime_abi_version=lambda: 1),
+        ):
+            with (
+                self.subTest(library=library),
+                mock.patch(
+                    "tools.runtime_boundary_benchmark.ctypes.CDLL", return_value=library
+                ),
+            ):
+                with self.assertRaisesRegex(ValueError, "C ABI symbol is missing"):
+                    _load_native(Path("missing-symbols.dll"))
