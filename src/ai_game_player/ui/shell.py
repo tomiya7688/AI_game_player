@@ -13,6 +13,7 @@ from ai_game_player.ui.tooltip import ToolTip
 
 WORKSPACES = ("Play", "Vision", "Reasoning", "Evaluation", "History", "Mods")
 WORKSPACE_HINTS = {
+    "Play": "ゲーム操作と実行制御を行うメイン画面です。",
     "Vision": "画面認識と候補の表示領域です。Workspaceの内容は個別機能から接続します。",
     "Reasoning": "判断過程の表示領域です。",
     "Evaluation": "結果と評価の表示領域です。",
@@ -203,6 +204,8 @@ class ApplicationShell(ttk.Frame):
             )
             button.pack(fill=tk.X, pady=2)
             self.workspace_buttons[workspace] = button
+            if workspace in WORKSPACE_HINTS:
+                ToolTip(button, WORKSPACE_HINTS[workspace])
 
         self.main_view = ttk.Frame(self.upper, padding=8)
         for workspace in WORKSPACES:
