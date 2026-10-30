@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from ai_game_player.ui.shell import (
     WORKSPACES,
+    WORKSPACE_HINTS,
     ApplicationShell,
     ShellController,
     ShellState,
@@ -285,6 +286,39 @@ class TkShellSmokeTests(unittest.TestCase):
                     self.assertEqual(stop_calls, [True])
                 finally:
                     root.destroy()
+
+    def test_workspace_buttons_have_tooltips(self):
+        try:
+            root = tk.Tk()
+        except TclError as exc:
+            self.skipTest(f"Tk desktop is unavailable: {exc}")
+        try:
+            root.geometry("1100x700+30000+30000")
+            shell = ApplicationShell(root, ShellState(), lambda: None, lambda _s: None)
+            shell.pack(fill=tk.BOTH, expand=True)
+            root.update()
+            for workspace in WORKSPACES:
+                button = shell.workspace_buttons[workspace]
+                button.event_generate("<FocusIn>")
+                root.after(450, root.quit)
+                root.mainloop()
+                popup = next(
+                    (
+                        child
+                        for child in button.winfo_children()
+                        if isinstance(child, tk.Toplevel)
+                    ),
+                    None,
+                )
+                self.assertIsNotNone(
+                    popup, f"ToolTip popup missing for workspace {workspace}"
+                )
+                self.assertTrue(popup.winfo_viewable())
+                help_text = popup.winfo_children()[0].cget("text")
+                self.assertEqual(help_text, WORKSPACE_HINTS[workspace])
+                button.event_generate("<FocusOut>")
+        finally:
+            root.destroy()
 
     def test_application_shell_does_not_register_duplicate_escape_binding(self):
         try:

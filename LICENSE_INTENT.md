@@ -72,8 +72,9 @@ artifact use an appropriate license while making the applicable license obvious.
 
 ## Wise Misk / 賢者ミスク
 
-Wise Misk is used as the development player while the 1.0.0 application is
-being built.
+Wise Misk is planned as the development player profile while the 1.0.0
+application is being built; that profile is not established as a current
+application default.
 
 Its final artwork license is intentionally **undecided**.
 

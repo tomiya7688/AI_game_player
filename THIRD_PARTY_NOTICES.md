@@ -17,12 +17,16 @@ Current declared sources:
 | 2048 | `gabrielecirulli/2048` | MIT |
 | Memory Game | `sen-ltd/memory-game` | MIT |
 | RuggRogue code | `tung/ruggrogue` | MIT |
-| RuggRogue tile graphics | upstream asset | CC0 |
+| RuggRogue Urizen 1Bit Tilesets | vurmux, per pinned upstream README | CC0 |
 | RuggRogue GohuFont | upstream asset | WTFPL |
+| RuggRogue `assets/terminal-8x8.png` | Rust Roguelike Tutorial assets, per pinned upstream README | Terms not established in that README |
 | Pygame Tetris | `Owsap/pygame-tetris` | MIT |
 
 CI materializes pinned commits only for testing. Upstream license files and
-asset notices must be preserved in the materialized artifact.
+asset notices must be preserved in the materialized artifact. Before
+redistributing the RuggRogue terminal image, determine its rights holder and
+applicable terms from the original source; the pinned README alone is not
+sufficient to establish those terms.
 
 ## Default model candidates
 

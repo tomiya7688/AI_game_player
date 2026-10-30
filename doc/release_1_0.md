@@ -1,11 +1,14 @@
 # 1.0.0 Release Scope and Acceptance
 
 Issue #19 is the priority/source-of-truth. This document records the repository
-side of the accepted 1.0.0 product boundary.
+side of the accepted 1.0.0 product boundary. The sections below describe
+release targets and acceptance criteria, not proof that the features or gates
+are implemented. The current application offers local rules and Ollama; the
+bundled inference service and its real-inference CI gates remain future work.
 
 ## Product scope
 
-During development, the default player profile is **Wise Misk (賢者ミスク)**. For the 1.0.0 release artifact, the bundled/default player asset is replaced with the MIT-licensed **すーぱーあいこん** asset set. The Player Seat/Profile implementation must not depend on one particular character asset.
+The planned development player profile is **Wise Misk (賢者ミスク)**. For the 1.0.0 release artifact, the bundled/default player asset is replaced with the MIT-licensed **すーぱーあいこん** asset set. The Player Seat/Profile implementation must not depend on one particular character asset.
 
 1.0.0 targets Windows x64 and local-first game playing.
 
@@ -47,7 +50,12 @@ replacement decision.
 - remote data transmission: explicit Provider opt-in and data-class disclosure
 - credentials: never in Decision Context, Trace, Replay, or normal logs
 
-## Routine CI
+## Target routine CI
+
+The NoisyLanguageProvider synthetic gate is implemented in `performance-ci`.
+The smoke-tiny gameplay, standard-small inference, and VRAM gates below are
+targets; this change does not implement those gates or establish real-inference
+and gameplay release acceptance.
 
 - smoke-tiny: approximately 600 seconds of Level 1 real-game endurance when the
   runner is available
@@ -201,7 +209,8 @@ infrastructure in #36/#37/#166-#173.
 
 ## Player profile customization
 
-Development builds default to Wise Misk / 賢者ミスク. The 1.0.0 release
+The planned development profile defaults to Wise Misk / 賢者ミスク; the
+current application does not establish that profile as a default. The 1.0.0 release
 profile defaults to the MIT-licensed すーぱーあいこん assets. In both cases,
 the visible player identity is not the same thing as the technical model
 identity.
@@ -287,7 +296,7 @@ Each pack carries license/source metadata. Asset selection surfaces show the
 license name inline, while full text/source/notice is available through
 "Details". Selecting an asset does not repeatedly force a full license dialog.
 
-Development uses Wise Misk. The 1.0.0 release defaults to the MIT-licensed
+The planned development profile uses Wise Misk. The 1.0.0 release target defaults to the MIT-licensed
 Super Icon / すーぱーあいこん pack.
 
 Implementation tracking: #190.

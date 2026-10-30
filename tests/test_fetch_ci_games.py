@@ -1,12 +1,25 @@
 """固定ソース取得が未検証パスや利用者の変更を削除しないことを確認します。"""
 
 import tempfile
+import time
 import sys
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from tools import fetch_ci_games
+
+
+class RetrySharingViolationTemporaryDirectory(tempfile.TemporaryDirectory):
+    def cleanup(self):
+        for attempt in range(6):
+            try:
+                super().cleanup()
+                return
+            except PermissionError as error:
+                if getattr(error, "winerror", None) != 32 or attempt == 5:
+                    raise
+                time.sleep(0.1)
 
 
 class ReferenceGameFetchTest(unittest.TestCase):
@@ -76,7 +89,7 @@ class ReferenceGameFetchTest(unittest.TestCase):
             self.assertEqual(saved.read_text(encoding="utf-8"), "keep")
 
     def test_real_ignored_file_blocks_clean_before_any_deletion(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with RetrySharingViolationTemporaryDirectory() as directory:
             root = Path(directory)
             target = root / "test-game"
             target.mkdir()

@@ -5,8 +5,8 @@ first-party non-character software assets unless another license is declared.
 
 ## Development player: Wise Misk / 賢者ミスク
 
-Wise Misk is the default **development** player profile while 1.0.0 is being
-built.
+Wise Misk is the planned default **development** player profile. The current
+application does not establish that profile as an implemented default.
 
 The final artwork license for Wise Misk is currently **undecided**.
 
