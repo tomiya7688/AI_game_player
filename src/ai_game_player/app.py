@@ -108,13 +108,14 @@ class Application:
     #   処理: [
     #     1: 保存済みの判断設定・入力方式・画面取得領域を読み、実行制御を初期化する
     #     2: Play作業画面の上部に対象ウィンドウ選択欄を作り、OSのウィンドウ識別値とプロセスIDを管理する
-    #     3: バックグラウンド処理の結果受取状態と、最新の画面評価の識別子を初期化する
-    #     4: 自動入力によるカーソル位置をバックグラウンド処理と画面側で共有する状態を初期化する
-    #     5: 画面取得方式と取得領域のUI入力を作り、設定の保存処理と画面取得部品へ接続する
-    #     6: 任意入力の操作候補JSONと、候補評価の表示欄を作る
-    #     7: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
-    #     8: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
-    #     9: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
+    #     3: 一覧更新ボタンへ共通ToolTipを接続し、対象ウィンドウ検出の更新契機を案内する
+    #     4: バックグラウンド処理の結果受取状態と、最新の画面評価の識別子を初期化する
+    #     5: 自動入力によるカーソル位置をバックグラウンド処理と画面側で共有する状態を初期化する
+    #     6: 画面取得方式と取得領域のUI入力を作り、設定の保存処理と画面取得部品へ接続する
+    #     7: 任意入力の操作候補JSONと、候補評価の表示欄を作る
+    #     8: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
+    #     9: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
+    #     10: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -180,11 +181,16 @@ class Application:
             width=42,
         )
         self.window_selector_combobox.pack(side=tk.LEFT, padx=5)
-        ttk.Button(
+        self.refresh_windows_button = ttk.Button(
             game_window_selection_panel,
             text="一覧更新",
             command=self.refresh_windows,
-        ).pack(side=tk.LEFT)
+        )
+        self.refresh_windows_button.pack(side=tk.LEFT)
+        ToolTip(
+            self.refresh_windows_button,
+            "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。",
+        )
         ttk.Label(
             game_window_selection_panel,
             textvariable=self.window_selection_status_var,
