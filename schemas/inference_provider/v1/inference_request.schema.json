@@ -263,7 +263,10 @@
             "properties": { "type": { "const": "json_schema" } },
             "required": ["type"]
           },
-          "then": { "required": ["json_schema"] }
+          "then": {
+            "required": ["json_schema"],
+            "properties": { "json_schema": { "type": "object" } }
+          }
         }
       ]
     }

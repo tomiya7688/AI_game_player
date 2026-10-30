@@ -1,6 +1,7 @@
 """固定ソース取得が未検証パスや利用者の変更を削除しないことを確認します。"""
 
 import tempfile
+import sys
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -111,6 +112,39 @@ class ReferenceGameFetchTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "local changes"):
                     fetch_ci_games.materialize(self.source(), root, True)
             self.assertEqual(saved.read_text(encoding="utf-8"), "keep ignored data")
+
+    def test_existing_lock_is_preserved_before_fetch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / "manifest-lock.json"
+            lock.write_text("user data", encoding="utf-8")
+            with (
+                mock.patch.object(sys, "argv", ["fetch_ci_games", "--dest", str(root)]),
+                mock.patch.object(fetch_ci_games, "materialize") as materialize,
+            ):
+                with self.assertRaisesRegex(FileExistsError, "refusing to overwrite"):
+                    fetch_ci_games.main()
+                materialize.assert_not_called()
+            self.assertEqual(lock.read_text(encoding="utf-8"), "user data")
+
+    def test_lock_is_reserved_before_materialize(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / "manifest-lock.json"
+
+            def fetch(game, dest, clean):
+                with self.assertRaises(FileExistsError):
+                    lock.open("x", encoding="utf-8")
+                return {"id": game["id"]}
+
+            with (
+                mock.patch.object(
+                    sys, "argv", ["fetch_ci_games", "--level", "1", "--dest", str(root)]
+                ),
+                mock.patch.object(fetch_ci_games, "materialize", side_effect=fetch),
+            ):
+                self.assertEqual(fetch_ci_games.main(), 0)
+            self.assertIn('"id": "2048"', lock.read_text(encoding="utf-8"))
 
     def test_clean_checkout_returns_fixed_commit_and_external_destination(self):
         with tempfile.TemporaryDirectory() as directory:

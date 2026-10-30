@@ -85,6 +85,17 @@ jobs:
               instance = json.loads(path.read_text(encoding="utf-8"))
               Draft202012Validator(schema).validate(instance)
               print(f"EXAMPLE OK {path}")
+
+          request = json.loads(Path("schemas/inference_provider/v1/examples/decision_request.json").read_text(encoding="utf-8"))
+          request["operation"] = "text_generation"
+          request["input"] = {"messages": [{"role": "user", "content": [{"type": "text", "text": "test"}]}]}
+          request["constraints"]["response_format"] = {"type": "json_schema", "json_schema": None}
+          validator = Draft202012Validator(schemas["schemas/inference_provider/v1/inference_request.schema.json"])
+          if validator.is_valid(request):
+              raise SystemExit("json_schema response format must reject null")
+          request["constraints"]["response_format"]["json_schema"] = {"type": "object"}
+          validator.validate(request)
+          print("REQUEST FORMAT OK")
           PY
       - name: Materialize pinned OSS Reference Game sources
         run: python tools/fetch_ci_games.py --all --clean

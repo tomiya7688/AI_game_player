@@ -65472,6 +65472,19 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -65483,7 +65496,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -65496,7 +65509,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -65509,7 +65522,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "tools",
             "tools.fetch_ci_games"
@@ -65526,7 +65539,7 @@
       "module": "tests.test_fetch_ci_games",
       "path": "tests/test_fetch_ci_games.py",
       "source_location": {
-        "end_line": 125,
+        "end_line": 159,
         "start_line": 1
       },
       "symbols": [
@@ -65548,8 +65561,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 125,
-            "start_line": 11
+            "end_line": 159,
+            "start_line": 12
           }
         },
         {
@@ -65571,8 +65584,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 20,
-            "start_line": 12
+            "end_line": 21,
+            "start_line": 13
           }
         },
         {
@@ -65594,8 +65607,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 38,
-            "start_line": 22
+            "end_line": 39,
+            "start_line": 23
           }
         },
         {
@@ -65617,8 +65630,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 46,
-            "start_line": 40
+            "end_line": 47,
+            "start_line": 41
           }
         },
         {
@@ -65640,8 +65653,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 58,
-            "start_line": 48
+            "end_line": 59,
+            "start_line": 49
           }
         },
         {
@@ -65663,8 +65676,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 60
+            "end_line": 76,
+            "start_line": 61
           }
         },
         {
@@ -65686,8 +65699,89 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 77
+            "end_line": 114,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_lock_is_preserved_before_fetch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_existing_lock_is_preserved_before_fetch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 128,
+            "start_line": 116
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lock_is_reserved_before_materialize",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_lock_is_reserved_before_materialize",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fetch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "game"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "dest"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "clean"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_lock_is_reserved_before_materialize.fetch",
+          "return_annotation": null,
+          "signature": "(game, dest, clean)",
+          "source_location": {
+            "column": 12,
+            "end_line": 138,
+            "start_line": 135
           }
         },
         {
@@ -65709,8 +65803,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 115
+            "end_line": 159,
+            "start_line": 149
           }
         }
       ]
@@ -105104,7 +105198,7 @@
       "module": "tools.fetch_ci_games",
       "path": "tools/fetch_ci_games.py",
       "source_location": {
-        "end_line": 202,
+        "end_line": 210,
         "start_line": 1
       },
       "symbols": [
@@ -105213,7 +105307,7 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 198,
+            "end_line": 206,
             "start_line": 146
           }
         }

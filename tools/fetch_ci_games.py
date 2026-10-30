@@ -178,22 +178,30 @@ def main() -> int:
 
     dest_root = args.dest if args.dest.is_absolute() else ROOT / args.dest
     dest_root.mkdir(parents=True, exist_ok=True)
-    lock = [materialize(game, dest_root, args.clean) for game in selected]
     lock_path = dest_root / "manifest-lock.json"
-    lock_path.write_text(
-        json.dumps(
-            {
-                "schema": "kadoka.reference-games-lock/1",
-                "source_manifest": str(MANIFEST.relative_to(ROOT)).replace("\\", "/"),
-                "games": lock,
-            },
-            indent=2,
-            ensure_ascii=False,
-            sort_keys=True,
+    try:
+        lock_file = lock_path.open("x", encoding="utf-8")
+    except FileExistsError as exc:
+        raise FileExistsError(
+            f"refusing to overwrite existing lock file: {lock_path}"
+        ) from exc
+    with lock_file:
+        lock = [materialize(game, dest_root, args.clean) for game in selected]
+        lock_file.write(
+            json.dumps(
+                {
+                    "schema": "kadoka.reference-games-lock/1",
+                    "source_manifest": str(MANIFEST.relative_to(ROOT)).replace(
+                        "\\", "/"
+                    ),
+                    "games": lock,
+                },
+                indent=2,
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+            + "\n"
         )
-        + "\n",
-        encoding="utf-8",
-    )
     print(lock_path)
     return 0
 
