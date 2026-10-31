@@ -72,20 +72,18 @@ artifact use an appropriate license while making the applicable license obvious.
 
 ## Wise Misk / 賢者ミスク
 
-Wise Misk is planned as the development player profile while the 1.0.0
-application is being built; that profile is not established as a current
-application default.
+Wise Misk is the current development Player Seat occupant. Its bundled image
+is declared as **Tomiya Character License v1.0.1** in
+`src/ai_game_player/assets/players/wise_misk/pack.json`, with its upstream commit
+and image hash. Development packages include the pack.
 
-Its final artwork license is intentionally **undecided**.
+The planned 1.0.0 MIT-focused release excludes Wise Misk and replaces it with
+Super Icon. That release-specific replacement remains unimplemented. The current
+development package therefore does not establish the planned 1.0.0 asset boundary.
 
-This is not because the project wants to prevent people from using Wise Misk.
-It is because a character identity, artwork, model lineage, and community
-fine-tunes have different concerns from ordinary source code, and we do not
-want to lock those questions into MIT merely to finish 1.0.0.
-
-Wise Misk is therefore excluded from the 1.0.0 release asset payload.
-
-A future character-oriented open/free license may be designed separately.
+Any future character-license design is separate from the license declared for
+the image currently included in the repository; future discussions do not make
+that current declaration undecided.
 
 ## Super Icon / すーぱーあいこん
 

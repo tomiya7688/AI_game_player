@@ -12,14 +12,14 @@ from tools import fetch_ci_games
 
 class RetrySharingViolationTemporaryDirectory(tempfile.TemporaryDirectory):
     def cleanup(self):
-        for attempt in range(6):
+        for attempt in range(121):
             try:
                 super().cleanup()
                 return
             except PermissionError as error:
-                if getattr(error, "winerror", None) != 32 or attempt == 5:
+                if getattr(error, "winerror", None) != 32 or attempt == 120:
                     raise
-                time.sleep(0.1)
+                time.sleep(0.25)
 
 
 class ReferenceGameFetchTest(unittest.TestCase):

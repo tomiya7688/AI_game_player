@@ -24,12 +24,12 @@ Projectでは、すべてを1つのLicenseへ無理に統一することより�
 
 そこで1.0.0では、Project側が直接同梱する主要PayloadをできるだけMITで単純化します。
 
-1.0.0の考え方:
+1.0.0の配布目標（現在の開発版の同梱一覧ではありません）:
 
 ```text
 Project code / docs       -> MIT
 Bundled Player asset      -> すーぱーあいこん / MIT
-Wise Misk artwork         -> 非同梱（License未確定）
+Wise Misk artwork         -> 1.0.0では非同梱（開発版には別Licenseで同梱）
 Kadoka / Maru             -> 非同梱（Obake License）
 Third-party Model/Runtime -> upstream Licenseのまま自動取得
 ```
@@ -40,11 +40,11 @@ Third-party Model/Runtime -> upstream Licenseのまま自動取得
 
 ## なぜ開発中は賢者ミスクなのに、1.0.0ではすーぱーあいこんなのか
 
-賢者ミスクは開発用の既定プロフィールとして採用する計画です。
+現在の0.1.0開発版では、Player Seatの既定キャラクターとして賢者ミスクを表示します。
 
-Player Seat、状態画像、Player Profile、Learning UI等を実際のCharacterを使って開発するために利用する予定です。
+現在の開発版はPlayer Seat用画像を同梱し、Asset Packの`pack.json`に画像のSHA-256、上流commit、Tomiya Character License v1.0.1を記録しています。開発用wheel/sdistとWindows bundleにも画像を含めます。
 
-ただし賢者ミスクの最終Asset Licenseはまだ決めていません。将来、Character向けの公開Licenseを別途設計する可能性があります。
+1.0.0用にすーぱーあいこんへ差し替える処理は未実装です。開発版の同梱内容を、将来の1.0.0 MIT中心の配布条件を満たした成果物とは扱いません。
 
 一方、すーぱーあいこんは既にMITで公開されており、1.0.0の「MIT中心の配布物」にそのまま使えます。
 
@@ -161,12 +161,12 @@ ModelやRuntimeも同じ考え方で、License情報を隠さず、通常操作�
 現時点では:
 
 - すーぱーあいこん: MIT
-- 賢者ミスク: 未決定
+- 現在同梱する賢者ミスク画像: Tomiya Character License v1.0.1（Asset Packの宣言）
 - Kadoka / Maru: Obake License
 
 です。
 
-賢者ミスクについては、MITへ固定する必要がなくなったため、将来Character向けのOSS/Free Licenseを検討します。
+将来Character向けLicenseを改訂する検討は、現在の同梱画像に宣言されたLicenseとは分けて扱います。
 
 そのLicenseは、単に利用を制限するためではなく、
 

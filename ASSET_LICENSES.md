@@ -5,18 +5,21 @@ first-party non-character software assets unless another license is declared.
 
 ## Development player: Wise Misk / 賢者ミスク
 
-Wise Misk is the planned default **development** player profile. The current
-application does not establish that profile as an implemented default.
-
-The final artwork license for Wise Misk is currently **undecided**.
+The current 0.1.0 development application displays Wise Misk in its Player Seat.
+The bundled `src/ai_game_player/assets/players/wise_misk/pack.json` declares
+**Tomiya Character License v1.0.1** for `wise_misk.png`, records its SHA-256,
+and identifies upstream asset `tomiya.wise-misk.original` at commit
+`2b036d9fc8d175e2bef17916d59385db6b548ad7`. The manifest's license-detail
+URL follows upstream `main`; that URL is not pinned to the image source commit.
 
 Canonical license/status repository:
 
-https://github.com/tomiya7688/Tomiya_character_lisence
+https://github.com/tomiya7688/Tomiya_character_license
 
-Wise Misk artwork is therefore not part of the 1.0.0 release asset payload.
-Development builds may use locally provided Wise Misk assets while its final
-license is being decided.
+The development wheel/sdist and Windows bundle include this pack. The planned
+1.0.0 MIT-focused release excludes Wise Misk and uses Super Icon instead;
+release-specific asset replacement is not implemented yet. Current development
+packages must not be described as already satisfying that release boundary.
 
 ## 1.0.0 release player: すーぱーあいこん
 
@@ -65,7 +68,7 @@ See `THIRD_PARTY_NOTICES.md` and `doc/release_1_0.md`.
 
 The MIT-focused asset payload is a 1.0.0-only release choice.
 
-Later releases may bundle Wise Misk (after its license is decided), Kadoka,
+Later releases may bundle Wise Misk (under its declared character license), Kadoka,
 Maru, other characters, and official pre-trained/fine-tuned artifacts under a
 multi-license distribution. There is no requirement to maintain a parallel
 MIT-only asset set after 1.0.0.
@@ -75,7 +78,7 @@ Every bundled Player Asset Pack still carries its own license/source metadata.
 
 ## Human-readable intent
 
-The reasons behind the 1.0 MIT profile, Wise Misk's undecided license, Super
+The reasons behind the 1.0 MIT profile, Wise Misk's declared character license, Super
 Icon's role, and later multi-license releases are explained in
 `LICENSE_INTENT.md`.
 

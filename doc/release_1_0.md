@@ -8,7 +8,9 @@ bundled inference service and its real-inference CI gates remain future work.
 
 ## Product scope
 
-The planned development player profile is **Wise Misk (賢者ミスク)**. For the 1.0.0 release artifact, the bundled/default player asset is replaced with the MIT-licensed **すーぱーあいこん** asset set. The Player Seat/Profile implementation must not depend on one particular character asset.
+The current development Player Seat defaults to **Wise Misk (賢者ミスク)**, whose bundled image is declared under Tomiya Character License v1.0.1. The release-specific asset replacement is not implemented yet.
+
+For the planned 1.0.0 release artifact, the bundled/default player asset will be replaced with the MIT-licensed **すーぱーあいこん** asset set. The Player Seat/Profile implementation must not depend on one particular character asset.
 
 1.0.0 targets Windows x64 and local-first game playing.
 
@@ -94,7 +96,7 @@ reference machine, it is rejected as the default model candidate.
 
 - first-party code/docs/non-character software assets: MIT
 - 1.0.0 bundled player assets: すーぱーあいこん / MIT
-- Wise Misk artwork: license undecided; development-only and not bundled in 1.0.0
+- Wise Misk artwork: current development image declares Tomiya Character License v1.0.1; the 1.0.0 release target excludes it
 - Obake License assets (including Kadoka/Maru): not included in the 1.0.0 release asset payload
 - third-party artifacts: their original licenses and required notices
 
@@ -113,7 +115,7 @@ Included in the 1.0.0 release artifact:
 - Local Inference/runtime bootstrap needed to acquire compatible third-party dependencies automatically
 
 Not bundled in the 1.0.0 release artifact:
-- Wise Misk artwork while its final license is undecided
+- Wise Misk artwork, which the current development package includes under its declared character license
 - Kadoka assets under the Obake License
 - Maru assets under the Obake License
 - official pre-trained/fine-tuned project artifacts intended for later multi-license releases
@@ -209,8 +211,7 @@ infrastructure in #36/#37/#166-#173.
 
 ## Player profile customization
 
-The planned development profile defaults to Wise Misk / 賢者ミスク; the
-current application does not establish that profile as a default. The 1.0.0 release
+The current development profile defaults to Wise Misk / 賢者ミスク. The 1.0.0 release
 profile defaults to the MIT-licensed すーぱーあいこん assets. In both cases,
 the visible player identity is not the same thing as the technical model
 identity.
@@ -296,7 +297,7 @@ Each pack carries license/source metadata. Asset selection surfaces show the
 license name inline, while full text/source/notice is available through
 "Details". Selecting an asset does not repeatedly force a full license dialog.
 
-The planned development profile uses Wise Misk. The 1.0.0 release target defaults to the MIT-licensed
+The current development profile uses Wise Misk. The 1.0.0 release target defaults to the MIT-licensed
 Super Icon / すーぱーあいこん pack.
 
 Implementation tracking: #190.
