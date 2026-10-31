@@ -36,8 +36,15 @@ class LiveInputToolTipTests(unittest.TestCase):
             application = Application(root, observation_service=SimpleNamespace())
             root.geometry("1120x760+30000+30000")
             root.update()
-            self.assertEqual(len(tooltips), 1)
-            tooltip = tooltips[0]
+            self.assertEqual(len(tooltips), 2)
+            refresh_tooltip = tooltips[0]
+            tooltip = tooltips[1]
+            self.assertIs(refresh_tooltip.widget, application.refresh_windows_button)
+            self.assertEqual(refresh_tooltip.delay_ms, 400)
+            self.assertEqual(
+                refresh_tooltip.text,
+                "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。",
+            )
             checkbox = application.live_execution_toggle
             self.assertIs(tooltip.widget, checkbox)
             self.assertEqual(tooltip.delay_ms, 400)
@@ -45,7 +52,10 @@ class LiveInputToolTipTests(unittest.TestCase):
                 "実入力を許可してから操作を実行すると、アプリは選択したゲームウィンドウへ入力を送ります。"
                 "判断だけの実行では入力しません。連続実行中や処理の完了待ちは変更できません。"
             )
-            for event in ("<Enter>", "<FocusIn>"):
+            for event, end_event in (
+                ("<Enter>", "<Leave>"),
+                ("<FocusIn>", "<FocusOut>"),
+            ):
                 checkbox.event_generate(event)
                 root.after(450, root.quit)
                 root.mainloop()
@@ -54,7 +64,7 @@ class LiveInputToolTipTests(unittest.TestCase):
                     tooltip._tip_window.winfo_children()[0].cget("text"), expected
                 )
                 self.assertFalse(application.live_execution.get())
-                checkbox.event_generate("<Leave>")
+                checkbox.event_generate(end_event)
                 self.assertIsNone(tooltip._tip_window)
             checkbox.invoke()
             self.assertTrue(application.live_execution.get())
@@ -80,6 +90,47 @@ class LiveInputToolTipTests(unittest.TestCase):
                 application._refresh_execution_controls()
             self.assertTrue(checkbox.instate(["!disabled"]))
             create_runtime.assert_not_called()
+
+    def test_refresh_windows_tooltip_shows_on_hover_and_focus(self):
+        try:
+            root = tk.Tk()
+        except tk.TclError as error:
+            self.skipTest(f"Tk desktop is unavailable: {error}")
+        self.addCleanup(root.destroy)
+        with (
+            patch("ai_game_player.app.ConfigStore.load", return_value=AppConfig()),
+            patch("ai_game_player.app.ShellStateStore.load", return_value=ShellState()),
+            patch("ai_game_player.app.RuntimeLog"),
+            patch.object(Application, "refresh_windows"),
+            patch.object(Application, "_poll_global_stop"),
+            patch.object(Application, "_poll_background_results"),
+        ):
+            application = Application(root, observation_service=SimpleNamespace())
+            root.geometry("1120x760+30000+30000")
+            root.update()
+            button = application.refresh_windows_button
+            expected = "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。"
+
+            for event, end_event in (
+                ("<Enter>", "<Leave>"),
+                ("<FocusIn>", "<FocusOut>"),
+            ):
+                button.event_generate(event)
+                root.after(450, root.quit)
+                root.mainloop()
+                popup = next(
+                    (
+                        child
+                        for child in button.winfo_children()
+                        if isinstance(child, tk.Toplevel)
+                    ),
+                    None,
+                )
+                self.assertIsNotNone(popup)
+                self.assertTrue(popup.winfo_viewable())
+                self.assertEqual(popup.winfo_children()[0].cget("text"), expected)
+                button.event_generate(end_event)
+                self.assertFalse(popup.winfo_exists())
 
 
 if __name__ == "__main__":
