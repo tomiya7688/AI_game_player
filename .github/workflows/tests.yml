@@ -25,7 +25,15 @@ jobs:
       - run: python tools/ruleset_check.py
       - name: Python trust inventory (Issue #513, read-only)
         shell: bash
-        run: python tools/trust_inventory.py --markdown "$GITHUB_STEP_SUMMARY"
+        # The report also goes to the job log, because step summaries cannot be read through the API.
+        run: |
+          status=0
+          python tools/trust_inventory.py --markdown "$RUNNER_TEMP/trust-inventory.md" || status=$?
+          if [ -f "$RUNNER_TEMP/trust-inventory.md" ]; then
+            cat "$RUNNER_TEMP/trust-inventory.md"
+            cat "$RUNNER_TEMP/trust-inventory.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
       - name: Require bounded SafetyLog retention
         shell: bash
         run: |

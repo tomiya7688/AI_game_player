@@ -1,3 +1,10 @@
+## 2026-10-31 emSignインシデント対象の特定とpipの信頼源（Issue #513）
+
+- 公開アドバイザリGHSA-6q48-6c7w-9gw2と、certifiの公開版（2026.7.22・10.18・10.19・10.23）の比較から、インシデントの対象ルートは`emSign ECC Root CA - G3`だけと特定しました。前回の棚卸しで残っていたemSign Root CA - G1・C1・ECC C3は対象外です。
+- `tools/trust_inventory.py`は、eMudhra/emSignの証明書ごとにインシデントとの照合結果を表示します（対象ルートのフィンガープリント一致、対象ルート名を発行者または主体に持つ証明書、対象外）。bundleとWindowsストアごとに該当件数も表示します。合否判定ではなく、終了コードは変えていません。
+- pipの設定ファイル（場所・有無・証明書関連の設定）を読み取り専用で記録し、pipのversion・同梱truststore・`legacy-certs`の指定から、pipが使う信頼源を表示します。ローカルのpip 26.2.2は、Windowsの信頼ストアとpip同梱certifiを使い、どちらにも対象ルートはありません。
+- `tests.yml`の棚卸し結果をjobのログにも出力し、CIの実際の値を文書へ記録できるようにしました。PyInstaller配布物の確認は#515に残ります。
+
 ## 2026-10-31 賢者ミスクのPlayer Seatとアプリ全体のテーマ（Issue #156 / #155の一部）
 
 - Navigatorの下部にPlayer Seatを置き、Development既定のoccupantとして賢者ミスクを表示します。64pxの原画を整数倍のnearest-neighborで128pxへ拡大し、ぼかしを入れません。表示名、状態、短い吹き出し、License名を表示し、停止・要確認以外の状態ではゆっくり上下に浮遊します。
