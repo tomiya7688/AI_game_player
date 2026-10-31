@@ -5,7 +5,7 @@ from pathlib import Path
 from tkinter import ttk
 
 from ai_game_player.player_character import PlayerAssetPack, PlayerState, nearest_scale
-from ai_game_player.ui.theme import PALETTE
+from ai_game_player.ui.theme import PALETTE, ui_font
 
 STATE_LABELS = {
     PlayerState.IDLE: "待機中",
@@ -21,6 +21,8 @@ STATE_COLORS = {
     PlayerState.WARNING: PALETTE["warning"],
     PlayerState.STOP: PALETTE["danger"],
 }
+# 停止・要確認では動きで注意を散らさないよう、浮遊を止めて基準位置に置く。
+STILL_STATES = frozenset({PlayerState.STOP, PlayerState.WARNING})
 SEAT_IMAGE_PX = 128
 FLOAT_INTERVAL_MS = 600
 FLOAT_OFFSET_PX = 3
@@ -57,7 +59,8 @@ def load_scaled_photo(
 #     bubble / license_label: 脳内メッセージの吹き出しとLicense名の表示欄,
 #     name_var / state_var / message_var / license_var: 各表示欄の文字列変数,
 #     _photo: Canvasが参照する画像。GCで消えないよう保持する,
-#     _float_job / _float_up: 浮遊表示のafter予約と現在の上下位置
+#     _float_job / _float_up: 浮遊表示のafter予約と、画像が基準位置より上にあるか,
+#     _pack_options: set_visible(False)の直前に保存した親でのpack設定
 #   ]
 # }
 class PlayerSeat:
@@ -77,6 +80,7 @@ class PlayerSeat:
         self._float_job: str | None = None
         self._float_up = False
         self._animate = animate
+        self._pack_options: dict[str, object] | None = None
 
         ttk.Label(self.frame, text="PLAYER SEAT", style="SeatMeta.TLabel").pack(
             anchor=tk.W
@@ -147,10 +151,10 @@ class PlayerSeat:
             else:
                 self.canvas.create_text(
                     center,
-                    center,
+                    center + FLOAT_OFFSET_PX,
                     text=(occupant.display_name[:1] or "?"),
                     fill=PALETTE["ghost"],
-                    font=("TkDefaultFont", 40, "bold"),
+                    font=ui_font(self.canvas, 40),
                     tags=("occupant",),
                 )
             self.name_var.set(occupant.display_name)
@@ -164,14 +168,15 @@ class PlayerSeat:
 
     # {
     #   責務: [set_state: runtime状態を席の状態表示と脳内メッセージへ反映する]
-    #   処理: [状態名と色を更新し、occupantの状態別メッセージを吹き出しへ表示する。メッセージが空なら吹き出しを隠す]
+    #   処理: [状態名と色を更新し、occupantの状態別メッセージを吹き出しへ表示する。メッセージが空なら吹き出しを隠す。停止・要確認では画像を基準位置へ戻す。ラベル未定義の状態は「状態不明」と表示する]
     #   引数: [state: 表示するPlayerState]
     #   戻り値: [bool: 表示できたらTrue。Tk部品が破棄済みなどで失敗した場合はFalse]
     # }
     def set_state(self, state: PlayerState) -> bool:
         self.state = state
         try:
-            self.state_var.set(f"● {STATE_LABELS[state]}")
+            label = STATE_LABELS.get(state, STATE_LABELS[PlayerState.UNKNOWN])
+            self.state_var.set(f"● {label}")
             self.state_label.configure(
                 foreground=STATE_COLORS.get(state, PALETTE["shade"])
             )
@@ -182,21 +187,37 @@ class PlayerSeat:
                 self.bubble.pack(fill=tk.X, before=self.license_label)
             else:
                 self.bubble.pack_forget()
+            if state in STILL_STATES and self._float_up:
+                self.canvas.move("occupant", 0, FLOAT_OFFSET_PX)
+                self._float_up = False
             return True
         except tk.TclError:
             return False
 
     # {
     #   責務: [set_visible: 席全体の表示・非表示を切り替える]
-    #   処理: [親でpackされた席を隠すか、元の位置へ戻す]
+    #   処理: [隠す前に親でのpack設定を保存してpack_forgetし、再表示ではその設定（before等の位置を含む）で戻す。保存がなければ横幅いっぱいでpackする]
     #   引数: [visible: Trueで表示、Falseで非表示]
-    #   戻り値: [None]
+    #   戻り値: [bool: 切り替えられたらTrue。破棄済みや親がpack以外で配置している場合はFalse]
     # }
-    def set_visible(self, visible: bool) -> None:
-        if visible:
-            self.frame.pack(fill=tk.X)
-        else:
-            self.frame.pack_forget()
+    def set_visible(self, visible: bool) -> bool:
+        try:
+            if visible:
+                options = self._pack_options or {"fill": tk.X}
+                self.frame.pack(**options)
+                self._pack_options = None
+            elif self.frame.winfo_manager() == "pack":
+                info = self.frame.pack_info()
+                info.pop("in", None)
+                siblings = self.frame.master.pack_slaves()
+                index = siblings.index(self.frame)
+                if index + 1 < len(siblings):
+                    info["before"] = siblings[index + 1]
+                self._pack_options = info
+                self.frame.pack_forget()
+            return True
+        except tk.TclError:
+            return False
 
     # {
     #   責務: [_schedule_float: 幽霊らしく画像を上下にゆっくり揺らす次の描画を予約する]
@@ -205,20 +226,23 @@ class PlayerSeat:
     #   戻り値: [None]
     # }
     def _schedule_float(self) -> None:
-        if self._animate:
+        if not self._animate:
+            return
+        try:
             self._float_job = self.frame.after(FLOAT_INTERVAL_MS, self._float)
+        except tk.TclError:
+            self._float_job = None
 
     # {
     #   責務: [_float: occupant画像を上下に1段動かす]
-    #   処理: [停止・要確認状態では静止させ、それ以外は上下位置を交互に切り替えて次を予約する]
+    #   処理: [停止・要確認状態では動かさず、それ以外は上下位置を交互に切り替えて次を予約する]
     #   引数: []
     #   戻り値: [None]
     # }
     def _float(self) -> None:
         self._float_job = None
         try:
-            should_float = self.state not in (PlayerState.STOP, PlayerState.WARNING)
-            if should_float or self._float_up:
+            if self.state not in STILL_STATES:
                 offset = FLOAT_OFFSET_PX if self._float_up else -FLOAT_OFFSET_PX
                 self.canvas.move("occupant", 0, offset)
                 self._float_up = not self._float_up

@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from ai_game_player.app import Application
+from ai_game_player.game_session import SessionStatus
 from ai_game_player.player_character import PlayerState
 from ai_game_player.ui.shell import (
     WORKSPACES,
@@ -368,6 +369,40 @@ class ApplicationPlayerStateTests(unittest.TestCase):
         application.shell = SimpleNamespace()
         application._show_player_state(PlayerState.STOP)
         self.assertEqual(shown, [PlayerState.ACT])
+
+    def test_destroyed_seat_error_does_not_reach_core(self):
+        application = Application.__new__(Application)
+
+        def destroyed(_state):
+            raise TclError("invalid command name")
+
+        application.shell = SimpleNamespace(set_player_state=destroyed)
+        application._show_player_state(PlayerState.OBSERVE)
+
+    def test_stop_is_shown_while_execution_is_still_finishing(self):
+        application = Application.__new__(Application)
+        shown = []
+        statuses = []
+        application.shell = SimpleNamespace(set_player_state=shown.append)
+        application._refresh_execution_controls = lambda: None
+        application._set_status = statuses.append
+        application.runtime_log = SimpleNamespace(write=lambda *args: None)
+        application._last_session_mode = None
+        application._execution_in_progress = True
+        snapshot = SimpleNamespace(
+            status=SessionStatus.STOPPED,
+            looping=False,
+            steps=1,
+            stop_reason="user",
+            error=None,
+        )
+        application._on_session_state_change(snapshot)
+        self.assertEqual(shown, [PlayerState.STOP])
+        self.assertEqual(statuses, [])
+        application._execution_in_progress = False
+        application._on_session_state_change(snapshot)
+        self.assertEqual(shown, [PlayerState.STOP, PlayerState.STOP])
+        self.assertEqual(statuses, ["停止中（user）"])
 
 
 if __name__ == "__main__":

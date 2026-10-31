@@ -1,6 +1,7 @@
 """Application-wide visual theme derived from the 賢者ミスク dot-art palette."""
 
 import tkinter as tk
+from tkinter import font as tkfont
 from tkinter import ttk
 
 # 賢者ミスクの原画は黒背景・白い体・灰色の影・黒い目の3色で描かれている。
@@ -17,13 +18,24 @@ PALETTE = {
     "muted": "#8C8F99",
     "ink": "#000000",
     "select": "#3A3D47",
-    "danger": "#E5484D",
-    "danger_active": "#FF6369",
+    # 白文字とのコントラスト比が4.5:1以上になる赤。hover時だけ明るくする。
+    "danger": "#D13438",
+    "danger_active": "#E5484D",
     "warning": "#F5C04A",
 }
 
-FONT_FAMILY = "TkDefaultFont"
 MONO_FAMILY = "TkFixedFont"
+
+
+# {
+#   責務: [ui_font: 既定UIフォントのfamilyを保ったまま、大きさと太さだけを変えたフォント指定を返す]
+#   処理: [名前付きフォントTkDefaultFontの実際のfamilyを取得し、(family, size, weight)の組にする]
+#   引数: [master: フォントを解決するTk部品, size: pt単位の文字サイズ, bold: Trueなら太字]
+#   戻り値: [tuple[str, int, str]: ttk styleやCanvasのfontへ渡す指定]
+# }
+def ui_font(master: tk.Misc, size: int, bold: bool = True) -> tuple[str, int, str]:
+    family = tkfont.nametofont("TkDefaultFont", root=master).actual("family")
+    return (family, size, "bold" if bold else "normal")
 
 
 # {
@@ -76,7 +88,6 @@ def apply_misk_theme(root: tk.Misc) -> ttk.Style:
         "TLabelframe.Label", background=color["surface"], foreground=color["shade"]
     )
     style.configure("TSeparator", background=color["line"])
-    style.configure("Sash", background=color["line"], sashthickness=4)
 
     style.configure(
         "TButton",
@@ -106,11 +117,16 @@ def apply_misk_theme(root: tk.Misc) -> ttk.Style:
         bordercolor=color["danger"],
         lightcolor=color["danger"],
         darkcolor=color["danger"],
-        font=(FONT_FAMILY, 10, "bold"),
+        font=ui_font(root, 10),
     )
     style.map(
         "Stop.TButton",
-        background=[("pressed", color["danger"]), ("active", color["danger_active"])],
+        background=[
+            ("disabled", color["raised"]),
+            ("pressed", color["danger"]),
+            ("active", color["danger_active"]),
+        ],
+        foreground=[("disabled", color["muted"])],
     )
 
     style.configure(
@@ -190,7 +206,7 @@ def apply_misk_theme(root: tk.Misc) -> ttk.Style:
         "HeaderTitle.TLabel",
         background=color["night"],
         foreground=color["ghost"],
-        font=(FONT_FAMILY, 12, "bold"),
+        font=ui_font(root, 12),
     )
     style.configure(
         "HeaderSub.TLabel", background=color["night"], foreground=color["muted"]
@@ -202,12 +218,8 @@ def apply_misk_theme(root: tk.Misc) -> ttk.Style:
         padding=(8, 3),
     )
     style.configure("Muted.TLabel", foreground=color["muted"])
-    style.configure(
-        "Section.TLabel", foreground=color["shade"], font=(FONT_FAMILY, 10, "bold")
-    )
-    style.configure(
-        "Heading.TLabel", foreground=color["ghost"], font=(FONT_FAMILY, 14, "bold")
-    )
+    style.configure("Section.TLabel", foreground=color["shade"], font=ui_font(root, 10))
+    style.configure("Heading.TLabel", foreground=color["ghost"], font=ui_font(root, 14))
 
     style.configure("Seat.TFrame", background=color["night"])
     style.configure("Seat.TLabel", background=color["night"], foreground=color["ghost"])
@@ -215,7 +227,7 @@ def apply_misk_theme(root: tk.Misc) -> ttk.Style:
         "SeatName.TLabel",
         background=color["night"],
         foreground=color["ghost"],
-        font=(FONT_FAMILY, 11, "bold"),
+        font=ui_font(root, 11),
     )
     style.configure(
         "SeatMeta.TLabel", background=color["night"], foreground=color["muted"]

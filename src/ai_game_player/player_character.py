@@ -2,15 +2,20 @@
 
 import hashlib
 import json
+import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from types import MappingProxyType
 
 DEFAULT_PLAYER_PACK = (
     Path(__file__).resolve().parent / "assets" / "players" / "wise_misk" / "pack.json"
 )
 FALLBACK_DISPLAY_NAME = "Player"
 FALLBACK_MESSAGE = ""
+SCHEMA_VERSION = 1
+_SHA256_HEX = re.compile(r"[0-9a-fA-F]{64}")
 
 
 # {
@@ -42,7 +47,7 @@ class PlayerState(str, Enum):
 #     source: 素材の出典,
 #     image_scaling: 画像の拡大縮小方式。dot-artのため"nearest"だけを受け付ける,
 #     profiles: このPackを既定occupantにできるbuild profile名,
-#     state_messages: PlayerStateごとの短い脳内メッセージ
+#     state_messages: PlayerStateごとの短い脳内メッセージ。読取専用Mapping
 #   ]
 # }
 @dataclass(frozen=True)
@@ -55,7 +60,9 @@ class PlayerAssetPack:
     source: str = ""
     image_scaling: str = "nearest"
     profiles: tuple[str, ...] = ()
-    state_messages: dict[PlayerState, str] = field(default_factory=dict)
+    state_messages: Mapping[PlayerState, str] = field(
+        default_factory=lambda: MappingProxyType({})
+    )
 
     # {
     #   責務: [message_for: 指定状態の脳内メッセージを返す]
@@ -81,13 +88,13 @@ class PlayerAssetPack:
 # {
 #   責務: [load_asset_pack: Asset Pack manifestを読み、検証済みのPlayerAssetPackを返す]
 #   処理: [
-#     1: UTF-8 JSONを読み、必須の識別子・表示名とscaling方式を検証する
-#     2: 画像パスをmanifestからの相対パスとして解決し、SHA-256が記録されていれば一致を確認する
+#     1: UTF-8 JSONを読み、schema_version 1・必須の識別子・表示名・scaling方式・License/出典の文字列型を検証する
+#     2: 画像パスをmanifest配下の相対パスとして解決し、SHA-256が記録されていれば画像の存在と一致を確認する
 #     3: 未知の状態名を含むメッセージは拒否する
 #   ]
 #   引数: [manifest_path: pack.jsonのパス]
 #   戻り値: [PlayerAssetPack: 検証済みのAsset Pack]
-#   エラー: [ValueError: manifestが読めない、形式が不正、または画像hashが一致しない場合]
+#   エラー: [ValueError: manifestや画像が読めない、形式が不正、画像がmanifest外、または画像hashが一致しない場合]
 # }
 def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
     try:
@@ -98,6 +105,10 @@ def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
         ) from exc
     if not isinstance(manifest, dict):
         raise ValueError("Player Asset Pack manifestはJSON objectである必要があります")
+    if manifest.get("schema_version") != SCHEMA_VERSION:
+        raise ValueError(
+            f"未対応のschema_versionです: {manifest.get('schema_version')}"
+        )
     pack_id = manifest.get("asset_pack_id")
     display_name = manifest.get("display_name")
     if not isinstance(pack_id, str) or not pack_id.strip():
@@ -108,18 +119,7 @@ def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
     if scaling != "nearest":
         raise ValueError(f"未対応のimage_scalingです: {scaling}")
 
-    image_path = None
-    image_name = manifest.get("player_image")
-    if image_name is not None:
-        if not isinstance(image_name, str) or Path(image_name).is_absolute():
-            raise ValueError("player_imageはmanifestからの相対パスである必要があります")
-        image_path = manifest_path.parent / image_name
-        expected_hash = manifest.get("player_image_sha256")
-        if expected_hash is not None and image_path.is_file():
-            actual_hash = hashlib.sha256(image_path.read_bytes()).hexdigest()
-            if actual_hash != expected_hash:
-                raise ValueError(f"player_imageのSHA-256が一致しません: {image_path}")
-
+    image_path = _resolve_player_image(manifest_path, manifest)
     raw_messages = manifest.get("state_messages", {})
     if not isinstance(raw_messages, dict):
         raise ValueError("state_messagesはobjectである必要があります")
@@ -140,13 +140,66 @@ def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
         asset_pack_id=pack_id,
         display_name=display_name,
         player_image=image_path,
-        license_name=str(manifest.get("license_name", "")),
-        license_detail=str(manifest.get("license_detail", "")),
-        source=str(manifest.get("source", "")),
+        license_name=_optional_text(manifest, "license_name"),
+        license_detail=_optional_text(manifest, "license_detail"),
+        source=_optional_text(manifest, "source"),
         image_scaling=scaling,
         profiles=tuple(profiles),
-        state_messages=messages,
+        state_messages=MappingProxyType(messages),
     )
+
+
+# {
+#   責務: [_resolve_player_image: manifestのplayer_imageをmanifestと同じフォルダー配下のパスへ解決し、記録されたSHA-256を照合する]
+#   処理: [
+#     1: 未指定ならNoneを返す。文字列以外、空文字、絶対パス、解決後にmanifestのフォルダー外を指すパスは拒否する
+#     2: SHA-256が記録されていれば、64桁の16進数であること、画像が読めること、大文字小文字を無視して一致することを確認する
+#     3: SHA-256がなければ画像の存在は確認せず、欠落時の文字fallbackを呼び出し側へ任せる
+#   ]
+#   引数: [manifest_path: pack.jsonのパス, manifest: 読込済みのmanifest object]
+#   戻り値: [Path | None: 画像パス。未指定ならNone]
+#   エラー: [ValueError: パスまたはhashの形式が不正、画像が読めない、hashが一致しない場合]
+# }
+def _resolve_player_image(manifest_path: Path, manifest: dict) -> Path | None:
+    image_name = manifest.get("player_image")
+    if image_name is None:
+        return None
+    if (
+        not isinstance(image_name, str)
+        or not image_name
+        or Path(image_name).is_absolute()
+    ):
+        raise ValueError("player_imageはmanifestからの相対パスである必要があります")
+    pack_root = manifest_path.parent.resolve()
+    image_path = (pack_root / image_name).resolve()
+    if not image_path.is_relative_to(pack_root):
+        raise ValueError(f"player_imageがAsset Packの外を指しています: {image_name}")
+    expected_hash = manifest.get("player_image_sha256")
+    if expected_hash is None:
+        return image_path
+    if not isinstance(expected_hash, str) or not _SHA256_HEX.fullmatch(expected_hash):
+        raise ValueError("player_image_sha256は64桁の16進数である必要があります")
+    try:
+        actual_hash = hashlib.sha256(image_path.read_bytes()).hexdigest()
+    except OSError as exc:
+        raise ValueError(f"player_imageを読めません: {image_path}: {exc}") from exc
+    if actual_hash != expected_hash.lower():
+        raise ValueError(f"player_imageのSHA-256が一致しません: {image_path}")
+    return image_path
+
+
+# {
+#   責務: [_optional_text: manifestの任意文字列項目を取り出す]
+#   処理: [未指定なら空文字を返し、指定されていれば文字列であることを確認する]
+#   引数: [manifest: 読込済みのmanifest object, key: 項目名]
+#   戻り値: [str: 項目の値または空文字]
+#   エラー: [ValueError: 値が文字列以外（nullを含む）の場合]
+# }
+def _optional_text(manifest: dict, key: str) -> str:
+    value = manifest.get(key, "")
+    if not isinstance(value, str):
+        raise ValueError(f"{key}は文字列である必要があります")
+    return value
 
 
 # {

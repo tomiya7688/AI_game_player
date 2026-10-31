@@ -1,9 +1,10 @@
+import hashlib
 import json
 import tempfile
 import tkinter as tk
 import unittest
 from pathlib import Path
-from tkinter import TclError
+from tkinter import TclError, ttk
 
 from ai_game_player.player_character import (
     DEFAULT_PLAYER_PACK,
@@ -14,7 +15,7 @@ from ai_game_player.player_character import (
     nearest_scale,
 )
 from ai_game_player.ui.player_seat import PlayerSeat, load_scaled_photo
-from ai_game_player.ui.theme import apply_misk_theme
+from ai_game_player.ui.theme import PALETTE, apply_misk_theme
 
 
 class PlayerAssetPackTests(unittest.TestCase):
@@ -34,68 +35,70 @@ class PlayerAssetPackTests(unittest.TestCase):
         self.assertEqual(pack.message_for(PlayerState.ACT), "unknown")
         self.assertEqual(PlayerAssetPack("p", "P").message_for(PlayerState.ACT), "")
 
-    def test_missing_image_is_reported_without_error(self):
+    def write_pack(self, root, **fields):
+        manifest = {"schema_version": 1, "asset_pack_id": "x", "display_name": "X"}
+        manifest.update(fields)
+        path = Path(root) / "pack.json"
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        return path
+
+    def test_missing_image_without_hash_falls_back_to_text(self):
         with tempfile.TemporaryDirectory() as directory:
-            manifest = Path(directory) / "pack.json"
-            manifest.write_text(
-                json.dumps(
-                    {
-                        "asset_pack_id": "x",
-                        "display_name": "X",
-                        "player_image": "no.png",
-                    }
-                ),
-                encoding="utf-8",
-            )
-            pack = load_asset_pack(manifest)
+            pack = load_asset_pack(self.write_pack(directory, player_image="no.png"))
         self.assertFalse(pack.has_image())
 
     def test_invalid_manifests_are_rejected(self):
         cases = {
-            "not-object": [],
-            "no-id": {"display_name": "X"},
-            "blank-name": {"asset_pack_id": "x", "display_name": " "},
-            "smooth-scaling": {
-                "asset_pack_id": "x",
-                "display_name": "X",
-                "image_scaling": "bilinear",
-            },
-            "unknown-state": {
-                "asset_pack_id": "x",
-                "display_name": "X",
-                "state_messages": {"dance": "!"},
-            },
-            "absolute-image": {
-                "asset_pack_id": "x",
-                "display_name": "X",
-                "player_image": str(Path(__file__).resolve()),
-            },
+            "no-schema": {"schema_version": None},
+            "future-schema": {"schema_version": 2},
+            "no-id": {"asset_pack_id": None},
+            "blank-name": {"display_name": " "},
+            "smooth-scaling": {"image_scaling": "bilinear"},
+            "unknown-state": {"state_messages": {"dance": "!"}},
+            "absolute-image": {"player_image": str(Path(__file__).resolve())},
+            "empty-image": {"player_image": ""},
+            "outside-pack": {"player_image": "../outside.png"},
+            "null-license": {"license_name": None},
+            "object-source": {"source": {"url": "x"}},
         }
         with tempfile.TemporaryDirectory() as directory:
-            manifest = Path(directory) / "pack.json"
-            for name, payload in cases.items():
+            for name, fields in cases.items():
                 with self.subTest(name):
-                    manifest.write_text(json.dumps(payload), encoding="utf-8")
                     with self.assertRaises(ValueError):
-                        load_asset_pack(manifest)
-
-    def test_image_hash_mismatch_is_rejected(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "p.png").write_bytes(b"not the recorded image")
-            (root / "pack.json").write_text(
-                json.dumps(
-                    {
-                        "asset_pack_id": "x",
-                        "display_name": "X",
-                        "player_image": "p.png",
-                        "player_image_sha256": "0" * 64,
-                    }
-                ),
-                encoding="utf-8",
-            )
+                        load_asset_pack(self.write_pack(directory, **fields))
+            not_object = Path(directory) / "list.json"
+            not_object.write_text("[]", encoding="utf-8")
             with self.assertRaises(ValueError):
-                load_asset_pack(root / "pack.json")
+                load_asset_pack(not_object)
+
+    def test_recorded_image_hash_must_match_an_existing_image(self):
+        image = b"recorded image bytes"
+        digest = hashlib.sha256(image).hexdigest()
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "p.png").write_bytes(image)
+            for recorded in (digest, digest.upper()):
+                with self.subTest(recorded=recorded[:4]):
+                    pack = load_asset_pack(
+                        self.write_pack(
+                            directory,
+                            player_image="p.png",
+                            player_image_sha256=recorded,
+                        )
+                    )
+                    self.assertTrue(pack.has_image())
+            for name, fields in {
+                "mismatch": {"player_image": "p.png", "player_image_sha256": "0" * 64},
+                "malformed": {"player_image": "p.png", "player_image_sha256": "abc"},
+                "missing": {"player_image": "no.png", "player_image_sha256": digest},
+            }.items():
+                with self.subTest(name):
+                    with self.assertRaises(ValueError):
+                        load_asset_pack(self.write_pack(directory, **fields))
+
+    def test_state_messages_are_read_only(self):
+        pack = load_default_player()
+        with self.assertRaises(TypeError):
+            pack.state_messages[PlayerState.ACT] = "changed"
 
     def test_unreadable_default_pack_falls_back_to_generic_player(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -157,16 +160,49 @@ class PlayerSeatTkTests(unittest.TestCase):
             seat.frame.pack_slaves()[-2:], [seat.bubble, seat.license_label]
         )
 
-    def test_show_hide_and_destroyed_seat_do_not_raise(self):
-        seat = PlayerSeat(self.root, load_default_player())
-        seat.set_visible(True)
-        self.assertEqual(seat.frame.winfo_manager(), "pack")
-        seat.set_visible(False)
+    def test_hide_and_show_restore_the_original_pack_position(self):
+        above = ttk.Label(self.root, text="above")
+        above.pack()
+        seat = PlayerSeat(self.root, load_default_player(), animate=False)
+        seat.frame.pack(fill=tk.X, pady=(12, 0))
+        below = ttk.Label(self.root, text="below")
+        below.pack()
+        self.assertTrue(seat.set_visible(False))
         self.assertEqual(seat.frame.winfo_manager(), "")
+        self.assertTrue(seat.set_visible(True))
+        self.assertEqual(self.root.pack_slaves(), [above, seat.frame, below])
+        self.assertEqual(tuple(seat.frame.pack_info()["pady"]), (12, 0))
+
+    def test_stop_and_warning_return_the_floating_image_to_rest(self):
+        seat = PlayerSeat(self.root, load_default_player(), animate=False)
+        rest = seat.canvas.coords("occupant")
+        seat._float()
+        self.assertNotEqual(seat.canvas.coords("occupant"), rest)
+        for state in (PlayerState.STOP, PlayerState.WARNING):
+            with self.subTest(state=state):
+                seat.set_state(state)
+                seat._float()
+                self.assertEqual(seat.canvas.coords("occupant"), rest)
+
+    def test_destroyed_seat_reports_failure_without_raising(self):
+        seat = PlayerSeat(self.root, load_default_player())
         self.assertIsNotNone(seat._float_job)
         seat.frame.destroy()
+        self.root.update()
         self.assertIsNone(seat._float_job)
         self.assertFalse(seat.set_state(PlayerState.WARNING))
+        self.assertFalse(seat.set_occupant(load_default_player()))
+        self.assertFalse(seat.set_visible(True))
+
+    def test_stop_button_style_is_red_only_while_enabled(self):
+        style = ttk.Style(self.root)
+        self.assertEqual(style.lookup("Stop.TButton", "background"), PALETTE["danger"])
+        self.assertEqual(
+            style.lookup("Stop.TButton", "background", ["disabled"]), PALETTE["raised"]
+        )
+        self.assertEqual(
+            style.lookup("Stop.TButton", "foreground", ["disabled"]), PALETTE["muted"]
+        )
 
     def test_unreadable_image_returns_none(self):
         with tempfile.TemporaryDirectory() as directory:

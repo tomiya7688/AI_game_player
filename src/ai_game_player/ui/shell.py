@@ -158,7 +158,8 @@ class ApplicationShell(ttk.Frame):
         player: PlayerAssetPack | None = None,
     ) -> None:
         super().__init__(master)
-        player = player or load_default_player()
+        if player is None:
+            player = load_default_player()
         self.controller = ShellController(state, on_state_change)
         self.workspace_var = tk.StringVar(master=self, value=state.workspace)
         self.workspace_buttons: dict[str, ttk.Radiobutton] = {}
@@ -166,21 +167,6 @@ class ApplicationShell(ttk.Frame):
 
         command = ttk.Frame(self, padding=(10, 8), style="Header.TFrame")
         command.pack(fill=tk.X)
-        self.header_icon = (
-            load_scaled_photo(self, player.player_image, HEADER_ICON_PX)
-            if player.player_image is not None and player.has_image()
-            else None
-        )
-        if self.header_icon is not None:
-            ttk.Label(command, image=self.header_icon, style="Header.TLabel").pack(
-                side=tk.LEFT, padx=(0, 8)
-            )
-        ttk.Label(
-            command, text="Kadoka AI Game Player", style="HeaderTitle.TLabel"
-        ).pack(side=tk.LEFT)
-        ttk.Label(
-            command, text=f"Player: {player.display_name}", style="HeaderSub.TLabel"
-        ).pack(side=tk.LEFT, padx=10)
         self.inspector_toggle_button = ttk.Button(
             command, text="", command=self.toggle_inspector
         )
@@ -213,6 +199,22 @@ class ApplicationShell(ttk.Frame):
         ttk.Label(command, textvariable=self.status_var, style="Status.TLabel").pack(
             side=tk.RIGHT, padx=8
         )
+        # 狭い幅でも停止ボタンを欠けさせないよう、右側の操作を先にpackして幅を優先確保する。
+        self.header_icon = (
+            load_scaled_photo(self, player.player_image, HEADER_ICON_PX)
+            if player.player_image is not None and player.has_image()
+            else None
+        )
+        if self.header_icon is not None:
+            ttk.Label(command, image=self.header_icon, style="Header.TLabel").pack(
+                side=tk.LEFT, padx=(0, 8)
+            )
+        ttk.Label(
+            command, text="Kadoka AI Game Player", style="HeaderTitle.TLabel"
+        ).pack(side=tk.LEFT)
+        ttk.Label(
+            command, text=f"Player: {player.display_name}", style="HeaderSub.TLabel"
+        ).pack(side=tk.LEFT, padx=10)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)
 
         self.vertical = ttk.Panedwindow(self, orient=tk.VERTICAL)

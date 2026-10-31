@@ -170,7 +170,10 @@ class Application:
         self.shell = ApplicationShell(root, self.shell_state_store.load(), self.stop, self._save_shell_state)
         self.shell.pack(fill=tk.BOTH, expand=True)
         if self.shell.header_icon is not None:
-            root.iconphoto(True, self.shell.header_icon)
+            try:
+                root.iconphoto(True, self.shell.header_icon)
+            except tk.TclError as exc:
+                self.runtime_log.write("error", str(exc), {"operation": "window_icon"})
         frame = ttk.Frame(self.shell.play_host, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
         game_window_selection_panel = ttk.LabelFrame(frame, text="ゲーム / ウィンドウ")
@@ -334,14 +337,17 @@ class Application:
 
     # {
     #   責務: [_show_player_state: 判断・実行の進行をPlayer Seatの状態表示へ伝える]
-    #   処理: [shellがPlayer Seatを持つ場合だけ状態を渡す。Player Seatは表示専用で、描画失敗はshell側でFalseとして吸収されCore処理を止めない]
+    #   処理: [shellがPlayer Seatを持つ場合だけ状態を渡す。Player Seatは表示専用のため、戻り値のFalseとTk破棄後のTclErrorは無視してCore処理を続ける]
     #   引数: [state: 表示するPlayerState]
     #   戻り値: []
     # }
     def _show_player_state(self, state: PlayerState) -> None:
         set_player_state = getattr(getattr(self, "shell", None), "set_player_state", None)
         if callable(set_player_state):
-            set_player_state(state)
+            try:
+                set_player_state(state)
+            except tk.TclError:
+                pass
 
     # {
     #   責務: [_refresh_execution_controls: 設定と実行中Sessionのmodeを操作表示へ反映する]
@@ -511,7 +517,7 @@ class Application:
 
     # {
     #   責務: [_on_session_state_change: Session状態をGUI表示とログへ反映する]
-    #   処理: [実行modeとcheckbox可否を更新し、状態が変わったときだけ記録して停止・完了・失敗の結果を表示する]
+    #   処理: [実行modeとcheckbox可否を更新し、状態が変わったときだけ記録して停止・完了・失敗の結果を表示する。Player Seatには失敗を要確認、完了を評価中、停止を実行待ち中でも即時に停止として示す]
     #   引数: [snapshot: Sessionの状態とstep数]
     #   戻り値: []
     # }
@@ -527,9 +533,11 @@ class Application:
         elif snapshot.status is SessionStatus.COMPLETED:
             self._set_status(f"セッション完了: {snapshot.stop_reason or 'terminal'}")
             self._show_player_state(PlayerState.EVALUATE)
-        elif snapshot.status is SessionStatus.STOPPED and not self._execution_in_progress:
-            self._set_status(f"停止中（{snapshot.stop_reason or '停止'}）")
+        elif snapshot.status is SessionStatus.STOPPED:
+            # 実行中workerの完了を待つ間も、停止を受け付けたことはPlayer Seatへすぐ示す。
             self._show_player_state(PlayerState.STOP)
+            if not self._execution_in_progress:
+                self._set_status(f"停止中（{snapshot.stop_reason or '停止'}）")
         elif snapshot.looping:
             self._set_status("連続実行中")
 
@@ -1020,6 +1028,8 @@ class Application:
                 self.outcome.config(text=f"状態: {result.status} ({result.confidence:.0%})")
                 if result.status not in KNOWN_OUTCOME_STATUSES:
                     self._show_player_state(PlayerState.UNKNOWN)
+                elif result.status != "ongoing":
+                    self._show_player_state(PlayerState.EVALUATE)
                 self.runtime_log.write("outcome", result.reason, {"status": result.status, "confidence": result.confidence, "provider": self.provider.get()})
                 if loop_step:
                     if observation is not None:
