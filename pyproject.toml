@@ -13,6 +13,10 @@ pythonpath = ["src"]
 [project.scripts]
 ai-game-player = "ai_game_player.app:main"
 
+# 開発既定のPlayer Asset Pack（manifestと画像）をwheel/sdistにも含める（Issue #156）。
+[tool.setuptools.package-data]
+ai_game_player = ["assets/players/*/*.json", "assets/players/*/*.png"]
+
 [tool.ruff]
 target-version = "py310"
 extend-exclude = ["build", "generated", "vendor", ".codex", ".codex-remote-attachments"]

@@ -27,12 +27,14 @@ from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.game_session import GameSessionController, LoopObservation, SessionRuntime, SessionSnapshot, SessionStatus, SessionStep
 from ai_game_player.models import ActionDecision, ScreenObservation
 from ai_game_player.observation_service import LiveObservationService
+from ai_game_player.player_character import PlayerState
 from ai_game_player.runtime.session_composition import RuntimeComposition
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 from ai_game_player.ui.stop_help_hint import StopHelpHint
+from ai_game_player.ui.theme import apply_misk_theme
 from ai_game_player.ui.tooltip import ToolTip
 
 
@@ -45,6 +47,10 @@ GLOBAL_STOP_POLL_INTERVAL_MS = 100
 LOOP_STEP_DELAY_MS = 1000
 WINDOWS_F12_VIRTUAL_KEY_CODE = 0x7B
 WINDOWS_KEY_PRESSED_FLAG = 1
+# OutcomeEvaluatorが返す状態。これ以外はPlayer Seatで「状態不明」と表示する。
+KNOWN_OUTCOME_STATUSES = frozenset({"success", "failure", "ongoing"})
+# 連続実行の画面取得失敗はSessionを完了扱いで終えるため、この理由ならPlayer Seatは要確認を示す。
+LOOP_CAPTURE_FAILED_REASON = "capture failed"
 
 
 class TkAfterScheduler:
@@ -161,9 +167,15 @@ class Application:
         root.geometry("1120x760")
         root.minsize(800, 600)
         root.bind("<Escape>", lambda _event: self.stop())
+        apply_misk_theme(root)
         self.shell_state_store = ShellStateStore(Path("data/shell_state.json"))
         self.shell = ApplicationShell(root, self.shell_state_store.load(), self.stop, self._save_shell_state)
         self.shell.pack(fill=tk.BOTH, expand=True)
+        if self.shell.header_icon is not None:
+            try:
+                root.iconphoto(True, self.shell.header_icon)
+            except tk.TclError as exc:
+                self.runtime_log.write("error", str(exc), {"operation": "window_icon"})
         frame = ttk.Frame(self.shell.play_host, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
         game_window_selection_panel = ttk.LabelFrame(frame, text="ゲーム / ウィンドウ")
@@ -326,6 +338,20 @@ class Application:
         self.shell.set_status(message)
 
     # {
+    #   責務: [_show_player_state: 判断・実行の進行をPlayer Seatの状態表示へ伝える]
+    #   処理: [shellがPlayer Seatを持つ場合だけ状態を渡す。Player Seatは表示専用のため、戻り値のFalseとTk破棄後のTclErrorは無視してCore処理を続ける]
+    #   引数: [state: 表示するPlayerState]
+    #   戻り値: []
+    # }
+    def _show_player_state(self, state: PlayerState) -> None:
+        set_player_state = getattr(getattr(self, "shell", None), "set_player_state", None)
+        if callable(set_player_state):
+            try:
+                set_player_state(state)
+            except tk.TclError:
+                pass
+
+    # {
     #   責務: [_refresh_execution_controls: 設定と実行中Sessionのmodeを操作表示へ反映する]
     #   処理: [Session開始時に固定した実際の入力modeを表示し、stepまたはloop実行中は実入力checkboxを無効にする]
     #   引数: []
@@ -467,11 +493,12 @@ class Application:
 
     # {
     #   責務: [_observe_for_loop: 連続実行の画面取得と非同期状態評価を開始する]
-    #   処理: [画面を取得し、loop世代付き評価workerを開始してSessionへ完了待ちを返す]
+    #   処理: [Player Seatを観察中にして画面を取得し、loop世代付き評価workerを開始してSessionへ完了待ちを返す。取得失敗はPlayer Seatを要確認にして終了理由を返す]
     #   引数: []
     #   戻り値: [LoopObservation: 非同期評価のためdeferred状態にした観測]
     # }
     def _observe_for_loop(self) -> LoopObservation:
+        self._show_player_state(PlayerState.OBSERVE)
         try:
             if os.name == "nt":
                 self._apply_capture_region()
@@ -483,7 +510,8 @@ class Application:
                 observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "loop_observation"})
-            return LoopObservation(None, terminal_reason="capture failed")
+            self._show_player_state(PlayerState.WARNING)
+            return LoopObservation(None, terminal_reason=LOOP_CAPTURE_FAILED_REASON)
         self._start_assessment_worker(
             observation,
             loop_step=True,
@@ -493,7 +521,7 @@ class Application:
 
     # {
     #   責務: [_on_session_state_change: Session状態をGUI表示とログへ反映する]
-    #   処理: [実行modeとcheckbox可否を更新し、状態が変わったときだけ記録して停止・完了・失敗の結果を表示する]
+    #   処理: [実行modeとcheckbox可否を更新し、状態が変わったときだけ記録して停止・完了・失敗の結果を表示する。Player Seatには失敗を要確認、完了を評価中、停止を実行待ち中でも即時に停止として示す]
     #   引数: [snapshot: Sessionの状態とstep数]
     #   戻り値: []
     # }
@@ -505,10 +533,19 @@ class Application:
             self._last_session_mode = current
         if snapshot.status is SessionStatus.FAILED:
             self._set_status(f"セッション失敗: {snapshot.error or snapshot.stop_reason}")
+            self._show_player_state(PlayerState.WARNING)
         elif snapshot.status is SessionStatus.COMPLETED:
             self._set_status(f"セッション完了: {snapshot.stop_reason or 'terminal'}")
-        elif snapshot.status is SessionStatus.STOPPED and not self._execution_in_progress:
-            self._set_status(f"停止中（{snapshot.stop_reason or '停止'}）")
+            self._show_player_state(
+                PlayerState.WARNING
+                if snapshot.stop_reason == LOOP_CAPTURE_FAILED_REASON
+                else PlayerState.EVALUATE
+            )
+        elif snapshot.status is SessionStatus.STOPPED:
+            # 実行中workerの完了を待つ間も、停止を受け付けたことはPlayer Seatへすぐ示す。
+            self._show_player_state(PlayerState.STOP)
+            if not self._execution_in_progress:
+                self._set_status(f"停止中（{snapshot.stop_reason or '停止'}）")
         elif snapshot.looping:
             self._set_status("連続実行中")
 
@@ -738,11 +775,12 @@ class Application:
 
     # {
     #   責務: [capture_screen: 選択ROIの画面を取得し、統合候補をdry-run評価欄へ表示する]
-    #   処理: [ObservationをUIへ保存しOCR/画像/Automation候補を統合する。candidate preview失敗はcapture成功と分けて報告し、状態評価workerを開始する]
+    #   処理: [Player Seatを観察中にし、ObservationをUIへ保存しOCR/画像/Automation候補を統合する。candidate preview失敗はcapture成功と分けて報告し、状態評価workerを開始する。取得失敗はPlayer Seatを要確認にする]
     #   引数: [loop_step: Trueなら結果を現在の連続実行stepに限定し、Falseなら停止後も独立して評価する]
     #   戻り値: [ScreenObservation | None: 取得した観測または取得失敗]
     # }
     def capture_screen(self, *, loop_step: bool = False) -> ScreenObservation | None:
+        self._show_player_state(PlayerState.OBSERVE)
         try:
             self._apply_capture_region()
             selected_handle = self.window_handles.get(self.selected_window_display_name_var.get())
@@ -764,6 +802,7 @@ class Application:
             return observation
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("画面取得エラー", str(exc))
             return None
 
@@ -855,7 +894,7 @@ class Application:
 
     # {
     #   責務: [_start_pipeline_worker: セッションpipelineのstepをUIスレッド外で開始する]
-    #   処理: [開始時の実行世代を固定し、使い捨てpipelineだけworker終了時に閉じる]
+    #   処理: [開始時の実行世代を固定し、使い捨てpipelineだけworker終了時に閉じる。Player Seatは実入力の実行なら操作中、判断とdry-run実行なら考え中にする]
     #   引数: [pipeline: 実行パイプライン, operation: 判断または実行, purpose: ゲームの目的, personality: 判断人格, run_token: 実行開始世代, loop_step: 連続実行由来, close_pipeline_on_exit: worker終了時にpipelineを閉じるか]
     #   戻り値: [bool: workerを開始したか]
     # }
@@ -893,6 +932,9 @@ class Application:
                 pipeline.close()
             raise
         self._set_status("Ollama推論中" if self.provider.get() == "Ollama" else "判断・実行中")
+        # dry-runの実行は入力を送らないため、「操作中」ではなく「考え中」と示す。
+        live_input = operation == "execute" and getattr(self, "_session_dry_run", True) is False
+        self._show_player_state(PlayerState.ACT if live_input else PlayerState.THINK)
         return True
 
     # {
@@ -953,7 +995,7 @@ class Application:
 
     # {
     #   責務: [_poll_background_results: worker結果をGUIスレッドで適用する]
-    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、判断・実行ActionはSession状態とは別にshellへ保持し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する]
+    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、判断・実行ActionはSession状態とは別にshellへ保持し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する。Player Seatは評価結果で評価中または状態不明、失敗で要確認にするが、判断・実行worker中は評価結果で上書きしない]
     #   引数: []
     #   戻り値: []
     # }
@@ -983,6 +1025,7 @@ class Application:
                     continue
                 if error is not None:
                     self.runtime_log.write("error", str(error), {"operation": "outcome_assessment"})
+                    self._show_player_state(PlayerState.WARNING)
                     if loop_step and self._is_looping():
                         self.stop("outcome_assessment_failed")
                     continue
@@ -994,6 +1037,13 @@ class Application:
                 self.previous_observation = observation
                 self.current_assessment = result
                 self.outcome.config(text=f"状態: {result.status} ({result.confidence:.0%})")
+                # 判断・実行workerが動いている間は、その考え中・操作中の表示を評価結果で上書きしない。
+                if not getattr(self, "_execution_in_progress", False):
+                    self._show_player_state(
+                        PlayerState.EVALUATE
+                        if result.status in KNOWN_OUTCOME_STATUSES
+                        else PlayerState.UNKNOWN
+                    )
                 self.runtime_log.write("outcome", result.reason, {"status": result.status, "confidence": result.confidence, "provider": self.provider.get()})
                 if loop_step:
                     if observation is not None:
@@ -1024,6 +1074,7 @@ class Application:
                             self.runtime_log.write("error", str(error), {"operation": operation})
                         except Exception as logging_error:
                             self._set_status(f"実行エラーの記録に失敗しました: {logging_error}")
+                        self._show_player_state(PlayerState.WARNING)
                         messagebox.showerror("実行エラー" if operation == "execute" else "判断エラー", str(error))
                 finally:
                     self._complete_session_step(error)
@@ -1044,10 +1095,12 @@ class Application:
             if operation == "execute" and isinstance(result, ExecutionResult):
                 self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
                 self.shell.set_latest_action(result.action_id, f"{result.mode} / {result.detail}")
+                self._show_player_state(PlayerState.EVALUATE)
                 self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
             elif operation == "decision" and isinstance(result, ActionDecision):
                 self._set_status(f"選択: {result.action_id} / {result.reason}")
                 self.shell.set_latest_action(result.action_id, result.reason)
+                self._show_player_state(PlayerState.EVALUATE)
                 self.runtime_log.write("decision", result.reason, {"action_id": result.action_id, "provider": self.provider.get()})
 
             self._complete_session_step()
@@ -1059,7 +1112,7 @@ class Application:
     #   責務: [
     #     start_loop: 対象を検証してから連続実行を開始する
     #   ]
-    #   処理: [入力対象と設定を検証し、Session controllerへ連続実行を依頼する]
+    #   処理: [入力対象と設定を検証し、Session controllerへ連続実行を依頼する。準備・開始の失敗はPlayer Seatを要確認にしてダイアログで通知する]
     #   引数: []
     #   戻り値: []
     # }
@@ -1080,11 +1133,13 @@ class Application:
             self._display_step_evaluation(prepared_step.evaluation)
         except ValueError as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("連続実行エラー", str(exc))
             self._set_status("連続実行を開始できません")
             return
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("連続実行エラー", str(exc))
             return
 
@@ -1095,11 +1150,12 @@ class Application:
             self.session_controller.start_loop("execute", LOOP_STEP_DELAY_MS)
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("連続実行エラー", str(exc))
 
     # {
     #   責務: [start: 「再開」操作で実行世代を進め、停止状態を解除する]
-    #   処理: [Session controllerの停止・保留状態を確認し、Sessionを再開して状態とログを更新する]
+    #   処理: [Session controllerの停止・保留状態を確認し、Sessionを再開して状態とログを更新する。成功時はPlayer Seatを待機中、失敗時は要確認にする]
     #   引数: []
     #   戻り値: []
     # }
@@ -1113,10 +1169,12 @@ class Application:
             self.session_controller.start()
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_session"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("再開エラー", str(exc))
             return
         self.runtime_log.write("run_control", "started")
         self._set_status("実行可能")
+        self._show_player_state(PlayerState.IDLE)
 
     # {
     #   責務: [stop: 停止要求を即時記録しloop予約と実入力許可を止める]
@@ -1150,7 +1208,7 @@ class Application:
 
     # {
     #   責務: [_run_session_step: UI入力を検証してSessionへ非同期stepを依頼する]
-    #   処理: [重複stepを拒否し、観測・候補・設定を更新した後にSession controllerを呼び出す]
+    #   処理: [重複stepを拒否し、観測・候補・設定を更新した後にSession controllerを呼び出す。準備の失敗はPlayer Seatを要確認にしてダイアログで通知する]
     #   引数: [command: executeなら安全評価後に実行し、decisionなら候補判断だけを行う]
     #   戻り値: [bool: step要求を受け付けた場合はTrue]
     # }
@@ -1177,6 +1235,7 @@ class Application:
             return True
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": command})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("実行エラー" if command == "execute" else "判断エラー", str(exc))
             return False
 
