@@ -96,6 +96,26 @@ jobs:
           request["constraints"]["response_format"]["json_schema"] = {"type": "object"}
           validator.validate(request)
           print("REQUEST FORMAT OK")
+
+          response = json.loads(Path("schemas/inference_provider/v1/examples/decision_response.json").read_text(encoding="utf-8"))
+          response_validator = Draft202012Validator(schemas["schemas/inference_provider/v1/inference_response.schema.json"])
+          response["provider"] = None
+          assert not response_validator.is_valid(response), "success must reject null provider"
+          response["status"] = "error"
+          response.pop("result", None)
+          response["error"] = None
+          assert not response_validator.is_valid(response), "failure must reject null error"
+          response["error"] = {"code": "provider_error", "message": "test", "retryable": False}
+          response_validator.validate(response)
+          manifest = json.loads(Path("schemas/inference_provider/v1/examples/local_remote_bridge_provider.json").read_text(encoding="utf-8"))
+          manifest_validator = Draft202012Validator(schemas["schemas/inference_provider/v1/provider_manifest.schema.json"])
+          manifest["privacy"].pop("declared_data_classes")
+          assert not manifest_validator.is_valid(manifest), "remote provider must declare data classes"
+          manifest["privacy"]["declared_data_classes"] = []
+          assert not manifest_validator.is_valid(manifest), "remote provider must declare at least one data class"
+          manifest["privacy"]["declared_data_classes"] = ["decision_context"]
+          manifest_validator.validate(manifest)
+          print("RESPONSE AND PRIVACY NEGATIVE CASES OK")
           PY
       - name: Materialize pinned OSS Reference Game sources
         run: python tools/fetch_ci_games.py --all --clean

@@ -94,7 +94,8 @@
       "then": {
         "required": ["provider", "result"],
         "properties": {
-          "error": { "type": "null" }
+          "error": { "type": "null" },
+          "provider": { "type": "object" }
         }
       }
     },
@@ -106,7 +107,8 @@
       "then": {
         "required": ["error"],
         "properties": {
-          "result": { "type": "null" }
+          "result": { "type": "null" },
+          "error": { "type": "object" }
         }
       }
     },

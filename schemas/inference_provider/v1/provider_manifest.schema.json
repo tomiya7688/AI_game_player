@@ -118,6 +118,24 @@
     {
       "if": {
         "properties": {
+          "privacy": {
+            "properties": { "may_transmit_off_device": { "const": true } },
+            "required": ["may_transmit_off_device"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "required": ["declared_data_classes"],
+            "properties": { "declared_data_classes": { "minItems": 1 } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
           "capabilities": {
             "properties": { "cancellation": { "const": true } },
             "required": ["cancellation"]
