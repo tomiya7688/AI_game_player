@@ -196,23 +196,31 @@ class PlayerSeat:
 
     # {
     #   責務: [set_visible: 席全体の表示・非表示を切り替える]
-    #   処理: [隠す前に親でのpack設定を保存してpack_forgetし、再表示ではその設定（before等の位置を含む）で戻す。保存がなければ横幅いっぱいでpackする]
+    #   処理: [隠す前に親でのpack設定を保存してpack_forgetし、再表示ではその設定（before等の位置を含む）で戻す。保存した後続の部品が使えなければ位置指定を外して戻す。保存がなければ横幅いっぱいでpackする]
     #   引数: [visible: Trueで表示、Falseで非表示]
-    #   戻り値: [bool: 切り替えられたらTrue。破棄済みや親がpack以外で配置している場合はFalse]
+    #   戻り値: [bool: 切り替えられたら、または既に非表示ならTrue。破棄済みや親がpack以外で配置している場合はFalse]
     # }
     def set_visible(self, visible: bool) -> bool:
         try:
+            manager = self.frame.winfo_manager()
+            if manager not in ("", "pack"):
+                return False
             if visible:
                 options = self._pack_options or {"fill": tk.X}
-                self.frame.pack(**options)
+                try:
+                    self.frame.pack(**options)
+                except tk.TclError:
+                    options.pop("before", None)
+                    self.frame.pack(**options)
                 self._pack_options = None
-            elif self.frame.winfo_manager() == "pack":
+            elif manager == "pack":
                 info = self.frame.pack_info()
                 info.pop("in", None)
                 siblings = self.frame.master.pack_slaves()
-                index = siblings.index(self.frame)
-                if index + 1 < len(siblings):
-                    info["before"] = siblings[index + 1]
+                if self.frame in siblings:
+                    index = siblings.index(self.frame)
+                    if index + 1 < len(siblings):
+                        info["before"] = siblings[index + 1]
                 self._pack_options = info
                 self.frame.pack_forget()
             return True

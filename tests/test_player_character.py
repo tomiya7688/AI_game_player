@@ -51,6 +51,8 @@ class PlayerAssetPackTests(unittest.TestCase):
         cases = {
             "no-schema": {"schema_version": None},
             "future-schema": {"schema_version": 2},
+            "bool-schema": {"schema_version": True},
+            "float-schema": {"schema_version": 1.0},
             "no-id": {"asset_pack_id": None},
             "blank-name": {"display_name": " "},
             "smooth-scaling": {"image_scaling": "bilinear"},
@@ -172,6 +174,14 @@ class PlayerSeatTkTests(unittest.TestCase):
         self.assertTrue(seat.set_visible(True))
         self.assertEqual(self.root.pack_slaves(), [above, seat.frame, below])
         self.assertEqual(tuple(seat.frame.pack_info()["pady"]), (12, 0))
+        self.assertTrue(seat.set_visible(False))
+        below.destroy()
+        self.assertTrue(seat.set_visible(True))
+        self.assertEqual(seat.frame.winfo_manager(), "pack")
+        grid_parent = ttk.Frame(self.root)
+        grid_seat = PlayerSeat(grid_parent, load_default_player(), animate=False)
+        grid_seat.frame.grid()
+        self.assertFalse(grid_seat.set_visible(False))
 
     def test_stop_and_warning_return_the_floating_image_to_rest(self):
         seat = PlayerSeat(self.root, load_default_player(), animate=False)

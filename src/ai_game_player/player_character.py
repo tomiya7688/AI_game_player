@@ -105,10 +105,10 @@ def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
         ) from exc
     if not isinstance(manifest, dict):
         raise ValueError("Player Asset Pack manifestはJSON objectである必要があります")
-    if manifest.get("schema_version") != SCHEMA_VERSION:
-        raise ValueError(
-            f"未対応のschema_versionです: {manifest.get('schema_version')}"
-        )
+    version = manifest.get("schema_version")
+    # JSONのtrueや1.0は==1になるため、型も整数に限定する。
+    if type(version) is not int or version != SCHEMA_VERSION:
+        raise ValueError(f"未対応のschema_versionです: {version}")
     pack_id = manifest.get("asset_pack_id")
     display_name = manifest.get("display_name")
     if not isinstance(pack_id, str) or not pack_id.strip():
@@ -170,8 +170,11 @@ def _resolve_player_image(manifest_path: Path, manifest: dict) -> Path | None:
         or Path(image_name).is_absolute()
     ):
         raise ValueError("player_imageはmanifestからの相対パスである必要があります")
-    pack_root = manifest_path.parent.resolve()
-    image_path = (pack_root / image_name).resolve()
+    try:
+        pack_root = manifest_path.parent.resolve()
+        image_path = (pack_root / image_name).resolve()
+    except OSError as exc:
+        raise ValueError(f"player_imageを解決できません: {image_name}: {exc}") from exc
     if not image_path.is_relative_to(pack_root):
         raise ValueError(f"player_imageがAsset Packの外を指しています: {image_name}")
     expected_hash = manifest.get("player_image_sha256")
