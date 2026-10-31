@@ -25,6 +25,7 @@ cmake --build $NativeBuild --config Release --parallel
     --workpath $PyInstallerWork `
     --distpath $DistRoot `
     --specpath $SpecRoot `
+    --add-data "$((Resolve-Path src/ai_game_player/assets).Path);ai_game_player/assets" `
     src/ai_game_player/__main__.py
 
 $NativeDll = Get-ChildItem -Path $NativeBuild -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1

@@ -7,6 +7,8 @@ from tkinter import TclError
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from ai_game_player.app import Application
+from ai_game_player.player_character import PlayerState
 from ai_game_player.ui.shell import (
     WORKSPACES,
     WORKSPACE_HINTS,
@@ -97,6 +99,13 @@ class TkShellSmokeTests(unittest.TestCase):
 
             self.assertEqual(tuple(shell.workspace_pages), WORKSPACES)
             self.assertEqual(shell.player_seat_host.winfo_manager(), "pack")
+            self.assertEqual(
+                shell.player_seat_host.winfo_parent(), str(shell.navigator)
+            )
+            self.assertEqual(shell.player_seat.name_var.get(), "賢者ミスク")
+            self.assertIsNotNone(shell.header_icon)
+            self.assertTrue(shell.set_player_state(PlayerState.THINK))
+            self.assertEqual(shell.player_seat.state, PlayerState.THINK)
             self.assertEqual(shell.latest_action_label.winfo_manager(), "pack")
             self.assertEqual(shell.bottom_host.winfo_manager(), "pack")
             self.assertEqual(
@@ -347,6 +356,18 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(stop_calls, ["root"])
         finally:
             root.destroy()
+
+
+class ApplicationPlayerStateTests(unittest.TestCase):
+    def test_player_state_is_forwarded_only_when_shell_has_a_seat(self):
+        application = Application.__new__(Application)
+        shown = []
+        application.shell = SimpleNamespace(set_player_state=shown.append)
+        application._show_player_state(PlayerState.ACT)
+        self.assertEqual(shown, [PlayerState.ACT])
+        application.shell = SimpleNamespace()
+        application._show_player_state(PlayerState.STOP)
+        self.assertEqual(shown, [PlayerState.ACT])
 
 
 if __name__ == "__main__":

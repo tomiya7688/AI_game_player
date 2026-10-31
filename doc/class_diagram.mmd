@@ -60,6 +60,7 @@ classDiagram
         +__init__()
         +_save_shell_state()
         +_set_status()
+        +_show_player_state()
         +_refresh_execution_controls()
         +_is_looping()
         +_complete_session_step()
@@ -918,6 +919,14 @@ classDiagram
         +_bind_execution_stop_checker()
         +_safety_context()
     }
+    str <|-- PlayerState
+    Enum <|-- PlayerState
+    class PlayerState {
+    }
+    class PlayerAssetPack {
+        +message_for()
+        +has_image()
+    }
     class RuleProvider {
         +assess_outcome()
         +choose()
@@ -1231,6 +1240,15 @@ classDiagram
         +_finish_locked()
         +_capture_loop()
     }
+    class PlayerSeat {
+        +__init__()
+        +set_occupant()
+        +set_state()
+        +set_visible()
+        +_schedule_float()
+        +_float()
+        +_on_destroy()
+    }
     class ShellState {
         +__post_init__()
     }
@@ -1253,6 +1271,7 @@ classDiagram
         +play_host()
         +inspector_host()
         +set_status()
+        +set_player_state()
         +set_latest_action()
         +select_workspace()
         +_update_panel_toggle_labels()

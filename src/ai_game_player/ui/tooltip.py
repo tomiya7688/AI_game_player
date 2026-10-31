@@ -2,6 +2,8 @@
 
 import tkinter as tk
 
+from ai_game_player.ui.theme import PALETTE
+
 
 # {
 #   責務: [ToolTip: 一つのTkウィジェットに、ホバーまたはキーボードフォーカスで補足説明を表示する]
@@ -69,8 +71,8 @@ class ToolTip:
                 self._tip_window,
                 text=self.text,
                 justify=tk.LEFT,
-                background="#ffffe0",
-                foreground="#000000",
+                background=PALETTE["ghost"],
+                foreground=PALETTE["ink"],
                 relief=tk.SOLID,
                 borderwidth=1,
                 wraplength=360,

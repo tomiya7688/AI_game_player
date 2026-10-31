@@ -27,12 +27,14 @@ from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.game_session import GameSessionController, LoopObservation, SessionRuntime, SessionSnapshot, SessionStatus, SessionStep
 from ai_game_player.models import ActionDecision, ScreenObservation
 from ai_game_player.observation_service import LiveObservationService
+from ai_game_player.player_character import PlayerState
 from ai_game_player.runtime.session_composition import RuntimeComposition
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.window_selector import WindowsWindowSelector
 from ai_game_player.ui.shell import ApplicationShell, ShellState, ShellStateStore
 from ai_game_player.ui.stop_help_hint import StopHelpHint
+from ai_game_player.ui.theme import apply_misk_theme
 from ai_game_player.ui.tooltip import ToolTip
 
 
@@ -45,6 +47,8 @@ GLOBAL_STOP_POLL_INTERVAL_MS = 100
 LOOP_STEP_DELAY_MS = 1000
 WINDOWS_F12_VIRTUAL_KEY_CODE = 0x7B
 WINDOWS_KEY_PRESSED_FLAG = 1
+# OutcomeEvaluatorが返す状態。これ以外はPlayer Seatで「状態不明」と表示する。
+KNOWN_OUTCOME_STATUSES = frozenset({"success", "failure", "ongoing"})
 
 
 class TkAfterScheduler:
@@ -161,9 +165,12 @@ class Application:
         root.geometry("1120x760")
         root.minsize(800, 600)
         root.bind("<Escape>", lambda _event: self.stop())
+        apply_misk_theme(root)
         self.shell_state_store = ShellStateStore(Path("data/shell_state.json"))
         self.shell = ApplicationShell(root, self.shell_state_store.load(), self.stop, self._save_shell_state)
         self.shell.pack(fill=tk.BOTH, expand=True)
+        if self.shell.header_icon is not None:
+            root.iconphoto(True, self.shell.header_icon)
         frame = ttk.Frame(self.shell.play_host, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
         game_window_selection_panel = ttk.LabelFrame(frame, text="ゲーム / ウィンドウ")
@@ -324,6 +331,17 @@ class Application:
     def _set_status(self, message: str) -> None:
         self.result.config(text=message)
         self.shell.set_status(message)
+
+    # {
+    #   責務: [_show_player_state: 判断・実行の進行をPlayer Seatの状態表示へ伝える]
+    #   処理: [shellがPlayer Seatを持つ場合だけ状態を渡す。Player Seatは表示専用で、描画失敗はshell側でFalseとして吸収されCore処理を止めない]
+    #   引数: [state: 表示するPlayerState]
+    #   戻り値: []
+    # }
+    def _show_player_state(self, state: PlayerState) -> None:
+        set_player_state = getattr(getattr(self, "shell", None), "set_player_state", None)
+        if callable(set_player_state):
+            set_player_state(state)
 
     # {
     #   責務: [_refresh_execution_controls: 設定と実行中Sessionのmodeを操作表示へ反映する]
@@ -505,10 +523,13 @@ class Application:
             self._last_session_mode = current
         if snapshot.status is SessionStatus.FAILED:
             self._set_status(f"セッション失敗: {snapshot.error or snapshot.stop_reason}")
+            self._show_player_state(PlayerState.WARNING)
         elif snapshot.status is SessionStatus.COMPLETED:
             self._set_status(f"セッション完了: {snapshot.stop_reason or 'terminal'}")
+            self._show_player_state(PlayerState.EVALUATE)
         elif snapshot.status is SessionStatus.STOPPED and not self._execution_in_progress:
             self._set_status(f"停止中（{snapshot.stop_reason or '停止'}）")
+            self._show_player_state(PlayerState.STOP)
         elif snapshot.looping:
             self._set_status("連続実行中")
 
@@ -743,6 +764,7 @@ class Application:
     #   戻り値: [ScreenObservation | None: 取得した観測または取得失敗]
     # }
     def capture_screen(self, *, loop_step: bool = False) -> ScreenObservation | None:
+        self._show_player_state(PlayerState.OBSERVE)
         try:
             self._apply_capture_region()
             selected_handle = self.window_handles.get(self.selected_window_display_name_var.get())
@@ -764,6 +786,7 @@ class Application:
             return observation
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "screen_capture"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("画面取得エラー", str(exc))
             return None
 
@@ -893,6 +916,7 @@ class Application:
                 pipeline.close()
             raise
         self._set_status("Ollama推論中" if self.provider.get() == "Ollama" else "判断・実行中")
+        self._show_player_state(PlayerState.ACT if operation == "execute" else PlayerState.THINK)
         return True
 
     # {
@@ -994,6 +1018,8 @@ class Application:
                 self.previous_observation = observation
                 self.current_assessment = result
                 self.outcome.config(text=f"状態: {result.status} ({result.confidence:.0%})")
+                if result.status not in KNOWN_OUTCOME_STATUSES:
+                    self._show_player_state(PlayerState.UNKNOWN)
                 self.runtime_log.write("outcome", result.reason, {"status": result.status, "confidence": result.confidence, "provider": self.provider.get()})
                 if loop_step:
                     if observation is not None:
@@ -1024,6 +1050,7 @@ class Application:
                             self.runtime_log.write("error", str(error), {"operation": operation})
                         except Exception as logging_error:
                             self._set_status(f"実行エラーの記録に失敗しました: {logging_error}")
+                        self._show_player_state(PlayerState.WARNING)
                         messagebox.showerror("実行エラー" if operation == "execute" else "判断エラー", str(error))
                 finally:
                     self._complete_session_step(error)
@@ -1044,10 +1071,12 @@ class Application:
             if operation == "execute" and isinstance(result, ExecutionResult):
                 self._set_status(f"実行: {result.action_id} / {result.mode} / {result.detail}")
                 self.shell.set_latest_action(result.action_id, f"{result.mode} / {result.detail}")
+                self._show_player_state(PlayerState.EVALUATE)
                 self.runtime_log.write("execution", result.detail, {"action_id": result.action_id, "mode": result.mode})
             elif operation == "decision" and isinstance(result, ActionDecision):
                 self._set_status(f"選択: {result.action_id} / {result.reason}")
                 self.shell.set_latest_action(result.action_id, result.reason)
+                self._show_player_state(PlayerState.EVALUATE)
                 self.runtime_log.write("decision", result.reason, {"action_id": result.action_id, "provider": self.provider.get()})
 
             self._complete_session_step()
