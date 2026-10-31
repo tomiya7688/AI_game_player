@@ -122,7 +122,7 @@ certifiの公開wheelから`certifi/cacert.pem`を取り出し、ツールの判
 | certifi（単体） | 未導入（`certifi.where()`なし） |
 | pip同梱certifi | 2026.10.19、120件、SHA-256 `50f79f98dac192b20dbf73f35c56f0b0c557ab267ff5199d1117cc1180b70785`（ローカルと同一） |
 | pip同梱certifi内のeMudhra/emSign | G1・C1・ECC C3の3件、すべて`no known incident match`。incidentは0件 |
-| pipの設定ファイル | `/etc/pip.conf`だけが存在し、証明書関連の設定は無し。他の4か所（`/etc/xdg/pip/pip.conf`、`~/.pip/pip.conf`、`~/.config/pip/pip.conf`、Python直下の`pip.conf`）は存在しない |
+| pipの設定ファイル | `/etc/pip.conf`だけが存在し、証明書関連の設定は無し（設定の読み取りを直したツールで、run 41199602615・HEAD 99b85f2でも同じ結果）。他の4か所（`/etc/xdg/pip/pip.conf`、`~/.pip/pip.conf`、`~/.config/pip/pip.conf`、Python直下の`pip.conf`）は存在しない |
 | pipの信頼源 | OSの信頼ストア（truststore経由）と、pip同梱certifi |
 | 証明書関連の環境変数 | いずれも未設定 |
 | uv / sigstore | 未導入 |
