@@ -87,6 +87,13 @@ MAX_BUNDLE_BYTES = 20 * 1024 * 1024
 _PEM_BLOCK = re.compile(
     rb"-----BEGIN CERTIFICATE-----([^-]*?)-----END CERTIFICATE-----", re.DOTALL
 )
+# Variables that can change the CA file OpenSSL or requests loads under pip.
+CA_OVERRIDE_VARIABLES = (
+    "SSL_CERT_FILE",
+    "SSL_CERT_DIR",
+    "REQUESTS_CA_BUNDLE",
+    "CURL_CA_BUNDLE",
+)
 CERTIFICATE_ENVIRONMENT_VARIABLES = (
     "SSL_CERT_FILE",
     "SSL_CERT_DIR",
@@ -395,9 +402,11 @@ def pip_trust_source(details: dict[str, object]) -> str:
     which checks the OS trust store and also loads pip's vendored certifi bundle (on
     Windows the bundle is tried when the OS store rejects the chain; elsewhere both
     are loaded into one OpenSSL context), unless "legacy-certs" is set in
-    PIP_USE_DEPRECATED or a use-deprecated config setting. When pip's config could
-    not be read, or a cert option is set, the result starts with "unknown" and the
-    default source is given only as what applies without those settings.
+    PIP_USE_DEPRECATED, or else by the global use-deprecated config setting (the
+    environment overrides config files). When pip's config could not be read, or a
+    cert option, a command-specific setting or a CA environment variable is set,
+    the result starts with "unknown" and the default source is given only as what
+    applies without those settings.
     """
     packages = _dict(details.get("packages"))
     if not packages.get("pip"):
@@ -406,13 +415,27 @@ def pip_trust_source(details: dict[str, object]) -> str:
     config = _dict(details.get("pip_config"))
     settings = _dict(config.get("settings"))
     environment = _dict(details.get("environment"))
-    deprecated = [str(environment.get("PIP_USE_DEPRECATED") or "")]
-    deprecated += [
-        str(value) for key, value in settings.items() if key.endswith("use-deprecated")
-    ]
-    cert = [key for key, value in settings.items() if key.endswith(".cert") and value]
+    # pip lets environment variables override config files, and only the "global"
+    # section applies to every command; other sections apply to one command only.
+    if environment.get("PIP_USE_DEPRECATED"):
+        deprecated = [str(environment["PIP_USE_DEPRECATED"])]
+    else:
+        deprecated = [
+            str(value)
+            for key, value in settings.items()
+            if key == "global.use-deprecated"
+        ]
+    scoped = sorted(
+        key
+        for key, value in settings.items()
+        if value
+        and not key.startswith("global.")
+        and key.rsplit(".", 1)[-1] in ("cert", "use-deprecated")
+    )
+    cert = [key for key, value in settings.items() if key == "global.cert" and value]
     if environment.get("PIP_CERT"):
         cert.append("PIP_CERT")
+    ca_overrides = [name for name in CA_OVERRIDE_VARIABLES if environment.get(name)]
     python = _release_or_none(details.get("python_version"))
     if release is None:
         return f"unknown (pip version {packages.get('pip')} not parsed)"
@@ -437,6 +460,12 @@ def pip_trust_source(details: dict[str, object]) -> str:
         unknowns.append(f"pip config not read ({config['error']})")
     if cert:
         unknowns.append(f"cert option set ({', '.join(cert)}), not analysed")
+    if scoped:
+        unknowns.append(f"command-specific settings ({', '.join(scoped)})")
+    if ca_overrides:
+        unknowns.append(
+            f"CA environment variables set ({', '.join(ca_overrides)}), not analysed"
+        )
     if unknowns:
         return f"unknown ({'; '.join(unknowns)}); without them: {source}"
     return source
@@ -848,6 +877,15 @@ def _redacted_environment(report: dict[str, object]) -> dict[str, object]:
         details["environment"] = {
             name: None if value is None else _redact(str(value))
             for name, value in details["environment"].items()
+        }
+    pip_config = details.get("pip_config")
+    if isinstance(pip_config, dict) and isinstance(pip_config.get("settings"), dict):
+        details["pip_config"] = {
+            **pip_config,
+            "settings": {
+                key: _redact(str(value))
+                for key, value in pip_config["settings"].items()
+            },
         }
     return {**report, "details": details}
 

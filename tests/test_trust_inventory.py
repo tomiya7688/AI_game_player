@@ -450,6 +450,13 @@ class PipTrustSourceTest(unittest.TestCase):
                 self.details(settings={"global.use-deprecated": "legacy-certs"}),
                 "pip vendored certifi only (legacy-certs requested)",
             ),
+            "env-overrides-config": (
+                self.details(
+                    environment={"PIP_USE_DEPRECATED": "html5lib"},
+                    settings={"global.use-deprecated": "legacy-certs"},
+                ),
+                "OS trust store via truststore, plus the pip vendored certifi bundle",
+            ),
             "no-truststore": (
                 self.details(truststore=False),
                 "pip vendored certifi only (vendored truststore missing)",
@@ -487,7 +494,19 @@ class PipTrustSourceTest(unittest.TestCase):
             trust_inventory.pip_trust_source(details),
             f"unknown (pip config not recorded); without them: {default}",
         )
+        details["pip_config"] = {
+            "files": [],
+            "settings": {"install.use-deprecated": "legacy-certs"},
+        }
+        details["environment"] = {"SSL_CERT_FILE": "/etc/custom.pem"}
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            "unknown (command-specific settings (install.use-deprecated); "
+            "CA environment variables set (SSL_CERT_FILE), not analysed); "
+            f"without them: {default}",
+        )
         details["pip_config"] = {"files": [], "settings": {}}
+        details["environment"] = {}
         del details["python_version"]
         self.assertEqual(
             trust_inventory.pip_trust_source(details),
@@ -637,9 +656,17 @@ class MainTest(unittest.TestCase):
                     "PIP_CERT": "https://u:pw@host/ca.pem",
                     "SSL_CERT_FILE": None,
                 },
+                "pip_config": {
+                    "files": [],
+                    "settings": {"global.cert": "https://u:pw@host/corp.pem"},
+                },
             },
         )
         redacted = trust_inventory._redacted_environment(report.to_dict())
+        self.assertEqual(
+            redacted["details"]["pip_config"]["settings"]["global.cert"],
+            "https://***@host/corp.pem",
+        )
         self.assertEqual(redacted["details"]["stderr"], "GITHUB_TOKEN=***")
         self.assertEqual(
             redacted["details"]["environment"]["PIP_CERT"], "https://***@host/ca.pem"

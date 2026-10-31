@@ -25,7 +25,7 @@ python tools/trust_inventory.py --python <確認するpython.exe> --json report.
   - `incident root`: インシデントの対象ルートの既知のフィンガープリントと一致した。
   - `incident-related name`: 発行者または主体のcommonNameが対象ルートの名前（`emSign ECC Root CA - G3`、`emSign Root TLS CA - G3`）と一致した（大文字小文字、空白の数、ハイフンとUnicodeのダッシュの違いは同一視）。別のフィンガープリントの同名ルートや、対象ルートが直接発行した中間証明書がこれに当たります。
   - `no known incident match`: どちらにも当たらない。安全という判定ではありません。証明書チェーンは解析しないため、対象の中間証明書がさらに発行した証明書や、この正規化の範囲を超える別表記の名前は認識できません。
-- pipの信頼源: pipのversion、同梱truststoreの有無、`legacy-certs`の指定（環境変数と設定ファイル）から、pipがHTTPS接続で使う信頼源を導いて表示します。pipの設定を読めなかった場合と、`cert`が指定されている場合（設定ファイルの`cert`、環境変数`PIP_CERT`）は、先頭を`unknown`とし、それらの設定が無い場合の信頼源を参考として続けて表示します（`cert`の指定先の内容は解析しません）。
+- pipの信頼源: pipのversion、同梱truststoreの有無、`legacy-certs`の指定（環境変数`PIP_USE_DEPRECATED`があればそれ、無ければ設定ファイルの`global`節。pipと同じく環境変数が優先）から、pipがHTTPS接続で使う信頼源を導いて表示します。pipの設定を読めなかった場合と、`cert`が指定されている場合（設定ファイルの`global`節の`cert`、環境変数`PIP_CERT`）、特定のコマンドだけに効く設定（`install`節の`cert`・`use-deprecated`など）がある場合、CA bundleを変える環境変数（`SSL_CERT_FILE`、`SSL_CERT_DIR`、`REQUESTS_CA_BUNDLE`、`CURL_CA_BUNDLE`）が設定されている場合は、先頭を`unknown`とし、それらの設定が無い場合の信頼源を参考として続けて表示します（`cert`の指定先の内容は解析しません）。
 - リポジトリの走査範囲: `.github/workflows/*.yml`・`*.yaml`、`.github/actions/**`、リポジトリ直下の`*.bat`・`*.cmd`・`*.sh`・`*.ps1`・`*.spec`、`tools/**/*.ps1`、`pyproject.toml`、`setup.cfg`、`requirements*.txt`、`requirements/**/*.txt`、`constraints*.txt`、`uv.lock`、`Dockerfile*`、`Makefile`のうち、`pip`・`certifi`・`uv`・`sigstore`・`setup-python`・`pyinstaller`・`truststore`を含む行です。URL中の認証情報とtoken類は伏せ字にします。Pythonのソースコード（`src/`・`tools/*.py`・`tests/`）は、この走査の対象外です（アプリ本体の確認は後述の節で別に行いました）。
 
 ### 判定の限界
@@ -127,7 +127,14 @@ certifiの公開wheelから`certifi/cacert.pem`を取り出し、ツールの判
 | 証明書関連の環境変数 | いずれも未設定 |
 | uv / sigstore | 未導入 |
 
-OSのCA bundle（`/etc/ssl/certs/ca-certificates.crt`）の値: この節の変更を含むCI実行の後に追記します。
+runnerのOSのCA bundle（run 41196982172、HEAD 0f5a0d5）:
+
+| 項目 | 結果 |
+|---|---|
+| `/etc/ssl/certs/ca-certificates.crt` | 120件、SHA-256 `e05a523d99de77c6b1f2c7b7c3af502c8378f29e6e8484358ec55f96b0972ad6` |
+| eMudhra/emSign | G1・C1・ECC C3の3件、すべて`no known incident match`。incidentは0件（ECC G3は無い） |
+
+CIでは、pipが使う2つの信頼源（OSのCA bundleとpip同梱certifi）のどちらにも、インシデントの対象ルートはありませんでした。
 
 ### リポジトリ内の固定・同梱
 
@@ -146,13 +153,13 @@ OSのCA bundle（`/etc/ssl/certs/ca-certificates.crt`）の値: この節の変�
 | ローカルのpip | 信頼源はWindowsストアとpip同梱certifi（2026.10.19）。pip同梱certifiに対象ルートは無い。Windowsストアは確認時点で未検出。設定ファイルは無い | Windowsの自動取得とMicrosoft側の扱い、実際のHTTPS接続 |
 | 単体certifiを直接使うクライアント | このリポジトリのコードには無い。ローカルの単体certifi（2026.10.23）にインシデントの対象ルートは無い | 他のツールが単体certifiを使うか |
 | アプリ本体 | certifiを使わず、標準`ssl`の既定コンテキストを使う | 実際のHTTPS接続での検証 |
-| CI（ubuntu、quality job） | 上の「CI（GitHub Actions）」の節を参照 | Windowsのrunner、Linuxの`ca-certificates`の中身 |
+| CI（ubuntu、quality job） | 上の「CI（GitHub Actions）」の節を参照 | Windowsのrunner |
 | PyInstaller配布物 | 作成方法 | 成果物内のPython・OpenSSL・CA bundle（#515） |
 
 残る未確認事項:
 
 1. PyInstallerで作った配布物の中のPython・OpenSSL・CA bundle。配布物は利用者の手元で動くため、最も影響が大きい対象です。#515で、クリーンビルドした成果物を確認します。
-2. Windowsのrunnerと、Linuxの`ca-certificates`の中身。
+2. Windowsのrunner。
 3. 実際のHTTPS接続での検証。
 
 ## P0の重大性についての評価案
