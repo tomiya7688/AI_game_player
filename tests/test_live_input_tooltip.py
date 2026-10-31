@@ -52,7 +52,10 @@ class LiveInputToolTipTests(unittest.TestCase):
                 "実入力を許可してから操作を実行すると、アプリは選択したゲームウィンドウへ入力を送ります。"
                 "判断だけの実行では入力しません。連続実行中や処理の完了待ちは変更できません。"
             )
-            for event in ("<Enter>", "<FocusIn>"):
+            for event, end_event in (
+                ("<Enter>", "<Leave>"),
+                ("<FocusIn>", "<FocusOut>"),
+            ):
                 checkbox.event_generate(event)
                 root.after(450, root.quit)
                 root.mainloop()
@@ -61,7 +64,7 @@ class LiveInputToolTipTests(unittest.TestCase):
                     tooltip._tip_window.winfo_children()[0].cget("text"), expected
                 )
                 self.assertFalse(application.live_execution.get())
-                checkbox.event_generate("<Leave>")
+                checkbox.event_generate(end_event)
                 self.assertIsNone(tooltip._tip_window)
             checkbox.invoke()
             self.assertTrue(application.live_execution.get())
@@ -108,7 +111,10 @@ class LiveInputToolTipTests(unittest.TestCase):
             button = application.refresh_windows_button
             expected = "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。"
 
-            for event in ("<Enter>", "<FocusIn>"):
+            for event, end_event in (
+                ("<Enter>", "<Leave>"),
+                ("<FocusIn>", "<FocusOut>"),
+            ):
                 button.event_generate(event)
                 root.after(450, root.quit)
                 root.mainloop()
@@ -123,7 +129,7 @@ class LiveInputToolTipTests(unittest.TestCase):
                 self.assertIsNotNone(popup)
                 self.assertTrue(popup.winfo_viewable())
                 self.assertEqual(popup.winfo_children()[0].cget("text"), expected)
-                button.event_generate("<Leave>")
+                button.event_generate(end_event)
                 self.assertFalse(popup.winfo_exists())
 
 
