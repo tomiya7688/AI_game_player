@@ -157,16 +157,24 @@ try:
     from pip._internal.configuration import Configuration
     configuration = Configuration(isolated=False)
     configuration.load()
+    # pip 26 yields one (file, {key: value}) pair per config file; older pip yields
+    # (key, value). Later files override earlier ones, as in pip. Environment
+    # entries (":env:") are recorded separately through the environment variables.
+    settings = {}
+    for key, value in configuration.items():
+        pairs = value.items() if isinstance(value, dict) else [(key, value)]
+        for name, setting in pairs:
+            if name.startswith(":env:"):
+                continue
+            if name.rsplit(".", 1)[-1] in ("cert", "client-cert", "use-deprecated", "use-feature"):
+                settings[name] = setting
     result["pip_config"] = {
         "files": [
             [str(variant), path, os.path.exists(path)]
             for variant, paths in configuration.iter_config_files()
             for path in paths
         ],
-        "settings": {
-            key: value for key, value in configuration.items()
-            if key.rsplit(".", 1)[-1] in ("cert", "client-cert", "use-deprecated", "use-feature")
-        },
+        "settings": settings,
     }
 except Exception as error:
     result["pip_config"] = {"error": type(error).__name__}
@@ -439,9 +447,18 @@ def pip_trust_source(details: dict[str, object]) -> str:
     python = _release_or_none(details.get("python_version"))
     if release is None:
         return f"unknown (pip version {packages.get('pip')} not parsed)"
-    if release < PIP_TRUSTSTORE_DEFAULT_FROM:
+    features = [str(environment.get("PIP_USE_FEATURE") or "")]
+    features += [
+        str(value) for key, value in settings.items() if key == "global.use-feature"
+    ]
+    opted_in = any("truststore" in value for value in features)
+    if release < PIP_TRUSTSTORE_DEFAULT_FROM and not opted_in:
         source = (
             "pip vendored certifi only (pip < 24.2 does not use truststore by default)"
+        )
+    elif release < PIP_TRUSTSTORE_DEFAULT_FROM:
+        source = (
+            "OS trust store via truststore (opted in with use-feature on pip < 24.2)"
         )
     elif python is not None and python[:2] < TRUSTSTORE_MINIMUM_PYTHON:
         source = "pip vendored certifi only (Python < 3.10 cannot use truststore)"
@@ -460,6 +477,10 @@ def pip_trust_source(details: dict[str, object]) -> str:
         unknowns.append(f"pip config not read ({config['error']})")
     if cert:
         unknowns.append(f"cert option set ({', '.join(cert)}), not analysed")
+    if opted_in and release < PIP_TRUSTSTORE_DEFAULT_FROM:
+        unknowns.append(
+            "truststore opt-in on pip < 24.2, truststore package not checked"
+        )
     if scoped:
         unknowns.append(f"command-specific settings ({', '.join(scoped)})")
     if ca_overrides:
@@ -626,6 +647,11 @@ def inspect_interpreter(python: str, label: str | None = None) -> EnvironmentRep
     environment = dict(
         os.environ, PYTHONIOENCODING="utf-8", PYTHONDONTWRITEBYTECODE="1"
     )
+    # The probe runs from an empty directory, so a relative config path must be
+    # resolved against the caller's working directory first.
+    config_file = environment.get("PIP_CONFIG_FILE")
+    if config_file and config_file != os.devnull and not os.path.isabs(config_file):
+        environment["PIP_CONFIG_FILE"] = str(Path.cwd() / config_file)
     try:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as empty_directory:
             # No shell is used: the argument list is the interpreter chosen by the

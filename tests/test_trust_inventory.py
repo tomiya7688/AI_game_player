@@ -215,7 +215,10 @@ class InterpreterProbeTest(unittest.TestCase):
         ):
             self.assertIn(key, report.details)
         if report.details["packages"].get("pip"):
-            self.assertIn("files", report.details["pip_config"], report.details)
+            # A broken pip config file is recorded as an error instead of the file list.
+            self.assertTrue(
+                {"files", "error"} & set(report.details["pip_config"]), report.details
+            )
         self.assertEqual(
             set(report.details["environment"]),
             set(trust_inventory.CERTIFICATE_ENVIRONMENT_VARIABLES),
@@ -240,6 +243,27 @@ class InterpreterProbeTest(unittest.TestCase):
         self.assertEqual(seen["cwd_entries"], [])
         self.assertNotIn("PYTHONNOUSERSITE", seen["kwargs"]["env"])
         self.assertEqual(seen["kwargs"]["encoding"], "utf-8")
+
+    def test_relative_pip_config_file_is_resolved_before_the_probe_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "pip.conf"
+            config.write_text(
+                "\n".join(["[global]", "cert = /corp/ca.pem", ""]), encoding="utf-8"
+            )
+            previous = os.getcwd()
+            os.chdir(directory)
+            try:
+                with patch.dict(os.environ, {"PIP_CONFIG_FILE": "pip.conf"}):
+                    report = trust_inventory.inspect_interpreter(sys.executable)
+            finally:
+                os.chdir(previous)
+        if not report.details.get("packages", {}).get("pip"):
+            self.skipTest("pip is not installed in this interpreter")
+        self.assertEqual(
+            report.details["pip_config"]["settings"].get("global.cert"),
+            "/corp/ca.pem",
+            report.details,
+        )
 
     def test_probe_ignores_modules_in_the_callers_working_directory(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -441,6 +465,12 @@ class PipTrustSourceTest(unittest.TestCase):
                     environment={"PIP_USE_DEPRECATED": "html5lib,legacy-certs"}
                 ),
                 "pip vendored certifi only (legacy-certs requested)",
+            ),
+            "old-pip-opt-in": (
+                self.details(pip="23.3", environment={"PIP_USE_FEATURE": "truststore"}),
+                "unknown (truststore opt-in on pip < 24.2, truststore package not checked); "
+                "without them: OS trust store via truststore "
+                "(opted in with use-feature on pip < 24.2)",
             ),
             "old-python": (
                 self.details(python="3.9.18"),
