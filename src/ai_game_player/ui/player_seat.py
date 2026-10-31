@@ -54,6 +54,7 @@ def load_scaled_photo(
 #     occupant: 現在座っているPlayerAssetPack,
 #     state: 現在表示しているPlayerState,
 #     canvas: occupant画像または文字fallbackを描くCanvas,
+#     bubble / license_label: 脳内メッセージの吹き出しとLicense名の表示欄,
 #     name_var / state_var / message_var / license_var: 各表示欄の文字列変数,
 #     _photo: Canvasが参照する画像。GCで消えないよう保持する,
 #     _float_job / _float_up: 浮遊表示のafter予約と現在の上下位置
@@ -109,12 +110,13 @@ class PlayerSeat:
             justify=tk.LEFT,
         )
         self.bubble.pack(fill=tk.X)
-        ttk.Label(
+        self.license_label = ttk.Label(
             self.frame,
             textvariable=self.license_var,
             style="SeatMeta.TLabel",
             wraplength=SEAT_IMAGE_PX + 8,
-        ).pack(anchor=tk.W, pady=(6, 0))
+        )
+        self.license_label.pack(anchor=tk.W, pady=(6, 0))
         self.frame.bind("<Destroy>", self._on_destroy, add="+")
         self.set_occupant(occupant)
         self._schedule_float()
@@ -176,7 +178,8 @@ class PlayerSeat:
             message = self.occupant.message_for(state)
             self.message_var.set(message)
             if message:
-                self.bubble.pack(fill=tk.X)
+                # 一度隠した吹き出しは末尾へ再packされるため、License名の上へ戻す。
+                self.bubble.pack(fill=tk.X, before=self.license_label)
             else:
                 self.bubble.pack_forget()
             return True

@@ -152,6 +152,10 @@ class PlayerSeatTkTests(unittest.TestCase):
             for item in seat.canvas.find_withtag("occupant")
         ]
         self.assertEqual(texts, ["S"])
+        self.assertTrue(seat.set_occupant(load_default_player()))
+        self.assertEqual(
+            seat.frame.pack_slaves()[-2:], [seat.bubble, seat.license_label]
+        )
 
     def test_show_hide_and_destroyed_seat_do_not_raise(self):
         seat = PlayerSeat(self.root, load_default_player())
