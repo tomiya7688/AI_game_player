@@ -25,6 +25,10 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Compile Python sources
         run: python -m compileall -q src tools tests
+      - name: Validate documentation links and diagram blocks
+        run: |
+          python -m unittest discover -s tests -p "test_source_navigation.py" -v
+          python -m unittest discover -s tests -p "test_generate_docs.py" -v
       - name: Run high-confidence bug checker
         env:
           PYTHONPATH: src
