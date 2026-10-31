@@ -18,9 +18,9 @@ PALETTE = {
     "muted": "#8C8F99",
     "ink": "#000000",
     "select": "#3A3D47",
-    # 白文字とのコントラスト比が4.5:1以上になる赤。hover時だけ明るくする。
+    # 白文字とのコントラスト比が4.5:1以上になる赤。hover時はさらに濃くして比を保つ。
     "danger": "#D13438",
-    "danger_active": "#E5484D",
+    "danger_active": "#A4262C",
     "warning": "#F5C04A",
 }
 

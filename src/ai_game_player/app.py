@@ -49,6 +49,8 @@ WINDOWS_F12_VIRTUAL_KEY_CODE = 0x7B
 WINDOWS_KEY_PRESSED_FLAG = 1
 # OutcomeEvaluatorが返す状態。これ以外はPlayer Seatで「状態不明」と表示する。
 KNOWN_OUTCOME_STATUSES = frozenset({"success", "failure", "ongoing"})
+# 連続実行の画面取得失敗はSessionを完了扱いで終えるため、この理由ならPlayer Seatは要確認を示す。
+LOOP_CAPTURE_FAILED_REASON = "capture failed"
 
 
 class TkAfterScheduler:
@@ -491,11 +493,12 @@ class Application:
 
     # {
     #   責務: [_observe_for_loop: 連続実行の画面取得と非同期状態評価を開始する]
-    #   処理: [画面を取得し、loop世代付き評価workerを開始してSessionへ完了待ちを返す]
+    #   処理: [Player Seatを観察中にして画面を取得し、loop世代付き評価workerを開始してSessionへ完了待ちを返す。取得失敗はPlayer Seatを要確認にして終了理由を返す]
     #   引数: []
     #   戻り値: [LoopObservation: 非同期評価のためdeferred状態にした観測]
     # }
     def _observe_for_loop(self) -> LoopObservation:
+        self._show_player_state(PlayerState.OBSERVE)
         try:
             if os.name == "nt":
                 self._apply_capture_region()
@@ -507,7 +510,8 @@ class Application:
                 observation = ScreenObservation(**json.loads(self.obs.get("1.0", tk.END)))
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "loop_observation"})
-            return LoopObservation(None, terminal_reason="capture failed")
+            self._show_player_state(PlayerState.WARNING)
+            return LoopObservation(None, terminal_reason=LOOP_CAPTURE_FAILED_REASON)
         self._start_assessment_worker(
             observation,
             loop_step=True,
@@ -532,7 +536,11 @@ class Application:
             self._show_player_state(PlayerState.WARNING)
         elif snapshot.status is SessionStatus.COMPLETED:
             self._set_status(f"セッション完了: {snapshot.stop_reason or 'terminal'}")
-            self._show_player_state(PlayerState.EVALUATE)
+            self._show_player_state(
+                PlayerState.WARNING
+                if snapshot.stop_reason == LOOP_CAPTURE_FAILED_REASON
+                else PlayerState.EVALUATE
+            )
         elif snapshot.status is SessionStatus.STOPPED:
             # 実行中workerの完了を待つ間も、停止を受け付けたことはPlayer Seatへすぐ示す。
             self._show_player_state(PlayerState.STOP)
@@ -767,7 +775,7 @@ class Application:
 
     # {
     #   責務: [capture_screen: 選択ROIの画面を取得し、統合候補をdry-run評価欄へ表示する]
-    #   処理: [ObservationをUIへ保存しOCR/画像/Automation候補を統合する。candidate preview失敗はcapture成功と分けて報告し、状態評価workerを開始する]
+    #   処理: [Player Seatを観察中にし、ObservationをUIへ保存しOCR/画像/Automation候補を統合する。candidate preview失敗はcapture成功と分けて報告し、状態評価workerを開始する。取得失敗はPlayer Seatを要確認にする]
     #   引数: [loop_step: Trueなら結果を現在の連続実行stepに限定し、Falseなら停止後も独立して評価する]
     #   戻り値: [ScreenObservation | None: 取得した観測または取得失敗]
     # }
@@ -886,7 +894,7 @@ class Application:
 
     # {
     #   責務: [_start_pipeline_worker: セッションpipelineのstepをUIスレッド外で開始する]
-    #   処理: [開始時の実行世代を固定し、使い捨てpipelineだけworker終了時に閉じる]
+    #   処理: [開始時の実行世代を固定し、使い捨てpipelineだけworker終了時に閉じる。Player Seatは実入力の実行なら操作中、判断とdry-run実行なら考え中にする]
     #   引数: [pipeline: 実行パイプライン, operation: 判断または実行, purpose: ゲームの目的, personality: 判断人格, run_token: 実行開始世代, loop_step: 連続実行由来, close_pipeline_on_exit: worker終了時にpipelineを閉じるか]
     #   戻り値: [bool: workerを開始したか]
     # }
@@ -924,7 +932,9 @@ class Application:
                 pipeline.close()
             raise
         self._set_status("Ollama推論中" if self.provider.get() == "Ollama" else "判断・実行中")
-        self._show_player_state(PlayerState.ACT if operation == "execute" else PlayerState.THINK)
+        # dry-runの実行は入力を送らないため、「操作中」ではなく「考え中」と示す。
+        live_input = operation == "execute" and self._session_dry_run is False
+        self._show_player_state(PlayerState.ACT if live_input else PlayerState.THINK)
         return True
 
     # {
@@ -985,7 +995,7 @@ class Application:
 
     # {
     #   責務: [_poll_background_results: worker結果をGUIスレッドで適用する]
-    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、判断・実行ActionはSession状態とは別にshellへ保持し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する]
+    #   処理: [実行世代と評価worker IDを確認して有効結果だけを表示し、判断・実行ActionはSession状態とは別にshellへ保持し、ログ障害時もpipeline stepを完了し、カーソル停止基準は監視処理だけで更新する。Player Seatは評価結果で評価中または状態不明、失敗で要確認にするが、判断・実行worker中は評価結果で上書きしない]
     #   引数: []
     #   戻り値: []
     # }
@@ -1015,6 +1025,7 @@ class Application:
                     continue
                 if error is not None:
                     self.runtime_log.write("error", str(error), {"operation": "outcome_assessment"})
+                    self._show_player_state(PlayerState.WARNING)
                     if loop_step and self._is_looping():
                         self.stop("outcome_assessment_failed")
                     continue
@@ -1026,10 +1037,13 @@ class Application:
                 self.previous_observation = observation
                 self.current_assessment = result
                 self.outcome.config(text=f"状態: {result.status} ({result.confidence:.0%})")
-                if result.status not in KNOWN_OUTCOME_STATUSES:
-                    self._show_player_state(PlayerState.UNKNOWN)
-                elif result.status != "ongoing":
-                    self._show_player_state(PlayerState.EVALUATE)
+                # 判断・実行workerが動いている間は、その考え中・操作中の表示を評価結果で上書きしない。
+                if not self._execution_in_progress:
+                    self._show_player_state(
+                        PlayerState.EVALUATE
+                        if result.status in KNOWN_OUTCOME_STATUSES
+                        else PlayerState.UNKNOWN
+                    )
                 self.runtime_log.write("outcome", result.reason, {"status": result.status, "confidence": result.confidence, "provider": self.provider.get()})
                 if loop_step:
                     if observation is not None:

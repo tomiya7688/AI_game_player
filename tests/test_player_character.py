@@ -60,6 +60,7 @@ class PlayerAssetPackTests(unittest.TestCase):
             "absolute-image": {"player_image": str(Path(__file__).resolve())},
             "empty-image": {"player_image": ""},
             "outside-pack": {"player_image": "../outside.png"},
+            "orphan-hash": {"player_image_sha256": "0" * 64},
             "null-license": {"license_name": None},
             "object-source": {"source": {"url": "x"}},
         }
@@ -101,6 +102,10 @@ class PlayerAssetPackTests(unittest.TestCase):
         pack = load_default_player()
         with self.assertRaises(TypeError):
             pack.state_messages[PlayerState.ACT] = "changed"
+        messages = {PlayerState.ACT: "before"}
+        owned = PlayerAssetPack("p", "P", state_messages=messages)
+        messages[PlayerState.ACT] = "after"
+        self.assertEqual(owned.message_for(PlayerState.ACT), "before")
 
     def test_unreadable_default_pack_falls_back_to_generic_player(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -133,6 +138,13 @@ class PlayerSeatTkTests(unittest.TestCase):
         seat = PlayerSeat(self.root, load_default_player(), animate=False)
         seat.frame.pack()
         self.assertEqual((seat._photo.width(), seat._photo.height()), (128, 128))
+        # nearest-neighborの2倍拡大なら、各2x2ブロックは原画の1pixelと同じ色で揃う。
+        source = tk.PhotoImage(master=self.root, file=str(seat.occupant.player_image))
+        for x, y in ((20, 24), (31, 40), (45, 50), (10, 60)):
+            expected = source.get(x, y)
+            for dx in (0, 1):
+                for dy in (0, 1):
+                    self.assertEqual(seat._photo.get(2 * x + dx, 2 * y + dy), expected)
         self.assertEqual(seat.name_var.get(), "賢者ミスク")
         self.assertIn("Tomiya Character License", seat.license_var.get())
         for state in PlayerState:

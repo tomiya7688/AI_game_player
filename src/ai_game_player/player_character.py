@@ -65,6 +65,17 @@ class PlayerAssetPack:
     )
 
     # {
+    #   責務: [__post_init__: 呼び出し側のdictを後から変更しても表示が変わらないよう、状態別メッセージを複製して読取専用にする]
+    #   処理: [state_messagesをdictへ複製し、MappingProxyTypeで包んで保持し直す]
+    #   引数: []
+    #   戻り値: [None]
+    # }
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "state_messages", MappingProxyType(dict(self.state_messages))
+        )
+
+    # {
     #   責務: [message_for: 指定状態の脳内メッセージを返す]
     #   処理: [状態別メッセージがなければUNKNOWNのメッセージ、それもなければ空文字を返す]
     #   引数: [state: 表示したいPlayerState]
@@ -152,7 +163,7 @@ def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
 # {
 #   責務: [_resolve_player_image: manifestのplayer_imageをmanifestと同じフォルダー配下のパスへ解決し、記録されたSHA-256を照合する]
 #   処理: [
-#     1: 未指定ならNoneを返す。文字列以外、空文字、絶対パス、解決後にmanifestのフォルダー外を指すパスは拒否する
+#     1: 未指定ならNoneを返す（SHA-256だけが記録されていれば拒否する）。文字列以外、空文字、絶対パス、解決後にmanifestのフォルダー外を指すパスは拒否する
 #     2: SHA-256が記録されていれば、64桁の16進数であること、画像が読めること、大文字小文字を無視して一致することを確認する
 #     3: SHA-256がなければ画像の存在は確認せず、欠落時の文字fallbackを呼び出し側へ任せる
 #   ]
@@ -163,6 +174,8 @@ def load_asset_pack(manifest_path: Path) -> PlayerAssetPack:
 def _resolve_player_image(manifest_path: Path, manifest: dict) -> Path | None:
     image_name = manifest.get("player_image")
     if image_name is None:
+        if manifest.get("player_image_sha256") is not None:
+            raise ValueError("player_image_sha256にはplayer_imageが必要です")
         return None
     if (
         not isinstance(image_name, str)

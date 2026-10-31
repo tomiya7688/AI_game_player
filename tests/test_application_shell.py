@@ -7,7 +7,7 @@ from tkinter import TclError
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from ai_game_player.app import Application
+from ai_game_player.app import LOOP_CAPTURE_FAILED_REASON, Application
 from ai_game_player.game_session import SessionStatus
 from ai_game_player.player_character import PlayerState
 from ai_game_player.ui.shell import (
@@ -161,6 +161,7 @@ class TkShellSmokeTests(unittest.TestCase):
             self.assertEqual(changed[-1].workspace, "History")
             self.assertEqual(stopped, [True])
 
+            self.assertEqual(shell.stop_button.cget("style"), "Stop.TButton")
             expected_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
             self.assertEqual(shell.stop_button.cget("text"), expected_label)
         finally:
@@ -403,6 +404,70 @@ class ApplicationPlayerStateTests(unittest.TestCase):
         application._on_session_state_change(snapshot)
         self.assertEqual(shown, [PlayerState.STOP, PlayerState.STOP])
         self.assertEqual(statuses, ["停止中（user）"])
+
+    def make_application(self):
+        application = Application.__new__(Application)
+        shown = []
+        application.shell = SimpleNamespace(set_player_state=shown.append)
+        application.runtime_log = SimpleNamespace(write=lambda *args: None)
+        return application, shown
+
+    def test_only_live_execution_is_shown_as_acting(self):
+        for operation, dry_run, expected in (
+            ("execute", False, PlayerState.ACT),
+            ("execute", True, PlayerState.THINK),
+            ("decision", False, PlayerState.THINK),
+        ):
+            with self.subTest(operation=operation, dry_run=dry_run):
+                application, shown = self.make_application()
+                application._session_dry_run = dry_run
+                application._execution_in_progress = False
+                application._background_task_counter = 0
+                application._run_pipeline_in_background = lambda *args: None
+                application.provider = SimpleNamespace(get=lambda: "local")
+                application._set_status = lambda message: None
+                self.assertTrue(
+                    application._start_pipeline_worker(
+                        SimpleNamespace(close=lambda: None),
+                        operation,
+                        "purpose",
+                        "personality",
+                        run_token=1,
+                        loop_step=False,
+                    )
+                )
+                self.assertEqual(shown, [expected])
+
+    def test_loop_capture_failure_is_shown_as_warning(self):
+        application, shown = self.make_application()
+
+        def fail(*args, **kwargs):
+            raise OSError("capture failed")
+
+        application._apply_capture_region = fail
+        application.obs = SimpleNamespace(get=fail)
+        observation = application._observe_for_loop()
+        self.assertEqual(observation.terminal_reason, LOOP_CAPTURE_FAILED_REASON)
+        self.assertEqual(shown, [PlayerState.OBSERVE, PlayerState.WARNING])
+
+        application._refresh_execution_controls = lambda: None
+        application._set_status = lambda message: None
+        application._last_session_mode = None
+        application._execution_in_progress = False
+        for reason, expected in (
+            (LOOP_CAPTURE_FAILED_REASON, PlayerState.WARNING),
+            ("terminal", PlayerState.EVALUATE),
+        ):
+            application._on_session_state_change(
+                SimpleNamespace(
+                    status=SessionStatus.COMPLETED,
+                    looping=False,
+                    steps=1,
+                    stop_reason=reason,
+                    error=None,
+                )
+            )
+            self.assertEqual(shown[-1], expected)
 
 
 if __name__ == "__main__":
