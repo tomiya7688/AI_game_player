@@ -194,7 +194,7 @@
         "properties": {
           "deployment": {
             "properties": {
-              "base_url": { "type": "string", "format": "uri", "pattern": "^https://" }
+              "base_url": { "type": "string", "format": "uri", "pattern": "^https://(?:[^/?#@]*@)?(?:\\[[^\\]]+\\]|[^/?#:@]+)(?::[0-9]+)?(?:[/?#]|$)" }
             }
           },
           "privacy": {

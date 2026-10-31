@@ -20,3 +20,5 @@ Current levels:
 4. Pygame Tetris — MIT
 
 Changing a pinned commit is a reviewed source update and requires re-checking license/provenance.
+
+`--clean` only recreates a checkout already at the requested pin and rejects commits outside that pin, including branch and reflog history. When changing a pin, preserve the old checkout and lock, then use a new `--dest` directory. Checkouts with skip-worktree or assume-unchanged index flags are also rejected because Git status can hide edits in those files.

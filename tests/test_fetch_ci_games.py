@@ -71,6 +71,87 @@ class ReferenceGameFetchTest(unittest.TestCase):
                     fetch_ci_games.materialize(self.source(), root, True)
             self.assertEqual(saved.read_text(encoding="utf-8"), "keep")
 
+    def test_existing_checkout_with_foreign_origin_is_not_deleted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "test-game"
+            target.mkdir()
+            replies = [str(target), "https://github.com/other/game.git"]
+            with (
+                mock.patch.object(fetch_ci_games, "run", side_effect=replies),
+                mock.patch.object(fetch_ci_games.shutil, "rmtree") as remove,
+            ):
+                with self.assertRaisesRegex(
+                    ValueError, "not the expected source checkout"
+                ):
+                    fetch_ci_games.materialize(self.source(), root, True)
+                remove.assert_not_called()
+
+    def test_real_index_flags_preserve_hidden_tracked_edits(self):
+        for flag in ("--skip-worktree", "--assume-unchanged"):
+            with (
+                self.subTest(flag=flag),
+                RetrySharingViolationTemporaryDirectory() as directory,
+            ):
+                root = Path(directory)
+                target = root / "test-game"
+                target.mkdir()
+                fetch_ci_games.run("git", "init", cwd=target)
+                fetch_ci_games.run(
+                    "git",
+                    "remote",
+                    "add",
+                    "origin",
+                    "https://github.com/example/game.git",
+                    cwd=target,
+                )
+                saved = target / "LICENSE"
+                saved.write_text("original", encoding="utf-8")
+                fetch_ci_games.run("git", "add", "LICENSE", cwd=target)
+                fetch_ci_games.run(
+                    "git",
+                    "-c",
+                    "user.name=Test",
+                    "-c",
+                    "user.email=test@example.invalid",
+                    "commit",
+                    "-m",
+                    "fixture",
+                    cwd=target,
+                )
+                game = self.source()
+                game["commit"] = fetch_ci_games.run(
+                    "git", "rev-parse", "HEAD", cwd=target
+                )
+                fetch_ci_games.run("git", "update-index", flag, "LICENSE", cwd=target)
+                saved.write_text("hidden user edit", encoding="utf-8")
+                self.assertEqual(
+                    fetch_ci_games.run("git", "status", "--porcelain", cwd=target), ""
+                )
+                with mock.patch.object(fetch_ci_games.shutil, "rmtree") as remove:
+                    with self.assertRaisesRegex(
+                        ValueError, "skip-worktree or assume-unchanged"
+                    ):
+                        fetch_ci_games.materialize(game, root, True)
+                    remove.assert_not_called()
+                self.assertEqual(saved.read_text(encoding="utf-8"), "hidden user edit")
+
+    def test_changed_pin_message_preserves_existing_checkout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "test-game"
+            target.mkdir()
+            replies = [
+                str(target),
+                "https://github.com/example/game.git",
+                "H LICENSE",
+                "",
+                "b" * 40,
+            ]
+            with mock.patch.object(fetch_ci_games, "run", side_effect=replies):
+                with self.assertRaisesRegex(RuntimeError, "choose a new --dest"):
+                    fetch_ci_games.materialize(self.source(), root, False)
+
     def test_clean_preserves_committed_local_history(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -81,6 +162,7 @@ class ReferenceGameFetchTest(unittest.TestCase):
                     replies = [
                         str(target),
                         "https://github.com/example/game.git",
+                        "H LICENSE",
                         "",
                         head,
                     ]
@@ -104,6 +186,7 @@ class ReferenceGameFetchTest(unittest.TestCase):
             replies = [
                 str(target),
                 "https://github.com/example/game.git",
+                "H LICENSE",
                 "?? user.txt",
             ]
             with mock.patch.object(fetch_ci_games, "run", side_effect=replies):
@@ -188,7 +271,13 @@ class ReferenceGameFetchTest(unittest.TestCase):
             target = root / "test-game"
             target.mkdir()
             (target / "LICENSE").write_text("license", encoding="utf-8")
-            replies = [str(target), "https://github.com/example/game.git", "", "a" * 40]
+            replies = [
+                str(target),
+                "https://github.com/example/game.git",
+                "H LICENSE",
+                "",
+                "a" * 40,
+            ]
             with mock.patch.object(fetch_ci_games, "run", side_effect=replies):
                 result = fetch_ci_games.materialize(self.source(), root, False)
             self.assertEqual(result["commit"], "a" * 40)

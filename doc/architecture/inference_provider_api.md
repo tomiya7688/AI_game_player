@@ -38,6 +38,8 @@ The machine-readable source of truth is:
 - `schemas/inference_provider/v1/cancel_request.schema.json`
 - `schemas/inference_provider/v1/cancel_response.schema.json`
 
+Consumers of these schemas MUST enable JSON Schema `format` validation, including the `uri` checker for `deployment.base_url`; schema structure checks alone do not validate endpoint values. The contract-assets CI enables this checker and verifies that its dependency is installed.
+
 Protocol version and Application version are independent. v1 stays v1 until this contract changes.
 
 ## Decision safety boundary
@@ -78,7 +80,9 @@ Timeout/cancel/error is data, not an implicit permission to relax Safety or send
 
 Bundled Local Service is the default. It binds to localhost and keeps normal inference on-device.
 
-Remote adapters MUST use `privacy.remote_transmission_allowed=true` and declare the transmitted data classes. The current classes are:
+Adapters that may transmit data off the device MUST declare `privacy.may_transmit_off_device: true` and a non-empty `privacy.declared_data_classes` array in the provider manifest.
+
+For each inference request that transmits data off the device, the adapter MUST require `privacy.remote_transmission_allowed=true` and declare the transmitted classes in that request's `privacy.data_classes` array. The current classes are:
 
 - decision_context
 - ocr_text

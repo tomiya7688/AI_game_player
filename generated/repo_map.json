@@ -65579,7 +65579,7 @@
       "module": "tests.test_fetch_ci_games",
       "path": "tests/test_fetch_ci_games.py",
       "source_location": {
-        "end_line": 195,
+        "end_line": 284,
         "start_line": 1
       },
       "symbols": [
@@ -65646,7 +65646,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 195,
+            "end_line": 284,
             "start_line": 25
           }
         },
@@ -65747,6 +65747,75 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_existing_checkout_with_foreign_origin_is_not_deleted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_existing_checkout_with_foreign_origin_is_not_deleted",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_real_index_flags_preserve_hidden_tracked_edits",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_real_index_flags_preserve_hidden_tracked_edits",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_changed_pin_message_preserves_existing_checkout",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_changed_pin_message_preserves_existing_checkout",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_clean_preserves_committed_local_history",
           "parameters": [
             {
@@ -65761,8 +65830,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 95,
-            "start_line": 74
+            "end_line": 177,
+            "start_line": 155
           }
         },
         {
@@ -65784,8 +65853,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 112,
-            "start_line": 97
+            "end_line": 195,
+            "start_line": 179
           }
         },
         {
@@ -65807,8 +65876,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 114
+            "end_line": 233,
+            "start_line": 197
           }
         },
         {
@@ -65830,8 +65899,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 164,
-            "start_line": 152
+            "end_line": 247,
+            "start_line": 235
           }
         },
         {
@@ -65853,8 +65922,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 166
+            "end_line": 266,
+            "start_line": 249
           }
         },
         {
@@ -65888,8 +65957,8 @@
           "signature": "(game, dest, clean)",
           "source_location": {
             "column": 12,
-            "end_line": 174,
-            "start_line": 171
+            "end_line": 257,
+            "start_line": 254
           }
         },
         {
@@ -65911,8 +65980,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 195,
-            "start_line": 185
+            "end_line": 284,
+            "start_line": 268
           }
         }
       ]
@@ -105345,7 +105414,7 @@
       "module": "tools.fetch_ci_games",
       "path": "tools/fetch_ci_games.py",
       "source_location": {
-        "end_line": 223,
+        "end_line": 234,
         "start_line": 1
       },
       "symbols": [
@@ -105438,7 +105507,7 @@
           "signature": "(game: dict[str, object], dest_root: Path, clean: bool) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 156,
+            "end_line": 165,
             "start_line": 67
           }
         },
@@ -105454,8 +105523,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 219,
-            "start_line": 159
+            "end_line": 230,
+            "start_line": 168
           }
         }
       ]

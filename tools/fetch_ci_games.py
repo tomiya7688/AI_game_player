@@ -84,6 +84,14 @@ def materialize(
             raise ValueError(
                 f"{game_id}: existing directory is not the expected source checkout"
             )
+        index_entries = run("git", "ls-files", "-v", "-z", cwd=target).split("\0")
+        if any(
+            entry and (entry[0] == "S" or entry[0].islower()) for entry in index_entries
+        ):
+            raise ValueError(
+                f"{game_id}: checkout has skip-worktree or assume-unchanged entries; "
+                "preserve and inspect these files before fetching"
+            )
         if run(
             "git",
             "status",
@@ -129,7 +137,8 @@ def materialize(
     if actual_commit != expected_commit:
         raise RuntimeError(
             f"{game_id}: expected {expected_commit}, got {actual_commit}. "
-            "Use --clean to rematerialize the pinned source."
+            "Preserve this checkout and choose a new --dest for the updated pin; "
+            "--clean only recreates a checkout already at the requested pin."
         )
 
     missing_licenses = [
@@ -171,7 +180,9 @@ def main() -> int:
         help="Fetch one level; repeatable.",
     )
     parser.add_argument(
-        "--clean", action="store_true", help="Remove existing checkout before fetching."
+        "--clean",
+        action="store_true",
+        help="Recreate a clean checkout at the same pin, preserving unrelated history.",
     )
     parser.add_argument("--dest", type=Path, default=DEFAULT_DEST)
     args = parser.parse_args()
