@@ -69,9 +69,16 @@ INCIDENT_ADVISORY = "GHSA-6q48-6c7w-9gw2"
 INCIDENT_ROOT_FINGERPRINTS = {
     "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b": "emSign ECC Root CA - G3",
 }
+# The advisory names ECC G3. The certifi maintainer also named the TLS G3 root as
+# affected (issue #439), so it is kept as a precautionary name match.
 INCIDENT_ROOT_NAMES = ("emSign ECC Root CA - G3", "emSign Root TLS CA - G3")
-# pip enables truststore unconditionally from 24.2 unless "legacy-certs" is requested.
+# The label for a match that is not on the known incident list. It is not a safety
+# verdict: chains are not resolved and the list only holds what was published.
+NO_INCIDENT_MATCH = "no known incident match"
+# pip enables truststore unconditionally from 24.2 unless "legacy-certs" is requested,
+# and only on Python 3.10 or later (truststore's minimum).
 PIP_TRUSTSTORE_DEFAULT_FROM = (24, 2)
+TRUSTSTORE_MINIMUM_PYTHON = (3, 10)
 PROBE_TIMEOUT_SECONDS = 60
 WINDOWS_STORES = ("ROOT", "CA", "Disallowed")
 PROBE_MARKER = "TRUST_INVENTORY_JSON:"
@@ -330,15 +337,24 @@ def classify_incident(sha256: str, names: list[str]) -> str:
     """Say whether a matched certificate belongs to the GHSA-6q48-6c7w-9gw2 incident.
 
     "incident root" is a known fingerprint of an affected root. "incident-related
-    name" means a commonName (issuer or subject) equals an affected root's name, so
-    the certificate is that root under another fingerprint or chains to it, such as
-    a compromised intermediate. Anything else is "not in incident".
+    name" means a commonName (issuer or subject) equals an affected root's name,
+    ignoring case, spacing and dash variants, so the certificate is that root under
+    another fingerprint or is issued directly by it, such as a compromised
+    intermediate. Anything else is NO_INCIDENT_MATCH, which does not mean safe: a
+    certificate further down a chain, or named differently, is not recognised.
     """
     if sha256 in INCIDENT_ROOT_FINGERPRINTS:
         return f"incident root ({INCIDENT_ADVISORY})"
-    if any(name in INCIDENT_ROOT_NAMES for name in names):
+    incident_names = {_normalised_name(name) for name in INCIDENT_ROOT_NAMES}
+    if any(_normalised_name(name) in incident_names for name in names):
         return f"incident-related name ({INCIDENT_ADVISORY})"
-    return "not in incident"
+    return NO_INCIDENT_MATCH
+
+
+def _normalised_name(name: str) -> str:
+    """Fold case, dash variants and spacing so equal names written differently compare equal."""
+    dashes = re.sub("[\u2010-\u2015\u2212]", "-", name.casefold())
+    return " ".join(dashes.replace("-", " - ").split())
 
 
 def scan_der_certificates(source: str, certificates: list[bytes]) -> list[TargetMatch]:
@@ -364,7 +380,7 @@ def scan_der_certificates(source: str, certificates: list[bytes]) -> list[Target
 
 def incident_count(matches: list[TargetMatch] | None) -> int:
     """Count the matches that belong to the incident, so a report can show them apart."""
-    return sum(1 for match in matches or [] if match.incident != "not in incident")
+    return sum(1 for match in matches or [] if match.incident != NO_INCIDENT_MATCH)
 
 
 def _release_or_none(text: object) -> tuple[int, ...] | None:
@@ -375,11 +391,13 @@ def _release_or_none(text: object) -> tuple[int, ...] | None:
 def pip_trust_source(details: dict[str, object]) -> str:
     """Describe the CA source pip uses for HTTPS, from what the probe recorded.
 
-    From pip 24.2 pip verifies through its vendored truststore, which checks the OS
-    trust store and also loads pip's vendored certifi bundle (on Windows the bundle
-    is tried when the OS store rejects the chain), unless "legacy-certs" is set in
-    PIP_USE_DEPRECATED or a use-deprecated config setting. A cert option replaces
-    neither; it is reported as set and not analysed further.
+    From pip 24.2 on Python 3.10+, pip verifies through its vendored truststore,
+    which checks the OS trust store and also loads pip's vendored certifi bundle (on
+    Windows the bundle is tried when the OS store rejects the chain; elsewhere both
+    are loaded into one OpenSSL context), unless "legacy-certs" is set in
+    PIP_USE_DEPRECATED or a use-deprecated config setting. When pip's config could
+    not be read, or a cert option is set, the result starts with "unknown" and the
+    default source is given only as what applies without those settings.
     """
     packages = _dict(details.get("packages"))
     if not packages.get("pip"):
@@ -395,22 +413,30 @@ def pip_trust_source(details: dict[str, object]) -> str:
     cert = [key for key, value in settings.items() if key.endswith(".cert") and value]
     if environment.get("PIP_CERT"):
         cert.append("PIP_CERT")
+    python = _release_or_none(details.get("python_version"))
     if release is None:
-        source = f"unknown (pip version {packages.get('pip')} not parsed)"
-    elif release < PIP_TRUSTSTORE_DEFAULT_FROM:
+        return f"unknown (pip version {packages.get('pip')} not parsed)"
+    if release < PIP_TRUSTSTORE_DEFAULT_FROM:
         source = (
             "pip vendored certifi only (pip < 24.2 does not use truststore by default)"
         )
+    elif python is not None and python[:2] < TRUSTSTORE_MINIMUM_PYTHON:
+        source = "pip vendored certifi only (Python < 3.10 cannot use truststore)"
     elif any("legacy-certs" in value for value in deprecated):
         source = "pip vendored certifi only (legacy-certs requested)"
     elif details.get("pip_vendored_truststore") is not True:
         source = "pip vendored certifi only (vendored truststore missing)"
     else:
         source = "OS trust store via truststore, plus the pip vendored certifi bundle"
-    if "error" in config:
-        source += f"; pip config not read ({config['error']})"
+    unknowns = []
+    if "pip_config" not in details:
+        unknowns.append("pip config not recorded")
+    elif "error" in config:
+        unknowns.append(f"pip config not read ({config['error']})")
     if cert:
-        source += f"; cert option set ({', '.join(cert)}), not analysed"
+        unknowns.append(f"cert option set ({', '.join(cert)}), not analysed")
+    if unknowns:
+        return f"unknown ({'; '.join(unknowns)}); without them: {source}"
     return source
 
 

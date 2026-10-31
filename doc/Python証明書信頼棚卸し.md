@@ -23,14 +23,14 @@ python tools/trust_inventory.py --python <確認するpython.exe> --json report.
 - eMudhra・emSignの判定: 各証明書のDERバイト列に`eMudhra`または`emSign`（ASCIIの大文字小文字を区別しない。BMPStringの名前のためUTF-16BEでも検索）が含まれるものを、SHA-256フィンガープリントとcommonName付きで列挙します。
 - インシデントとの照合: 列挙した証明書ごとに、次の3つのどれかを表示します。各bundleとWindowsストアの行には、インシデントに該当した件数も表示します。根拠は下の「インシデント対象の特定」です。
   - `incident root`: インシデントの対象ルートの既知のフィンガープリントと一致した。
-  - `incident-related name`: 発行者または主体のcommonNameが対象ルートの名前（`emSign ECC Root CA - G3`、`emSign Root TLS CA - G3`）と一致した。別のフィンガープリントの同名ルートや、対象ルートの下の中間証明書がこれに当たります。
-  - `not in incident`: どちらにも当たらない。
-- pipの信頼源: pipのversion、同梱truststoreの有無、`legacy-certs`の指定（環境変数と設定ファイル）から、pipがHTTPS接続で使う信頼源を導いて表示します。`cert`の指定があれば、その旨を表示します（指定先の内容は解析しません）。
+  - `incident-related name`: 発行者または主体のcommonNameが対象ルートの名前（`emSign ECC Root CA - G3`、`emSign Root TLS CA - G3`）と一致した（大文字小文字・空白・ダッシュの表記ゆれは同一視）。別のフィンガープリントの同名ルートや、対象ルートが直接発行した中間証明書がこれに当たります。
+  - `no known incident match`: どちらにも当たらない。安全という判定ではありません。証明書チェーンは解析しないため、対象の中間証明書がさらに発行した証明書や、名前が別の表記の証明書は認識できません。
+- pipの信頼源: pipのversion、同梱truststoreの有無、`legacy-certs`の指定（環境変数と設定ファイル）から、pipがHTTPS接続で使う信頼源を導いて表示します。pipの設定を読めなかった場合と、`cert`が指定されている場合は、先頭を`unknown`とし、それらの設定が無い場合の信頼源を参考として続けて表示します（`cert`の指定先の内容は解析しません）。
 - リポジトリの走査範囲: `.github/workflows/*.yml`・`*.yaml`、`.github/actions/**`、リポジトリ直下の`*.bat`・`*.cmd`・`*.sh`・`*.ps1`・`*.spec`、`tools/**/*.ps1`、`pyproject.toml`、`setup.cfg`、`requirements*.txt`、`requirements/**/*.txt`、`constraints*.txt`、`uv.lock`、`Dockerfile*`、`Makefile`のうち、`pip`・`certifi`・`uv`・`sigstore`・`setup-python`・`pyinstaller`・`truststore`を含む行です。URL中の認証情報とtoken類は伏せ字にします。Pythonのソースコード（`src/`・`tools/*.py`・`tests/`）は、この走査の対象外です（アプリ本体の確認は後述の節で別に行いました）。
 
 ### 判定の限界
 
-- インシデント対象の判定は、下の公開情報（2026-10-31時点）に基づきます。告知が更新されて対象が増えた場合は、`tools/trust_inventory.py`の`INCIDENT_ROOT_FINGERPRINTS`と`INCIDENT_ROOT_NAMES`を更新する必要があります。`emSign Root TLS CA - G3`はcertifiに含まれたことがなくフィンガープリントを確認していないため、名前だけで判定します。
+- インシデント対象の判定は、下の公開情報（2026-10-31時点）に基づきます。告知が更新されて対象が増えた場合は、`tools/trust_inventory.py`の`INCIDENT_ROOT_FINGERPRINTS`と`INCIDENT_ROOT_NAMES`を更新する必要があります。アドバイザリが名指ししているルートは`emSign ECC Root CA - G3`です。`emSign Root TLS CA - G3`は、certifiの保守者がissue #439で影響を受けるルートとして挙げたため、予防的に名前だけで照合します。certifiに含まれたことがなく、フィンガープリントは確認していません。
 - 名前の判定はDERのバイト列検索です。名前が別の表記や別の符号化で入っている証明書は見逃す可能性があります（偽陰性）。commonNameの抽出も簡易的な検索で、X.509の完全な解析ではありません。
 - バージョンが#482の最低版を満たすことと、対象の証明書が取り除かれていることは別の事柄です。下の結果のとおり、最低版を満たしていても対象名の証明書は残っています。
 - pipの信頼源は、設定ファイルと環境変数から導いたものです。pipを起動するときのコマンドラインオプション（`--cert`、`--use-deprecated`）は確認スクリプトからは見えません。また、実際のHTTPS接続では確認していません。
@@ -57,8 +57,8 @@ certifiの公開wheelから`certifi/cacert.pem`を取り出し、ツールの判
 経緯はcertifiのissue [#439](https://github.com/certifi/python-certifi/issues/439)とPR [#440](https://github.com/certifi/python-certifi/pull/440)に記録されています。
 
 - 2026.10.18で全emSignルートを削除した。中間証明書だけを無効にする仕組みがcertifiに無いためです。
-- 2026.10.19で、影響のないG1・C1・ECC C3を戻した（PR #440）。
-- 2026.10.23でC1とECC C3が削除された。これはeMudhra自身がMozillaへ削除を依頼したもので（Mozilla bug 2083709）、Mozillaの信頼ストアとの通常の同期です。インシデントとは別の理由です。
+- 2026.10.19で、影響のないG1・C1・ECC C3を戻した（PR #440）。アドバイザリも「影響のないemSignのルートを戻した」と書いています。
+- 2026.10.23でC1とECC C3が削除された。PR #440のコメントによれば、eMudhra自身がMozillaへ削除を依頼したもので（Mozilla bug 2083709）、Mozillaの信頼ストアとの通常の同期です。インシデントとは別の理由です。Mozilla bug 2083709の本文は、この作業では直接確認していません。
 
 結論:
 
@@ -93,7 +93,7 @@ certifiの公開wheelから`certifi/cacert.pem`を取り出し、ツールの判
 インシデント照合とpipの信頼源の判定を加えたツールで、同じPythonをもう一度確認しました。
 
 - pip・certifiのversionとbundleのSHA-256は、2026-10-28と同じでした。
-- 単体certifi（G1の1件）、pip同梱certifi（G1・C1・ECC C3の3件）とも、判定はすべて`not in incident`でした。incidentの件数はどちらも0件です。
+- 単体certifi（G1の1件）、pip同梱certifi（G1・C1・ECC C3の3件）とも、判定はすべて`no known incident match`でした。incidentの件数はどちらも0件です。
 - Windowsストアは、ROOT 61件・CA 33件・Disallowed 0件でした（ROOTは2026-10-28の59件から増えています。Windowsの自動取得によるものと考えられますが、確認はしていません）。eMudhra/emSignの証明書は0件でした。
 - pipの設定ファイル: 次の4か所とも存在しませんでした。証明書関連の環境変数も未設定です。
   - global: `C:\ProgramData\pip\pip.ini`
@@ -103,7 +103,8 @@ certifiの公開wheelから`certifi/cacert.pem`を取り出し、ツールの判
 - pipの信頼源: OSの信頼ストア（truststore経由）と、pip同梱certifiのbundleです。
   - pip 26.2.2のソース（`pip/_internal/cli/index_command.py`）では、`legacy-certs`が指定されない限り、truststoreの`SSLContext`を作り、そこへpip同梱certifiの`where()`を読み込みます。
   - 同梱truststoreのWindows実装（`pip/_vendor/truststore/_windows.py`）は、まずWindowsの信頼ストアで検証し、失敗したときだけ、読み込んだcertifiのbundleを信頼点として検証し直します。
-  - つまり、pipはWindowsストアとpip同梱certifiのどちらかで検証できれば接続します。どちらにもインシデントの対象ルートはありません。
+  - つまり、pipはWindowsストアとpip同梱certifiのどちらかで検証できれば接続します。pip同梱certifiに対象ルートはありません。Windowsストアには確認時点で対象ルートがありませんでしたが、Windowsはルートを自動で取得することがあるため、これはWindowsが対象のチェーンを拒否する証明ではありません。MicrosoftがECC G3や漏えいした中間証明書をどう扱っているかは確認していません。
+  - Linux（CI）では、truststoreはOpenSSLにOSの既定の証明書パスを読み込ませ、同じコンテキストへpip同梱certifiも読み込みます。どちらかの信頼点に届けば検証が通る点はWindowsと同じです。
 
 ### CI（GitHub Actions）
 
@@ -128,7 +129,7 @@ CIの値: このPRのCI実行後に追記します。
 
 | 対象 | 確認できたこと | 未確認 |
 |---|---|---|
-| ローカルのpip | 信頼源はWindowsストアとpip同梱certifi（2026.10.19）。どちらにもインシデントの対象ルートは無い。設定ファイルは無い | 実際のHTTPS接続 |
+| ローカルのpip | 信頼源はWindowsストアとpip同梱certifi（2026.10.19）。pip同梱certifiに対象ルートは無い。Windowsストアは確認時点で未検出。設定ファイルは無い | Windowsの自動取得とMicrosoft側の扱い、実際のHTTPS接続 |
 | 単体certifiを直接使うクライアント | このリポジトリのコードには無い。ローカルの単体certifi（2026.10.23）にインシデントの対象ルートは無い | 他のツールが単体certifiを使うか |
 | アプリ本体 | certifiを使わず、標準`ssl`の既定コンテキストを使う | 実際のHTTPS接続での検証 |
 | CI（ubuntu、quality job） | 上の「CI（GitHub Actions）」の節を参照 | Windowsのrunner、Linuxの`ca-certificates`の中身 |
@@ -146,8 +147,8 @@ CIの値: このPRのCI実行後に追記します。
 
 前回の評価案では、P0から下げる条件を3つ挙げていました。2026-10-31の確認で、それぞれ次の状態です。
 
-1. 残っていた証明書がインシデントの対象かどうか: **確認済み**。G1・C1・ECC C3は対象外で、対象ルート（ECC G3）はローカルのどのbundleにもWindowsストアにもありません。
+1. 残っていた証明書がインシデントの対象かどうか: **確認済み**。G1・C1・ECC C3は対象外で、対象ルート（ECC G3）はローカルのどのbundleにもありません。Windowsストアでは確認時点で未検出ですが、上の理由で安全の根拠にはしません。
 2. PyInstaller配布物: **未確認**（#515）。
-3. CIとローカルのpipの信頼源: ローカルは**確認済み**です。CIは、上の「CI（GitHub Actions）」の節の値で判断します。
+3. CIとローカルのpipの信頼源: ローカルは、pip同梱certifiについて**確認済み**、Windowsストア側は**確認時点で未検出**です。CIは、上の「CI（GitHub Actions）」の節の値で判断します。
 
-条件2が未確認なので、#482全体はP0のまま扱います。本Issue（#513）の棚卸しで見つかった環境については、更新が必要なものはありません。ただし、2026.10.18より前のcertifiを含む環境が見つかった場合は、更新の対象です。
+条件2が未確認なので、#482全体はP0のまま扱います。本Issue（#513）の棚卸しで見つかったbundleには、更新が必要なものはありません（CIの値を記録するまでは暫定）。ただし、2026.10.18より前のcertifiを含む環境が見つかった場合は、更新の対象です。

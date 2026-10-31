@@ -30,8 +30,14 @@ jobs:
           status=0
           python tools/trust_inventory.py --markdown "$RUNNER_TEMP/trust-inventory.md" || status=$?
           if [ -f "$RUNNER_TEMP/trust-inventory.md" ]; then
+            # Certificate names and paths are not workflow commands; stop parsing them as such.
+            token="$(python -c 'import secrets; print(secrets.token_hex(16))')"
+            echo "::stop-commands::$token"
             cat "$RUNNER_TEMP/trust-inventory.md"
+            echo "::$token::"
             cat "$RUNNER_TEMP/trust-inventory.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::trust inventory wrote no report (exit $status)"
           fi
           exit "$status"
       - name: Require bounded SafetyLog retention

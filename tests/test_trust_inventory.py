@@ -350,9 +350,12 @@ class InterpreterProbeTest(unittest.TestCase):
         )
         self.assertEqual(
             report.details["pip_trust_source"],
+            "unknown (pip config not recorded); without them: "
             "pip vendored certifi only (pip < 24.2 does not use truststore by default)",
         )
-        self.assertEqual(report.pip_bundle.matches[0].incident, "not in incident")
+        self.assertEqual(
+            report.pip_bundle.matches[0].incident, "no known incident match"
+        )
         self.assertEqual(len(report.details["windows_store_errors"]), 3)
         self.assertIn(
             "not expanded: pkcs_7_asn", str(report.details["windows_store_errors"])
@@ -377,17 +380,21 @@ class IncidentClassificationTest(unittest.TestCase):
             [
                 "incident root (GHSA-6q48-6c7w-9gw2)",
                 "incident-related name (GHSA-6q48-6c7w-9gw2)",
-                "not in incident",
+                "no known incident match",
             ],
         )
         self.assertEqual(
             bundle.matches[0].sha256,
-            next(iter(trust_inventory.INCIDENT_ROOT_FINGERPRINTS)),
+            "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b",
         )
         self.assertEqual(trust_inventory.incident_count(bundle.matches), 2)
         self.assertEqual(trust_inventory.incident_count(None), 0)
         self.assertEqual(
-            bundle.to_dict()["target_matches"][2]["incident"], "not in incident"
+            bundle.to_dict()["target_matches"][2]["incident"], "no known incident match"
+        )
+        self.assertEqual(
+            trust_inventory.classify_incident("0" * 64, ["EMSIGN  ECC Root CA – G3"]),
+            "incident-related name (GHSA-6q48-6c7w-9gw2)",
         )
         lines = trust_inventory._bundle_lines("CA bundle", bundle)
         self.assertIn("eMudhra/emSign: 3, incident: 2", lines[0])
@@ -395,8 +402,16 @@ class IncidentClassificationTest(unittest.TestCase):
 
 
 class PipTrustSourceTest(unittest.TestCase):
-    def details(self, pip="26.2.2", truststore=True, environment=None, settings=None):
+    def details(
+        self,
+        pip="26.2.2",
+        truststore=True,
+        environment=None,
+        settings=None,
+        python="3.14.7",
+    ):
         return {
+            "python_version": python,
             "packages": {"pip": pip},
             "pip_vendored_truststore": truststore,
             "environment": environment or {},
@@ -416,6 +431,16 @@ class PipTrustSourceTest(unittest.TestCase):
             "legacy-env": (
                 self.details(environment={"PIP_USE_DEPRECATED": "legacy-certs"}),
                 "pip vendored certifi only (legacy-certs requested)",
+            ),
+            "legacy-in-list": (
+                self.details(
+                    environment={"PIP_USE_DEPRECATED": "html5lib,legacy-certs"}
+                ),
+                "pip vendored certifi only (legacy-certs requested)",
+            ),
+            "old-python": (
+                self.details(python="3.9.18"),
+                "pip vendored certifi only (Python < 3.10 cannot use truststore)",
             ),
             "legacy-config": (
                 self.details(settings={"global.use-deprecated": "legacy-certs"}),
@@ -440,16 +465,23 @@ class PipTrustSourceTest(unittest.TestCase):
             environment={"PIP_CERT": "C:/certs/corp.pem"},
             settings={"global.cert": "C:/certs/corp.pem"},
         )
+        default = "OS trust store via truststore, plus the pip vendored certifi bundle"
         self.assertEqual(
             trust_inventory.pip_trust_source(details),
-            "OS trust store via truststore, plus the pip vendored certifi bundle; "
-            "cert option set (global.cert, PIP_CERT), not analysed",
+            "unknown (cert option set (global.cert, PIP_CERT), not analysed); "
+            f"without them: {default}",
         )
         details["pip_config"] = {"error": "ImportError"}
-        self.assertTrue(
-            trust_inventory.pip_trust_source(details).endswith(
-                "; pip config not read (ImportError); cert option set (PIP_CERT), not analysed"
-            )
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            "unknown (pip config not read (ImportError); cert option set (PIP_CERT), "
+            f"not analysed); without them: {default}",
+        )
+        del details["pip_config"]
+        details["environment"] = {}
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            f"unknown (pip config not recorded); without them: {default}",
         )
 
 
