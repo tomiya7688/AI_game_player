@@ -350,7 +350,7 @@ class InterpreterProbeTest(unittest.TestCase):
         )
         self.assertEqual(
             report.details["pip_trust_source"],
-            "unknown (pip config not recorded); without them: "
+            "unknown (Python version not recorded; pip config not recorded); without them: "
             "pip vendored certifi only (pip < 24.2 does not use truststore by default)",
         )
         self.assertEqual(
@@ -394,6 +394,10 @@ class IncidentClassificationTest(unittest.TestCase):
         )
         self.assertEqual(
             trust_inventory.classify_incident("0" * 64, ["EMSIGN  ECC Root CA – G3"]),
+            "incident-related name (GHSA-6q48-6c7w-9gw2)",
+        )
+        self.assertEqual(
+            trust_inventory.classify_incident("0" * 64, ["emSign ECC Root CA-G3"]),
             "incident-related name (GHSA-6q48-6c7w-9gw2)",
         )
         lines = trust_inventory._bundle_lines("CA bundle", bundle)
@@ -482,6 +486,12 @@ class PipTrustSourceTest(unittest.TestCase):
         self.assertEqual(
             trust_inventory.pip_trust_source(details),
             f"unknown (pip config not recorded); without them: {default}",
+        )
+        details["pip_config"] = {"files": [], "settings": {}}
+        del details["python_version"]
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            f"unknown (Python version not recorded); without them: {default}",
         )
 
 

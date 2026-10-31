@@ -429,6 +429,8 @@ def pip_trust_source(details: dict[str, object]) -> str:
     else:
         source = "OS trust store via truststore, plus the pip vendored certifi bundle"
     unknowns = []
+    if python is None:
+        unknowns.append("Python version not recorded")
     if "pip_config" not in details:
         unknowns.append("pip config not recorded")
     elif "error" in config:

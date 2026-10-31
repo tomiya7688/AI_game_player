@@ -28,7 +28,12 @@ jobs:
         # The report also goes to the job log, because step summaries cannot be read through the API.
         run: |
           status=0
-          python tools/trust_inventory.py --markdown "$RUNNER_TEMP/trust-inventory.md" || status=$?
+          # The runner's OS CA bundle is what truststore loads through OpenSSL's default paths.
+          os_bundle=()
+          if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
+            os_bundle=(--bundle /etc/ssl/certs/ca-certificates.crt)
+          fi
+          python tools/trust_inventory.py --python "$(command -v python)" "${os_bundle[@]}" --markdown "$RUNNER_TEMP/trust-inventory.md" || status=$?
           if [ -f "$RUNNER_TEMP/trust-inventory.md" ]; then
             # Certificate names and paths are not workflow commands; stop parsing them as such.
             token="$(python -c 'import secrets; print(secrets.token_hex(16))')"
