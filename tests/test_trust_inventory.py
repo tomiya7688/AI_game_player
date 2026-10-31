@@ -45,6 +45,27 @@ def _pem(der: bytes) -> str:
     )
 
 
+# The real emSign ECC Root CA - G3 from certifi 2026.7.22, the root named by the
+# incident advisory GHSA-6q48-6c7w-9gw2. It is public trust data, kept here so the
+# positive case does not depend on a downloaded bundle.
+EMSIGN_ECC_G3_PEM = """-----BEGIN CERTIFICATE-----
+MIICTjCCAdOgAwIBAgIKPPYHqWhwDtqLhDAKBggqhkjOPQQDAzBrMQswCQYDVQQG
+EwJJTjETMBEGA1UECxMKZW1TaWduIFBLSTElMCMGA1UEChMcZU11ZGhyYSBUZWNo
+bm9sb2dpZXMgTGltaXRlZDEgMB4GA1UEAxMXZW1TaWduIEVDQyBSb290IENBIC0g
+RzMwHhcNMTgwMjE4MTgzMDAwWhcNNDMwMjE4MTgzMDAwWjBrMQswCQYDVQQGEwJJ
+TjETMBEGA1UECxMKZW1TaWduIFBLSTElMCMGA1UEChMcZU11ZGhyYSBUZWNobm9s
+b2dpZXMgTGltaXRlZDEgMB4GA1UEAxMXZW1TaWduIEVDQyBSb290IENBIC0gRzMw
+djAQBgcqhkjOPQIBBgUrgQQAIgNiAAQjpQy4LRL1KPOxst3iAhKAnjlfSU2fySU0
+WXTsuwYc58Byr+iuL+FBVIcUqEqy6HyC5ltqtdyzdc6LBtCGI79G1Y4PPwT01xyS
+fvalY8L1X44uT6EYGQIrMgqCZH0Wk9GjQjBAMB0GA1UdDgQWBBR8XQKEE9TMipuB
+zhccLikenEhjQjAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAKBggq
+hkjOPQQDAwNpADBmAjEAvvNhzwIQHWSVB7gYboiFBS+DCBeQyh+KTOgNG3qxrdWB
+CUfvO6wIBHxcmbHtRwfSAjEAnbpV/KlK6O3t5nYBQnvI+GDZjVGLVTv7jHvrZQnD
++JbNR6iC8hZVdyR+EhCVBCyj
+-----END CERTIFICATE-----
+"""
+
+
 def _probe_printing(payload: dict) -> str:
     """A probe replacement that prints extra noise and then the marked JSON line."""
     line = trust_inventory.PROBE_MARKER + json.dumps(payload)
@@ -189,8 +210,15 @@ class InterpreterProbeTest(unittest.TestCase):
             "module_files",
             "environment",
             "cli_paths",
+            "pip_config",
+            "pip_trust_source",
         ):
             self.assertIn(key, report.details)
+        if report.details["packages"].get("pip"):
+            # A broken pip config file is recorded as an error instead of the file list.
+            self.assertTrue(
+                {"files", "error"} & set(report.details["pip_config"]), report.details
+            )
         self.assertEqual(
             set(report.details["environment"]),
             set(trust_inventory.CERTIFICATE_ENVIRONMENT_VARIABLES),
@@ -215,6 +243,27 @@ class InterpreterProbeTest(unittest.TestCase):
         self.assertEqual(seen["cwd_entries"], [])
         self.assertNotIn("PYTHONNOUSERSITE", seen["kwargs"]["env"])
         self.assertEqual(seen["kwargs"]["encoding"], "utf-8")
+
+    def test_relative_pip_config_file_is_resolved_before_the_probe_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "pip.conf"
+            config.write_text(
+                "\n".join(["[global]", "cert = /corp/ca.pem", ""]), encoding="utf-8"
+            )
+            previous = os.getcwd()
+            os.chdir(directory)
+            try:
+                with patch.dict(os.environ, {"PIP_CONFIG_FILE": "pip.conf"}):
+                    report = trust_inventory.inspect_interpreter(sys.executable)
+            finally:
+                os.chdir(previous)
+        if not report.details.get("packages", {}).get("pip"):
+            self.skipTest("pip is not installed in this interpreter")
+        self.assertEqual(
+            report.details["pip_config"]["settings"].get("global.cert"),
+            "/corp/ca.pem",
+            report.details,
+        )
 
     def test_probe_ignores_modules_in_the_callers_working_directory(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -323,9 +372,175 @@ class InterpreterProbeTest(unittest.TestCase):
             report.details["windows_store_counts"],
             {"ROOT": 1, "CA": 1, "Disallowed": 0},
         )
+        self.assertEqual(
+            report.details["pip_trust_source"],
+            "unknown (Python version not recorded; pip config not recorded); without them: "
+            "pip vendored certifi only (pip < 24.2 does not use truststore by default)",
+        )
+        self.assertEqual(
+            report.pip_bundle.matches[0].incident, "no known incident match"
+        )
         self.assertEqual(len(report.details["windows_store_errors"]), 3)
         self.assertIn(
             "not expanded: pkcs_7_asn", str(report.details["windows_store_errors"])
+        )
+
+
+class IncidentClassificationTest(unittest.TestCase):
+    def test_real_incident_root_is_flagged_and_unaffected_roots_are_not(self):
+        intermediate = _fake_der("emSign ECC Root CA - G3", "eMudhra") + _fake_der(
+            "emSign SSL CA - G3B", "eMudhra"
+        )
+        unaffected = _fake_der("emSign Root CA - G1", "eMudhra Technologies Limited")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "cacert.pem"
+            path.write_text(
+                EMSIGN_ECC_G3_PEM + _pem(intermediate) + _pem(unaffected),
+                encoding="ascii",
+            )
+            bundle = trust_inventory.inspect_bundle_file(path)
+        self.assertEqual(
+            [m.incident for m in bundle.matches],
+            [
+                "incident root (GHSA-6q48-6c7w-9gw2)",
+                "incident-related name (GHSA-6q48-6c7w-9gw2)",
+                "no known incident match",
+            ],
+        )
+        self.assertEqual(
+            bundle.matches[0].sha256,
+            "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b",
+        )
+        self.assertEqual(trust_inventory.incident_count(bundle.matches), 2)
+        self.assertEqual(trust_inventory.incident_count(None), 0)
+        self.assertEqual(
+            bundle.to_dict()["target_matches"][2]["incident"], "no known incident match"
+        )
+        self.assertEqual(
+            trust_inventory.classify_incident("0" * 64, ["EMSIGN  ECC Root CA – G3"]),
+            "incident-related name (GHSA-6q48-6c7w-9gw2)",
+        )
+        self.assertEqual(
+            trust_inventory.classify_incident("0" * 64, ["emSign ECC Root CA-G3"]),
+            "incident-related name (GHSA-6q48-6c7w-9gw2)",
+        )
+        lines = trust_inventory._bundle_lines("CA bundle", bundle)
+        self.assertIn("eMudhra/emSign: 3, incident: 2", lines[0])
+        self.assertIn("incident root (GHSA-6q48-6c7w-9gw2)", lines[1])
+
+
+class PipTrustSourceTest(unittest.TestCase):
+    def details(
+        self,
+        pip="26.2.2",
+        truststore=True,
+        environment=None,
+        settings=None,
+        python="3.14.7",
+    ):
+        return {
+            "python_version": python,
+            "packages": {"pip": pip},
+            "pip_vendored_truststore": truststore,
+            "environment": environment or {},
+            "pip_config": {"files": [], "settings": settings or {}},
+        }
+
+    def test_derives_the_ca_source_from_version_settings_and_environment(self):
+        truststore = (
+            "OS trust store via truststore, plus the pip vendored certifi bundle"
+        )
+        cases = {
+            "default": (self.details(), truststore),
+            "old-pip": (
+                self.details(pip="24.1.2"),
+                "pip vendored certifi only (pip < 24.2 does not use truststore by default)",
+            ),
+            "legacy-env": (
+                self.details(environment={"PIP_USE_DEPRECATED": "legacy-certs"}),
+                "pip vendored certifi only (legacy-certs requested)",
+            ),
+            "legacy-in-list": (
+                self.details(
+                    environment={"PIP_USE_DEPRECATED": "html5lib,legacy-certs"}
+                ),
+                "pip vendored certifi only (legacy-certs requested)",
+            ),
+            "old-pip-opt-in": (
+                self.details(pip="23.3", environment={"PIP_USE_FEATURE": "truststore"}),
+                "unknown (truststore opt-in on pip < 24.2, truststore package not checked); "
+                "without them: OS trust store via truststore "
+                "(opted in with use-feature on pip < 24.2)",
+            ),
+            "old-python": (
+                self.details(python="3.9.18"),
+                "pip vendored certifi only (Python < 3.10 cannot use truststore)",
+            ),
+            "legacy-config": (
+                self.details(settings={"global.use-deprecated": "legacy-certs"}),
+                "pip vendored certifi only (legacy-certs requested)",
+            ),
+            "env-overrides-config": (
+                self.details(
+                    environment={"PIP_USE_DEPRECATED": "html5lib"},
+                    settings={"global.use-deprecated": "legacy-certs"},
+                ),
+                "OS trust store via truststore, plus the pip vendored certifi bundle",
+            ),
+            "no-truststore": (
+                self.details(truststore=False),
+                "pip vendored certifi only (vendored truststore missing)",
+            ),
+            "no-pip": (self.details(pip=None), "pip not installed"),
+            "unparsed": (
+                self.details(pip="dev"),
+                "unknown (pip version dev not parsed)",
+            ),
+        }
+        for name, (details, expected) in cases.items():
+            with self.subTest(name):
+                self.assertEqual(trust_inventory.pip_trust_source(details), expected)
+
+    def test_cert_options_and_unreadable_config_are_reported(self):
+        details = self.details(
+            environment={"PIP_CERT": "C:/certs/corp.pem"},
+            settings={"global.cert": "C:/certs/corp.pem"},
+        )
+        default = "OS trust store via truststore, plus the pip vendored certifi bundle"
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            "unknown (cert option set (global.cert, PIP_CERT), not analysed); "
+            f"without them: {default}",
+        )
+        details["pip_config"] = {"error": "ImportError"}
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            "unknown (pip config not read (ImportError); cert option set (PIP_CERT), "
+            f"not analysed); without them: {default}",
+        )
+        del details["pip_config"]
+        details["environment"] = {}
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            f"unknown (pip config not recorded); without them: {default}",
+        )
+        details["pip_config"] = {
+            "files": [],
+            "settings": {"install.use-deprecated": "legacy-certs"},
+        }
+        details["environment"] = {"SSL_CERT_FILE": "/etc/custom.pem"}
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            "unknown (command-specific settings (install.use-deprecated); "
+            "CA environment variables set (SSL_CERT_FILE), not analysed); "
+            f"without them: {default}",
+        )
+        details["pip_config"] = {"files": [], "settings": {}}
+        details["environment"] = {}
+        del details["python_version"]
+        self.assertEqual(
+            trust_inventory.pip_trust_source(details),
+            f"unknown (Python version not recorded); without them: {default}",
         )
 
 
@@ -471,9 +686,17 @@ class MainTest(unittest.TestCase):
                     "PIP_CERT": "https://u:pw@host/ca.pem",
                     "SSL_CERT_FILE": None,
                 },
+                "pip_config": {
+                    "files": [],
+                    "settings": {"global.cert": "https://u:pw@host/corp.pem"},
+                },
             },
         )
         redacted = trust_inventory._redacted_environment(report.to_dict())
+        self.assertEqual(
+            redacted["details"]["pip_config"]["settings"]["global.cert"],
+            "https://***@host/corp.pem",
+        )
         self.assertEqual(redacted["details"]["stderr"], "GITHUB_TOKEN=***")
         self.assertEqual(
             redacted["details"]["environment"]["PIP_CERT"], "https://***@host/ca.pem"

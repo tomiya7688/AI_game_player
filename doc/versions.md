@@ -1,3 +1,10 @@
+## 2026-10-31 emSignインシデント対象の特定とpipの信頼源（Issue #513）
+
+- 公開アドバイザリGHSA-6q48-6c7w-9gw2と、certifiの公開版（2026.7.22・10.18・10.19・10.23）の比較から、インシデントの対象ルートは`emSign ECC Root CA - G3`だけと特定しました。前回の棚卸しで残っていたemSign Root CA - G1・C1・ECC C3は対象外です。
+- `tools/trust_inventory.py`は、eMudhra/emSignの証明書ごとにインシデントとの照合結果を表示します（対象ルートのフィンガープリント一致、対象ルート名を発行者または主体に持つ証明書、既知の対象に該当なし。最後は安全の判定ではない）。bundleとWindowsストアごとに該当件数も表示します。合否判定ではなく、終了コードは変えていません。
+- pipの設定ファイル（場所・有無・証明書関連の設定。`global`節とコマンド別の節を区別し、環境変数を優先）を読み取り専用で記録し、pipのversion・同梱truststore・`legacy-certs`の指定から、pipが使う信頼源を表示します。ローカルのpip 26.2.2は、Windowsの信頼ストアとpip同梱certifiを使います。pip同梱certifiに対象ルートは無く、Windowsストアでは確認時点で未検出です。設定を読めない場合と`cert`指定時は`unknown`と表示します。
+- `tests.yml`の棚卸し結果をjobのログにも出力し（ランダムなトークンの`::stop-commands::`でworkflow commandの解釈を止めて出力し、レポートが無い場合は警告）、CIの実際の値を文書へ記録できるようにしました。PyInstaller配布物の確認は#515に残ります。
+
 ## 2026-10-29 Provider・参照ゲーム宣言のmain追従（Issue #475 / Draft PR #177）
 
 - 最新mainの安全CI、コンテキスト削減、ソース案内を保持し、旧Draftの競合を解消します。完了済み#178のNoisy ProviderはPR #458の現行実装を使用し、旧Draftの別実装を重複として除外します。
