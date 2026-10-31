@@ -1,3 +1,9 @@
+## 2026-10-29 Provider・参照ゲーム宣言のmain追従（Issue #475 / Draft PR #177）
+
+- 最新mainの安全CI、コンテキスト削減、ソース案内を保持し、旧Draftの競合を解消します。完了済み#178のNoisy ProviderはPR #458の現行実装を使用し、旧Draftの別実装を重複として除外します。
+- Provider・設定スキーマと固定ソース宣言のcheckを追加し、リポジトリ内の必須check定義を29件へ合わせます。GitHubの実rulesetは自動変更しません。実推論・全ゲームの実プレイ・1.0配布受入れは未完了です。
+- 参照ゲーム取得では固定SHAと保存先を検証し、既存ディレクトリの取得元や未保存・無視対象ファイルを確認してから再取得します。GPU計測では不正な間隔を子の起動前に拒否し、中断時に起動した子だけを回収します。
+
 ## 2026-10-31 賢者ミスクのPlayer Seatとアプリ全体のテーマ（Issue #156 / #155の一部）
 
 - Navigatorの下部にPlayer Seatを置き、Development既定のoccupantとして賢者ミスクを表示します。64pxの原画を整数倍のnearest-neighborで128pxへ拡大し、ぼかしを入れません。表示名、状態、短い吹き出し、License名を表示し、停止・要確認以外の状態ではゆっくり上下に浮遊します。
@@ -38,6 +44,40 @@
 - PR #511の設定画面ボタンへの案内追加は、この基盤変更から分離してIssue #475で継続します。今回の対象は共通部品とヘッダー3ボタンです。
 
 # Versions
+
+## Versioning policy
+
+Application versionとSchema/API/ABI versionは独立して管理する。
+
+### Application
+
+正式リリース前は先頭を必ず `0` とする。
+
+- `0.0.0`: 開発開始点
+- `0.0.1`: 軽微な修正・小変更
+- `0.1.0`: 大きめの機能追加・開発マイルストーン
+- `1.0.0`: 最初の正式リリース
+- `1.0.1`: 正式版のbugfix / 軽微変更
+- `1.1.0`: 通常の機能追加
+- `2.0.0`: 大規模breaking change
+
+現在の `0.1.0` は既に到達した開発マイルストーンとして維持し、巻き戻さない。
+
+### Schema / API / ABI
+
+対象contract自体が更新された時だけversionを上げる。Application version変更だけでは連動して上げない。
+
+```text
+app_version                     0.1.0
+native_runtime_abi_version      1
+inference_provider_api_version  1
+decision_context_schema         1
+experience_schema               1
+stage_envelope_schema           1
+plugin_manifest_schema          1
+```
+
+各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
 
 ## Unreleased
 
@@ -227,3 +267,27 @@
 - window_message方式の実入力前に対象ウィンドウ選択を検証する。
 - 対象ウィンドウのキャプチャに失敗した場合、連続実行を停止する。
 - RuleProviderの状態評価をローカルのOutcomeEvaluatorへ統一し、Rule経路でネットワークアクセスしないようにする。
+
+
+## 1.0.0 scope
+
+1.0.0 release boundary is defined in `doc/release_1_0.md` and Issue #19.
+
+Key acceptance:
+- Windows x64 / local-first
+- distribution-root executable as the normal user entrypoint
+- bundled/automatic Local Inference setup
+- Basic Game/Window Select -> Start/Stop path
+- default privacy: telemetry/remote/raw-frame persistence/replay persistence OFF
+- routine CI: smoke-tiny endurance, standard-small functional inference, Noisy Provider robustness
+- pre-release: #179 30-minute-class automated/reference and GTX 1080 real-game acceptance
+- first-party project code/docs use MIT; Kadoka/Maru character assets use Obake License
+- final Product/Engine name must be recorded in #154 before 1.0.0
+
+
+### 1.0.0 licensing boundary
+
+- 1.0.0 first-party shipped scope is MIT-only.
+- Wise Misk artwork is excluded from 1.0.0 while its license is undecided; the planned bundled player asset is MIT-licensed Super Icon.
+- Obake License assets are deferred to 1.1+.
+- Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.
