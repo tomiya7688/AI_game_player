@@ -113,7 +113,11 @@ class LiveInputToolTipTests(unittest.TestCase):
                 root.after(450, root.quit)
                 root.mainloop()
                 popup = next(
-                    (child for child in button.winfo_children() if isinstance(child, tk.Toplevel)),
+                    (
+                        child
+                        for child in button.winfo_children()
+                        if isinstance(child, tk.Toplevel)
+                    ),
                     None,
                 )
                 self.assertIsNotNone(popup)

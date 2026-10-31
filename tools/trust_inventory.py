@@ -23,13 +23,14 @@ Limits of the evidence (also stated in doc/Python証明書信頼棚卸し.md):
   does not mean the target certificates were removed; the matches are reported
   separately.
 - pip carries its own CA bundle (`pip._vendor.certifi`) and the truststore package.
-  Which of them pip uses depends on pip's options and configuration, which the
-  probe records only through environment variables.
+  The probe reads pip's config files (read-only) and the environment, and
+  pip_trust_source() derives the CA source from them. Command-line options of a
+  particular pip run are not visible to the probe.
 - Target certificates are matched by the names "eMudhra" and "emSign" (ASCII
   case-insensitive, and UTF-16BE for BMPString names) anywhere in a certificate's
-  DER bytes. The exact certificates distrusted by the incident are not pinned
-  here; every match is reported with its SHA-256 fingerprint and commonName so a
-  reviewer can compare it with the incident notice.
+  DER bytes. Each match is reported with its SHA-256 fingerprint and commonName and
+  classified against the incident advisory (INCIDENT_ADVISORY): a known affected
+  root fingerprint, a commonName equal to an affected root's name, or neither.
 - On Windows the probe lists what `ssl.enum_certificates` returns for the ROOT, CA
   and Disallowed stores. Windows can download additional roots on demand, so a
   certificate missing from those lists is "not present at inspection time", not
@@ -58,6 +59,26 @@ MINIMUM_VERSIONS = {
     "uv": "0.13.4",
     "sigstore": "4.5.1",
 }
+# The incident behind #482 is GHSA-6q48-6c7w-9gw2: eight intermediates under the
+# emSign G3 roots had compromised keys. certifi 2026.10.18 removed every emSign root
+# and 2026.10.19 restored G1, C1 and C3 as unaffected (certifi issue #439, PR #440);
+# 2026.10.23 later dropped C1 and C3 at eMudhra's own request (Mozilla bug 2083709),
+# which is not the incident. Only the fingerprint below was in certifi; the TLS G3
+# root never was, so it is matched by name only.
+INCIDENT_ADVISORY = "GHSA-6q48-6c7w-9gw2"
+INCIDENT_ROOT_FINGERPRINTS = {
+    "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b": "emSign ECC Root CA - G3",
+}
+# The advisory names ECC G3. The certifi maintainer also named the TLS G3 root as
+# affected (issue #439), so it is kept as a precautionary name match.
+INCIDENT_ROOT_NAMES = ("emSign ECC Root CA - G3", "emSign Root TLS CA - G3")
+# The label for a match that is not on the known incident list. It is not a safety
+# verdict: chains are not resolved and the list only holds what was published.
+NO_INCIDENT_MATCH = "no known incident match"
+# pip enables truststore unconditionally from 24.2 unless "legacy-certs" is requested,
+# and only on Python 3.10 or later (truststore's minimum).
+PIP_TRUSTSTORE_DEFAULT_FROM = (24, 2)
+TRUSTSTORE_MINIMUM_PYTHON = (3, 10)
 PROBE_TIMEOUT_SECONDS = 60
 WINDOWS_STORES = ("ROOT", "CA", "Disallowed")
 PROBE_MARKER = "TRUST_INVENTORY_JSON:"
@@ -65,6 +86,13 @@ MAX_LINE_LENGTH = 200
 MAX_BUNDLE_BYTES = 20 * 1024 * 1024
 _PEM_BLOCK = re.compile(
     rb"-----BEGIN CERTIFICATE-----([^-]*?)-----END CERTIFICATE-----", re.DOTALL
+)
+# Variables that can change the CA file OpenSSL or requests loads under pip.
+CA_OVERRIDE_VARIABLES = (
+    "SSL_CERT_FILE",
+    "SSL_CERT_DIR",
+    "REQUESTS_CA_BUNDLE",
+    "CURL_CA_BUNDLE",
 )
 CERTIFICATE_ENVIRONMENT_VARIABLES = (
     "SSL_CERT_FILE",
@@ -124,6 +152,32 @@ try:
     result["pip_vendored_truststore"] = True
 except Exception:
     result["pip_vendored_truststore"] = False
+try:
+    # Read-only: Configuration.load() only parses the config files pip would use.
+    from pip._internal.configuration import Configuration
+    configuration = Configuration(isolated=False)
+    configuration.load()
+    # pip 26 yields one (file, {key: value}) pair per config file; older pip yields
+    # (key, value). Later files override earlier ones, as in pip. Environment
+    # entries (":env:") are recorded separately through the environment variables.
+    settings = {}
+    for key, value in configuration.items():
+        pairs = value.items() if isinstance(value, dict) else [(key, value)]
+        for name, setting in pairs:
+            if name.startswith(":env:"):
+                continue
+            if name.rsplit(".", 1)[-1] in ("cert", "client-cert", "use-deprecated", "use-feature"):
+                settings[name] = setting
+    result["pip_config"] = {
+        "files": [
+            [str(variant), path, os.path.exists(path)]
+            for variant, paths in configuration.iter_config_files()
+            for path in paths
+        ],
+        "settings": settings,
+    }
+except Exception as error:
+    result["pip_config"] = {"error": type(error).__name__}
 windows_store = None
 if hasattr(ssl, "enum_certificates"):
     windows_store = []
@@ -156,6 +210,7 @@ class TargetMatch:
     names: list[str]
     common_names: list[str] = field(default_factory=list)
     trust: object = None
+    incident: str = ""
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -165,6 +220,7 @@ class TargetMatch:
             "names": self.names,
             "common_names": self.common_names,
             "trust": self.trust,
+            "incident": self.incident,
         }
 
 
@@ -292,22 +348,148 @@ def _target_names(der: bytes) -> list[str]:
     return found
 
 
+def classify_incident(sha256: str, names: list[str]) -> str:
+    """Say whether a matched certificate belongs to the GHSA-6q48-6c7w-9gw2 incident.
+
+    "incident root" is a known fingerprint of an affected root. "incident-related
+    name" means a commonName (issuer or subject) equals an affected root's name,
+    ignoring case, spacing and dash variants, so the certificate is that root under
+    another fingerprint or is issued directly by it, such as a compromised
+    intermediate. Anything else is NO_INCIDENT_MATCH, which does not mean safe: a
+    certificate further down a chain, or named differently, is not recognised.
+    """
+    if sha256 in INCIDENT_ROOT_FINGERPRINTS:
+        return f"incident root ({INCIDENT_ADVISORY})"
+    incident_names = {_normalised_name(name) for name in INCIDENT_ROOT_NAMES}
+    if any(_normalised_name(name) in incident_names for name in names):
+        return f"incident-related name ({INCIDENT_ADVISORY})"
+    return NO_INCIDENT_MATCH
+
+
+def _normalised_name(name: str) -> str:
+    """Fold case, dash variants and spacing so equal names written differently compare equal."""
+    dashes = re.sub("[\u2010-\u2015\u2212]", "-", name.casefold())
+    return " ".join(dashes.replace("-", " - ").split())
+
+
 def scan_der_certificates(source: str, certificates: list[bytes]) -> list[TargetMatch]:
     """Return the certificates whose DER bytes contain a target organisation name."""
     matches = []
     for index, der in enumerate(certificates):
         names = _target_names(der)
         if names:
+            sha256 = hashlib.sha256(der).hexdigest()
+            cns = common_names(der)
             matches.append(
                 TargetMatch(
                     source,
                     index,
-                    hashlib.sha256(der).hexdigest(),
+                    sha256,
                     names,
-                    common_names(der),
+                    cns,
+                    incident=classify_incident(sha256, cns),
                 )
             )
     return matches
+
+
+def incident_count(matches: list[TargetMatch] | None) -> int:
+    """Count the matches that belong to the incident, so a report can show them apart."""
+    return sum(1 for match in matches or [] if match.incident != NO_INCIDENT_MATCH)
+
+
+def _release_or_none(text: object) -> tuple[int, ...] | None:
+    found = re.match(r"\d+(?:\.\d+)*", text) if isinstance(text, str) else None
+    return _release_tuple(found.group(0)) if found else None
+
+
+def pip_trust_source(details: dict[str, object]) -> str:
+    """Describe the CA source pip uses for HTTPS, from what the probe recorded.
+
+    From pip 24.2 on Python 3.10+, pip verifies through its vendored truststore,
+    which checks the OS trust store and also loads pip's vendored certifi bundle (on
+    Windows the bundle is tried when the OS store rejects the chain; elsewhere both
+    are loaded into one OpenSSL context), unless "legacy-certs" is set in
+    PIP_USE_DEPRECATED, or else by the global use-deprecated config setting (the
+    environment overrides config files). When pip's config could not be read, or a
+    cert option, a command-specific setting or a CA environment variable is set,
+    the result starts with "unknown" and the default source is given only as what
+    applies without those settings.
+    """
+    packages = _dict(details.get("packages"))
+    if not packages.get("pip"):
+        return "pip not installed"
+    release = _release_or_none(packages.get("pip"))
+    config = _dict(details.get("pip_config"))
+    settings = _dict(config.get("settings"))
+    environment = _dict(details.get("environment"))
+    # pip lets environment variables override config files, and only the "global"
+    # section applies to every command; other sections apply to one command only.
+    if environment.get("PIP_USE_DEPRECATED"):
+        deprecated = [str(environment["PIP_USE_DEPRECATED"])]
+    else:
+        deprecated = [
+            str(value)
+            for key, value in settings.items()
+            if key == "global.use-deprecated"
+        ]
+    scoped = sorted(
+        key
+        for key, value in settings.items()
+        if value
+        and not key.startswith("global.")
+        and key.rsplit(".", 1)[-1] in ("cert", "use-deprecated")
+    )
+    cert = [key for key, value in settings.items() if key == "global.cert" and value]
+    if environment.get("PIP_CERT"):
+        cert.append("PIP_CERT")
+    ca_overrides = [name for name in CA_OVERRIDE_VARIABLES if environment.get(name)]
+    python = _release_or_none(details.get("python_version"))
+    if release is None:
+        return f"unknown (pip version {packages.get('pip')} not parsed)"
+    features = [str(environment.get("PIP_USE_FEATURE") or "")]
+    features += [
+        str(value) for key, value in settings.items() if key == "global.use-feature"
+    ]
+    opted_in = any("truststore" in value for value in features)
+    if release < PIP_TRUSTSTORE_DEFAULT_FROM and not opted_in:
+        source = (
+            "pip vendored certifi only (pip < 24.2 does not use truststore by default)"
+        )
+    elif release < PIP_TRUSTSTORE_DEFAULT_FROM:
+        source = (
+            "OS trust store via truststore (opted in with use-feature on pip < 24.2)"
+        )
+    elif python is not None and python[:2] < TRUSTSTORE_MINIMUM_PYTHON:
+        source = "pip vendored certifi only (Python < 3.10 cannot use truststore)"
+    elif any("legacy-certs" in value for value in deprecated):
+        source = "pip vendored certifi only (legacy-certs requested)"
+    elif details.get("pip_vendored_truststore") is not True:
+        source = "pip vendored certifi only (vendored truststore missing)"
+    else:
+        source = "OS trust store via truststore, plus the pip vendored certifi bundle"
+    unknowns = []
+    if python is None:
+        unknowns.append("Python version not recorded")
+    if "pip_config" not in details:
+        unknowns.append("pip config not recorded")
+    elif "error" in config:
+        unknowns.append(f"pip config not read ({config['error']})")
+    if cert:
+        unknowns.append(f"cert option set ({', '.join(cert)}), not analysed")
+    if opted_in and release < PIP_TRUSTSTORE_DEFAULT_FROM:
+        unknowns.append(
+            "truststore opt-in on pip < 24.2, truststore package not checked"
+        )
+    if scoped:
+        unknowns.append(f"command-specific settings ({', '.join(scoped)})")
+    if ca_overrides:
+        unknowns.append(
+            f"CA environment variables set ({', '.join(ca_overrides)}), not analysed"
+        )
+    if unknowns:
+        return f"unknown ({'; '.join(unknowns)}); without them: {source}"
+    return source
 
 
 def read_pem_bundle(data: bytes) -> list[bytes]:
@@ -465,6 +647,11 @@ def inspect_interpreter(python: str, label: str | None = None) -> EnvironmentRep
     environment = dict(
         os.environ, PYTHONIOENCODING="utf-8", PYTHONDONTWRITEBYTECODE="1"
     )
+    # The probe runs from an empty directory, so a relative config path must be
+    # resolved against the caller's working directory first.
+    config_file = environment.get("PIP_CONFIG_FILE")
+    if config_file and config_file != os.devnull and not os.path.isabs(config_file):
+        environment["PIP_CONFIG_FILE"] = str(Path.cwd() / config_file)
     try:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as empty_directory:
             # No shell is used: the argument list is the interpreter chosen by the
@@ -511,6 +698,7 @@ def inspect_interpreter(python: str, label: str | None = None) -> EnvironmentRep
     vendored = _dict(details.get("pip_vendored_certifi"))
     if isinstance(vendored.get("where"), str) and vendored["where"]:
         report.pip_bundle = inspect_bundle_file(Path(vendored["where"]))
+    details["pip_trust_source"] = pip_trust_source(details)
     if windows_store is not None:
         _windows_store_matches(report, windows_store)
     return report
@@ -603,7 +791,8 @@ def _match_line(match: TargetMatch) -> str:
     common_name = " / ".join(match.common_names) or "-"
     trust = "" if match.trust is None else f"; trust: {match.trust}"
     return _md(
-        f"  - {match.source} {match.sha256} (CN: {common_name}; matched: {', '.join(match.names)}{trust})"
+        f"  - {match.source} {match.sha256} (CN: {common_name}; matched: {', '.join(match.names)}{trust}; "
+        f"{match.incident})"
     )
 
 
@@ -615,7 +804,7 @@ def _bundle_lines(title: str, bundle: BundleResult | None) -> list[str]:
     return [
         _md(
             f"- {title}: {bundle.path}, {bundle.certificate_count} certificates, sha256 {bundle.sha256}, "
-            f"eMudhra/emSign: {len(bundle.matches)}"
+            f"eMudhra/emSign: {len(bundle.matches)}, incident: {incident_count(bundle.matches)}"
         ),
         *(_match_line(match) for match in bundle.matches),
     ]
@@ -668,6 +857,13 @@ def _markdown(
                 f"- pip vendored truststore: {_md(report.details.get('pip_vendored_truststore'))}"
             )
             lines.extend(_bundle_lines("pip vendored CA bundle", report.pip_bundle))
+            pip_config = _dict(report.details.get("pip_config"))
+            lines.append(
+                f"- pip config: {_md(_redact(str(pip_config), 500)) if pip_config else 'not recorded'}"
+            )
+            lines.append(
+                f"- pip trust source: {_md(report.details.get('pip_trust_source'))}"
+            )
             if report.windows_store_matches is None:
                 lines.append(
                     "- Windows certificate stores: not applicable (not Windows)"
@@ -675,7 +871,8 @@ def _markdown(
             else:
                 lines.append(
                     f"- Windows certificate stores {_md(report.details.get('windows_store_counts'))}: "
-                    f"eMudhra/emSign: {len(report.windows_store_matches)}"
+                    f"eMudhra/emSign: {len(report.windows_store_matches)}, "
+                    f"incident: {incident_count(report.windows_store_matches)}"
                 )
                 lines.extend(
                     _match_line(match) for match in report.windows_store_matches
@@ -706,6 +903,15 @@ def _redacted_environment(report: dict[str, object]) -> dict[str, object]:
         details["environment"] = {
             name: None if value is None else _redact(str(value))
             for name, value in details["environment"].items()
+        }
+    pip_config = details.get("pip_config")
+    if isinstance(pip_config, dict) and isinstance(pip_config.get("settings"), dict):
+        details["pip_config"] = {
+            **pip_config,
+            "settings": {
+                key: _redact(str(value))
+                for key, value in pip_config["settings"].items()
+            },
         }
     return {**report, "details": details}
 

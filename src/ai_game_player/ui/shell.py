@@ -9,6 +9,12 @@ from typing import Callable
 import tkinter as tk
 from tkinter import ttk
 
+from ai_game_player.player_character import (
+    PlayerAssetPack,
+    PlayerState,
+    load_default_player,
+)
+from ai_game_player.ui.player_seat import PlayerSeat, load_scaled_photo
 from ai_game_player.ui.tooltip import ToolTip
 
 WORKSPACES = ("Play", "Vision", "Reasoning", "Evaluation", "History", "Mods")
@@ -20,6 +26,7 @@ WORKSPACE_HINTS = {
     "History": "実行履歴の表示領域です。",
     "Mods": "拡張機能の表示領域です。",
 }
+HEADER_ICON_PX = 32
 
 
 @dataclass(frozen=True)
@@ -115,7 +122,9 @@ class ShellController:
 #     inspector_toggle_button: Inspectorを次に表示するか隠すかを案内するボタン,
 #     bottom_panel_toggle_button: Bottom Panelを次に表示するか隠すかを案内するボタン,
 #     status_var: 現在のSession状態を表示する文字列変数,
-#     latest_action_var: 最後に選択または実行したActionを表示する文字列変数
+#     latest_action_var: 最後に選択または実行したActionを表示する文字列変数,
+#     player_seat: Navigator下部で現在のPlayer occupantと状態を表示するPlayerSeat,
+#     header_icon: ヘッダーへ表示するoccupantの小さい画像。読めない場合はNone
 #   ]
 # }
 class ApplicationShell(ttk.Frame):
@@ -125,10 +134,10 @@ class ApplicationShell(ttk.Frame):
     #   責務: [__init__: ApplicationShellの共通ヘッダー、Workspace領域、Inspector、Bottom Panel、および停止ボタンを構築・配置する]
     #   処理: [
     #     1: ShellControllerとUI変数を初期化する
-    #     2: アプリケーションタイトルとPanel切替ボタン、停止ボタンを配置する
+    #     2: occupant画像付きのアプリケーションタイトルとPanel切替ボタン、停止ボタンを配置する
     #     3: ヘッダー3ボタンへ補足説明を接続し、停止案内ではEscのフォーカス条件とWindowsのF12・連続実行中の手動マウス移動を説明する
-    #     4: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置する
-    #     5: 直近Action表示枠とPlay Workspaceホスト領域を生成し、初期Workspaceと保存済みPanel状態に対応する切替ラベルを表示する
+    #     4: 左右・上下のPanedWindowにNavigator、Workspace表示領域、Inspector、Bottom Panelを配置し、Navigator下部にPlayer Seatを置く
+    #     5: 直近Action表示枠を生成し、初期Workspaceと保存済みPanel状態に対応する切替ラベルを表示する
     #   ]
     #   引数: [
     #     self: 構築したUI部品とcontrollerを保持するApplicationShell
@@ -136,6 +145,7 @@ class ApplicationShell(ttk.Frame):
     #     state: 初期表示のWorkspaceおよびPanel表示状態
     #     on_stop: 停止ボタン押下時に呼び出すコールバック関数
     #     on_state_change: Shell表示状態変更時に呼び出すコールバック関数
+    #     player: Player Seatへ座らせるoccupant。省略時はDevelopment既定の賢者ミスク
     #   ]
     #   戻り値: [None: Shellを親ウィジェット内に構築し、初期状態に対応するPanel配置と操作ラベルを設定する]
     # }
@@ -145,18 +155,18 @@ class ApplicationShell(ttk.Frame):
         state: ShellState,
         on_stop: Callable[[], None],
         on_state_change: Callable[[ShellState], None],
+        player: PlayerAssetPack | None = None,
     ) -> None:
         super().__init__(master)
+        if player is None:
+            player = load_default_player()
         self.controller = ShellController(state, on_state_change)
         self.workspace_var = tk.StringVar(master=self, value=state.workspace)
         self.workspace_buttons: dict[str, ttk.Radiobutton] = {}
         self.workspace_pages: dict[str, ttk.Frame] = {}
 
-        command = ttk.Frame(self, padding=(8, 6))
+        command = ttk.Frame(self, padding=(10, 8), style="Header.TFrame")
         command.pack(fill=tk.X)
-        ttk.Label(
-            command, text="Kadoka AI Game Player", font=("TkDefaultFont", 11, "bold")
-        ).pack(side=tk.LEFT)
         self.inspector_toggle_button = ttk.Button(
             command, text="", command=self.toggle_inspector
         )
@@ -173,7 +183,9 @@ class ApplicationShell(ttk.Frame):
             "下部のBottom Panelを表示または非表示にします",
         )
         stop_button_label = "■ 停止 (Esc / F12)" if os.name == "nt" else "■ 停止 (Esc)"
-        self.stop_button = ttk.Button(command, text=stop_button_label, command=on_stop)
+        self.stop_button = ttk.Button(
+            command, text=stop_button_label, command=on_stop, style="Stop.TButton"
+        )
         self.stop_button.pack(side=tk.RIGHT, padx=10)
         stop_help_text = (
             "停止ボタン、または本アプリにフォーカスがある状態のEscで停止を要求します。"
@@ -184,7 +196,25 @@ class ApplicationShell(ttk.Frame):
         )
         ToolTip(self.stop_button, stop_help_text)
         self.status_var = tk.StringVar(master=self, value="待機中")
-        ttk.Label(command, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
+        ttk.Label(command, textvariable=self.status_var, style="Status.TLabel").pack(
+            side=tk.RIGHT, padx=8
+        )
+        # 狭い幅でも停止ボタンを欠けさせないよう、右側の操作を先にpackして幅を優先確保する。
+        self.header_icon = (
+            load_scaled_photo(self, player.player_image, HEADER_ICON_PX)
+            if player.player_image is not None and player.has_image()
+            else None
+        )
+        if self.header_icon is not None:
+            ttk.Label(command, image=self.header_icon, style="Header.TLabel").pack(
+                side=tk.LEFT, padx=(0, 8)
+            )
+        ttk.Label(
+            command, text="Kadoka AI Game Player", style="HeaderTitle.TLabel"
+        ).pack(side=tk.LEFT)
+        ttk.Label(
+            command, text=f"Player: {player.display_name}", style="HeaderSub.TLabel"
+        ).pack(side=tk.LEFT, padx=10)
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)
 
         self.vertical = ttk.Panedwindow(self, orient=tk.VERTICAL)
@@ -193,7 +223,9 @@ class ApplicationShell(ttk.Frame):
         self.vertical.add(self.upper, weight=5)
 
         self.navigator = ttk.Frame(self.upper, padding=8)
-        ttk.Label(self.navigator, text="Navigator").pack(anchor=tk.W, pady=(0, 8))
+        ttk.Label(self.navigator, text="WORKSPACE", style="Section.TLabel").pack(
+            anchor=tk.W, pady=(0, 8)
+        )
         for workspace in WORKSPACES:
             button = ttk.Radiobutton(
                 self.navigator,
@@ -201,6 +233,7 @@ class ApplicationShell(ttk.Frame):
                 variable=self.workspace_var,
                 value=workspace,
                 command=lambda item=workspace: self.select_workspace(item),
+                style="Nav.TRadiobutton",
             )
             button.pack(fill=tk.X, pady=2)
             self.workspace_buttons[workspace] = button
@@ -213,23 +246,25 @@ class ApplicationShell(ttk.Frame):
             page.place(relx=0, rely=0, relwidth=1, relheight=1)
             self.workspace_pages[workspace] = page
             if workspace != "Play":
-                ttk.Label(
-                    page, text=workspace, font=("TkDefaultFont", 14, "bold")
-                ).pack(anchor=tk.W, pady=(8, 4))
+                ttk.Label(page, text=workspace, style="Heading.TLabel").pack(
+                    anchor=tk.W, pady=(8, 4)
+                )
                 ttk.Label(
                     page,
                     text=WORKSPACE_HINTS[workspace],
+                    style="Muted.TLabel",
                     wraplength=600,
                     justify=tk.LEFT,
                 ).pack(anchor=tk.W)
 
         self.inspector = ttk.Frame(self.upper, padding=8, width=220)
-        ttk.Label(
-            self.inspector, text="Inspector", font=("TkDefaultFont", 11, "bold")
-        ).pack(anchor=tk.W)
+        ttk.Label(self.inspector, text="INSPECTOR", style="Section.TLabel").pack(
+            anchor=tk.W
+        )
         ttk.Label(
             self.inspector,
             text="選択した項目の詳細がここに表示されます。",
+            style="Muted.TLabel",
             wraplength=200,
             justify=tk.LEFT,
         ).pack(anchor=tk.W, pady=8)
@@ -242,11 +277,14 @@ class ApplicationShell(ttk.Frame):
 
         self.bottom_panel = ttk.Frame(self.vertical, padding=8, height=120)
         ttk.Label(
-            self.bottom_panel, text="Bottom Panel — Timeline / Console / Trace"
+            self.bottom_panel,
+            text="TIMELINE / CONSOLE / TRACE",
+            style="Section.TLabel",
         ).pack(anchor=tk.W)
         ttk.Label(
             self.bottom_panel,
             text="実行記録や診断表示を接続する領域です。",
+            style="Muted.TLabel",
             wraplength=900,
             justify=tk.LEFT,
         ).pack(anchor=tk.W, pady=6)
@@ -266,8 +304,10 @@ class ApplicationShell(ttk.Frame):
             wraplength=700,
         )
         self.latest_action_label.pack(fill=tk.X, pady=(0, 6))
-        self.player_seat_host = ttk.Frame(self.workspace_pages["Play"])
-        self.player_seat_host.pack(fill=tk.X)
+        self.player_seat_host = ttk.Frame(self.navigator)
+        self.player_seat_host.pack(side=tk.BOTTOM, fill=tk.X, pady=(12, 0))
+        self.player_seat = PlayerSeat(self.player_seat_host, player)
+        self.player_seat.frame.pack(fill=tk.X)
         self.select_workspace(state.workspace, persist=False)
         self._update_panel_toggle_labels()
 
@@ -285,6 +325,15 @@ class ApplicationShell(ttk.Frame):
 
     def set_status(self, message: str) -> None:
         self.status_var.set(message)
+
+    # {
+    #   責務: [set_player_state: runtime状態をPlayer Seatの表示へ反映する]
+    #   処理: [PlayerSeatへ状態を渡す。描画失敗はPlayerSeatがFalseで返し、Core処理へ例外を伝えない]
+    #   引数: [state: 表示するPlayerState]
+    #   戻り値: [bool: Player Seatへ反映できたらTrue]
+    # }
+    def set_player_state(self, state: PlayerState) -> bool:
+        return self.player_seat.set_state(state)
 
     # {
     #   責務: [set_latest_action: 一時的なSession状態とは別に最後の判断または実行Actionを保持する]
