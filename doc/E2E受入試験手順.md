@@ -95,7 +95,7 @@ tools/e2e_sample_game.py
   -> state-change outcome + E2E trace
 ```
 
-GitHub Actionsの `Windows closed-loop sample E2E` jobで以下を実行する。
+GitHub Actionsの `Windows sample loop and 2048 campaign E2E` jobで以下を実行する。
 
 ```powershell
 $env:PYTHONPATH = "src;."
@@ -278,7 +278,7 @@ Noisy ProviderはML runtimeを持たないseed固定pseudo-LMで、次の性質�
 - allowed candidate内から擬似ランダムに選ぶ
 - utilityの高い候補を優先しない
 - reasonは意味の薄いword salad
-- semantic outcomeも低confidenceで揺れる
+- semantic outcomeはunknown、confidenceは0.1を固定して返す
 - 同一seedでは再現可能
 - Provider内部時間を計測可能
 

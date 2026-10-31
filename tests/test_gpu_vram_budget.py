@@ -56,6 +56,22 @@ class VramBudgetTest(unittest.TestCase):
     @patch.object(MODULE.time, "sleep", lambda _: None)
     @patch.object(MODULE.subprocess, "Popen")
     @patch.object(MODULE, "query_total_vram_used_mib")
+    def test_observed_overrun_survives_later_telemetry_failure(self, query, popen):
+        for polls in ([None, None, 0], [None, 0]):
+            with self.subTest(polls=polls):
+                query.side_effect = [100, 2000, None]
+                popen.return_value = FakeProcess(polls)
+                code, report = MODULE.run_with_vram_budget(
+                    ["fake-command"], limit_mib=1000
+                )
+                self.assertEqual(code, 2)
+                self.assertFalse(report["measurement_available"])
+                self.assertEqual(report["peak_increment_mib"], 1900)
+                self.assertTrue(report["budget_exceeded"])
+
+    @patch.object(MODULE.time, "sleep", lambda _: None)
+    @patch.object(MODULE.subprocess, "Popen")
+    @patch.object(MODULE, "query_total_vram_used_mib")
     def test_fails_when_peak_increment_exceeds_limit(self, query, popen):
         query.side_effect = [1000, 5000, 7200, 7100]
         popen.return_value = FakeProcess([None, None, 0])

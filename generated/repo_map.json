@@ -65579,7 +65579,7 @@
       "module": "tests.test_fetch_ci_games",
       "path": "tests/test_fetch_ci_games.py",
       "source_location": {
-        "end_line": 172,
+        "end_line": 195,
         "start_line": 1
       },
       "symbols": [
@@ -65646,7 +65646,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 172,
+            "end_line": 195,
             "start_line": 25
           }
         },
@@ -65747,6 +65747,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_clean_preserves_committed_local_history",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameFetchTest.test_clean_preserves_committed_local_history",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 95,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_dirty_checkout_is_not_deleted",
           "parameters": [
             {
@@ -65761,8 +65784,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 74
+            "end_line": 112,
+            "start_line": 97
           }
         },
         {
@@ -65784,8 +65807,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 127,
-            "start_line": 91
+            "end_line": 150,
+            "start_line": 114
           }
         },
         {
@@ -65807,8 +65830,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 129
+            "end_line": 164,
+            "start_line": 152
           }
         },
         {
@@ -65830,8 +65853,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 143
+            "end_line": 183,
+            "start_line": 166
           }
         },
         {
@@ -65865,8 +65888,8 @@
           "signature": "(game, dest, clean)",
           "source_location": {
             "column": 12,
-            "end_line": 151,
-            "start_line": 148
+            "end_line": 174,
+            "start_line": 171
           }
         },
         {
@@ -65888,8 +65911,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 162
+            "end_line": 195,
+            "start_line": 185
           }
         }
       ]
@@ -69920,7 +69943,7 @@
       "module": "tests.test_gpu_vram_budget",
       "path": "tests/test_gpu_vram_budget.py",
       "source_location": {
-        "end_line": 94,
+        "end_line": 110,
         "start_line": 1
       },
       "symbols": [
@@ -70020,7 +70043,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 90,
+            "end_line": 106,
             "start_line": 32
           }
         },
@@ -70132,6 +70155,45 @@
             "patch.object(MODULE, REDACTED)"
           ],
           "kind": "method",
+          "name": "test_observed_overrun_survives_later_telemetry_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "query"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "popen"
+            }
+          ],
+          "qualified_name": "VramBudgetTest.test_observed_overrun_survives_later_telemetry_failure",
+          "return_annotation": null,
+          "signature": "(self, query, popen)",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "patch.object(MODULE.time, REDACTED, lambda _: None)",
+            "patch.object(MODULE.subprocess, REDACTED)",
+            "patch.object(MODULE, REDACTED)"
+          ],
+          "kind": "method",
           "name": "test_fails_when_peak_increment_exceeds_limit",
           "parameters": [
             {
@@ -70158,8 +70220,8 @@
           "signature": "(self, query, popen)",
           "source_location": {
             "column": 4,
-            "end_line": 71,
-            "start_line": 59
+            "end_line": 87,
+            "start_line": 75
           }
         },
         {
@@ -70197,8 +70259,8 @@
           "signature": "(self, query, popen)",
           "source_location": {
             "column": 4,
-            "end_line": 90,
-            "start_line": 76
+            "end_line": 106,
+            "start_line": 92
           }
         }
       ]
@@ -104911,7 +104973,7 @@
       "module": "tools.check_gpu_vram_budget",
       "path": "tools/check_gpu_vram_budget.py",
       "source_location": {
-        "end_line": 180,
+        "end_line": 178,
         "start_line": 1
       },
       "symbols": [
@@ -104985,7 +105047,7 @@
           "signature": "(command: Sequence[str], *, limit_mib: int = …, sample_seconds: float = …) -> tuple[int, dict[str, object]]",
           "source_location": {
             "column": 0,
-            "end_line": 131,
+            "end_line": 129,
             "start_line": 57
           }
         },
@@ -105001,8 +105063,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 176,
-            "start_line": 134
+            "end_line": 174,
+            "start_line": 132
           }
         }
       ]
@@ -105283,7 +105345,7 @@
       "module": "tools.fetch_ci_games",
       "path": "tools/fetch_ci_games.py",
       "source_location": {
-        "end_line": 210,
+        "end_line": 223,
         "start_line": 1
       },
       "symbols": [
@@ -105376,7 +105438,7 @@
           "signature": "(game: dict[str, object], dest_root: Path, clean: bool) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 143,
+            "end_line": 156,
             "start_line": 67
           }
         },
@@ -105392,8 +105454,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 206,
-            "start_line": 146
+            "end_line": 219,
+            "start_line": 159
           }
         }
       ]

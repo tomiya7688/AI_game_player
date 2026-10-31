@@ -4,6 +4,8 @@
 
 実際の利用条件は、それぞれの `LICENSE`、Asset PackのLicense、Model/Runtimeのupstream Licenseを確認してください。
 
+この文書の1.0プロフィールと自動取得はリリース方針・実装目標です。現在のアプリに実装済みであることを示すものではありません。
+
 ## まず結論
 
 Projectでは、すべてを1つのLicenseへ無理に統一することより、次の3点を優先します。
@@ -38,9 +40,9 @@ Third-party Model/Runtime -> upstream Licenseのまま自動取得
 
 ## なぜ開発中は賢者ミスクなのに、1.0.0ではすーぱーあいこんなのか
 
-賢者ミスクはDevelopment Default Playerです。
+賢者ミスクは開発用の既定プロフィールとして採用する計画です。
 
-Player Seat、状態画像、Player Profile、Learning UI等を実際のCharacterを使って開発するために利用します。
+Player Seat、状態画像、Player Profile、Learning UI等を実際のCharacterを使って開発するために利用する予定です。
 
 ただし賢者ミスクの最終Asset Licenseはまだ決めていません。将来、Character向けの公開Licenseを別途設計する可能性があります。
 
@@ -63,7 +65,7 @@ Development profile -> 賢者ミスク
 
 例えば現在のModel候補にはApache-2.0のModelがあります。
 
-それらをProjectのMIT Assetとして再配布するのではなく、1.0.0ではApplicationが必要に応じて自動取得します。
+それらをProjectのMIT Assetとして再配布するのではなく、1.0.0ではApplicationが必要に応じて自動取得することを目標にしています。
 
 ```text
 root executable

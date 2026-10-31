@@ -63,6 +63,22 @@ jobs:
               Draft202012Validator(schema).validate(instance)
               print(f"INSTANCE OK {path}")
 
+          def validate_profile_ids(config):
+              ids = [profile["id"] for profile in config["profiles"]]
+              if len(ids) != len(set(ids)):
+                  raise ValueError("model profile IDs must be unique")
+
+          models = json.loads(Path("config/default_models.json").read_text(encoding="utf-8"))
+          validate_profile_ids(models)
+          duplicate = json.loads(json.dumps(models))
+          duplicate["profiles"].append(dict(duplicate["profiles"][0], sha256="0" * 64))
+          try:
+              validate_profile_ids(duplicate)
+          except ValueError:
+              pass
+          else:
+              raise SystemExit("duplicate profile IDs were accepted")
+
           examples = [
               (
                   Path("schemas/inference_provider/v1/examples/bundled_local_provider.json"),

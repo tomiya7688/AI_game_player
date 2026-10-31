@@ -71,6 +71,29 @@ class ReferenceGameFetchTest(unittest.TestCase):
                     fetch_ci_games.materialize(self.source(), root, True)
             self.assertEqual(saved.read_text(encoding="utf-8"), "keep")
 
+    def test_clean_preserves_committed_local_history(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "test-game"
+            target.mkdir()
+            for head, extra in (("b" * 40, ""), ("a" * 40, "b" * 40)):
+                with self.subTest(head=head, extra=extra):
+                    replies = [
+                        str(target),
+                        "https://github.com/example/game.git",
+                        "",
+                        head,
+                    ]
+                    if head == "a" * 40:
+                        replies.append(extra)
+                    with (
+                        mock.patch.object(fetch_ci_games, "run", side_effect=replies),
+                        mock.patch.object(fetch_ci_games.shutil, "rmtree") as remove,
+                    ):
+                        with self.assertRaisesRegex(ValueError, "local history"):
+                            fetch_ci_games.materialize(self.source(), root, True)
+                        remove.assert_not_called()
+
     def test_dirty_checkout_is_not_deleted(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

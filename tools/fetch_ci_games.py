@@ -96,6 +96,19 @@ def materialize(
                 f"{game_id}: checkout has local changes; preserve them before fetching"
             )
         if clean:
+            if run("git", "rev-parse", "HEAD", cwd=target) != expected_commit or run(
+                "git",
+                "rev-list",
+                "--all",
+                "--reflog",
+                "HEAD",
+                "--not",
+                expected_commit,
+                cwd=target,
+            ):
+                raise ValueError(
+                    f"{game_id}: checkout has other local history; preserve it before cleaning"
+                )
             shutil.rmtree(target)
 
     if not target.exists():

@@ -80,7 +80,6 @@ def run_with_vram_budget(
                 current = query_total_vram_used_mib()
                 if current is None:
                     measurement_available = False
-                    peak_total = None
                 else:
                     peak_total = max(int(peak_total), current)
             time.sleep(sample_seconds)
@@ -101,13 +100,12 @@ def run_with_vram_budget(
         final = query_total_vram_used_mib()
         if final is None:
             measurement_available = False
-            peak_total = None
         else:
             peak_total = max(int(peak_total), final)
 
     peak_increment = None
     budget_exceeded = False
-    if measurement_available and baseline is not None and peak_total is not None:
+    if baseline is not None and peak_total is not None:
         peak_increment = max(0, peak_total - baseline)
         budget_exceeded = peak_increment > limit_mib
 
@@ -115,8 +113,8 @@ def run_with_vram_budget(
         "schema": "kadoka.vram-budget-result/1",
         "measurement_available": measurement_available,
         "measurement_method": "nvidia-smi total memory.used baseline delta",
-        "baseline_total_mib": baseline if measurement_available else None,
-        "peak_total_mib": peak_total if measurement_available else None,
+        "baseline_total_mib": baseline,
+        "peak_total_mib": peak_total,
         "peak_increment_mib": peak_increment,
         "limit_mib": limit_mib,
         "budget_exceeded": budget_exceeded,
@@ -162,7 +160,7 @@ def main() -> int:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(serialized + "\n", encoding="utf-8")
 
-    if not report["measurement_available"]:
+    if not report["measurement_available"] and not report["budget_exceeded"]:
         print(
             "VRAM measurement unavailable; functional command result remains authoritative.",
             file=sys.stderr,

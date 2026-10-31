@@ -280,6 +280,6 @@ Key acceptance:
 ### 1.0.0 licensing boundary
 
 - 1.0.0 first-party shipped scope is MIT-only.
-- Wise Misk remains eligible for 1.0.0 under MIT.
+- Wise Misk artwork is excluded from 1.0.0 while its license is undecided; the planned bundled player asset is MIT-licensed Super Icon.
 - Obake License assets are deferred to 1.1+.
 - Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.

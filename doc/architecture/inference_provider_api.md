@@ -160,7 +160,7 @@ If NVIDIA VRAM telemetry is available, run the complete Kadoka acceptance comman
 python tools/check_gpu_vram_budget.py --limit-mib 6144 -- <acceptance command>
 ```
 
-The checker records total `nvidia-smi memory.used` before startup and samples while the complete acceptance command is running. The Gate uses the peak increase over that baseline.
+The checker records total `nvidia-smi memory.used` before startup and samples while the complete acceptance command is running. The Gate uses the peak increase over that baseline. If telemetry later fails, the checker retains the observed peak and any observed budget violation; measurement_available=false then indicates incomplete sampling.
 
 - measurable peak increase `<= 6144 MiB`: pass the VRAM budget
 - measurable peak increase `> 6144 MiB`: fail
