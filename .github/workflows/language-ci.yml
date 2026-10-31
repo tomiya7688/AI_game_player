@@ -132,6 +132,15 @@ jobs:
           manifest["privacy"]["declared_data_classes"] = ["decision_context"]
           manifest_validator.validate(manifest)
           print("RESPONSE AND PRIVACY NEGATIVE CASES OK")
+          local_manifest = json.loads(Path("schemas/inference_provider/v1/examples/bundled_local_provider.json").read_text(encoding="utf-8"))
+          for host in ("127.0.0.1", "[::1]"):
+              for port in ("1", "80", "00080", "9999", "10000", "59999", "60000", "64999", "65000", "65499", "65500", "65529", "65530", "65535"):
+                  local_manifest["deployment"]["base_url"] = f"http://{host}:{port}"
+                  manifest_validator.validate(local_manifest)
+              for port in ("0", "00000", "65536", "99999", "100000"):
+                  local_manifest["deployment"]["base_url"] = f"http://{host}:{port}"
+                  assert not manifest_validator.is_valid(local_manifest), f"invalid endpoint port: {port}"
+          print("LOOPBACK PORT BOUNDARIES OK")
           PY
       - name: Materialize pinned OSS Reference Game sources
         run: python tools/fetch_ci_games.py --all --clean
