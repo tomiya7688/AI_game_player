@@ -1112,7 +1112,7 @@ class Application:
     #   責務: [
     #     start_loop: 対象を検証してから連続実行を開始する
     #   ]
-    #   処理: [入力対象と設定を検証し、Session controllerへ連続実行を依頼する]
+    #   処理: [入力対象と設定を検証し、Session controllerへ連続実行を依頼する。準備・開始の失敗はPlayer Seatを要確認にしてダイアログで通知する]
     #   引数: []
     #   戻り値: []
     # }
@@ -1133,11 +1133,13 @@ class Application:
             self._display_step_evaluation(prepared_step.evaluation)
         except ValueError as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("連続実行エラー", str(exc))
             self._set_status("連続実行を開始できません")
             return
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("連続実行エラー", str(exc))
             return
 
@@ -1148,11 +1150,12 @@ class Application:
             self.session_controller.start_loop("execute", LOOP_STEP_DELAY_MS)
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_loop"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("連続実行エラー", str(exc))
 
     # {
     #   責務: [start: 「再開」操作で実行世代を進め、停止状態を解除する]
-    #   処理: [Session controllerの停止・保留状態を確認し、Sessionを再開して状態とログを更新する]
+    #   処理: [Session controllerの停止・保留状態を確認し、Sessionを再開して状態とログを更新する。成功時はPlayer Seatを待機中、失敗時は要確認にする]
     #   引数: []
     #   戻り値: []
     # }
@@ -1166,10 +1169,12 @@ class Application:
             self.session_controller.start()
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": "start_session"})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("再開エラー", str(exc))
             return
         self.runtime_log.write("run_control", "started")
         self._set_status("実行可能")
+        self._show_player_state(PlayerState.IDLE)
 
     # {
     #   責務: [stop: 停止要求を即時記録しloop予約と実入力許可を止める]
@@ -1203,7 +1208,7 @@ class Application:
 
     # {
     #   責務: [_run_session_step: UI入力を検証してSessionへ非同期stepを依頼する]
-    #   処理: [重複stepを拒否し、観測・候補・設定を更新した後にSession controllerを呼び出す]
+    #   処理: [重複stepを拒否し、観測・候補・設定を更新した後にSession controllerを呼び出す。準備の失敗はPlayer Seatを要確認にしてダイアログで通知する]
     #   引数: [command: executeなら安全評価後に実行し、decisionなら候補判断だけを行う]
     #   戻り値: [bool: step要求を受け付けた場合はTrue]
     # }
@@ -1230,6 +1235,7 @@ class Application:
             return True
         except Exception as exc:
             self.runtime_log.write("error", str(exc), {"operation": command})
+            self._show_player_state(PlayerState.WARNING)
             messagebox.showerror("実行エラー" if command == "execute" else "判断エラー", str(exc))
             return False
 

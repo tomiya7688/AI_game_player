@@ -45,7 +45,8 @@ class PlayerAssetPackTests(unittest.TestCase):
     def test_missing_image_without_hash_falls_back_to_text(self):
         with tempfile.TemporaryDirectory() as directory:
             pack = load_asset_pack(self.write_pack(directory, player_image="no.png"))
-        self.assertFalse(pack.has_image())
+            self.assertEqual(pack.player_image, (Path(directory) / "no.png").resolve())
+            self.assertFalse(pack.has_image())
 
     def test_invalid_manifests_are_rejected(self):
         cases = {
