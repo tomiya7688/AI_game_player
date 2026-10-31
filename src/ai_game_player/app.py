@@ -933,7 +933,7 @@ class Application:
             raise
         self._set_status("Ollama推論中" if self.provider.get() == "Ollama" else "判断・実行中")
         # dry-runの実行は入力を送らないため、「操作中」ではなく「考え中」と示す。
-        live_input = operation == "execute" and self._session_dry_run is False
+        live_input = operation == "execute" and getattr(self, "_session_dry_run", True) is False
         self._show_player_state(PlayerState.ACT if live_input else PlayerState.THINK)
         return True
 
@@ -1038,7 +1038,7 @@ class Application:
                 self.current_assessment = result
                 self.outcome.config(text=f"状態: {result.status} ({result.confidence:.0%})")
                 # 判断・実行workerが動いている間は、その考え中・操作中の表示を評価結果で上書きしない。
-                if not self._execution_in_progress:
+                if not getattr(self, "_execution_in_progress", False):
                     self._show_player_state(
                         PlayerState.EVALUATE
                         if result.status in KNOWN_OUTCOME_STATUSES
