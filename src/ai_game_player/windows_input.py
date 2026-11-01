@@ -98,7 +98,10 @@ class WindowsInputExecutor:
         stop_checker: Callable[[], bool] | None = None,
         input_ledger: InputLedger | None = None,
         hold_ttl_seconds: float | None = None,
-        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        automated_cursor_position_callback: Callable[
+            [tuple[int, int] | None, bool], None
+        ]
+        | None = None,
     ) -> None:
         self.window_handle = window_handle
         if input_mode not in {"mouse", "window_message"}:
@@ -108,21 +111,34 @@ class WindowsInputExecutor:
         self.stop_checker = stop_checker or (lambda: False)
         self.input_ledger = input_ledger
         self.automated_cursor_position_callback = automated_cursor_position_callback
-        self.hold_ttl_seconds = 1.0 if hold_ttl_seconds is None else float(hold_ttl_seconds)
+        self.hold_ttl_seconds = (
+            1.0 if hold_ttl_seconds is None else float(hold_ttl_seconds)
+        )
         if self.hold_ttl_seconds <= 0:
             raise ValueError("hold TTL must be positive")
+        self.input_dispatch_started = False
         self._held_keys: set[int] = set()
         self._held_mouse: set[str] = set()
         self._held_mouse_lparams: dict[str, int] = {}
+
+    # {
+    #   責務: [has_held_inputs: このExecutorが所有する押下状態をI/Oなしで確認する]
+    #   処理: [owned key/mouseの集合だけを調べ、実ユーザー入力やledger fileを読まない]
+    #   引数: [self: 所有状態を確認するExecutor]
+    #   戻り値: [bool: 未解放のowned入力がある場合True。実行中かどうかは別の境界で検査する]
+    # }
+    @property
+    def has_held_inputs(self) -> bool:
+        return bool(self._held_keys or self._held_mouse)
 
     # {
     #   責務: [
     #     execute: 停止・対象同一性を確認して候補操作を実行する
     #   ]
     #   処理: [
-    #     1: Windows実行環境と停止状態を確認する
+    #     1: dispatch状態を未送信へ戻し、Windows実行環境と停止状態を確認する
     #     2: 入力操作ならHWNDとPIDが選択時のままか確認する
-    #     3: click/key/wait候補を対応する経路で処理する
+    #     3: click/key/wait候補を処理し、前処理後の最初の入力API呼出しでdispatch境界到達を記録する
     #   ]
     #   引数: [
     #     candidate: 安全評価済みの操作候補
@@ -137,6 +153,7 @@ class WindowsInputExecutor:
     def execute(self, candidate: ActionCandidate) -> ExecutionResult:
         from ai_game_player.action_executor import ExecutionResult
 
+        self.input_dispatch_started = False
         if os.name != "nt":
             raise RuntimeError("WindowsInputExecutor requires Windows")
         if self.stop_checker():
@@ -145,11 +162,17 @@ class WindowsInputExecutor:
             self._verify_target_identity()
         if candidate.kind in {"click", "double_click"}:
             self._execute_click(candidate)
-            detail = "Windows target message sent" if self.input_mode == "window_message" else "Windows mouse input sent"
+            detail = (
+                "Windows target message sent"
+                if self.input_mode == "window_message"
+                else "Windows mouse input sent"
+            )
             return ExecutionResult(candidate.action_id, True, "live", detail)
         if candidate.kind == "key":
             self._execute_key(candidate)
-            return ExecutionResult(candidate.action_id, True, "live", "Windows key input sent")
+            return ExecutionResult(
+                candidate.action_id, True, "live", "Windows key input sent"
+            )
         if candidate.kind == "wait":
             try:
                 duration = float(candidate.label or "0.5")
@@ -176,17 +199,23 @@ class WindowsInputExecutor:
     # }
     def _verify_target_identity(self) -> None:
         if self.window_handle is None or not self.window_process_id:
-            raise RuntimeError("live Windows input requires a selected window and its process identity")
+            raise RuntimeError(
+                "live Windows input requires a selected window and its process identity"
+            )
 
         user32 = _user32_with_prototypes()
         if not user32.IsWindow(self.window_handle):
             raise RuntimeError("selected target window is no longer available")
 
         process_id = ctypes.c_ulong()
-        if not user32.GetWindowThreadProcessId(self.window_handle, ctypes.byref(process_id)):
+        if not user32.GetWindowThreadProcessId(
+            self.window_handle, ctypes.byref(process_id)
+        ):
             raise RuntimeError("selected target process identity is unavailable")
         if int(process_id.value) != self.window_process_id:
-            raise RuntimeError("selected target window now belongs to a different process")
+            raise RuntimeError(
+                "selected target window now belongs to a different process"
+            )
 
     def release_all(self) -> None:
         if os.name != "nt":
@@ -220,7 +249,9 @@ class WindowsInputExecutor:
             rect = (ctypes.c_long * 4)()
             if not user32.GetWindowRect(self.window_handle, ctypes.byref(rect)):
                 raise RuntimeError("GetWindowRect failed")
-            point = (ctypes.c_long * 2)(int(rect[0]) + candidate.x, int(rect[1]) + candidate.y)
+            point = (ctypes.c_long * 2)(
+                int(rect[0]) + candidate.x, int(rect[1]) + candidate.y
+            )
             if not user32.ScreenToClient(self.window_handle, ctypes.byref(point)):
                 raise RuntimeError("ScreenToClient failed")
             lparam = (int(point[1]) << 16) | (int(point[0]) & 0xFFFF)
@@ -239,6 +270,7 @@ class WindowsInputExecutor:
         if self.automated_cursor_position_callback is not None:
             self.automated_cursor_position_callback((x, y), True)
         try:
+            self.input_dispatch_started = True
             if not user32.SetCursorPos(x, y):
                 raise RuntimeError(
                     "SetCursorPos に失敗したためクリックを送信しませんでした。"
@@ -280,6 +312,7 @@ class WindowsInputExecutor:
         down_sent = False
         up_sent = False
         try:
+            self.input_dispatch_started = True
             if not user32.PostMessageW(self.window_handle, 0x0201, 0x0001, lparam):
                 raise RuntimeError(
                     "対象ウィンドウへのマウス押下送信に失敗しました。"
@@ -335,12 +368,14 @@ class WindowsInputExecutor:
             if self.input_mode == "window_message":
                 if self.window_handle is None:
                     raise RuntimeError("window_message requires a selected window")
+                self.input_dispatch_started = True
                 if not user32.PostMessageW(self.window_handle, 0x0100, virtual_key, 0):
                     raise RuntimeError(
                         "対象ウィンドウへのキー押下送信に失敗しました。"
                         "対象ウィンドウが応答しているか、window_message方式の入力を受け付けるか確認して再試行してください。"
                     )
             else:
+                self.input_dispatch_started = True
                 user32.keybd_event(virtual_key, 0, 0, 0)
         except Exception:
             self._ledger_release_key(virtual_key)
@@ -374,11 +409,19 @@ class WindowsInputExecutor:
                 self._held_keys.discard(virtual_key)
                 self._ledger_release_key(virtual_key)
 
+    # {
+    #   責務: [_mouse_down: owned ledgerを登録してからマウス押下APIを呼ぶ]
+    #   処理: [前処理後にdispatch信号を立て、API完了後にheld状態を保存する]
+    #   引数: [button: 押下対象。現在はleftのみ]
+    #   戻り値: [なし]
+    #   エラー: [ValueError: 非対応button, Exception: ledgerまたは入力APIの失敗]
+    # }
     def _mouse_down(self, button: str) -> None:
         if button != "left":
             raise ValueError(f"unsupported mouse button: {button}")
         self._ledger_hold_mouse(button)
         try:
+            self.input_dispatch_started = True
             _user32_with_prototypes().mouse_event(0x0002, 0, 0, 0, 0)
         except Exception:
             self._ledger_release_mouse(button)
@@ -399,7 +442,9 @@ class WindowsInputExecutor:
                 if self.window_handle is None:
                     raise RuntimeError("window_message requires a selected window")
                 lparam = self._held_mouse_lparams.get(button, 0)
-                if not _user32_with_prototypes().PostMessageW(self.window_handle, 0x0202, 0, lparam):
+                if not _user32_with_prototypes().PostMessageW(
+                    self.window_handle, 0x0202, 0, lparam
+                ):
                     raise RuntimeError(WINDOW_MESSAGE_MOUSE_UP_FAILURE_MESSAGE)
             elif button == "left":
                 _user32_with_prototypes().mouse_event(0x0004, 0, 0, 0, 0)

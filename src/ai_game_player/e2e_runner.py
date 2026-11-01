@@ -22,6 +22,7 @@ def append_e2e_event(path: Path, event: dict[str, object]) -> None:
 #     1: 各操作後の画面変化と到達条件を記録し、停止・時間・回数・同一画面の上限で終了する
 #     2: 判断呼出しで許可候補が空になった場合だけ、既存の実入力と実行世代の継続を条件に完了を再確認する
 #     3: 再確認が厳密なTrueなら追加入力せず成功を記録する。別種の例外や確認失敗は失敗として残す
+#     4: 実行後probeを同じ実行世代の明示観測として完了し、最後の操作結果も保存する
 #   ]
 #   引数: [
 #     pipeline: 判断と入力を実行する経路。controllerの実行状態と直近の判断履歴も参照する
@@ -157,6 +158,9 @@ def run_continuous_e2e(
             if settle_seconds:
                 time.sleep(settle_seconds)
             after = observation_probe()
+            complete = getattr(pipeline, "complete_execution_observation", None)
+            if callable(complete):
+                complete(after, expected_rearm_token=expected_rearm_token)
             trace_entries = pipeline.engine.trace.recent(1)
             if not trace_entries:
                 raise RuntimeError("decision trace missing after execution")
@@ -312,7 +316,14 @@ def _milestone_after_empty_candidates(
     return True
 
 
-def _finish(path: Path, success: bool, steps: int, started: float, stop_reason: str, live_verified: bool) -> dict[str, object]:
+def _finish(
+    path: Path,
+    success: bool,
+    steps: int,
+    started: float,
+    stop_reason: str,
+    live_verified: bool,
+) -> dict[str, object]:
     report = {
         "event": "summary",
         "success": success,

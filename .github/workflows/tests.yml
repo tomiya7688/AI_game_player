@@ -146,3 +146,18 @@ jobs:
       - run: python -m unittest discover -s tests -v
         env:
           PYTHONPATH: src:.
+      - uses: actions/setup-node@v4
+        if: matrix.python-version == '3.14'
+        with:
+          node-version: '22'
+      - name: Compare pure transitions with pinned 2048 source
+        if: matrix.python-version == '3.14'
+        run: python tools/check_2048_transition.py --boards 250
+        env:
+          PYTHONPATH: src:.
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.python-version == '3.14'
+        with:
+          name: transition-2048-oracle
+          path: build/transition-2048/report.json
+          if-no-files-found: warn

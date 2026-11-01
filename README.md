@@ -69,3 +69,8 @@ GitHub Actionsでもテストを実行します。
 ## 開発用の独立テストゲーム
 
 テトリス・オセロ・将棋・チェス等の10種を、[独立したGPL検証fixture](tools/test_games/README.md)として起動できます。専用環境へ依存を導入し、通常アプリのruntime・配布対象から分離します。[操作受入れと未検証の範囲](doc/独立テストゲーム集.md)を確認してください。
+## Provider・1.0配布方針の設計文書
+
+開発者は、ProviderのJSON契約を[Inference Provider設計](doc/architecture/inference_provider_api.md)、モデル候補の宣言を`config/default_models.json`、参照ゲームのソース宣言を`config/e2e_reference_games.json`で確認してください。宣言の追加だけで、モデルの自動取得・推論・全ゲームのプレイが実装済みになるわけではありません。現在の起動・操作方法は、このREADMEの利用手順を確認してください。
+
+[1.0受入れ・配布方針](doc/release_1_0.md)はリリース目標を記録します。[ライセンス設計の理由](doc/licensing_rationale.md)と[ライセンスの意図](LICENSE_INTENT.md)は説明文であり、利用条件は[LICENSE](LICENSE)、[素材の扱い](ASSET_LICENSES.md)、[第三者の権利表記](THIRD_PARTY_NOTICES.md)で区別して確認してください。
