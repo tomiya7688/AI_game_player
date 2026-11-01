@@ -23,13 +23,14 @@ class SourceNavigationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             page = root / "guide.md"
-            for name in ("target.md", "with space.md", "with(parens).md"):
+            for name in ("target.md", "with space.md", "with(parens).md", "with&.md"):
                 (root / name).write_text("content", encoding="utf-8")
             valid = """[title](target.md "説明")
 [single](target.md '説明')
 [title-example](target.md "Ignore [example](missing-title.md)")
 [angle](<with space.md> "説明")
 [balanced](with(parens).md)
+[entity](with&amp;.md)
 `[example](missing-inline.md)`
 ``[example](missing-two-backticks.md)``
 ~~~~markdown
@@ -93,6 +94,8 @@ flowchart TD
 %% A[旧表示]
 A["X[状態]"] --> B["X[結果]"]
 C[ラベルの X(説明)] --> A
+A -->|X[補足]| B
+B -->|X[補足]| C
 ```
 """
         self.assertEqual(_mermaid_errors(text), [])
@@ -180,6 +183,109 @@ C[ラベルの X(説明)] --> A
         )
         valid = FENCE + "mermaid\nflowchart LR\nA[最初] --> B[次]\nB --> A\n" + FENCE
         self.assertEqual(_mermaid_errors(valid), [])
+
+
+class NavigationParserTests(unittest.TestCase):
+    def test_titles_spaces_parentheses_and_reference_links(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "target (one).md").touch()
+            page = root / "guide.md"
+            valid = "\n".join(
+                [
+                    '[title](target%20(one).md "説明")',
+                    "[title](<target (one).md> '説明')",
+                    "[reference][r]",
+                    '[r]: <target (one).md> "説明"',
+                ]
+            )
+            self.assertEqual(_relative_link_errors(page, root, valid), [])
+            broken = '[missing](missing.md "title")\n[x][r]\n[r]: absent.md\n[out](../outside.md)'
+            errors = _relative_link_errors(page, root, broken)
+            self.assertEqual(len(errors), 3)
+            self.assertTrue(any("escapes repository" in error for error in errors))
+
+    def test_code_examples_are_not_links(self):
+        text = "`[x](missing.md)`\n``[x](missing.md)``\n~~~md\n[x](missing.md)\n~~~"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.assertEqual(_relative_link_errors(root / "guide.md", root, text), [])
+
+    def test_long_fences_protect_inner_examples(self):
+        text = "````markdown\n```mermaid\nnotADiagram\n```\n[x](missing.md)\n````"
+        self.assertEqual(_mermaid_errors(text), [])
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.assertEqual(_relative_link_errors(root / "guide.md", root, text), [])
+
+    def test_unclosed_tilde_fence_has_specific_error(self):
+        self.assertEqual(
+            _mermaid_errors("~~~mermaid\nflowchart TD"),
+            ["line 1: unclosed code fence: mermaid"],
+        )
+
+    def test_wrong_or_short_closer_does_not_close(self):
+        for closer in ("~~~", "``"):
+            with self.subTest(closer=closer):
+                self.assertTrue(
+                    any(
+                        "unclosed" in error
+                        for error in _mermaid_errors(
+                            "```mermaid\nflowchart TD\n" + closer
+                        )
+                    )
+                )
+        self.assertEqual(_mermaid_errors("~~~mermaid\nflowchart TD\n~~~~"), [])
+
+    def test_invalid_diagram_inside_tilde_fence(self):
+        self.assertEqual(
+            _mermaid_errors("~~~mermaid\nwrongDiagram\n~~~"),
+            ["line 3: unknown Mermaid opening directive"],
+        )
+
+    def test_class_state_and_sequence_diagrams(self):
+        for directive in (
+            "classDiagram",
+            "stateDiagram-v2",
+            "sequenceDiagram",
+            "erDiagram",
+            "pie",
+        ):
+            with self.subTest(directive=directive):
+                self.assertEqual(
+                    _mermaid_errors("```mermaid\n" + directive + "\n```"), []
+                )
+
+    def test_parenthesis_and_other_duplicate_nodes(self):
+        for shape in ("[一つ]", "{条件}", "(処理)", "((丸))"):
+            with self.subTest(shape=shape):
+                errors = _mermaid_errors(
+                    "```mermaid\nflowchart TD\nA" + shape + "\nA" + shape + "\n```"
+                )
+                self.assertTrue(any("repeated" in error for error in errors))
+
+    def test_quoted_labels_comments_and_reused_ids_are_not_duplicates(self):
+        diagram = 'flowchart TD\nA["B[説明]"] --> B(処理)\nB --> A\n%% A[例]'
+        self.assertEqual(_mermaid_errors("```mermaid\n" + diagram + "\n```"), [])
+
+    def test_comments_and_front_matter_before_diagram(self):
+        text = "~~~mermaid\n---\ntitle: 説明\n---\n%% comment\nflowchart TD\nA[最初] --> B[次]\n~~~"
+        self.assertEqual(_mermaid_errors(text), [])
+
+    def test_required_runtime_page_does_not_silently_disappear(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.assertIn(
+                root / "doc/architecture/runtime_layers.md", _pages_to_check(root)
+            )
+
+    def test_optional_update_guide_is_scanned_when_present(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            page = root / "doc/contributor/documentation_update_guide.md"
+            page.parent.mkdir(parents=True)
+            page.touch()
+            self.assertIn(page, _pages_to_check(root))
 
 
 if __name__ == "__main__":

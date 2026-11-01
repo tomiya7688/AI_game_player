@@ -5,6 +5,7 @@ does not replace a Markdown renderer or Mermaid's complete syntax parser.
 """
 
 from collections import Counter
+import html
 from pathlib import Path
 import re
 import string
@@ -150,7 +151,9 @@ def _without_code_spans(text: str) -> str:
 
 
 def _unescape(destination: str) -> str:
-    return re.sub(r"\\([" + re.escape(string.punctuation) + r"])", r"\1", destination)
+    return html.unescape(
+        re.sub(r"\\([" + re.escape(string.punctuation) + r"])", r"\1", destination)
+    )
 
 
 def _destination(text: str, index: int) -> tuple[str, int] | None:
@@ -300,6 +303,14 @@ def _mermaid_code(text: str) -> str:
             result.append(" " * (end - index))
             index = end
             continue
+        elif character == "|":
+            end = text.find("|", index + 1)
+            newline = text.find("\n", index + 1)
+            if end >= 0 and (newline < 0 or end < newline):
+                result.append(" " * (end + 1 - index))
+                index = end + 1
+                continue
+            result.append(character)
         elif character == '"' or (
             character == "'" and (index == 0 or not text[index - 1].isalnum())
         ):
