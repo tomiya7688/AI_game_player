@@ -421,13 +421,17 @@ class NativeRuntime:
 
     # {
     #   責務: [_capture_wgc_frame: frame leaseからmetadataとcaller-owned BGRA pixelを取得する]
-    #   引数: [session: window capture session, timeout_ms: WGC frame arrivalを待つ上限ミリ秒]
+    #   処理: [任意のbyte予算をallocation/copy前に検査し、拒否時もframe leaseを解放する]
+    #   引数: [session: window capture session, timeout_ms: WGC frame arrivalを待つ上限ミリ秒,
+    #     max_frame_bytes: 指定時は画素allocation/copy前に拒否するbyte上限。既定Noneは従来契約]
     #   戻り値: [ScreenFrame: tightly packed BGRA pixelとQPC由来timestampを持つframe]
     #   エラー: [timeout・HWND消失・壊れたmetadata・pixel copy失敗: 失敗statusを呼び出し元へ送出]
     # }
-    def _capture_wgc_frame(self, session: ctypes.c_void_p, timeout_ms: int) -> ScreenFrame:
+    def _capture_wgc_frame(self, session: ctypes.c_void_p, timeout_ms: int, max_frame_bytes: int | None = None) -> ScreenFrame:
         if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 0 <= timeout_ms <= MAX_UINT32:
             raise ValueError("timeout_ms must be an unsigned 32-bit integer")
+        if max_frame_bytes is not None and (type(max_frame_bytes) is not int or max_frame_bytes < 1):
+            raise ValueError("max_frame_bytes must be a positive integer")
         next_frame = self._wgc_next_frame
         get_frame_info = self._wgc_frame_get_info
         copy_frame_bgra = self._wgc_frame_copy_bgra
@@ -466,6 +470,8 @@ class NativeRuntime:
                 ):
                     self._healthy = False
                     raise NativeContractError("Native Runtime returned invalid WGC frame metadata")
+                if max_frame_bytes is not None and required_capacity > max_frame_bytes:
+                    raise ValueError("WGC frame exceeds the requested byte budget")
                 pixel_buffer = (ctypes.c_uint8 * required_capacity)()
                 copy_status = int(
                     copy_frame_bgra(frame, pixel_buffer, required_capacity)
@@ -735,14 +741,16 @@ class NativeWgcWindow:
 
     # {
     #   責務: [capture: 次に届くframeをNative RuntimeからBGRA ScreenFrameへ変換する]
-    #   引数: [timeout_ms: 新しいWGC frameを待つ上限ミリ秒]
+    #   処理: [timeoutと任意のpixel byte上限を既存frame取得処理へ渡す]
+    #   引数: [timeout_ms: 新しいWGC frameを待つ上限ミリ秒,
+    #     max_frame_bytes: 指定時はPython画素allocation前に検査するbyte上限]
     #   戻り値: [ScreenFrame: native frame IDとmonotonic timestampを保持する画面]
     #   エラー: [timeout・HWND消失・Native Runtime異常: capture failureとして送出]
     # }
-    def capture(self, timeout_ms: int = WGC_DEFAULT_TIMEOUT_MS) -> ScreenFrame:
+    def capture(self, timeout_ms: int = WGC_DEFAULT_TIMEOUT_MS, *, max_frame_bytes: int | None = None) -> ScreenFrame:
         if not self._session.value:
             raise NativeRuntimeError("wgc_capture (closed session)", NativeStatus.INVALID_ARGUMENT)
-        return self._runtime._capture_wgc_frame(self._session, timeout_ms)
+        return self._runtime._capture_wgc_frame(self._session, timeout_ms, max_frame_bytes)
 
     # {
     #   責務: [close: WGC sessionとframe poolを終了し、native session handleを解放する]

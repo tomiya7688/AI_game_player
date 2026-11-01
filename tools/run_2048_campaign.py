@@ -32,6 +32,7 @@ from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 from tools.recognition_failure_evidence import RecognitionFailureEvidence
+from tools.startup_failure_evidence import StartupFailureEvidence
 from tools.observation_timing import ObservationTiming
 from tools.reference_game_2048_launcher import ReferenceGame2048Launcher
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
@@ -274,6 +275,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
     ) -> None:
         self.episode_number = episode_number
         self.launcher = ReferenceGame2048Launcher(cache_root, browser_path)
+        if save_failure_evidence:
+            self.launcher.failure_evidence = StartupFailureEvidence(
+                runtime_root / f"episode-{episode_number:04d}"
+            )
         self.source: Cached2048ObservationSource | None = None
         self.pipeline: DecisionPipeline | None = None
         self._safety_rearmed = False
@@ -497,7 +502,7 @@ def _parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--save-failure-evidence",
         action="store_true",
-        help="on recognition failure, save the last accepted and latest owned 2048 window frames (PNG/BGRA)",
+        help="save bounded owned-window startup evidence and owned 2048 recognition failure frames (PNG/BGRA)",
     )
     return parser.parse_args()
 
@@ -549,7 +554,7 @@ def main() -> int:
                 "input_mode": "window_message",
                 "score_ocr_enabled": ocr_recognizer is not None,
                 "failure_evidence_enabled": arguments.save_failure_evidence,
-                "screenshot_policy": "recognition_failure_only"
+                "screenshot_policy": "startup_and_recognition_failure_only"
                 if arguments.save_failure_evidence
                 else "off",
             },

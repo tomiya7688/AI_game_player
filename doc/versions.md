@@ -95,6 +95,8 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #637: 既存`--save-failure-evidence`の明示ON時、2048 browser起動失敗のcleanup前に所有PIDの最大3窓の固定分類・可視状態・矩形・phase時間と、取得可能なWGC画素を有界保存します。GDIのdesktop矩形代替は使わず、WGC不可時もmetadataを残します。既存PNG/BGRA writerとatomic JSONを再利用し、診断子processを5秒、画素を窓あたり8MiB・合計16MiBに制限します。Native WGCの任意byte上限はPython allocation前に検査し、拒否時もleaseを解放します。保存失敗でも元の起動例外とcleanupを維持し、PID/title・25秒・600秒・Safety条件は変更しません。自然起動失敗の原因は#459に残り、Windows実測はUnverifiedです。
+
 - Issue #628: `ExecutionReceipt` と `ExecutionObservation` を導入し、判断保存と実操作後結果を分離します。snapshot・action・実行世代・入力前画面を照合し、実送信だけでpending操作を更新します。明示観測完了を次の実判断前とSession/E2E/campaignの実行後へ接続し、終端や次判断失敗でも最後の結果を保存します。dry-run・入力前失敗は過去の実操作を上書きせず、送信開始後の例外はunknownで監査します。停止/rearmをまたぐ結果・履歴を新世代へ混ぜません。Windows backendのdispatch信号を前処理後の最初の入力API直前へ移し、legacy traceの遅延公開が途中の実行auditを消す競合も修正します。Windows OS上の実入力受入れは別途確認が必要です。 campaign初回観測は実操作前の初期化として結果完了から除外し、後続観測のStop/rearm世代検査を保ったまま開始できるようにします。初回リース開始は明示再開と分離し、世代0とdefault/local緊急停止・時間/操作回数制限を保ち、初期化I/O中のStop/rearmも拒否します。
 
 - Issue #608: 動作順と実行場所の日本語図を追加しました。単独操作の登録済み観測と連続取得、前回判断と実入力、確認運転と実入力時の追加確認を区別し、停止競合と記録の未保証範囲を明示します。

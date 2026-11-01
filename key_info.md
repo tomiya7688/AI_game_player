@@ -29,6 +29,8 @@
 
 ## 制約
 
+- 固定版2048 campaignの`--save-failure-evidence`は既定OFFです。明示ON時、起動失敗の所有PID窓metadataと取得可能なWGC画素をcleanup前に有界保存します。診断を追加しただけで、自然なbrowser起動失敗の原因を解消したとは扱いません（#459/#637）。
+
 - Mode 契約の本番 Light Adaptation Runner 接続は Issue #422、重学習・交互 orchestration・資源制御・UI は後続 Issue で対応します。Mode 契約だけでは学習を起動しません。通常の Outcome / Verifier / Safety 評価を無効化しません。
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
