@@ -176,6 +176,8 @@
 
 - Issue #220: Capability Manifestを使うComposition Resolver、preferred/default選択、dependency/health検査、fallbackとdegraded reason、provider lifecycle cleanupを追加。
 
+- Issue #609: モデルと手法の配置図、標準・任意経路、設定／選択／読み込み／実呼出しを区別する証拠の案内を追加しました。GUI状態評価と条件付き意味評価、外部Ollama送信を区別し、実行証拠表示の残作業を#627へ接続します。
+
 - Issue #219: Optional feature capability manifestのJSON Schema、runtime検証、required/optional dependency・lifecycle・config namespace・fallback/degraded mode宣言と検証を追加。
 
 - Issue #94: HWNDごとの選択・隠し内容取得を追加。可視で覆われていない対象だけ画面領域から取得し、隠れた／覆われた対象はタイムアウト付きWM_PRINTへ切り替える。WM_PRINT失敗時は明示的に失敗し、別ウィンドウ画素へ誤フォールバックしないことを検証。
