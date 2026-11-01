@@ -9,6 +9,7 @@
 - SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
 - 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
 - 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
+- Windows短比較の各provider終了時に、失敗段階・元探索理由・入力件数・score読取状態・Stop/旧世代検証結果の有界JSONをjobログへ出力。成果物が取得できない場合も未検証を成功へ置換せず診断できます。
 
 ## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
 

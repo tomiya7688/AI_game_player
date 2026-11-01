@@ -58,6 +58,8 @@ Windows比較は既存language CIに独立jobとしてseed479/480/481を並列�
 
 比較laneのlanguage CIはworkflow＋event＋ref単位でobsolete runをcancelします。pushとpull_requestの現行headを別groupに保ち、既存600秒gateと追加3seedの計32required contextを保持します。
 
+Windows比較CLIは各providerの終了直後、成果物保存前に有界JSON要約をflushしてjobログへ残します。初期化・実行・観測・score評価・Stop/旧世代検証の失敗段階、固定理由と元Core理由、返却済み実行結果に基づく入力件数、score OCRの可否、経過時間、Stop/旧世代検証の実施結果を区別します。未実施はunverifiedで、成功へ置き換えません。raw frame・profile・環境設定は要約に含めません。旧Windows比較失敗は成果物の取得制限により詳細原因が未確定で、親Coreの凸平均修正だけで解消したとは扱いません。最新headのWindows実測で再確認します。
+
 ## 固定seed headless比較
 
 [eb59ba5 / Journal・125ms共通周期の9episode記録](../validation/planning_headless_journal_eb59.json)。source/hash/dirtyは開始・終了で一致しました。Python Randomのcommon streamを合法移動ごとに使用し、ChromiumのLCG familyとは別実験です。各providerの探索/選択条件を固定し、最適化前の重複予測traceを含む条件で測りました。

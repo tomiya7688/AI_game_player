@@ -59,8 +59,10 @@ def run_episode(
     }
     latencies = []
     started = time.monotonic()
+    phase = "resource_initialization"
     try:
         monitor = PlanningResourceMonitor().start()
+        phase = "game_initialization"
         output.mkdir(parents=True, exist_ok=True)
         journal = EventJournal(output / "events.db")
         episode = ReferenceGame2048Episode(
@@ -77,6 +79,7 @@ def run_episode(
             event_journal=journal,
         )
         result["seed_fixture"] = episode.launcher.server.test_seed_metadata
+        phase = "initial_observation"
         state = episode.observe()
         result["initial_max_tile"] = state.max_tile
         initial_token = episode.pipeline.controller.rearm_token
@@ -85,10 +88,20 @@ def run_episode(
                 break
             before = state
             began = time.monotonic_ns()
+            phase = "decision_execution"
+            result["last_core_reason"] = None
+            result["last_policy_reason_codes"] = []
             outcome = DecisionOrchestrator(episode.pipeline).run(
                 execute=True, purpose=CAMPAIGN_PURPOSE
             )
             latencies.append((time.monotonic_ns() - began) / 1e6)
+            planning = episode.pipeline.engine.provider
+            plan = getattr(planning, "last_planning_result", None)
+            policy = getattr(planning, "last_policy_decision", None)
+            result["last_core_reason"] = plan.reason if plan is not None else None
+            result["last_policy_reason_codes"] = (
+                list(policy.reason_codes) if policy is not None else []
+            )
             if isinstance(outcome, DecisionDisposition):
                 result["withheld"] = outcome.to_dict()
                 break
@@ -96,13 +109,11 @@ def run_episode(
                 raise RuntimeError("comparison did not execute actual input")
             episode.source.not_before = time.monotonic() + 1
             result["actions"] += 1
+            phase = "post_input_observation"
             state = (
                 episode.observe()
             )  # explicit receipt completion, including final/terminal action
             result["invalid_actions"] += int(state.signature == before.signature)
-            planning = episode.pipeline.engine.provider
-            plan = getattr(planning, "last_planning_result", None)
-            policy = getattr(planning, "last_policy_decision", None)
             if plan is not None:
                 result["planning_budget"] = asdict(planning.search_budget)
                 result["fresh_input_captures"] += 1
@@ -127,6 +138,7 @@ def run_episode(
                 "survival_steps": result["actions"],
             }
         )
+        phase = "score_evaluation"
         ocr = TesseractOcrRecognizer.optional()
         if ocr is None:
             raise RuntimeError(
@@ -145,12 +157,14 @@ def run_episode(
             )
         records = episode.pipeline.load_execution_history()
         result["execution_history_count"] = len(records)
+        phase = "stop_probe"
         token = episode.pipeline.controller.rearm_token
         episode.pipeline.controller.stop("comparison Stop probe")
         try:
             episode.pipeline.run_and_execute(expected_rearm_token=token)
         except ExecutionCancelled:
             result["stopped_input_rejected"] = True
+        phase = "stale_generation_probe"
         episode.pipeline.controller.start()
         try:
             episode.pipeline.run_and_execute(expected_rearm_token=initial_token)
@@ -168,6 +182,7 @@ def run_episode(
                 "comparison minimum actual input or Stop/stale guard failed"
             )
     except Exception as error:
+        result["failure_stage"] = phase
         result["failure"] = {"type": type(error).__name__, "message": str(error)[:2000]}
     finally:
         if episode is not None:
@@ -215,6 +230,64 @@ def run_episode(
         and not result.get("journal_cleanup_failure")
     )
     return result
+
+
+def comparison_summary(result):
+    """Bounded operational diagnostics; exclude frames, profiles and environment."""
+
+    def bounded(value, limit=256):
+        return (
+            str(value).split("\n", 1)[0].replace("\r", " ")[:limit]
+            if value is not None
+            else None
+        )
+
+    score = result.get("score_evaluation") or {}
+    confidence = score.get("confidence")
+    score_valid = (
+        type(score.get("value")) is int
+        and type(confidence) in (int, float)
+        and 0.65 <= confidence <= 1
+    )
+    withheld = result.get("withheld") or {}
+    failure = result.get("failure") or {}
+    return {
+        "event": "windows_planning_comparison_episode",
+        "provider": bounded(result.get("provider"), 32),
+        "seed": result.get("seed"),
+        "success": result.get("success", False),
+        "failure_stage": bounded(result.get("failure_stage"), 64),
+        "failure_type": bounded(failure.get("type"), 64),
+        "failure_message": bounded(failure.get("message"), 512),
+        "cleanup_failure_type": bounded(
+            (result.get("cleanup_failure") or {}).get("type"), 64
+        ),
+        "resource_failure_type": bounded(
+            (result.get("resource_failure") or {}).get("type"), 64
+        ),
+        "journal_cleanup_failure_type": bounded(
+            (result.get("journal_cleanup_failure") or {}).get("type"), 64
+        ),
+        "disposition": bounded(withheld.get("outcome"), 32),
+        "reason_codes": [
+            bounded(reason) for reason in withheld.get("reason_codes", ())[:8]
+        ],
+        "core_reason": bounded(result.get("last_core_reason")),
+        "policy_reason_codes": [
+            bounded(reason) for reason in result.get("last_policy_reason_codes", ())[:8]
+        ],
+        "confirmed_actual_actions": result.get("actions", 0),
+        "execution_history_count": result.get("execution_history_count"),
+        "score_status": "verified_ocr" if score_valid else "unavailable",
+        "score": score.get("value") if score_valid else None,
+        "elapsed_seconds": result.get("wall_seconds"),
+        "stop_probe": "rejected"
+        if result.get("stopped_input_rejected")
+        else "unverified",
+        "stale_generation_probe": (
+            "rejected" if result.get("stale_generation_rejected") else "unverified"
+        ),
+    }
 
 
 def main(argv=None):
@@ -273,6 +346,7 @@ def main(argv=None):
             output / provider,
             save_failure_evidence=args.save_failure_evidence,
         )
+        print(json.dumps(comparison_summary(result), ensure_ascii=True), flush=True)
         report["episodes"].append(result)
         report["success"] = len(report["episodes"]) == 3 and all(
             e["success"] for e in report["episodes"]
