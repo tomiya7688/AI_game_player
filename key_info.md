@@ -1,5 +1,7 @@
 # AI Game Player 現在の機能
 
+- #661: 恒久GUIはQt6 Widgets/C++ native（WebViewなし）、常駐Coreは別プロセスRust、Pythonは任意workerと決定。**目標配置のみ、未実装**です。現Tkinter/Python+C++とWindows E2Eは互換維持、実装は#664–#667、Qt配布は#228/#149/#663の未確認gateへ分離。[正本](doc/architecture/qt_rust_migration.md)。
+
 ## できること
 
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。

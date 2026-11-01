@@ -2,6 +2,10 @@
 
 Kadoka is intentionally modular internally while remaining minimal for ordinary users.
 
+## Target decision and current compatibility
+
+Issue #661 fixes the planned permanent GUI to **Qt 6 Widgets/C++ native, no embedded WebView**, with a **separate Rust resident Core** and **optional Python/AI workers**. The design, failure boundaries, measurement gates and open implementation Issues #664–#667 are in [the migration source](qt_rust_migration.md). These components are not implemented by a placement declaration. Current Tkinter/Python+C++ and its Windows E2E remain operational compatibility paths. The layers and Python workflow below describe that current path, not a completed Rust migration.
+
 ## Layers
 
 ```text

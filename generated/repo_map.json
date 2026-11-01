@@ -121524,6 +121524,326 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.runtime_boundary_check",
+        "tools.runtime_target_check"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "copy"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "tools",
+            "tools.runtime_boundary_check"
+          ],
+          "module": "tools.runtime_boundary_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "check_boundary"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "tools",
+            "tools.runtime_target_check"
+          ],
+          "module": "tools.runtime_target_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "check_target_architecture"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_runtime_target_boundary",
+      "path": "tests/test_runtime_target_boundary.py",
+      "source_location": {
+        "end_line": 102,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeTargetBoundaryTest",
+          "parameters": [],
+          "qualified_name": "RuntimeTargetBoundaryTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 102,
+            "start_line": 16
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 18,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_target_is_planned_and_does_not_replace_current_abi",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_target_is_planned_and_does_not_replace_current_abi",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_legacy_v1_manifest_without_target_remains_valid",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_legacy_v1_manifest_without_target_remains_valid",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_boundary_checker_rejects_embedded_webview_target",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_existing_boundary_checker_rejects_embedded_webview_target",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_implementation_or_release_success_cannot_be_claimed_by_target",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_implementation_or_release_success_cannot_be_claimed_by_target",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 63,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_webview_python_dependency_and_ui_owned_stop_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_webview_python_dependency_and_ui_owned_stop_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 65
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_license_gates_cannot_be_dropped_or_replaced_with_shell_smoke",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_license_gates_cannot_be_dropped_or_replaced_with_shell_smoke",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 92,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_malformed_target_does_not_crash_existing_boundary_ci",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeTargetBoundaryTest.test_malformed_target_does_not_crash_existing_boundary_ci",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 94
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.models",
@@ -140240,7 +140560,7 @@
       "module": "tools.documentation_check",
       "path": "tools/documentation_check.py",
       "source_location": {
-        "end_line": 365,
+        "end_line": 366,
         "start_line": 1
       },
       "symbols": [
@@ -140263,8 +140583,8 @@
           "signature": "(root: Path) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 76,
-            "start_line": 67
+            "end_line": 77,
+            "start_line": 68
           }
         },
         {
@@ -140286,8 +140606,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 80,
-            "start_line": 79
+            "end_line": 81,
+            "start_line": 80
           }
         },
         {
@@ -140309,8 +140629,8 @@
           "signature": "(text: str) -> tuple[str, list[tuple[str, str, int]], list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 123,
-            "start_line": 83
+            "end_line": 124,
+            "start_line": 84
           }
         },
         {
@@ -140332,8 +140652,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 150,
-            "start_line": 126
+            "end_line": 151,
+            "start_line": 127
           }
         },
         {
@@ -140355,8 +140675,8 @@
           "signature": "(destination: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 156,
-            "start_line": 153
+            "end_line": 157,
+            "start_line": 154
           }
         },
         {
@@ -140384,8 +140704,8 @@
           "signature": "(text: str, index: int) -> tuple[str, int] | None",
           "source_location": {
             "column": 0,
-            "end_line": 190,
-            "start_line": 159
+            "end_line": 191,
+            "start_line": 160
           }
         },
         {
@@ -140413,8 +140733,8 @@
           "signature": "(text: str, index: int) -> tuple[str, int] | None",
           "source_location": {
             "column": 0,
-            "end_line": 223,
-            "start_line": 193
+            "end_line": 224,
+            "start_line": 194
           }
         },
         {
@@ -140436,8 +140756,8 @@
           "signature": "(text: str) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 263,
-            "start_line": 226
+            "end_line": 264,
+            "start_line": 227
           }
         },
         {
@@ -140471,8 +140791,8 @@
           "signature": "(page: Path, root: Path, text: str) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 282,
-            "start_line": 266
+            "end_line": 283,
+            "start_line": 267
           }
         },
         {
@@ -140494,8 +140814,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 322,
-            "start_line": 285
+            "end_line": 323,
+            "start_line": 286
           }
         },
         {
@@ -140517,8 +140837,8 @@
           "signature": "(code: str) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 340,
-            "start_line": 325
+            "end_line": 341,
+            "start_line": 326
           }
         },
         {
@@ -140540,8 +140860,8 @@
           "signature": "(text: str) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 365,
-            "start_line": 343
+            "end_line": 366,
+            "start_line": 344
           }
         }
       ]
@@ -150493,7 +150813,8 @@
     {
       "dependencies": [
         "tools",
-        "tools.runtime_boundary_contract"
+        "tools.runtime_boundary_contract",
+        "tools.runtime_target_check"
       ],
       "imports": [
         {
@@ -150567,6 +150888,22 @@
           "line": 15,
           "local_dependencies": [
             "tools",
+            "tools.runtime_target_check"
+          ],
+          "module": "runtime_target_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "check_target_architecture"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 1,
+          "line": 16,
+          "local_dependencies": [
+            "tools",
             "tools.runtime_boundary_contract"
           ],
           "module": "runtime_boundary_contract",
@@ -150588,7 +150925,20 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 22,
+          "local_dependencies": [],
+          "module": "runtime_target_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "check_target_architecture"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
           "local_dependencies": [],
           "module": "runtime_boundary_contract",
           "names": [
@@ -150610,7 +150960,7 @@
       "module": "tools.runtime_boundary_check",
       "path": "tools/runtime_boundary_check.py",
       "source_location": {
-        "end_line": 253,
+        "end_line": 256,
         "start_line": 1
       },
       "symbols": [
@@ -150645,8 +150995,8 @@
           "signature": "(value: object, label: str, errors: list[str]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 53,
-            "start_line": 40
+            "end_line": 55,
+            "start_line": 42
           }
         },
         {
@@ -150674,8 +151024,8 @@
           "signature": "(value: object, errors: list[str]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 75,
-            "start_line": 56
+            "end_line": 77,
+            "start_line": 58
           }
         },
         {
@@ -150721,8 +151071,8 @@
           "signature": "(value: object, languages: set[str], units: set[str], capabilities: set[str], errors: list[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 141,
-            "start_line": 78
+            "end_line": 143,
+            "start_line": 80
           }
         },
         {
@@ -150756,8 +151106,8 @@
           "signature": "(root: Path, value: object, errors: list[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 168,
-            "start_line": 144
+            "end_line": 170,
+            "start_line": 146
           }
         },
         {
@@ -150785,8 +151135,8 @@
           "signature": "(root: Path = …, manifest_path: Path | None = …) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 231,
-            "start_line": 172
+            "end_line": 234,
+            "start_line": 174
           }
         },
         {
@@ -150801,8 +151151,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 249,
-            "start_line": 234
+            "end_line": 252,
+            "start_line": 237
           }
         }
       ]
@@ -151601,6 +151951,68 @@
             "column": 4,
             "end_line": 90,
             "start_line": 74
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        }
+      ],
+      "module": "tools.runtime_target_check",
+      "path": "tools/runtime_target_check.py",
+      "source_location": {
+        "end_line": 82,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "check_target_architecture",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "manifest"
+            }
+          ],
+          "qualified_name": "check_target_architecture",
+          "return_annotation": "list[str]",
+          "signature": "(manifest: dict[str, Any]) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 82,
+            "start_line": 8
           }
         }
       ]

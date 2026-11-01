@@ -98,7 +98,7 @@
       "preferred_language": "python",
       "boundary_unit": "batch",
       "status": "implemented",
-      "reason": "UI/tooling is not currently latency-critical enough to justify another mandatory runtime.",
+      "reason": "Current Tkinter/Python compatibility UI and developer tools remain implemented. Permanent Qt6 Widgets/C++ GUI and Rust Core are planned separately by target_architecture (#661).",
       "current_languages": [
         "python"
       ]
@@ -174,5 +174,56 @@
     ],
     "windows_bundle_entrypoint": "tools/build_windows_bundle.ps1",
     "bundled_native_library": "kadoka_native_runtime.dll"
+  },
+  "target_architecture": {
+    "schema": "kadoka-target-architecture/v1",
+    "status": "planned",
+    "decision_issue": 661,
+    "gui": {
+      "language": "cpp",
+      "framework": "qt6_widgets",
+      "embedded_webview": false,
+      "issue": 664
+    },
+    "resident_core": {
+      "language": "rust",
+      "process": "separate",
+      "issue": 665
+    },
+    "bridge": {
+      "control": "versioned_local_ipc",
+      "frame": "frame_ref_lease",
+      "issue": 666
+    },
+    "python_worker": {
+      "language": "python",
+      "required_for_core": false
+    },
+    "capture": {
+      "language": "cpp",
+      "status": "existing_compatibility",
+      "abi_version": 1
+    },
+    "safety": {
+      "authority": "resident_core",
+      "ui_independent": true,
+      "stop_bypasses_work_queue": true,
+      "issue": 667
+    },
+    "compatibility": {
+      "tkinter": true,
+      "python_cpp_abi_v1": true,
+      "existing_windows_e2e": true
+    },
+    "distribution": {
+      "status": "unverified",
+      "qt_linkage": "dynamic",
+      "gpl_only_modules": false,
+      "gate_issues": [
+        149,
+        228,
+        663
+      ]
+    }
   }
 }

@@ -5,7 +5,7 @@
 ## Project
 - Name: Kadoka AI Game Player
 - Goal: `Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next decision`
-- Primary runtime: Python today; performance/realtime/OS/safety-sensitive work may move behind the C++ native runtime boundary.
+- Current compatibility runtime: Tkinter/Python + C++ C ABI v1. Target (#661): Qt 6 Widgets/C++ native GUI, separate Rust resident Core, optional Python/AI worker; no embedded WebView. Target is planned, not implemented. See `doc/architecture/qt_rust_migration.md`.
 
 ## Source of Truth
 - Current task / requirements: GitHub Issue

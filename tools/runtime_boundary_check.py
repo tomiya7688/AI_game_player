@@ -12,12 +12,14 @@ import sys
 from pathlib import Path
 
 if __package__:
+    from .runtime_target_check import check_target_architecture
     from .runtime_boundary_contract import (
         read_binding_contract,
         read_native_contract as _native_contract,
         read_python_contract as _python_contract,
     )
 else:
+    from runtime_target_check import check_target_architecture
     from runtime_boundary_contract import (
         read_binding_contract,
         read_native_contract as _native_contract,
@@ -226,6 +228,7 @@ def check_boundary(root: Path = ROOT, manifest_path: Path | None = None) -> list
         manifest.get("components"), languages, units, capabilities, errors
     )
     _check_distribution(root, manifest.get("distribution"), errors)
+    errors.extend(check_target_architecture(manifest))
     if not (root / "doc/architecture/runtime_layers.md").is_file():
         errors.append("runtime architecture document is missing")
     return errors
