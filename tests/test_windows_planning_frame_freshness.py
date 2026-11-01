@@ -12,6 +12,70 @@ from tools.compare_2048_windows_planning import evaluate_visible_score
 
 
 class WindowsPlanningFrameFreshnessTests(unittest.TestCase):
+    def test_read_fresh_rejects_pre_request_queue_before_lease_or_source_publication(
+        self,
+    ):
+        source = self.source([39.9, 40.1])
+        source.source_id = "source"
+        source.failure_evidence = None
+        source.fresh_frame_callback = Mock()
+        source.analyzer = SimpleNamespace(
+            analyze=Mock(
+                return_value=ScreenObservation(
+                    "frame", 1, 1, features={"signature": "pixels"}
+                )
+            )
+        )
+        observation = ScreenObservation(
+            "frame",
+            1,
+            1,
+            features={
+                "game_2048": {
+                    "board": [[2]],
+                    "state_signature": "board",
+                    "game_over": False,
+                }
+            },
+        )
+        source.adapter = SimpleNamespace(
+            adapt=lambda frame, obs: (observation, [object()])
+        )
+        now = [40.0]
+        capture = source.capture.capture
+        calls = []
+
+        def physical_capture(handle):
+            calls.append(handle)
+            if len(calls) == 2:
+                now[0] = 40.2
+            return capture(handle)
+
+        source.capture.capture = physical_capture
+        with (
+            patch("tools.run_2048_campaign.time.monotonic", side_effect=lambda: now[0]),
+            patch(
+                "tools.run_2048_campaign.time.monotonic_ns",
+                side_effect=lambda: int(now[0] * 1e9),
+            ),
+            patch(
+                "tools.run_2048_campaign.time.get_clock_info",
+                return_value=SimpleNamespace(
+                    implementation="QueryPerformanceCounter()"
+                ),
+            ),
+        ):
+            observed, _ = source.read_fresh()
+        self.assertEqual(
+            observed.features["capture_metadata"]["monotonic_ns"], 40_100_000_000
+        )
+        self.assertEqual(calls, [1, 1])
+        self.assertEqual(source.not_before, 40.0)
+        source.fresh_frame_callback.assert_called_once()
+        source.analyzer.analyze.assert_called_once()
+        self.assertEqual(source.capture_sequence, 10)
+        self.assertEqual(source._last_accepted_frame_ns, 40_100_000_000)
+
     def test_frame_expiring_during_analysis_cannot_publish_candidates_or_cache(self):
         source = self.source([35.1])
         source.source_id = "source"

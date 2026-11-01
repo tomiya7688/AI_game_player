@@ -4,7 +4,13 @@ import unittest
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
 from tools.planning_score_evaluation import reread_score_line
-from tools.planning_score_panel import Panel, _otsu, find_panels, prepare_panel_ocr
+from tools.planning_score_panel import (
+    Panel,
+    _otsu,
+    find_panels,
+    numeric_crops,
+    prepare_panel_ocr,
+)
 
 
 def panel_frame(best=240):
@@ -88,6 +94,18 @@ class ScorePanelTests(unittest.TestCase):
             ):
                 prepare_panel_ocr(frame, box, panel, numeric=True)
 
+    def test_clamping_two_foreground_margins_to_same_roi_stays_unknown(self):
+        frame = panel_frame()
+        raw = bytearray(frame.bgra)
+        for y in range(50, 65):
+            for x in range(33, 92):
+                offset = (y * frame.width + x) * 4
+                raw[offset : offset + 4] = b"\xf5\xf5\xf5\xff"
+        with self.assertRaisesRegex(ValueError, "two distinct"):
+            numeric_crops(
+                replace(frame, bgra=bytes(raw)), Panel(30, 20, 95, 75), 40, 74
+            )
+
     def test_white_border_does_not_hide_clipped_numeric_evidence(self):
         class ClippedOcr:
             def recognize(self, frame, *, mode):
@@ -158,8 +176,8 @@ class ScorePanelTests(unittest.TestCase):
         result, diagnostic = reread_score_line(panel_frame(), observation, DigitsOcr())
         self.assertIsNotNone(result, diagnostic)
         first, second = diagnostic["crop_bboxes"]
-        self.assertLessEqual(first[0], 30)
-        self.assertGreaterEqual(first[0] + first[2], 95)
+        self.assertLessEqual(first[0], 45)
+        self.assertGreaterEqual(first[0] + first[2], 70)
         self.assertNotEqual(first, second)
 
     def test_missing_or_low_confidence_score_label_stays_unknown(self):

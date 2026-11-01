@@ -1,5 +1,6 @@
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- 実request以後の物理frameをread_fresh/初期parity後に要求し、旧queueはlease前に破棄。空の予算保留通知は完成SELECTの受領期限と区別し、比較だけmax12判断attempt/holdも消費してfresh再計画します。400ms/3s/4s/5s/GUI停止仕様は維持。評価Scoreは全foreground union＋異なる2marginへ進め、Winの0画像失敗をPSM/model/画素hash診断で再検証します。
 - 評価専用Score OCRで、同frameのSCORE panelを局所Otsu/連結成分で分離しbilinear3倍・二値化・白余白を追加。文字推測や値補完をせず、0.65/二幅一致/元support端切れ拒否を維持。9実Win header×2geometryと元4桁画像を回帰化し、実OS失敗を成功へ書換えません。
 - Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICSへ変更。一般atomic_jsonは維持し、未対応はfail-closed。5bbcのWindows実OSで旧handle維持・新規open=newの20回とnative30ケースを確認しました。別のc974 stressでは深さ未完のcompute_budgetが残り、全32gate完了とは扱いません。
 - 実ログのWGC timeout約2秒とbackend切替時の署名拒否に対し、独立の短比較だけWGC待ちを250msへ明示設定。一般capture/既存600秒Campaignの2000ms、5秒実観測age、Planner4秒TTL・3秒再観測予算は維持し、調整後Windows gameplayは次CIで検証します。

@@ -9,6 +9,7 @@ from ai_game_player.belief_validation import belief_id
 from ai_game_player.planning_information import PlanningObservationModel
 from ai_game_player.planning_policy_contract import PlanningComputationEstimate
 from ai_game_player.planning_result import PlanningResult
+from ai_game_player.planning_outcome import PlanningOutcome
 
 
 # {
@@ -35,8 +36,9 @@ def planning_allowed_actions(
 
 # {
 #   責務: [validate_planning_source: 探索を現在のBelief/実行世代/時刻へ完全に結び付ける]
-#   処理: [期限後受領、別snapshot/版、未校正から確率への偽変換を拒否する]
-#   引数: [result/belief: 元探索, context/run_generation/now: 現authority]
+#   処理: [期限後の完成evidence・別snapshot/版・偽確率を拒否。空のABSTAIN通知だけは結果生成時刻を受領時刻と分離]
+#   引数: [result/belief: 元探索, context/run_generation/now: 現authority,
+#     allowed_action_ids: 通知envelopeを現在の候補集合へ完全に照合する]
 #   戻り値: [なし]
 #   エラー: [ValueError: 古い/別対象/意味不一致]
 # }
@@ -46,7 +48,20 @@ def validate_planning_source(
     context: BeliefContext,
     run_generation: int,
     now: int,
+    *,
+    allowed_action_ids: tuple[str, ...] | None = None,
 ) -> None:
+    notification = (
+        type(result) is PlanningResult
+        and result.outcome is PlanningOutcome.ABSTAIN
+        and type(result.completed_depth) is int
+        and result.completed_depth == 0
+        and type(result.action_values) is tuple
+        and not result.action_values
+        and result.selected_action_id is None
+        and result.probability_semantics == "unknown"
+        and result.continuation_semantics == "one_step"
+    )
     if (
         type(result) is not PlanningResult
         or result.context != context
@@ -55,7 +70,15 @@ def validate_planning_source(
         or result.run_generation != run_generation
         or not result.created_at_ns <= now < result.expires_at_ns
         or not belief.created_at_ns <= now < belief.expires_at_ns
-        or result.created_at_ns > result.compute_cutoff_at_ns
+        or (not notification and result.created_at_ns > result.compute_cutoff_at_ns)
+        or (
+            notification
+            and (
+                allowed_action_ids is None
+                or result.allowed_action_ids != allowed_action_ids
+                or result.expires_at_ns != belief.expires_at_ns
+            )
+        )
         or result.quality_projection_version != 1
         or result.value_unit != "normalized_quality.v1"
         or not isclose(
@@ -74,6 +97,13 @@ def validate_planning_source(
     ) or (result.completed_depth > 1 and continuation == "one_step"):
         raise ValueError(
             "deep planning requires an explicit feasible continuation policy"
+        )
+    if notification:
+        # No action values are evidence: creation after compute cutoff only reports an unavailable plan.
+        return
+    if result.probability_semantics == "unknown":
+        raise ValueError(
+            "unknown planning semantics require an empty abstention notice"
         )
     calibrated = belief.weight_kind == BeliefWeightKind.CALIBRATED_PROBABILITY
     if (result.probability_semantics == "calibrated") != calibrated:
