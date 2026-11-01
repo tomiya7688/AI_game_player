@@ -364,6 +364,17 @@ jobs:
         env:
           PYTHONPATH: "src;."
         run: python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
+      - name: Repeat bounded worker checkpoint diagnostics (seed 479 only)
+        if: matrix.seed == '479'
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: |
+          for ($attempt = 1; $attempt -le 20; $attempt++) {
+            Write-Host "Windows bounded worker diagnostic attempt $attempt/20"
+            python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -k "test_final_marker_does_not_leave_an_older_checkpoint_adopted" -k "test_reference_play_board_keeps_valid_deeper_checkpoint" -v
+            if ($LASTEXITCODE -ne 0) { throw "Bounded worker diagnostic failed at attempt $attempt/20" }
+          }
       - name: Compare short owned-window play with identical seed and step budget
         shell: pwsh
         env:

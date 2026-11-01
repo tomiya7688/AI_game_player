@@ -80,6 +80,7 @@ class PlannerDecisionProvider:
         self._runtime_marks: dict[str, int] = {}
         self._latest_belief: Any = None
         self._belief_failure: str | None = None
+        self._belief_failure_at_ns: int | None = None
 
     # {
     #   責務: [prepare_planning_context: Engineが固定した実観測をこの判断へ結び付ける]
@@ -100,6 +101,7 @@ class PlannerDecisionProvider:
         self._runtime_marks = {}
         self._latest_belief = None
         self._belief_failure = None
+        self._belief_failure_at_ns = None
         self._authorized_capture = None
         self._prepared = None
         self.last_planning_result = None
@@ -344,13 +346,14 @@ class PlannerDecisionProvider:
     # }
     def _assert_current_belief(self) -> None:
         if self._prepared is None or self._current_belief() != self._prepared.belief:
+            self._belief_failure_at_ns = self.clock_ns()
             self._belief_failure = (
                 "snapshot_unavailable"
                 if self._latest_belief is None
                 else "snapshot_changed"
             )
             if self._prepared is not None:
-                if self.clock_ns() >= self._prepared.belief.expires_at_ns:
+                if self._belief_failure_at_ns >= self._prepared.belief.expires_at_ns:
                     self._belief_failure = "observation_expired"
                 elif (
                     getattr(self.planner, "registrations", {}).get(
@@ -424,6 +427,8 @@ class PlannerDecisionProvider:
                 else None
             ),
             "now_ns": self.clock_ns(),
+            "started_at_ns": self._runtime_started_ns,
+            "belief_failure_at_ns": self._belief_failure_at_ns,
             "stage_elapsed_ns": dict(self._runtime_marks),
             "belief_failure": self._belief_failure,
             "core_reason": self.last_planning_result.reason

@@ -395,7 +395,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             allowed=("left",),
             budget=SearchBudget(max_depth=3, wall_time_ms=1000),
         )
-        self.assertEqual(deep.completed_depth, 3)
+        self.assertEqual(deep.completed_depth, 3, planning_result_diagnostic(deep))
         self.assertAlmostEqual(deep.action_values[0].expected_quality, 0.27)
 
     def test_final_marker_does_not_leave_an_older_checkpoint_adopted(self):
@@ -595,7 +595,11 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 max_depth=1, allow_conditional_selection=True, wall_time_ms=1000
             ),
         )
-        self.assertEqual(experiment.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            experiment.outcome,
+            PlanningOutcome.SELECT,
+            planning_result_diagnostic(experiment),
+        )
         self.assertEqual(experiment.probability_semantics, "conditional_score")
         for action in experiment.action_values:
             self.assertIsNone(action.expected_quality)

@@ -38,7 +38,9 @@ def reread_score_line(frame, observation, ocr):
             if geometry.window_bounds is not None
             else geometry.screen_to_roi
         )
+        right, bottom = to_roi(x + width, y + height)
         x, y = to_roi(x, y)
+        width, height = right - x, bottom - y
     center_x = x + width / 2
     top = math.floor(y + height)
     bottom = math.ceil(y + height * 5)
@@ -98,21 +100,22 @@ def reread_score_line(frame, observation, ocr):
         return None, {"status": "score_line_width_disagreement", "crop_bboxes": crops}
     word, left = readings[1]
     candidates = [dict(label)]
-    for word in (word,):
-        mapped = dict(word)
-        mapped["confidence"] = min(reading[0]["confidence"] for reading in readings)
-        x = left + word["x"] / scale
-        y = top + word["y"] / scale
-        w, h = word["width"] / scale, word["height"] / scale
-        if geometry is not None:
-            to_coordinates = (
-                geometry.roi_to_window
-                if geometry.window_bounds is not None
-                else geometry.roi_to_screen
-            )
-            x, y = to_coordinates(x, y)
-        mapped.update(x=x, y=y, width=w, height=h, bbox=(x, y, w, h))
-        candidates.append(mapped)
+    mapped = dict(word)
+    mapped["confidence"] = min(reading[0]["confidence"] for reading in readings)
+    x = left + word["x"] / scale
+    y = top + word["y"] / scale
+    w, h = word["width"] / scale, word["height"] / scale
+    if geometry is not None:
+        to_coordinates = (
+            geometry.roi_to_window
+            if geometry.window_bounds is not None
+            else geometry.roi_to_screen
+        )
+        right, bottom = to_coordinates(x + w, y + h)
+        x, y = to_coordinates(x, y)
+        w, h = right - x, bottom - y
+    mapped.update(x=x, y=y, width=w, height=h, bbox=(x, y, w, h))
+    candidates.append(mapped)
     return replace(
         observation,
         ocr_text=[item["text"] for item in candidates],
