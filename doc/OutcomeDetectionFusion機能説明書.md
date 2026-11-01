@@ -135,19 +135,13 @@ Semantic結果も `OutcomeEvidence(signal="semantic")` として追加し、元�
 
 ## Engine統合
 
-`GamePlayerEngine` は直前のObservationだけでなく直前の `action_id` を保持する。
+`GamePlayerEngine.step()` は判断を保存するだけで、実操作のpending状態やOutcomeを更新しない。実行境界から受け取る `ExecutionReceipt` が、snapshot・action・停止/再開世代・入力前画面を一致させた場合だけ、実操作のpending参照を更新する。正常送信は `executed`、送信開始後の例外や送信有無を証明できないbackendは `dispatch_unknown` とする。後者のOutcomeはunknownに固定する。
 
-次stepで:
+`DecisionPipeline.complete_execution_observation(observation, expected_rearm_token=token)` が明示的な実操作後観測を完了する。同一世代のpending操作と入力前/後のObservationを `OutcomeDetector.detect()` へ渡し、世代guard内で元のtraceと `last_outcome_event` へ一度だけ公開する。`ExecutionObservation` はreceiptとOutcome、結果画面参照を一対で返す。公開済みの再取得にも世代guardを適用する。
 
-```text
-previous observation
-previous selected action_id
-current observation
-```
+実入力pipelineの次判断前、Sessionの実行後観測、E2Eの実行後probe、2048 campaignの観測がこのAPIを呼ぶ。終端画面や次判断失敗でも最後の実操作結果を保存できる。`run()`、dry-run、入力前失敗は前の実操作を置き換えたり、任意の観測だけで消費したりしない。停止中に完了した旧世代入力の監査は残すが、新世代のpendingや学習履歴には混ぜない。
 
-を `OutcomeDetector.detect()` へ渡し、生成された `OutcomeEvent` を `last_outcome_event` に保持する。
-
-Decision Context互換のため、前回Outcomeは `OutcomeEvent.to_assessment()` を通して渡す。
+Decision Contextへは同じ世代で公開済みの実操作Outcomeを `OutcomeEvent.to_assessment()` で渡す。画面変化や得点変化は因果的な操作成功の証明ではなく、学習側では明示的な効果証拠を別途検証する。詳細と検証範囲は [実行受領記録](architecture/execution_receipts.md) を参照する。
 
 ## 将来拡張
 

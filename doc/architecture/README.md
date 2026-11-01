@@ -11,6 +11,7 @@
 | PythonとC++の分け方を開発者として考える | [既存Runtime Architecture](runtime_layers.md)・[Native境界](native_runtime_boundary.md) |
 | 機械的な呼出し一覧 | [既存のシーケンス図](../sequence_diagram.mmd)・[クラス図](../class_diagram.mmd) |
 | ゲーム固有の操作の検証 | [判断パイプライン機能説明書](../判断パイプライン機能説明書.md)・[操作実行機能説明書](../操作実行機能説明書.md) |
+| 操作中の軽量知識更新・Mode・証拠の条件 | [Light Adaptationの本番接続と限界](light_adaptation.md)・[Mode/Phase契約](runtime_modes.md) |
 
 **この資料の確認範囲：** 2026-10-31、main `4d8ae6f515024b7ba8bed900b50735ab8cc07ea4`。ソースコードと既存文書を照合した静的説明です。モデルを起動する試験、Windows実機での画面取得、実際のゲーム操作、図の複数画面幅での目視確認は、資料執筆だけでは完了しません。
 
@@ -20,7 +21,7 @@
 - 箱にはクラス名より先に、日本語で「何をする部分か」を書きます。
 - 「部品が存在する」「通常の実行経路へ接続」「実機で確認済み」は異なる状態です。
 - モデルが選んだ操作を直接ゲームに送る経路は描きません。回答の検証と安全確認が必要です。
-- 前回判断と現在の観測から結果を評価します。判断保存と実入力の事実は別であり、未送信・確認運転を含む対応の制約は[一回の流れ](flow_for_readers.md)に記します。
+- 実行受領記録と操作後の明示観測から結果を評価します。未送信・確認運転を実操作結果へ混ぜない契約は[一回の流れ](flow_for_readers.md)に記します。
 - 記録しただけで「学習して強くなった」「モデルが更新された」とは書きません。
 
 詳細なモデル名・版の調査と台帳は [#609](https://github.com/tomiya7688/AI_game_player/issues/609)、処理選択の設計は [#611](https://github.com/tomiya7688/AI_game_player/issues/611)、図とリンクの継続検査は [#614](https://github.com/tomiya7688/AI_game_player/issues/614) に分けます。

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "mode": "INFERENCE_WITH_LIGHT_ADAPTATION",
+  "resource_policy_id": "default",
+  "inference_enabled": true,
+  "action_enabled": true,
+  "experience_write_enabled": true,
+  "knowledge_read_enabled": true,
+  "light_update_enabled": true,
+  "knowledge_build_enabled": true,
+  "heavy_training_enabled": false,
+  "evaluation_enabled": true,
+  "promotion_enabled": true,
+  "safety_core_enabled": true,
+  "auto_promotion_policy": "evaluated_safe_boundary",
+  "degrade_policy": "learning_first"
+}

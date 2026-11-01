@@ -19,7 +19,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             def capture_playable_state(self, on_fresh_frame=None):
                 events.append("capture")
                 if on_fresh_frame is None:
-                    current_time[0] += run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS + 1.0
+                    current_time[0] += (
+                        run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS + 1.0
+                    )
                 else:
                     events.append("fresh_frame")
                     on_fresh_frame()
@@ -35,12 +37,15 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             def rearm_safety(self):
                 events.append("rearmed")
                 self.observation_deadline = (
-                    current_time[0] + run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
+                    current_time[0]
+                    + run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
                 )
 
             def record_observation(self):
                 if current_time[0] > self.observation_deadline:
-                    raise RuntimeError("first observation expired before it could be recorded")
+                    raise RuntimeError(
+                        "first observation expired before it could be recorded"
+                    )
                 events.append("observation_recorded")
 
             def close(self):
@@ -56,9 +61,19 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
 
         test_directory = Path("build") / "issue-459-observation-test"
         with (
-            patch.object(run_2048_campaign, "ReferenceGame2048Launcher", return_value=fake_launcher),
-            patch.object(run_2048_campaign, "Cached2048ObservationSource", return_value=fake_source),
-            patch.object(run_2048_campaign, "DecisionPipeline", return_value=fake_pipeline) as pipeline_factory,
+            patch.object(
+                run_2048_campaign,
+                "ReferenceGame2048Launcher",
+                return_value=fake_launcher,
+            ),
+            patch.object(
+                run_2048_campaign,
+                "Cached2048ObservationSource",
+                return_value=fake_source,
+            ),
+            patch.object(
+                run_2048_campaign, "DecisionPipeline", return_value=fake_pipeline
+            ) as pipeline_factory,
         ):
             episode = run_2048_campaign.ReferenceGame2048Episode(
                 1,
@@ -69,7 +84,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             )
             result = episode.observe()
             second_result = episode.observe()
-            observation_timeout = pipeline_factory.call_args.kwargs["fail_safe_config"].observation_timeout_seconds
+            observation_timeout = pipeline_factory.call_args.kwargs[
+                "fail_safe_config"
+            ].observation_timeout_seconds
             episode.close()
 
         self.assertIs(result, observed_state)
@@ -158,7 +175,13 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         )
         self.assertEqual(len(source.read()[1]), 1)
         self.assertEqual(
-            {"capture", "observation_refresh", "frame_analysis", "board_adaptation", "retry_wait"},
+            {
+                "capture",
+                "observation_refresh",
+                "frame_analysis",
+                "board_adaptation",
+                "retry_wait",
+            },
             set(source.observation_timing.snapshot()["stage_ms"]),
         )
         self.assertIsNone(source.observation_timing.snapshot()["active_stage"])
@@ -183,6 +206,32 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         self.assertIn("first_observation=False", raised.exception.detail)
         self.assertIn("capture_elapsed_seconds=", raised.exception.detail)
         self.assertIn("reason=observation_stale", raised.exception.detail)
+
+    def test_post_action_completion_keeps_generation_from_capture_start(self):
+        controller = SimpleNamespace(rearm_token=7)
+        completed = []
+        screen = object()
+        state = CampaignState("board", False, 0, 2)
+
+        def capture(on_fresh_frame):
+            controller.rearm_token = 8
+            return state
+
+        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(
+            run_2048_campaign.ReferenceGame2048Episode
+        )
+        episode.source = SimpleNamespace(
+            capture_playable_state=capture, latest_observation=screen
+        )
+        episode.pipeline = SimpleNamespace(
+            controller=controller,
+            complete_execution_observation=lambda observed, expected_rearm_token: (
+                completed.append((observed, expected_rearm_token))
+            ),
+        )
+        episode._safety_rearmed = True
+        self.assertIs(episode.observe(), state)
+        self.assertEqual(completed, [(screen, 7)])
 
     def test_recognition_timeout_reports_capture_diagnostics(self):
         class FakeCapture:
@@ -231,7 +280,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         with (
             patch.object(run_2048_campaign, "SCREEN_READY_TIMEOUT_SECONDS", 1.0),
             patch.object(run_2048_campaign, "SCREEN_READY_POLL_SECONDS", 0.5),
-            patch.object(run_2048_campaign.time, "monotonic", side_effect=advance_monotonic_clock),
+            patch.object(
+                run_2048_campaign.time, "monotonic", side_effect=advance_monotonic_clock
+            ),
             patch.object(run_2048_campaign.time, "sleep"),
         ):
             with self.assertRaises(CampaignFailure) as raised:
@@ -251,7 +302,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         def fail_action(**_arguments):
             raise RuntimeError("FailSafeRuntime blocked action [runtime_not_active]")
 
-        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(run_2048_campaign.ReferenceGame2048Episode)
+        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(
+            run_2048_campaign.ReferenceGame2048Episode
+        )
         episode.pipeline = SimpleNamespace(
             run_and_execute=fail_action,
             last_safety_result=None,
@@ -282,7 +335,10 @@ class WindowsReferenceGameCampaignRestartTests(unittest.TestCase):
             runtime_root = temporary_root / "runtime"
 
             for episode_number in (1, 2):
-                print(f"2048 campaign restart integration: starting episode {episode_number}", flush=True)
+                print(
+                    f"2048 campaign restart integration: starting episode {episode_number}",
+                    flush=True,
+                )
                 episode = run_2048_campaign.ReferenceGame2048Episode(
                     episode_number,
                     cache_root,
@@ -294,10 +350,16 @@ class WindowsReferenceGameCampaignRestartTests(unittest.TestCase):
                     state = episode.observe()
                     self.assertTrue(state.signature)
                     self.assertFalse(state.terminal)
-                    print(f"2048 campaign restart integration: episode {episode_number} observed a playable board", flush=True)
+                    print(
+                        f"2048 campaign restart integration: episode {episode_number} observed a playable board",
+                        flush=True,
+                    )
                 finally:
                     episode.close()
-                    print(f"2048 campaign restart integration: episode {episode_number} closed", flush=True)
+                    print(
+                        f"2048 campaign restart integration: episode {episode_number} closed",
+                        flush=True,
+                    )
 
 
 if __name__ == "__main__":
