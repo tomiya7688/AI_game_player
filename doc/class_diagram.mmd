@@ -697,6 +697,17 @@ classDiagram
         +__post_init__()
         +fingerprint()
     }
+    class KnowledgeEvaluationCase {
+        +__post_init__()
+    }
+    class KnowledgeEvaluationReport {
+        +to_dict()
+        +sha256()
+    }
+    class KnowledgeEvaluationRunner {
+        +run()
+        +_run_locked()
+    }
     class KnowledgeFeatureAdapter {
         +__init__()
         +apply()
@@ -709,6 +720,25 @@ classDiagram
         +from_dict()
         +to_dict()
         +to_model_dict()
+    }
+    class KnowledgePromotionResult {
+    }
+    class KnowledgePromotionGate {
+        +__init__()
+        +initialize_champion()
+        +capture()
+        +evaluate_and_promote()
+        +rollback()
+        +audit()
+        +_record_rejection()
+        +_read_state()
+        +_commit()
+        +_lock_path()
+        +_result()
+    }
+    class KnowledgePromotionPolicy {
+        +__post_init__()
+        +assess()
     }
     class KnowledgeScope {
         +__post_init__()
