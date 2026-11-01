@@ -87,3 +87,7 @@ trace参照はstable event ID・内容SHA256・status/`actual_outcome:false`・�
 [bb864886 / Journal・1000ms settle・3provider×3seed上限180手の全結果](../validation/planning_browser_journal_bb864.json)はsource/hash/dirtyが両端一致しました。Cycling score1332/1140/1256（全終局、無効7）、Baseline664/1344/1448（全終局、無効15）。Plannerは479で135手/134遷移照合、480で131手/130照合の後に256tile glowによるunknown cellで停止し、481だけ180手上限/score2312/max256/180照合/無効0/Stop後送信0でした。**Planner失敗2/3を落とした平均を作りません。** 修正は#659へ追跡し、修正版は別SHA/別cohortで測定します。
 
 この旧helperの失敗trialではcapture例外後の前boardがlast_stateへ残り、terminal未検証flagと途中scoreが不十分でした。旧値を成功の根拠に使わず、元primaryerror・入力数・完了数・最終画像を保持します。新helperの前state消去/未完action保存/evaluation-only score/null/Journal参照化による記録改善を、旧cohortへ遡って実測したとは扱いません。
+
+## 参照化の限定cost検証
+
+[ee2dbe4の同一入力copy fixture](../validation/planning_trace_reference_cost_ee2.json)はsource hash両端一致・dirty0、2world/2action/32chance atom×180recordで、予測本文を含むcache deepcopy p50 102.93ms / p95 105.88ms / peak allocation14,986,776bytes、参照形式 p50 7.17ms / p95 9.22ms / peak1,086,400bytesでした。serialized cacheは6,359,760→368,280bytes。これは固定データのcopy costで、実プレイ全体・予測計算・Journal書込・hash生成の総latency改善ではありません。長枠全9episodeの最適化後latencyを実測したとは主張しません。
