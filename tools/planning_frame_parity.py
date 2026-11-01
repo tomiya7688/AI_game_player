@@ -78,7 +78,31 @@ def validate_native_preprocessing(frame, runtime):
         "primitive_fields_equal": fields,
         "candidate_equal": candidate_equal,
         "semantic_equal": semantic_equal,
+        "semantic_available": [state is not None for state in states],
+        "semantic_values_equal": states[0] == states[1],
+        "semantic_confidence": [
+            observation.features.get("game_2048", {}).get("confidence")
+            for observation, _ in adapted
+        ],
+        "semantic_unknown_cells": [
+            sum(
+                cell is None
+                for row in observation.features.get("game_2048", {}).get("board") or ()
+                for cell in row
+            )
+            for observation, _ in adapted
+        ],
+        "semantic_game_over_available": [
+            type(observation.features.get("game_2048", {}).get("game_over")) is bool
+            for observation, _ in adapted
+        ],
+        "semantic_score_known": [
+            observation.features.get("game_2048", {}).get("score") is not None
+            for observation, _ in adapted
+        ],
+        "candidate_counts": [len(candidates) for _, candidates in adapted],
         "baseline_decision_equal": decision_equal,
+        "baseline_values_equal": decisions[0] == decisions[1],
         "planner_input_equal": candidate_equal and semantic_equal,
         "scope": "same frame statistics/components, reference candidates/state and Baseline decision; Planner inputs equal, deadline-dependent search depth is not an identical-choice guarantee",
         "analysis_ns": {"python": timings[0], "native": timings[1]},

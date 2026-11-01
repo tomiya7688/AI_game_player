@@ -18,6 +18,18 @@ from tools import run_2048_campaign
 
 
 class ReferenceGame2048EpisodeTests(unittest.TestCase):
+    def test_capture_wait_profile_is_explicit_and_general_source_keeps_default(self):
+        with patch.object(run_2048_campaign, "WindowsScreenCapture") as factory:
+            default = run_2048_campaign.Cached2048ObservationSource(123, None)
+            factory.assert_called_once_with()
+            default.close()
+        with patch.object(run_2048_campaign, "WindowsScreenCapture") as factory:
+            comparison = run_2048_campaign.Cached2048ObservationSource(
+                123, None, wgc_timeout_ms=250
+            )
+            factory.assert_called_once_with(wgc_timeout_ms=250)
+            comparison.close()
+
     def test_capture_refreshes_fail_safe_and_uses_campaign_observation_timeout(self):
         events = []
         current_time = [100.0]

@@ -67,3 +67,6 @@ Plannerの全540操作はreceipt・明示完了観測・遷移照合と一致し
 Windowsの評価専用得点は、同frameのSCOREラベルから数字行を異なる2幅で切り出し、3倍拡大/PSM7の一致・端切れ拒否を使う。[実2画像での補助OCR記録](../validation/planning_score_line_ocr.json)と、screen/window座標の倍率・offset回帰を保持する。全文OCRでラベル自体が不明な場合は、同frameのboard上段ROIを3倍に拡大しPSM6でSCORE literalだけを再読する。独立Tesseract CLIで元のSCORE候補を除去しても、元2画像と倍率2/offset付きの計4ケースが約0.96で回復することを確認した。なお読めない・複数候補・端切れ・幅間不一致はunknownを保つ。confidence0.65、予算、TTL、SourceとSafetyの基準は維持し、新headのWindows受入れは引き続き別途検証する。
 
 #567の[追加Headless depth2 fixture測定](../validation/planning_headless_depth2_e6c7.json)は、画像認識やOS実入力ではない別のCore検証である。Python Random(seed)はBrowserのLCGと異なり、同seedでもtrajectoryや得点を両backend間で同一視しない。旧eb59のdepth1 fixtureとも別測定として扱い、本認識器の実画面精度へ加算しない。
+
+
+後続のWindows評価profileでは、同frameのSCORE panelを局所Otsu・4近傍成分で分離し、bilinear3倍→二値化→白余白でPSM6/7の可読性を確保する。[9実header×2geometry、元4桁と独立6桁glyph、費用の記録](../validation/planning_score_panel_ocr.json)は旧helper0/18から新版18/18を確認する。confidence0.65・二幅一致・厳密parserを維持し、padding前のsource支持辺への接触、paddingを差し引いたOCR bboxの端切れ、同一cropの二重計数を拒否する。SCOREとBESTを分離し、Source/Planner入力や因果Outcomeへ戻さない。これは保存画素での評価OCR再生で、旧Windows試行の失敗や5ed5/e6c7の固定source実測を書換えず、新headの実OS受入れを別途要求する。

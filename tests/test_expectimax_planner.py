@@ -5,6 +5,7 @@ import math
 import random
 from pathlib import Path
 import subprocess
+import sys
 import threading
 from types import SimpleNamespace
 import time
@@ -42,7 +43,9 @@ from ai_game_player.planning_contract import (
 from ai_game_player.planning_result import WeightedValue
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.planning_worker_limits import apply_worker_limits
-from ai_game_player.planning_wire import read_planning_json
+from ai_game_player.planning_worker import _execute
+from ai_game_player.planning_worker_diagnostic import WorkerDiagnostic
+from ai_game_player.planning_wire import publish_planning_json, read_planning_json
 from ai_game_player.run_control import RunController
 from ai_game_player.transition_model import ActionTransition, ChanceOutcome
 from ai_game_player.world_state_hypothesis import (
@@ -454,27 +457,74 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self.assertAlmostEqual(deep.action_values[0].expected_quality, 0.27)
 
     def test_final_marker_does_not_leave_an_older_checkpoint_adopted(self):
-        finished_seen = [False]
+        # Protocol ordering is deterministic; real process/time limits have separate regressions.
+        belief, _ = self.belief()
+        now = belief.created_at_ns
+        finished_seen = []
+        checkpoint_reads = []
+        published = {}
+        enforcement = (
+            "windows_job_commit" if sys.platform == "win32" else "linux_rlimit_as"
+        )
+
+        def capture_publication(path, value, maximum):
+            publish_planning_json(path, value, maximum)
+            if path.name == "checkpoint.json":
+                published[value["result"]["completed_depth"]] = read_planning_json(
+                    path, maximum
+                )
+
+        def completed_worker(command, **kwargs):
+            directory = Path(command[command.index("--memory-bytes") - 1])
+            # Execute only the pure worker protocol synchronously. This fake does not test OS guards.
+            with patch(
+                "ai_game_player.planning_wire.publish_planning_json",
+                capture_publication,
+            ):
+                self.assertEqual(
+                    _execute(directory, enforcement, WorkerDiagnostic()), 0
+                )
+            self.assertEqual(sorted(published), [1, 2, 3])
+            return SimpleNamespace(poll=lambda: 0)
 
         def read_with_old_checkpoint(path, maximum):
             value = read_planning_json(path, maximum)
             if path.name == "finished.json":
-                finished_seen[0] = True
-            elif path.name == "checkpoint.json" and not finished_seen[0]:
-                # Simulate reading the old inode immediately before the final atomic replacement.
-                value["result"]["completed_depth"] = 1
-                value["result"]["continuation_semantics"] = "one_step"
+                finished_seen.append(value["reason"])
+            elif path.name == "checkpoint.json":
+                # An old opened inode may be read just before the final marker is observed.
+                # Use the actual depth-one report, rather than relabeling deeper counters.
+                if not finished_seen:
+                    value = published[1]
+                checkpoint_reads.append(value["result"]["completed_depth"])
             return value
 
-        with patch(
-            "ai_game_player.bounded_planner.read_planning_json",
-            read_with_old_checkpoint,
+        with (
+            patch("time.monotonic_ns", return_value=now),
+            patch(
+                "ai_game_player.bounded_planner.subprocess.Popen",
+                side_effect=completed_worker,
+            ) as spawn,
+            patch(
+                "ai_game_player.bounded_planner.read_planning_json",
+                read_with_old_checkpoint,
+            ),
         ):
-            result = self.run_plan(budget=SearchBudget(max_depth=3, wall_time_ms=1000))
+            result = self.run_plan(
+                belief=belief, budget=SearchBudget(max_depth=3, wall_time_ms=1000)
+            )
+        spawn.assert_called_once()
+        self.assertEqual(finished_seen, ["depth_budget"])
         self.assertEqual(
             result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
         )
         self.assertEqual(result.completed_depth, 3, planning_result_diagnostic(result))
+        self.assertEqual(checkpoint_reads, [1, 3])
+        self.assertEqual(result.counters.nodes_visited, 112)
+        self.assertEqual(result.reason, "completed_depth")
+        self.assertEqual(result.created_at_ns, now)
+        self.assertEqual(result.compute_cutoff_at_ns, now + 1_000_000_000)
+        self.assertEqual(result.expires_at_ns, belief.expires_at_ns)
 
     def test_infeasible_common_future_sequence_keeps_completed_shallow_depth(self):
         result = self.run_plan(

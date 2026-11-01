@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from ai_game_player.frame_preprocessor import PythonFramePreprocessor
 from ai_game_player.runtime.contracts import RuntimeCapability
@@ -31,6 +32,17 @@ class PlanningFrameParityTests(unittest.TestCase):
             self.assertTrue(report["match"])
             self.assertTrue(report["baseline_decision_equal"])
             self.assertTrue(report["planner_input_equal"])
+            self.assertEqual(report["semantic_available"], [True, True])
+
+            with patch(
+                "tools.planning_frame_parity.Reference2048PlanningObservation.semantic_state",
+                return_value=None,
+            ):
+                unavailable = validate_native_preprocessing(frame, runtime)
+            self.assertEqual(unavailable["semantic_available"], [False, False])
+            self.assertTrue(unavailable["semantic_values_equal"])
+            self.assertFalse(unavailable["semantic_equal"])
+            self.assertFalse(unavailable["match"])
 
             def changed(frame, **options):
                 batch = reference.preprocess(frame, **options)
