@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 import threading
+import tempfile
 from types import SimpleNamespace
 import time
 import unittest
@@ -40,10 +41,11 @@ from ai_game_player.planning_contract import (
     PlanningRegistration,
     SearchBudget,
 )
-from ai_game_player.planning_result import WeightedValue
+from ai_game_player.planning_result import PlanningCounters, WeightedValue
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.planning_worker_limits import apply_worker_limits
 from ai_game_player.planning_worker import _execute
+from ai_game_player import planning_worker
 from ai_game_player.planning_worker_diagnostic import WorkerDiagnostic
 from ai_game_player.planning_wire import publish_planning_json, read_planning_json
 from ai_game_player.run_control import RunController
@@ -766,32 +768,191 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             "clock_origin_mismatch",
         )
 
+    def assert_empty_worker_cutoff(self, result, diagnostic):
+        metadata = planning_result_diagnostic(result)
+        self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN, metadata)
+        self.assertEqual(result.reason, "compute_budget", metadata)
+        self.assertEqual(result.completed_depth, 0, metadata)
+        self.assertIsNone(result.selected_action_id, metadata)
+        self.assertEqual(result.action_values, (), metadata)
+        self.assertEqual(result.probability_semantics, "unknown", metadata)
+        self.assertEqual(result.counters, PlanningCounters(), metadata)
+        if result.limit_enforcement != "not_applied":
+            self.assertIn(
+                result.limit_enforcement,
+                ("linux_rlimit_as", "windows_job_commit"),
+                metadata,
+            )
+            return "ready_acknowledged_cutoff"
+        # No ACK alone proves neither guard application nor entry into the slow callback.
+        self.assertIsNotNone(diagnostic, metadata)
+        self.assertIs(type(diagnostic["exitcode_raw"]), int, metadata)
+        self.assertEqual(
+            diagnostic["failure_classification"], "parent_cleanup", metadata
+        )
+        self.assertIs(diagnostic["parent_cleanup_requested"], True, metadata)
+        self.assertIs(diagnostic["exit_observed_before_cleanup"], False, metadata)
+        self.assertEqual(diagnostic["python_exception_status"], "absent", metadata)
+        self.assertIsNone(diagnostic["python_exception"], metadata)
+        self.assertIs(diagnostic["finished_exists"], False, metadata)
+        self.assertIs(diagnostic["checkpoint_exists"], False, metadata)
+        self.assertEqual(diagnostic["highest_received_depth"], 0, metadata)
+        return "ready_unreceived_cutoff"
+
     def test_slow_model_and_evaluator_are_killed_without_parent_blocking(self):
         real_popen = subprocess.Popen
-        for factory in ("slow_domain", "slow_quality_domain"):
+        for bootstrap_wait, factory in (
+            (True, "slow_domain"),
+            (False, "slow_domain"),
+            (False, "slow_quality_domain"),
+        ):
             created = []
 
             def launch(*args, **kwargs):
-                process = real_popen(*args, **kwargs)
+                # A finite sleeper models the interval before worker guard/ready initialization.
+                command = (
+                    [sys.executable, "-c", "import time; time.sleep(2)"]
+                    if bootstrap_wait
+                    else args[0]
+                )
+                process = real_popen(command, **kwargs)
                 created.append(process)
                 return process
 
             with (
-                self.subTest(factory=factory),
+                self.subTest(factory=factory, bootstrap_wait=bootstrap_wait),
                 patch("ai_game_player.bounded_planner.subprocess.Popen", launch),
             ):
                 started = time.monotonic()
-                result = self.run_plan(
-                    factory=factory, budget=SearchBudget(max_depth=1, wall_time_ms=250)
+                belief, _ = self.belief()
+                registration = self.registration(factory)
+                planner = BoundedExpectimaxPlanner(
+                    (registration,), clock_id=belief.context.clock_id
+                )
+                result = planner.plan(
+                    belief,
+                    ("left", "right"),
+                    registration_id=registration.registration_id,
+                    budget=SearchBudget(max_depth=1, wall_time_ms=250),
                 )
                 self.assertLess(time.monotonic() - started, 1.5)
-                self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
-                self.assertEqual(result.completed_depth, 0)
                 self.assertTrue(created)
                 self.assertTrue(all(process.poll() is not None for process in created))
-                self.assertIn(
-                    result.limit_enforcement, ("linux_rlimit_as", "windows_job_commit")
+                classification = self.assert_empty_worker_cutoff(
+                    result, planner.last_worker_diagnostic
                 )
+                if bootstrap_wait:
+                    self.assertEqual(classification, "ready_unreceived_cutoff")
+                print(
+                    "PLANNER_WORKER_CUTOFF "
+                    + json.dumps(
+                        {
+                            "factory": factory,
+                            "bootstrap_wait": bootstrap_wait,
+                            "classification": classification,
+                            "diagnostic": planner.last_worker_diagnostic,
+                        },
+                        sort_keys=True,
+                    )[:4096],
+                    flush=True,
+                )
+
+    def test_unreceived_ack_requires_empty_budget_cutoff_and_known_parent_cleanup(self):
+        belief, _ = self.belief()
+        planner = BoundedExpectimaxPlanner((), clock_id=belief.context.clock_id)
+        result = planner._fallback(
+            belief,
+            ("left", "right"),
+            None,
+            0,
+            time.monotonic_ns() - 1,
+            "compute_budget",
+        )
+        diagnostic = {
+            "exitcode_raw": 1,
+            "failure_classification": "parent_cleanup",
+            "parent_cleanup_requested": True,
+            "exit_observed_before_cleanup": False,
+            "python_exception_status": "absent",
+            "python_exception": None,
+            "finished_exists": False,
+            "checkpoint_exists": False,
+            "highest_received_depth": 0,
+        }
+        self.assertEqual(
+            self.assert_empty_worker_cutoff(result, diagnostic),
+            "ready_unreceived_cutoff",
+        )
+        for field, value in (
+            ("exitcode_raw", None),
+            ("exitcode_raw", True),
+            ("failure_classification", "abnormal_exit"),
+            ("parent_cleanup_requested", False),
+            ("exit_observed_before_cleanup", True),
+            ("python_exception_status", "recorded"),
+            ("python_exception", {}),
+            ("finished_exists", True),
+            ("checkpoint_exists", True),
+            ("highest_received_depth", 1),
+        ):
+            with self.subTest(field=field), self.assertRaises(AssertionError):
+                self.assert_empty_worker_cutoff(result, {**diagnostic, field: value})
+        for invalid in (
+            replace(result, reason="worker_failed"),
+            replace(result, counters=PlanningCounters(nodes_visited=1)),
+        ):
+            with self.subTest(reason=invalid.reason), self.assertRaises(AssertionError):
+                self.assert_empty_worker_cutoff(invalid, diagnostic)
+        with self.assertRaises(AssertionError):
+            self.assert_empty_worker_cutoff(result, None)
+
+    def test_worker_applies_resource_limits_before_execute_and_blocks_on_guard_failure(
+        self,
+    ):
+        for failed in (False, True):
+            events = []
+
+            def apply(memory_bytes, wall_time_ms):
+                self.assertEqual((memory_bytes, wall_time_ms), (64 * 1024**2, 250))
+                events.append("limits")
+                if failed:
+                    raise OSError("fixture unsupported limits")
+                return "linux_rlimit_as", object()
+
+            def execute(directory, method, diagnostic):
+                self.assertEqual(events, ["limits"])
+                self.assertEqual(method, "linux_rlimit_as")
+                events.append("execute")
+                return 0
+
+            with (
+                self.subTest(failed=failed),
+                tempfile.TemporaryDirectory() as directory,
+                patch.object(planning_worker, "apply_worker_limits", apply),
+                patch.object(planning_worker, "_execute", side_effect=execute) as run,
+                patch.object(planning_worker, "_finish") as finish,
+            ):
+                status = planning_worker.main(
+                    [
+                        directory,
+                        "--memory-bytes",
+                        str(64 * 1024**2),
+                        "--wall-time-ms",
+                        "250",
+                    ]
+                )
+                self.assertEqual(status, 1 if failed else 0)
+                self.assertEqual(
+                    events, ["limits"] if failed else ["limits", "execute"]
+                )
+                if failed:
+                    run.assert_not_called()
+                    finish.assert_called_once_with(
+                        Path(directory), "unsupported_resource_limits"
+                    )
+                else:
+                    run.assert_called_once()
+                    finish.assert_not_called()
 
     def test_completed_depth_received_before_cutoff_survives_slow_later_depth(self):
         belief, _ = self.belief(states=(0,), weights=(0.9,))
