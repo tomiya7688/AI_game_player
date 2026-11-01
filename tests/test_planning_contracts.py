@@ -203,6 +203,7 @@ class PlanningContractTests(unittest.TestCase):
             for raw in (
                 b'{"x":1,"x":2}',
                 b'{"x":NaN}',
+                '{"x":1}'.encode("utf-16"),
                 b"[]",
                 b"x" * 4097,
                 b'{"x":' + b"[" * 1500 + b"0" + b"]" * 1500 + b"}",
