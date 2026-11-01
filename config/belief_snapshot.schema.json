@@ -1,0 +1,607 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-game-player.local/schemas/belief-snapshot-v1.json",
+  "title": "Bounded BeliefSnapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "hypothesis_set_version",
+    "context",
+    "candidates",
+    "weight_kind",
+    "residual_unknown_mass",
+    "created_at_ns",
+    "expires_at_ns",
+    "update_reason",
+    "diagnostics",
+    "reobserve_requested",
+    "entropy_lower_bound_bits"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "hypothesis_set_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "context": {
+      "$ref": "#/$defs/context"
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hypothesis"
+      },
+      "maxItems": 256
+    },
+    "weight_kind": {
+      "enum": [
+        "calibrated_probability",
+        "relative_score",
+        "unknown"
+      ]
+    },
+    "residual_unknown_mass": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "created_at_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "expires_at_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "update_reason": {
+      "$ref": "#/$defs/identifier"
+    },
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_candidates",
+        "peak_candidates",
+        "duplicate_ids",
+        "duplicate_worlds",
+        "dropped_candidates",
+        "correlation_groups",
+        "evidence_refs",
+        "update_latency_ns"
+      ],
+      "properties": {
+        "input_candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "peak_candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "duplicate_ids": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "duplicate_worlds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "dropped_candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "correlation_groups": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "evidence_refs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "update_latency_ns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        }
+      }
+    },
+    "reobserve_requested": {
+      "type": "boolean"
+    },
+    "entropy_lower_bound_bits": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "not": {
+        "pattern": "^(sk-|ghp_|github_pat_)"
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_id",
+        "scene_id",
+        "session_id",
+        "snapshot_id",
+        "source_id",
+        "clock_id",
+        "frame_sequence",
+        "turn",
+        "action_epoch",
+        "source_generation",
+        "frame_ids"
+      ],
+      "properties": {
+        "game_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "scene_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "session_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "snapshot_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "clock_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "frame_sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "turn": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "action_epoch": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "source_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "frame_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true
+        }
+      }
+    },
+    "weight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "calibration_id"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "calibrated_probability",
+            "relative_score"
+          ]
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "calibration_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "calibrated_probability"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "maximum": 1
+              },
+              "calibration_id": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "calibration_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "correlation_id",
+        "kind",
+        "source_id",
+        "source_version",
+        "context",
+        "captured_at_ns",
+        "frame_id"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "correlation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "observation",
+            "prediction",
+            "action",
+            "outcome"
+          ]
+        },
+        "source_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_version": {
+          "$ref": "#/$defs/identifier"
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        },
+        "captured_at_ns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "frame_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "observation"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "frame_id": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "frame_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed_at_ns",
+        "expires_at_ns"
+      ],
+      "properties": {
+        "observed_at_ns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "expires_at_ns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        }
+      }
+    },
+    "state_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_id",
+        "state_schema_id",
+        "digest",
+        "typed_value"
+      ],
+      "properties": {
+        "game_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "state_schema_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "typed_value": {
+          "$ref": "#/$defs/typed_value"
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hypothesis_id",
+        "state_ref",
+        "context",
+        "weight",
+        "origin",
+        "evidence_refs",
+        "freshness",
+        "prior_action_ref",
+        "predicted_outcome_ref"
+      ],
+      "properties": {
+        "hypothesis_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "state_ref": {
+          "$ref": "#/$defs/state_ref"
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        },
+        "weight": {
+          "$ref": "#/$defs/weight"
+        },
+        "origin": {
+          "enum": [
+            "observation_hypothesis",
+            "prediction",
+            "posterior_hypothesis"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          },
+          "minItems": 1,
+          "maxItems": 16
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "prior_action_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "predicted_outcome_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "typed_value": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "int"
+          ],
+          "properties": {
+            "int": {
+              "type": "string",
+              "maxLength": 79,
+              "pattern": "^-?[0-9]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "float"
+          ],
+          "properties": {
+            "float": {
+              "type": "string",
+              "maxLength": 32
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "str"
+          ],
+          "properties": {
+            "str": {
+              "type": "string",
+              "maxLength": 65536
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bytes"
+          ],
+          "properties": {
+            "bytes": {
+              "type": "string",
+              "maxLength": 87384
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enum",
+            "value"
+          ],
+          "properties": {
+            "enum": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "value": {
+              "$ref": "#/$defs/typed_value"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tuple"
+          ],
+          "properties": {
+            "tuple": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/typed_value"
+              },
+              "maxItems": 2048
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "frozenset"
+          ],
+          "properties": {
+            "frozenset": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/typed_value"
+              },
+              "maxItems": 2048
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "record",
+            "fields"
+          ],
+          "properties": {
+            "record": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "fields": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "maxLength": 128
+                  },
+                  {
+                    "$ref": "#/$defs/typed_value"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

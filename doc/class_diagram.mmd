@@ -176,6 +176,59 @@ classDiagram
         +choose_context()
         +_read_snapshot()
     }
+    ValueError <|-- BeliefStoreError
+    class BeliefStoreError {
+    }
+    class BeliefStorePolicy {
+        +__post_init__()
+    }
+    Generic <|-- BeliefCandidateStore
+    class BeliefCandidateStore {
+        +__init__()
+        +read()
+        +reset()
+        +publish()
+        +_collect()
+        +_make_snapshot()
+        +_is_fresh()
+        +_check_context()
+        +_check_advance()
+        +_check_deadline()
+    }
+    str <|-- BeliefWeightKind
+    Enum <|-- BeliefWeightKind
+    class BeliefWeightKind {
+    }
+    str <|-- BeliefEvidenceKind
+    Enum <|-- BeliefEvidenceKind
+    class BeliefEvidenceKind {
+    }
+    class BeliefContext {
+        +__post_init__()
+        +run_scope()
+        +to_dict()
+    }
+    class BeliefFreshness {
+        +__post_init__()
+    }
+    class BeliefWeight {
+        +__post_init__()
+    }
+    class BeliefEvidenceRef {
+        +__post_init__()
+    }
+    class BeliefDiagnostics {
+        +__post_init__()
+    }
+    Generic <|-- BeliefSnapshot
+    class BeliefSnapshot {
+        +__post_init__()
+        +reobserve_requested()
+        +entropy_lower_bound_bits()
+        +ranking_weights()
+        +to_dict()
+        +to_bytes()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
@@ -1532,4 +1585,18 @@ classDiagram
         +_ledger_hold_mouse()
         +_ledger_release_mouse()
         +_interruptible_sleep()
+    }
+    str <|-- HypothesisOrigin
+    Enum <|-- HypothesisOrigin
+    class HypothesisOrigin {
+    }
+    Generic <|-- TypedStateRef
+    class TypedStateRef {
+        +__post_init__()
+        +to_dict()
+    }
+    Generic <|-- WorldStateHypothesis
+    class WorldStateHypothesis {
+        +__post_init__()
+        +to_dict()
     }

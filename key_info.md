@@ -2,6 +2,8 @@
 
 ## できること
 
+- 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。
+
 - 起動済みWindowsウィンドウの取得・選択・範囲キャプチャ
 - 画面取得ボタンと連続実行は同じframe producerから画面を取得し、重複したWindows captureを行いません。
 - 追加consumerは同じframe列を購読できます。最新frame方式は未処理frameを新しいframeへ置き換え、順序保持方式は設定上限まで到着順を維持して、満杯時は新しいframeを破棄します。この購読契約自体は録画機能を実装しません。
@@ -20,6 +22,8 @@
 - FAST_CV対応Native RuntimeをFrameAnalyzerへ明示注入した場合、BGRA統計・perceptual hash・bright-regionをC++でbatch処理できます。未注入時はPython実装を使います。
 
 ## 制約
+
+- Beliefは候補保持のCore APIとCPU fixtureまでです。本番Recognition / Journal / Decisionへの配線、Bayesian更新は #405/#407/#564 で対応し、予測を観測事実へ変換しません。
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
