@@ -102,6 +102,8 @@ plugin_manifest_schema          1
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
 
+- Issue #607: READMEから入る日本語の全体案内、完成形と現状の比較、実装状況、用語集、執筆様式を追加しました。保存済みの実入力許可が次回起動時に復元されることを案内し、モデル設定・実呼出し・実機検証を区別します。
+
 - Issue #475 / PR #593: InspectorとBottom Panelの切替ボタンに、次に行う操作を「を表示」「を非表示」で表示します。保存済みの非表示状態から起動した場合もラベルを合わせ、クリック後はPanel配置・保存状態・ラベルを同期します。停止操作とPanel状態の保存形式は変更しません。
 
 - Issue #475 / PR #488: 既にmainにあるSafetyLogの直近4096件保持を維持し、メモリ上限超過後もファイルへ全監査イベントが残る回帰テストを追加します。メモリのみの保持順、返却一覧の分離、許可・拒否イベントと日本語のJSONL保存を検査します。保持上限・公開API・安全判定は変更しません。
@@ -180,14 +182,20 @@ plugin_manifest_schema          1
 
 - Issue #262: legacy History・DecisionTrace・Execution・Safety・RuntimeLogをSession Event Journalへ接続。旧JSON/JSONLを削除せず、recordをstable event ID付きで移行し、decision/execution/safetyの配列JSON全体を書き直さずにSession内Journalへ追記する。
 
+- Issue #613: Session記録、Experience／Knowledge、Artifact参照、Dataset生成とモデル学習・採用を分ける図解を追加しました。未実行と実入力、出所、保存とデータ保護の制約を区別します。
+
 - Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。
 - Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingはproviderが報告したinput-copy metricsを受け入れ、capacity retryを含む各ABI呼び出しの値を合算する。FrameAnalyzer注入点と同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
+
+- Issue #610: 画面取得・画像特徴・任意OCR・候補統合の局所図と具体例を追加しました。古いフレームの再待機と期限切れ、OCR依存不足による省略と実行エラーを区別し、Native前処理の明示注入を説明します。
 - Issue #147: GUIからProvider・Pipeline・候補評価器の生成をRuntimeCompositionへ分離。GameSessionControllerが保持するPipelineとProviderをSession中に共有し、終了時はPipelineを先に閉じてProviderを解放する。部分初期化・終了失敗をFakeで検証し、失敗したresourceだけを再試行できるようにする。
 
 - Issue #145: start/stop/one-step/continuous-loopをTkinterからGUI-freeのGameSessionControllerへ移動。repeat/outcome stop policy、generation-guarded timer cancellation、error/terminal lifecycleとSession-scoped DecisionPipeline/Engineの再利用・一括shutdownを追加し、fake runtime/schedulerで検証。
 
 - Issue #145 review follow-up: 実入力許可の解除で即時停止し、各実行stepでも再検証。loop observer例外をFAILEDへ遷移させ、終了に失敗したruntimeを保持して再開を拒否。状態通知失敗を隔離し、各経路を回帰テスト。
 - Issue #331: 判断時に評価・許可された候補オブジェクトを実行まで引き継ぎ、操作IDから元候補を再検索しないようにする。操作IDが重複する候補はすべて拒否し、Providerが候補リストを同じIDの別候補へ置き換えても元の評価済み候補だけを実行する。Decision Contextには一括評価した重複拒否理由を記録し、既存の`GamePlayerEngine.step()`拡張も実行経路で呼び出す。
+
+- Issue #611: 判断・結果評価と処理選択の図解を追加しました。既定規則の目標意味評価、複数時点の追跡観測、未送信判断への結果帰属を保証済みとせず、現状と拡張要求を分けます。
 
 - Issue #332: Ollamaの画面評価・候補判断をUI thread外で実行し、推論中の停止を受理する。実行中のキー保持・待機もRunControllerの停止状態とstep開始世代を監視して中断し、保持キーを解除する。停止後・再開後に返った旧推論結果は判断履歴と実入力へ進めず、停止理由をログへ記録する。mouse方式の連続実行では、入力workerがSetCursorPosの開始・完了とクリック先をUIへ通知し、自動カーソル移動を手動移動による停止と誤認しない。未通知の手動カーソル移動による停止は維持する。
 
@@ -196,6 +204,8 @@ plugin_manifest_schema          1
 - PR #345: 判断履歴と判断traceを一時ファイルへ先に準備し、RunControllerが実行世代を検証してから両ファイルとエンジンの前回判断状態を公開する。Stopが一時ファイル準備中に届いた場合、workerは未公開データを破棄する。
 
  - Issue #336: 実入力開始時に対象HWND/PIDの選択・有効性を検証し、HWND再利用による別プロセスへの入力を実行直前に拒否する。連続実行は対象未選択で開始せず、各ステップ失敗時に停止する。
+
+- Issue #612: 操作許可・安全検査・入力・停止の図解を追加しました。確認運転、Tk依存のGUI監視と背景監視、最終停止確認との競合、実行器依頼とOS送信開始の区別を説明します。
 
 - Issue #137: Tkinter UIを上部Command/Status + 左Navigator / 中央Workspace mount points / 右Inspector / 下部Bottom Panelへ分離。Play/Vision/Reasoning/Evaluation/History/Mods間を切り替え、Inspector/Bottom Panelをresize・開閉可能。Workspaceと表示状態を`data/shell_state.json`へ独立保存し、実行制御は既存Applicationから停止commandとして接続。
 
@@ -216,6 +226,8 @@ plugin_manifest_schema          1
 - Issue #181: Model learning capability、Dataset/Trainer compatibility、artifact provenanceおよびuntrainable状態を表すversioned contractとJSON Schemasを追加。
 
 - Issue #220: Capability Manifestを使うComposition Resolver、preferred/default選択、dependency/health検査、fallbackとdegraded reason、provider lifecycle cleanupを追加。
+
+- Issue #609: モデルと手法の配置図、標準・任意経路、設定／選択／読み込み／実呼出しを区別する証拠の案内を追加しました。GUI状態評価と条件付き意味評価、外部Ollama送信を区別し、実行証拠表示の残作業を#627へ接続します。
 
 - Issue #219: Optional feature capability manifestのJSON Schema、runtime検証、required/optional dependency・lifecycle・config namespace・fallback/degraded mode宣言と検証を追加。
 
