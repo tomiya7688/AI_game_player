@@ -505,6 +505,37 @@ class DecisionPipeline:
         self.controller.stop()
         self.executor.trigger_emergency_stop(reason)
 
+    # {
+    #   責務: [initialize_safety: 実操作前の初回観測から現在世代の安全leaseを開始する]
+    #   処理: [Start/Stop解除を行わずI/O前後の世代と緊急停止を検査し、最後のmemory公開だけをRun lockで守る]
+    #   引数: [expected_rearm_token: 初回capture前に保持した実行世代]
+    #   戻り値: [なし]
+    #   エラー: [ValueError: 世代が非負整数でない, ExecutionCancelled/RuntimeError: Stop/rearm、緊急停止、lease初期化失敗]
+    # }
+    def initialize_safety(self, *, expected_rearm_token: int) -> None:
+        if type(expected_rearm_token) is not int or expected_rearm_token < 0:
+            raise ValueError("initial safety lease requires a captured generation")
+
+        # {
+        #   責務: [check_current: 初回観測の世代と緊急停止を再確認する]
+        #   処理: [Run lockを短い世代確認だけに使い、Eventは解除しない]
+        #   引数: [なし] 戻り値: [なし]
+        #   エラー: [ExecutionCancelled/RuntimeError: Stop/rearmまたは緊急停止]
+        # }
+        def check_current() -> None:
+            self.controller.ensure_running(expected_rearm_token)
+            self.executor.ensure_initialization_not_stopped()
+
+        check_current()
+        self.executor.initialize_safety(check_current)
+        check_current()
+        self.record_observation()
+        check_current()
+        self.controller.run_if_current(
+            expected_rearm_token,
+            lambda: setattr(self, "_seen_rearm_token", expected_rearm_token),
+        )
+
     def rearm_safety(self) -> None:
         self.controller.start()
         self._sync_runtime_rearm()
