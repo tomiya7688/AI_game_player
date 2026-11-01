@@ -8,9 +8,11 @@
 
 これは採用方針の確定です。**Qt Shell、Rust常駐プロセス、両者の接続、安全制御の移行は未実装**です。現在の画面はTkinter、主制御・認識・判断・評価はPython、任意のWGC取得・前処理・決定論的検証はC++です。既存C ABI v1、Python実装、Tkinter、Windows E2Eを移行中も維持します。現在の配布入口はPyInstallerと既存Native DLLであり、Qt DLLを配布済みとは扱いません。確認基準は `main@c634588` のソースと #661 コメント2件です。Qt/Rustの実機性能・配布適合は未確認です。
 
-統合資料は親 `136b931c`（#662、#660 `8dc0c03`とmain `507d`を含む）へ同期しました。親は機能ファイルを固定した `d4e15a1` から資料だけを更新しています。本PRも既存の数値Core・任意Planner・認識・Safetyを維持し、アルゴリズムやGUIを変更しません。固定cohortの実測と最新headのCIは別に確認し、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[固定実測・範囲・最新CIの参照](planner_runtime.md)を正本とします。
+統合資料は親 `5e2df80d`（#662、実機能親 #660 `37bbafb`とmain `507d`を含む）へ同期しました。親にはplanning専用の使い捨てIPC改善と通常OFFの失敗後診断が含まれます。本PR固有の変更は配置・境界の正本化と宣言検査であり、親の数値Core・任意Planner・認識・Safety・GUIを維持します。固定cohortの実測と最新headのCIは別に確認し、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[固定実測・範囲・最新CIの参照](planner_runtime.md)を正本とします。
 
 Windowsのplanning通信には、旧readerを開いたままの公開20回とnative HANDLE経路30ケースの実OS証拠があります。さらに新preflight phaseの固定 `d4e15a1` cohortは6 job・全18 episode成功、213実入力・213盤面変化・3保留、全Stop/旧世代拒否と厳密0得点fixture通過を記録しました。同じ3 seedをpush/PRで反復した結果で、独立6 seedや汎用ゲーム優位性の証拠ではありません。親の評価専用Otsu panel、短比較だけのWGC profile、有界fresh再取得、最終checkpoint再読fixtureを保持し、既存3秒制約や通常600秒gateの拡張、Qt/Rustの完成とは扱いません。
+
+現在のplanning IPCは、一process寿命・nonce/世代/元deadlineで束縛したmessageだけを単一encode・flush/close後の原子的公開へ分離し、有界raw bytesを再利用します。電源断後のmessage回復を要さない通信に限定し、一般Store・Journal・制御lease・Stop・ledgerの永続化契約は維持します。このPython互換経路の改善は、将来のRust resident Coreやboot fencingの完成を意味しません。旧8dcの保存画像には数字tileのない16セル空盤面が実在し、旧lease最終値はcleanup後のruntime_closed/expiry0でした。起動・取得・描画や失効直前の原因は未確定で、診断導入や旧成功cohortを新headのWindows合格へ転用しません。[使い捨てIPCの範囲と旧失敗の証拠](planner_runtime.md)を参照してください。
 
 実験用の独立Chromiumが参照ゲームを開く場合も、製品GUIへブラウザエンジンを組み込む設計ではありません。これはゲーム側の検証環境で、恒久GUIのQt Widgets採用と区別します。
 
@@ -60,7 +62,7 @@ Command/Event/Status/Stopのwire schemaとcodecは #665、bridgeとframe所有�
 
 `activate_preflight`は新物理Frameのbarrier、異なるIDと増加時刻、元5秒age、typed boardを確認し、元token、default/localの2Stop Event、所有launcher PID/HWNDとTargetState、SAFE_IDLE/未実行を照合してから既存の初期化を一度だけ呼びます。遅着、Stop、公開待ちの取消、二重activation、ACTIVE/Recovery/閉鎖は拒否します。OS呼出しそのものを強制中断できるとは主張しません。既定600秒Campaignと通常observeの初回arm/後続receipt完了、GUI停止挙動は変更しません。
 
-これは現在の比較専用Python実装であり、次節のRust boot SAFE_IDLEやIPCを完成させた意味ではありません。旧18episodeを新phaseへ転用せず、上記d4の新phase実測をそのhead/sourcehash/profileの範囲に限定します。資料だけを同期した最新headは[PR #668のpush/PR CI](https://github.com/tomiya7688/AI_game_player/pull/668/checks)の64必須gateを別途確認してから統合します。起動前テストは元15秒/0.25秒poll/4Arrow期待のままstate_availableも待つ修正で、4候補を未準備の空盤へ強制公開する変更ではありません。
+これは現在の比較専用Python実装であり、次節のRust boot SAFE_IDLEやIPCを完成させた意味ではありません。旧18episodeを新phaseへ転用せず、上記d4の新phase実測をそのhead/sourcehash/profileの範囲に限定します。この統合headは[PR #668のpush/PR CI](https://github.com/tomiya7688/AI_game_player/pull/668/checks)の64必須gateを別途確認してから統合します。起動前テストは元15秒/0.25秒poll/4Arrow期待のままstate_availableも待つ修正で、4候補を未準備の空盤へ強制公開する変更ではありません。
 
 ## IPCの権限と再起動の境界（いずれも予定）
 

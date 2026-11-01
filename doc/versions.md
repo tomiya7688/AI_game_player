@@ -122,7 +122,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
-- Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
+- Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。 実機能親37bbのplanning専用IPC・失敗後診断も互換実装として保持し、永続Safetyと将来Rust配置、新headのWindows受入を区別します。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
 
 - Issue #649 / PR #651: Native Safety C ABIで押下時間と上限のNaN・正負Infinityを既存のHOLD_TIMEOUT理由で拒否し、有限値への回復を回帰確認しました。構造体ABI・バージョンは維持し、WGCの所有権・メモリ寿命の検証は#652へ残します。
 - Issue #653 / PR #655: SafetyGuardの時間設定は有限の正数、回数設定はboolを除く正の整数に限定し、wait文字列と押下時間の非有限値を拒否します。既定の許可・Stop・FailSafeを保全し、元authorの変更へ現mainと生成索引を統合しました。実OS入力での全保証とは区別します。
