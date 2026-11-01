@@ -72,6 +72,18 @@ class FakeEpisode:
 
 
 class WindowsPlanningComparisonTests(unittest.TestCase):
+    def test_failure_header_is_diagnostic_top_strip_without_changing_ocr_region(self):
+        frame = ScreenFrame(1000, 800, bytes(1000 * 800 * 4))
+        original = [410, 63, 225, 94]
+        self.assertEqual(
+            comparison.failure_header_bbox(frame, original), [202, 0, 640, 240]
+        )
+        self.assertEqual(original, [410, 63, 225, 94])
+        self.assertEqual(
+            comparison.failure_header_bbox(ScreenFrame(20, 10, bytes(800))),
+            [0, 0, 20, 10],
+        )
+
     def test_whole_page_number_without_a_score_label_is_never_the_metric(self):
         frame = ScreenFrame(2, 2, bytes(16))
         episode = SimpleNamespace(

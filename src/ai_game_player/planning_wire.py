@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.planning_file_publisher import replace_planning_file
 from ai_game_player.belief_contract import BeliefContext
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.planning_file_reader import read_planning_bytes
@@ -19,7 +20,7 @@ from ai_game_player.planning_result import (
 
 
 # {
-#   責務: [publish_planning_json: 小さい既存atomic JSON基盤で完全なmessageだけを公開する]
+#   責務: [publish_planning_json: 既存JSON stagingとplanning専用renameで完全なmessageだけを公開する]
 #   処理: [serialize後の実byte予算を検査し、同一directoryの一時fileを原子的に置換する]
 #   引数: [path: worker所有通信先, value: 検証済みmessage, maximum: 実file byte上限]
 #   戻り値: [なし] エラー: [ValueError/OSError: サイズ/JSON/IO失敗]
@@ -36,7 +37,7 @@ def publish_planning_json(path: Path, value: dict[str, Any], maximum: int) -> No
     _check_json_nesting(encoded)
     staged = stage_json_write(path, value)
     try:
-        staged.publish()
+        replace_planning_file(staged.temporary_path, staged.target_path)
     finally:
         staged.discard()
 

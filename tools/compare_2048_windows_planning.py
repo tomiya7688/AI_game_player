@@ -20,12 +20,22 @@ from ai_game_player.run_control import ExecutionCancelled
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.planning_comparison_source import source_fingerprint
 from tools.planning_resource_monitor import PlanningResourceMonitor
+from tools.planning_failure_header import OwnedGameFailureHeader
 from tools.planning_score_evaluation import reread_score_header_label, reread_score_line
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 from tools.run_2048_campaign import ReferenceGame2048Episode, CAMPAIGN_PURPOSE
 
 
-def evaluate_visible_score(episode, ocr):
+def failure_header_bbox(frame, label_bbox=None):
+    width = min(640, frame.width)
+    center = frame.width / 2
+    if isinstance(label_bbox, (list, tuple)) and len(label_bbox) == 4:
+        center = label_bbox[0] + label_bbox[2] / 2
+    left = max(0, min(frame.width - width, int(center - width / 2)))
+    return [left, 0, width, min(240, frame.height)]
+
+
+def evaluate_visible_score(episode, ocr, *, failure_header=None):
     """Post-decision evaluation only. Never write this OCR frame back to Source/Planner."""
     frame, capture_diagnostic = episode.source.capture_evaluation_frame()
     if frame is None:
@@ -70,7 +80,7 @@ def evaluate_visible_score(episode, ocr):
             "confidence": game.get("score_confidence"),
         }
     )
-    return {
+    result = {
         "value": game.get("score"),
         "confidence": game.get("score_confidence"),
         "frame_sha256": sha256(frame.bgra).hexdigest(),
@@ -78,6 +88,19 @@ def evaluate_visible_score(episode, ocr):
         "attempts": attempts,
         "capture": capture_diagnostic,
     }
+    if failure_header is not None and (
+        type(result["value"]) is not int or not 0.65 <= result["confidence"] <= 1
+    ):
+        label_bbox = diagnostic.get("label_search", {}).get("crop_bbox")
+        result["failure_header"] = failure_header.emit(
+            episode,
+            failed=True,
+            frame=frame,
+            crop_bbox=failure_header_bbox(frame, label_bbox),
+            capture_diagnostics=capture_diagnostic,
+        )
+        result["failure_header"]["original_ocr_crop_bbox"] = label_bbox
+    return result
 
 
 def observed_board(episode):
@@ -119,6 +142,9 @@ def run_episode(
     }
     latencies = []
     started = time.monotonic()
+    failure_header = OwnedGameFailureHeader(
+        enabled=save_failure_evidence, provider=provider, seed=seed
+    )
     phase = "resource_initialization"
     try:
         monitor = PlanningResourceMonitor().start()
@@ -252,7 +278,9 @@ def run_episode(
             raise RuntimeError(
                 "score evaluation requires the explicit comparison OCR dependency"
             )
-        result["score_evaluation"] = evaluate_visible_score(episode, ocr)
+        result["score_evaluation"] = evaluate_visible_score(
+            episode, ocr, failure_header=failure_header
+        )
         score_confidence = result["score_evaluation"].get("confidence")
         if (
             type(result["score_evaluation"]["value"]) is not int
@@ -291,6 +319,9 @@ def run_episode(
                 "comparison minimum actual input, observed board change or Stop/stale guard failed"
             )
     except Exception as error:
+        result["failure_header"] = failure_header.emit(
+            episode, failed=True, frame=None, crop_bbox=None, capture_diagnostics={}
+        )
         planning = getattr(
             getattr(getattr(episode, "pipeline", None), "engine", None),
             "provider",
@@ -306,6 +337,9 @@ def run_episode(
         result["last_capture"] = dict(
             getattr(getattr(episode, "source", None), "latest_capture_diagnostics", {})
         )
+        result["recent_captures"] = list(
+            getattr(getattr(episode, "source", None), "recent_capture_diagnostics", [])
+        )[-4:]
         result["observation_stage_ms"] = {
             stage: round(seconds * 1000, 3)
             for stage, seconds in getattr(timing, "stage_seconds", {}).items()
@@ -414,6 +448,7 @@ def comparison_summary(result):
         "frame_preprocessing_profile": result.get("frame_preprocessing_profile"),
         "preprocessing_validation": result.get("preprocessing_validation"),
         "last_capture": result.get("last_capture"),
+        "recent_captures": result.get("recent_captures", [])[-4:],
         "input_timings": result.get("input_timings", [])[-3:],
         "planning_runtime": result.get("planning_runtime"),
         "decision_attempts": result.get("decision_attempts", [])[-3:],
@@ -423,6 +458,7 @@ def comparison_summary(result):
         "score": score.get("value") if score_valid else None,
         "score_confidence": score.get("confidence"),
         "score_attempts": score.get("attempts", [])[:2],
+        "failure_header": score.get("failure_header", result.get("failure_header")),
         "elapsed_seconds": result.get("wall_seconds"),
         "stop_probe": "rejected"
         if result.get("stopped_input_rejected")

@@ -53153,6 +53153,231 @@
       "dependencies": [],
       "imports": [
         {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "errno",
+          "names": [
+            {
+              "alias": null,
+              "name": "errno"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "functools",
+          "names": [
+            {
+              "alias": null,
+              "name": "lru_cache"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 105,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_file_publisher",
+      "path": "src/ai_game_player/planning_file_publisher.py",
+      "source_location": {
+        "end_line": 132,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ctypes.Structure"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "_RenameInfoEx",
+          "parameters": [],
+          "qualified_name": "_RenameInfoEx",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 24,
+            "start_line": 16
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "replace_planning_file",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            }
+          ],
+          "qualified_name": "replace_planning_file",
+          "return_annotation": "None",
+          "signature": "(source: Path, target: Path) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_rename_buffer",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            }
+          ],
+          "qualified_name": "_rename_buffer",
+          "return_annotation": "Any",
+          "signature": "(target: Path) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 66,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_replace_windows_planning_file",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            }
+          ],
+          "qualified_name": "_replace_windows_planning_file",
+          "return_annotation": "None",
+          "signature": "(source: Path, target: Path) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 95,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "lru_cache(maxsize=REDACTED)"
+          ],
+          "kind": "function",
+          "name": "_windows_publish_api",
+          "parameters": [],
+          "qualified_name": "_windows_publish_api",
+          "return_annotation": "Any",
+          "signature": "() -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 132,
+            "start_line": 104
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
           "kind": "from",
           "level": 0,
           "line": 3,
@@ -56493,6 +56718,7 @@
         "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.belief_contract",
+        "ai_game_player.planning_file_publisher",
         "ai_game_player.planning_file_reader",
         "ai_game_player.planning_outcome",
         "ai_game_player.planning_result"
@@ -56572,6 +56798,22 @@
           "line": 9,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.planning_file_publisher"
+          ],
+          "module": "ai_game_player.planning_file_publisher",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace_planning_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.belief_contract"
           ],
           "module": "ai_game_player.belief_contract",
@@ -56585,7 +56827,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_outcome"
@@ -56601,7 +56843,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_file_reader"
@@ -56617,7 +56859,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_result"
@@ -56650,7 +56892,7 @@
       "module": "ai_game_player.planning_wire",
       "path": "src/ai_game_player/planning_wire.py",
       "source_location": {
-        "end_line": 243,
+        "end_line": 244,
         "start_line": 1
       },
       "symbols": [
@@ -56685,8 +56927,8 @@
           "signature": "(path: Path, value: dict[str, Any], maximum: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 41,
-            "start_line": 27
+            "end_line": 42,
+            "start_line": 28
           }
         },
         {
@@ -56714,8 +56956,8 @@
           "signature": "(path: Path, maximum: int) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 63,
-            "start_line": 50
+            "end_line": 64,
+            "start_line": 51
           }
         },
         {
@@ -56737,8 +56979,8 @@
           "signature": "(raw: bytes) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 90,
-            "start_line": 72
+            "end_line": 91,
+            "start_line": 73
           }
         },
         {
@@ -56760,8 +57002,8 @@
           "signature": "(pairs: list[tuple[str, object]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 105,
-            "start_line": 99
+            "end_line": 106,
+            "start_line": 100
           }
         },
         {
@@ -56783,8 +57025,8 @@
           "signature": "(_value: str) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 115,
-            "start_line": 114
+            "end_line": 116,
+            "start_line": 115
           }
         },
         {
@@ -56806,8 +57048,8 @@
           "signature": "(value: object) -> BeliefContext",
           "source_location": {
             "column": 0,
-            "end_line": 145,
-            "start_line": 124
+            "end_line": 146,
+            "start_line": 125
           }
         },
         {
@@ -56829,8 +57071,8 @@
           "signature": "(result: PlanningResult) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 155,
-            "start_line": 154
+            "end_line": 156,
+            "start_line": 155
           }
         },
         {
@@ -56852,8 +57094,8 @@
           "signature": "(value: object) -> PlanningResult",
           "source_location": {
             "column": 0,
-            "end_line": 223,
-            "start_line": 164
+            "end_line": 224,
+            "start_line": 165
           }
         },
         {
@@ -56875,8 +57117,8 @@
           "signature": "(value: object) -> tuple[WeightedValue, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 243,
-            "start_line": 232
+            "end_line": 244,
+            "start_line": 233
           }
         }
       ]
@@ -68884,7 +69126,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 335,
+          "line": 340,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -68905,7 +69147,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 395,
+          "line": 400,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -68927,7 +69169,7 @@
       "module": "ai_game_player.screen_capture",
       "path": "src/ai_game_player/screen_capture.py",
       "source_location": {
-        "end_line": 480,
+        "end_line": 485,
         "start_line": 1
       },
       "symbols": [
@@ -69013,7 +69255,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 480,
+            "end_line": 485,
             "start_line": 60
           }
         },
@@ -69054,7 +69296,7 @@
           "signature": "(self, *, user32: Any | None = …, gdi32: Any | None = …, wgc_capture_factory: Callable[[int], Any] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 88,
+            "end_line": 89,
             "start_line": 68
           }
         },
@@ -69083,8 +69325,8 @@
           "signature": "(self, capture_region: CaptureRegion | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 95
+            "end_line": 97,
+            "start_line": 96
           }
         },
         {
@@ -69118,8 +69360,8 @@
           "signature": "(self, window_handle: int | None = …, capture_region: CaptureRegion | None = …) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 104
+            "end_line": 125,
+            "start_line": 105
           }
         },
         {
@@ -69153,8 +69395,8 @@
           "signature": "(self, window_handle: int | None = …, *, include_bounds: bool = …) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 290,
-            "start_line": 133
+            "end_line": 295,
+            "start_line": 134
           }
         },
         {
@@ -69182,8 +69424,8 @@
           "signature": "(self, window_handle: int) -> PixelRect",
           "source_location": {
             "column": 4,
-            "end_line": 310,
-            "start_line": 299
+            "end_line": 315,
+            "start_line": 304
           }
         },
         {
@@ -69211,8 +69453,8 @@
           "signature": "(self, window_handle: int) -> ScreenFrame | None",
           "source_location": {
             "column": 4,
-            "end_line": 407,
-            "start_line": 318
+            "end_line": 412,
+            "start_line": 323
           }
         },
         {
@@ -69234,8 +69476,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 424,
-            "start_line": 414
+            "end_line": 429,
+            "start_line": 419
           }
         },
         {
@@ -69257,8 +69499,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 442,
-            "start_line": 431
+            "end_line": 447,
+            "start_line": 436
           }
         },
         {
@@ -69312,8 +69554,8 @@
           "signature": "(user32: Any, window: int, left: int, top: int, right: int, bottom: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 480,
-            "start_line": 445
+            "end_line": 485,
+            "start_line": 450
           }
         }
       ]
@@ -130918,6 +131160,1045 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.safety_guard",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.planning_failure_header",
+        "tools.run_2048_campaign"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "BytesIO"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "PIL",
+          "names": [
+            {
+              "alias": null,
+              "name": "Image"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "TargetState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "tools",
+            "tools.run_2048_campaign"
+          ],
+          "module": "tools.run_2048_campaign",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Episode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_failure_header"
+          ],
+          "module": "tools.planning_failure_header",
+          "names": [
+            {
+              "alias": null,
+              "name": "OwnedGameFailureHeader"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_failure_header",
+      "path": "tests/test_planning_failure_header.py",
+      "source_location": {
+        "end_line": 206,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "OwnedGameFailureHeaderTests",
+          "parameters": [],
+          "qualified_name": "OwnedGameFailureHeaderTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 202,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 47,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "emitter",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "values"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.emitter",
+          "return_annotation": null,
+          "signature": "(self, **values)",
+          "source_location": {
+            "column": 4,
+            "end_line": 57,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "emit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "emitter"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "values"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.emit",
+          "return_annotation": null,
+          "signature": "(self, emitter = …, **values)",
+          "source_location": {
+            "column": 4,
+            "end_line": 67,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipIf(Image is None, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_chunked_png_roundtrip_preserves_exact_crop_and_original_frame_binding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_chunked_png_roundtrip_preserves_exact_crop_and_original_frame_binding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 98,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipIf(Image is None, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_default_existing_probe_uses_actual_targetstate_contract",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_default_existing_probe_uses_actual_targetstate_contract",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 101
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_disabled_or_successful_episode_never_probes_encodes_or_writes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_disabled_or_successful_episode_never_probes_encodes_or_writes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 120,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipIf(Image is None, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_one_episode_emits_at_most_one_image",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_one_episode_emits_at_most_one_image",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 129,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unverified_owner_or_product_episode_is_unavailable_without_image",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_unverified_owner_or_product_episode_is_unavailable_without_image",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 154,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_roi_and_capture_binding_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_invalid_roi_and_capture_binding_fail_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipIf(Image is None, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_actual_png_byte_limit_is_enforced",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_actual_png_byte_limit_is_enforced",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 177,
+            "start_line": 169
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_optional_png_encoder_absence_is_unavailable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_optional_png_encoder_absence_is_unavailable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 179
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipIf(Image is None, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_diagnostic_future_native_timestamp_does_not_grant_or_modify_authority",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_diagnostic_future_native_timestamp_does_not_grant_or_modify_authority",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 195,
+            "start_line": 187
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipIf(Image is None, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_stdout_failure_does_not_raise_or_repeat_image",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeaderTests.test_stdout_failure_does_not_raise_or_repeat_image",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 202,
+            "start_line": 198
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.planning_file_publisher",
+        "ai_game_player.planning_wire"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_file_publisher"
+          ],
+          "module": "ai_game_player.planning_file_publisher",
+          "names": [
+            {
+              "alias": null,
+              "name": "_RenameInfoEx"
+            },
+            {
+              "alias": null,
+              "name": "_rename_buffer"
+            },
+            {
+              "alias": null,
+              "name": "_replace_windows_planning_file"
+            },
+            {
+              "alias": null,
+              "name": "_windows_publish_api"
+            },
+            {
+              "alias": null,
+              "name": "replace_planning_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_wire"
+          ],
+          "module": "ai_game_player.planning_wire",
+          "names": [
+            {
+              "alias": null,
+              "name": "publish_planning_json"
+            },
+            {
+              "alias": null,
+              "name": "read_planning_json"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_file_publisher",
+      "path": "tests/test_planning_file_publisher.py",
+      "source_location": {
+        "end_line": 147,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningFilePublisherTests",
+          "parameters": [],
+          "qualified_name": "PlanningFilePublisherTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 147,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.tearDown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 21,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_layout_and_utf16_byte_length",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_native_layout_and_utf16_byte_length",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 49,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "kernel",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "handle"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "rename"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.kernel",
+          "return_annotation": null,
+          "signature": "(self, *, handle = …, rename = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 56,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "native_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kernel"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.native_context",
+          "return_annotation": null,
+          "signature": "(self, kernel)",
+          "source_location": {
+            "column": 4,
+            "end_line": 67,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_call_has_delete_access_info_class_and_exact_ownership",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_native_call_has_delete_access_info_class_and_exact_ownership",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unsupported_rename_fails_closed_without_replace_retry_or_delete",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_unsupported_rename_fails_closed_without_replace_retry_or_delete",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_source_handle_is_not_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_invalid_source_handle_is_not_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_api_is_a_failclosed_os_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_missing_api_is_a_failclosed_os_error",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rename_error_remains_primary_when_close_reports_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_rename_error_remains_primary_when_close_reports_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_windows_preserves_os_replace",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_non_windows_preserves_os_replace",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 132,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_publication_failure_keeps_old_message_and_discards_only_stage",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFilePublisherTests.test_publication_failure_keeps_old_message_and_discards_only_stage",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 134
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.planning_file_reader",
         "ai_game_player.planning_wire"
       ],
@@ -131121,7 +132402,7 @@
       "module": "tests.test_planning_file_reader",
       "path": "tests/test_planning_file_reader.py",
       "source_location": {
-        "end_line": 155,
+        "end_line": 157,
         "start_line": 1
       },
       "symbols": [
@@ -131143,7 +132424,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 155,
+            "end_line": 157,
             "start_line": 22
           }
         },
@@ -131189,7 +132470,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 49,
+            "end_line": 50,
             "start_line": 42
           }
         },
@@ -131214,8 +132495,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 66,
-            "start_line": 52
+            "end_line": 68,
+            "start_line": 53
           }
         },
         {
@@ -131249,8 +132530,8 @@
           "signature": "(self, *, handle = …, fd = …)",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 68
+            "end_line": 89,
+            "start_line": 70
           }
         },
         {
@@ -131272,8 +132553,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 108,
-            "start_line": 89
+            "end_line": 110,
+            "start_line": 91
           }
         },
         {
@@ -131295,8 +132576,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 110
+            "end_line": 118,
+            "start_line": 112
           }
         },
         {
@@ -131318,8 +132599,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 118
+            "end_line": 127,
+            "start_line": 120
           }
         },
         {
@@ -131341,8 +132622,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 127
+            "end_line": 140,
+            "start_line": 129
           }
         },
         {
@@ -131364,8 +132645,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 155,
-            "start_line": 140
+            "end_line": 157,
+            "start_line": 142
           }
         }
       ]
@@ -134447,6 +135728,528 @@
             "column": 4,
             "end_line": 181,
             "start_line": 173
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.safety_guard",
+        "tools",
+        "tools.planning_window_snapshot"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "TargetState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_window_snapshot"
+          ],
+          "module": "tools.planning_window_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "selected_window_snapshot"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_window_snapshot",
+      "path": "tests/test_planning_window_snapshot.py",
+      "source_location": {
+        "end_line": 120,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeUser32",
+          "parameters": [],
+          "qualified_name": "FakeUser32",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 43,
+            "start_line": 8
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "foreground"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "final_pid"
+            }
+          ],
+          "qualified_name": "FakeUser32.__init__",
+          "return_annotation": null,
+          "signature": "(self, foreground = …, final_pid = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 11,
+            "start_line": 9
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "GetWindowThreadProcessId",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "FakeUser32.GetWindowThreadProcessId",
+          "return_annotation": null,
+          "signature": "(self, handle, result)",
+          "source_location": {
+            "column": 4,
+            "end_line": 16,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "GetWindowRect",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "FakeUser32.GetWindowRect",
+          "return_annotation": null,
+          "signature": "(self, handle, result)",
+          "source_location": {
+            "column": 4,
+            "end_line": 21,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "GetClientRect",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "FakeUser32.GetClientRect",
+          "return_annotation": null,
+          "signature": "(self, handle, result)",
+          "source_location": {
+            "column": 4,
+            "end_line": 26,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "ClientToScreen",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "point"
+            }
+          ],
+          "qualified_name": "FakeUser32.ClientToScreen",
+          "return_annotation": null,
+          "signature": "(self, handle, point)",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "IsWindowVisible",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            }
+          ],
+          "qualified_name": "FakeUser32.IsWindowVisible",
+          "return_annotation": null,
+          "signature": "(self, handle)",
+          "source_location": {
+            "column": 4,
+            "end_line": 34,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "IsIconic",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            }
+          ],
+          "qualified_name": "FakeUser32.IsIconic",
+          "return_annotation": null,
+          "signature": "(self, handle)",
+          "source_location": {
+            "column": 4,
+            "end_line": 37,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "GetForegroundWindow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeUser32.GetForegroundWindow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "GetDpiForWindow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            }
+          ],
+          "qualified_name": "FakeUser32.GetDpiForWindow",
+          "return_annotation": null,
+          "signature": "(self, handle)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SelectedWindowSnapshotTests",
+          "parameters": [],
+          "qualified_name": "SelectedWindowSnapshotTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 116,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelectedWindowSnapshotTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_actual_targetstate_geometry_and_foreground_are_diagnostic_only",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelectedWindowSnapshotTests.test_actual_targetstate_geometry_and_foreground_are_diagnostic_only",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_owner_and_identity_change_fail_without_geometry_leak",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelectedWindowSnapshotTests.test_unknown_owner_and_identity_change_fail_without_geometry_leak",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_no_foreground_is_not_misrepresented_as_owned_or_allowed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelectedWindowSnapshotTests.test_no_foreground_is_not_misrepresented_as_owned_or_allowed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 99,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bad_arguments_or_query_failure_are_unavailable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SelectedWindowSnapshotTests.test_bad_arguments_or_query_failure_are_unavailable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 101
           }
         }
       ]
@@ -159020,7 +160823,7 @@
       "module": "tests.test_windows_planning_comparison",
       "path": "tests/test_windows_planning_comparison.py",
       "source_location": {
-        "end_line": 324,
+        "end_line": 336,
         "start_line": 1
       },
       "symbols": [
@@ -159267,8 +161070,31 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 324,
+            "end_line": 336,
             "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_failure_header_is_diagnostic_top_strip_without_changing_ocr_region",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningComparisonTests.test_failure_header_is_diagnostic_top_strip_without_changing_ocr_region",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 75
           }
         },
         {
@@ -159290,8 +161116,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 75
+            "end_line": 128,
+            "start_line": 87
           }
         },
         {
@@ -159313,8 +161139,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 118
+            "end_line": 158,
+            "start_line": 130
           }
         },
         {
@@ -159336,8 +161162,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 148
+            "end_line": 194,
+            "start_line": 160
           }
         },
         {
@@ -159359,8 +161185,8 @@
           "signature": "(episode)",
           "source_location": {
             "column": 8,
-            "end_line": 159,
-            "start_line": 151
+            "end_line": 171,
+            "start_line": 163
           }
         },
         {
@@ -159382,8 +161208,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 217,
-            "start_line": 184
+            "end_line": 229,
+            "start_line": 196
           }
         },
         {
@@ -159411,8 +161237,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 190,
-            "start_line": 187
+            "end_line": 202,
+            "start_line": 199
           }
         },
         {
@@ -159434,8 +161260,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 219
+            "end_line": 245,
+            "start_line": 231
           }
         },
         {
@@ -159457,8 +161283,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 273,
-            "start_line": 235
+            "end_line": 285,
+            "start_line": 247
           }
         },
         {
@@ -159486,8 +161312,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 244,
-            "start_line": 236
+            "end_line": 256,
+            "start_line": 248
           }
         },
         {
@@ -159509,8 +161335,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 275
+            "end_line": 336,
+            "start_line": 287
           }
         },
         {
@@ -159544,8 +161370,8 @@
           "signature": "(provider, *args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 293,
-            "start_line": 279
+            "end_line": 305,
+            "start_line": 291
           }
         }
       ]
@@ -168943,6 +170769,7 @@
         "tools",
         "tools.browser_probe_support",
         "tools.planning_comparison_source",
+        "tools.planning_failure_header",
         "tools.planning_resource_monitor",
         "tools.planning_score_evaluation",
         "tools.reference_game_2048_source",
@@ -169236,6 +171063,22 @@
           "line": 23,
           "local_dependencies": [
             "tools",
+            "tools.planning_failure_header"
+          ],
+          "module": "tools.planning_failure_header",
+          "names": [
+            {
+              "alias": null,
+              "name": "OwnedGameFailureHeader"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "tools",
             "tools.planning_score_evaluation"
           ],
           "module": "tools.planning_score_evaluation",
@@ -169253,7 +171096,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 25,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -169269,7 +171112,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 26,
           "local_dependencies": [
             "tools",
             "tools.run_2048_campaign"
@@ -169290,10 +171133,39 @@
       "module": "tools.compare_2048_windows_planning",
       "path": "tools/compare_2048_windows_planning.py",
       "source_location": {
-        "end_line": 521,
+        "end_line": 557,
         "start_line": 1
       },
       "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "failure_header_bbox",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "label_bbox"
+            }
+          ],
+          "qualified_name": "failure_header_bbox",
+          "return_annotation": null,
+          "signature": "(frame, label_bbox = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 29
+          }
+        },
         {
           "bases": [],
           "data_model": null,
@@ -169312,15 +171184,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "ocr"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "failure_header"
             }
           ],
           "qualified_name": "evaluate_visible_score",
           "return_annotation": null,
-          "signature": "(episode, ocr)",
+          "signature": "(episode, ocr, *, failure_header = …)",
           "source_location": {
             "column": 0,
-            "end_line": 80,
-            "start_line": 28
+            "end_line": 103,
+            "start_line": 38
           }
         },
         {
@@ -169342,8 +171220,8 @@
           "signature": "(episode)",
           "source_location": {
             "column": 0,
-            "end_line": 97,
-            "start_line": 83
+            "end_line": 120,
+            "start_line": 106
           }
         },
         {
@@ -169395,8 +171273,8 @@
           "signature": "(provider, seed, max_steps, cache, output, *, save_failure_evidence = …)",
           "source_location": {
             "column": 0,
-            "end_line": 365,
-            "start_line": 100
+            "end_line": 399,
+            "start_line": 123
           }
         },
         {
@@ -169418,8 +171296,8 @@
           "signature": "(result)",
           "source_location": {
             "column": 0,
-            "end_line": 433,
-            "start_line": 368
+            "end_line": 469,
+            "start_line": 402
           }
         },
         {
@@ -169447,8 +171325,8 @@
           "signature": "(value, limit = …)",
           "source_location": {
             "column": 4,
-            "end_line": 376,
-            "start_line": 371
+            "end_line": 410,
+            "start_line": 405
           }
         },
         {
@@ -169470,8 +171348,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 517,
-            "start_line": 436
+            "end_line": 553,
+            "start_line": 472
           }
         }
       ]
@@ -172652,6 +174530,490 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.safety_guard",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.run_2048_campaign"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "BytesIO"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "TargetState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 165,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "WindowsTargetProbe"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 166,
+          "local_dependencies": [
+            "tools",
+            "tools.run_2048_campaign"
+          ],
+          "module": "tools.run_2048_campaign",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Episode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 265,
+          "local_dependencies": [],
+          "module": "PIL",
+          "names": [
+            {
+              "alias": null,
+              "name": "Image"
+            }
+          ]
+        }
+      ],
+      "module": "tools.planning_failure_header",
+      "path": "tools/planning_failure_header.py",
+      "source_location": {
+        "end_line": 296,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "OwnedGameFailureHeader",
+          "parameters": [],
+          "qualified_name": "OwnedGameFailureHeader",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 296,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "enabled"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "provider"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "seed"
+            },
+            {
+              "annotation": "Callable[[str], Any]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "write_line"
+            },
+            {
+              "annotation": "Callable[[int], TargetState] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "probe"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader.__init__",
+          "return_annotation": "None",
+          "signature": "(self, *, enabled: bool, provider: str, seed: int, write_line: Callable[[str], Any] = …, probe: Callable[[int], TargetState] | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 52,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "emit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "failed"
+            },
+            {
+              "annotation": "ScreenFrame | None",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "frame"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "crop_bbox"
+            },
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "capture_diagnostics"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader.emit",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self, episode: Any, *, failed: bool, frame: ScreenFrame | None, crop_bbox: Any, capture_diagnostics: Mapping[str, Any]) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_owned_target",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader._owned_target",
+          "return_annotation": "tuple[int, int]",
+          "signature": "(self, episode: Any) -> tuple[int, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 164
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_validate_frame",
+          "parameters": [
+            {
+              "annotation": "ScreenFrame | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader._validate_frame",
+          "return_annotation": "None",
+          "signature": "(frame: ScreenFrame | None) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 209,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_validate_crop",
+          "parameters": [
+            {
+              "annotation": "ScreenFrame",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "box"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader._validate_crop",
+          "return_annotation": "tuple[int, int, int, int]",
+          "signature": "(frame: ScreenFrame, box: Any) -> tuple[int, int, int, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 234,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_capture_reference",
+          "parameters": [
+            {
+              "annotation": "ScreenFrame",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "values"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader._capture_reference",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(frame: ScreenFrame, values: Mapping[str, Any]) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 256,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_encode_png",
+          "parameters": [
+            {
+              "annotation": "ScreenFrame",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": "tuple[int, int, int, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "crop"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader._encode_png",
+          "return_annotation": "bytes",
+          "signature": "(frame: ScreenFrame, crop: tuple[int, int, int, int]) -> bytes",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 264
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_write_safely",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "OwnedGameFailureHeader._write_safely",
+          "return_annotation": "bool",
+          "signature": "(self, value: dict[str, Any]) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 296,
+            "start_line": 287
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.baseline_provider",
         "ai_game_player.decision_context",
         "ai_game_player.frame_analyzer",
@@ -173510,6 +175872,210 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.safety_guard"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "TargetState"
+            },
+            {
+              "alias": null,
+              "name": "WindowsTargetProbe"
+            }
+          ]
+        }
+      ],
+      "module": "tools.planning_window_snapshot",
+      "path": "tools/planning_window_snapshot.py",
+      "source_location": {
+        "end_line": 156,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_configure_queries",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "api"
+            }
+          ],
+          "qualified_name": "_configure_queries",
+          "return_annotation": "None",
+          "signature": "(api: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_pid",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "api"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "handle"
+            }
+          ],
+          "qualified_name": "_pid",
+          "return_annotation": "int | None",
+          "signature": "(api: Any, handle: int) -> int | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "selected_window_snapshot",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected_handle"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected_pid"
+            },
+            {
+              "annotation": "tuple[int, int] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "frame_size"
+            },
+            {
+              "annotation": "Callable[[int], TargetState] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "probe"
+            },
+            {
+              "annotation": "Any | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "user32"
+            }
+          ],
+          "qualified_name": "selected_window_snapshot",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(expected_handle: int, expected_pid: int, *, frame_size: tuple[int, int] | None = …, probe: Callable[[int], TargetState] | None = …, user32: Any | None = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 156,
+            "start_line": 70
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -174323,6 +176889,336 @@
             "column": 0,
             "end_line": 240,
             "start_line": 166
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.planning_file_publisher",
+        "ai_game_player.planning_file_reader"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Iterator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_file_publisher"
+          ],
+          "module": "ai_game_player.planning_file_publisher",
+          "names": [
+            {
+              "alias": null,
+              "name": "_RenameInfoEx"
+            },
+            {
+              "alias": null,
+              "name": "_replace_windows_planning_file"
+            },
+            {
+              "alias": null,
+              "name": "_windows_publish_api"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_file_reader"
+          ],
+          "module": "ai_game_player.planning_file_reader",
+          "names": [
+            {
+              "alias": null,
+              "name": "_open_planning_reader"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 52,
+          "local_dependencies": [],
+          "module": "msvcrt",
+          "names": [
+            {
+              "alias": null,
+              "name": "msvcrt"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 99,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        }
+      ],
+      "module": "tools.probe_windows_planning_io",
+      "path": "tools/probe_windows_planning_io.py",
+      "source_location": {
+        "end_line": 203,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "_reader",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mode"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kernel"
+            }
+          ],
+          "qualified_name": "_reader",
+          "return_annotation": "Iterator[Callable[[], bytes] | None]",
+          "signature": "(path: Path, mode: str, kernel: Any) -> Iterator[Callable[[], bytes] | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_native",
+          "parameters": [],
+          "qualified_name": "_reader.read_native",
+          "return_annotation": "bytes",
+          "signature": "() -> bytes",
+          "source_location": {
+            "column": 12,
+            "end_line": 45,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_operation",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kernel"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mode"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            }
+          ],
+          "qualified_name": "_operation",
+          "return_annotation": "None",
+          "signature": "(kernel: Any, mode: str, source: Path, target: Path) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 88,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_probe",
+          "parameters": [],
+          "qualified_name": "run_probe",
+          "return_annotation": "dict[str, Any]",
+          "signature": "() -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 187,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 199,
+            "start_line": 190
           }
         }
       ]
@@ -177551,6 +180447,7 @@
         "tools",
         "tools.observation_timing",
         "tools.planning_frame_parity",
+        "tools.planning_window_snapshot",
         "tools.recognition_failure_evidence",
         "tools.reference_game_2048_launcher",
         "tools.reference_game_2048_source",
@@ -178093,7 +180990,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 75,
+          "line": 77,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -178114,7 +181011,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 79,
+          "line": 81,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -178131,7 +181028,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 456,
+          "line": 157,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_window_snapshot"
+          ],
+          "module": "tools.planning_window_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "selected_window_snapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 483,
           "local_dependencies": [
             "tools",
             "tools.planning_frame_parity"
@@ -178148,7 +181061,7 @@
       "module": "tools.run_2048_campaign",
       "path": "tools/run_2048_campaign.py",
       "source_location": {
-        "end_line": 855,
+        "end_line": 883,
         "start_line": 1
       },
       "symbols": [
@@ -178168,7 +181081,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 410,
+            "end_line": 437,
             "start_line": 61
           }
         },
@@ -178208,14 +181121,20 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "native_preprocessing"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "window_process_id"
             }
           ],
           "qualified_name": "Cached2048ObservationSource.__init__",
           "return_annotation": "None",
-          "signature": "(self, window_handle: int, ocr_recognizer: object | None, failure_evidence: RecognitionFailureEvidence | None = …, *, native_preprocessing: bool = …) -> None",
+          "signature": "(self, window_handle: int, ocr_recognizer: object | None, failure_evidence: RecognitionFailureEvidence | None = …, *, native_preprocessing: bool = …, window_process_id: int | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 117,
+            "end_line": 120,
             "start_line": 62
           }
         },
@@ -178238,8 +181157,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 151,
-            "start_line": 119
+            "end_line": 164,
+            "start_line": 122
           }
         },
         {
@@ -178261,8 +181180,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 153
+            "end_line": 195,
+            "start_line": 166
           }
         },
         {
@@ -178296,8 +181215,8 @@
           "signature": "(self, on_fresh_frame: Callable[[], None] | None = …, *, timeout_seconds: float = …) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 353,
-            "start_line": 184
+            "end_line": 380,
+            "start_line": 197
           }
         },
         {
@@ -178343,8 +181262,8 @@
           "signature": "(self, detail: str, frame: ScreenFrame | None, game_state: dict[str, object], diagnostics: dict[str, object]) -> CampaignFailure",
           "source_location": {
             "column": 4,
-            "end_line": 379,
-            "start_line": 355
+            "end_line": 406,
+            "start_line": 382
           }
         },
         {
@@ -178366,8 +181285,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 388,
-            "start_line": 381
+            "end_line": 415,
+            "start_line": 408
           }
         },
         {
@@ -178389,8 +181308,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 394,
-            "start_line": 390
+            "end_line": 421,
+            "start_line": 417
           }
         },
         {
@@ -178412,8 +181331,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 410,
-            "start_line": 396
+            "end_line": 437,
+            "start_line": 423
           }
         },
         {
@@ -178432,8 +181351,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 451,
-            "start_line": 413
+            "end_line": 478,
+            "start_line": 440
           }
         },
         {
@@ -178455,8 +181374,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 415,
-            "start_line": 414
+            "end_line": 442,
+            "start_line": 441
           }
         },
         {
@@ -178490,8 +181409,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 451,
-            "start_line": 417
+            "end_line": 478,
+            "start_line": 444
           }
         },
         {
@@ -178512,8 +181431,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 716,
-            "start_line": 454
+            "end_line": 744,
+            "start_line": 481
           }
         },
         {
@@ -178535,8 +181454,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 466,
-            "start_line": 455
+            "end_line": 493,
+            "start_line": 482
           }
         },
         {
@@ -178630,8 +181549,8 @@
           "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …, native_preprocessing: bool = …, test_seed: int | None = …, event_journal: EventJournal | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 563,
-            "start_line": 468
+            "end_line": 591,
+            "start_line": 495
           }
         },
         {
@@ -178653,8 +181572,8 @@
           "signature": "(self) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 623,
-            "start_line": 565
+            "end_line": 651,
+            "start_line": 593
           }
         },
         {
@@ -178669,8 +181588,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 8,
-            "end_line": 588,
-            "start_line": 577
+            "end_line": 616,
+            "start_line": 605
           }
         },
         {
@@ -178692,8 +181611,8 @@
           "signature": "(self) -> CampaignActionResult",
           "source_location": {
             "column": 4,
-            "end_line": 669,
-            "start_line": 625
+            "end_line": 697,
+            "start_line": 653
           }
         },
         {
@@ -178715,8 +181634,8 @@
           "signature": "(self) -> dict[str, object] | None",
           "source_location": {
             "column": 4,
-            "end_line": 674,
-            "start_line": 671
+            "end_line": 702,
+            "start_line": 699
           }
         },
         {
@@ -178756,8 +181675,8 @@
           "signature": "(self, status: str, confidence: float, evidence: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 687,
-            "start_line": 676
+            "end_line": 715,
+            "start_line": 704
           }
         },
         {
@@ -178779,8 +181698,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 716,
-            "start_line": 689
+            "end_line": 744,
+            "start_line": 717
           }
         },
         {
@@ -178802,8 +181721,8 @@
           "signature": "(root: Path) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 731,
-            "start_line": 719
+            "end_line": 759,
+            "start_line": 747
           }
         },
         {
@@ -178818,8 +181737,8 @@
           "signature": "() -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 780,
-            "start_line": 734
+            "end_line": 808,
+            "start_line": 762
           }
         },
         {
@@ -178834,8 +181753,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 851,
-            "start_line": 783
+            "end_line": 879,
+            "start_line": 811
           }
         }
       ]

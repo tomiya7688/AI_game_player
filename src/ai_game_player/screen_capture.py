@@ -84,6 +84,7 @@ class WindowsScreenCapture:
         self._closed = False
         self.last_backend_error: str | None = None
         self.last_capture_backend: str | None = None
+        self.last_gdi_method: str | None = None
         self.last_backend_failure_reason: str | None = None
         self._capture_region: CaptureRegion | None = None
 
@@ -141,6 +142,7 @@ class WindowsScreenCapture:
                 "WindowsScreenCapture is closed and cannot capture another frame"
             )
         self.last_capture_backend = None
+        self.last_gdi_method = None
         if self._user32 is None and os.name != "nt":
             raise RuntimeError("WindowsScreenCapture requires Windows")
         user32 = self._user32 or ctypes.windll.user32
@@ -249,6 +251,7 @@ class WindowsScreenCapture:
                 previous_object = None
                 raise RuntimeError("SelectObject failed")
             if capture_window and not use_desktop_pixels:
+                self.last_gdi_method = "wm_print"
                 message_result = ctypes.c_size_t()
                 rendered = user32.SendMessageTimeoutW(
                     window_handle,
@@ -265,10 +268,12 @@ class WindowsScreenCapture:
                     )
                 if not user32.IsWindow(window_handle):
                     raise RuntimeError("Selected window handle was lost during capture")
-            elif not gdi32.BitBlt(
-                memory_dc, 0, 0, width, height, screen_dc, left, top, 0x00CC0020
-            ):
-                raise RuntimeError("BitBlt failed")
+            else:
+                self.last_gdi_method = "bitblt"
+                if not gdi32.BitBlt(
+                    memory_dc, 0, 0, width, height, screen_dc, left, top, 0x00CC0020
+                ):
+                    raise RuntimeError("BitBlt failed")
             if not pixel_data:
                 raise RuntimeError("CreateDIBSection returned no pixel buffer")
             screen_bounds = window_bounds or PixelRect(left, top, width, height)

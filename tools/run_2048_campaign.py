@@ -66,10 +66,12 @@ class Cached2048ObservationSource:
         failure_evidence: RecognitionFailureEvidence | None = None,
         *,
         native_preprocessing: bool = False,
+        window_process_id: int | None = None,
     ) -> None:
         if type(native_preprocessing) is not bool:
             raise ValueError("native preprocessing requires an explicit boolean")
         self.window_handle = window_handle
+        self.window_process_id = window_process_id
         self._preprocessor_runtime = None
         if native_preprocessing:
             from ai_game_player.runtime.native import (
@@ -114,6 +116,7 @@ class Cached2048ObservationSource:
         self.fresh_frame_callback: Callable[[], None] | None = None
         self.latest_capture_diagnostics: dict[str, object] = {}
         self.latest_frame: ScreenFrame | None = None
+        self.recent_capture_diagnostics: list[dict[str, object]] = []
         self._last_accepted_frame_ns = 0
 
     def _capture_timed_frame(self):
@@ -135,6 +138,8 @@ class Cached2048ObservationSource:
             "host_received_ns": received_ns,
             "native_frame_id": frame.frame_id,
             "backend": backend,
+            "frame_size": [frame.width, frame.height],
+            "gdi_method": getattr(self.capture, "last_gdi_method", None),
             "fallback_error_type": str(error).split(":", 1)[0] if error else None,
             "fallback_timeout": bool(error and "TIMEOUT" in str(error)),
             "fallback_reason": getattr(
@@ -148,6 +153,14 @@ class Cached2048ObservationSource:
             "host_clock_implementation": implementation,
             "clock_epoch_verified": clock_verified,
         }
+        if getattr(self, "_preprocessor_runtime", None) is not None:
+            from tools.planning_window_snapshot import selected_window_snapshot
+
+            diagnostic["window_snapshot"] = selected_window_snapshot(
+                self.window_handle,
+                getattr(self, "window_process_id", None),
+                frame_size=(frame.width, frame.height),
+            )
         return frame, diagnostic
 
     def capture_evaluation_frame(self):
@@ -217,6 +230,10 @@ class Cached2048ObservationSource:
                 ) from error
             last_frame = frame
             self.latest_capture_diagnostics = measured
+            self.recent_capture_diagnostics = [
+                *getattr(self, "recent_capture_diagnostics", []),
+                measured,
+            ][-4:]
             if not measured["clock_epoch_verified"]:
                 raise CampaignFailure(
                     "capture_failure",
@@ -240,6 +257,16 @@ class Cached2048ObservationSource:
                     observation = self.analyzer.analyze(frame, "live-2048-campaign")
                 with self.observation_timing.measure("board_adaptation"):
                     adapted, candidates = self.adapter.adapt(frame, observation)
+                self.latest_capture_diagnostics["raw_frame_sha256"] = (
+                    observation.features.get("signature")
+                )
+                state_diagnostic = adapted.features.get("game_2048", {})
+                self.latest_capture_diagnostics["board_bbox"] = state_diagnostic.get(
+                    "board_bbox"
+                )
+                self.latest_capture_diagnostics["board_semantic_signature"] = (
+                    state_diagnostic.get("state_signature")
+                )
                 age_ns = time.monotonic_ns() - int(frame.captured_at * 1_000_000_000)
                 self.latest_capture_diagnostics["age_after_analysis_ns"] = age_ns
                 if (
@@ -521,6 +548,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 window.handle,
                 ocr_recognizer,
                 evidence,
+                window_process_id=window.process_id,
                 **({"native_preprocessing": True} if native_preprocessing else {}),
             )
             controller = RunController()

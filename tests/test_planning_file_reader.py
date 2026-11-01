@@ -45,6 +45,7 @@ class PlanningFileReaderTests(unittest.TestCase):
             publish_planning_json(path, {"version": 1}, 100)
             with _open_planning_reader(path) as opened:
                 publish_planning_json(path, {"version": 2}, 100)
+                self.assertEqual(read_planning_json(path, 100), {"version": 2})
                 self.assertEqual(json.loads(opened.read(101)), {"version": 1})
             self.assertEqual(read_planning_json(path, 100), {"version": 2})
 
@@ -55,9 +56,10 @@ class PlanningFileReaderTests(unittest.TestCase):
             publish_planning_json(path, {"version": 0}, 100)
             for version in range(20):
                 with self.subTest(version=version):
-                    # The actual native handle stays open across os.replace in publish.
+                    # The native reader stays open across planning POSIX atomic rename.
                     with _open_planning_reader(path) as opened:
                         publish_planning_json(path, {"version": version + 1}, 100)
+                        self.assertEqual(read_planning_json(path, 100), {"version": version + 1})
                         self.assertEqual(
                             json.loads(opened.read(101)), {"version": version}
                         )

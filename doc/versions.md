@@ -1,5 +1,6 @@
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICS候補へ変更。一般atomic_jsonは維持し、未対応はfail-closed。shared-delete readerだけでは失敗した実OS20回を保持し、native30ケースprobe・held-open20回・worker20回で再検証します。実Windows成功は新CI確認まで未確認です。
 - SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
 - 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
 - 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
