@@ -19,8 +19,12 @@ from ai_game_player.screen_capture import ScreenFrame
 
 
 ARROW_DIRECTIONS = ("UP", "DOWN", "LEFT", "RIGHT")
-SCORE_PANEL_SEARCH_HEIGHT_FRACTION = 0.5
 OCR_TEXT_FALLBACK_CONFIDENCE = 0.5
+SCORE_VALUE_PATTERN = re.compile(
+    r"\s*SCORE\s*[:：]?\s*([0-9]+(?:,[0-9]{3})*)\s*", re.IGNORECASE
+)
+SCORE_LABEL_MINIMUM_VERTICAL_FRACTION = 0.75
+SCORE_LABEL_MAXIMUM_GAP_HEIGHTS = 2
 
 
 class ReferenceGame2048Adapter:
@@ -46,7 +50,7 @@ class ReferenceGame2048Adapter:
 
     # {
     #   責務: [adapt: DOMやgame内部stateを使わず、screen frameと同じframe由来Observationから盤面・score・終了状態・key候補を作る]
-    #   処理: [boardを認識し、OCR scoreとlegal-move条件を合わせたstate signatureを作成する。盤面が低確信度またはgame-overならkey候補を出さない]
+    #   処理: [boardを認識し、OCR scoreとlegal-move条件を合わせたstate signatureを作成する。盤面が低確信度・未知cellを含む・非終端の全空・game-overの場合はkey候補を出さない]
     #   引数: [frame: Observation生成元と同じcapture時点のBGRA画面, observation: OCRなど同じframeから抽出済みの画面特徴]
     #   戻り値: [tuple[ScreenObservation, list[ActionCandidate]]: game_2048 stateを追加したObservationと4方向keyboard候補]
     #   エラー: [raw frameの寸法不一致: BoardRecognizerのValueErrorを呼び出し元へ送出]
@@ -163,9 +167,9 @@ def _read_score(
 ) -> tuple[int | None, float]:
     # {
     #   責務: [_read_score: OCR Observationから現在scoreをBEST scoreと区別して取得する]
-    #   処理: [SCORE labelに最も近い数字を優先し、label位置がない場合はboard上部の左側score欄を使う]
+    #   処理: [SCORE labelの直下で水平に重なる数値だけを組にし、複数の異なる数値はunknownとする]
     #   引数: [observation: 同じcapture frameのOCR candidates/text, board_bounds: OCR座標系の2048 board矩形]
-    #   戻り値: [tuple[int | None, float]: 読み取った現在scoreとOCR confidence。数字なしならNoneと0]
+    #   戻り値: [tuple[int | None, float]: 読み取った現在scoreとOCR confidence。位置対応または明示文字列の根拠がなければNoneと0]
     # }
     raw_candidates = observation.features.get("ocr_candidates", [])
     candidates = (
@@ -173,8 +177,10 @@ def _read_score(
         if isinstance(raw_candidates, list)
         else []
     )
-    numeric_candidates: list[tuple[int, float, tuple[float, float, float, float] | None, str]] = []
-    score_labels: list[tuple[float, float, float, float]] = []
+    numeric_candidates: list[
+        tuple[int, float, tuple[float, float, float, float] | None, str]
+    ] = []
+    score_labels: list[tuple[tuple[float, float, float, float], float]] = []
     for candidate in candidates:
         text = str(candidate.get("text", candidate.get("label", "")))
         lowered = text.casefold()
@@ -186,72 +192,72 @@ def _read_score(
         if not isfinite(confidence) or not 0 <= confidence <= 1:
             confidence = 0.0
         bbox = _candidate_bbox(candidate)
-        if "score" in lowered and bbox is not None:
-            score_labels.append(bbox)
+        if (
+            lowered.strip() == "score" or SCORE_VALUE_PATTERN.fullmatch(text)
+        ) and bbox is not None:
+            score_labels.append((bbox, confidence))
         for value in _score_numbers(text):
             numeric_candidates.append((value, confidence, bbox, lowered))
 
-    if score_labels:
-        labeled_numbers = [candidate for candidate in numeric_candidates if "score" in candidate[3]]
-        if labeled_numbers:
-            value, confidence, _, _ = labeled_numbers[0]
-            return value, confidence
-        located_numbers: list[tuple[int, float, tuple[float, float, float, float], str]] = []
+    readings: list[tuple[int, float]] = []
+    for label, label_confidence in score_labels:
+        if label_confidence <= 0 or (
+            board_bounds is not None and label[1] + label[3] > board_bounds[1]
+        ):
+            continue
+        label_center_x = label[0] + label[2] / 2
+        matches: list[tuple[int, float]] = []
         for value, confidence, bbox, text in numeric_candidates:
-            if bbox is not None:
-                located_numbers.append((value, confidence, bbox, text))
-        if located_numbers:
-            label = score_labels[0]
-            label_center = (label[0] + label[2] / 2, label[1] + label[3] / 2)
-            nearest = min(
-                located_numbers,
-                key=lambda candidate: (
-                    ((candidate[2][0] + candidate[2][2] / 2 - label_center[0]) ** 2)
-                    + ((candidate[2][1] + candidate[2][3] / 2 - label_center[1]) ** 2)
-                ),
-            )
-            return nearest[0], nearest[1]
-
-    if board_bounds is not None:
-        board_x, board_y, board_width, _ = board_bounds
-        above_board: list[tuple[int, float, tuple[float, float, float, float], str]] = []
-        for value, confidence, bbox, text in numeric_candidates:
+            if "best" in text or confidence <= 0:
+                continue
+            if "score" in text and bbox == label and len(_score_numbers(text)) == 1:
+                matches.append((value, min(confidence, label_confidence)))
+                continue
             if bbox is None:
                 continue
-            bbox_center_x = bbox[0] + bbox[2] / 2
-            bbox_center_y = bbox[1] + bbox[3] / 2
-            if (
-                board_y - board_width * SCORE_PANEL_SEARCH_HEIGHT_FRACTION <= bbox_center_y < board_y
-                and board_x <= bbox_center_x <= board_x + board_width
-            ):
-                above_board.append((value, confidence, bbox, text))
-        if above_board:
-            current_score = min(above_board, key=lambda candidate: candidate[2][0])
-            return current_score[0], current_score[1]
-    if not numeric_candidates:
-        return _score_from_ocr_text(observation.ocr_text)
-    if not any(candidate[2] is not None for candidate in numeric_candidates):
-        return _score_from_ocr_text(observation.ocr_text)
-    return None, 0.0
+            # A header or board number is not evidence for the labelled panel.
+            center_x = bbox[0] + bbox[2] / 2
+            below_label = (
+                bbox[1] >= label[1] + label[3] * SCORE_LABEL_MINIMUM_VERTICAL_FRACTION
+            )
+            near_label = bbox[1] - (
+                label[1] + label[3]
+            ) <= SCORE_LABEL_MAXIMUM_GAP_HEIGHTS * max(label[3], bbox[3])
+            horizontal_overlap = (
+                abs(center_x - label_center_x) <= (label[2] + bbox[2]) / 2
+            )
+            above_board = board_bounds is None or bbox[1] + bbox[3] <= board_bounds[1]
+            if below_label and near_label and horizontal_overlap and above_board:
+                matches.append((value, min(confidence, label_confidence)))
+        if len({value for value, _ in matches}) == 1:
+            readings.append(max(matches, key=lambda match: match[1]))
+        elif matches:
+            return None, 0.0
+    if readings:
+        if len({value for value, _ in readings}) == 1:
+            return max(readings, key=lambda reading: reading[1])
+        return None, 0.0
+    if any(candidate[2] is not None for candidate in numeric_candidates):
+        return None, 0.0
+    return _score_from_ocr_text(observation.ocr_text)
 
 
 def _score_from_ocr_text(ocr_text: list[str]) -> tuple[int | None, float]:
     # {
-    #   責務: [_score_from_ocr_text: bboxを持たないOCR列からSCOREとBESTの間にある数字を取得する]
-    #   引数: [ocr_text: FrameAnalyzerがObservationへ格納したOCR文字列の順序付き一覧]
-    #   戻り値: [tuple[int | None, float]: SCORE label直後の数値と中程度のconfidence。label不在ならNoneと0]
+    #   責務: [_score_from_ocr_text: 位置なしOCRは同じ文字列内に明示されたSCORE数値だけを読む]
+    #   処理: [別wordの順序や盤面上部の左端を得点の根拠にせず、曖昧ならunknownを保つ]
+    #   引数: [ocr_text: 同じframeのOCR文字列群]
+    #   戻り値: [tuple[int | None, float]: 一意な明示得点とfallback確信度、またはNoneと0]
     # }
-    score_label_seen = False
+    readings = []
     for text in ocr_text:
-        lowered = text.casefold()
-        if "best" in lowered:
-            break
-        if "score" in lowered:
-            score_label_seen = True
-        if score_label_seen:
-            values = _score_numbers(text)
-            if values:
-                return values[0], OCR_TEXT_FALLBACK_CONFIDENCE
+        matched = SCORE_VALUE_PATTERN.fullmatch(text)
+        if matched:
+            values = _score_numbers(matched.group(1))
+            if len(values) == 1:
+                readings.append(values[0])
+    if len(set(readings)) == 1:
+        return readings[0], OCR_TEXT_FALLBACK_CONFIDENCE
     return None, 0.0
 
 

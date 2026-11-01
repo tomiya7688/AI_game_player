@@ -31056,7 +31056,7 @@
       "module": "ai_game_player.game_2048_adapter",
       "path": "src/ai_game_player/game_2048_adapter.py",
       "source_location": {
-        "end_line": 307,
+        "end_line": 313,
         "start_line": 1
       },
       "symbols": [
@@ -31076,8 +31076,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 97,
-            "start_line": 26
+            "end_line": 101,
+            "start_line": 30
           }
         },
         {
@@ -31111,8 +31111,8 @@
           "signature": "(self, board_recognizer: Game2048BoardRecognizer | None = …, minimum_candidate_confidence: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 45,
-            "start_line": 31
+            "end_line": 49,
+            "start_line": 35
           }
         },
         {
@@ -31146,8 +31146,8 @@
           "signature": "(self, frame: ScreenFrame, observation: ScreenObservation) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 54
+            "end_line": 101,
+            "start_line": 58
           }
         },
         {
@@ -31175,8 +31175,8 @@
           "signature": "(frame: ScreenFrame, region: BoardRegion) -> tuple[int, int, int, int]",
           "source_location": {
             "column": 0,
-            "end_line": 114,
-            "start_line": 100
+            "end_line": 118,
+            "start_line": 104
           }
         },
         {
@@ -31198,8 +31198,8 @@
           "signature": "(candidate: dict[str, Any]) -> tuple[float, float, float, float] | None",
           "source_location": {
             "column": 0,
-            "end_line": 142,
-            "start_line": 117
+            "end_line": 146,
+            "start_line": 121
           }
         },
         {
@@ -31221,8 +31221,8 @@
           "signature": "(text: str) -> list[int]",
           "source_location": {
             "column": 0,
-            "end_line": 157,
-            "start_line": 145
+            "end_line": 161,
+            "start_line": 149
           }
         },
         {
@@ -31250,8 +31250,8 @@
           "signature": "(observation: ScreenObservation, board_bounds: tuple[int, int, int, int] | None) -> tuple[int | None, float]",
           "source_location": {
             "column": 0,
-            "end_line": 235,
-            "start_line": 160
+            "end_line": 242,
+            "start_line": 164
           }
         },
         {
@@ -31273,8 +31273,8 @@
           "signature": "(ocr_text: list[str]) -> tuple[int | None, float]",
           "source_location": {
             "column": 0,
-            "end_line": 255,
-            "start_line": 238
+            "end_line": 261,
+            "start_line": 245
           }
         },
         {
@@ -31302,8 +31302,8 @@
           "signature": "(observation: ScreenObservation, board: tuple[tuple[int | None, ...], ...] | None) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 289,
-            "start_line": 258
+            "end_line": 295,
+            "start_line": 264
           }
         },
         {
@@ -31337,8 +31337,8 @@
           "signature": "(board: tuple[tuple[int | None, ...], ...], score: int | None, game_over: bool) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 307,
-            "start_line": 292
+            "end_line": 313,
+            "start_line": 298
           }
         }
       ]
@@ -31404,7 +31404,20 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "median_low"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -31421,7 +31434,7 @@
       "module": "ai_game_player.game_2048_board",
       "path": "src/ai_game_player/game_2048_board.py",
       "source_location": {
-        "end_line": 375,
+        "end_line": 405,
         "start_line": 1
       },
       "symbols": [
@@ -31444,8 +31457,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> tuple[int, int, int]",
           "source_location": {
             "column": 0,
-            "end_line": 64,
-            "start_line": 54
+            "end_line": 65,
+            "start_line": 55
           }
         },
         {
@@ -31460,8 +31473,8 @@
           "signature": "() -> frozenset[tuple[int, int, int]]",
           "source_location": {
             "column": 0,
-            "end_line": 74,
-            "start_line": 67
+            "end_line": 75,
+            "start_line": 68
           }
         },
         {
@@ -31476,8 +31489,8 @@
           "signature": "() -> dict[tuple[int, int, int], int]",
           "source_location": {
             "column": 0,
-            "end_line": 88,
-            "start_line": 77
+            "end_line": 89,
+            "start_line": 78
           }
         },
         {
@@ -31501,8 +31514,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 108,
-            "start_line": 96
+            "end_line": 109,
+            "start_line": 97
           }
         },
         {
@@ -31524,8 +31537,31 @@
           "signature": "(matched_rows: list[tuple[int, int, int, int]]) -> list[list[tuple[int, int, int, int]]]",
           "source_location": {
             "column": 0,
-            "end_line": 146,
-            "start_line": 117
+            "end_line": 147,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_robust_board_bounds",
+          "parameters": [
+            {
+              "annotation": "list[tuple[int, int, int, int]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "group"
+            }
+          ],
+          "qualified_name": "_robust_board_bounds",
+          "return_annotation": "tuple[int, int, int, int] | None",
+          "signature": "(group: list[tuple[int, int, int, int]]) -> tuple[int, int, int, int] | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 174,
+            "start_line": 156
           }
         },
         {
@@ -31546,8 +31582,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 159,
-            "start_line": 150
+            "end_line": 187,
+            "start_line": 178
           }
         },
         {
@@ -31568,8 +31604,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 171,
-            "start_line": 163
+            "end_line": 199,
+            "start_line": 191
           }
         },
         {
@@ -31588,8 +31624,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 359,
-            "start_line": 174
+            "end_line": 389,
+            "start_line": 202
           }
         },
         {
@@ -31617,8 +31653,8 @@
           "signature": "(self, minimum_confidence: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 188,
-            "start_line": 179
+            "end_line": 216,
+            "start_line": 207
           }
         },
         {
@@ -31646,8 +31682,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRecognition | None",
           "source_location": {
             "column": 4,
-            "end_line": 222,
-            "start_line": 197
+            "end_line": 250,
+            "start_line": 225
           }
         },
         {
@@ -31675,8 +31711,8 @@
           "signature": "(self, frame: ScreenFrame) -> BoardRegion | None",
           "source_location": {
             "column": 4,
-            "end_line": 306,
-            "start_line": 230
+            "end_line": 336,
+            "start_line": 258
           }
         },
         {
@@ -31722,8 +31758,8 @@
           "signature": "(self, frame: ScreenFrame, region: BoardRegion, row: int, column: int) -> tuple[int | None, float]",
           "source_location": {
             "column": 4,
-            "end_line": 359,
-            "start_line": 314
+            "end_line": 389,
+            "start_line": 344
           }
         },
         {
@@ -31745,8 +31781,8 @@
           "signature": "(rgb: tuple[int, int, int]) -> int | None",
           "source_location": {
             "column": 0,
-            "end_line": 375,
-            "start_line": 362
+            "end_line": 405,
+            "start_line": 392
           }
         }
       ]
@@ -81395,6 +81431,577 @@
             "column": 4,
             "end_line": 80,
             "start_line": 75
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.models",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.check_2048_screen_transition"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "zlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "zlib"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            },
+            {
+              "alias": null,
+              "name": "_read_score"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 158,
+          "local_dependencies": [
+            "tools",
+            "tools.check_2048_screen_transition"
+          ],
+          "module": "tools.check_2048_screen_transition",
+          "names": [
+            {
+              "alias": null,
+              "name": "BrowserScreenSource"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_2048_glow",
+      "path": "tests/test_2048_glow.py",
+      "source_location": {
+        "end_line": 196,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "glow_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "glow_frame",
+          "return_annotation": null,
+          "signature": "(name = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 20,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "GlowRecognitionTests",
+          "parameters": [],
+          "qualified_name": "GlowRecognitionTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 196,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_real_glow_frame_recovers_geometry_and_all_cells",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_real_glow_frame_recovers_geometry_and_all_cells",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 36,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unlocated_heading_after_score_label_is_unknown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_unlocated_heading_after_score_label_is_unknown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_heading_without_score_label_cannot_be_current_score",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_heading_without_score_label_cannot_be_current_score",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_score_label_does_not_pair_with_distant_heading",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_score_label_does_not_pair_with_distant_heading",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 69,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_glyph_truth_is_supported_by_independent_pixel_mask",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_glyph_truth_is_supported_by_independent_pixel_mask",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 86,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "mask",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "left"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_glyph_truth_is_supported_by_independent_pixel_mask.mask",
+          "return_annotation": null,
+          "signature": "(left)",
+          "source_location": {
+            "column": 8,
+            "end_line": 81,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_css_glow_scale_position_and_overlay_fixtures",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_css_glow_scale_position_and_overlay_fixtures",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_color_is_not_filled_and_has_no_candidates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_unknown_color_is_not_filled_and_has_no_candidates",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_located_current_score_is_separate_from_header_and_best",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_located_current_score_is_separate_from_header_and_best",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 143,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_only_an_explicit_inline_score_is_accepted_without_positions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_only_an_explicit_inline_score_is_accepted_without_positions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 145
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_browser_probe_keeps_score_bounding_box_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_browser_probe_keeps_score_bounding_box_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 196,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Image",
+          "parameters": [],
+          "qualified_name": "GlowRecognitionTests.test_browser_probe_keeps_score_bounding_box_evidence.Image",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 174,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "convert",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_mode"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_browser_probe_keeps_score_bounding_box_evidence.Image.convert",
+          "return_annotation": null,
+          "signature": "(self, _mode)",
+          "source_location": {
+            "column": 12,
+            "end_line": 171,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tobytes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "_args"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_browser_probe_keeps_score_bounding_box_evidence.Image.tobytes",
+          "return_annotation": null,
+          "signature": "(self, *_args)",
+          "source_location": {
+            "column": 12,
+            "end_line": 174,
+            "start_line": 173
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "adapt",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            }
+          ],
+          "qualified_name": "GlowRecognitionTests.test_browser_probe_keeps_score_bounding_box_evidence.adapt",
+          "return_annotation": null,
+          "signature": "(frame, observation)",
+          "source_location": {
+            "column": 8,
+            "end_line": 189,
+            "start_line": 184
           }
         }
       ]
@@ -178657,7 +179264,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 257,
+          "line": 258,
           "local_dependencies": [],
           "module": "PIL",
           "names": [
@@ -178670,7 +179277,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 258,
+          "line": 259,
           "local_dependencies": [],
           "module": "playwright.sync_api",
           "names": [
@@ -178684,7 +179291,7 @@
       "module": "tools.check_2048_screen_transition",
       "path": "tools/check_2048_screen_transition.py",
       "source_location": {
-        "end_line": 305,
+        "end_line": 306,
         "start_line": 1
       },
       "symbols": [
@@ -178704,7 +179311,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 96,
+            "end_line": 97,
             "start_line": 32
           }
         },
@@ -178768,7 +179375,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 89,
+            "end_line": 90,
             "start_line": 42
           }
         },
@@ -178791,8 +179398,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 91
+            "end_line": 97,
+            "start_line": 92
           }
         },
         {
@@ -178811,8 +179418,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 128,
-            "start_line": 99
+            "end_line": 129,
+            "start_line": 100
           }
         },
         {
@@ -178852,8 +179459,8 @@
           "signature": "(self, page, target_url, before_dispatch)",
           "source_location": {
             "column": 4,
-            "end_line": 103,
-            "start_line": 100
+            "end_line": 104,
+            "start_line": 101
           }
         },
         {
@@ -178881,8 +179488,8 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 4,
-            "end_line": 128,
-            "start_line": 105
+            "end_line": 129,
+            "start_line": 106
           }
         },
         {
@@ -178934,8 +179541,8 @@
           "signature": "(browser, target_url, image_class, seed, max_steps, output)",
           "source_location": {
             "column": 0,
-            "end_line": 240,
-            "start_line": 131
+            "end_line": 241,
+            "start_line": 132
           }
         },
         {
@@ -178957,8 +179564,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 301,
-            "start_line": 243
+            "end_line": 302,
+            "start_line": 244
           }
         }
       ]
@@ -194063,6 +194670,182 @@
             "column": 0,
             "end_line": 30,
             "start_line": 10
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "BytesIO"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "zlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "zlib"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "LoopbackStaticServer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "PinnedGameSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [],
+          "module": "PIL",
+          "names": [
+            {
+              "alias": null,
+              "name": "Image"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [],
+          "module": "playwright.sync_api",
+          "names": [
+            {
+              "alias": null,
+              "name": "sync_playwright"
+            }
+          ]
+        }
+      ],
+      "module": "tools.render_2048_glow_fixture",
+      "path": "tools/render_2048_glow_fixture.py",
+      "source_location": {
+        "end_line": 129,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": null,
+          "signature": "(argv = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 125,
+            "start_line": 24
           }
         }
       ]

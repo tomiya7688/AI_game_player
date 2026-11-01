@@ -1,3 +1,10 @@
+## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
+
+- 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
+- 修正版5ed5の画像だけを用いるdepth1実プレイではseed479/480各180手・360遷移/観測完了を照合し、元の135/131手の認識停止を越えました。測定headと限界は[認識資料](architecture/reference_2048_recognition.md)へ記録します。
+- 比較probeのOCR bboxを保持し、SCOREの位置対応・明示文字列以外の曖昧な得点をunknownへ。元失敗2画像と複数glow/scale/位置/overlay、未知色・得点負例を回帰化しました。[設計と検証範囲](architecture/reference_2048_recognition.md)。
+- 機能親37bbの一時planning IPC改善・通常OFFの失敗後診断を通常mergeし、659の認識codeとfixtureを保持。元8dcの数字tileが描画されない初期空画面、294の12保留失敗は元glow回帰と区別し、新headのWindows CIを別に要求します。
+
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
 - 37bbの全18比較は17成功/1初期化失敗、Planner72実入力/保留0と両600秒成功を保存し、失敗PNG/元時刻・hash・HB/CDPを保全。私有固定ゲームHTTPだけ有限backlog32を要求し、GET工程の診断欠落flagと事後ResourceTiming/Grid/Tile有無を追加します。Linux機構/反事実試験は元Windows原因や新head成功の証明ではなく、元予算・未知拒否・入力条件は維持します。

@@ -61,13 +61,14 @@ class BrowserScreenSource:
             or state["confidence"] < 0.65
             or any(cell >= 1024 for row in board for cell in row)
         ):
-            words = [str(item["text"]) for item in self.ocr.recognize(frame)]
+            ocr_candidates = self.ocr.recognize(frame)
+            words = [str(item["text"]) for item in ocr_candidates]
             observation = ScreenObservation(
                 observation.screen_id,
                 image.width,
                 image.height,
                 ocr_text=words,
-                features=observation.features,
+                features={**observation.features, "ocr_candidates": ocr_candidates},
             )
             self.victory_observed = bool(
                 re.search(r"\byou\s+win\b", " ".join(words), flags=re.IGNORECASE)
