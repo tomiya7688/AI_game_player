@@ -7600,6 +7600,1676 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_snapshot",
+        "ai_game_player.belief_validation",
+        "ai_game_player.world_state_hypothesis"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Iterable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Generic"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_snapshot"
+          ],
+          "module": "ai_game_player.belief_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefDiagnostics"
+            },
+            {
+              "alias": null,
+              "name": "BeliefSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            },
+            {
+              "alias": null,
+              "name": "belief_number"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.world_state_hypothesis"
+          ],
+          "module": "ai_game_player.world_state_hypothesis",
+          "names": [
+            {
+              "alias": null,
+              "name": "StateT"
+            },
+            {
+              "alias": null,
+              "name": "WorldStateHypothesis"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.belief_candidate_store",
+      "path": "src/ai_game_player/belief_candidate_store.py",
+      "source_location": {
+        "end_line": 447,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BeliefStoreError",
+          "parameters": [],
+          "qualified_name": "BeliefStoreError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 21,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefStorePolicy",
+          "parameters": [],
+          "qualified_name": "BeliefStorePolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 55,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefStorePolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [
+            "Generic[StateT]"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BeliefCandidateStore",
+          "parameters": [],
+          "qualified_name": "BeliefCandidateStore",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 447,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "type[StateT]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_type"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "clock_id"
+            },
+            {
+              "annotation": "BeliefStorePolicy | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "policy"
+            },
+            {
+              "annotation": "Callable[[], int]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "clock_ns"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore.__init__",
+          "return_annotation": "None",
+          "signature": "(self, state_type: type[StateT], *, clock_id: str, policy: BeliefStorePolicy | None = …, clock_ns: Callable[[], int] = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 92,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore.read",
+          "return_annotation": "BeliefSnapshot[StateT] | None",
+          "signature": "(self, context: BeliefContext) -> BeliefSnapshot[StateT] | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 110,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "reset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore.reset",
+          "return_annotation": "BeliefSnapshot[StateT]",
+          "signature": "(self, context: BeliefContext) -> BeliefSnapshot[StateT]",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "publish",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "Iterable[WorldStateHypothesis[StateT]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "unknown_mass"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "update_reason"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "deadline_ns"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_version"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore.publish",
+          "return_annotation": "BeliefSnapshot[StateT]",
+          "signature": "(self, context: BeliefContext, candidates: Iterable[WorldStateHypothesis[StateT]], *, unknown_mass: float = …, update_reason: str = …, deadline_ns: int | None = …, expected_version: int | None = …) -> BeliefSnapshot[StateT]",
+          "source_location": {
+            "column": 4,
+            "end_line": 280,
+            "start_line": 154
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_collect",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "Iterable[WorldStateHypothesis[StateT]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "deadline"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore._collect",
+          "return_annotation": "tuple[dict[str, WorldStateHypothesis[StateT]], int, int]",
+          "signature": "(self, context: BeliefContext, candidates: Iterable[WorldStateHypothesis[StateT]], deadline: int) -> tuple[dict[str, WorldStateHypothesis[StateT]], int, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 313,
+            "start_line": 289
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_make_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "version"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "tuple[WorldStateHypothesis[StateT], ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "retained"
+            },
+            {
+              "annotation": "BeliefWeightKind",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kind"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "started"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "input_count"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "duplicate_ids"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "duplicate_worlds"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "peak"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore._make_snapshot",
+          "return_annotation": "BeliefSnapshot[StateT]",
+          "signature": "(self, version: int, context: BeliefContext, retained: tuple[WorldStateHypothesis[StateT], ...], kind: BeliefWeightKind, now: int, started: int, reason: str, input_count: int, duplicate_ids: int, duplicate_worlds: int, peak: int) -> BeliefSnapshot[StateT]",
+          "source_location": {
+            "column": 4,
+            "end_line": 380,
+            "start_line": 322
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_is_fresh",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "WorldStateHypothesis[StateT]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "item"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore._is_fresh",
+          "return_annotation": "bool",
+          "signature": "(self, item: WorldStateHypothesis[StateT], now: int) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 396,
+            "start_line": 388
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_check_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore._check_context",
+          "return_annotation": "None",
+          "signature": "(self, context: BeliefContext) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 407,
+            "start_line": 405
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_check_advance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefSnapshot[StateT] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "previous"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore._check_advance",
+          "return_annotation": "None",
+          "signature": "(self, previous: BeliefSnapshot[StateT] | None, context: BeliefContext) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 436,
+            "start_line": 416
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_check_deadline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "deadline"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStore._check_deadline",
+          "return_annotation": "None",
+          "signature": "(self, deadline: int) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 447,
+            "start_line": 445
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_validation"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            },
+            {
+              "alias": null,
+              "name": "belief_number"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.belief_contract",
+      "path": "src/ai_game_player/belief_contract.py",
+      "source_location": {
+        "end_line": 212,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BeliefWeightKind",
+          "parameters": [],
+          "qualified_name": "BeliefWeightKind",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 16,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BeliefEvidenceKind",
+          "parameters": [],
+          "qualified_name": "BeliefEvidenceKind",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 27,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefContext",
+          "parameters": [],
+          "qualified_name": "BeliefContext",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 107,
+            "start_line": 37
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefContext.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 81,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "run_scope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefContext.run_scope",
+          "return_annotation": "tuple",
+          "signature": "(self) -> tuple",
+          "source_location": {
+            "column": 4,
+            "end_line": 98,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefContext.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefFreshness",
+          "parameters": [],
+          "qualified_name": "BeliefFreshness",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 128,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefFreshness.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 128,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefWeight",
+          "parameters": [],
+          "qualified_name": "BeliefWeight",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 163,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefWeight.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefEvidenceRef",
+          "parameters": [],
+          "qualified_name": "BeliefEvidenceRef",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 212,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefEvidenceRef.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 212,
+            "start_line": 191
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_validation",
+        "ai_game_player.world_state_hypothesis"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Generic"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            },
+            {
+              "alias": null,
+              "name": "belief_json"
+            },
+            {
+              "alias": null,
+              "name": "belief_number"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.world_state_hypothesis"
+          ],
+          "module": "ai_game_player.world_state_hypothesis",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisOrigin"
+            },
+            {
+              "alias": null,
+              "name": "StateT"
+            },
+            {
+              "alias": null,
+              "name": "WorldStateHypothesis"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.belief_snapshot",
+      "path": "src/ai_game_player/belief_snapshot.py",
+      "source_location": {
+        "end_line": 228,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefDiagnostics",
+          "parameters": [],
+          "qualified_name": "BeliefDiagnostics",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 31
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefDiagnostics.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [
+            "Generic[StateT]"
+          ],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "BeliefSnapshot",
+          "parameters": [],
+          "qualified_name": "BeliefSnapshot",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 228,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefSnapshot.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "reobserve_requested",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefSnapshot.reobserve_requested",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 165,
+            "start_line": 158
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "entropy_lower_bound_bits",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefSnapshot.entropy_lower_bound_bits",
+          "return_annotation": "float | None",
+          "signature": "(self) -> float | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 180,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "ranking_weights",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefSnapshot.ranking_weights",
+          "return_annotation": "tuple[float, ...]",
+          "signature": "(self) -> tuple[float, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 197,
+            "start_line": 189
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefSnapshot.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 219,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_bytes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefSnapshot.to_bytes",
+          "return_annotation": "bytes",
+          "signature": "(self) -> bytes",
+          "source_location": {
+            "column": 4,
+            "end_line": 228,
+            "start_line": 227
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "fields"
+            },
+            {
+              "alias": null,
+              "name": "is_dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.belief_validation",
+      "path": "src/ai_game_player/belief_validation.py",
+      "source_location": {
+        "end_line": 173,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "belief_id",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "belief_id",
+          "return_annotation": "str",
+          "signature": "(value: object) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 29,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "belief_integer",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "minimum"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "belief_integer",
+          "return_annotation": "int",
+          "signature": "(value: object, minimum: int = …, maximum: int = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "belief_number",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "belief_number",
+          "return_annotation": "float",
+          "signature": "(value: object, maximum: float = …) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 52
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "belief_json",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "belief_json",
+          "return_annotation": "bytes",
+          "signature": "(value: object) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 73,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "canonical_belief_state",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "canonical_belief_state",
+          "return_annotation": "bytes",
+          "signature": "(state: object) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 159,
+            "start_line": 83
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "encode",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "canonical_belief_state.encode",
+          "return_annotation": "object",
+          "signature": "(value: object, depth: int) -> object",
+          "source_location": {
+            "column": 4,
+            "end_line": 154,
+            "start_line": 94
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_type_name",
+          "parameters": [
+            {
+              "annotation": "type",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_type"
+            }
+          ],
+          "qualified_name": "_type_name",
+          "return_annotation": "str",
+          "signature": "(state_type: type) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 173,
+            "start_line": 169
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -62931,6 +64601,311 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_validation"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Generic"
+            },
+            {
+              "alias": null,
+              "name": "TypeVar"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceKind"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceRef"
+            },
+            {
+              "alias": null,
+              "name": "BeliefFreshness"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeight"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "canonical_belief_state"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.world_state_hypothesis",
+      "path": "src/ai_game_player/world_state_hypothesis.py",
+      "source_location": {
+        "end_line": 198,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "HypothesisOrigin",
+          "parameters": [],
+          "qualified_name": "HypothesisOrigin",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 29,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [
+            "Generic[StateT]"
+          ],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "TypedStateRef",
+          "parameters": [],
+          "qualified_name": "TypedStateRef",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 82,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TypedStateRef.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TypedStateRef.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [
+            "Generic[StateT]"
+          ],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "WorldStateHypothesis",
+          "parameters": [],
+          "qualified_name": "WorldStateHypothesis",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 198,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorldStateHypothesis.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 160,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorldStateHypothesis.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 168
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.campaign_runner",
         "ai_game_player.models",
         "ai_game_player.pipeline",
@@ -69183,6 +71158,1190 @@
             "column": 4,
             "end_line": 81,
             "start_line": 71
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_candidate_store",
+        "ai_game_player.belief_contract",
+        "ai_game_player.decision_context",
+        "ai_game_player.decision_verifier",
+        "ai_game_player.game_2048_state",
+        "ai_game_player.models",
+        "ai_game_player.world_state_hypothesis"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "FrozenInstanceError"
+            },
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "gc",
+          "names": [
+            {
+              "alias": null,
+              "name": "gc"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "tracemalloc",
+          "names": [
+            {
+              "alias": null,
+              "name": "tracemalloc"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_candidate_store"
+          ],
+          "module": "ai_game_player.belief_candidate_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefCandidateStore"
+            },
+            {
+              "alias": null,
+              "name": "BeliefStoreError"
+            },
+            {
+              "alias": null,
+              "name": "BeliefStorePolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceKind"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceRef"
+            },
+            {
+              "alias": null,
+              "name": "BeliefFreshness"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeight"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_state"
+          ],
+          "module": "ai_game_player.game_2048_state",
+          "names": [
+            {
+              "alias": null,
+              "name": "Game2048State"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionVerifier"
+            },
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.world_state_hypothesis"
+          ],
+          "module": "ai_game_player.world_state_hypothesis",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisOrigin"
+            },
+            {
+              "alias": null,
+              "name": "TypedStateRef"
+            },
+            {
+              "alias": null,
+              "name": "WorldStateHypothesis"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_belief_candidate_store",
+      "path": "tests/test_belief_candidate_store.py",
+      "source_location": {
+        "end_line": 703,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CardState",
+          "parameters": [],
+          "qualified_name": "CardState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 36,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PositionState",
+          "parameters": [],
+          "qualified_name": "PositionState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 41,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BeliefCandidateStoreTests",
+          "parameters": [],
+          "qualified_name": "BeliefCandidateStoreTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 703,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 60,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "store",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.store",
+          "return_annotation": null,
+          "signature": "(self, **policy)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "hypothesis",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "state"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "value"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "context"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "kind"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "evidence"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "origin"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "freshness"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.hypothesis",
+          "return_annotation": null,
+          "signature": "(self, name = …, *, state = …, value = …, context = …, kind = …, evidence = …, origin = …, freshness = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_2048_fixture_adapter_uses_existing_typed_state_and_preserves_8_16",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_2048_fixture_adapter_uses_existing_typed_state_and_preserves_8_16",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unrelated_card_and_position_states_use_same_generic_contract",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_unrelated_card_and_position_states_use_same_generic_contract",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_belief_payload_never_overrides_actual_allowed_actions_or_verifier",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_belief_payload_never_overrides_actual_allowed_actions_or_verifier",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 204,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_snapshot_direct_construction_cannot_break_version_mass_or_freshness",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_snapshot_direct_construction_cannot_break_version_mass_or_freshness",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 218,
+            "start_line": 206
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_versioned_schema_declares_all_snapshot_fields_and_weight_semantics",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_versioned_schema_declares_all_snapshot_fields_and_weight_semantics",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 237,
+            "start_line": 220
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_context_prediction_can_be_replaced_without_inventing_a_new_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_same_context_prediction_can_be_replaced_without_inventing_a_new_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 255,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_monotonic_clock_regression_is_rejected_without_replacing_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_monotonic_clock_regression_is_rejected_without_replacing_snapshot",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 264,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_typed_state_is_deeply_immutable_and_canonical",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_typed_state_is_deeply_immutable_and_canonical",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 290,
+            "start_line": 266
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_undecorated_mutable_subclass_and_undeclared_state_fields_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_undecorated_mutable_subclass_and_undeclared_state_fields_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 305,
+            "start_line": 292
+          }
+        },
+        {
+          "bases": [
+            "CardState"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MutableCard",
+          "parameters": [],
+          "qualified_name": "BeliefCandidateStoreTests.test_undecorated_mutable_subclass_and_undeclared_state_fields_are_rejected.MutableCard",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 296,
+            "start_line": 295
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expected_prior_version_prevents_late_same_context_overwrite",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_expected_prior_version_prevents_late_same_context_overwrite",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 323,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cycles_depth_nodes_scalar_bytes_and_nonfinite_weights_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_cycles_depth_nodes_scalar_bytes_and_nonfinite_weights_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 351,
+            "start_line": 325
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_top_k_keeps_absolute_probability_and_moves_dropped_mass_to_unknown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_top_k_keeps_absolute_probability_and_moves_dropped_mass_to_unknown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 364,
+            "start_line": 353
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_score_normalization_is_not_probability_and_large_scores_do_not_overflow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_score_normalization_is_not_probability_and_large_scores_do_not_overflow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 379,
+            "start_line": 366
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exact_id_resends_do_not_add_mass_but_conflicting_id_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_exact_id_resends_do_not_add_mass_but_conflicting_id_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 405,
+            "start_line": 381
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_world_aliases_keep_max_and_unmerged_path_mass_remains_unknown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_same_world_aliases_keep_max_and_unmerged_path_mass_remains_unknown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 430,
+            "start_line": 407
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_correlated_recognizer_refs_are_counted_once_and_never_multiplied",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_correlated_recognizer_refs_are_counted_once_and_never_multiplied",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 452,
+            "start_line": 432
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mixed_scope_frame_turn_epoch_generation_and_snapshot_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_mixed_scope_frame_turn_epoch_generation_and_snapshot_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 487,
+            "start_line": 454
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_probability_mass_and_calibration_or_origin_mixtures_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_probability_mass_and_calibration_or_origin_mixtures_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 505,
+            "start_line": 489
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prediction_is_never_relabelled_as_observed_fact",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_prediction_is_never_relabelled_as_observed_fact",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 520,
+            "start_line": 507
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_empty_all_zero_all_stale_and_low_coverage_request_reobservation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_empty_all_zero_all_stale_and_low_coverage_request_reobservation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 537,
+            "start_line": 522
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_old_evidence_cannot_be_refreshed_by_new_ttl_or_distant_fused_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_old_evidence_cannot_be_refreshed_by_new_ttl_or_distant_fused_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 555,
+            "start_line": 539
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_read_rejects_expired_context_and_cross_process_clock_origin",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_read_rejects_expired_context_and_cross_process_clock_origin",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 566,
+            "start_line": 557
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_new_frame_replaces_distribution_and_restart_requires_explicit_reset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_new_frame_replaces_distribution_and_restart_requires_explicit_reset",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 598,
+            "start_line": 568
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_frame_with_changed_snapshot_and_reused_snapshot_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_same_frame_with_changed_snapshot_and_reused_snapshot_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 608,
+            "start_line": 600
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_byte_budget_prunes_without_renormalizing_and_single_state_is_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_byte_budget_prunes_without_renormalizing_and_single_state_is_bounded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 625,
+            "start_line": 610
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_input_overflow_and_timeout_leave_previous_snapshot_unchanged",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_input_overflow_and_timeout_leave_previous_snapshot_unchanged",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 643,
+            "start_line": 627
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "endless",
+          "parameters": [],
+          "qualified_name": "BeliefCandidateStoreTests.test_input_overflow_and_timeout_leave_previous_snapshot_unchanged.endless",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 635,
+            "start_line": 632
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reset_racing_slow_generation_cannot_publish_old_scope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_reset_racing_slow_generation_cannot_publish_old_scope",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 672,
+            "start_line": 645
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "slow_candidates",
+          "parameters": [],
+          "qualified_name": "BeliefCandidateStoreTests.test_reset_racing_slow_generation_cannot_publish_old_scope.slow_candidates",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 654,
+            "start_line": 650
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "publish",
+          "parameters": [],
+          "qualified_name": "BeliefCandidateStoreTests.test_reset_racing_slow_generation_cannot_publish_old_scope.publish",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 660,
+            "start_line": 656
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_churn_and_restarts_retain_one_bounded_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BeliefCandidateStoreTests.test_churn_and_restarts_retain_one_bounded_snapshot",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 703,
+            "start_line": 674
           }
         }
       ]
@@ -130496,6 +133655,268 @@
             "column": 0,
             "end_line": 51,
             "start_line": 15
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_candidate_store",
+        "ai_game_player.belief_contract",
+        "ai_game_player.world_state_hypothesis"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "statistics"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "tracemalloc",
+          "names": [
+            {
+              "alias": null,
+              "name": "tracemalloc"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_candidate_store"
+          ],
+          "module": "ai_game_player.belief_candidate_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefCandidateStore"
+            },
+            {
+              "alias": null,
+              "name": "BeliefStorePolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceKind"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceRef"
+            },
+            {
+              "alias": null,
+              "name": "BeliefFreshness"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeight"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.world_state_hypothesis"
+          ],
+          "module": "ai_game_player.world_state_hypothesis",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisOrigin"
+            },
+            {
+              "alias": null,
+              "name": "TypedStateRef"
+            },
+            {
+              "alias": null,
+              "name": "WorldStateHypothesis"
+            }
+          ]
+        }
+      ],
+      "module": "tools.benchmark_belief_store",
+      "path": "tools/benchmark_belief_store.py",
+      "source_location": {
+        "end_line": 144,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "BenchmarkState",
+          "parameters": [],
+          "qualified_name": "BenchmarkState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 32,
+            "start_line": 31
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "benchmark",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "iterations"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_count"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "capacity"
+            }
+          ],
+          "qualified_name": "benchmark",
+          "return_annotation": "dict",
+          "signature": "(iterations: int, candidate_count: int, capacity: int) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 124,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 140,
+            "start_line": 127
           }
         }
       ]

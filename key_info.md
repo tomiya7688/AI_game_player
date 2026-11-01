@@ -2,6 +2,7 @@
 
 ## できること
 
+- 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。
 - #422: 実Sessionの既定Modeにbounded Light workerを接続。receiptとverified効果、profile保証hash識別、unknown保留、Gate light検証→Mode CAS→durable ack、Stop事実退避。一般ゲームの因果検証/#433識別/#409完全Utility/#425自動資源分類は未完。[契約とp50/p95](doc/architecture/light_adaptation.md)。
 
 - Runtime Mode / Phase のコア契約（5 Mode / 8 Phase、既定 Light、安全境界、Step 版固定、共有 RunController の Stop、Journal / checkpoint）。詳細は `doc/architecture/runtime_modes.md`。
@@ -31,6 +32,7 @@
 
 ## 制約
 
+- Beliefは候補保持のCore APIとCPU fixtureまでです。本番Recognition / Journal / Decisionへの配線、Bayesian更新は #405/#407/#564 で対応し、予測を観測事実へ変換しません。
 - 固定版2048 campaignの`--save-failure-evidence`は既定OFFです。明示ON時、起動失敗の所有PID窓metadataと取得可能なWGC画素をcleanup前に有界保存します。診断を追加しただけで、自然なbrowser起動失敗の原因を解消したとは扱いません（#459/#637）。
 
 - Mode 契約の本番 Light Adaptation Runner 接続は Issue #422、重学習・交互 orchestration・資源制御・UI は後続 Issue で対応します。Mode 契約だけでは学習を起動しません。通常の Outcome / Verifier / Safety 評価を無効化しません。

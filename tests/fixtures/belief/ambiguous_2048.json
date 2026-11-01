@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "game_id": "2048",
+  "description": "CPU-only synthetic recognizer fixture; one cell is ambiguous between 8 and 16; no DOM or live-state oracle",
+  "calibration_id": "fixture-recognizer-v1",
+  "candidates": [
+    {"id": "cell-8", "cells": [[2, 4, 8, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "probability": 0.55},
+    {"id": "cell-16", "cells": [[2, 4, 16, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], "probability": 0.35}
+  ],
+  "unknown_mass": 0.1
+}
