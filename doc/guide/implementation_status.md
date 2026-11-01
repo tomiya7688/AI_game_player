@@ -72,3 +72,16 @@
 部品の実装、標準経路への接続、対象環境での試験結果の順に、根拠を付けて更新します。CIの成功は、対象コミット・実行回・ゲーム・機材の範囲内の証拠です。以前の失敗を再実行の成功で消したり、PRがマージされたことだけで製品の全機能を完成扱いしたりしません。
 
 残作業の入口は、処理選択が[#13](https://github.com/tomiya7688/AI_game_player/issues/13)、不確かさからの行動方針が[#206](https://github.com/tomiya7688/AI_game_player/issues/206)、共通推論契約が[#174](https://github.com/tomiya7688/AI_game_player/issues/174)、学習が[#180](https://github.com/tomiya7688/AI_game_player/issues/180)、録画が[#201](https://github.com/tomiya7688/AI_game_player/issues/201)、Session横断参照が[#263](https://github.com/tomiya7688/AI_game_player/issues/263)、実行モデルの証拠が[#627](https://github.com/tomiya7688/AI_game_player/issues/627)です。実装作業は各親Issueの子Issue単位で進め、説明資料の[#606](https://github.com/tomiya7688/AI_game_player/issues/606)を製品機能の実装先の代わりにしません。
+
+
+## 7．統合版で実画面を確かめた範囲
+
+2026-11-01、実装基準`f145c946685ae7361f8d3e6416b85c6fdf07e988`で、隔離Chromiumへ通常入力を送り、画面からの認識・判断・実行を再検証しました。以下は実際に確認した範囲で、Windows WGC/Win32入力や汎用攻略性能の受入れではありません。
+
+| 対象と判断経路 | 実操作と結果 | 証明しないこと |
+|---|---|---|
+| 固定版2048、既存の方向巡回判断 | seed 479/480/481の3プレイで計404操作。次盤面はすべて予測分布と一致し、Stop後の入力拒否を確認。得点1332/1140/1256、最大タイルは各128 | 巡回判断と遷移照合であり、Bayesの本番Decision接続・学習による棋力改善の比較ではない |
+| Tetris、共通OCRと無変更の規則判断 | 「Play」を1回クリックし、その後は許可候補なしで停止 | 開始後のキー候補生成・自律攻略は未達 |
+| Breakout、共通OCRと無変更の規則判断 | 約29.21秒で30回クリック。Score、Level、数値等を選び、paddle制御は成立しなかった | 画面差や反復を因果的no_effectの正解にせず、学習改善・攻略成功と扱わない |
+
+2048の操作経路・検証手順は[仮想遷移の実画面検証](../architecture/transition_simulation.md)、実操作の帰属は[実行受領記録](../architecture/execution_receipts.md)を参照してください。開発環境の補助証拠は`build/transition-2048/final-stack-{screen,tetris,breakout}/report.json`です。これらの実画面検証と、[独立10種fixtureのOS入力受入れ](../独立テストゲーム集.md)は別の証拠で、10種を汎用AIが攻略したことにはなりません。認識・探索・結果評価の未達は#30/#96/#565/#491/#566/#567等へ追跡します。
