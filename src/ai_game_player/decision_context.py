@@ -12,6 +12,7 @@ from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.knowledge_projection import KnowledgeProjection
 from ai_game_player.decision_withheld import DecisionDisposition
+from ai_game_player.runtime_evaluation_projection import RuntimeEvaluationProjection
 from ai_game_player.execution_receipt import ExecutionReceipt
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
@@ -109,7 +110,7 @@ class CandidateDecisionContext:
 @dataclass(frozen=True)
 # {
 #   責務: [DecisionContext: 1回の選択に使った画面・許可候補・過去の結果を同じ観測IDに結び付ける]
-#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性, knowledge_projection: このstepだけの任意soft evidence。実観測と区別する]
+#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性, knowledge_projection: このstepだけの任意soft evidence, evaluation_projection: 前実操作と候補仮説を分けた6軸と価値基準]
 # }
 class DecisionContext:
     snapshot_id: str
@@ -121,14 +122,17 @@ class DecisionContext:
     goal: dict[str, str]
     uncertainty: tuple[str, ...]
     knowledge_projection: KnowledgeProjection | None = None
+    evaluation_projection: RuntimeEvaluationProjection | None = None
 
     # {
     #   責務: [to_dict: 判断材料をモデル要求またはローカルTrace向けの独立辞書に変換する]
-    #   処理: [Knowledgeは公開opt-in時、またはローカルTraceへの明示要求時だけ含める]
-    #   引数: [include_knowledge: Trueはローカル監査用。モデル送信では既定Falseを使う]
+    #   処理: [Knowledge/6軸projectionは各公開opt-in時またはlocal監査の明示要求時だけ含める]
+    #   引数: [include_knowledge/include_evaluation: Trueはlocal監査用。モデル送信では既定False]
     #   戻り値: [dict: 観測とKnowledgeの出所を分離したJSON化可能な判断材料]
     # }
-    def to_dict(self, *, include_knowledge: bool = False) -> dict[str, Any]:
+    def to_dict(
+        self, *, include_knowledge: bool = False, include_evaluation: bool = False
+    ) -> dict[str, Any]:
         value = {
             "schema": "decision-context/v1",
             "snapshot_id": self.snapshot_id,
@@ -147,6 +151,14 @@ class DecisionContext:
                 self.knowledge_projection.to_dict()
                 if include_knowledge
                 else self.knowledge_projection.to_model_dict()
+            )
+        if self.evaluation_projection is not None and (
+            include_evaluation or self.evaluation_projection.expose_to_models
+        ):
+            value["evaluation_projection"] = (
+                self.evaluation_projection.to_dict()
+                if include_evaluation
+                else self.evaluation_projection.to_model_dict()
             )
         return value
 
@@ -534,7 +546,7 @@ class DecisionTraceStore:
                 if candidate.action_id == decision.action_id
                 for evidence in candidate.knowledge
             ],
-            "context": context.to_dict(include_knowledge=True),
+            "context": context.to_dict(include_knowledge=True, include_evaluation=True),
         }
         if reliability is not None:
             entry["reliability"] = reliability
@@ -590,7 +602,7 @@ class DecisionTraceStore:
             "action_id": reliability.get("action_id", ""),
             "decision": None,
             "reliability": reliability,
-            "context": context.to_dict(include_knowledge=True),
+            "context": context.to_dict(include_knowledge=True, include_evaluation=True),
         }
         self._append_entry(rejection)
 
@@ -611,7 +623,7 @@ class DecisionTraceStore:
             "state_signature": context.state.get("signature", ""),
             "decision": None,
             "decision_disposition": disposition.to_dict(),
-            "context": context.to_dict(include_knowledge=True),
+            "context": context.to_dict(include_knowledge=True, include_evaluation=True),
         }
         if planning_audit is not None:
             entry["planning_prediction"] = planning_audit

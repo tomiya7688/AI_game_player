@@ -6,6 +6,15 @@ from ai_game_player.evaluation_quality import NumericQuality
 
 
 class NumericQualityTests(unittest.TestCase):
+    def test_huge_numeric_fields_are_rejected_as_value_errors(self):
+        for kwargs in (
+            {"value": 10**10000},
+            {"confidence": 10**10000},
+            {"coverage": 10**10000},
+        ):
+            with self.assertRaises(ValueError):
+                NumericQuality(**kwargs)
+
     def test_missingness_is_distinct_from_measured_neutral_quality(self):
         missing = NumericQuality()
         neutral = NumericQuality(0, 0.8, True, provenance=("metric.verified",))

@@ -31,6 +31,9 @@ from ai_game_player.learning_identity import LearningIdentityPolicy
 from ai_game_player.light_adaptation_budget import LightAdaptationBudget
 from ai_game_player.light_session import SessionLightAdaptation
 from ai_game_player.runtime_mode_config import RuntimeModeConfig
+from ai_game_player.runtime_evaluation_adapter import RuntimeEvaluationAdapter
+from ai_game_player.evaluation_profile import EvaluationProfile
+from ai_game_player.evaluation_prediction import EvaluationPredictionBatch
 from ai_game_player.execution_receipt import ExecutionObservation
 from ai_game_player.light_execution_projection import VerifiedActionEffect
 
@@ -250,7 +253,10 @@ def _remove_partial_journal_files(database_path: Path) -> None:
 @dataclass(frozen=True)
 # {
 #   責務: [SessionRuntimeConfiguration: セッション開始時に確定するProvider・保存先・入力対象設定を保持する]
-#   フィールド: [provider_name/model/endpoint: 判断Provider設定, game_directory: sessionデータ保存先, dry_run: 実入力を禁止する設定, window_handle/window_process_id/input_mode: 入力対象と入力方式]
+#   フィールド: [provider_name/model/endpoint: 判断Provider設定, game_directory: sessionデータ保存先, dry_run: 実入力を禁止する設定, window_handle/window_process_id/input_mode: 入力対象と入力方式,
+#     runtime_mode/knowledge_scope/learning_identity/adaptation_budget: bounded学習の構成,
+#     evaluation_profile/evaluation_goal_id/evaluation_predictions: 信頼済みhostが注入する6軸の方針と同frame数値仮説,
+#     evaluation_expose_to_models: scope/receiptを省く評価要約の明示送信許可]
 # }
 class SessionRuntimeConfiguration:
     provider_name: str
@@ -265,6 +271,10 @@ class SessionRuntimeConfiguration:
     knowledge_scope: KnowledgeScope | None = None
     learning_identity: LearningIdentityPolicy | None = None
     adaptation_budget: LightAdaptationBudget | None = None
+    evaluation_profile: EvaluationProfile | None = None
+    evaluation_goal_id: str = "unresolved"
+    evaluation_predictions: EvaluationPredictionBatch | None = None
+    evaluation_expose_to_models: bool = False
 
 
 # {
@@ -498,6 +508,13 @@ class RuntimeComposition:
         provider = provider_factory(configuration.model, configuration.endpoint)
         session_id = uuid4().hex
         pipeline_arguments = {
+            "evaluation_adapter": RuntimeEvaluationAdapter(
+                configuration.evaluation_profile,
+                scope=configuration.knowledge_scope,
+                goal_id=configuration.evaluation_goal_id,
+                predictions=configuration.evaluation_predictions,
+                expose_to_models=configuration.evaluation_expose_to_models,
+            ),
             "dry_run": configuration.dry_run,
             "window_handle": configuration.window_handle,
             "input_mode": configuration.input_mode,
