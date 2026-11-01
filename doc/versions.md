@@ -55,11 +55,7 @@
 
 ## Unreleased
 
-### Runtime Mode / Phase の共通契約（Issue #421）
-
-- 5 Mode と 8 Phase、既定の Light Adaptation、Mode から導く能力 flag を宣言し、矛盾した設定を拒否する JSON Schema・既定 config・全 Mode / Phase の operation 表を追加しました。学習 Artifact の評価と、常に継続する通常の Outcome / Verifier / Safety 評価を区別します。
-- 共有 RunController の停止世代、安全境界での Mode 変更、Step 中の Artifact 版固定、held input のある学習移行拒否、評価合格後の公開 gate を実装しました。遅い入力 probe と Journal IO は Stop 用 lock の外で実行します。
-- 有界の Mode metadata 記録、atomic checkpoint、失敗・queue 超過時の停止、crash 後の停止 IDLE 復元を追加しました。既存 Session / InputLedger / EventJournal に接続する契約をテストしています。本番の軽量学習 Runner は #422、重学習・交互実行本体・資源制御・UI は後続 Issue の対象です。
+- Issue #608: 動作順と実行場所の日本語図を追加しました。単独操作の登録済み観測と連続取得、前回判断と実入力、確認運転と実入力時の追加確認を区別し、停止競合と記録の未保証範囲を明示します。
 
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
 
@@ -227,6 +223,7 @@
 - Ruffの基本lint・共有モデルのstrict mypy・Python構文検証をPR CIおよびfinish_task.batへ追加し、開発依存として固定した。
 
 - Fail-safe Runtime / OS Emergency Stopを追加し、startup SAFE_IDLE、explicit re-arm、short lease/heartbeat、Observation freshness、epoch/sequence/session/target binding、bounded command age/queue、held-input TTL、crash-consistent journal、LLM/GPU非依存のout-of-process watchdogでcrash/OOM/通信断/capture/target/storage異常をfail closedする。
+- Issue #421: 5 Mode / 8 Phase、既定 Light、Mode 由来の能力 flag と矛盾 config を拒否する Schema・default・operation 表を追加。共有 RunController の停止世代、安全境界での Mode 変更、Step の Artifact 版固定、held input がある学習移行の拒否、評価合格後の公開 gate を実装します。遅い probe / Journal IO を Stop lock から分離し、有界 metadata 記録、atomic checkpoint、失敗時の停止、crash 後の停止 IDLE 復元を提供します。通常の Outcome / Verifier / Safety 評価は学習 Artifact 評価の flag から独立して継続します。既存 Session / InputLedger / EventJournal 接続はテスト済みで、本番 Light Runner は #422、交互実行 #423、並行学習 #424、資源制御 #425、UI #188 は後続です。詳細は `doc/architecture/runtime_modes.md`。
 - Before Observation + Action + After ObservationをStateDelta / ScreenDiff / Temporal / Terminal textの独立Evidenceとして検出し、conflict / confidence / provenance / abstentionを保持するdeterministic Outcome Fusionを追加する。低信頼時だけSemantic Providerへfallbackし、OutcomeEventを評価プリミティブへ接続する。
 - UPD Commander Base Designを段階導入し、新規Quality ApplicationでCommander / Messenger / Processingの責務境界を適用する。外部UPD checkerはcommit SHA固定でCI実行し、通常ゲームruntimeへchecker依存や追加処理を持ち込まない。
 - FrameAnalyzer / CandidateMerger / DecisionContextBuilder / SafetyGuardのCPU hot pathをbudget監視するperformance-ciとローカルperformance checkerを追加する。
