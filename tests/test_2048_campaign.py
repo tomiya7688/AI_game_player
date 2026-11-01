@@ -1,13 +1,17 @@
 import os
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ai_game_player.campaign_runner import CampaignFailure, CampaignState
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.provider import RuleProvider
+from ai_game_player.run_control import ExecutionCancelled, RunController
 from tools import run_2048_campaign
 
 
@@ -248,6 +252,100 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         episode._safety_rearmed = True
         self.assertIs(episode.observe(), state)
         self.assertEqual(completed, [(screen, 7)])
+
+    @contextmanager
+    def real_controller_episode(self, root):
+        screen = ScreenObservation("board", 640, 480)
+        state = CampaignState("board", False, 0, 2)
+        controller = RunController()
+        source = SimpleNamespace(
+            latest_observation=screen, on_capture=lambda: None, close=Mock()
+        )
+
+        def capture(on_fresh_frame=None):
+            if on_fresh_frame is not None:
+                on_fresh_frame()
+            source.on_capture()
+            return state
+
+        source.capture_playable_state = capture
+        pipeline = DecisionPipeline(
+            SimpleNamespace(read=lambda: (screen, [])),
+            root,
+            RuleProvider(),
+            controller=controller,
+            dry_run=True,
+        )
+        complete = Mock(wraps=pipeline.complete_execution_observation)
+        pipeline.complete_execution_observation = complete
+        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(
+            run_2048_campaign.ReferenceGame2048Episode
+        )
+        episode.source = source
+        episode.pipeline = pipeline
+        episode.launcher = SimpleNamespace(close=Mock())
+        episode._safety_rearmed = False
+        episode._closed = False
+        try:
+            yield episode, controller, state, screen, complete
+        finally:
+            episode.close()
+
+    def test_first_observation_arms_each_new_episode_without_completion(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for episode_number in (1, 2):
+                with self.subTest(episode_number=episode_number):
+                    with self.real_controller_episode(
+                        Path(temporary) / str(episode_number)
+                    ) as (episode, controller, state, _screen, complete):
+                        self.assertEqual(controller.rearm_token, 0)
+                        self.assertIs(episode.observe(), state)
+                        self.assertEqual(controller.rearm_token, 1)
+                        self.assertTrue(episode._safety_rearmed)
+                        complete.assert_not_called()
+                    self.assertTrue(episode._closed)
+                    self.assertIsNone(episode.pipeline)
+                    self.assertIsNone(episode.source)
+
+    def test_later_observation_completes_in_the_same_generation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with self.real_controller_episode(Path(temporary)) as (
+                episode,
+                controller,
+                state,
+                screen,
+                complete,
+            ):
+                episode.observe()
+                token = controller.rearm_token
+                self.assertIs(episode.observe(), state)
+                complete.assert_called_once_with(screen, expected_rearm_token=token)
+
+    def test_stop_and_rearm_during_later_capture_still_reject_completion(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for rearm in (False, True):
+                with self.subTest(rearm=rearm):
+                    with self.real_controller_episode(Path(temporary) / str(rearm)) as (
+                        episode,
+                        controller,
+                        _state,
+                        screen,
+                        complete,
+                    ):
+                        episode.observe()
+                        token = controller.rearm_token
+
+                        def interrupt():
+                            controller.stop("stopped during capture")
+                            if rearm:
+                                controller.start()
+
+                        episode.source.on_capture = interrupt
+                        with self.assertRaises(ExecutionCancelled):
+                            episode.observe()
+                        complete.assert_called_once_with(
+                            screen, expected_rearm_token=token
+                        )
 
     def test_recognition_timeout_reports_capture_diagnostics(self):
         class FakeCapture:

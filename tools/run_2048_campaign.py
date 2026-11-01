@@ -432,7 +432,9 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     f"error={type(error).__name__}: {error}",
                 ) from error
         latest = getattr(self.source, "latest_observation", None)
-        if latest is not None and callable(complete):
+        # 初回は実操作前の初期化で、安全再開によって世代も進む。
+        # 後続の観測だけを、取得開始時に保持した実行世代へ結び付ける。
+        if not first_observation and latest is not None and callable(complete):
             complete(latest, expected_rearm_token=observation_token)
         return state
 
