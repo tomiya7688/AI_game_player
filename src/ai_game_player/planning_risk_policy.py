@@ -333,6 +333,8 @@ class PlanningRiskPolicy:
                     raise ValueError("planning episode changed during evaluation")
                 return proposed
             reasons.append("risk_limit_exceeded")
+            if any(risk.numerical_threshold_indeterminate for risk in risks):
+                reasons.append("risk_threshold_roundoff_indeterminate")
             outcome = (
                 PlanningOutcome.ESCALATE
                 if can_escalate and (computation is None or continue_computation)

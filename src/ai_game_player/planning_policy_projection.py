@@ -1,6 +1,6 @@
 """探索契約をRisk/情報価値へ投影し、world確率とquality支持を混同しない。"""
 
-from math import isclose
+from math import inf, isclose, nextafter, ulp
 from typing import Any
 
 from ai_game_player.belief_contract import BeliefWeightKind
@@ -26,15 +26,18 @@ def project_action_risk(
     *,
     conditional: bool = False,
 ) -> PlanningActionRisk:
+    source_point: float | None
     if conditional:
         source = action.hypothesis_values[0]
         values = source.conditional_outcomes
         unknown = source.trace_unknown_mass
         source_lower, source_upper = source.lower_bound, source.upper_bound
+        source_point = source.expected_quality
     else:
         values = action.outcomes
         unknown = action.trace_unknown_mass
         source_lower, source_upper = action.lower_bound, action.upper_bound
+        source_point = action.expected_quality
     for leaf in values:
         if type(leaf) is not WeightedValue:
             raise ValueError("planning risk requires typed leaves")
@@ -71,24 +74,91 @@ def project_action_risk(
     )
     expected_lower = max(source_lower, lower.expected_lower)
     expected_upper = min(source_upper, upper.expected_upper)
-    if expected_lower > expected_upper + 1e-10:
+    tolerance = 1e-12
+    point = (
+        source_point
+        if source_point is not None
+        else (expected_lower + expected_upper) / 2
+    )
+    if (
+        expected_lower > expected_upper + tolerance
+        or point < expected_lower - tolerance
+        or point > expected_upper + tolerance
+    ):
         raise ValueError("planning trace and action value bounds disagree")
+    mean_padding = 0.0
+    if expected_lower > expected_upper or not expected_lower <= point <= expected_upper:
+        mean_padding = max(
+            8 * ulp(1.0),
+            abs(expected_lower - expected_upper),
+            expected_lower - point,
+            point - expected_upper,
+        )
+        raw_lower, raw_upper = expected_lower, expected_upper
+        expected_lower = max(
+            -1.0,
+            nextafter(min(raw_lower, raw_upper, point) - mean_padding, -inf),
+        )
+        expected_upper = min(
+            1.0,
+            nextafter(
+                max(raw_lower, raw_upper, point) + mean_padding,
+                inf,
+            ),
+        )
+    lower_padding = max(lower.cvar_roundoff, mean_padding)
+    upper_padding = max(upper.cvar_roundoff, mean_padding)
+    cvar_lower = max(
+        -1.0,
+        nextafter(lower.lower_cvar - lower_padding, -inf)
+        if lower_padding
+        else lower.lower_cvar,
+    )
+    cvar_upper = min(
+        1.0,
+        nextafter(upper.lower_cvar + upper_padding, inf)
+        if upper_padding
+        else upper.lower_cvar,
+    )
+    if cvar_lower > cvar_upper:
+        if cvar_lower > cvar_upper + tolerance:
+            raise ValueError("planning CVaR envelope is inconsistent")
+        cvar_lower, cvar_upper = (
+            min(cvar_lower, cvar_upper),
+            max(cvar_lower, cvar_upper),
+        )
+    catastrophe_upper = min(
+        1.0, lower.catastrophic_probability_upper + lower.catastrophe_roundoff
+    )
+    acceptable = (
+        cvar_lower >= config.min_cvar and catastrophe_upper <= config.max_catastrophe
+    )
+    raw_acceptable = (
+        lower.lower_cvar >= config.min_cvar
+        and lower.catastrophic_probability_upper <= config.max_catastrophe
+    )
     score = (
         1 - config.risk_aversion
-    ) * expected_lower + config.risk_aversion * lower.lower_cvar
+    ) * expected_lower + config.risk_aversion * cvar_lower
     return PlanningActionRisk(
         action.action_id,
         expected_lower,
         expected_upper,
-        lower.lower_cvar,
-        upper.lower_cvar,
+        cvar_lower,
+        cvar_upper,
         lower.lower_quantile,
         lower.worst_value,
-        lower.catastrophic_probability_upper,
+        catastrophe_upper,
         unknown,
         score,
-        lower.lower_cvar >= config.min_cvar
-        and lower.catastrophic_probability_upper <= config.max_catastrophe,
+        acceptable,
+        max(
+            mean_padding,
+            lower.cvar_roundoff,
+            upper.cvar_roundoff,
+            lower.catastrophe_roundoff,
+        ),
+        raw_acceptable and not acceptable,
     )
 
 

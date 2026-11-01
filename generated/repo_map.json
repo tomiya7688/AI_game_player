@@ -49907,7 +49907,7 @@
       "module": "ai_game_player.planning_policy_contract",
       "path": "src/ai_game_player/planning_policy_contract.py",
       "source_location": {
-        "end_line": 148,
+        "end_line": 152,
         "start_line": 1
       },
       "symbols": [
@@ -50019,8 +50019,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 108,
-            "start_line": 97
+            "end_line": 112,
+            "start_line": 99
           }
         },
         {
@@ -50041,8 +50041,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 148,
-            "start_line": 127
+            "end_line": 152,
+            "start_line": 131
           }
         }
       ]
@@ -50066,7 +50066,19 @@
           "names": [
             {
               "alias": null,
+              "name": "inf"
+            },
+            {
+              "alias": null,
               "name": "isclose"
+            },
+            {
+              "alias": null,
+              "name": "nextafter"
+            },
+            {
+              "alias": null,
+              "name": "ulp"
             }
           ]
         },
@@ -50179,7 +50191,7 @@
       "module": "ai_game_player.planning_policy_projection",
       "path": "src/ai_game_player/planning_policy_projection.py",
       "source_location": {
-        "end_line": 176,
+        "end_line": 246,
         "start_line": 1
       },
       "symbols": [
@@ -50214,7 +50226,7 @@
           "signature": "(action: PlanningActionValue, config: PlanningRiskPolicyConfig, *, conditional: bool = …) -> PlanningActionRisk",
           "source_location": {
             "column": 0,
-            "end_line": 92,
+            "end_line": 162,
             "start_line": 23
           }
         },
@@ -50249,8 +50261,8 @@
           "signature": "(belief: BeliefSnapshot[Any], actions: tuple[PlanningActionValue, ...], *, conditional: bool = …) -> tuple[tuple[str, ...], tuple[float, ...], tuple[tuple[tuple[float, float], ...], ...], str]",
           "source_location": {
             "column": 0,
-            "end_line": 176,
-            "start_line": 102
+            "end_line": 246,
+            "start_line": 172
           }
         }
       ]
@@ -51122,6 +51134,10 @@
             {
               "alias": null,
               "name": "isfinite"
+            },
+            {
+              "alias": null,
+              "name": "ulp"
             }
           ]
         }
@@ -51129,7 +51145,7 @@
       "module": "ai_game_player.planning_risk",
       "path": "src/ai_game_player/planning_risk.py",
       "source_location": {
-        "end_line": 104,
+        "end_line": 120,
         "start_line": 1
       },
       "symbols": [
@@ -51151,8 +51167,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 15
+            "end_line": 25,
+            "start_line": 16
           }
         },
         {
@@ -51186,8 +51202,8 @@
           "signature": "(value: object, lower: float = …, upper: float = …) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 41,
-            "start_line": 32
+            "end_line": 44,
+            "start_line": 35
           }
         },
         {
@@ -51227,8 +51243,8 @@
           "signature": "(outcomes: tuple[tuple[float, float], ...], unknown_mass: float, *, alpha: float = …, catastrophic_value: float = …) -> PlanningTailRisk",
           "source_location": {
             "column": 0,
-            "end_line": 104,
-            "start_line": 52
+            "end_line": 120,
+            "start_line": 55
           }
         }
       ]
@@ -51539,7 +51555,7 @@
       "module": "ai_game_player.planning_risk_policy",
       "path": "src/ai_game_player/planning_risk_policy.py",
       "source_location": {
-        "end_line": 418,
+        "end_line": 420,
         "start_line": 1
       },
       "symbols": [
@@ -51559,7 +51575,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 418,
+            "end_line": 420,
             "start_line": 42
           }
         },
@@ -51701,7 +51717,7 @@
           "signature": "(self, result: PlanningResult, belief: BeliefSnapshot[Any], *, context: BeliefContext, goal_id: str, allowed_action_ids: tuple[str, ...], run_generation: int, deadline_ns: int, hard_veto_action_ids: tuple[str, ...] = …, observation_model: PlanningObservationModel | None = …, observation_cost: float = …, computation: PlanningComputationEstimate | None = …, can_escalate: bool = …, preserve_continuation_menu: bool = …) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 363,
+            "end_line": 365,
             "start_line": 75
           }
         },
@@ -51724,8 +51740,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 376,
-            "start_line": 372
+            "end_line": 378,
+            "start_line": 374
           }
         },
         {
@@ -51759,8 +51775,8 @@
           "signature": "(self, started: int, cutoff: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 389,
-            "start_line": 385
+            "end_line": 391,
+            "start_line": 387
           }
         },
         {
@@ -51812,8 +51828,8 @@
           "signature": "(self, decision: PlanningPolicyDecision, outcome: PlanningOutcome, reasons: list[str], started: int, cutoff: int) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 418,
-            "start_line": 398
+            "end_line": 420,
+            "start_line": 400
           }
         }
       ]
@@ -120194,6 +120210,337 @@
             "column": 4,
             "end_line": 206,
             "start_line": 197
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_policy_projection",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "fractions",
+          "names": [
+            {
+              "alias": null,
+              "name": "Fraction"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "nextafter"
+            },
+            {
+              "alias": null,
+              "name": "inf"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_projection"
+          ],
+          "module": "ai_game_player.planning_policy_projection",
+          "names": [
+            {
+              "alias": null,
+              "name": "project_action_risk"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "lower_tail_risk"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_numeric_envelopes",
+      "path": "tests/test_planning_numeric_envelopes.py",
+      "source_location": {
+        "end_line": 111,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "point"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "atoms"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "lower"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "upper"
+            }
+          ],
+          "qualified_name": "action",
+          "return_annotation": null,
+          "signature": "(point, atoms, *, lower = …, upper = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 21,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningNumericEnvelopeTests",
+          "parameters": [],
+          "qualified_name": "PlanningNumericEnvelopeTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 107,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_actual_browser_single_point_roundoff_keeps_order_and_point",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_actual_browser_single_point_roundoff_keeps_order_and_point",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_point_just_outside_intersection_does_not_restore_entire_source_range",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_point_just_outside_intersection_does_not_restore_entire_source_range",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_substantive_trace_inconsistency_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_substantive_trace_inconsistency_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 60,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mixed_cvar_threshold_has_conservative_arithmetic_padding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_mixed_cvar_threshold_has_conservative_arithmetic_padding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mixed_catastrophe_sum_at_threshold_is_not_optimistic",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_mixed_catastrophe_sum_at_threshold_is_not_optimistic",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exact_constant_tail_and_zero_catastrophe_remain_inclusive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_exact_constant_tail_and_zero_catastrophe_remain_inclusive",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 99
           }
         }
       ]

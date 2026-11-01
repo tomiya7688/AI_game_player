@@ -1,7 +1,7 @@
 """有限の絶対確率分布を使う、利益の下側CVaRと悲観的な未知tail。"""
 
 from dataclasses import dataclass
-from math import fsum, isclose, isfinite
+from math import fsum, isclose, isfinite, ulp
 
 
 # {
@@ -9,7 +9,8 @@ from math import fsum, isclose, isfinite
 #   フィールド: [expected_lower/upper: 未知を-1/+1に置いた期待値区間,
 #     lower_cvar: 最悪alpha質量の平均利益, lower_quantile: alpha分位利益,
 #     worst_value: 最低利益, catastrophic_probability_upper: 閾値以下の利益の最大確率,
-#     unknown_mass: 明示的なtrace/探索/Beliefの未表現質量。確率校正は呼出側が確認する]
+#     unknown_mass: 明示的なtrace/探索/Beliefの未表現質量。確率校正は呼出側が確認する,
+#     cvar_roundoff/catastrophe_roundoff: 有界float集約の判定用padding。統計的な信頼区間ではない]
 # }
 @dataclass(frozen=True, slots=True)
 class PlanningTailRisk:
@@ -20,6 +21,8 @@ class PlanningTailRisk:
     worst_value: float
     catastrophic_probability_upper: float
     unknown_mass: float
+    cvar_roundoff: float = 0.0
+    catastrophe_roundoff: float = 0.0
 
 
 # {
@@ -83,16 +86,27 @@ def lower_tail_risk(
         catastrophe += unknown_mass
     checked.sort()
     remaining = alpha
-    average = 0.0
+    contributions = []
+    tail_values = []
     quantile = checked[-1][0]
     for value, mass in checked:
         take = min(remaining, mass)
         # Divide the probability first so a subnormal alpha cannot erase the loss.
-        average += value * (take / alpha)
+        contributions.append(value * (take / alpha))
+        tail_values.append(value)
         remaining -= take
         if remaining <= 0:
             quantile = value
             break
+    constant_tail = all(value == tail_values[0] for value in tail_values)
+    average = tail_values[0] if constant_tail else fsum(contributions)
+    cvar_roundoff = 0.0 if constant_tail else (4 * len(contributions) + 8) * ulp(1.0)
+    catastrophe_terms = sum(value <= catastrophic_value for value, _ in checked)
+    catastrophe_roundoff = (
+        0.0
+        if catastrophe in (0.0, 1.0) or catastrophe_terms == 1 and unknown_mass == 0
+        else max(ulp(catastrophe), ulp(1.0) if unknown_mass else 0.0)
+    )
     return PlanningTailRisk(
         max(-1.0, expected_known - unknown_mass),
         min(1.0, expected_known + unknown_mass),
@@ -101,4 +115,6 @@ def lower_tail_risk(
         checked[0][0],
         min(1.0, catastrophe),
         unknown_mass,
+        cvar_roundoff,
+        catastrophe_roundoff,
     )
