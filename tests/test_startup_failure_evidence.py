@@ -26,11 +26,12 @@ def window(handle=11, *, visible=True, rect=None):
 class StartupFailureEvidenceTests(unittest.TestCase):
     def launch_failure(self, recorder, original):
         events = []
+        manifest_path = Path("manifest.json")
         session = BrowserWindowSession(Path("browser.exe"), Path("source"))
         session.failure_evidence = recorder
         if recorder is not None:
             recorder.save.side_effect = lambda *args: (
-                events.append("evidence") or Path("manifest.json")
+                events.append("evidence") or manifest_path
             )
         with (
             patch("tools.reference_game_2048_launcher.os.name", "nt"),
