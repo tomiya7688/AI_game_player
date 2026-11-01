@@ -123,11 +123,19 @@ class TraceAccumulator:
                 )
                 old_mass = self.values.pop(nearest)
                 total = math.fsum((old_mass, probability))
-                point = nearest[0] * (old_mass / total) + item.value * (
-                    probability / total
+                # 比率を個別に丸めて足すと合計が1を超えるため、等しい点を保つ凸補間にする。
+                if old_mass >= probability:
+                    point = nearest[0] + (item.value - nearest[0]) * (
+                        probability / total
+                    )
+                else:
+                    point = item.value + (nearest[0] - item.value) * (old_mass / total)
+                # 数学的平均は点の凸包内にある。桁落ち・極端な比率の丸めだけをその範囲へ戻す。
+                point = min(
+                    max(nearest[0], item.value), max(min(nearest[0], item.value), point)
                 )
                 merged = (
-                    _unit(point),
+                    point,
                     min(nearest[1], cast(float, item.lower_bound)),
                     max(nearest[2], cast(float, item.upper_bound)),
                 )

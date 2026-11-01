@@ -1,6 +1,8 @@
 from dataclasses import replace
 from fractions import Fraction
 import json
+import math
+import random
 from pathlib import Path
 import subprocess
 import threading
@@ -30,6 +32,7 @@ from ai_game_player.expectimax_search import (
     TraceAccumulator,
 )
 from ai_game_player.game_2048_state import Game2048State
+from ai_game_player.game_2048_transition import ACTION_DIRECTION_BY_ID
 from ai_game_player.planning_2048 import reference_2048_registration
 from ai_game_player.planning_contract import (
     PlanningDomain,
@@ -447,6 +450,103 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self.assertEqual((values[0].lower_bound, values[0].upper_bound), (-1, 1))
         self.assertEqual(values[0].probability, 1)
         self.assertEqual(unknown, 0)
+
+    def test_bin_merge_of_equal_points_cannot_round_above_its_support(self):
+        # Captured from the ninth reference-play decision. The exact convex mean
+        # of equal points is that same point for every pair of positive masses.
+        value = 0.1666666666666667
+        trace = TraceAccumulator(1)
+        trace.add(
+            (WeightedValue(value, 0.05950413223140496, 0.16666666666666666, value),), 1
+        )
+        trace.add((WeightedValue(value, 0.35454545454545455),), 0.08181818181818182)
+        values, unknown = trace.finish()
+        self.assertEqual(values[0].value, value)
+        self.assertEqual(values[0].upper_bound, value)
+        self.assertEqual(values[0].lower_bound, 0.16666666666666666)
+        self.assertAlmostEqual(values[0].probability + unknown, 1)
+
+    def test_bin_convex_means_match_fraction_oracle_across_extreme_masses(self):
+        rng = random.Random(565)
+        cases = [(-1.0, 1.0, 5e-324, 5e-324), (1.0, -1.0, 0.4, 1e-300)]
+        cases.extend(
+            (
+                rng.uniform(-1, 1),
+                rng.uniform(-1, 1),
+                10 ** rng.uniform(-300, -1),
+                10 ** rng.uniform(-300, -1),
+            )
+            for _ in range(100)
+        )
+        for first, second, p, q in cases:
+            with self.subTest(points=(first, second), masses=(p, q)):
+                trace = TraceAccumulator(1)
+                trace.add((WeightedValue(first, p), WeightedValue(second, q)), 1)
+                leaves, _ = trace.finish()
+                oracle = float(
+                    (Fraction(first) * Fraction(p) + Fraction(second) * Fraction(q))
+                    / (Fraction(p) + Fraction(q))
+                )
+                self.assertLessEqual(abs(leaves[0].value - oracle), 8 * math.ulp(1.0))
+                self.assertLessEqual(min(first, second), leaves[0].value)
+                self.assertLessEqual(leaves[0].value, max(first, second))
+                self.assertEqual(leaves[0].probability, math.fsum((p, q)))
+                self.assertEqual(
+                    (leaves[0].lower_bound, leaves[0].upper_bound),
+                    (min(first, second), max(first, second)),
+                )
+
+    def test_reference_play_board_keeps_valid_deeper_checkpoint(self):
+        registration = reference_2048_registration()
+        state = Game2048State(((0, 2, 0, 0), (0, 0, 0, 2), (0, 0, 0, 4), (0, 0, 8, 4)))
+        belief, _ = self.belief(
+            states=(state,),
+            weights=(1.0,),
+            kind=BeliefWeightKind.RELATIVE_SCORE,
+            ttl=10_000_000_000,
+            game_id="2048",
+            schema=registration.state_schema_id,
+            state_type=Game2048State,
+        )
+        context = replace(belief.context, action_epoch=8)
+        belief = replace(
+            belief,
+            context=context,
+            candidates=tuple(
+                replace(
+                    candidate,
+                    context=context,
+                    evidence_refs=tuple(
+                        replace(ref, context=context) for ref in candidate.evidence_refs
+                    ),
+                )
+                for candidate in belief.candidates
+            ),
+        )
+        planner = BoundedExpectimaxPlanner(
+            (registration,), clock_id=belief.context.clock_id
+        )
+        result = planner.plan(
+            belief,
+            tuple(ACTION_DIRECTION_BY_ID),
+            registration_id=registration.registration_id,
+            budget=SearchBudget(
+                max_depth=2,
+                max_nodes=10000,
+                wall_time_ms=2000,
+                allow_conditional_selection=True,
+            ),
+        )
+        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(result.completed_depth, 2)
+        self.assertEqual(result.probability_semantics, "conditional_score")
+        self.assertEqual(result.residual_unknown_mass, 1)
+        for action in result.action_values:
+            self.assertIsNone(action.expected_quality)
+            self.assertEqual(action.trace_unknown_mass, 1)
+            for leaf in action.hypothesis_values[0].conditional_outcomes:
+                self.assertLessEqual(leaf.lower_bound, leaf.value)
+                self.assertLessEqual(leaf.value, leaf.upper_bound)
 
     def test_relative_hypothesis_has_only_conditional_chance_values_and_explicit_opt_in(
         self,
