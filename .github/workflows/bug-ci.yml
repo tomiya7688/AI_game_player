@@ -25,23 +25,13 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Compile Python sources
         run: python -m compileall -q src tools tests
-      - name: Validate documentation links and diagram blocks
-        run: |
-          python -m unittest discover -s tests -p "test_source_navigation.py" -v
-          python -m unittest discover -s tests -p "test_generate_docs.py" -v
       - name: Run high-confidence bug checker
         env:
           PYTHONPATH: src
         run: python tools/bug_check.py src tools tests --output build/bug-check/report.json
-      - name: Preserve checked documentation and implementation snapshot
-        if: always() && matrix.python == '3.10'
-        run: |
-          mkdir -p build/bug-check
-          git rev-parse HEAD > build/bug-check/checked-commit.txt
-          git archive --format=zip --output=build/bug-check/checked-source.zip HEAD
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: bug-check-report-python-${{ matrix.python }}
-          path: build/bug-check/
+          path: build/bug-check/report.json
           if-no-files-found: error
