@@ -86621,6 +86621,241 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.event_journal",
+        "tools",
+        "tools.compare_2048_browser_planning"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournalClosedError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "tools",
+            "tools.compare_2048_browser_planning"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "comparison",
+              "name": "compare_2048_browser_planning"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_browser_planning_cleanup",
+      "path": "tests/test_browser_planning_cleanup.py",
+      "source_location": {
+        "end_line": 75,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BrowserPlanningCleanupTests",
+          "parameters": [],
+          "qualified_name": "BrowserPlanningCleanupTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 75,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_constructor_failure_remains_primary_and_journal_closes_before_tempdir_removal",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserPlanningCleanupTests.test_constructor_failure_remains_primary_and_journal_closes_before_tempdir_removal",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 56,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fail_pipeline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "BrowserPlanningCleanupTests.test_constructor_failure_remains_primary_and_journal_closes_before_tempdir_removal.fail_pipeline",
+          "return_annotation": null,
+          "signature": "(*args, **kwargs)",
+          "source_location": {
+            "column": 8,
+            "end_line": 29,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_context_creation_failure_is_reported_without_an_input",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserPlanningCleanupTests.test_context_creation_failure_is_reported_without_an_input",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 75,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fail_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "BrowserPlanningCleanupTests.test_context_creation_failure_is_reported_without_an_input.fail_context",
+          "return_annotation": null,
+          "signature": "(**kwargs)",
+          "source_location": {
+            "column": 8,
+            "end_line": 60,
+            "start_line": 59
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.run_control",
         "tools",
@@ -160887,6 +161122,7 @@
         "ai_game_player.baseline_provider",
         "ai_game_player.decision_orchestrator",
         "ai_game_player.decision_withheld",
+        "ai_game_player.event_journal",
         "ai_game_player.game_2048_transition",
         "ai_game_player.pipeline",
         "ai_game_player.planner_factory",
@@ -160894,9 +161130,10 @@
         "ai_game_player.run_control",
         "tools",
         "tools.browser_probe_support",
-        "tools.check_2048_screen_transition",
         "tools.planning_browser_source",
-        "tools.reference_game_2048_source"
+        "tools.planning_comparison_source",
+        "tools.reference_game_2048_source",
+        "tools.run_2048_campaign"
       ],
       "imports": [
         {
@@ -160917,6 +161154,19 @@
           "level": 0,
           "line": 4,
           "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExitStack"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
           "module": "collections",
           "names": [
             {
@@ -160928,7 +161178,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [],
           "module": "functools",
           "names": [
@@ -160941,7 +161191,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "hashlib",
           "names": [
@@ -160954,7 +161204,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "http.server",
           "names": [
@@ -160971,7 +161221,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "json",
           "names": [
@@ -160984,7 +161234,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -160997,7 +161247,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "statistics",
           "names": [
@@ -161010,7 +161260,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "subprocess",
           "names": [
@@ -161023,7 +161273,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -161036,7 +161286,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [],
           "module": "threading",
           "names": [
@@ -161049,7 +161299,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [],
           "module": "time",
           "names": [
@@ -161062,7 +161312,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_comparison_source"
+          ],
+          "module": "tools.planning_comparison_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "source_fingerprint"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
           "local_dependencies": [
             "tools",
             "tools.planning_browser_source"
@@ -161078,7 +161344,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 20,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.action_executor"
@@ -161088,13 +161354,17 @@
             {
               "alias": null,
               "name": "ActionExecutor"
+            },
+            {
+              "alias": null,
+              "name": "ExecutionResult"
             }
           ]
         },
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 21,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.baseline_provider"
@@ -161110,7 +161380,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 22,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_orchestrator"
@@ -161126,7 +161396,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_withheld"
@@ -161142,7 +161412,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 24,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_transition"
@@ -161158,7 +161428,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 23,
+          "line": 25,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.pipeline"
@@ -161174,7 +161444,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planner_factory"
@@ -161190,7 +161476,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 28,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_contract"
@@ -161206,7 +161492,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 29,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -161226,7 +161512,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 27,
+          "line": 30,
           "local_dependencies": [
             "tools",
             "tools.browser_probe_support"
@@ -161246,23 +161532,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
-          "local_dependencies": [
-            "tools",
-            "tools.check_2048_screen_transition"
-          ],
-          "module": "tools.check_2048_screen_transition",
-          "names": [
-            {
-              "alias": null,
-              "name": "BrowserKeyExecutor"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 29,
+          "line": 31,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -161278,7 +161548,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 52,
+          "line": 32,
+          "local_dependencies": [
+            "tools",
+            "tools.run_2048_campaign"
+          ],
+          "module": "tools.run_2048_campaign",
+          "names": [
+            {
+              "alias": null,
+              "name": "CyclingDirectionProvider"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 76,
           "local_dependencies": [],
           "module": "PIL",
           "names": [
@@ -161291,7 +161577,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 302,
+          "line": 372,
           "local_dependencies": [],
           "module": "resource",
           "names": [
@@ -161304,7 +161590,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 346,
+          "line": 419,
           "local_dependencies": [],
           "module": "playwright.sync_api",
           "names": [
@@ -161318,7 +161604,7 @@
       "module": "tools.compare_2048_browser_planning",
       "path": "tools/compare_2048_browser_planning.py",
       "source_location": {
-        "end_line": 427,
+        "end_line": 524,
         "start_line": 1
       },
       "symbols": [
@@ -161340,8 +161626,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 32
+            "end_line": 37,
+            "start_line": 35
           }
         },
         {
@@ -161369,14 +161655,12 @@
           "signature": "(self, *_args)",
           "source_location": {
             "column": 4,
-            "end_line": 34,
-            "start_line": 33
+            "end_line": 37,
+            "start_line": 36
           }
         },
         {
-          "bases": [
-            "BrowserKeyExecutor"
-          ],
+          "bases": [],
           "data_model": {
             "dataclass": false,
             "enum": false,
@@ -161391,8 +161675,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 48,
-            "start_line": 37
+            "end_line": 72,
+            "start_line": 40
           }
         },
         {
@@ -161411,23 +161695,29 @@
             {
               "annotation": null,
               "has_default": false,
-              "kind": "var_positional",
-              "name": "args"
+              "kind": "positional_or_keyword",
+              "name": "page"
             },
             {
               "annotation": null,
               "has_default": false,
-              "kind": "var_keyword",
-              "name": "kwargs"
+              "kind": "positional_or_keyword",
+              "name": "target_url"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "before_dispatch"
             }
           ],
           "qualified_name": "SettledBrowserExecutor.__init__",
           "return_annotation": null,
-          "signature": "(self, *args, **kwargs)",
+          "signature": "(self, page, target_url, before_dispatch)",
           "source_location": {
             "column": 4,
-            "end_line": 40,
-            "start_line": 38
+            "end_line": 47,
+            "start_line": 41
           }
         },
         {
@@ -161455,8 +161745,8 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 4,
-            "end_line": 48,
-            "start_line": 42
+            "end_line": 72,
+            "start_line": 49
           }
         },
         {
@@ -161508,8 +161798,37 @@
           "signature": "(browser, target, seed, provider_name, max_steps, output)",
           "source_location": {
             "column": 0,
-            "end_line": 322,
-            "start_line": 51
+            "end_line": 392,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "close_resource",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "close"
+            }
+          ],
+          "qualified_name": "episode.close_resource",
+          "return_annotation": null,
+          "signature": "(name, close)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 91
           }
         },
         {
@@ -161524,8 +161843,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 113,
-            "start_line": 102
+            "end_line": 167,
+            "start_line": 156
           }
         },
         {
@@ -161540,8 +161859,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 423,
-            "start_line": 325
+            "end_line": 520,
+            "start_line": 395
           }
         }
       ]
@@ -161553,6 +161872,7 @@
         "ai_game_player.baseline_provider",
         "ai_game_player.decision_orchestrator",
         "ai_game_player.decision_withheld",
+        "ai_game_player.event_journal",
         "ai_game_player.game_2048_transition",
         "ai_game_player.models",
         "ai_game_player.pipeline",
@@ -161561,6 +161881,7 @@
         "ai_game_player.run_control",
         "tools",
         "tools.browser_probe_support",
+        "tools.planning_comparison_source",
         "tools.run_2048_campaign"
       ],
       "imports": [
@@ -161833,6 +162154,22 @@
           "line": 25,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.planner_factory"
           ],
           "module": "ai_game_player.planner_factory",
@@ -161846,7 +162183,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_contract"
@@ -161862,7 +162199,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 27,
+          "line": 28,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -161878,7 +162215,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
+          "line": 29,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_comparison_source"
+          ],
+          "module": "tools.planning_comparison_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "source_fingerprint"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
           "local_dependencies": [
             "tools",
             "tools.browser_probe_support"
@@ -161898,7 +162251,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 29,
+          "line": 31,
           "local_dependencies": [
             "tools",
             "tools.run_2048_campaign"
@@ -161914,7 +162267,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 103,
+          "line": 105,
           "local_dependencies": [],
           "module": "resource",
           "names": [
@@ -161928,7 +162281,7 @@
       "module": "tools.compare_2048_planning",
       "path": "tools/compare_2048_planning.py",
       "source_location": {
-        "end_line": 294,
+        "end_line": 334,
         "start_line": 1
       },
       "symbols": [
@@ -161948,8 +162301,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 74,
-            "start_line": 32
+            "end_line": 76,
+            "start_line": 34
           }
         },
         {
@@ -161977,8 +162330,8 @@
           "signature": "(self, seed)",
           "source_location": {
             "column": 4,
-            "end_line": 40,
-            "start_line": 33
+            "end_line": 42,
+            "start_line": 35
           }
         },
         {
@@ -162000,8 +162353,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 70,
-            "start_line": 42
+            "end_line": 72,
+            "start_line": 44
           }
         },
         {
@@ -162023,8 +162376,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 74,
-            "start_line": 72
+            "end_line": 76,
+            "start_line": 74
           }
         },
         {
@@ -162043,8 +162396,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 98,
-            "start_line": 77
+            "end_line": 100,
+            "start_line": 79
           }
         },
         {
@@ -162072,8 +162425,8 @@
           "signature": "(self, source)",
           "source_location": {
             "column": 4,
-            "end_line": 80,
-            "start_line": 78
+            "end_line": 82,
+            "start_line": 80
           }
         },
         {
@@ -162101,8 +162454,8 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 4,
-            "end_line": 98,
-            "start_line": 82
+            "end_line": 100,
+            "start_line": 84
           }
         },
         {
@@ -162117,8 +162470,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 114,
-            "start_line": 101
+            "end_line": 116,
+            "start_line": 103
           }
         },
         {
@@ -162146,8 +162499,8 @@
           "signature": "(values, fraction)",
           "source_location": {
             "column": 0,
-            "end_line": 121,
-            "start_line": 117
+            "end_line": 123,
+            "start_line": 119
           }
         },
         {
@@ -162193,8 +162546,8 @@
           "signature": "(provider_name, seed, max_steps, *, depth = …, wall_time_ms = …)",
           "source_location": {
             "column": 0,
-            "end_line": 229,
-            "start_line": 124
+            "end_line": 249,
+            "start_line": 126
           }
         },
         {
@@ -162216,8 +162569,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 290,
-            "start_line": 232
+            "end_line": 330,
+            "start_line": 252
           }
         }
       ]
@@ -162227,12 +162580,14 @@
         "ai_game_player",
         "ai_game_player.decision_orchestrator",
         "ai_game_player.decision_withheld",
+        "ai_game_player.event_journal",
         "ai_game_player.frame_analyzer",
         "ai_game_player.game_2048_adapter",
         "ai_game_player.ocr_recognizer",
         "ai_game_player.run_control",
         "tools",
         "tools.browser_probe_support",
+        "tools.planning_comparison_source",
         "tools.planning_resource_monitor",
         "tools.reference_game_2048_source",
         "tools.run_2048_campaign"
@@ -162361,6 +162716,22 @@
           "line": 13,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.decision_orchestrator"
           ],
           "module": "ai_game_player.decision_orchestrator",
@@ -162374,7 +162745,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_withheld"
@@ -162390,7 +162761,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -162406,7 +162777,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_adapter"
@@ -162422,7 +162793,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ocr_recognizer"
@@ -162438,7 +162809,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -162454,7 +162825,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 20,
           "local_dependencies": [
             "tools",
             "tools.browser_probe_support"
@@ -162474,7 +162845,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 21,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_comparison_source"
+          ],
+          "module": "tools.planning_comparison_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "source_fingerprint"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
           "local_dependencies": [
             "tools",
             "tools.planning_resource_monitor"
@@ -162490,7 +162877,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 23,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -162506,7 +162893,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 24,
           "local_dependencies": [
             "tools",
             "tools.run_2048_campaign"
@@ -162527,7 +162914,7 @@
       "module": "tools.compare_2048_windows_planning",
       "path": "tools/compare_2048_windows_planning.py",
       "source_location": {
-        "end_line": 269,
+        "end_line": 290,
         "start_line": 1
       },
       "symbols": [
@@ -162556,8 +162943,8 @@
           "signature": "(episode, ocr)",
           "source_location": {
             "column": 0,
-            "end_line": 36,
-            "start_line": 25
+            "end_line": 38,
+            "start_line": 27
           }
         },
         {
@@ -162609,8 +162996,8 @@
           "signature": "(provider, seed, max_steps, cache, output, *, save_failure_evidence = …)",
           "source_location": {
             "column": 0,
-            "end_line": 202,
-            "start_line": 39
+            "end_line": 217,
+            "start_line": 41
           }
         },
         {
@@ -162632,8 +163019,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 265,
-            "start_line": 205
+            "end_line": 286,
+            "start_line": 220
           }
         }
       ]
@@ -165511,7 +165898,7 @@
       "module": "tools.planning_browser_source",
       "path": "tools/planning_browser_source.py",
       "source_location": {
-        "end_line": 80,
+        "end_line": 74,
         "start_line": 1
       },
       "symbols": [
@@ -165533,7 +165920,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 80,
+            "end_line": 74,
             "start_line": 14
           }
         },
@@ -165591,7 +165978,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 76,
+            "end_line": 70,
             "start_line": 25
           }
         },
@@ -165614,8 +166001,76 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 80,
-            "start_line": 78
+            "end_line": 74,
+            "start_line": 72
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        }
+      ],
+      "module": "tools.planning_comparison_source",
+      "path": "tools/planning_comparison_source.py",
+      "source_location": {
+        "end_line": 33,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "source_fingerprint",
+          "parameters": [],
+          "qualified_name": "source_fingerprint",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 33,
+            "start_line": 8
           }
         }
       ]
@@ -170144,6 +170599,7 @@
         "ai_game_player.decision_context",
         "ai_game_player.decision_orchestrator",
         "ai_game_player.decision_withheld",
+        "ai_game_player.event_journal",
         "ai_game_player.fail_safe_runtime",
         "ai_game_player.frame_analyzer",
         "ai_game_player.game_2048_adapter",
@@ -170384,6 +170840,22 @@
           "line": 28,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 29,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.baseline_provider"
           ],
           "module": "ai_game_player.baseline_provider",
@@ -170397,7 +170869,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 29,
+          "line": 30,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_orchestrator"
@@ -170413,7 +170885,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 30,
+          "line": 31,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_withheld"
@@ -170429,7 +170901,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 31,
+          "line": 32,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planner_factory"
@@ -170445,7 +170917,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 32,
+          "line": 33,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -170461,7 +170933,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 33,
+          "line": 34,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_context"
@@ -170477,7 +170949,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 34,
+          "line": 35,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.fail_safe_runtime"
@@ -170493,7 +170965,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 35,
+          "line": 36,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -170509,7 +170981,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 36,
+          "line": 37,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_adapter"
@@ -170525,7 +170997,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 37,
+          "line": 38,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -170549,7 +171021,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 38,
+          "line": 39,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.ocr_recognizer"
@@ -170565,7 +171037,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 39,
+          "line": 40,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.pipeline"
@@ -170581,7 +171053,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 40,
+          "line": 41,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.screen_capture"
@@ -170601,7 +171073,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 41,
+          "line": 42,
           "local_dependencies": [
             "tools",
             "tools.recognition_failure_evidence"
@@ -170617,7 +171089,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 42,
+          "line": 43,
           "local_dependencies": [
             "tools",
             "tools.startup_failure_evidence"
@@ -170633,7 +171105,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 43,
+          "line": 44,
           "local_dependencies": [
             "tools",
             "tools.observation_timing"
@@ -170649,7 +171121,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 44,
+          "line": 45,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_launcher"
@@ -170665,7 +171137,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 45,
+          "line": 46,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -170682,7 +171154,7 @@
       "module": "tools.run_2048_campaign",
       "path": "tools/run_2048_campaign.py",
       "source_location": {
-        "end_line": 676,
+        "end_line": 683,
         "start_line": 1
       },
       "symbols": [
@@ -170702,8 +171174,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 258,
-            "start_line": 60
+            "end_line": 259,
+            "start_line": 61
           }
         },
         {
@@ -170743,8 +171215,8 @@
           "signature": "(self, window_handle: int, ocr_recognizer: object | None, failure_evidence: RecognitionFailureEvidence | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 78,
-            "start_line": 61
+            "end_line": 79,
+            "start_line": 62
           }
         },
         {
@@ -170778,8 +171250,8 @@
           "signature": "(self, on_fresh_frame: Callable[[], None] | None = …, *, timeout_seconds: float = …) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 214,
-            "start_line": 80
+            "end_line": 215,
+            "start_line": 81
           }
         },
         {
@@ -170825,8 +171297,8 @@
           "signature": "(self, detail: str, frame: ScreenFrame | None, game_state: dict[str, object], diagnostics: dict[str, object]) -> CampaignFailure",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 216
+            "end_line": 241,
+            "start_line": 217
           }
         },
         {
@@ -170848,8 +171320,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 242
+            "end_line": 250,
+            "start_line": 243
           }
         },
         {
@@ -170871,8 +171343,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 255,
-            "start_line": 251
+            "end_line": 256,
+            "start_line": 252
           }
         },
         {
@@ -170894,8 +171366,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 258,
-            "start_line": 257
+            "end_line": 259,
+            "start_line": 258
           }
         },
         {
@@ -170914,8 +171386,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 299,
-            "start_line": 261
+            "end_line": 300,
+            "start_line": 262
           }
         },
         {
@@ -170937,8 +171409,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 263,
-            "start_line": 262
+            "end_line": 264,
+            "start_line": 263
           }
         },
         {
@@ -170972,8 +171444,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 299,
-            "start_line": 265
+            "end_line": 300,
+            "start_line": 266
           }
         },
         {
@@ -170994,8 +171466,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 537,
-            "start_line": 302
+            "end_line": 544,
+            "start_line": 303
           }
         },
         {
@@ -171070,15 +171542,21 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "test_seed"
+            },
+            {
+              "annotation": "EventJournal | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "event_journal"
             }
           ],
           "qualified_name": "ReferenceGame2048Episode.__init__",
           "return_annotation": "None",
-          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …, test_seed: int | None = …) -> None",
+          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …, test_seed: int | None = …, event_journal: EventJournal | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 386,
-            "start_line": 303
+            "end_line": 393,
+            "start_line": 304
           }
         },
         {
@@ -171100,8 +171578,8 @@
           "signature": "(self) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 444,
-            "start_line": 388
+            "end_line": 451,
+            "start_line": 395
           }
         },
         {
@@ -171116,8 +171594,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 8,
-            "end_line": 412,
-            "start_line": 401
+            "end_line": 419,
+            "start_line": 408
           }
         },
         {
@@ -171139,8 +171617,8 @@
           "signature": "(self) -> CampaignActionResult",
           "source_location": {
             "column": 4,
-            "end_line": 490,
-            "start_line": 446
+            "end_line": 497,
+            "start_line": 453
           }
         },
         {
@@ -171162,8 +171640,8 @@
           "signature": "(self) -> dict[str, object] | None",
           "source_location": {
             "column": 4,
-            "end_line": 495,
-            "start_line": 492
+            "end_line": 502,
+            "start_line": 499
           }
         },
         {
@@ -171203,8 +171681,8 @@
           "signature": "(self, status: str, confidence: float, evidence: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 508,
-            "start_line": 497
+            "end_line": 515,
+            "start_line": 504
           }
         },
         {
@@ -171226,8 +171704,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 537,
-            "start_line": 510
+            "end_line": 544,
+            "start_line": 517
           }
         },
         {
@@ -171249,8 +171727,8 @@
           "signature": "(root: Path) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 552,
-            "start_line": 540
+            "end_line": 559,
+            "start_line": 547
           }
         },
         {
@@ -171265,8 +171743,8 @@
           "signature": "() -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 601,
-            "start_line": 555
+            "end_line": 608,
+            "start_line": 562
           }
         },
         {
@@ -171281,8 +171759,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 672,
-            "start_line": 604
+            "end_line": 679,
+            "start_line": 611
           }
         }
       ]

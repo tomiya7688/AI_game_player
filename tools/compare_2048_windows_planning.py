@@ -10,6 +10,7 @@ import statistics
 import subprocess
 import time
 
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.decision_orchestrator import DecisionOrchestrator
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.frame_analyzer import FrameAnalyzer
@@ -17,6 +18,7 @@ from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.run_control import ExecutionCancelled
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
+from tools.planning_comparison_source import source_fingerprint
 from tools.planning_resource_monitor import PlanningResourceMonitor
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 from tools.run_2048_campaign import ReferenceGame2048Episode, CAMPAIGN_PURPOSE
@@ -41,6 +43,7 @@ def run_episode(
 ):
     monitor = None
     episode = None
+    journal = None
     result = {
         "provider": provider,
         "seed": seed,
@@ -58,6 +61,8 @@ def run_episode(
     started = time.monotonic()
     try:
         monitor = PlanningResourceMonitor().start()
+        output.mkdir(parents=True, exist_ok=True)
+        journal = EventJournal(output / "events.db")
         episode = ReferenceGame2048Episode(
             1,
             cache,
@@ -69,6 +74,7 @@ def run_episode(
             planner_conditional=provider == "planner",
             planning_settle_ms=1000,
             test_seed=seed,
+            event_journal=journal,
         )
         result["seed_fixture"] = episode.launcher.server.test_seed_metadata
         state = episode.observe()
@@ -172,6 +178,14 @@ def run_episode(
                     "type": type(error).__name__,
                     "message": str(error)[:1000],
                 }
+        if journal is not None:
+            try:
+                journal.close()
+            except Exception as error:
+                result["journal_cleanup_failure"] = {
+                    "type": type(error).__name__,
+                    "message": str(error)[:1000],
+                }
         try:
             result["resources"] = monitor.close() if monitor is not None else None
         except Exception as error:
@@ -198,6 +212,7 @@ def run_episode(
         result["failure"] is None
         and not result.get("cleanup_failure")
         and not result.get("resource_failure")
+        and not result.get("journal_cleanup_failure")
     )
     return result
 
@@ -230,11 +245,13 @@ def main(argv=None):
             ["git", "rev-parse", "HEAD"], text=True
         ).strip(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
+        "source_at_start": source_fingerprint(),
         "game_source_lock": json.loads(SOURCE_LOCK_PATH.read_text()),
         "seed": args.seed,
         "failure_evidence_enabled": args.save_failure_evidence,
         "max_steps": args.max_steps,
         "profile": "short Windows comparison; independent of required 600s gate",
+        "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
         "decision_state": "existing screenshot board recognizer only; post-decision score OCR never enters Source/Planner",
         "settle_ms": 1000,
         "baseline_profile": {"min_margin": 0, "min_recognition": 0.65},
@@ -261,6 +278,10 @@ def main(argv=None):
             e["success"] for e in report["episodes"]
         )
         publish_validation_report(output / "report.json", report)
+    report["source_at_end"] = source_fingerprint()
+    report["source_consistent"] = report["source_at_start"] == report["source_at_end"]
+    report["success"] = report["success"] and report["source_consistent"]
+    publish_validation_report(output / "report.json", report)
     print(output / "report.json")
     return 0 if report["success"] else 1
 

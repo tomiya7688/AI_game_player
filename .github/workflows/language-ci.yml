@@ -355,6 +355,11 @@ jobs:
           $runtime = Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
           if (-not $runtime) { throw "Native runtime missing" }
           "KADOKA_NATIVE_RUNTIME=$($runtime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Verify bounded planner slow-memory-Stop worker regressions on Windows
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
       - name: Compare short owned-window play with identical seed and step budget
         shell: pwsh
         env:

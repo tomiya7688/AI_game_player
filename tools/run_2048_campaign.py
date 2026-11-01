@@ -25,6 +25,7 @@ from ai_game_player.campaign_runner import (
     CampaignRunner,
     CampaignState,
 )
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.baseline_provider import BaselineDecisionProvider
 from ai_game_player.decision_orchestrator import DecisionOrchestrator
 from ai_game_player.decision_withheld import DecisionDisposition
@@ -312,6 +313,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
         planner_conditional: bool = False,
         planning_settle_ms: int = 900,
         test_seed: int | None = None,
+        event_journal: EventJournal | None = None,
     ) -> None:
         if decision_provider not in {"cycling", "baseline", "planner"}:
             raise ValueError("unknown campaign decision provider")
@@ -378,6 +380,11 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 # }
                 fail_safe_config=FailSafeConfig(
                     observation_timeout_seconds=CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
+                ),
+                **(
+                    {"event_journal": event_journal}
+                    if event_journal is not None
+                    else {}
                 ),
             )
             self.source.fresh_frame_callback = self.pipeline.record_observation

@@ -9,7 +9,7 @@
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
 
 - 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。
-- 汎用Planning Risk/情報価値Policyで、仮想chance分布の下側損失と未知、観測後mapping全体のrisk、Goal episode再観測予算を検査できます（#566）。実入力するProvider接続は#567、Unknownness Action Policy全体は#206です。[契約と限界](doc/architecture/planning_risk_information.md)。
+- 汎用Planning Risk/情報価値Policyで、仮想chance分布の下側損失と未知、観測後mapping全体のrisk、Goal episode再観測予算を検査できます（#566）。任意Providerを#567でVerifier/Safetyへ接続しました。実測比較は検証中、Unknownness Action Policy全体は#206です。[契約と限界](doc/architecture/planning_risk_information.md)。
 - #422: 実Sessionの既定Modeにbounded Light workerを接続。receiptとverified効果、profile保証hash識別、unknown保留、Gate light検証→Mode CAS→durable ack、Stop事実退避。一般ゲームの因果検証/#433識別/#409完全Utility/#425自動資源分類は未完。[契約とp50/p95](doc/architecture/light_adaptation.md)。
 
 - Runtime Mode / Phase のコア契約（5 Mode / 8 Phase、既定 Light、安全境界、Step 版固定、共有 RunController の Stop、Journal / checkpoint）。詳細は `doc/architecture/runtime_modes.md`。
@@ -46,7 +46,7 @@
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
-- 仮想遷移は複数Belief対応のbounded探索Coreへ接続しました（#565）。部分観測では共通open-loop MPC、明示保証時だけ状態別Expectimaxです。制限worker・CPU oracleまでを検証し、本番Decisionと実プレイ比較は#567で対応します。共通OCR/Rule経路の実ブラウザ試験では、テトリス開始後のキー候補生成と、ブロック崩しの追跡・パドル制御が未達でした。汎用ゲーム対応や攻略強化の完成として扱いません。
+- 仮想遷移は複数Belief対応のbounded探索Coreへ接続しました（#565）。部分観測では共通open-loop MPC、明示保証時だけ状態別Expectimaxです。制限worker・CPU oracleまでを検証し、任意Providerで既存Verifier/Safetyへ最初1手だけ渡し、実観測で再計画できます（#567）。比較は検証中です。共通OCR/Rule経路の実ブラウザ試験では、テトリス開始後のキー候補生成と、ブロック崩しの追跡・パドル制御が未達でした。汎用ゲーム対応や攻略強化の完成として扱いません。
 - OCRは`Pillow`と`pytesseract`の任意依存です。未導入時も画像候補と任意のAutomation候補をGUIで評価できます。明るさだけから作るconfidence `0.0` の画像候補は候補評価器が拒否します。ゲーム固有の成功条件は追加調整が必要です。
 - `UnknownnessMonitor`は検出器の根拠を受け取るコアAPIです。画面認識器・prototype検索器・知識検索器からの自動入力とゲーム実行pipelineへの接続は未実装です。unknown時の行動選択も行わず、その方針はIssue #206の対象です。
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。

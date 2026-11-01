@@ -22,9 +22,11 @@ from ai_game_player.game_2048_transition import (
 )
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.planner_factory import reference_2048_planner_provider
 from ai_game_player.planning_contract import SearchBudget
 from ai_game_player.run_control import RunController
+from tools.planning_comparison_source import source_fingerprint
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.run_2048_campaign import CyclingDirectionProvider
 
@@ -142,9 +144,19 @@ def run_episode(provider_name, seed, max_steps, *, depth=1, wall_time_ms=400):
     samples, plans = [], []
     withheld = None
     with tempfile.TemporaryDirectory(prefix="kadoka-planning-comparison-") as directory:
-        pipeline = DecisionPipeline(
-            source, Path(directory), provider, controller=controller, dry_run=True
-        )
+        journal = EventJournal(Path(directory) / "events.db")
+        try:
+            pipeline = DecisionPipeline(
+                source,
+                Path(directory),
+                provider,
+                controller=controller,
+                dry_run=True,
+                event_journal=journal,
+            )
+        except Exception:
+            journal.close()
+            raise
         pipeline.executor.live_executor = HeadlessExecutor(source)
         pipeline.executor.dry_run = False
         orchestrator = DecisionOrchestrator(pipeline)
@@ -173,6 +185,9 @@ def run_episode(provider_name, seed, max_steps, *, depth=1, wall_time_ms=400):
                             ),
                             "counters": asdict(plan.counters),
                             "probability_semantics": plan.probability_semantics,
+                            "observation_requests": policy.observation_requests
+                            if policy is not None
+                            else 0,
                             "global_risk_known": policy.global_risk_known
                             if policy is not None
                             else None,
@@ -222,6 +237,11 @@ def run_episode(provider_name, seed, max_steps, *, depth=1, wall_time_ms=400):
         },
         "resources": resource_delta,
         "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+        "policy_reobservations": sum(p.get("observation_requests", 0) for p in plans),
+        "policy_reobserve_per_action": sum(
+            p.get("observation_requests", 0) for p in plans
+        )
+        / max(1, len(samples)),
         "nodes": sum(p["counters"]["nodes_visited"] for p in plans),
         "plans": plans,
         "receipt_count": len(receipts),
@@ -250,12 +270,16 @@ def main(argv=None):
         or not 1 <= args.max_steps <= 500
         or not 1 <= args.depth <= 3
         or not 1 <= args.wall_time_ms <= 2000
+        or len(set(args.seeds)) != len(args.seeds)
+        or any(not 0 <= seed <= 0xFFFFFFFF for seed in args.seeds)
+        or len(set(args.providers)) != len(args.providers)
     ):
         parser.error("comparison requires bounded seeds/steps/depth/time")
     output = new_probe_directory(args.output)
     report = {
         "schema_version": 1,
         "mode": "headless_fixture",
+        "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
         "git_commit": subprocess.check_output(
             ["git", "rev-parse", "HEAD"], text=True
         ).strip(),
@@ -276,18 +300,34 @@ def main(argv=None):
                 allow_conditional_selection=True,
             )
         ),
-        "episodes": [
-            run_episode(
-                p, s, args.max_steps, depth=args.depth, wall_time_ms=args.wall_time_ms
-            )
-            for s in args.seeds
-            for p in args.providers
-        ],
+        "source_at_start": source_fingerprint(),
+        "episodes": [],
     }
+    path = output / "report.json"
+    for seed in args.seeds:
+        for provider in args.providers:
+            report["episodes"].append(
+                run_episode(
+                    provider,
+                    seed,
+                    args.max_steps,
+                    depth=args.depth,
+                    wall_time_ms=args.wall_time_ms,
+                )
+            )
+            publish_validation_report(path, report)
+    report["source_at_end"] = source_fingerprint()
+    report["source_consistent"] = report["source_at_start"] == report["source_at_end"]
+    report["git_commit_at_end"] = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], text=True
+    ).strip()
+    report["git_status_at_end"] = subprocess.check_output(
+        ["git", "status", "--porcelain"], text=True
+    )
     path = output / "report.json"
     publish_validation_report(path, report)
     print(path)
-    return 0
+    return 0 if report["source_consistent"] else 1
 
 
 if __name__ == "__main__":

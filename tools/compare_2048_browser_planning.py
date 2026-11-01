@@ -1,6 +1,7 @@
 """Explicit isolated-browser comparison using production decision/execution paths."""
 
 import argparse
+from contextlib import ExitStack
 from collections import Counter
 from functools import partial
 from hashlib import sha256
@@ -14,19 +15,21 @@ import threading
 import time
 
 
+from tools.planning_comparison_source import source_fingerprint
 from tools.planning_browser_source import FreshCompletedBrowserSource
-from ai_game_player.action_executor import ActionExecutor
+from ai_game_player.action_executor import ActionExecutor, ExecutionResult
 from ai_game_player.baseline_provider import BaselineDecisionProvider
 from ai_game_player.decision_orchestrator import DecisionOrchestrator
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.game_2048_transition import ReferenceGame2048TransitionModel
 from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.event_journal import EventJournal
 from ai_game_player.planner_factory import reference_2048_planner_provider
 from ai_game_player.planning_contract import SearchBudget
 from ai_game_player.run_control import ExecutionCancelled, RunController
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
-from tools.check_2048_screen_transition import BrowserKeyExecutor
 from tools.reference_game_2048_source import PinnedGameSource
+from tools.run_2048_campaign import CyclingDirectionProvider
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -34,30 +37,45 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 
-class SettledBrowserExecutor(BrowserKeyExecutor):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class SettledBrowserExecutor:
+    def __init__(self, page, target_url, before_dispatch):
+        self.page, self.target_url, self.before_dispatch = (
+            page,
+            target_url,
+            before_dispatch,
+        )
         self.confirmed_key_sends = 0
 
     def execute(self, candidate):
-        result = super().execute(candidate)
-        self.confirmed_key_sends += int(result.executed)
-        # Existing backend waits 350ms. Add 650ms for upstream score animation.
-        # This is a turn-based development profile, not a change to Safety TTL.
-        self.page.wait_for_timeout(650)
-        return result
+        keys = {
+            "UP": "ArrowUp",
+            "RIGHT": "ArrowRight",
+            "DOWN": "ArrowDown",
+            "LEFT": "ArrowLeft",
+        }
+        if (
+            self.page.is_closed()
+            or self.page.url != self.target_url
+            or candidate.kind != "key"
+            or candidate.label not in keys
+        ):
+            raise RuntimeError(
+                "comparison accepts only arrow candidates for its isolated page"
+            )
+        self.before_dispatch()
+        self.page.keyboard.press(keys[candidate.label])
+        # Count immediately after confirmed key send, before any settling error.
+        self.confirmed_key_sends += 1
+        self.page.wait_for_timeout(1000)
+        return ExecutionResult(
+            candidate.action_id, True, "browser_test", "arrow key sent to isolated page"
+        )
 
 
 def episode(browser, target, seed, provider_name, max_steps, output):
     from PIL import Image
 
-    context = browser.new_context(
-        viewport={"width": 650, "height": 850}, device_scale_factor=1
-    )
-    context.add_init_script(f"""let testSeed={seed}; Math.random=()=>{{
-        testSeed=(1664525*testSeed+1013904223)>>>0; return testSeed/4294967296;
-    }};""")
-    page = context.new_page()
+    context = None
     started = time.monotonic()
     steps, dispositions = [], []
     confirmed_executions = 0
@@ -68,9 +86,30 @@ def episode(browser, target, seed, provider_name, max_steps, output):
         "dispositions": dispositions,
     }
     pipeline = None
+    cleanup_errors = []
+
+    def close_resource(name, close):
+        try:
+            close()
+        except Exception as error:
+            cleanup_errors.append(
+                {
+                    "resource": name,
+                    "type": type(error).__name__,
+                    "message": str(error)[:2000],
+                }
+            )
+
     source = None
     backend = None
     try:
+        context = browser.new_context(
+            viewport={"width": 650, "height": 850}, device_scale_factor=1
+        )
+        context.add_init_script(f"""let testSeed={seed}; Math.random=()=>{{
+            testSeed=(1664525*testSeed+1013904223)>>>0; return testSeed/4294967296;
+        }};""")
+        page = context.new_page()
         page.goto(target)
         page.wait_for_timeout(1000)
         source = FreshCompletedBrowserSource(page, Image)
@@ -87,14 +126,29 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                 ),
             )
             if provider_name == "planner"
-            else BaselineDecisionProvider(min_margin=0.0, min_recognition=0.65)
-        )
-        with tempfile.TemporaryDirectory(
-            prefix="kadoka-planner-comparison-"
-        ) as directory:
-            pipeline = DecisionPipeline(
-                source, Path(directory), provider, dry_run=True, controller=controller
+            else (
+                BaselineDecisionProvider(min_margin=0.0, min_recognition=0.65)
+                if provider_name == "baseline"
+                else CyclingDirectionProvider()
             )
+        )
+        with (
+            tempfile.TemporaryDirectory(
+                prefix="kadoka-planner-comparison-"
+            ) as directory,
+            ExitStack() as cleanup,
+        ):
+            journal = EventJournal(Path(directory) / "events.db")
+            cleanup.callback(close_resource, "journal", journal.close)
+            pipeline = DecisionPipeline(
+                source,
+                Path(directory),
+                provider,
+                dry_run=True,
+                controller=controller,
+                event_journal=journal,
+            )
+            cleanup.callback(close_resource, "pipeline", pipeline.close)
             pipeline.executor.close()
             generation = controller.rearm_token
             dispatch_reference = {}
@@ -186,6 +240,7 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                     "action_id": result.action_id,
                     "prediction_matched": matched,
                     "merge_score_delta": slide.reward_delta,
+                    "oracle_action_changed": slide.changed,
                     "max_tile": max(map(max, state.cells)) if state else None,
                     "planning": planning,
                     "before_capture": dispatch_reference["capture"],
@@ -264,16 +319,10 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                 )
         if backend is not None:
             record["confirmed_backend_key_sends"] = backend.confirmed_key_sends
-        if pipeline is not None:
-            try:
-                pipeline.close()
-            except Exception as error:
-                record["cleanup_error"] = {
-                    "type": type(error).__name__,
-                    "message": str(error)[:2000],
-                }
+        record["cleanup_errors"] = cleanup_errors
         try:
-            context.close()
+            if context is not None:
+                context.close()
         except Exception as error:
             record["context_cleanup_error"] = {
                 "type": type(error).__name__,
@@ -288,6 +337,27 @@ def episode(browser, target, seed, provider_name, max_steps, output):
     )
     record["unverified_transition_count"] = sum(
         step["prediction_matched"] is None for step in steps
+    )
+    record["invalid_action_count"] = sum(
+        step.get("oracle_action_changed") is False for step in steps
+    )
+    record["invalid_action_rate"] = record["invalid_action_count"] / max(
+        1, confirmed_executions
+    )
+    record["invalid_metric"] = (
+        "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence"
+    )
+    record["policy_reobservations"] = sum(
+        step.get("planning", {}).get("policy", {}).get("observation_requests", 0)
+        for step in steps
+    )
+    record["policy_reobserve_per_action"] = record["policy_reobservations"] / max(
+        1, confirmed_executions
+    )
+    record["survival_steps"] = confirmed_executions
+    record["nodes"] = sum(
+        step.get("planning", {}).get("counters", {}).get("nodes_visited", 0)
+        for step in steps
     )
     record["duration_seconds"] = time.monotonic() - started
     for metric in ("decision_execution_ms", "step_wall_ms", "host_cpu_ms"):
@@ -328,8 +398,8 @@ def main():
     parser.add_argument(
         "--providers",
         nargs="+",
-        choices=("baseline", "planner"),
-        default=["baseline", "planner"],
+        choices=("cycling", "baseline", "planner"),
+        default=["cycling", "baseline", "planner"],
     )
     parser.add_argument("--seeds", nargs="+", type=int, default=[479, 480, 481])
     parser.add_argument("--max-steps", type=int, default=180)
@@ -340,7 +410,10 @@ def main():
     if (
         not args.allow_live_input
         or not 1 <= args.max_steps <= 1000
-        or len(args.seeds) > 10
+        or not 1 <= len(args.seeds) <= 10
+        or len(set(args.seeds)) != len(args.seeds)
+        or any(not 0 <= seed <= 0xFFFFFFFF for seed in args.seeds)
+        or len(set(args.providers)) != len(args.providers)
     ):
         parser.error("explicit live input and bounded episodes/steps required")
     from playwright.sync_api import sync_playwright
@@ -361,6 +434,7 @@ def main():
         "git_status_at_start": subprocess.check_output(
             ["git", "status", "--porcelain"], text=True
         ),
+        "source_at_start": source_fingerprint(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
         "sensor_sha256": sha256(
             Path(__file__).with_name("planning_browser_source.py").read_bytes()
@@ -381,6 +455,13 @@ def main():
         "decision_data": "screenshot and existing recognizer only; seeded RNG initialization is test setup, score DOM read only after play",
         "windows_field_play": "Unverified; isolated Chromium input backend",
         "episodes": [],
+    }
+    report["persistence_profile"] = (
+        "explicit EventJournal; same append-only path as ManagedSession"
+    )
+    report["profiles"]["cycling"] = {
+        "provider": "CyclingDirectionProvider",
+        "configuration": "existing default",
     }
     try:
         with sync_playwright() as playwright:
@@ -408,11 +489,27 @@ def main():
     report["git_sha_at_end"] = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], text=True
     ).strip()
+    report["git_status_at_end"] = subprocess.check_output(
+        ["git", "status", "--porcelain"], text=True
+    )
+    report["source_at_end"] = source_fingerprint()
+    report["source_changed_during_run"] = (
+        report["source_at_start"] != report["source_at_end"]
+    )
+    report["harness_sha256_at_end"] = sha256(Path(__file__).read_bytes()).hexdigest()
+    report["sensor_sha256_at_end"] = sha256(
+        Path(__file__).with_name("planning_browser_source.py").read_bytes()
+    ).hexdigest()
+    report["source_consistent"] = (
+        not report["source_changed_during_run"]
+        and report["harness_sha256"] == report["harness_sha256_at_end"]
+        and report["sensor_sha256"] == report["sensor_sha256_at_end"]
+    )
     report["evidence_directory"] = str(output)
     publish_validation_report(output / "report.json", report)
-    report["success"] = all(
+    report["success"] = report["source_consistent"] and all(
         not item.get("error")
-        and not item.get("cleanup_error")
+        and not item.get("cleanup_errors")
         and not item.get("context_cleanup_error")
         and item["actions"] > 0
         and item.get("stopped_input_rejected")

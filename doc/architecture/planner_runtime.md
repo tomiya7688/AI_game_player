@@ -49,3 +49,7 @@ Pythonの小さな接続層は1step毎で、画像bufferや木をコピーせず
 Windows比較は既存language CIに独立jobとしてseed479/480/481を並列実行します。各jobはCycling/Baseline/Plannerの各12手上限、最低3件の実入力とStop/旧世代拒否を要求します。600秒耐久gateはそのまま残ります。test-only HTTP response wrapperで固定seed LCGを初期化し、pinned index、init script、実際の応答のSHAを別々に保存します。固定版assetは変更しません。得点は全判断後の別capture→OCR評価だけで読み、Source/Plannerへ戻しません。認識不可は比較失敗です。CPU/RAMは50msのprocess-tree sample（browser/workerを含む）を保存し、短命workerや終端CPUの欠落、共有RSSの二重計上がある測定範囲を明示します。これは#565のOS hard resource enforcementとは別です。Windows actual実測とCI合格が確認できるまで本IssueのLive条件はUnverifiedです。
 
 再現CLI: `tools/compare_2048_planning.py` はpublic boardのheadless fixture、`tools/compare_2048_browser_planning.py --allow-live-input` は明示的なisolated Chromium実画面、`tools/compare_2048_windows_planning.py --allow-live-input --seed 479 --max-steps 12` は所有WindowのWGC/OS入力です。Chromiumには任意開発依存Pillow/Playwright、Windows比較にはOCRとpsutilが必要です。どの結果も試行ごとのreportへ固定し、live判定とfixture判定を混同しません。
+
+5199f479の[Chromium短試走](../validation/planner_smoke_5199.json)ではPlanner12手、12unique receipt、12予測遷移一致、score52/max16、Stop後送信0、実Outcome12件すべてunknownを確認しました。sourceの開始/終了hashは同一です。これは旧direct-Pipeline JSON経路の短試走で、最終Journal比較とは別条件です。
+
+長枠準備で、直接Pipelineを構成したfixtureが旧trace全JSONを書き換える経路だったことを確認しました。[旧経路の診断](../validation/planner_legacy_diagnostic.json)だけを保存してheadless旧測定を中断し、3provider共通で明示EventJournalへ切り替えました。旧測定の未完結果を最終比較へ混ぜません。Journal/PipelineをTempdir削除前に閉じ、constructor/cleanup失敗を元エラーから分離して保存します。開始/終了にsrc/tools全Pythonのaggregatehashとhelperhashを記録し、途中にsourceが変化した測定は成功扱いにしません。

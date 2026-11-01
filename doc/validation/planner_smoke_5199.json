@@ -1,0 +1,83 @@
+{
+  "git_sha_at_start": "5199f4797e6a14950afaa84ad5099a67de609466",
+  "git_sha_at_end": "5199f4797e6a14950afaa84ad5099a67de609466",
+  "git_status_at_start": "",
+  "git_status_at_end": "",
+  "source_at_start": {
+    "python_file_count": 230,
+    "sha256": "f355fbc292c3431c7a3d60b948bbfff1558b55622bcaafaf415ead88b6fac7e0"
+  },
+  "source_at_end": {
+    "python_file_count": 230,
+    "sha256": "f355fbc292c3431c7a3d60b948bbfff1558b55622bcaafaf415ead88b6fac7e0"
+  },
+  "source_consistent": true,
+  "harness_sha256": "d621436e6c9421f5efe51a26dafb9ffff99038ef31d5bf9b9ee7613cfa51ba72",
+  "sensor_sha256": "834544a9e625833f9f75e407c8817e07de2d6ff9211738034c07b9b057e118d7",
+  "pinned_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "profiles": {
+    "baseline": {
+      "min_margin": 0.0,
+      "min_recognition": 0.65
+    },
+    "planner": {
+      "allow_conditional": true,
+      "unknown_world_mass": 1,
+      "calibrated_accuracy_claim": false,
+      "max_depth": 1,
+      "max_nodes": 10000,
+      "wall_time_ms": 400
+    },
+    "cycling": {
+      "provider": "CyclingDirectionProvider",
+      "configuration": "existing default"
+    }
+  },
+  "settle_milliseconds": 1000,
+  "schema_version": 1,
+  "profile": "legacy direct-Pipeline JSON smoke; not the final EventJournal comparison",
+  "source_report_sha256": "15a7ddc9a304f9dabf02c381c5633b7be8165e029b933379a2925cee86a2e04b",
+  "source_report_path": "build/transition-2048/planner-smoke/run-fb62712ea4024c67976d1c35e8205aeb/report.json",
+  "windows_actual": "Unverified; isolated Chromium backend",
+  "episodes": [
+    {
+      "seed": 479,
+      "provider": "planner",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": false,
+      "game_won": false,
+      "max_tile": 16,
+      "step_cap_reached": true,
+      "visible_score": "52",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 12
+      },
+      "outcome_status_counts": {
+        "unknown": 12
+      },
+      "confirmed_backend_key_sends": 12,
+      "actions": 12,
+      "validated_transition_count": 12,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "duration_seconds": 18.351426338998863,
+      "decision_execution_ms": {
+        "p50": 1253.8196525,
+        "p95": 1267.28471905
+      },
+      "step_wall_ms": {
+        "p50": 1405.374578,
+        "p95": 1420.6093249
+      },
+      "host_cpu_ms": {
+        "p50": 295.9929445,
+        "p95": 313.6505971
+      },
+      "host_process_peak_rss_kib": 87996,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    }
+  ]
+}
