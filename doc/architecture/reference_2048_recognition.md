@@ -70,3 +70,6 @@ Windowsの評価専用得点は、同frameのSCOREラベルから数字行を異
 
 
 後続のWindows評価profileでは、同frameのSCORE panelを局所Otsu・4近傍成分で分離し、bilinear3倍→二値化→白余白でPSM6/7の可読性を確保する。[9実header×2geometry、元4桁と独立6桁glyph、費用の記録](../validation/planning_score_panel_ocr.json)は旧helper0/18から新版18/18を確認する。confidence0.65・二幅一致・厳密parserを維持し、padding前のsource支持辺への接触、paddingを差し引いたOCR bboxの端切れ、同一cropの二重計数を拒否する。SCOREとBESTを分離し、Source/Planner入力や因果Outcomeへ戻さない。これは保存画素での評価OCR再生で、旧Windows試行の失敗や5ed5/e6c7の固定source実測を書換えず、新headの実OS受入れを別途要求する。
+
+
+Windows5.5.3で0画像のOCR回帰が残ったため、次候補は先にSCORE panel内の全foregroundを元支持辺へ照合し、union＋小marginと同panel内拡幅の実2ROIを読む。[次候補・engine/model診断の記録](../validation/planning_score_foreground_union.json)を参照する。先頭桁・偏心label・多桁の支持を保持し、clamp後同一ROIはunknownにする。PSM7/.65を維持し、PSM7/8/10/13 raw probeは診断だけで、値補完や学習へ使わない。Linuxで0 confidenceは依然.728であり、Win改善は未確認のまま新CIで再検証する。

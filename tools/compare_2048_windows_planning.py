@@ -16,6 +16,8 @@ from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
+from ai_game_player.observation_freshness import ObservationFreshness
+from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.run_control import ExecutionCancelled
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.planning_comparison_source import source_fingerprint
@@ -136,6 +138,10 @@ def run_episode(
         "seed": seed,
         "max_steps": max_steps,
         "actions": 0,
+        "attempts": 0,
+        "holds": 0,
+        "attempt_records": [],
+        "attempt_profile": "bounded_decisions_with_fresh_abstention",
         "invalid_actions": 0,
         "board_changes": 0,
         "policy_reobservations": 0,
@@ -208,11 +214,13 @@ def run_episode(
             )
         # Validation consumed time; plan from a newly accepted real frame without extending TTL.
         phase = "post_validation_observation"
+        episode.source.not_before = max(episode.source.not_before, time.monotonic())
         state = episode.observe(timeout_seconds=ready_deadline - time.monotonic())
         if time.monotonic() >= ready_deadline:
             raise RuntimeError("comparison initial observation ready deadline expired")
         initial_token = episode.pipeline.controller.rearm_token
-        for _ in range(max_steps):
+        for attempt_index in range(max_steps):
+            episode.pipeline.controller.ensure_running(initial_token)
             if state.terminal:
                 break
             before = state
@@ -224,7 +232,25 @@ def run_episode(
             result["last_policy_reason_codes"] = []
             orchestrator = DecisionOrchestrator(episode.pipeline)
             decision_started_ns = time.monotonic_ns()
-            outcome = orchestrator.run(execute=True, purpose=CAMPAIGN_PURPOSE)
+            result["attempts"] += 1
+            try:
+                outcome = orchestrator.run(execute=True, purpose=CAMPAIGN_PURPOSE)
+            except Exception:
+                elapsed_ms = (time.monotonic_ns() - decision_started_ns) / 1e6
+                latencies.append(elapsed_ms)
+                result["attempt_records"].append(
+                    {
+                        "index": attempt_index,
+                        "outcome": "exception",
+                        "elapsed_ms": elapsed_ms,
+                        "core_reason": None,
+                        "policy_reason_codes": [],
+                        "completed_depth": None,
+                        "counters": None,
+                        "disposition": None,
+                    }
+                )
+                raise
             returned_ns = time.monotonic_ns()
             result["decision_attempts"] = list(orchestrator.last_diagnostics)
             latencies.append((time.monotonic_ns() - began) / 1e6)
@@ -239,13 +265,56 @@ def run_episode(
             result["planning_runtime"] = (
                 diagnostics() if callable(diagnostics) else None
             )
+            counters = getattr(plan, "counters", None)
+            attempt = {
+                "index": attempt_index,
+                "outcome": outcome.outcome.value
+                if isinstance(outcome, DecisionDisposition)
+                else "select",
+                "elapsed_ms": (returned_ns - decision_started_ns) / 1e6,
+                "core_reason": result["last_core_reason"],
+                "policy_reason_codes": result["last_policy_reason_codes"],
+                "completed_depth": getattr(plan, "completed_depth", None),
+                "counters": asdict(counters) if counters is not None else None,
+                "disposition": outcome.to_dict()
+                if isinstance(outcome, DecisionDisposition)
+                else None,
+            }
+            result["attempt_records"].append(attempt)
             if isinstance(outcome, DecisionDisposition):
                 result["withheld"] = outcome.to_dict()
-                break
+                result["holds"] += 1
+                episode.pipeline.controller.ensure_running(initial_token)
+                if outcome.outcome is not PlanningOutcome.ABSTAIN:
+                    raise RuntimeError(
+                        "comparison stopped for a non-abstention disposition"
+                    )
+                if attempt_index + 1 < max_steps:
+                    phase = "hold_fresh_observation"
+                    previous = ObservationFreshness.from_observation(
+                        episode.source.latest_observation
+                    )
+                    barrier_ns = time.monotonic_ns()
+                    episode.source.not_before = max(
+                        episode.source.not_before, barrier_ns / 1e9
+                    )
+                    state = episode.observe()
+                    episode.pipeline.controller.ensure_running(initial_token)
+                    fresh = ObservationFreshness.from_observation(
+                        episode.source.latest_observation
+                    )
+                    if (
+                        not fresh.is_newer_than(previous)
+                        or fresh.captured_at_ns < barrier_ns
+                    ):
+                        raise RuntimeError("abstention requires a new physical frame")
+                continue
+            result["withheld"] = None
             if not outcome.executed:
                 raise RuntimeError("comparison did not execute actual input")
             episode.source.not_before = time.monotonic() + 1
             result["actions"] += 1
+            episode.pipeline.controller.ensure_running(initial_token)
             before_board = observed_board(episode)
             backend = getattr(
                 getattr(episode.pipeline, "executor", None), "live_executor", None
@@ -326,6 +395,7 @@ def run_episode(
         records = episode.pipeline.load_execution_history()
         result["execution_history_count"] = len(records)
         phase = "stop_probe"
+        episode.pipeline.controller.ensure_running(initial_token)
         token = episode.pipeline.controller.rearm_token
         episode.pipeline.controller.stop("comparison Stop probe")
         try:
@@ -421,7 +491,15 @@ def run_episode(
     result["policy_reobserve_per_action"] = result["policy_reobservations"] / max(
         1, result["actions"]
     )
-    result["nodes"] = sum(plan["counters"]["nodes_visited"] for plan in result["plans"])
+    result["hold_rate"] = result["holds"] / max(1, result["attempts"])
+    result["all_attempts_held"] = (
+        result["attempts"] > 0 and result["holds"] == result["attempts"]
+    )
+    result["nodes"] = sum(
+        attempt["counters"]["nodes_visited"]
+        for attempt in result["attempt_records"]
+        if attempt["counters"] is not None
+    )
     result["success"] = (
         result["failure"] is None
         and not result.get("cleanup_failure")
@@ -476,6 +554,16 @@ def comparison_summary(result):
             bounded(reason) for reason in result.get("last_policy_reason_codes", ())[:8]
         ],
         "confirmed_actual_actions": result.get("actions", 0),
+        "decision_attempt_count": result.get("attempts", 0),
+        "holds": result.get("holds", 0),
+        "hold_rate": result.get("hold_rate"),
+        "all_attempts_held": result.get("all_attempts_held", False),
+        "attempt_profile": result.get("attempt_profile"),
+        "attempt_records": result.get("attempt_records", [])[-60:],
+        "latency_ms": result.get("latency_ms"),
+        "resources": result.get("resources"),
+        "nodes": result.get("nodes"),
+        "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved",
         "observed_board_changes": result.get("board_changes", 0),
         "frame_preprocessing_profile": result.get("frame_preprocessing_profile"),
         "preprocessing_validation": result.get("preprocessing_validation"),

@@ -422,6 +422,9 @@ class Cached2048ObservationSource:
         return cached_read
 
     def read_fresh(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
+        # A newer WGC lease can still contain a pre-request queued frame.
+        # Keep its producer timestamp and discard it before refreshing any lease.
+        self.not_before = max(self.not_before, time.monotonic())
         self.capture_playable_state(
             on_fresh_frame=self.fresh_frame_callback, timeout_seconds=3.0
         )

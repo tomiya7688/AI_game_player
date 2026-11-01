@@ -5,7 +5,12 @@ import math
 import re
 
 from ai_game_player.screen_capture import ScreenFrame
-from tools.planning_score_panel import find_panels, panel_for_label, prepare_panel_ocr
+from tools.planning_score_panel import (
+    find_panels,
+    numeric_crops,
+    panel_for_label,
+    prepare_panel_ocr,
+)
 
 
 def _scaled_crop(frame, left, top, right, bottom):
@@ -195,16 +200,17 @@ def reread_score_line(frame, observation, ocr):
     scale = 3
     readings = []
     crops = []
-    half_width_base = (
-        max(width, center_x - panel.left, panel.right - center_x)
-        if panel is not None
-        else width
-    )
-    for half_width in (half_width_base, half_width_base * 1.5):
-        left, right = (
-            math.floor(center_x - half_width),
-            math.ceil(center_x + half_width),
-        )
+    if panel is not None:
+        try:
+            requested_crops = numeric_crops(frame, panel, top, bottom)
+        except ValueError:
+            return None, {"status": "score_numeric_support_unavailable"}
+    else:
+        requested_crops = [
+            (math.floor(center_x - half), top, math.ceil(center_x + half), bottom)
+            for half in (width, width * 1.5)
+        ]
+    for left, top, right, bottom in requested_crops:
         if (
             width <= 0
             or height <= 0

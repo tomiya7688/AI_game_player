@@ -157,10 +157,29 @@ depth2/400msと共通125ms pacingを維持した。n=3の記述的結果で、�
 
 この測定に基づき、独立の短比較だけWGC待ちを250msと明示し、timeout時は既存の同一対象GDI fallbackとsession再利用を使います。一般capture/600秒Campaignのnative既定2000msを変えず、raw署名照合・clock・5秒capture age・Planner4秒TTL・3秒再観測予算も維持します。新profileのWindows gameplay成功は次の実CIで確認し、5bbcやe6c7の成功値へ遡って適用しません。前処理parityでは両semanticが未知でもmatch=falseを維持し、availability/一致/未知cell数/確信度/終了flag/候補数を分けて診断します。初期だけ、両経路が同じ未知入力なら最大2回の実fresh captureを既存45秒ready期限内で追加し、available=trueかつparity成立を入力開始条件とします。真の前処理差、未知のまま、期限切れは入力0の失敗で、cacheを新frameとして付け替えません。
 
-### 評価専用Score panelの前処理
+### e119時点の評価専用Score panel前処理
 
 Windowsの実header9件では、SCORE文字を読めても数値cropにpanel外縁・page背景が混ざり、PSM7が全幅を文字に見立てて拒否されました。旧試行の失敗結論は保全します。評価だけ、同frameのSCOREアンカーに属する局所panelをOtsuのクラス間分散最大化と4近傍連結成分で分離します。背景が矩形の過半数を支持し、ROI端に接しないpanelだけを使い、BEST側を含めません。bilinear3倍で低解像度字形の階調を保持した後Otsu二値化し、白余白を加えてPSM6/7へ渡します。これは[Otsu (1979)](https://doi.org/10.1109/TSMC.1979.4310076)の大域閾値法を小さい局所ROIへ適用したもので、新しい学習器ではありません。
 
 literal SCOREはOCRで確認し、ラベルが不明なら値もunknownです。数値はpanel実幅を覆う異なる2幅で一致し、confidence0.65・厳密numeric parser・元support上の端切れ拒否を維持します。padding前の元source stripと、丸角を除くpanelの2px内側の支持領域で、foregroundがいずれかの境界へ触れた場合も拒否します。追加した白余白はOCR bbox検査前に座標から差し引き、切れた字形を隠しません。ラベルが偏心しても初回cropがpanel両端を覆う幅を使い、2回目は1.5倍の異なる実ROIとします。clampせず、同一ROIになれば独立の2回として数えずunknownです。新しい外部依存・Pillow runtimeはなく、局所画素は最大100,000、panel候補は最大4に制限します。Source/入力OCR/Planner/TTL/Stop/学習へ戻さない評価専用処理です。
 
 [実画素回帰と費用](../validation/planning_score_panel_ocr.json)は、元cropのPNG SHA、904×648への(202,0)配置、9件×原座標/倍率2+offset、元1824/1808の再読を区別します。元画像のScoreとBest、0、多桁を使い、値・seed別の条件はありません。実Windows比較の最終成功やOS入力の完了をこのreplayから主張しません。
+
+
+### 空の予算通知と有界な比較試行
+
+正当な計算予算切れで完成checkpointが無い場合、CoreはABSTAIN/depth0/空values/unknown確率の通知だけを返します。通知の生成時刻は親のcompute cutoff後になり得ますが、操作や分布のevidence受領ではありません。Policyはこの厳密な空通知だけを別に照合し、同じsource/scope/仮説版/Run世代/allowed ID/観測TTL/unknown massを維持してplanning_unavailableとします。SELECTや完成checkpointの受領期限・確率分布検査は維持し、通知に操作ID・値・完成深さを持ち込む偽装は拒否します。GUIは引き続き非SELECTでSession全体を停止します。
+
+Windows短比較専用profileはmax_stepsを最大判断試行数として扱い、通常ABSTAINも1試行を消費します。保留時は入力・receipt・盤面変化を加算せず、元Run世代を確認して要求時刻以後の物理Frameへ移り、次の外側試行へ進みます。Stop/世代変更/ESCALATE/target loss/例外は終了し、保留を理由としたstart/rearmは行いません。既存の通常終了後Stop/stale検証は、元Run世代が有効な場合だけ開始します。全12保留は入力0で失敗し、1保留→11入力は12試行/hold率1/12として表示します。全試行のlatency、保留を含む探索counter、既存CPU/RSS monitorを保存し、min3actual・盤面変化・画像score・Stop/staleの合格条件は維持します。実workerの400ms、内部再観測3秒、観測Beliefの4秒TTL、Source実capture age5秒の既存上限や外側loop回数は増やしません。nodesは各外側試行で受領済みの最新完成checkpointの合計で、未完成・未受領の探索workは含まれません。CPU/RSSも既存50ms samplerの下限/共有RSS重複という制約を維持します。
+
+### 全foreground支持に基づく数値ROI
+
+Windows5.5.3で0 glyphのfixtureだけがnumeric unknownになったため、次候補では信頼済みSCORE panel内の元foreground全体を先に検査し、そのunion＋小marginと、同panel内の拡幅という異なる実2ROIを使います。元支持辺への接触はcropを狭める前に拒否し、先頭桁を落としません。両marginがpanel境界でclampされ同一ROIになる場合はunknownです。これは値/seed別の規則ではなく、全ての数値に共通する文字領域分割です。PSM7・confidence0.65・厳密parse・二幅一致・padding座標補正を維持します。
+
+[foreground union候補の再生記録](../validation/planning_score_foreground_union.json)はLinuxのみで、Win改善は未確認です。旧e119/d6の0 fixture failureを保全し、全18例を同じまま新CIで再検証します。固定PSM7/8/10/13 probeはraw word/confidence、同じprepared画素のRGB/PNG SHAと寸法、engine/executable/eng.traineddata SHAを記録する診断だけで、PSM選択や入力、学習へ戻しません。PNG圧縮差と画素/model差を分け、0の値補完やconfidence昇格を行いません。
+
+### e119実機結果と要求後の物理Frame
+
+[e119のpush/PR全18 episodeと失敗原因](../validation/planning_windows_e119_diagnostic.json)を保存します。同一3seedを2 triggerで測った記録で、独立した6seedとは扱いません。16 episodeは各12実入力/12盤面変化・score OCR・Stop/stale拒否が成立しましたが、push480 Plannerは400msで完成checkpointが無く入力0、PR479 Cyclingはparity後のunknown boardを入力前に拒否しました。失敗を除くscore平均は出しません。全6jobでは0画像3件×2geometryのOCR fixtureが失敗し、Windows5.5.3とLinux5.5.0のengine/model差はこのheadでは未分離です。
+
+PR479の初期WGC frame生産225.531秒に対して、parity後の取得要求227.033秒が生産225.594秒のqueued frameを返しました。IDと生産時刻は増えていても、要求より約1.44秒前のanimation画像でした。次実装はread_fresh入口と正常parity後の取得直前に実monotonicのnot_beforeを進め、要求より古い画像を既存のcallback前dropで捨てます。元producer時刻を上書きせず、実request40.0秒に対して39.9秒の画像はlease/解析/Source連番を更新せず、40.1秒だけを採用する前FAIL→後PASS回帰を追加しました。既存600秒Campaignもこの厳しいfresh境界を新headで再検証します。

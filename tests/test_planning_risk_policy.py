@@ -46,6 +46,83 @@ class PlanningRiskPolicyTests(unittest.TestCase):
             },
         )
 
+    def unavailable_notification(self, belief=None):
+        return replace(
+            make_plan(belief or self.belief),
+            outcome=PlanningOutcome.ABSTAIN,
+            selected_action_id=None,
+            action_values=(),
+            completed_depth=0,
+            probability_semantics="unknown",
+            reason="compute_budget",
+            created_at_ns=self.now,
+            compute_cutoff_at_ns=self.now - 1,
+        )
+
+    def test_fresh_empty_budget_notification_is_unavailable_without_invented_risk(self):
+        for relative in (False, True):
+            with self.subTest(relative=relative):
+                belief = make_belief(score=relative)
+                notice = self.unavailable_notification(belief)
+                decision = self.decide(notice, belief)
+                self.assertEqual(decision.outcome, PlanningOutcome.ABSTAIN)
+                self.assertEqual(decision.reason_codes, ("planning_unavailable",))
+                self.assertIsNone(decision.selected_action_id)
+                self.assertFalse(decision.global_risk_known)
+                self.assertEqual(self.episode.usage, (0, 0))
+
+    def test_empty_notification_still_binds_source_version_generation_ttl_and_actions(
+        self,
+    ):
+        base = self.unavailable_notification()
+        alterations = (
+            {"context": replace(base.context, source_generation=2)},
+            {"context": replace(base.context, session_id="foreign")},
+            {"context": replace(base.context, frame_ids=("foreign-frame",))},
+            {"context": replace(base.context, clock_id="foreign-clock")},
+            {"belief_version": base.belief_version + 1},
+            {"run_generation": base.run_generation + 1},
+            {"allowed_action_ids": ("other",)},
+            {"expires_at_ns": base.expires_at_ns + 1},
+            {"expires_at_ns": self.now},
+            {"created_at_ns": self.now + 1},
+            {"residual_unknown_mass": 1.0},
+        )
+        for alteration in alterations:
+            with self.subTest(alteration=alteration):
+                notice = replace(base, **alteration)
+                # Current caller candidates are independent of untrusted notification IDs.
+                decision = self.decide(notice, allowed_action_ids=("a", "b"))
+                self.assertEqual(decision.outcome, PlanningOutcome.ABSTAIN)
+                self.assertEqual(decision.reason_codes, ("invalid_planning_evidence",))
+                self.assertIsNone(decision.selected_action_id)
+
+    def test_select_or_completed_values_cannot_masquerade_as_empty_notice(self):
+        for alteration in (
+            {"outcome": PlanningOutcome.SELECT},
+            {"selected_action_id": "a"},
+            {"completed_depth": 1},
+            {"action_values": make_plan(self.belief).action_values},
+            {"continuation_semantics": "open_loop_mpc"},
+        ):
+            with self.subTest(alteration=alteration):
+                notice = replace(
+                    self.unavailable_notification(), compute_cutoff_at_ns=self.now + 1
+                )
+                # Bypass construction to exercise the independent Policy trust boundary.
+                for key, value in alteration.items():
+                    object.__setattr__(notice, key, value)
+                decision = self.decide(notice)
+                self.assertEqual(decision.outcome, PlanningOutcome.ABSTAIN)
+                self.assertEqual(decision.reason_codes, ("invalid_planning_evidence",))
+                self.assertIsNone(decision.selected_action_id)
+        late = replace(
+            make_plan(self.belief),
+            created_at_ns=self.now,
+            compute_cutoff_at_ns=self.now - 1,
+        )
+        self.assertEqual(self.decide(late).reason_codes, ("invalid_planning_evidence",))
+
     def test_agreement_selects_risk_acceptable_action_and_information_early_exit(self):
         result = self.decide()
         self.assertEqual(result.outcome, PlanningOutcome.SELECT)

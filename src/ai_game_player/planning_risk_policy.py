@@ -121,7 +121,14 @@ class PlanningRiskPolicy:
                 return replace(decision, reason_codes=("no_hard_allowed_action",))
             if not self.episode.check_context(context, goal_id, started):
                 return replace(decision, reason_codes=("episode_context_mismatch",))
-            validate_planning_source(result, belief, context, run_generation, started)
+            validate_planning_source(
+                result,
+                belief,
+                context,
+                run_generation,
+                started,
+                allowed_action_ids=allowed_action_ids,
+            )
             cutoff = min(cutoff, result.expires_at_ns, belief.expires_at_ns)
             actions = tuple(
                 item for item in result.action_values if item.action_id in allowed
