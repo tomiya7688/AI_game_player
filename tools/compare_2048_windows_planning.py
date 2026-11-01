@@ -2,6 +2,7 @@
 
 import argparse
 from dataclasses import asdict
+from copy import deepcopy
 from hashlib import sha256
 import json
 import os
@@ -265,6 +266,12 @@ def run_episode(
             result["planning_runtime"] = (
                 diagnostics() if callable(diagnostics) else None
             )
+            try:
+                worker_diagnostic = deepcopy(
+                    (result["planning_runtime"] or {}).get("worker")
+                )
+            except Exception:
+                worker_diagnostic = None
             counters = getattr(plan, "counters", None)
             attempt = {
                 "index": attempt_index,
@@ -276,6 +283,7 @@ def run_episode(
                 "policy_reason_codes": result["last_policy_reason_codes"],
                 "completed_depth": getattr(plan, "completed_depth", None),
                 "counters": asdict(counters) if counters is not None else None,
+                "worker_diagnostic": worker_diagnostic,
                 "disposition": outcome.to_dict()
                 if isinstance(outcome, DecisionDisposition)
                 else None,

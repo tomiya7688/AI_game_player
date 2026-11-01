@@ -4,8 +4,10 @@ from pathlib import Path
 
 from ai_game_player.game_2048_adapter import (
     ReferenceGame2048Adapter,
+    _state_signature,
 )
 from ai_game_player.models import ScreenObservation
+from ai_game_player.planner_2048_observation import Reference2048PlanningObservation
 from ai_game_player.screen_capture import ScreenFrame
 
 
@@ -116,6 +118,51 @@ class ReferenceGame2048AdapterTests(unittest.TestCase):
         self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
         self.assertTrue(all(candidate.kind == "key" for candidate in candidates))
         self.assertTrue(all(candidate.confidence >= self.adapter.minimum_candidate_confidence for candidate in candidates))
+
+    def test_confident_empty_nonterminal_board_is_not_a_playable_state(self):
+        fixture = {**self.fixture, "board": [[0] * 4 for _ in range(4)]}
+        frame = render_fixture(fixture)
+        observation = ScreenObservation(
+            "2048", *self.fixture["frame_size"], [], {"ocr_candidates": []}
+        )
+        adapted, candidates = self.adapter.adapt(frame, observation)
+        state = adapted.features["game_2048"]
+        self.assertEqual(state["confidence"], 1)
+        self.assertEqual(state["board"], fixture["board"])
+        self.assertFalse(state["game_over"])
+        self.assertEqual(candidates, [])
+        self.assertFalse(state["state_available"])
+        self.assertEqual(state["unavailable_reason"], "empty_nonterminal")
+        self.assertEqual(
+            _state_signature(tuple(tuple(row) for row in fixture["board"]), None, False),
+            "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+        )
+        sensor = Reference2048PlanningObservation(clock_id="fixture")
+        self.assertIsNone(sensor.semantic_state(adapted, 0))
+        # Do not trust the availability annotation from an external feature producer.
+        state["state_available"] = True
+        self.assertIsNone(sensor.semantic_state(adapted, 0))
+
+    def test_one_visible_tile_is_not_rejected_by_an_initial_two_tile_assumption(self):
+        fixture = {**self.fixture, "board": [[0] * 4 for _ in range(4)]}
+        fixture["board"][2][1] = 2
+        adapted, candidates = self.adapter.adapt(render_fixture(fixture), self.observation())
+        self.assertTrue(adapted.features["game_2048"]["state_available"])
+        self.assertEqual(len(candidates), 4)
+        self.assertIsNotNone(
+            Reference2048PlanningObservation(clock_id="fixture").semantic_state(adapted, 0)
+        )
+
+    def test_explicit_terminal_empty_board_remains_terminal_without_candidates(self):
+        fixture = {**self.fixture, "board": [[0] * 4 for _ in range(4)]}
+        adapted, candidates = self.adapter.adapt(
+            render_fixture(fixture), self.observation(ocr_text=["GAME OVER!"])
+        )
+        self.assertTrue(adapted.features["game_2048"]["game_over"])
+        self.assertEqual(candidates, [])
+        state = Reference2048PlanningObservation._state(adapted)
+        self.assertIsNotNone(state)
+        self.assertTrue(state.over)
 
     def test_screen_fixture_recognizes_board_colors_shifted_by_capture_resampling(self):
         frame = render_fixture(self.fixture)

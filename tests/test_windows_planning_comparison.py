@@ -140,6 +140,49 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
             )
         return result, episodes[0]
 
+    def test_each_attempt_keeps_its_own_fixed_worker_metadata(self):
+        current = {"parent_timing": {"spawn_started_at_ns": 1}}
+
+        # The existing fake fixture reuses one mutable diagnostic object.
+        def factory(*args, **kwargs):
+            episode = FakeEpisode(*args, **kwargs)
+            episode.pipeline.engine.provider.runtime_diagnostics = lambda: {
+                "worker": current
+            }
+            return episode
+
+        def run(orchestrator, **kwargs):
+            current["parent_timing"]["spawn_started_at_ns"] += 1
+            return DecisionDisposition(
+                PlanningOutcome.ABSTAIN, ("planning_unavailable",), "planner"
+            )
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", factory),
+            patch.object(comparison.DecisionOrchestrator, "run", run),
+            patch.object(
+                comparison.TesseractOcrRecognizer, "optional", return_value=object()
+            ),
+            patch.object(
+                comparison,
+                "evaluate_visible_score",
+                return_value={"value": 0, "confidence": 0.9},
+            ),
+        ):
+            result = comparison.run_episode(
+                "planner", 479, 12, Path(directory), Path(directory)
+            )
+        self.assertEqual(
+            [
+                a["worker_diagnostic"]["parent_timing"]["spawn_started_at_ns"]
+                for a in result["attempt_records"]
+            ],
+            list(range(2, 14)),
+        )
+        self.assertFalse(result["success"])
+
     def test_all_twelve_holds_consume_attempts_without_inputs_and_fail_gate(self):
         result, episode = self.hold_episode(["abstain"] * 12, with_plan=True)
         self.assertFalse(result["success"])

@@ -8,6 +8,10 @@ from ai_game_player.planning_worker_diagnostic import (
     WorkerDiagnostic,
     WorkerPhase,
     collect_worker_diagnostic,
+    new_parent_timing,
+    mark_parent_timing,
+    record_parent_io_error,
+    merge_parent_timing,
 )
 
 
@@ -86,3 +90,83 @@ class WorkerDiagnosticTests(unittest.TestCase):
             diagnostic.mark(WorkerPhase.CHECKPOINT_PUBLISH)
         self.assertEqual(diagnostic.phase, WorkerPhase.CHECKPOINT_PUBLISH)
         self.assertEqual(diagnostic.phase_elapsed_ns, 0)
+
+
+class ParentWorkerTimingTests(unittest.TestCase):
+    def test_monotonic_fixed_marks_and_io_codes_are_bounded_without_text(self):
+        timing = new_parent_timing(100, 500)
+        mark_parent_timing(timing, "spawn_started_at_ns", observed_ns=110)
+        mark_parent_timing(timing, "spawn_returned_at_ns", observed_ns=120)
+        mark_parent_timing(timing, "spawn_started_at_ns", observed_ns=130)
+        self.assertEqual(timing["spawn_started_at_ns"], 110)
+        for _ in range(3):
+            error = PermissionError(13, "private-model-path")
+            error.winerror = 5
+            record_parent_io_error(timing, "directory_cleanup", error)
+        result = merge_parent_timing(None, timing)
+        self.assertEqual(len(result["parent_timing"]["io_errors"]), 2)
+        self.assertEqual(result["parent_timing"]["io_errors"][0]["winerror"], 5)
+        self.assertNotIn("private", json.dumps(result))
+        self.assertLess(len(json.dumps(result)), 4096)
+
+    def test_regressed_or_invalid_clock_never_creates_a_timestamp(self):
+        for bad in (99, -1, True, float("nan"), 2**100):
+            timing = new_parent_timing(100, 500)
+            with patch(
+                "ai_game_player.planning_worker_diagnostic._parent_clock_ns",
+                return_value=bad,
+            ):
+                mark_parent_timing(timing, "spawn_started_at_ns")
+            self.assertTrue(timing["clock_invalid"])
+            self.assertNotIn("spawn_started_at_ns", timing)
+            self.assertEqual(timing["compute_cutoff_at_ns"], 500)
+
+    def test_invalid_metadata_and_oom_are_noninterfering(self):
+        original = {"schema_version": 1}
+        timing = new_parent_timing(100, 500)
+        with patch(
+            "ai_game_player.planning_worker_diagnostic._parent_clock_ns",
+            side_effect=MemoryError,
+        ):
+            mark_parent_timing(timing, "spawn_started_at_ns")
+        self.assertNotIn("spawn_started_at_ns", timing)
+        for invalid in ({**timing, "io_errors": None}, {**timing, "secret": "private"}):
+            self.assertIs(merge_parent_timing(original, invalid), original)
+        self.assertIsNone(new_parent_timing(True, 500))
+        self.assertIsNone(new_parent_timing(500, 100))
+
+    def test_directory_cleanup_failure_retains_the_original_exception_and_fixed_phase(
+        self,
+    ):
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from ai_game_player.bounded_planner import _planning_directory
+
+        timing = new_parent_timing(0, 500)
+        error = PermissionError(13, "private-directory")
+        error.winerror = 5
+        temporary = SimpleNamespace(
+            name="owned-fixture", cleanup=Mock(side_effect=error)
+        )
+        with patch(
+            "ai_game_player.bounded_planner.tempfile.TemporaryDirectory",
+            return_value=temporary,
+        ):
+            with self.assertRaises(PermissionError) as caught:
+                with _planning_directory(timing):
+                    pass
+        self.assertIs(caught.exception, error)
+        temporary.cleanup.assert_called_once()
+        self.assertEqual(timing["io_errors"][0]["phase"], "directory_cleanup")
+        self.assertEqual(timing["io_errors"][0]["errno"], 13)
+
+    def test_timing_oom_cannot_change_real_selection_or_worker_cleanup(self):
+        from test_expectimax_planner import ExpectimaxPlannerTests
+        from ai_game_player.planning_outcome import PlanningOutcome
+
+        with patch(
+            "ai_game_player.planning_worker_diagnostic._parent_clock_ns",
+            side_effect=MemoryError,
+        ):
+            result = ExpectimaxPlannerTests().run_plan()
+        self.assertEqual(result.outcome, PlanningOutcome.SELECT)

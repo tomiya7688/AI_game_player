@@ -1,6 +1,6 @@
 """評価専用: 同frameのuniform panelとOCR画素をOtsu/連結成分で分離する。"""
 
-from collections import deque
+from collections import Counter, deque
 from dataclasses import dataclass
 import math
 
@@ -194,8 +194,9 @@ def prepare_panel_ocr(
     panel: Panel,
     *,
     numeric: bool = False,
+    binary: bool = True,
 ) -> tuple[ScreenFrame, int]:
-    """3倍bilinear→Otsu→白余白。panel外は白にしBEST/pageを読ませない。"""
+    """3倍bilinear→Otsuまたは明示gray→白余白。panel外は白にする。"""
     pixels = _gray(frame, box)
     width, height = box[2] - box[0], box[3] - box[1]
     # Check real source support before masking/resampling/padding can hide clipping.
@@ -244,11 +245,22 @@ def prepare_panel_ocr(
     pad = 12
     out_width, out_height = width * 3 + pad * 2, height * 3 + pad * 2
     raw = bytearray(b"\xff\xff\xff\xff" * (out_width * out_height))
+    if not binary:
+        background = Counter(scaled).most_common(1)[0][0]
+        peak = max(scaled)
+        if peak <= background:
+            raise ValueError("score grayscale contrast unavailable")
     for y in range(height * 3):
         for x in range(width * 3):
-            if scaled[y * width * 3 + x] > threshold:
-                offset = ((y + pad) * out_width + x + pad) * 4
-                raw[offset : offset + 4] = b"\0\0\0\xff"
+            value = scaled[y * width * 3 + x]
+            if binary:
+                value = 0 if value > threshold else 255
+            else:
+                value = min(
+                    255, max(0, round(255 * (peak - value) / (peak - background)))
+                )
+            offset = ((y + pad) * out_width + x + pad) * 4
+            raw[offset : offset + 4] = bytes((value, value, value, 255))
     return ScreenFrame(
         out_width, out_height, bytes(raw), captured_at=frame.captured_at
     ), pad

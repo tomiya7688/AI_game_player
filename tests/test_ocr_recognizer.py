@@ -37,12 +37,14 @@ class OcrRecognizerTest(unittest.TestCase):
         frame = ScreenFrame(30, 20, b"x" * 30 * 20 * 4)
         ocr.recognize(frame)
         ocr.recognize(frame, mode="single_numeric_line")
+        ocr.recognize(frame, mode="unrestricted_numeric_line")
         ocr.recognize(frame, mode="text_block")
         self.assertEqual(
             calls,
             [
                 {},
                 {"config": "--psm 7 -c tessedit_char_whitelist=0123456789,"},
+                {"config": "--psm 7"},
                 {"config": "--psm 6"},
             ],
         )

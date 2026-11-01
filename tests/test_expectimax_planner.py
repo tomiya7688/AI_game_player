@@ -35,7 +35,10 @@ from ai_game_player.expectimax_search import (
 )
 from ai_game_player.game_2048_state import Game2048State
 from ai_game_player.game_2048_transition import ACTION_DIRECTION_BY_ID
-from ai_game_player.planning_2048 import reference_2048_registration
+from ai_game_player.planning_2048 import (
+    create_reference_2048_domain,
+    reference_2048_registration,
+)
 from ai_game_player.planning_contract import (
     PlanningDomain,
     PlanningRegistration,
@@ -204,6 +207,17 @@ def oversize_domain():
 
 def intersection_domain():
     return domain("intersection")
+
+
+def disjoint_legal_domain():
+    value = table_domain()
+    return replace(
+        value, legal_actions=lambda state: ("left",) if state == 0 else ("right",)
+    )
+
+
+def terminal_domain():
+    return replace(table_domain(), legal_actions=lambda state: ())
 
 
 def unknown_quality_domain():
@@ -432,6 +446,48 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         no_common = self.run_plan(factory="intersection_domain", allowed=("left",))
         self.assertEqual(no_common.outcome, PlanningOutcome.ABSTAIN)
         self.assertIsNone(no_common.selected_action_id)
+
+    def test_no_common_legal_action_is_unavailable_not_an_invalid_model(self):
+        for factory, allowed in (
+            ("disjoint_legal_domain", ("left", "right")),
+            ("terminal_domain", ("left", "right")),
+            ("intersection_domain", ("left",)),
+        ):
+            with self.subTest(factory=factory):
+                result = self.run_plan(factory=factory, allowed=allowed)
+                self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
+                self.assertEqual(result.reason, "no_common_legal_action")
+                self.assertEqual(result.completed_depth, 0)
+                self.assertIsNone(result.selected_action_id)
+                self.assertEqual(result.action_values, ())
+
+    def test_reference_empty_nonterminal_board_has_no_legal_action_without_numeric_error(
+        self,
+    ):
+        state = Game2048State(((0,) * 4,) * 4)
+        with patch("time.monotonic_ns", return_value=1000):
+            search = ExpectimaxSearch(
+                create_reference_2048_domain(),
+                reference_2048_registration(),
+                SearchBudget(
+                    max_depth=2,
+                    max_nodes=10000,
+                    wall_time_ms=400,
+                    allow_conditional_selection=True,
+                ),
+                (
+                    SearchHypothesis(
+                        "recognized_board",
+                        TypedStateRef("2048", "2048-state.v1", Game2048State, state),
+                        1,
+                    ),
+                ),
+                tuple(ACTION_DIRECTION_BY_ID),
+                BeliefWeightKind.RELATIVE_SCORE,
+                1,
+            )
+            with self.assertRaisesRegex(SearchCutoff, "^no_common_legal_action$"):
+                next(search.deepen())
 
     def test_transposition_cache_and_iterative_deepening_stay_within_budgets(self):
         belief, _ = self.belief(states=(0,), weights=(0.9,))

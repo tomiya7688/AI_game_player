@@ -1,5 +1,6 @@
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- 参照2048のnonterminal全空盤は画素confidenceを保持して未準備とし、汎用Coreの共通合法手無しをcontrolled cutoffへ分離。評価OCRはbinary空時だけ同じ2ROIのgray/無whitelistへ進み、literal numeric/.65/端切れ/矛盾拒否を維持。親processの予算内工程時刻は診断だけに保持し、400ms/TTL/child wire/入力は変更しません。
 - 評価Scoreのengine差を固定128条件で診断。同RGB/modelのWin0空を保全し、whitelist/出力形式/白余白整列/階調を同じ変換で比較。選択mode/.65/入力/学習/0期待値は変更しません。
 - 実request以後の物理frameをread_fresh/初期parity後に要求し、旧queueはlease前に破棄。空の予算保留通知は完成SELECTの受領期限と区別し、比較だけmax12判断attempt/holdも消費してfresh再計画します。400ms/3s/4s/5s/GUI停止仕様は維持。評価Scoreは全foreground union＋異なる2marginへ進め、Winの0画像失敗をPSM/model/画素hash診断で再検証します。
 - 評価専用Score OCRで、同frameのSCORE panelを局所Otsu/連結成分で分離しbilinear3倍・二値化・白余白を追加。文字推測や値補完をせず、0.65/二幅一致/元support端切れ拒否を維持。9実Win header×2geometryと元4桁画像を回帰化し、実OS失敗を成功へ書換えません。
