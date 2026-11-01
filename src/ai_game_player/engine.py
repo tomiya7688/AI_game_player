@@ -71,6 +71,7 @@ class GamePlayerEngine:
     ) -> None:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
+        self.event_journal = event_journal
         self.knowledge_adapter = knowledge_adapter
         self.evaluation_adapter = evaluation_adapter or RuntimeEvaluationAdapter()
         self.last_decision_context: DecisionContext | None = None
@@ -186,16 +187,21 @@ class GamePlayerEngine:
                 withheld.disposition, context_snapshot_id=context.snapshot_id
             )
             disposition = withheld.disposition
+            audit = self._planning_audit()
+
+            # {
+            #   責務: [publish_disposition: 非操作監査と仮想予測eventを同Run世代で公開する]
+            #   処理: [実Outcome/receiptを新規生成しない]
+            #   引数: [なし] 戻り値: [なし]
+            # }
+            def publish_disposition() -> None:
+                self.trace.append_disposition(context, disposition, audit)
+                self._publish_planning_prediction(context, audit)
+
             if commit_guard is None:
-                self.trace.append_disposition(
-                    context, disposition, self._planning_audit()
-                )
+                publish_disposition()
             else:
-                commit_guard(
-                    lambda: self.trace.append_disposition(
-                        context, disposition, self._planning_audit()
-                    )
-                )
+                commit_guard(publish_disposition)
             raise
         reliability = self.decision_verifier.verify(
             raw_decision,
@@ -255,6 +261,7 @@ class GamePlayerEngine:
             def publish_commit() -> None:
                 for staged_write in staged_writes:
                     staged_write.publish()
+                self._publish_planning_prediction(context, self._planning_audit())
                 self._last_decision_trace_reference = trace_reference
 
             if commit_guard is None:
@@ -280,6 +287,27 @@ class GamePlayerEngine:
         if len(encoded.encode("utf-8")) > 2 * 1024 * 1024:
             raise ValueError("planning audit exceeds bounded trace size")
         return json.loads(encoded)
+
+    # {
+    #   責務: [_publish_planning_prediction: 仮想予測を実Outcomeとは別event typeで保存する]
+    #   処理: [Journalがある時だけplanning.predictionを追記し、canonical実経験へ昇格しない]
+    #   引数: [context: 元判断scope, audit: bounded仮想metadata] 戻り値: [なし]
+    # }
+    def _publish_planning_prediction(
+        self, context: DecisionContext, audit: dict | None
+    ) -> None:
+        if (
+            self.event_journal is not None
+            and audit is not None
+            and "prediction" in audit
+        ):
+            self.event_journal.append(
+                "planning.prediction",
+                event_id="planning." + context.snapshot_id,
+                snapshot_id=context.snapshot_id,
+                status=str(audit.get("status", "unknown")),
+                payload={**audit, "actual_outcome": False},
+            )
 
     # {
     #   責務: [mark_last_decision_not_executed: 入力を送らなかったplanned判断を監査上の停止として記録する]

@@ -10,7 +10,7 @@ SELECTの実入力には追加captureが必要です。元planに対して新Fra
 
 正常な実行receiptだけをepisodeへ一回ackし、次の一手には入力前captureより新しいpost-action実観測を要求します。dispatch_unknownは成功とせず、再観測境界だけを進めます。dry-run、未送信、判断だけではaction epochを進めません。明示post-action completionにも鮮度条件を適用し、cached入力前Frameで実Outcomeを完成させません。最終操作は次判断が無くても既存#628の明示完了APIで観測できます。
 
-予測の値・terminal・riskはtraceの `planning_prediction` に保存し、`actual_outcome: false` を付けます。Providerは `assess_outcome` を公開・委譲しません。実Outcomeは #628 のreceiptとpost-action観測だけから生成します。仮想勝利を実際の成功へ投影しない負例があります。
+予測の値・terminal・riskはtraceの `planning_prediction` とJournalの独立した `planning.prediction` event typeに保存し、`actual_outcome: false` を付けます。Providerは `assess_outcome` を公開・委譲しません。実Outcomeは #628 のreceiptとpost-action観測だけから生成します。仮想勝利を実際の成功へ投影しない負例があります。
 
 OFF / 未登録Sensor能力の場合だけBaselineへ戻ります。失効、古いsource、risk保留、未校正ABSTAINをfallbackで無視しません。既定GUIのProviderは変更していません。trusted hostから任意ProviderとSensorを構成できます。
 
@@ -28,11 +28,12 @@ Windows Campaignの任意比較は `python tools/run_2048_campaign.py --decision
 |---|---|---|
 | Belief / 複数world | 型付きsnapshot、scoreと校正確率を分離、source/frame/turn/unknownを保持（#563/#564） | 一般ゲームの認識校正は未達。単一画像の確実性を仮定しない |
 | Bounded Expectimax / iterative deepening | #565登録model・legal actions・qualityを制限workerで評価 | 任意hidden worldの未来状態を完全観測と扱わない。#565の観測条件契約を継承 |
+| Anytime / iterative deepening / bounded cache・pruning | #565の完全深さだけを採用しtime/node/branch/RAMを強制 | #409 marginal gain / #425全体budgetへの自動接続は未達、受領済み見積だけを#566で評価 |
 | Lower-tail risk / disagreement / VOI | #566のCVaR、unknown区間、EVSIと観測後mappingの実行可能性 | channel無しでEVPI上界だけから再観測を正当化しない。Unknownness全体は#206 |
 | Receding-horizon / MPC | 実入力は最初1手のみ、receipt後の新実観測で再構成 | 事前の仮想Action列をbackendへ送らない。本Issue |
 | 6軸qualityとconfidence | #491の版付きNumericQualityを探索契約で共有 | 実測actualとcandidate仮説を分離。欠落軸を確率へ使わない |
 | Safety / causal experience | 既存Verifier/Safety/Run世代と#628 receiptを維持 | generic因果providerが無い画面差はunknown。#422/#433の残件を維持 |
-| POMCP / MuZero / 深層探索 / game攻略最適化 | 非対象 | #480の非対象を実装済みと呼ばない |
+| POMCP / DESPOT / POMCPOW / PETS / MuZero、latent world model一括学習 | 後続交換方式・非対象 | #480に残し、正式採用時のみ実装単位を追跡。全方式を実装済みと呼ばない |
 | Headless / Live / resource比較 | 同seed・同modelの計測と実画面を分ける | Chromium実画面とWindows WGC/OS Campaign600秒は別判定。#247/#250 |
 
 Receding-horizonの参照: Mayne et al., *Constrained model predictive control: Stability and optimality*, Automatica 36 (2000), DOI [10.1016/S0005-1098(99)00214-9](https://doi.org/10.1016/S0005-1098(99)00214-9)。ここではその安定性定理の条件を満たした証明を主張せず、最初の一手を実行して実観測で再計画する処理原則を採用します。Risk/情報価値の出典と実装条件は[共通policy資料](planning_risk_information.md)を参照してください。
@@ -46,3 +47,5 @@ Pythonの小さな接続層は1step毎で、画像bufferや木をコピーせず
 過去条件350msの[Baseline実画面比較記録](../validation/planner_baseline_350ms.json)は、f145 production・seed479/480/481でscore664/1344/1448、actions92/148/153、max64/128/128です。393件すべて実行receiptと明示観測があり、実Outcomeは全unknownです。平均1152（既存Cycling1242.67）で改善を示しません。新しい1000ms settleでの同条件比較とは分け、n=3の統計的有意性を主張しません。
 
 Windows比較は既存language CIに独立jobとしてseed479/480/481を並列実行します。各jobはCycling/Baseline/Plannerの各12手上限、最低3件の実入力とStop/旧世代拒否を要求します。600秒耐久gateはそのまま残ります。test-only HTTP response wrapperで固定seed LCGを初期化し、pinned index、init script、実際の応答のSHAを別々に保存します。固定版assetは変更しません。得点は全判断後の別capture→OCR評価だけで読み、Source/Plannerへ戻しません。認識不可は比較失敗です。CPU/RAMは50msのprocess-tree sample（browser/workerを含む）を保存し、短命workerや終端CPUの欠落、共有RSSの二重計上がある測定範囲を明示します。これは#565のOS hard resource enforcementとは別です。Windows actual実測とCI合格が確認できるまで本IssueのLive条件はUnverifiedです。
+
+再現CLI: `tools/compare_2048_planning.py` はpublic boardのheadless fixture、`tools/compare_2048_browser_planning.py --allow-live-input` は明示的なisolated Chromium実画面、`tools/compare_2048_windows_planning.py --allow-live-input --seed 479 --max-steps 12` は所有WindowのWGC/OS入力です。Chromiumには任意開発依存Pillow/Playwright、Windows比較にはOCRとpsutilが必要です。どの結果も試行ごとのreportへ固定し、live判定とfixture判定を混同しません。

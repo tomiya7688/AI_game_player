@@ -109,6 +109,8 @@ class ChangingSource(Source):
             features["changed_state"] = True
         elif self.change == "candidate":
             candidates = [replace(candidates[0], label="RIGHT")]
+        elif self.change == "unsafe":
+            candidates = [replace(candidates[0], dangerous=True)]
         return replace(observation, features=features), candidates
 
 
@@ -152,7 +154,7 @@ class PlannerProviderTests(unittest.TestCase):
     def test_same_epoch_state_signature_candidate_or_source_changes_withhold_without_receipt(
         self,
     ):
-        for change in ("state", "signature", "candidate", "source", "turn"):
+        for change in ("state", "signature", "candidate", "source", "turn", "unsafe"):
             with self.subTest(change=change):
                 pipeline, source, backend = self.pipeline(change)
                 result = DecisionOrchestrator(pipeline, max_reobservations=0).run(
@@ -352,3 +354,48 @@ class PlannerProviderTests(unittest.TestCase):
         result = DecisionOrchestrator(pipeline).run(execute=True)
         self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
         self.assertEqual(backend.actions, [])
+
+    def test_stale_sensor_store_rejection_is_a_nonaction_not_baseline_fallback(self):
+        pipeline, source, backend = self.pipeline()
+        with patch.object(
+            self.adapter, "prepare", side_effect=ValueError("snapshot_frame_mismatch")
+        ):
+            result = DecisionOrchestrator(pipeline).run(execute=True)
+        self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
+        self.assertEqual(result.reason_codes, ("planning_observation_rejected",))
+        self.assertEqual(self.planner.calls, 0)
+        self.assertEqual(backend.actions, [])
+
+    def test_prediction_journal_event_is_separate_from_actual_execution(self):
+        import json
+        import sqlite3
+        from ai_game_player.event_journal import EventJournal
+
+        source = ChangingSource()
+        journal = EventJournal(Path(self.tmp.name) / "events.db", session_id="fixture")
+        pipeline = DecisionPipeline(
+            source,
+            Path(self.tmp.name) / "journal-runtime",
+            self.provider,
+            event_journal=journal,
+        )
+        self.addCleanup(pipeline.close)
+        pipeline.run_and_execute()  # dry-run still predicts, but provides no actual OS input
+        with sqlite3.connect(journal.path) as connection:
+            events = [
+                json.loads(row[0])
+                for row in connection.execute(
+                    "SELECT envelope_json FROM events ORDER BY sequence"
+                )
+            ]
+        predictions = [
+            event for event in events if event["event_type"] == "planning.prediction"
+        ]
+        self.assertEqual(len(predictions), 1)
+        self.assertFalse(predictions[0]["payload"]["actual_outcome"])
+        self.assertEqual(
+            predictions[0]["payload"]["prediction"]["selected_action_id"], "move"
+        )
+        self.assertFalse(
+            any(event["event_type"] == "knowledge.action_outcome" for event in events)
+        )

@@ -113,13 +113,18 @@ class PlannerDecisionProvider:
             self._withhold(
                 "post_action_observation_required", PlanningOutcome.OBSERVE_MORE
             )
-        prepared = self.adapter.prepare(
-            context,
-            observation,
-            self._action_epoch,
-            self._run_generation,
-            self.clock_ns(),
-        )
+        try:
+            prepared = self.adapter.prepare(
+                context,
+                observation,
+                self._action_epoch,
+                self._run_generation,
+                self.clock_ns(),
+            )
+        except DecisionWithheld:
+            raise
+        except (ValueError, TypeError):
+            self._withhold("planning_observation_rejected")
         if prepared is None:
             return
         source = prepared.belief.context
@@ -299,7 +304,15 @@ class PlannerDecisionProvider:
             != self._registration
         ):
             return None
-        return self.adapter.current_belief(self._prepared.belief.context)
+        if (
+            getattr(self.planner, "clock_id", self._prepared.belief.context.clock_id)
+            != self._prepared.belief.context.clock_id
+        ):
+            return None
+        try:
+            return self.adapter.current_belief(self._prepared.belief.context)
+        except (ValueError, TypeError):
+            return None
 
     # {
     #   責務: [_assert_current_belief: 同画素でも仮説/unknown/校正版の更新を拒否する]

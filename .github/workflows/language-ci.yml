@@ -360,7 +360,7 @@ jobs:
         env:
           PYTHONPATH: "src;."
           COMPARISON_SEED: ${{ matrix.seed }}
-        run: python -u -X faulthandler tools/compare_2048_windows_planning.py --seed $env:COMPARISON_SEED --max-steps 12 --allow-live-input
+        run: python -u -X faulthandler tools/compare_2048_windows_planning.py --seed $env:COMPARISON_SEED --max-steps 12 --allow-live-input --save-failure-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:

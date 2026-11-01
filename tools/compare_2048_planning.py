@@ -260,16 +260,22 @@ def main(argv=None):
             ["git", "rev-parse", "HEAD"], text=True
         ).strip(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
+        "git_status": subprocess.check_output(
+            ["git", "status", "--porcelain"], text=True
+        ),
         "rng": "same Python Random(seed), accepted move sample_spawn from getrandbits32; separate from Chromium LCG test RNG",
         "decision_state": "public model board/score fixture only; no browser/OS or hidden RNG supplied to provider",
         "quality_claim": "conditional single-world experiment; global world risk unknown, no calibration or statistical significance claim",
         "windows_actual": "Unverified; existing Windows600s gate remains required",
         "baseline_profile": {"min_margin": 0, "min_recognition": 0.65},
-        "planning_budget": {
-            "max_depth": args.depth,
-            "max_nodes": 10000,
-            "wall_time_ms": args.wall_time_ms,
-        },
+        "planning_budget": asdict(
+            SearchBudget(
+                max_depth=args.depth,
+                max_nodes=10000,
+                wall_time_ms=args.wall_time_ms,
+                allow_conditional_selection=True,
+            )
+        ),
         "episodes": [
             run_episode(
                 p, s, args.max_steps, depth=args.depth, wall_time_ms=args.wall_time_ms

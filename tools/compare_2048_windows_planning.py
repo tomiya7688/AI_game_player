@@ -36,7 +36,9 @@ def evaluate_visible_score(episode, ocr):
     }
 
 
-def run_episode(provider, seed, max_steps, cache, output):
+def run_episode(
+    provider, seed, max_steps, cache, output, *, save_failure_evidence=False
+):
     monitor = None
     episode = None
     result = {
@@ -62,7 +64,7 @@ def run_episode(provider, seed, max_steps, cache, output):
             output,
             None,
             None,
-            True,
+            save_failure_evidence,
             decision_provider=provider,
             planner_conditional=provider == "planner",
             planning_settle_ms=1000,
@@ -96,6 +98,7 @@ def run_episode(provider, seed, max_steps, cache, output):
             plan = getattr(planning, "last_planning_result", None)
             policy = getattr(planning, "last_policy_decision", None)
             if plan is not None:
+                result["planning_budget"] = asdict(planning.search_budget)
                 result["fresh_input_captures"] += 1
                 result["policy_reobservations"] += (
                     policy.observation_requests if policy is not None else 0
@@ -124,7 +127,13 @@ def run_episode(provider, seed, max_steps, cache, output):
                 "score evaluation requires the explicit comparison OCR dependency"
             )
         result["score_evaluation"] = evaluate_visible_score(episode, ocr)
-        if type(result["score_evaluation"]["value"]) is not int:
+        score_confidence = result["score_evaluation"].get("confidence")
+        if (
+            type(result["score_evaluation"]["value"]) is not int
+            or not isinstance(score_confidence, (int, float))
+            or isinstance(score_confidence, bool)
+            or not 0.65 <= score_confidence <= 1
+        ):
             raise RuntimeError(
                 "post-decision visible score OCR is unavailable; do not claim score comparison"
             )
@@ -198,6 +207,7 @@ def main(argv=None):
     parser.add_argument("--seed", type=int, default=479)
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--allow-live-input", action="store_true")
+    parser.add_argument("--save-failure-evidence", action="store_true")
     parser.add_argument(
         "--cache-dir", type=Path, default=Path("build/reference_games/2048")
     )
@@ -222,6 +232,7 @@ def main(argv=None):
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
         "game_source_lock": json.loads(SOURCE_LOCK_PATH.read_text()),
         "seed": args.seed,
+        "failure_evidence_enabled": args.save_failure_evidence,
         "max_steps": args.max_steps,
         "profile": "short Windows comparison; independent of required 600s gate",
         "decision_state": "existing screenshot board recognizer only; post-decision score OCR never enters Source/Planner",
@@ -238,7 +249,12 @@ def main(argv=None):
     }
     for provider in ("cycling", "baseline", "planner"):
         result = run_episode(
-            provider, args.seed, args.max_steps, args.cache_dir, output / provider
+            provider,
+            args.seed,
+            args.max_steps,
+            args.cache_dir,
+            output / provider,
+            save_failure_evidence=args.save_failure_evidence,
         )
         report["episodes"].append(result)
         report["success"] = len(report["episodes"]) == 3 and all(
