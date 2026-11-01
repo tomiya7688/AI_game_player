@@ -12,6 +12,8 @@ classDiagram
         +record_observation()
         +heartbeat()
         +trigger_emergency_stop()
+        +ensure_initialization_not_stopped()
+        +initialize_safety()
         +rearm_safety()
         +close()
         +fail_safe_state()
@@ -340,6 +342,7 @@ classDiagram
         +_append_entry()
         +_update_entry()
         +record_action_outcome()
+        +record_execution_receipt()
         +recent()
         +recent_actions()
         +_read()
@@ -364,6 +367,11 @@ classDiagram
         +_index_candidates()
         +_build_result()
     }
+    class DeferredTraceAppend {
+        +__init__()
+        +publish()
+        +discard()
+    }
     class GamePlayerEngine {
         +__init__()
         +step()
@@ -373,6 +381,8 @@ classDiagram
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
+        +record_execution_receipt()
+        +complete_execution_observation()
     }
     class EvaluationAxis {
         +__post_init__()
@@ -443,6 +453,14 @@ classDiagram
         +load()
         +append()
         +_read_entries()
+    }
+    class ExecutionReceipt {
+        +__post_init__()
+        +to_dict()
+    }
+    class ExecutionObservation {
+        +__post_init__()
+        +to_dict()
     }
     class ArtifactReference {
         +__post_init__()
@@ -543,7 +561,10 @@ classDiagram
         +reason()
         +epoch()
         +session_id()
+        +initialize()
         +rearm()
+        +_require_initial_idle_locked()
+        +_arm_locked()
         +heartbeat()
         +record_observation()
         +make_command()
@@ -1005,9 +1026,12 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +_record_execution_receipt()
+        +complete_execution_observation()
         +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
+        +initialize_safety()
         +rearm_safety()
         +close()
         +close_execution_resources()
@@ -1056,6 +1080,7 @@ classDiagram
         +stop()
         +_validate_running_locked()
         +run_if_current()
+        +record_execution_audit()
         +ensure_running()
     }
     class ResolutionFailure {
@@ -1192,6 +1217,7 @@ classDiagram
         +run()
         +run_and_execute()
         +load_execution_history()
+        +complete_execution_observation()
         +assess_outcome()
         +close()
     }
@@ -1602,6 +1628,7 @@ classDiagram
     }
     class WindowsInputExecutor {
         +__init__()
+        +has_held_inputs()
         +execute()
         +_verify_target_identity()
         +release_all()

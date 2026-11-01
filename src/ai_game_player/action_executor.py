@@ -2,7 +2,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Protocol
 
-from ai_game_player.fail_safe_runtime import FailSafeCommand, FailSafeConfig, FailSafeRuntime, FailSafeState
+from ai_game_player.fail_safe_runtime import (
+    FailSafeCommand,
+    FailSafeConfig,
+    FailSafeRuntime,
+    FailSafeState,
+)
 from ai_game_player.models import ActionCandidate
 from ai_game_player.safety_guard import (
     EmergencyStop,
@@ -81,14 +86,20 @@ class ActionExecutor:
         fail_safe_state_directory: Path | None = None,
         external_watchdog: bool = True,
         run_controller_stop_checker: Callable[[], bool] | None = None,
-        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        automated_cursor_position_callback: Callable[
+            [tuple[int, int] | None, bool], None
+        ]
+        | None = None,
     ) -> None:
         self.dry_run = dry_run
+        self.input_dispatch_started: bool | None = False
         self.live_executor = live_executor
         self.window_handle = window_handle
         self.input_mode = input_mode
         self.window_process_id = window_process_id
-        self.run_controller_stop_checker = run_controller_stop_checker or (lambda: False)
+        self.run_controller_stop_checker = run_controller_stop_checker or (
+            lambda: False
+        )
         self.automated_cursor_position_callback = automated_cursor_position_callback
         production_live = not dry_run and live_executor is None
         if safety_guard is None:
@@ -98,7 +109,9 @@ class ActionExecutor:
                     require_target=bound_windows_target,
                     require_foreground=bound_windows_target and input_mode == "mouse",
                 )
-            stop = emergency_stop or (default_emergency_stop() if production_live else EmergencyStop())
+            stop = emergency_stop or (
+                default_emergency_stop() if production_live else EmergencyStop()
+            )
             safety_guard = SafetyGuard(
                 safety_config,
                 window_handle=window_handle,
@@ -137,7 +150,7 @@ class ActionExecutor:
     #     2: dry-runならOS入力なしで結果を返す
     #     3: 実入力対象のHWNDとPIDを確認する
     #     4: FailSafeRuntimeを確認して選択Executorを呼ぶ
-    #     input_dispatch_started: 外部Executor呼出しへ到達したかを示し、呼出し前の失敗と入力結果不明を区別する
+    #     input_dispatch_started: backendの送信境界証拠を反映する。Falseは未到達、Trueは到達、Noneはbackendが証明できない場合
     #   ]
     #   引数: [
     #     candidate: 実行候補
@@ -158,20 +171,35 @@ class ActionExecutor:
         self.input_dispatch_started = False
         decision = self.safety_guard.check(candidate)
         if not decision.allowed:
-            raise RuntimeError(f"SafetyGuard blocked action [{decision.code}]: {decision.reason}")
+            raise RuntimeError(
+                f"SafetyGuard blocked action [{decision.code}]: {decision.reason}"
+            )
         if self.dry_run:
-            return ExecutionResult(candidate.action_id, False, "dry_run", "OS入力は無効です")
+            return ExecutionResult(
+                candidate.action_id, False, "dry_run", "OS入力は無効です"
+            )
 
-        if self.live_executor is None and (self.window_handle is None or not self.window_process_id):
-            raise RuntimeError("live Windows input requires a selected window and its process identity")
+        if self.live_executor is None and (
+            self.window_handle is None or not self.window_process_id
+        ):
+            raise RuntimeError(
+                "live Windows input requires a selected window and its process identity"
+            )
 
         command = fail_safe_command
         runtime = self.fail_safe_runtime
         if runtime is not None:
             target = self._current_target()
-            if target is None or not target.valid or not target.visible or target.pid <= 0:
+            if (
+                target is None
+                or not target.valid
+                or not target.visible
+                or target.pid <= 0
+            ):
                 runtime.recovery_required("target_invalid_before_execute")
-                raise RuntimeError("FailSafeRuntime blocked action [target_invalid]: target is unavailable")
+                raise RuntimeError(
+                    "FailSafeRuntime blocked action [target_invalid]: target is unavailable"
+                )
             command = command or runtime.make_command(
                 candidate.action_id,
                 target_pid=target.pid,
@@ -199,11 +227,24 @@ class ActionExecutor:
                     stop_checker=self._stop_requested,
                     automated_cursor_position_callback=self.automated_cursor_position_callback,
                     input_ledger=runtime.ledger if runtime is not None else None,
-                    hold_ttl_seconds=runtime.config.hold_ttl_seconds if runtime is not None else None,
+                    hold_ttl_seconds=runtime.config.hold_ttl_seconds
+                    if runtime is not None
+                    else None,
                 )
                 self.live_executor = executor
-            self.input_dispatch_started = True
-            return executor.execute(candidate)
+            self.input_dispatch_started = None
+            try:
+                result = executor.execute(candidate)
+            except Exception:
+                self.input_dispatch_started = getattr(
+                    executor, "input_dispatch_started", None
+                )
+                raise
+            else:
+                self.input_dispatch_started = getattr(
+                    executor, "input_dispatch_started", bool(result.executed)
+                )
+                return result
         finally:
             if runtime is not None and command is not None:
                 runtime.complete_command(command)
@@ -231,6 +272,54 @@ class ActionExecutor:
             runtime.emergency_stop(reason)
         self._release_live_inputs()
 
+    # {
+    #   責務: [ensure_initialization_not_stopped: 初期化でdefault/localの緊急停止を解除せず拒否する]
+    #   処理: [双方の実Eventを読取り、停止中なら初期化を失敗させる]
+    #   引数: [なし] 戻り値: [なし]
+    #   エラー: [RuntimeError: いずれかの緊急停止が有効]
+    # }
+    def ensure_initialization_not_stopped(self) -> None:
+        if (
+            default_emergency_stop().is_triggered()
+            or self.emergency_stop.is_triggered()
+        ):
+            raise RuntimeError("emergency stop prevents initial safety lease")
+
+    # {
+    #   責務: [initialize_safety: Stop解除と区別して初回観測用のleaseを開始する]
+    #   処理: [各I/O前後で世代とEventを確認し、Guardの時計・履歴・停止をresetしない]
+    #   引数: [check_current: 呼出側の観測開始世代を検証する短い関数]
+    #   戻り値: [なし]
+    #   エラー: [RuntimeError/ExecutionCancelled: 対象・保存・世代・停止の検査失敗]
+    # }
+    def initialize_safety(self, check_current: Callable[[], None]) -> None:
+        # {
+        #   責務: [check: 世代とdefault/local Stopを一緒に検査する]
+        #   処理: [呼出側の世代確認後にEventを読み、I/Oは行わない]
+        #   引数: [なし] 戻り値: [なし]
+        #   エラー: [RuntimeError/ExecutionCancelled: 世代またはStopが無効]
+        # }
+        def check() -> None:
+            check_current()
+            self.ensure_initialization_not_stopped()
+
+        check()
+        runtime = self.fail_safe_runtime
+        if runtime is None:
+            return
+        target = self._current_target()
+        check()
+        if target is None or not target.valid or not target.visible or target.pid <= 0:
+            raise RuntimeError("initial safety lease requires a valid visible target")
+        runtime.ledger.configure(
+            target_handle=target.handle, input_mode=self.input_mode
+        )
+        check()
+        runtime.initialize(target_pid=target.pid, target_handle=target.handle)
+        check()
+        if runtime.state != FailSafeState.ACTIVE:
+            raise RuntimeError("initial safety lease is not active")
+
     def rearm_safety(self) -> None:
         self.safety_guard.rearm()
         runtime = self.fail_safe_runtime
@@ -240,7 +329,9 @@ class ActionExecutor:
         if target is None or not target.valid or not target.visible or target.pid <= 0:
             runtime.recovery_required("invalid_target_on_rearm")
             raise RuntimeError("FailSafeRuntime re-arm requires a valid visible target")
-        runtime.ledger.configure(target_handle=target.handle, input_mode=self.input_mode)
+        runtime.ledger.configure(
+            target_handle=target.handle, input_mode=self.input_mode
+        )
         runtime.rearm(target_pid=target.pid, target_handle=target.handle)
 
     def close(self) -> None:
@@ -262,8 +353,10 @@ class ActionExecutor:
     # }
     def _stop_requested(self) -> bool:
         runtime = self.fail_safe_runtime
-        return self.run_controller_stop_checker() or self.emergency_stop.is_triggered() or (
-            runtime is not None and runtime.state != FailSafeState.ACTIVE
+        return (
+            self.run_controller_stop_checker()
+            or self.emergency_stop.is_triggered()
+            or (runtime is not None and runtime.state != FailSafeState.ACTIVE)
         )
 
     def _current_target(self) -> TargetState | None:
