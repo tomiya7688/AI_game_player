@@ -58,3 +58,20 @@ class PlanningBrowserSourceTests(unittest.TestCase):
             source.cached[0].features["capture_metadata"]["frame_id"],
             "fixture_source:0:2",
         )
+
+    def test_failed_new_capture_clears_previous_state_observation_and_pixels(self):
+        source = FreshCompletedBrowserSource.__new__(FreshCompletedBrowserSource)
+        source.last_state = "previous board"
+        source.last_observation = ScreenObservation("previous", 1, 1)
+        source.last_png = b"previous pixels"
+        source.cached = ("previous", [])
+        source.pipeline = None
+        with patch.object(
+            BrowserScreenSource, "capture", side_effect=ValueError("unrecognized cell")
+        ):
+            with self.assertRaises(ValueError):
+                source.capture()
+        self.assertIsNone(source.last_state)
+        self.assertIsNone(source.last_observation)
+        self.assertIsNone(source.last_png)
+        self.assertIsNone(source.cached)

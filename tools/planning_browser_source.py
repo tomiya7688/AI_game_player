@@ -23,6 +23,10 @@ class FreshCompletedBrowserSource(BrowserScreenSource):
         self.last_observation = None
 
     def capture(self):
+        self.last_state = None
+        self.last_observation = None
+        self.last_png = None
+        self.cached = None
         # Keep the generation from BEFORE capture. An external Stop/rearm must
         # invalidate this frame rather than bless it with a newer generation.
         token = self.pipeline.controller.rearm_token if self.pipeline else None
@@ -50,23 +54,29 @@ class FreshCompletedBrowserSource(BrowserScreenSource):
                 observation, expected_rearm_token=token
             )
             identity = (
-                actual.receipt.snapshot_id,
-                actual.receipt.action_id,
-                actual.receipt.action_generation,
-            ) if actual is not None else None
+                (
+                    actual.receipt.snapshot_id,
+                    actual.receipt.action_id,
+                    actual.receipt.action_generation,
+                )
+                if actual is not None
+                else None
+            )
             if actual is not None and identity not in self._completed_receipts:
                 self._completed_receipts.add(identity)
-                self.completed.append({
-                    "action_id": actual.receipt.action_id,
-                    "snapshot_id": actual.receipt.snapshot_id,
-                    "generation": actual.receipt.action_generation,
-                    "execution_status": actual.receipt.execution_status,
-                    "input_dispatch_started": actual.receipt.input_dispatch_started,
-                    "eligible_for_learning": actual.receipt.eligible_for_learning,
-                    "outcome_status": actual.outcome.status,
-                    "state_changed": actual.outcome.state_changed,
-                    "after_signature": actual.after_signature,
-                })
+                self.completed.append(
+                    {
+                        "action_id": actual.receipt.action_id,
+                        "snapshot_id": actual.receipt.snapshot_id,
+                        "generation": actual.receipt.action_generation,
+                        "execution_status": actual.receipt.execution_status,
+                        "input_dispatch_started": actual.receipt.input_dispatch_started,
+                        "eligible_for_learning": actual.receipt.eligible_for_learning,
+                        "outcome_status": actual.outcome.status,
+                        "state_changed": actual.outcome.state_changed,
+                        "after_signature": actual.after_signature,
+                    }
+                )
         return state
 
     def read_fresh(self):

@@ -1179,17 +1179,18 @@ class Application:
                 continue
 
             if isinstance(result, DecisionDisposition):
-                self._set_status(
-                    f"判断: {result.outcome.value} / {', '.join(result.reason_codes)}"
-                )
+                message = {
+                    "observe_more": "画面の確認が必要なため、実行を停止しました。",
+                    "abstain": "操作を選べないため、判断を保留して実行を停止しました。",
+                    "escalate": "追加の判断が必要なため、実行を停止しました。",
+                }[result.outcome.value]
+                self._set_status(message)
                 self._show_player_state(PlayerState.UNKNOWN)
                 self.runtime_log.write(
                     "decision_withheld", result.outcome.value, result.to_dict()
                 )
                 self._complete_session_step(
-                    result=SessionStep(
-                        withheld_reason=f"decision: {result.outcome.value}"
-                    )
+                    result=SessionStep(withheld_reason=message)
                 )
                 if (
                     getattr(self, "_closing", False)

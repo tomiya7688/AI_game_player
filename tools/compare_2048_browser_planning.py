@@ -3,6 +3,7 @@
 import argparse
 from contextlib import ExitStack
 from collections import Counter
+from dataclasses import asdict
 from functools import partial
 from hashlib import sha256
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -24,6 +25,8 @@ from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.game_2048_transition import ReferenceGame2048TransitionModel
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.event_journal import EventJournal
+from ai_game_player.artifact_store import FileSystemArtifactStore
+from ai_game_player.bounded_file import read_regular_file
 from ai_game_player.planner_factory import reference_2048_planner_provider
 from ai_game_player.planning_contract import SearchBudget
 from ai_game_player.run_control import ExecutionCancelled, RunController
@@ -72,10 +75,42 @@ class SettledBrowserExecutor:
         )
 
 
-def episode(browser, target, seed, provider_name, max_steps, output):
+def evaluate_score_after_play(page, target):
+    """Bounded visible-score evaluation; never feed the value into Source/Planner."""
+    if page is None:
+        return None
+    try:
+        if page.is_closed() or page.url != target:
+            return None
+        value = page.locator(".score-container").evaluate(
+            "e=>e.childNodes[0].textContent", timeout=1000
+        )
+        return (
+            value.strip()
+            if isinstance(value, str)
+            and 0 < len(value.strip()) <= 16
+            and value.strip().isdigit()
+            else None
+        )
+    except Exception:
+        return None
+
+
+def episode(
+    browser,
+    target,
+    seed,
+    provider_name,
+    max_steps,
+    output,
+    *,
+    planner_depth=1,
+    planner_wall_ms=400,
+):
     from PIL import Image
 
     context = None
+    page = None
     started = time.monotonic()
     steps, dispositions = [], []
     confirmed_executions = 0
@@ -84,6 +119,8 @@ def episode(browser, target, seed, provider_name, max_steps, output):
         "provider": provider_name,
         "steps": steps,
         "dispositions": dispositions,
+        "visible_score": None,
+        "score_evaluation_reference": "evaluation-only visible score text after all decisions; never feeds Source/Planner",
     }
     pipeline = None
     cleanup_errors = []
@@ -119,9 +156,9 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                 controller=controller,
                 allow_conditional=True,
                 search_budget=SearchBudget(
-                    max_depth=1,
+                    max_depth=planner_depth,
                     max_nodes=10000,
-                    wall_time_ms=400,
+                    wall_time_ms=planner_wall_ms,
                     allow_conditional_selection=True,
                 ),
             )
@@ -139,6 +176,33 @@ def episode(browser, target, seed, provider_name, max_steps, output):
             ExitStack() as cleanup,
         ):
             journal = EventJournal(Path(directory) / "events.db")
+
+            def preserve_failed_journal(exc_type, _error, _traceback):
+                if exc_type is None and not cleanup_errors:
+                    return False
+                try:
+                    payload = read_regular_file(
+                        journal.path, max_bytes=32 * 1024 * 1024
+                    )
+                    reference = FileSystemArtifactStore(output / "failed-journals").put(
+                        payload,
+                        media_type="application/vnd.sqlite3",
+                        artifact_type="session.journal",
+                        sensitive=True,
+                    )
+                    record["failure_journal"] = {
+                        "artifact_store": "failed-journals",
+                        "reference": asdict(reference),
+                        "size_bytes": len(payload),
+                    }
+                except Exception as error:
+                    record["failure_journal_error"] = {
+                        "type": type(error).__name__,
+                        "message": str(error)[:1000],
+                    }
+                return False
+
+            cleanup.push(preserve_failed_journal)
             cleanup.callback(close_resource, "journal", journal.close)
             pipeline = DecisionPipeline(
                 source,
@@ -206,6 +270,16 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                     raise AssertionError(
                         "execution has no bound observed pre-input board"
                     )
+                record["last_execution_attempt"] = {
+                    "action_id": result.action_id,
+                    "input_status": "executed",
+                    "post_observation_status": "pending",
+                    "snapshot_id": pipeline.engine.last_decision_context.snapshot_id,
+                    "dispatch_signature": dispatch_reference.get("signature"),
+                    "dispatch_capture": dict(dispatch_reference.get("capture", {})),
+                    "recognized_before_board": [list(row) for row in before.cells],
+                    "board_semantics": "recognized observation hypothesis; not world truth or canonical effect evidence",
+                }
                 slide = model.apply_slide(
                     before, result.action_id.removeprefix("2048-move-").upper()
                 )
@@ -213,6 +287,12 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                     outcome.state.cells for outcome in model.spawn_outcomes(slide)
                 }
                 state = source.capture()
+                record["last_execution_attempt"]["post_observation_status"] = (
+                    "observed" if state is not None else "observed_board_unverified"
+                )
+                record["last_execution_attempt"]["recognized_after_board"] = (
+                    [list(row) for row in state.cells] if state is not None else None
+                )
                 matched = state.cells in predicted if state is not None else None
                 audit = getattr(provider, "last_planning_audit", {})
                 prediction = audit.get("prediction", {})
@@ -296,13 +376,10 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                 raise AssertionError(
                     "unique completed receipt count differs from confirmed executions"
                 )
-            # Visible score is an evaluation metric, read only after all decisions.
-            record["visible_score"] = page.locator(".score-container").evaluate(
-                "e=>e.childNodes[0].textContent"
-            )
     except Exception as error:
         record["error"] = {"type": type(error).__name__, "message": str(error)[:2000]}
     finally:
+        record["visible_score"] = evaluate_score_after_play(page, target)
         if source is not None:
             record["game_won"] = bool(source.victory_observed)
             record["terminal_board_unverified"] = source.last_state is None
@@ -314,11 +391,28 @@ def episode(browser, target, seed, provider_name, max_steps, output):
                 Counter(x["outcome_status"] for x in source.completed)
             )
             if source.last_png:
-                (output / f"final-{provider_name}-{seed}.png").write_bytes(
-                    source.last_png
-                )
+                try:
+                    (output / f"final-{provider_name}-{seed}.png").write_bytes(
+                        source.last_png
+                    )
+                except Exception as error:
+                    record["evidence_error"] = {
+                        "type": type(error).__name__,
+                        "message": str(error)[:1000],
+                    }
         if backend is not None:
             record["confirmed_backend_key_sends"] = backend.confirmed_key_sends
+        completed_count = len(source.completed) if source is not None else 0
+        sent_count = (
+            backend.confirmed_key_sends if backend is not None else confirmed_executions
+        )
+        record["unique_completed_receipts"] = completed_count
+        record["missing_completion_count"] = max(0, sent_count - completed_count)
+        record["pending_execution_observation_count"] = (
+            int(pipeline.engine.has_pending_execution_observation)
+            if pipeline is not None
+            else 0
+        )
         record["cleanup_errors"] = cleanup_errors
         try:
             if context is not None:
@@ -358,6 +452,12 @@ def episode(browser, target, seed, provider_name, max_steps, output):
     record["nodes"] = sum(
         step.get("planning", {}).get("counters", {}).get("nodes_visited", 0)
         for step in steps
+    )
+    record["unverified_action_count"] = max(
+        0,
+        confirmed_executions
+        - record["validated_transition_count"]
+        - record["transition_mismatch_count"],
     )
     record["duration_seconds"] = time.monotonic() - started
     for metric in ("decision_execution_ms", "step_wall_ms", "host_cpu_ms"):
@@ -403,6 +503,8 @@ def main():
     )
     parser.add_argument("--seeds", nargs="+", type=int, default=[479, 480, 481])
     parser.add_argument("--max-steps", type=int, default=180)
+    parser.add_argument("--planner-depth", type=int, default=1)
+    parser.add_argument("--planner-wall-ms", type=int, default=400)
     parser.add_argument(
         "--output", type=Path, default=Path("build/transition-2048/planner-comparison")
     )
@@ -416,6 +518,15 @@ def main():
         or len(set(args.providers)) != len(args.providers)
     ):
         parser.error("explicit live input and bounded episodes/steps required")
+    try:
+        planning_budget = SearchBudget(
+            max_depth=args.planner_depth,
+            max_nodes=10000,
+            wall_time_ms=args.planner_wall_ms,
+            allow_conditional_selection=True,
+        )
+    except (ValueError, TypeError) as error:
+        parser.error(str(error))
     from playwright.sync_api import sync_playwright
 
     output = new_probe_directory(args.output)
@@ -446,9 +557,10 @@ def main():
                 "allow_conditional": True,
                 "unknown_world_mass": 1,
                 "calibrated_accuracy_claim": False,
-                "max_depth": 1,
+                "max_depth": args.planner_depth,
                 "max_nodes": 10000,
-                "wall_time_ms": 400,
+                "wall_time_ms": args.planner_wall_ms,
+                "search_budget": asdict(planning_budget),
             },
         },
         "settle_milliseconds": 1000,
@@ -476,7 +588,14 @@ def main():
                     for seed in args.seeds:
                         report["episodes"].append(
                             episode(
-                                browser, target, seed, provider, args.max_steps, output
+                                browser,
+                                target,
+                                seed,
+                                provider,
+                                args.max_steps,
+                                output,
+                                planner_depth=args.planner_depth,
+                                planner_wall_ms=args.planner_wall_ms,
                             )
                         )
                         publish_validation_report(output / "report.json", report)
@@ -511,6 +630,8 @@ def main():
         not item.get("error")
         and not item.get("cleanup_errors")
         and not item.get("context_cleanup_error")
+        and item.get("visible_score") is not None
+        and not item.get("missing_completion_count")
         and item["actions"] > 0
         and item.get("stopped_input_rejected")
         for item in report["episodes"]

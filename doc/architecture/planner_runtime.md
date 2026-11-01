@@ -10,7 +10,7 @@ SELECTの実入力には追加captureが必要です。元planに対して新Fra
 
 正常な実行receiptだけをepisodeへ一回ackし、次の一手には入力前captureより新しいpost-action実観測を要求します。dispatch_unknownは成功とせず、再観測境界だけを進めます。dry-run、未送信、判断だけではaction epochを進めません。明示post-action completionにも鮮度条件を適用し、cached入力前Frameで実Outcomeを完成させません。最終操作は次判断が無くても既存#628の明示完了APIで観測できます。
 
-予測の値・terminal・riskはtraceの `planning_prediction` とJournalの独立した `planning.prediction` event typeに保存し、`actual_outcome: false` を付けます。Providerは `assess_outcome` を公開・委譲しません。実Outcomeは #628 のreceiptとpost-action観測だけから生成します。仮想勝利を実際の成功へ投影しない負例があります。
+予測の値・terminal・riskはJournalの独立した `planning.prediction` event typeに保存し、traceの `planning_prediction` は同snapshotのevent ID・版・期限への小さな参照にします（Journal無しのlegacyでは本文を保持）。これにより履歴のcopy/patchへ予測本文を重複させません。`actual_outcome: false` を付けます。Providerは `assess_outcome` を公開・委譲しません。実Outcomeは #628 のreceiptとpost-action観測だけから生成します。仮想勝利を実際の成功へ投影しない負例があります。
 
 OFF / 未登録Sensor能力の場合だけBaselineへ戻ります。失効、古いsource、risk保留、未校正ABSTAINをfallbackで無視しません。既定GUIのProviderは変更していません。trusted hostから任意ProviderとSensorを構成できます。
 
@@ -53,3 +53,37 @@ Windows比較は既存language CIに独立jobとしてseed479/480/481を並列�
 5199f479の[Chromium短試走](../validation/planner_smoke_5199.json)ではPlanner12手、12unique receipt、12予測遷移一致、score52/max16、Stop後送信0、実Outcome12件すべてunknownを確認しました。sourceの開始/終了hashは同一です。これは旧direct-Pipeline JSON経路の短試走で、最終Journal比較とは別条件です。
 
 長枠準備で、直接Pipelineを構成したfixtureが旧trace全JSONを書き換える経路だったことを確認しました。[旧経路の診断](../validation/planner_legacy_diagnostic.json)だけを保存してheadless旧測定を中断し、3provider共通で明示EventJournalへ切り替えました。旧測定の未完結果を最終比較へ混ぜません。Journal/PipelineをTempdir削除前に閉じ、constructor/cleanup失敗を元エラーから分離して保存します。開始/終了にsrc/tools全Pythonのaggregatehashとhelperhashを記録し、途中にsourceが変化した測定は成功扱いにしません。
+
+比較laneのlanguage CIはworkflow＋event＋ref単位でobsolete runをcancelします。pushとpull_requestの現行headを別groupに保ち、既存600秒gateと追加3seedの計32required contextを保持します。
+
+## 固定seed headless比較
+
+[eb59ba5 / Journal・125ms共通周期の9episode記録](../validation/planning_headless_journal_eb59.json)。source/hash/dirtyは開始・終了で一致しました。Python Randomのcommon streamを合法移動ごとに使用し、ChromiumのLCG familyとは別実験です。各providerの探索/選択条件を固定し、最適化前の重複予測traceを含む条件で測りました。
+
+| Provider | seed | 操作数 | score | 最大tile | 無効操作 |
+|---|---:|---:|---:|---:|---:|
+| cycling | 479 | 156 | 1472 | 128 | 2 |
+| baseline | 479 | 180 | 1696 | 128 | 9 |
+| planner | 479 | 180 | 2268 | 256 | 0 |
+| cycling | 480 | 98 | 728 | 64 | 1 |
+| baseline | 480 | 180 | 2036 | 256 | 10 |
+| planner | 480 | 180 | 2008 | 128 | 0 |
+| cycling | 481 | 176 | 1672 | 128 | 9 |
+| baseline | 481 | 180 | 1876 | 128 | 12 |
+| planner | 481 | 180 | 2264 | 256 | 0 |
+
+平均scoreはCycling1290.67、Baseline1869.33、Planner2180でした。Plannerはseed480でBaselineを下回り、3seedで統計的有意性や一般ゲームの強さを主張しません。Baseline/Plannerは全episodeで180手上限に達したため、生存手数は打切りです。計1510件のfixture実行receiptは全件操作数と一致し、Planner540判断はconditionalのglobal risk未知を保持しました。policy再観測0と入力直前fresh captureは区別しています。
+
+この旧trace重複条件で、各episodeのdecision p50の平均はCycling56.14ms / Baseline68.44ms / Planner203.76ms、3episode中の最大p95は127.65 / 133.50 / 369.80msです。125ms共通pacingはdecision latencyから除き、episode wallに含めます。親CPU合計は25.58 / 38.24 / 84.50秒、Plannerの待機済みworker CPU合計32.23秒。親RSSはprocess lifetime high-water（最大50,508KiB）でepisode差分ではありません。最終trace参照化の全9episode latency改善は未測定とし、同じ入力の意味一致回帰と独立copy cost fixtureで評価します。
+
+Browser比較CLIの`--planner-depth`（既定1）/`--planner-wall-ms`（既定400）は共通SearchBudgetの有限validationを再利用し、要求depth/予算と各手のcompleted_depthをreportへ残します。参照factoryの既定depth2は維持します。現在保存済みのBrowser/headless比較はdepth1の実験profileであり、factory既定depth2の実測coverageとは区別します。
+
+trace参照はstable event ID・内容SHA256・status/`actual_outcome:false`・版/期限を保持します。予測eventを同じRun guard内で先に保存し、成功してからhistory/traceを公開します。保存失敗時は入力0・dangling参照0、後続trace保存失敗時の孤立予測もactualFalseの別eventのままです。close後の再読・digest一致・typed result復元、full/refの同じ5入力でdecision/receipt/event数一致を回帰で確認しています。
+
+長枠では256tileのglowがROIを広げて1セルをunknownにした認識失敗を発見しました（#659）。停止したtrialは成功比較へ混ぜません。比較Sourceはcapture開始時に前state/observation/cache/PNGを消し、失敗後も旧boardを現在と扱いません。各実行結果受領時にaction・dispatch参照・認識済みbefore boardを「観測仮説/真値でない」として記録し、post-observation pending/完了を更新します。欠落completionを明示し、error時も判断終了後のbounded score評価を試み、不可はnullです。閉じた失敗Journalは既存ArtifactStoreへ最大32MiBで保存し、参照hashを記録します。保存失敗が元の失敗を置き換えません。
+
+## 実画面の失敗を含む固定cohort
+
+[bb864886 / Journal・1000ms settle・3provider×3seed上限180手の全結果](../validation/planning_browser_journal_bb864.json)はsource/hash/dirtyが両端一致しました。Cycling score1332/1140/1256（全終局、無効7）、Baseline664/1344/1448（全終局、無効15）。Plannerは479で135手/134遷移照合、480で131手/130照合の後に256tile glowによるunknown cellで停止し、481だけ180手上限/score2312/max256/180照合/無効0/Stop後送信0でした。**Planner失敗2/3を落とした平均を作りません。** 修正は#659へ追跡し、修正版は別SHA/別cohortで測定します。
+
+この旧helperの失敗trialではcapture例外後の前boardがlast_stateへ残り、terminal未検証flagと途中scoreが不十分でした。旧値を成功の根拠に使わず、元primaryerror・入力数・完了数・最終画像を保持します。新helperの前state消去/未完action保存/evaluation-only score/null/Journal参照化による記録改善を、旧cohortへ遡って実測したとは扱いません。

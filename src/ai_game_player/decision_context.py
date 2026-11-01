@@ -1,4 +1,5 @@
 import json
+from hashlib import sha256
 from dataclasses import dataclass
 from math import isfinite
 from pathlib import Path
@@ -551,7 +552,9 @@ class DecisionTraceStore:
         if reliability is not None:
             entry["reliability"] = reliability
         if planning_audit is not None:
-            entry["planning_prediction"] = planning_audit
+            entry["planning_prediction"] = self._planning_trace_value(
+                context, planning_audit
+            )
         if self.event_adapter is not None:
             return self.event_adapter.prepare_append(entry)
         return DeferredTraceAppend(entry, self._append_entry)
@@ -626,8 +629,49 @@ class DecisionTraceStore:
             "context": context.to_dict(include_knowledge=True, include_evaluation=True),
         }
         if planning_audit is not None:
-            entry["planning_prediction"] = planning_audit
+            entry["planning_prediction"] = self._planning_trace_value(
+                context, planning_audit
+            )
         self._append_entry(entry)
+
+    # {
+    #   責務: [_planning_trace_value: Journal予測本文の重複保持を小さな参照へ置換する]
+    #   処理: [full予測は独立eventへ保持し、trace cacheの履歴copy/patchに木を複製しない]
+    #   引数: [context: 元snapshot, audit: 完全予測metadata]
+    #   戻り値: [dict: Journal参照またはlegacy用本文。判断/実経験には使用しない]
+    # }
+    def _planning_trace_value(
+        self, context: DecisionContext, audit: dict[str, Any]
+    ) -> dict[str, Any]:
+        if self.event_adapter is None or "prediction" not in audit:
+            return audit
+        prediction = audit["prediction"]
+        content_digest = sha256(
+            json.dumps(
+                audit,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+                allow_nan=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        return {
+            "event_type": "planning.prediction",
+            "event_id": "planning." + context.snapshot_id,
+            "content_sha256": content_digest,
+            "snapshot_id": context.snapshot_id,
+            "actual_outcome": False,
+            "status": audit.get("status"),
+            "belief_version": prediction.get("belief_version"),
+            "model_id": prediction.get("model_id"),
+            "model_version": prediction.get("model_version"),
+            "evaluator_id": prediction.get("evaluator_id"),
+            "evaluator_version": prediction.get("evaluator_version"),
+            "quality_profile_version": prediction.get("quality_profile_version"),
+            "continuation_semantics": prediction.get("continuation_semantics"),
+            "created_at_ns": prediction.get("created_at_ns"),
+            "expires_at_ns": prediction.get("expires_at_ns"),
+        }
 
     # {
     #   責務: [_append_entry: 新しいtrace recordをJournalまたは旧JSONへ確定する]

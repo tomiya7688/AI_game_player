@@ -195,8 +195,8 @@ class GamePlayerEngine:
             #   引数: [なし] 戻り値: [なし]
             # }
             def publish_disposition() -> None:
-                self.trace.append_disposition(context, disposition, audit)
                 self._publish_planning_prediction(context, audit)
+                self.trace.append_disposition(context, disposition, audit)
 
             if commit_guard is None:
                 publish_disposition()
@@ -237,6 +237,7 @@ class GamePlayerEngine:
                 "Decision output could not be normalized after verification"
             )
         trace_reference = (context.snapshot_id, decision.action_id)
+        planning_audit = self._planning_audit()
         staged_writes: list[
             StagedJsonWrite | StagedJournalAppend | DeferredTraceAppend
         ] = []
@@ -248,7 +249,7 @@ class GamePlayerEngine:
                     decision,
                     reliability=reliability.to_dict(),
                     action_generation=_ACTION_GENERATION_CONTEXT.get(),
-                    planning_audit=self._planning_audit(),
+                    planning_audit=planning_audit,
                 )
             )
 
@@ -259,9 +260,9 @@ class GamePlayerEngine:
             #   戻り値: []
             # }
             def publish_commit() -> None:
+                self._publish_planning_prediction(context, planning_audit)
                 for staged_write in staged_writes:
                     staged_write.publish()
-                self._publish_planning_prediction(context, self._planning_audit())
                 self._last_decision_trace_reference = trace_reference
 
             if commit_guard is None:
@@ -283,6 +284,7 @@ class GamePlayerEngine:
         audit = getattr(self.provider, "last_planning_audit", None)
         if not isinstance(audit, dict):
             return None
+        audit = {**audit, "actual_outcome": False}
         encoded = json.dumps(audit, ensure_ascii=True, allow_nan=False)
         if len(encoded.encode("utf-8")) > 2 * 1024 * 1024:
             raise ValueError("planning audit exceeds bounded trace size")

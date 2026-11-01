@@ -369,7 +369,9 @@ class PlannerProviderTests(unittest.TestCase):
     def test_prediction_journal_event_is_separate_from_actual_execution(self):
         import json
         import sqlite3
+        from hashlib import sha256
         from ai_game_player.event_journal import EventJournal
+        from ai_game_player.planning_wire import result_from_dict
 
         source = ChangingSource()
         journal = EventJournal(Path(self.tmp.name) / "events.db", session_id="fixture")
@@ -392,6 +394,22 @@ class PlannerProviderTests(unittest.TestCase):
             event for event in events if event["event_type"] == "planning.prediction"
         ]
         self.assertEqual(len(predictions), 1)
+        reference = pipeline.engine.trace.recent(1)[0]["planning_prediction"]
+        self.assertNotIn("prediction", reference)
+        self.assertEqual(reference["event_id"], predictions[0]["event_id"])
+        self.assertEqual(reference["snapshot_id"], predictions[0]["snapshot_id"])
+        self.assertLess(len(json.dumps(reference)), 2048)
+        canonical = json.dumps(
+            predictions[0]["payload"],
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+            allow_nan=False,
+        ).encode("utf-8")
+        self.assertEqual(reference["content_sha256"], sha256(canonical).hexdigest())
+        restored = result_from_dict(predictions[0]["payload"]["prediction"])
+        self.assertEqual(restored.context.snapshot_id, reference["snapshot_id"])
+        self.assertEqual(restored.selected_action_id, "move")
         self.assertFalse(predictions[0]["payload"]["actual_outcome"])
         self.assertEqual(
             predictions[0]["payload"]["prediction"]["selected_action_id"], "move"
@@ -399,3 +417,95 @@ class PlannerProviderTests(unittest.TestCase):
         self.assertFalse(
             any(event["event_type"] == "knowledge.action_outcome" for event in events)
         )
+
+    def test_prediction_event_write_failure_cannot_dispatch_input(self):
+        from ai_game_player.event_journal import EventJournal, EventJournalError
+
+        source, backend = ChangingSource(), Backend()
+        journal = EventJournal(
+            Path(self.tmp.name) / "prediction-failure.db", session_id="fixture"
+        )
+        pipeline = DecisionPipeline(
+            source,
+            Path(self.tmp.name) / "failed-runtime",
+            self.provider,
+            event_journal=journal,
+        )
+        pipeline.executor.dry_run = False
+        pipeline.executor.live_executor = backend
+        self.addCleanup(pipeline.close)
+        append = journal.append
+
+        def fail_prediction(event_type, **kwargs):
+            if event_type == "planning.prediction":
+                raise EventJournalError("prediction persistence failed")
+            return append(event_type, **kwargs)
+
+        with patch.object(journal, "append", side_effect=fail_prediction):
+            with self.assertRaisesRegex(
+                EventJournalError, "prediction persistence failed"
+            ):
+                pipeline.run_and_execute()
+        self.assertEqual(backend.actions, [])
+        self.assertEqual(pipeline.execution_history.load(), [])
+        self.assertFalse(pipeline.engine.has_pending_execution_observation)
+        self.assertEqual(pipeline.engine.trace.recent(10), [])
+
+    def test_reference_storage_preserves_fixed_input_decisions_receipts_and_event_counts(
+        self,
+    ):
+        import json
+        import sqlite3
+        from ai_game_player.decision_context import DecisionTraceStore
+        from ai_game_player.event_journal import EventJournal
+
+        def run(name):
+            adapter = Adapter()
+            provider = PlannerDecisionProvider(
+                Planner(adapter), adapter, enabled=True, clock_ns=lambda: 1000
+            )
+            journal = EventJournal(
+                Path(self.tmp.name) / (name + ".db"), session_id=name
+            )
+            source, backend = ChangingSource(), Backend()
+            pipeline = DecisionPipeline(
+                source, Path(self.tmp.name) / name, provider, event_journal=journal
+            )
+            pipeline.executor.dry_run = False
+            pipeline.executor.live_executor = backend
+            try:
+                for _ in range(5):
+                    pipeline.run_and_execute()
+                    source.frame += 1
+                    pipeline.complete_execution_observation(source.read()[0])
+                entries = pipeline.engine.trace.recent(10)
+                result = (
+                    [item.action_id for item in backend.actions],
+                    [
+                        entry["execution_receipt"]["execution_status"]
+                        for entry in entries
+                        if entry.get("execution_receipt")
+                    ],
+                )
+            finally:
+                pipeline.close()
+            with sqlite3.connect(journal.path) as connection:
+                events = [
+                    json.loads(row[0])
+                    for row in connection.execute(
+                        "SELECT envelope_json FROM events ORDER BY sequence"
+                    )
+                ]
+            return result, [event["event_type"] for event in events].count(
+                "planning.prediction"
+            )
+
+        with patch.object(
+            DecisionTraceStore,
+            "_planning_trace_value",
+            lambda self, context, audit: audit,
+        ):
+            before = run("full")
+        after = run("reference")
+        self.assertEqual(before, after)
+        self.assertEqual(after, ((["move"] * 5, ["executed"] * 5), 5))
