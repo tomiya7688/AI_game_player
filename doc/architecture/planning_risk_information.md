@@ -1,5 +1,7 @@
 # 観測価値と下振れリスクを使うPlanning Policy
 
+**移行区分：** このページのCoreはUI非依存のPython数値参照実装です。#661のQt6 Widgets/C++ GUI・Rust常駐Coreは未実装で、現在は移行互換側の数学APIです。risk/情報価値・品質・版付きJSON/worker結果の契約を保持し、Rust常駐系の実装や安全停止の実証とは区別します。[移行の正本](qt_rust_migration.md)を参照してください。
+
 Issue #566は、探索が返す予測分布から、操作提案・追加観測・保留・追加判断要求を選ぶCoreです。
 ゲームの操作や状態を埋め込まず、実入力・画面取得・Remote送信を発行しません。
 探索本体は#565、本番Provider/実プレイ比較は#567、Unknownness Action Policy全体は#206です。

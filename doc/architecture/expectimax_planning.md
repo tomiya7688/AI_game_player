@@ -1,5 +1,7 @@
 # Belief-aware bounded Expectimax
 
+**移行区分：** このページのCoreはUI非依存のPython数値参照実装です。#661の恒久GUIはQt6 Widgets/C++、常駐CoreはRustの予定で、未実装です。数学・品質・予算・版付きJSON/worker結果を比較・移行境界として保ち、Pythonの数値Core完成をRust常駐系完成としません。[移行の正本](qt_rust_migration.md)を参照してください。
+
 Issue #565（親 #480 / #478）は、typed immutable Beliefから複数worldとchanceを評価する汎用Coreと、停止可能な制限workerを提供します。状態型・遷移・合法操作・数値qualityはtrustedな登録Adapterから注入します。汎用Coreは盤面寸法、tile、カード規則、DOM、実入力を知りません。本番DecisionProviderへの配線と実プレイ比較は #567、lower-tail risk / VOIは #566 の責務です。
 
 ## 探索するpolicyと観測の仮定

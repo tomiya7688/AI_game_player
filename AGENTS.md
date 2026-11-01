@@ -28,6 +28,8 @@ Full rules: `doc/ワークフロー/ワークフロー.md` ("複数AI・人が�
 
 Goal: establish a safe closed loop for one GUI game without hand-editing candidate JSON.
 
+Issue #661 fixes the permanent target to Qt 6 Widgets (C++ native, no embedded WebView) + a separate Rust resident Core + optional Python/AI workers. Current Tkinter/Python+C++ C ABI v1 and Windows E2E remain compatibility implementations. New permanent UI work follows #664–#667 and `doc/architecture/qt_rust_migration.md`; target/planned declarations do not prove runtime or Qt distribution readiness. UI-independent Python reference algorithms remain valid migration inputs.
+
 ```text
 Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next decision
 ```

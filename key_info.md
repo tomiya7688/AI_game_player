@@ -1,5 +1,7 @@
 # AI Game Player 現在の機能
 
+- #661: 恒久GUIはQt6 Widgets/C++ native（WebViewなし）、常駐Coreは別プロセスRust、Pythonは任意workerと決定。**目標配置のみ、未実装**です。現Tkinter/Python+C++とWindows E2Eは互換維持、実装は#664–#667、Qt配布は#228/#149/#663の未確認gateへ分離。[正本](doc/architecture/qt_rust_migration.md)。
+
 確認基準：2026-11-01、統合feature `77a8995e`。部品・本番接続・実ゲーム検証を区別します。[場所別の状態と根拠](doc/guide/implementation_status.md)も参照してください。
 
 ## できること

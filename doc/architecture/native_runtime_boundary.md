@@ -4,6 +4,8 @@
 
 ## 目的と現在の実装
 
+**現在と目標：** 以下は現行Python+C++ C ABI v1の互換実装です。#661で恒久GUIはQt6 Widgets/C++、常駐CoreはRust、Pythonは任意workerと確定しました。未実装の目標配置・独立Stop・frame所有権・子Issue・Qt配布gateは[移行の正本](qt_rust_migration.md)を参照してください。manifestの`target_architecture`は`planned`で、既存ABIの能力や実測成功を増やしません。
+
 Pythonは画面の意味認識、操作候補の評価、判断、結果評価、UIの組立てを担当します。C++はversion付きC ABIを公開し、決定論的な安全検証や任意のWindows Graphics Capture（WGC）を実装します。WGCはWindowsのウィンドウ画像を取得する仕組みです。Pythonの画面取得や入力処理も残っています。能力を宣言することと、対象環境でその能力が動くことは別に確認します。
 
 - 配置の宣言: [`config/runtime_boundary.json`](../../config/runtime_boundary.json)
@@ -25,10 +27,10 @@ Native実装はC++の型やSTLコンテナーを公開せず、C ABIを使いま
 | 安全制御 | 意味判断・停止管理はPython、決定論的な操作検証はC ABIにもあります。Native側の独立した停止機構の成立は、このmanifest検査では証明しません。 |
 | 画像の差分・領域処理 | Python側の処理とC ABIのフレーム前処理プリミティブがあります。既存のNative処理を無根拠に移植せず、未移行のPython内反復は実測して配置を選びます。 |
 | 判断材料、モデル連携、結果評価 | AI・認識ライブラリとの接続と変更頻度を考慮し、Pythonに置きます。 |
-| 経験・学習・分析、UI・開発ツール | Pythonに置き、別言語の導入による利益が確認できた場合に再検討します。 |
+| 経験・学習・分析、UI・開発ツール | 現在の互換実装はPythonです。#661の恒久GUIはQt6 Widgets/C++、常駐制御はRust、Python AI/学習は任意workerの予定です。配置宣言だけで移行済みとは扱いません。 |
 | ゲーム固有の規則 | 現在はPythonです。Luaはプラグインの契約と権限境界が成立した後に再評価します。 |
 
-manifestにはPython、C++、Lua、C#、JavaScript/TypeScriptごとの採否と用途を記録します。各componentの`current_languages`は評価済みの言語IDを重複なく並べた一覧です。複数言語を含む場合も架空の言語名へ結合しません。保留する言語には再評価条件も記録してください。新たな言語を使う開発者は、呼出し頻度、遅延、Python内の反復、OS APIとの関係、安全責務、AI依存、配布・起動コストをIssueまたはPRへ記載してください。
+manifestの既存欄にはPython、C++、Lua、C#、JavaScript/TypeScriptごとの現行採否と用途を記録します。Rust/Qtの目標配置は別schemaの`target_architecture`で分離します。各componentの`current_languages`は現在の言語IDを重複なく並べた一覧です。複数言語を含む場合も架空の言語名へ結合しません。保留する言語には再評価条件も記録してください。新たな言語を使う開発者は、呼出し頻度、遅延、Python内の反復、OS APIとの関係、安全責務、AI依存、配布・起動コストをIssueまたはPRへ記載してください。
 
 言語の切替回数は`frame / observation / candidate_set / decision / batch / control_lease`のまとまりに限定します。ピクセル、トークン、候補一件ごとのFFI・IPCは許可しません。FFIは同一プロセスの外部関数呼出し、IPCは別プロセスとの通信です。
 

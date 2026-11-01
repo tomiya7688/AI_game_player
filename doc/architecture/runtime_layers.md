@@ -2,6 +2,10 @@
 
 Kadoka is intentionally modular internally while remaining minimal for ordinary users.
 
+## Target decision and current compatibility
+
+Issue #661 fixes the planned permanent GUI to **Qt 6 Widgets/C++ native, no embedded WebView**, with a **separate Rust resident Core** and **optional Python/AI workers**. The design, failure boundaries, measurement gates and open implementation Issues #664–#667 are in [the migration source](qt_rust_migration.md). These components are not implemented by a placement declaration. Current Tkinter/Python+C++ and its Windows E2E remain operational compatibility paths. The layers and Python workflow below describe that current path, not a completed Rust migration.
+
 ## Current integration boundary (2026-11-01)
 
 Feature baseline `77a8995` connects the #421 Mode controller and #422 bounded light-adaptation worker to the production `ManagedSessionRuntime` / `DecisionPipeline`. The #628 execution receipt records dispatch facts; explicit post-action observations remain separate from verified causal effects. Default learning identity is disabled: stable profile identity and a verified effect are needed for causal updates. A missing identity or unknown effect does not weaken inference, Verifier, Safety, or Stop.

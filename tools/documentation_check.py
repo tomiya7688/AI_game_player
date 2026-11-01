@@ -22,6 +22,7 @@ OPTIONAL_PAGES = (
     "doc/architecture/README.md",
     "doc/architecture/flow_for_readers.md",
     "doc/architecture/runtime_map_for_readers.md",
+    "doc/architecture/qt_rust_migration.md",
     "doc/contributor/documentation_update_guide.md",
 )
 FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})([^\r\n]*)$")

@@ -2,6 +2,8 @@
 
 未知のGUIゲームを、画面観測・候補評価・AI判断・安全な操作・結果評価のループでプレイする実験用エンジンです。ローカル規則またはOllamaを使い、実入力は明示許可までdry-runで扱います。
 
+恒久構成はQt 6 Widgets/C++のネイティブGUI（WebViewなし）、Rust常駐Core、任意のPython/AI workerへ移行する方針です。**移行は未実装**で、現在のTkinter/Python+C++とWindows E2Eを維持します。[決定・現在との境界・4つの実装Issue](doc/architecture/qt_rust_migration.md)を参照してください。
+
 ## 基本フロー
 
 ```text
