@@ -108,8 +108,7 @@ Native境界を追加せず、不変Snapshot単位で共有します。
 - 本変更は#532のKnowledge専用の評価・公開・復元APIです。既存#171/#173はまだ汎用の
   Promotion/Evaluation engineを実装していません。共通化できる構造化測定を提供しますが、
   両Issue全体を完了扱いにしません。
-- 自動学習job、バックグラウンド配線、画面から操作成果を推定する新しいモデル、UIは
-  #422/#173/#491等の責務です。通常Sessionがこの追加だけで自動昇格するとは扱いません。
+- #532単体では自動学習jobやSessionへの配線を追加しません。統合版#422はbounded workerと限定的light検証を接続します。画面から一般的な因果効果を推定するprovider、重学習job、UIは未達で、#173/#183/#491等と区別します。
 - 評価callbackには信頼済みで有限処理のローカルProviderを使ってください。ケース数と
   入力量は有界ですが、任意Python callbackを強制終了する隔離job機構は実装しません。
   時間・Python割当budgetは測定後の却下条件です。任意外部モデルのtimeout/隔離は#173/#183が必要です。
@@ -131,3 +130,10 @@ PYTHONPATH=src:. python -m unittest discover -s tests -p test_knowledge_promotio
 状態遷移の単体試験ではscheduler変動と機能判定を分離し、資源超過拒否は独立ケースで残します。
 
 保存済みpointerはSnapshotと同じ通常ファイル限定の有界読込を使います。FIFOやsymlinkを拒否し、破損したpointerを初期状態として上書きしません。
+
+
+## 統合後の接続状態（2026-11-01）
+
+#532のoffline対照評価APIは維持します。統合版#422は別のlight-validation/v1で限定的な数値更新を実検証し、安全なStep境界のmemory公開と永続化確認へ接続します。この検証をpaired replayや全回帰評価の合格と称しません。
+
+信頼済みの安定識別とreceiptへ一致するverified効果が必要で、unknownだけの観測は因果学習しません。得点欄clickを禁止する方式ではありません。CPU結合fixtureと通常Sessionの接続は、Windows実ゲームでの学習効果や全ゲームへの汎化とは区別します。[現在の接続条件・残件](light_adaptation.md)を参照してください。

@@ -121,4 +121,4 @@ Journal が遅くても Stop lock を保持しません。通常 metadata の qu
 | 通常 Outcome / Verifier / Safety の継続 | 実 DecisionPipeline と OutcomeDetector を使う Inference Only test | Core |
 | 不正遷移と競合 | 固定 seed で 1500 回の state-machine 操作、stale epoch / Run 世代 / degrade CAS | Core |
 
-#422 は本番 Light Adaptation Runner と SessionRuntime 接続、#423 は交互実行、#424 は並行学習 coordinator、#425 は資源制御、#426 は更新積極度、#188 は UI の対象です。重学習 job 自体は #183 が担当します。#421 はこれらの本体を実装・完了した扱いにしません。ゲームを使う Real-play の学習効果は Runner / Gate / 実観測をつないだ後に検証します。
+#421単体では本番Runnerを実装しませんが、統合版では#422の[Light Adaptation Runner](light_adaptation.md)が実Sessionへ接続されています。既定は推論と軽量適応で、安定識別と検証済み効果がない場合は因果学習を保留します。#423の交互実行、#424の並行学習、#425の自動資源制御、#426の更新積極度、#188のUI、#183の重学習は後続です。Mode契約の存在をこれらの完成や実ゲームの精度改善に読み替えません。
