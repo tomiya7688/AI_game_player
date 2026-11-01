@@ -14,6 +14,7 @@ MAX_FRAME_BYTES = 16 * 1024 * 1024
 MAX_PNG_BYTES = 128 * 1024
 MAX_HEADER_WIDTH = 640
 MAX_HEADER_HEIGHT = 240
+MAX_PREFLIGHT_HEIGHT = 640
 CHUNK_CHARACTERS = 4096
 
 
@@ -67,6 +68,7 @@ class OwnedGameFailureHeader:
         frame: ScreenFrame | None,
         crop_bbox: Any,
         capture_diagnostics: Mapping[str, Any],
+        diagnostic_scope: str = "header",
     ) -> dict[str, Any]:
         if not self.enabled or failed is not True:
             return {"status": "disabled" if not self.enabled else "not_failure"}
@@ -75,9 +77,16 @@ class OwnedGameFailureHeader:
         self._attempted = True
         try:
             handle, pid = self._owned_target(episode)
+            if diagnostic_scope not in {"header", "preflight_board"}:
+                raise ValueError("invalid_crop")
+            if diagnostic_scope == "preflight_board" and (
+                getattr(episode, "_comparison_preflight", False) is not True
+                or getattr(episode, "_safety_rearmed", True) is not False
+            ):
+                raise ValueError("ownership_unverified")
             self._validate_frame(frame)
             assert frame is not None
-            crop = self._validate_crop(frame, crop_bbox)
+            crop = self._validate_crop(frame, crop_bbox, diagnostic_scope)
             capture = self._capture_reference(frame, capture_diagnostics)
             png = self._encode_png(frame, crop)
             if not 0 < len(png) <= MAX_PNG_BYTES:
@@ -96,7 +105,11 @@ class OwnedGameFailureHeader:
                 "event": "windows_planning_failure_header",
                 "schema_version": 1,
                 "status": "ready",
-                "scope": "owned_reference_game_2048_failure_header_only",
+                "scope": (
+                    "owned_reference_game_2048_preflight_failure_board_and_header"
+                    if diagnostic_scope == "preflight_board"
+                    else "owned_reference_game_2048_failure_header_only"
+                ),
                 "diagnostic_only": True,
                 "provider": self.provider,
                 "seed": self.seed,
@@ -214,7 +227,9 @@ class OwnedGameFailureHeader:
     #   エラー: [ValueError: 範囲外・上限超過]
     # }
     @staticmethod
-    def _validate_crop(frame: ScreenFrame, box: Any) -> tuple[int, int, int, int]:
+    def _validate_crop(
+        frame: ScreenFrame, box: Any, diagnostic_scope: str = "header"
+    ) -> tuple[int, int, int, int]:
         if (
             type(box) not in (tuple, list)
             or len(box) != 4
@@ -226,7 +241,13 @@ class OwnedGameFailureHeader:
             0 <= x
             and 0 <= y
             and 0 < width <= MAX_HEADER_WIDTH
-            and 0 < height <= MAX_HEADER_HEIGHT
+            and 0
+            < height
+            <= (
+                MAX_PREFLIGHT_HEIGHT
+                if diagnostic_scope == "preflight_board"
+                else MAX_HEADER_HEIGHT
+            )
             and x + width <= frame.width
             and y + height <= frame.height
         ):

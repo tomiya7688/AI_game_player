@@ -71,7 +71,14 @@ class Cached2048ObservationSource:
         native_preprocessing: bool = False,
         window_process_id: int | None = None,
         wgc_timeout_ms: int | None = None,
+        retain_failure_debug: bool = False,
     ) -> None:
+        if type(retain_failure_debug) is not bool:
+            raise ValueError("failure debug retention requires an explicit boolean")
+        self._retain_failure_debug = retain_failure_debug
+        self._failure_debug_frame = None
+        self._failure_debug_capture = {}
+        self._failure_debug_state = {}
         if type(native_preprocessing) is not bool:
             raise ValueError("native preprocessing requires an explicit boolean")
         self.window_handle = window_handle
@@ -212,6 +219,10 @@ class Cached2048ObservationSource:
         timeout_seconds: float = SCREEN_READY_TIMEOUT_SECONDS,
         check_cancelled: Callable[[], None] | None = None,
     ) -> CampaignState:
+        self._failure_debug_frame = None
+        self._failure_debug_capture = {}
+        self._failure_debug_state = {}
+        self._failure_frame_preserved = False
         if getattr(self, "_closed", False):
             raise RuntimeError("observation source is closed")
         if check_cancelled is not None:
@@ -246,6 +257,8 @@ class Cached2048ObservationSource:
                     "capture_failure",
                     f"2048 window capture failed: {type(error).__name__}: {error}",
                 ) from error
+            # Diagnostic-only retention survives cancellation without publishing an observation.
+            self._remember_failure_debug(frame, measured)
             if check_cancelled is not None:
                 check_cancelled()
             last_frame = frame
@@ -281,6 +294,7 @@ class Cached2048ObservationSource:
                     observation.features.get("signature")
                 )
                 state_diagnostic = adapted.features.get("game_2048", {})
+                self._remember_failure_debug(frame, measured, state_diagnostic)
                 self.latest_capture_diagnostics["board_bbox"] = state_diagnostic.get(
                     "board_bbox"
                 )
@@ -408,6 +422,84 @@ class Cached2048ObservationSource:
             },
         )
 
+    def _remember_failure_debug(self, frame, capture, state=None) -> None:
+        """Keep one bounded, same-call physical frame only under explicit comparison evidence."""
+        try:
+            if not getattr(self, "_retain_failure_debug", False):
+                return
+            if (
+                not isinstance(frame, ScreenFrame)
+                or type(frame.bgra) is not bytes
+                or not 0 < len(frame.bgra) <= 16 * 1024 * 1024
+                or len(frame.bgra) != frame.width * frame.height * 4
+            ):
+                return
+            self._failure_debug_frame = frame
+            self._failure_debug_capture = {
+                name: capture.get(name)
+                for name in (
+                    "backend",
+                    "request_started_ns",
+                    "produced_at_ns",
+                    "host_received_ns",
+                )
+            }
+            self._failure_debug_state = {"analysis_status": "unavailable"}
+            if not isinstance(state, dict):
+                return
+            board = state.get("board")
+            board = (
+                [
+                    [v if type(v) is int and 0 <= v <= 2**31 else None for v in row]
+                    for row in board
+                ]
+                if isinstance(board, list)
+                and len(board) == 4
+                and all(isinstance(row, list) and len(row) == 4 for row in board)
+                else None
+            )
+            confidence = state.get("confidence")
+            bbox = state.get("board_bbox")
+            self._failure_debug_state = {
+                "analysis_status": "recognized_projection",
+                "diagnostic_only": True,
+                "estimated_observation_not_ground_truth": True,
+                "board": board,
+                "unknown_cells": sum(v is None for row in board for v in row)
+                if board is not None
+                else 16,
+                "confidence": confidence
+                if type(confidence) in (int, float)
+                and math.isfinite(confidence)
+                and 0 <= confidence <= 1
+                else None,
+                "state_available": state.get("state_available")
+                if type(state.get("state_available")) is bool
+                else None,
+                "game_over": state.get("game_over")
+                if type(state.get("game_over")) is bool
+                else None,
+                "unavailable_reason": "empty_nonterminal"
+                if state.get("unavailable_reason") == "empty_nonterminal"
+                else None,
+                "board_bbox": list(bbox)
+                if type(bbox) in (list, tuple)
+                and len(bbox) == 4
+                and all(type(v) is int and -(2**31) < v < 2**31 for v in bbox)
+                else None,
+            }
+        except Exception:
+            # Best effort only: preserve original Source/control failure and its traceback.
+            return
+
+    def failure_debug_snapshot(self):
+        """Return diagnostic evidence only; never make it an actionable Source observation."""
+        return (
+            getattr(self, "_failure_debug_frame", None),
+            dict(getattr(self, "_failure_debug_capture", {})),
+            dict(getattr(self, "_failure_debug_state", {})),
+        )
+
     def _recognition_failure(
         self,
         detail: str,
@@ -429,6 +521,7 @@ class Cached2048ObservationSource:
                         ),
                     },
                 )
+                self._failure_frame_preserved = frame is not None
                 detail += f"; failure_evidence={manifest}"
             except Exception as error:
                 detail += f"; failure_evidence_error={type(error).__name__}: {error}"
@@ -454,6 +547,9 @@ class Cached2048ObservationSource:
 
     def close(self) -> None:
         self._closed = True
+        self._failure_debug_frame = None
+        self._failure_debug_capture = {}
+        self._failure_debug_state = {}
         capture_error = None
         try:
             self.capture.close()
@@ -548,7 +644,21 @@ class ReferenceGame2048Episode(CampaignEpisode):
         event_journal: EventJournal | None = None,
         wgc_timeout_ms: int | None = None,
         comparison_preflight: bool = False,
+        save_browser_diagnostics: bool = False,
+        save_heartbeat_diagnostics: bool = False,
     ) -> None:
+        if (
+            type(save_browser_diagnostics) is not bool
+            or type(save_heartbeat_diagnostics) is not bool
+        ):
+            raise ValueError("failure diagnostics require explicit booleans")
+        self._save_browser_diagnostics = save_browser_diagnostics
+        self._save_heartbeat_diagnostics = save_heartbeat_diagnostics
+        self._failure_diagnostics_attempted = False
+        self._failure_diagnostics = None
+        self._failure_diagnostics_path = (
+            runtime_root / f"episode-{episode_number:04d}" / "failure-diagnostics.json"
+        )
         if type(comparison_preflight) is not bool:
             raise ValueError("comparison preflight requires an explicit boolean")
         if type(native_preprocessing) is not bool:
@@ -560,7 +670,15 @@ class ReferenceGame2048Episode(CampaignEpisode):
         if type(planning_settle_ms) is not int or not 0 <= planning_settle_ms <= 2000:
             raise ValueError("planning settle must be 0..2000ms")
         self.episode_number = episode_number
-        self.launcher = ReferenceGame2048Launcher(cache_root, browser_path)
+        self.launcher = ReferenceGame2048Launcher(
+            cache_root,
+            browser_path,
+            **(
+                {"post_failure_render_diagnostics": True}
+                if save_browser_diagnostics
+                else {}
+            ),
+        )
         if test_seed is not None:
             if type(test_seed) is not int or not 0 <= test_seed <= 0xFFFFFFFF:
                 raise ValueError("campaign comparison seed must be uint32")
@@ -596,6 +714,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 ocr_recognizer,
                 evidence,
                 window_process_id=window.process_id,
+                retain_failure_debug=comparison_preflight and save_failure_evidence,
                 **({"native_preprocessing": True} if native_preprocessing else {}),
                 **(
                     {"wgc_timeout_ms": wgc_timeout_ms}
@@ -639,6 +758,13 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     else {}
                 ),
             )
+            if save_heartbeat_diagnostics:
+                runtime = self.pipeline.executor.fail_safe_runtime
+                if runtime is None:
+                    raise RuntimeError(
+                        "heartbeat diagnostics require the existing FailSafeRuntime"
+                    )
+                runtime.configure_heartbeat_diagnostics(enabled=True)
             self.source.fresh_frame_callback = self.pipeline.record_observation
         except Exception:
             self.close()
@@ -861,18 +987,24 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     f"error={type(error).__name__}: {error}",
                 ) from error
 
-        state = self.source.capture_playable_state(
-            on_fresh_frame=(
-                refresh_observation_after_frame
-                if pipeline is not None and not first_observation
-                else None
-            ),
-            **(
-                {"timeout_seconds": timeout_seconds}
-                if timeout_seconds is not None
-                else {}
-            ),
-        )
+        try:
+            state = self.source.capture_playable_state(
+                on_fresh_frame=(
+                    refresh_observation_after_frame
+                    if pipeline is not None and not first_observation
+                    else None
+                ),
+                **(
+                    {"timeout_seconds": timeout_seconds}
+                    if timeout_seconds is not None
+                    else {}
+                ),
+            )
+        except Exception:
+            self.collect_failure_diagnostics(
+                frame_preserved=getattr(self.source, "_failure_frame_preserved", False)
+            )
+            raise
         capture_elapsed_seconds = time.monotonic() - capture_started_at
         if pipeline is not None and first_observation:
             try:
@@ -886,6 +1018,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 pipeline.initialize_safety(expected_rearm_token=observation_token)
                 self._safety_rearmed = True
             except Exception as error:
+                self.collect_failure_diagnostics(frame_preserved=False)
                 raise CampaignFailure(
                     "safety_block",
                     "2048 screen capture completed in "
@@ -918,6 +1051,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
             if self.source is not None:
                 self.source.not_before = time.monotonic() + self.source.settle_seconds
         except Exception as error:
+            self.collect_failure_diagnostics(frame_preserved=False)
             safety_result = self.pipeline.last_safety_result
             runtime = self.pipeline.executor.fail_safe_runtime
             fail_safe_detail = (
@@ -960,10 +1094,27 @@ class ReferenceGame2048Episode(CampaignEpisode):
         try:
             self.pipeline.record_safety_outcome(status, confidence, evidence)
         except Exception as error:
+            self.collect_failure_diagnostics(frame_preserved=False)
             raise CampaignFailure(
                 "safety_block",
                 f"2048 action outcome could not be recorded: {type(error).__name__}: {error}",
             ) from error
+
+    def collect_failure_diagnostics(self, *, frame_preserved: bool):
+        if not getattr(self, "_save_browser_diagnostics", False) and not getattr(
+            self, "_save_heartbeat_diagnostics", False
+        ):
+            return None
+        try:
+            from tools.reference_episode_failure_diagnostics import (
+                collect_episode_failure_diagnostics,
+            )
+
+            return collect_episode_failure_diagnostics(
+                self, frame_preserved=frame_preserved
+            )
+        except Exception as error:
+            return {"status": "unavailable", "error_type": type(error).__name__[:64]}
 
     def close(self) -> None:
         if self._closed:
@@ -1051,6 +1202,16 @@ def _parse_arguments() -> argparse.Namespace:
         default=900,
         help="bounded screenshot settling profile for baseline/planner, independent of Safety lease",
     )
+    parser.add_argument(
+        "--save-browser-diagnostics",
+        action="store_true",
+        help="after failure and frame preservation only, collect one bounded read-only browser diagnostic",
+    )
+    parser.add_argument(
+        "--save-heartbeat-diagnostics",
+        action="store_true",
+        help="record bounded in-memory heartbeat stages; persist only on failure before cleanup",
+    )
     result = parser.parse_args()
     if result.planner_conditional and result.decision_provider != "planner":
         parser.error("--planner-conditional requires --decision-provider planner")
@@ -1095,6 +1256,8 @@ def main() -> int:
                 arguments.browser,
                 ocr_recognizer,
                 save_failure_evidence=arguments.save_failure_evidence,
+                save_browser_diagnostics=arguments.save_browser_diagnostics,
+                save_heartbeat_diagnostics=arguments.save_heartbeat_diagnostics,
                 decision_provider=arguments.decision_provider,
                 planner_conditional=arguments.planner_conditional,
                 planning_settle_ms=arguments.planning_settle_ms,
@@ -1115,6 +1278,8 @@ def main() -> int:
                 "input_mode": "window_message",
                 "score_ocr_enabled": ocr_recognizer is not None,
                 "failure_evidence_enabled": arguments.save_failure_evidence,
+                "browser_failure_diagnostics_enabled": arguments.save_browser_diagnostics,
+                "heartbeat_failure_diagnostics_enabled": arguments.save_heartbeat_diagnostics,
                 "screenshot_policy": "startup_and_recognition_failure_only"
                 if arguments.save_failure_evidence
                 else "off",

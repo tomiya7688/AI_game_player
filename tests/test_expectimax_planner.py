@@ -50,6 +50,7 @@ from ai_game_player.planning_worker_limits import apply_worker_limits
 from ai_game_player.planning_worker import _execute
 from ai_game_player import planning_worker
 from ai_game_player.planning_worker_diagnostic import WorkerDiagnostic
+from ai_game_player.planning_file_reader import read_planning_bytes
 from ai_game_player.planning_wire import publish_planning_json, read_planning_json
 from ai_game_player.run_control import RunController
 from ai_game_player.transition_model import ActionTransition, ChanceOutcome
@@ -535,13 +536,27 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         def completed_worker(command, **kwargs):
             directory = Path(command[command.index("--memory-bytes") - 1])
             # Execute only the pure worker protocol synchronously. This fake does not test OS guards.
-            with patch(
-                "ai_game_player.planning_wire.publish_planning_json",
-                capture_publication,
+            with (
+                patch(
+                    "ai_game_player.planning_wire.publish_planning_json",
+                    capture_publication,
+                ),
+                patch(
+                    "ai_game_player.planning_file_reader.read_planning_bytes",
+                    wraps=read_planning_bytes,
+                ) as worker_reads,
+                patch.object(
+                    Path,
+                    "read_bytes",
+                    side_effect=AssertionError("unbounded request reread"),
+                ),
             ):
                 self.assertEqual(
                     _execute(directory, enforcement, WorkerDiagnostic()), 0
                 )
+            worker_reads.assert_called_once_with(
+                directory / "request.json", 16 * 1024 * 1024
+            )
             self.assertEqual(sorted(published), [1, 2, 3])
             return SimpleNamespace(poll=lambda: 0)
 
@@ -550,12 +565,17 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             if path.name == "finished.json":
                 finished_seen.append(value["reason"])
             elif path.name == "checkpoint.json":
-                # An old opened inode may be read just before the final marker is observed.
-                # Use the actual depth-one report, rather than relabeling deeper counters.
-                if not finished_seen:
-                    value = published[1]
                 checkpoint_reads.append(value["result"]["completed_depth"])
             return value
+
+        def read_old_raw_checkpoint(path, maximum):
+            if path.name == "checkpoint.json" and not finished_seen:
+                # An opened old inode returns the actual complete depth-one bytes.
+                checkpoint_reads.append(1)
+                return json.dumps(
+                    published[1], ensure_ascii=False, indent=2, allow_nan=False
+                ).encode("utf-8")
+            return read_planning_bytes(path, maximum)
 
         with (
             patch("time.monotonic_ns", return_value=now),
@@ -566,6 +586,10 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             patch(
                 "ai_game_player.bounded_planner.read_planning_json",
                 read_with_old_checkpoint,
+            ),
+            patch(
+                "ai_game_player.bounded_planner.read_planning_bytes",
+                read_old_raw_checkpoint,
             ),
         ):
             result = self.run_plan(

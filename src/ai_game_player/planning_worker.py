@@ -82,16 +82,18 @@ def _execute(directory: Path, method: str, diagnostic: WorkerDiagnostic) -> int:
     )
     from ai_game_player.planning_outcome import PlanningOutcome
     from ai_game_player.planning_result import PlanningResult
+    from ai_game_player.planning_file_reader import read_planning_bytes
     from ai_game_player.planning_wire import (
         context_from_dict,
         publish_planning_json,
-        read_planning_json,
+        decode_planning_json,
         result_to_dict,
     )
     from ai_game_player.world_state_hypothesis import TypedStateRef
 
     diagnostic.mark(WorkerPhase.REQUEST_READ)
-    request = read_planning_json(directory / "request.json", 16 * 1024 * 1024)
+    request_bytes = read_planning_bytes(directory / "request.json", 16 * 1024 * 1024)
+    request = decode_planning_json(request_bytes, 16 * 1024 * 1024)
     expected = {
         "schema_version",
         "nonce",
@@ -116,7 +118,7 @@ def _execute(directory: Path, method: str, diagnostic: WorkerDiagnostic) -> int:
     nonce = belief_id(request["nonce"])
     registration = PlanningRegistration(**request["registration"])
     budget = SearchBudget(**request["budget"])
-    if len((directory / "request.json").read_bytes()) > budget.max_request_bytes:
+    if len(request_bytes) > budget.max_request_bytes:
         raise ValueError("planning request exceeds declared byte budget")
     context = context_from_dict(request["context"])
     if context.game_id != registration.game_id:

@@ -73,7 +73,7 @@ c974のWindows stress attempt9では、final-marker fixtureの旧depth1に書き
 
 Windowsのcheckpoint_publishでerrno13/winerror5、最高受領depth1と十分な残予算を確認したため、raw/JSONをFILE_SHARE_DELETE付きの同じ有界readerへ統一しました。しかし4bcの実Windowsではopen reader中のos.replaceが20回すべて失敗し、共有許可だけでは従来renameのopen-target制約を解消できないことが分かりました。
 
-[MicrosoftのFILE_RENAME_INFORMATION契約](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information)に基づき、planning通信だけ、既存の同directory staging/flush/fsync後にFileRenameInfoEx=22、REPLACE_IF_EXISTS|POSIX_SEMANTICS=3で原子的に公開する候補を追加します。既存handleは旧snapshot、以後のopenは新messageを読みます。一般atomic_json、byte/nonce/depth/TTL/Stop/Job契約は変更しません。未対応OS/API失敗はclosedで終了し、先行delete、非atomic fallback、retryはしません。HANDLE所有権/UTF-16 byte長/ABI/旧message保持を回帰し、Linux成功はWindows成功と扱いません。実Windowsのheld-open旧新snapshot20回、既存worker20回、native HANDLE→CRT→streamの30ケースprobeを最新headで検証するまで未確認です。probeが予期されるOSエラーを記録しても、回帰失敗のCI結論は保持し、後段の画像診断を常時試行します。
+[MicrosoftのFILE_RENAME_INFORMATION契約](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information)に基づき、planning通信だけ、同directoryの使い捨てstagingを単一encode・binary write・flush/close後にFileRenameInfoEx=22、REPLACE_IF_EXISTS|POSIX_SEMANTICS=3で原子的に公開します。電源断後に再利用しない一時IPCはfsync/dirsyncを行わず、一般Store/leaseのdurabilityは維持します。既存handleは旧snapshot、以後のopenは新messageを読みます。一般atomic_json、byte/nonce/depth/TTL/Stop/Job契約は変更しません。未対応OS/API失敗はclosedで終了し、先行delete、非atomic fallback、retryはしません。HANDLE所有権/UTF-16 byte長/ABI/旧message保持を回帰し、Linux成功はWindows成功と扱いません。実Windowsのheld-open旧新snapshot20回、既存worker20回、native HANDLE→CRT→streamの30ケースprobeを最新headで検証するまで未確認です。probeが予期されるOSエラーを記録しても、回帰失敗のCI結論は保持し、後段の画像診断を常時試行します。
 
 全文OCRがSCOREラベル自体を見落とすWindows trialには、同frameで認識済み盤面に対応する上段ROIを3倍/PSM6で再読し、literal SCOREだけを回復する評価専用profileを追加します。その後の数字行は2幅一致・端切れ拒否・0.65を維持します。[元2画像と倍率/offsetを含む独立4ケース](../validation/planning_score_header_ocr.json)で1824/1808を回復しました。入力の認識や学習には戻しません。
 
@@ -234,4 +234,32 @@ Win919の固定128条件で、同0 glyphのbinary/whitelistは空、binary/無wh
 
 この比較は最大12判断attemptで打ち切る短枠です。同じ3 seedの2 event反復を独立6 seedとは扱わず、終局得点・長期survival・統計的改善・isolated性能を主張しません。既存400ms探索/4秒Belief TTL/3秒内部再観測/5秒実観測age/.75秒制御lease/.65得点信頼度は維持し、未校正のworld riskはunknown mass1・条件付き選択の明示opt-inのままです。評価用得点を判断や因果学習へ戻しません。
 
-別の通常600秒受入は原本収集時点で進行中であり、この資料では完了扱いにしません。最終の資料のみ更新したheadは測定headと区別し、[PR660の最新push/PR CI](https://github.com/tomiya7688/AI_game_player/pull/660/checks)の必須64 gateを別途確認してから統合します。固定実測のため、CI更新ごとの資料commitは増やしません。旧175の212入力・4保留、旧919/e119等の失敗は測定条件とheadを付けた歴史として保持します。
+別の通常600秒受入は原本収集時点で進行中であり、この資料では完了扱いにしません。この測定結果の資料のみを更新した8dc0c03は測定headと区別し、[PR660の最新push/PR CI](https://github.com/tomiya7688/AI_game_player/pull/660/checks)の必須64 gateを別途確認してから統合します。固定実測のため、CI更新ごとの資料commitは増やしません。旧175の212入力・4保留、旧919/e119等の失敗は測定条件とheadを付けた歴史として保持します。
+
+
+#### 8dc以後の失敗を保つ一時診断wave
+
+[8dc push seed479の全3 providerと失敗記録](../validation/planning_windows_8dc_failure_diagnostics.json)を保存しました。Cycling/Planner各12入力が成功した同じjobで、Baselineはinitial_observationの45秒期限に達して入力0でした。直近4物理frameは約2.99秒間BGRA hash6ce4…/全空盤面semantic a41f…が一致しましたが、45秒全期間の画素一致やブラウザ描画完了は証明できません。別の通常600秒episode2 recognition_failureとcontrol lease失効の既存artifactも保持します。d4の成功cohortを失敗の否定に使わず、起動JS、renderer、合成面取得、schedule等の原因は未確定です。
+
+今回の変更は原因を直したものではありません。`--save-failure-evidence`を明示した短比較のpreflightだけ、同呼出しの最後の既存物理frame1件・元producer時刻・取得参照・固定4×4 board/availability/unknown/confidence/bboxを診断専用に保持します。認識projectionは推定観測で、ground truthではありません。開始時とcloseで破棄し、成功cache/latest_frame、候補、lease、receipt、学習へ渡しません。期限やStopで戻る時にも新captureを行わず、元エラーを保ちます。所有launcher生存PID/HWND/現在TargetStateを再照合してから、preflight失敗に限りboard+header最大640×640・PNG128KiB・4KiB chunks・1episode1枚を輸送します。既存Score headerの640×240上限は維持します。
+
+検証workflowだけが新CLI `--save-browser-diagnostics` / `--save-heartbeat-diagnostics`を明示します。通常GUI/actor/CLIは既定OFFです。heartbeatは初期化前に有効化する最大8完了+進行中1件のmemory記録で、既存のauthority時計取得回数、周期、fsync、.75秒制御lease、5秒実観測age、epochは維持します。failureのclose前にRuntime lockを取らずsnapshotし、その後、元frameのPNG輸送readyまたは通常recognitionの既存manifest保存成功がある場合だけ[事後CDP描画診断](reference_browser_post_failure_diagnostics.md)を一度呼びます。SafetyBlock等で画素が未保全ならCDPは呼びません。snapshotをCDPより先に固定し、CDP後の画面状態を元frameの時点や入力許可へ流用しません。
+
+診断結果は既存atomic_jsonでepisode内のfailure-diagnostics.jsonへ保存し、有界stdoutにも出します。各sectionの不正/過大値や診断保存・通信失敗はunavailableとなり、他の有効sectionと元failureを維持します。heartbeat snapshotは追加authority時計や永続化を行わず、通常OFFではrecorder/sampling/filewriteを行いません。診断のclock/コピー・失敗後CDP自体はタイミングへ影響し得るため、このinstrumented headの所要時間を過去headの改善実測とはしません。
+
+既存artifactを標準actions/download-artifact@v4で取得する3stepは全元runtime/test/比較/uploadの後、seed479だけに置きます。read権限のみ、新required名やcontinue-on-errorは追加せず、元jobの失敗を維持します。固定manifestの元画素/寸法/SHA・PNG metadata/byte・crop境界を検査し、制御traceは固定型fieldだけを出力します。片方の欠落/不正でも有効な他方を出し、section error/exit1を保ちます。過去artifactは90日等で失効し得るため恒常CI依存にせず、次の真の原因修正commitで固定download/export stepを除去します。新Windowsでの診断出力と原原因は未確認です。400ms/3s/4s/5s/.75s/45s/未知拒否/最低実入力/盤面変化/600秒gateの条件は変更しません。
+
+
+#### 294の完走結果と一時IPCの範囲
+
+[294固定headの残るPR seed480失敗・全3 provider・過去artifact取得](../validation/planning_windows_294_remaining_failure.json)を保存しました。必須CIは63/64成功で、通常600秒Campaignはpush/PRとも成功しました。残る比較ではCycle/Baseline各12実入力に成功した一方、Plannerは12判断attemptすべて保留・入力0でした。得点0のOCRとStop/旧世代拒否は確認できても、最低実入力・盤面変化を満たさないため失敗です。成功へ再ラベルしたり、無制限再試行したりしません。
+
+親工程の診断は、複数attemptでrequest準備からPopen前に400ms予算を使い、実workerを開始できなかったことを示します。準備・encode・write/publish・OS I/O・scheduleの寄与は旧記録だけで分離できず、fsyncが原因とは断定しません。次の一時IPC変更ではrequest build/encode/write-close/publishを固定8時刻に分け、効果と残る遅延を新headで検証します。
+
+request/ready/checkpoint/finishedはnonceと世代、元deadlineで束縛した一process寿命の使い捨てIPCです。電源断やprocess crash後のmessage回復・再採用には使いません。この範囲だけを単一UTF-8 encode・binary write・flush/close後の原子的renameとし、power-loss durability目的のfsync/dirsyncを行いません。flush/closeを省略した公開や不完全messageの採用は許さず、byte/JSON depth・重複key・UTF-8・有限値・nonce/版/世代・期限・Stop・OS Jobの検証は維持します。Windowsの既存InfoEx/POSIX publicationとshared-delete readerは維持します。
+
+同じ有界raw byte列を復号に再利用してrequest/通常checkpointの二重readを除き、finished後の最後のcheckpoint再読は残します。親の400ms開始点や採用cutoffを後ろへ動かしません。一般atomic_json、Knowledge/Store、Journal、制御lease/Stop/ledgerの永続書込み・crash recovery・fsync契約は変更しません。これは計画に限るdurability区分であり、安全記録の永続性を下げる設計ではありません。新Windowsでの遅延・playability改善は未確認です。
+
+標準downloadで既存artifactの画像/制御sectionは取得できました。元8dc600秒episode2のPNGはmanifest BGRA hashと対応し、目視でも16セル空・見出し/NewGame描画済みでした。CV誤読だけを支持する証拠ではなく、JS/RAF・compositor・captureのどこに原因があるかは未分離です。旧lease最終fileはcleanup後のruntime_closed/safe_idle/expiry0で、失敗直前の履歴を回復できません。元の失敗と診断観測の時点を区別し、起動・leaseの未確定原因は既存[Issue #459](https://github.com/tomiya7688/AI_game_player/issues/459)で追跡します。
+
+データ取得の役目を終えた固定artifact download/exportの3stepとactions:read権限をCIから除去します。通常のゲームartifact upload・元64必須gate・明示失敗診断は維持し、offline exporterと回帰testは開発用に残します。新functional headの全必須CIと実Windows結果を確認するまで統合・完了とは扱いません。
