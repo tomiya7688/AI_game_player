@@ -20,6 +20,8 @@
 
 ## 制約
 
+- 固定版2048 campaignの`--save-failure-evidence`は既定OFFです。明示ON時、起動失敗の所有PID窓metadataと取得可能なWGC画素をcleanup前に有界保存します。診断を追加しただけで、自然なbrowser起動失敗の原因を解消したとは扱いません（#459/#637）。
+
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
 - OCRは`Pillow`と`pytesseract`の任意依存です。未導入時も画像候補と任意のAutomation候補をGUIで評価できます。明るさだけから作るconfidence `0.0` の画像候補は候補評価器が拒否します。ゲーム固有の成功条件は追加調整が必要です。
