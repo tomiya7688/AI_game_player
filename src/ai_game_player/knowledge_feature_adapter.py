@@ -11,6 +11,7 @@ from ai_game_player.knowledge_projection import PROJECTION_VERSION, KnowledgePro
 from ai_game_player.knowledge_scope import KnowledgeScope
 from ai_game_player.knowledge_snapshot import KnowledgeSnapshot
 from ai_game_player.models import ScreenObservation
+from ai_game_player.learning_identity import LearningIdentityPolicy
 
 
 MAX_HINT_ENTRIES = 64
@@ -23,7 +24,8 @@ SUPPORT_PRIOR = 4.0
 #   フィールド: [_snapshot_source: 呼出側が選択したimmutable Snapshotを取得する関数,
 #     _scope_source: 信頼されたSession設定から現在のgame/scene/profile/player/lineageを得る関数,
 #     _clock: UTCの評価時刻を返す時計, _max_age_seconds: 任意の最大経過秒,
-#     _expose_to_models: モデルcontextへ投影を含める明示許可]
+#     _expose_to_models: モデルcontextへ投影を含める明示許可,
+#     _identity_policy: 明示profileの再対応保証。指定時は衝突候補を適用保留する]
 # }
 class KnowledgeFeatureAdapter:
     # {
@@ -33,7 +35,8 @@ class KnowledgeFeatureAdapter:
     #     scope_source: Observationを手掛かりに信頼されたSession側で決めたscope。OCR文字列から生成しない,
     #     clock: aware datetimeを返す時計。省略時は現在UTC,
     #     max_age_seconds: 作成からの経過上限。NoneならSnapshot自身のexpires_atだけを使う,
-    #     expose_to_models: 既定False。モデル要求にKnowledge投影を含める明示許可]
+    #     expose_to_models: 既定False。モデル要求にKnowledge投影を含める明示許可,
+    #     identity_policy: 省略時は従来ID契約。指定時はprofile保証hash keyを現候補へ対応付ける]
     #   戻り値: [なし]
     #   エラー: [ValueError: 最大経過秒が非有限・非正、または公開設定がbool以外]
     # }
@@ -45,6 +48,7 @@ class KnowledgeFeatureAdapter:
         clock: Callable[[], datetime] | None = None,
         max_age_seconds: float | None = None,
         expose_to_models: bool = False,
+        identity_policy: LearningIdentityPolicy | None = None,
     ) -> None:
         if max_age_seconds is not None and (
             isinstance(max_age_seconds, bool)
@@ -59,6 +63,7 @@ class KnowledgeFeatureAdapter:
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         self._max_age_seconds = max_age_seconds
         self._expose_to_models = expose_to_models
+        self._identity_policy = identity_policy
 
     # {
     #   責務: [apply: 許可候補や観測を変えず、この判断に対応するKnowledge投影だけを追加する]
@@ -127,6 +132,14 @@ class KnowledgeFeatureAdapter:
             c.action_id for c in context.candidates if c.allowed
         }
         stats = values["action_outcome_stats"]
+        identity_keys = (
+            self._identity_policy.keys(context)
+            if self._identity_policy is not None
+            and self._identity_policy.profile_id == snapshot.scope.profile_id
+            else {key: key for key in allowed}
+            if self._identity_policy is None
+            else {}
+        )
         support = (
             sum(
                 item["success"] + item["no_effect"] + item["failure"]
@@ -137,9 +150,14 @@ class KnowledgeFeatureAdapter:
         )
         confidence = (1.0 - values["uncertainty"]) * support / (support + SUPPORT_PRIOR)
         priors = {}
-        applicable_priors = sorted(allowed & values["candidate_priors"].keys())
+        applicable_priors = sorted(
+            key
+            for key in allowed
+            if identity_keys.get(key) in values["candidate_priors"]
+        )
         for action_id in applicable_priors[:MAX_HINT_ENTRIES]:
-            action_stats = stats.get(action_id)
+            knowledge_key = identity_keys[action_id]
+            action_stats = stats.get(knowledge_key)
             count = (
                 (
                     action_stats["success"]
@@ -150,8 +168,8 @@ class KnowledgeFeatureAdapter:
                 else values["sample_count"]
             )
             trust = (1.0 - values["uncertainty"]) * count / (count + SUPPORT_PRIOR)
-            trust *= values["candidate_reliability"].get(action_id, 1.0)
-            priors[action_id] = values["candidate_priors"][action_id] * trust
+            trust *= values["candidate_reliability"].get(knowledge_key, 1.0)
+            priors[action_id] = values["candidate_priors"][knowledge_key] * trust
         transitions = [
             item for item in values["transition_priors"] if item["action_id"] in allowed
         ]

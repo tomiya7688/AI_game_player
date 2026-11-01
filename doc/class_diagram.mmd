@@ -335,6 +335,7 @@ classDiagram
         +_append_entry()
         +_update_entry()
         +record_action_outcome()
+        +record_execution_receipt()
         +recent()
         +recent_actions()
         +_read()
@@ -359,6 +360,11 @@ classDiagram
         +_index_candidates()
         +_build_result()
     }
+    class DeferredTraceAppend {
+        +__init__()
+        +publish()
+        +discard()
+    }
     class GamePlayerEngine {
         +__init__()
         +step()
@@ -368,6 +374,8 @@ classDiagram
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
+        +record_execution_receipt()
+        +complete_execution_observation()
     }
     class EvaluationAxis {
         +__post_init__()
@@ -438,6 +446,14 @@ classDiagram
         +load()
         +append()
         +_read_entries()
+    }
+    class ExecutionReceipt {
+        +__post_init__()
+        +to_dict()
+    }
+    class ExecutionObservation {
+        +__post_init__()
+        +to_dict()
     }
     class ArtifactReference {
         +__post_init__()
@@ -690,6 +706,7 @@ classDiagram
     class KnowledgeBuildResult {
     }
     class KnowledgeBuilder {
+        +empty_snapshot()
         +__init__()
         +build()
     }
@@ -715,6 +732,14 @@ classDiagram
         +_make_projection()
         +_fallback()
     }
+    class KnowledgeLightValidationPolicy {
+        +__post_init__()
+        +assess()
+        +bound_candidate()
+    }
+    class PreparedKnowledgePublication {
+        +authorize()
+    }
     class KnowledgeProjection {
         +__post_init__()
         +from_dict()
@@ -725,6 +750,10 @@ classDiagram
     }
     class KnowledgePromotionGate {
         +__init__()
+        +prepare_light_update()
+        +_prepare_light_update_reserved()
+        +acknowledge_publication()
+        +discard_prepared()
         +initialize_champion()
         +capture()
         +evaluate_and_promote()
@@ -804,6 +833,68 @@ classDiagram
         +__init__()
         +build()
         +_sample_record()
+    }
+    str <|-- LearningIdentityKind
+    Enum <|-- LearningIdentityKind
+    class LearningIdentityKind {
+    }
+    class LearningIdentityPolicy {
+        +__post_init__()
+        +keys()
+    }
+    class LightAdaptationMetrics {
+    }
+    class LightAdaptationRunner {
+        +__init__()
+        +capture()
+        +start()
+        +set_resources()
+        +enqueue()
+        +record_utility()
+        +metrics()
+        +utility_estimates()
+        +close()
+        +_admitted()
+        +publish_at_boundary()
+        +retry_checkpoint()
+        +_put()
+        +_drop()
+        +_run()
+        +_checkpoint_pending()
+        +_run_loop()
+        +_update_batch()
+    }
+    class LightAdaptationBudget {
+        +__post_init__()
+    }
+    class LightResourceSample {
+        +__post_init__()
+        +reason()
+    }
+    str <|-- VerifiedEffectSource
+    Enum <|-- VerifiedEffectSource
+    class VerifiedEffectSource {
+    }
+    class VerifiedActionEffect {
+        +__post_init__()
+    }
+    class LightExecutionProjector {
+        +__init__()
+        +bind()
+        +project()
+    }
+    class SessionLightAdaptation {
+        +__init__()
+        +_held_inputs()
+        +begin_step()
+        +finish_step()
+        +observe_execution()
+        +close()
+    }
+    class UtilityMeasurement {
+        +__post_init__()
+    }
+    class UtilityEstimate {
     }
     class LoopGuard {
         +__init__()
@@ -987,6 +1078,8 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +_record_execution_receipt()
+        +complete_execution_observation()
         +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
@@ -1038,6 +1131,7 @@ classDiagram
         +stop()
         +_validate_running_locked()
         +run_if_current()
+        +record_execution_audit()
         +ensure_running()
     }
     class ResolutionFailure {
@@ -1174,6 +1268,7 @@ classDiagram
         +run()
         +run_and_execute()
         +load_execution_history()
+        +complete_execution_observation()
         +assess_outcome()
         +close()
     }
@@ -1190,6 +1285,68 @@ classDiagram
         +attach_event_journal()
         +detach_event_journal()
         +write()
+    }
+    str <|-- RuntimeMode
+    Enum <|-- RuntimeMode
+    class RuntimeMode {
+    }
+    str <|-- RuntimePhase
+    Enum <|-- RuntimePhase
+    class RuntimePhase {
+    }
+    str <|-- RuntimeOperation
+    Enum <|-- RuntimeOperation
+    class RuntimeOperation {
+    }
+    class RuntimeModeConfig {
+        +__post_init__()
+        +flags()
+        +to_dict()
+        +from_dict()
+        +operations()
+    }
+    ValueError <|-- RuntimeModeTransitionError
+    class RuntimeModeTransitionError {
+    }
+    RuntimeError <|-- RuntimeModePersistenceError
+    class RuntimeModePersistenceError {
+    }
+    class RuntimeModeController {
+        +__init__()
+        +snapshot()
+        +request_mode()
+        +apply_pending_mode()
+        +transition()
+        +begin_step()
+        +finish_step()
+        +permits()
+        +run_if_allowed()
+        +record_evaluation()
+        +degrade()
+        +request_stop()
+        +fail()
+        +recover_to_idle()
+        +resume_at_boundary()
+        +_signal_stop()
+        +_complete_stop_signal()
+        +flush()
+        +restore()
+        +_held_is_clear()
+        +_admit()
+        +_metadata_change()
+        +_change_locked()
+    }
+    class RuntimeModeRecorder {
+        +__init__()
+        +full()
+        +enqueue()
+        +flush()
+    }
+    class RuntimeModeSnapshot {
+        +mode()
+        +to_dict()
+    }
+    class RuntimeStepToken {
     }
     str <|-- SafetyState
     Enum <|-- SafetyState
@@ -1565,6 +1722,7 @@ classDiagram
     }
     class WindowsInputExecutor {
         +__init__()
+        +has_held_inputs()
         +execute()
         +_verify_target_identity()
         +release_all()
