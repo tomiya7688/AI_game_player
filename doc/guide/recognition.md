@@ -4,7 +4,7 @@
 
 **この資料の目的：** ゲーム画面を取得しただけで「押せるボタン」が分かるわけではありません。画像を取得し、数値や文字を調べ、候補を作り、使ってよいか評価するまでを、別々の仕事として説明します。
 
-**確認した範囲：** 2026-10-31、main `4d8ae6f515024b7ba8bed900b50735ab8cc07ea4` の標準経路。ソースと既存説明書を照合した静的調査であり、Windows実機で画面を取得した試験やOCRの実測ではありません。
+**確認した範囲：** 2026-11-01、main `d31377e42714f4d2e5ee1a402a4c42065d73bcd6` の標準経路。ソースと既存説明書を照合した静的調査であり、この資料の作成時にWindows実機やOCRの実測を行ったという意味ではありません。
 
 ## 図1：画面を受け取って、判断材料を作るまで
 
@@ -16,14 +16,19 @@ flowchart TD
     WGC -->|成功した画像| F["画面画像と取得時刻"]
     WGC -.->|条件により代替| GDI
     GDI -->|取得した画像| F
-    A -->|失敗| N["理由を示し、古い画像で進めない"]
-    F --> T{"画面は新しく、対象も一致？"}
-    T -->|いいえ| N
+    A -->|取得失敗| N["理由を示し、入力へ進めない"]
+    F --> T{"画面は新しい？"}
+    T -->|古い| Q["古い画像を捨てる"]
+    Q --> B{"待ち時間の期限内？"}
+    B -->|はい| WAIT["同じ対象の次の画像を待つ"]
+    WAIT -->|次の画像| F
+    B -->|いいえ| N
     T -->|はい| ROI["取得した範囲と座標の情報を引き継ぐ"]
     ROI --> I["画像の色・明るさ・特徴を数値にする"]
     ROI -.->|任意の文字認識| O["画像内の文字と位置を読む"]
     I --> C["画像由来の候補"]
-    O -.-> D["文字由来の候補"]
+    O -.->|認識成功| D["文字由来の候補"]
+    O -.->|実行エラー| N
     C --> M["操作候補をまとめる"]
     D --> M
     Z["設定されたAutomation候補"] --> M
@@ -33,7 +38,9 @@ flowchart TD
 
 **実線：** 基本のつながり。**点線：** 任意の経路や条件付きの試行・代替。WGCはWindowsの画面取得方式で、C++の画像前処理とは別です。取得方式の切替には環境・失敗条件があり、すべての失敗で必ず正常なGDI画像を得られる保証はありません。
 
-画面の切り出し範囲は取得前に設定され、取得された画像に対応する座標の情報は認識にも引き継がれます。図は読み取りの役割順を示すもので、切り出しを必ず鮮度確認の後に実行するという意味ではありません。画像取得から認識までの処理は、画面取得の共有ストリームを通して新しい画面を扱います。画面ID、取得時刻、どの対象画面から取得したかの世代を管理します。ストリームの「最新画像だけ取り出す」使い方と、「順番を保持する」使い方は異なります。録画を自動実装しているという意味ではありません。
+古い画像は捨て、待ち時間の期限まで新しい画像を待ちます。古い画像を一枚受け取っただけで直ちに失敗するのではありません。対象ウィンドウを変更した場合は取得元の世代を切り替えます。画像の切り出し範囲は取得前に設定され、画像と座標の情報を認識にも引き継ぎます。図は役割のつながりであり、切り出しを鮮度確認の後に行うという意味ではありません。
+
+共有フレームには、未処理の画像を最新画像へ置き換える方式と、上限まで順番を保つ方式があります。この共有の仕組みだけで、動画の自動録画や複数画像の結果照合が実装されるわけではありません。
 
 ## 図2：複数の候補をまとめるとき
 
@@ -57,11 +64,12 @@ flowchart LR
 | 受け取り・返すもの | 選択ウィンドウ・範囲設定 → 画像、取得時刻、画面の識別情報 |
 | 方法 | 利用可能なWGCを試し、条件によりGDIの互換方式を使う。共有フレームから新しい画像を取得 |
 | 選ぶ条件 | 対象画面、取得方式の利用可否、取得範囲、時間の条件 |
-| 失敗したら | 取得失敗・時間切れ・古い画面を説明付きで呼出し元へ知らせる。不完全な画像で成功扱いしない |
+| 古い画像の場合 | 捨てて期限まで次の画像を待つ。期限内に新しい画像を得られなければ失敗 |
+| 失敗したら | 取得失敗や時間切れを理由付きで呼出し元へ知らせる。不完全な画像で成功扱いしない |
 | モデル | 学習済みモデルなし |
 | 時間・メモリ | この資料では未測定。画像サイズ、方式、連続取得条件が必要 |
 
-実装：[screen_capture.py](../../src/ai_game_player/screen_capture.py)、[observation_service.py](../../src/ai_game_player/observation_service.py)、[shared_frame_producer.py](../../src/ai_game_player/shared_frame_producer.py)。テスト：[test_screen_capture.py](../../tests/test_screen_capture.py)、[test_observation_service.py](../../tests/test_observation_service.py)、[test_shared_frame_producer.py](../../tests/test_shared_frame_producer.py)。
+実装：[screen_capture.py](../../src/ai_game_player/screen_capture.py)、[observation_service.py](../../src/ai_game_player/observation_service.py)、[shared_frame_producer.py](../../src/ai_game_player/shared_frame_producer.py)。テスト：[test_screen_capture.py](../../tests/test_screen_capture.py)、[test_observation_service.py](../../tests/test_observation_service.py)、[test_shared_frame_producer.py](../../tests/test_shared_frame_producer.py)。古い画像の後に新しい画像が届く経路は、`test_stale_frame_is_discarded_until_a_fresh_frame_arrives`が対象です。
 
 ## 手法カード R2：画像の特徴を数値にする
 
@@ -74,24 +82,26 @@ flowchart LR
 - **失敗・制約：** 画像データの長さや範囲が不正なら失敗を返します。領域の発見だけでは安全なボタンと証明できません。
 - **負荷：** この資料では未測定。画像寸法、繰り返し回数、Python/Nativeの実際の接続を明記して測ります。
 
-実装：[frame_analyzer.py](../../src/ai_game_player/frame_analyzer.py)、[frame_preprocessor.py](../../src/ai_game_player/frame_preprocessor.py)。テスト：[test_frame_analyzer.py](../../tests/test_frame_analyzer.py)。
+実装：[frame_analyzer.py](../../src/ai_game_player/frame_analyzer.py)、[frame_preprocessor.py](../../src/ai_game_player/frame_preprocessor.py)、[Native Runtimeのpreprocess](../../src/ai_game_player/runtime/native.py)。テスト：[test_frame_analyzer.py](../../tests/test_frame_analyzer.py)、[test_native_runtime.py](../../tests/test_native_runtime.py)。後者には`FrameAnalyzer(frame_preprocessor=runtime)`を使い、Python経路と比べる試験があります。これは標準GUIへの自動接続とは別です。
 
 ## 手法カード R3：画像から文字を読む
 
-OCR（文字認識）は、画像に写る文字と位置を調べます。標準の任意接続にはTesseractの経路があります。`pytesseract` と `Pillow` が読み込めても、認識器本体・言語データの導入、文字認識の成功まで保証されるわけではありません。
+OCR（文字認識）は、画像に写る文字と位置を調べます。標準の任意接続にはTesseractの経路があります。`pytesseract`と`Pillow`が読み込めても、認識器本体・言語データの導入、文字認識の成功まで保証されるわけではありません。
 
 - **入力：** 画面画像。必要な場合は選択ウィンドウや切り出し範囲の座標情報。
 - **出力：** 読み取った文字・位置・候補の根拠。確信度は正答確率と同じとは限りません。
 - **選ぶ条件：** 文字認識用の依存が使えるとき。文字がない画面には有効な出力がないこともあります。
 - **苦手な状況：** 小さい文字、装飾的な書体、背景に重なった文字、言語データが合わない場合。
 - **モデル：** Tesseractの言語データ。実際に使う版・言語・実行時状態はこの資料では未確認。
-- **負荷・失敗時：** 時間とメモリは未測定。認識依存が足りない場合と、認識できたが候補が不確かな場合を分けます。
+- **負荷：** 時間とメモリは未測定。画像サイズ・文字量・言語データを指定して測ります。
 
-実装：[ocr_recognizer.py](../../src/ai_game_player/ocr_recognizer.py)、[ocr_detector.py](../../src/ai_game_player/ocr_detector.py)。テスト：[test_ocr_recognizer.py](../../tests/test_ocr_recognizer.py)、[test_ocr_detector.py](../../tests/test_ocr_detector.py)。
+**使えない場合は二種類あります。** Python依存の読み込みが`ImportError`で失敗すると、`TesseractOcrRecognizer.optional()`は認識器なしを返します。この場合はOCRを省き、他の画像特徴・候補を扱えます。一方、依存を読み込めた後にTesseract本体・言語データなどの実行エラーが起きると、`FrameAnalyzer.analyze()`から`LiveObservationService.capture_observation()`へ例外が伝わり、観測全体が失敗します。「任意OCRだから、どんな失敗でも続行する」という保証はありません。
+
+実装：[ocr_recognizer.py](../../src/ai_game_player/ocr_recognizer.py)、[ocr_detector.py](../../src/ai_game_player/ocr_detector.py)。テスト：[test_ocr_recognizer.py](../../tests/test_ocr_recognizer.py)、[test_ocr_detector.py](../../tests/test_ocr_detector.py)、[test_observation_service.py](../../tests/test_observation_service.py)。
 
 ## 手法カード R4：候補をまとめ、安全な判断候補へ絞る
 
-複数の入力元から、位置・重なり・識別子などを照合して候補をまとめます。その後、候補評価は確信度や座標などを確認し、使うべきでない候補を拒否できます。例として、明るい領域だけから作られた確信度 `0.0` の画像候補は、現在の評価条件では許可されません。
+複数の入力元から、位置・重なり・識別子などを照合して候補をまとめます。その後、候補評価は確信度や座標などを確認し、使うべきでない候補を拒否できます。例として、明るい領域だけから作られた確信度`0.0`の画像候補は、現在の評価条件では許可されません。
 
 これは「AIが正しい候補を一つ選んだ」こととも、「実際のゲーム入力を許可した」こととも異なります。候補の評価を通過しても、判断回答の検証・停止・安全確認は別に残ります。
 
@@ -108,9 +118,9 @@ OCR（文字認識）は、画像に写る文字と位置を調べます。標�
 
 *以下の数字は説明のための仮定で、実際の画面を測ったものではありません。*
 
-選択ウィンドウの中で、切り出した範囲の左上が `(100, 40)` だったとします。切り出し画像の中で文字の左上が `(20, 30)`、幅 `60`、高さ `18` だった場合、ウィンドウ内の位置は左上 `(120, 70)`、中心 `(150, 79)` です。
+選択ウィンドウの中で、切り出した範囲の左上が`(100, 40)`だったとします。切り出し画像の中で文字の左上が`(20, 30)`、幅`60`、高さ`18`だった場合、ウィンドウ内の位置は左上`(120, 70)`、中心`(150, 79)`です。
 
-`(100 + 20,\ 40 + 30) = (120, 70)`
+`(100 + 20, 40 + 30) = (120, 70)`
 
 この変換は、切り出し画像の位置と、元のウィンドウや画面での位置を混同しないために必要です。ただし、窓の位置・拡大縮小・座標の種類によって変換条件は変わります。実装では[座標変換](../../src/ai_game_player/capture_geometry.py)の契約に戻って確認します。
 
@@ -120,4 +130,4 @@ OCR（文字認識）は、画像に写る文字と位置を調べます。標�
 
 共有フレームの仕組みには最新の画像を受ける方法と順番を保つ方法がありますが、**それだけで複数画像の結果を照合して判断精度を上げる仕組みが全経路で動いているとは言えません。** 複数の認識結果を照合する、場面に応じて重みを変える、必要時に再観測するなどの要求は、処理ごとに実装・接続・テストを分けて追跡します。
 
-認識の役割、適用条件、現在未接続の手法、負荷の見込みと動的な選択は [#610](https://github.com/tomiya7688/AI_game_player/issues/610)、[#611](https://github.com/tomiya7688/AI_game_player/issues/611) で扱います。図・リンクの継続的な検査は [#614](https://github.com/tomiya7688/AI_game_player/issues/614) です。
+認識の説明は[#610](https://github.com/tomiya7688/AI_game_player/issues/610)、処理選択の説明は[#611](https://github.com/tomiya7688/AI_game_player/issues/611)、図・リンクの継続検査は[#614](https://github.com/tomiya7688/AI_game_player/issues/614)で整備します。製品側の動的な処理選択は[#13](https://github.com/tomiya7688/AI_game_player/issues/13)とその子Issueで追跡し、資料を書いたことを機能の実装完了とはしません。
