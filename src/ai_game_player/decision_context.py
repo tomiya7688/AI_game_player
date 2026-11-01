@@ -9,6 +9,7 @@ from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
 from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
+from ai_game_player.knowledge_projection import KnowledgeProjection
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 
@@ -53,7 +54,11 @@ class KnowledgeEvidence:
     category: str = ""
 
     def __post_init__(self) -> None:
-        if not self.evidence_id.strip() or not self.source.strip() or not self.provenance.strip():
+        if (
+            not self.evidence_id.strip()
+            or not self.source.strip()
+            or not self.provenance.strip()
+        ):
             raise ValueError("knowledge evidence metadata must not be empty")
         if not isfinite(self.confidence) or not 0.0 <= self.confidence <= 1.0:
             raise ValueError("knowledge confidence must be between 0 and 1")
@@ -101,7 +106,7 @@ class CandidateDecisionContext:
 @dataclass(frozen=True)
 # {
 #   責務: [DecisionContext: 1回の選択に使った画面・許可候補・過去の結果を同じ観測IDに結び付ける]
-#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性]
+#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性, knowledge_projection: このstepだけの任意soft evidence。実観測と区別する]
 # }
 class DecisionContext:
     snapshot_id: str
@@ -112,9 +117,16 @@ class DecisionContext:
     recent_history: tuple[dict[str, Any], ...]
     goal: dict[str, str]
     uncertainty: tuple[str, ...]
+    knowledge_projection: KnowledgeProjection | None = None
 
-    def to_dict(self) -> dict[str, Any]:
-        return {
+    # {
+    #   責務: [to_dict: 判断材料をモデル要求またはローカルTrace向けの独立辞書に変換する]
+    #   処理: [Knowledgeは公開opt-in時、またはローカルTraceへの明示要求時だけ含める]
+    #   引数: [include_knowledge: Trueはローカル監査用。モデル送信では既定Falseを使う]
+    #   戻り値: [dict: 観測とKnowledgeの出所を分離したJSON化可能な判断材料]
+    # }
+    def to_dict(self, *, include_knowledge: bool = False) -> dict[str, Any]:
+        value = {
             "schema": "decision-context/v1",
             "snapshot_id": self.snapshot_id,
             "state": self.state,
@@ -125,6 +137,15 @@ class DecisionContext:
             "goal": self.goal,
             "uncertainty": list(self.uncertainty),
         }
+        if self.knowledge_projection is not None and (
+            include_knowledge or self.knowledge_projection.expose_to_models
+        ):
+            value["knowledge_projection"] = (
+                self.knowledge_projection.to_dict()
+                if include_knowledge
+                else self.knowledge_projection.to_model_dict()
+            )
+        return value
 
 
 class CandidateContextEvaluator(Protocol):
@@ -137,8 +158,7 @@ class CandidateContextEvaluator(Protocol):
         candidate: ActionCandidate,
         recent_history: list[dict[str, Any]],
         previous_outcome: OutcomeAssessment,
-    ) -> EvaluatorEvidence:
-        ...
+    ) -> EvaluatorEvidence: ...
 
 
 class SafetyContextEvaluator:
@@ -216,14 +236,35 @@ class RepetitionContextEvaluator:
         previous_outcome: OutcomeAssessment,
     ) -> EvaluatorEvidence:
         history = recent_history[-self.window :]
-        repeats = sum(1 for entry in history if str(entry.get("action_id", "")) == candidate.action_id)
+        repeats = sum(
+            1
+            for entry in history
+            if str(entry.get("action_id", "")) == candidate.action_id
+        )
         if repeats == 0:
-            return EvaluatorEvidence(self.name, 0.0, 0.8, self.reliability, "action not present in recent history")
-        state_changed = _state_changed_from_history(observation, history[-1] if history else None)
-        stalled = previous_outcome.status in {"failure", "ongoing", "unknown"} and not state_changed
+            return EvaluatorEvidence(
+                self.name,
+                0.0,
+                0.8,
+                self.reliability,
+                "action not present in recent history",
+            )
+        state_changed = _state_changed_from_history(
+            observation, history[-1] if history else None
+        )
+        stalled = (
+            previous_outcome.status in {"failure", "ongoing", "unknown"}
+            and not state_changed
+        )
         penalty = min(1.0, 0.25 * repeats + (0.5 if stalled else 0.0))
         reason = f"recent repeats={repeats}; state_changed={state_changed}; previous_outcome={previous_outcome.status}"
-        return EvaluatorEvidence(self.name, -penalty, max(0.5, previous_outcome.confidence), self.reliability, reason)
+        return EvaluatorEvidence(
+            self.name,
+            -penalty,
+            max(0.5, previous_outcome.confidence),
+            self.reliability,
+            reason,
+        )
 
 
 class EvaluationFusion:
@@ -233,16 +274,28 @@ class EvaluationFusion:
         self.conflict_threshold = conflict_threshold
 
     def fuse(self, evaluations: list[EvaluatorEvidence]) -> tuple[float, float, bool]:
-        weighted = [(entry, entry.confidence * entry.reliability) for entry in evaluations]
+        weighted = [
+            (entry, entry.confidence * entry.reliability) for entry in evaluations
+        ]
         denominator = sum(weight for _, weight in weighted)
         if denominator == 0:
             score = 0.0
             confidence = 0.0
         else:
-            score = sum(entry.score * weight for entry, weight in weighted) / denominator
-            confidence = denominator / max(1.0, sum(entry.reliability for entry in evaluations))
-        positive = any(entry.score >= self.conflict_threshold and entry.confidence > 0 for entry in evaluations)
-        negative = any(entry.score <= -self.conflict_threshold and entry.confidence > 0 for entry in evaluations)
+            score = (
+                sum(entry.score * weight for entry, weight in weighted) / denominator
+            )
+            confidence = denominator / max(
+                1.0, sum(entry.reliability for entry in evaluations)
+            )
+        positive = any(
+            entry.score >= self.conflict_threshold and entry.confidence > 0
+            for entry in evaluations
+        )
+        negative = any(
+            entry.score <= -self.conflict_threshold and entry.confidence > 0
+            for entry in evaluations
+        )
         return round(score, 6), round(min(1.0, confidence), 6), positive and negative
 
 
@@ -292,7 +345,6 @@ class CandidateKnowledgeRetriever:
 #   処理: [候補ID・許可状態・評価根拠を同じ画面観測IDに結び、結果と不確実性をJSON形式へ変換できる状態で返す]
 # }
 class DecisionContextBuilder:
-
     # {
     #   責務: [__init__: 使用する評価器、評価統合規則、履歴件数、参考知識件数を設定する]
     #   引数: [knowledge_store: 候補に関連する説明を検索する保存先, evaluators: 点数と理由を出す評価器一覧, fusion: 評価点・確信度・意見不一致を統合する処理, history_limit: 参照する履歴の最大件数, knowledge_limit: 候補ごとに返す知識の最大件数]
@@ -310,7 +362,11 @@ class DecisionContextBuilder:
     ) -> None:
         if history_limit < 0:
             raise ValueError("history limit must not be negative")
-        self.evaluators = list(evaluators) if evaluators is not None else [SafetyContextEvaluator(), RepetitionContextEvaluator()]
+        self.evaluators = (
+            list(evaluators)
+            if evaluators is not None
+            else [SafetyContextEvaluator(), RepetitionContextEvaluator()]
+        )
         self.fusion = fusion or EvaluationFusion()
         self.history_limit = history_limit
         self.knowledge = CandidateKnowledgeRetriever(knowledge_store, knowledge_limit)
@@ -332,9 +388,13 @@ class DecisionContextBuilder:
         current_goal: str = "",
         short_term_goal: str = "",
     ) -> DecisionContext:
-        history = [entry for entry in recent_history or [] if _is_action_history_entry(entry)]
+        history = [
+            entry for entry in recent_history or [] if _is_action_history_entry(entry)
+        ]
         history = history[-self.history_limit :] if self.history_limit else []
-        outcome = previous_outcome or OutcomeAssessment("unknown", 0.0, "no previous action")
+        outcome = previous_outcome or OutcomeAssessment(
+            "unknown", 0.0, "no previous action"
+        )
         allowed_ids = {candidate.action_id for candidate in allowed_candidates}
         batch_safety_evidence = {
             id(evaluator): evaluator.evaluate_batch(observation, candidates)
@@ -390,7 +450,14 @@ class DecisionContextBuilder:
             _state_summary(observation),
             tuple(candidate_contexts),
             tuple(candidate.action_id for candidate in allowed_candidates),
-            {"status": outcome.status, "confidence": outcome.confidence, "reason": outcome.reason, "state_changed": _state_changed_from_history(observation, history[-1] if history else None)},
+            {
+                "status": outcome.status,
+                "confidence": outcome.confidence,
+                "reason": outcome.reason,
+                "state_changed": _state_changed_from_history(
+                    observation, history[-1] if history else None
+                ),
+            },
             tuple(_history_summary(entry) for entry in history),
             {"current_goal": current_goal, "short_term_goal": short_term_goal},
             tuple(global_uncertainty),
@@ -403,13 +470,14 @@ class DecisionContextBuilder:
 #   処理: [拒否や実行前停止も監査履歴には残し、次の選択へ渡す履歴からは拒否・実行前停止を除く]
 # }
 class DecisionTraceStore:
-
     # {
     #   責務: [__init__: 旧trace JSONの保存先と任意のSession Journal adapterを保持する]
     #   引数: [path: 旧trace JSONの場所, event_adapter: 指定時に新しいtrace eventを追記するJournal adapter]
     #   戻り値: [なし。保存先をインスタンスへ保持する]
     # }
-    def __init__(self, path: Path, event_adapter: LegacyEventAdapter | None = None) -> None:
+    def __init__(
+        self, path: Path, event_adapter: LegacyEventAdapter | None = None
+    ) -> None:
         self.path = path
         self.event_adapter = event_adapter
 
@@ -459,7 +527,7 @@ class DecisionTraceStore:
                 if candidate.action_id == decision.action_id
                 for evidence in candidate.knowledge
             ],
-            "context": context.to_dict(),
+            "context": context.to_dict(include_knowledge=True),
         }
         if reliability is not None:
             entry["reliability"] = reliability
@@ -475,7 +543,9 @@ class DecisionTraceStore:
     #   引数: [snapshot_id: 判断時点の画面snapshot ID, action_id: 停止した候補ID, reason: 実行へ進まなかった理由]
     #   戻り値: [bool: 対象traceを更新した場合True。対象判断がなければFalse]
     # }
-    def mark_action_not_executed(self, snapshot_id: str, action_id: str, reason: str) -> bool:
+    def mark_action_not_executed(
+        self, snapshot_id: str, action_id: str, reason: str
+    ) -> bool:
         entries = self._read()
         for entry in reversed(entries):
             if (
@@ -497,7 +567,9 @@ class DecisionTraceStore:
     #   引数: [context: 拒否判定に使った画面・候補・目標, reliability: 拒否状態と検査根拠]
     #   戻り値: [なし。保存に失敗した場合は保存例外を呼び出し元へ伝える]
     # }
-    def append_rejection(self, context: DecisionContext, reliability: dict[str, Any]) -> None:
+    def append_rejection(
+        self, context: DecisionContext, reliability: dict[str, Any]
+    ) -> None:
         rejection = {
             "snapshot_id": context.snapshot_id,
             "screen_id": context.state.get("screen_id", ""),
@@ -505,7 +577,7 @@ class DecisionTraceStore:
             "action_id": reliability.get("action_id", ""),
             "decision": None,
             "reliability": reliability,
-            "context": context.to_dict(),
+            "context": context.to_dict(include_knowledge=True),
         }
         self._append_entry(rejection)
 
@@ -569,7 +641,9 @@ class DecisionTraceStore:
     #     bool: 一致する実行判断を更新できた場合True。該当履歴がない場合False
     #   ]
     # }
-    def record_action_outcome(self, snapshot_id: str, action_id: str, outcome: dict[str, Any]) -> bool:
+    def record_action_outcome(
+        self, snapshot_id: str, action_id: str, outcome: dict[str, Any]
+    ) -> bool:
         entries = self._read()
         for entry in reversed(entries):
             if (
@@ -598,17 +672,17 @@ class DecisionTraceStore:
 
     # {
     #   責務: [
-#     recent_actions: 判断として確定し、拒否または実行前停止で取り消されていない直近の操作履歴だけを返す
+    #     recent_actions: 判断として確定し、拒否または実行前停止で取り消されていない直近の操作履歴だけを返す
     #   ]
     #   処理: [
-#     1: 信頼性検査で拒否された記録と、入力送信前に停止した記録を履歴全件から除く
+    #     1: 信頼性検査で拒否された記録と、入力送信前に停止した記録を履歴全件から除く
     #     2: 残った記録の末尾から指定件数を返す
     #   ]
     #   引数: [
     #     limit: 返す操作履歴の最大件数。0なら空の一覧を返す
     #   ]
     #   戻り値: [
-#     list[dict[str, Any]]: 古い順に並んだ、次の候補選択で実際の過去操作として参照する記録
+    #     list[dict[str, Any]]: 古い順に並んだ、次の候補選択で実際の過去操作として参照する記録
     #   ]
     #   エラー: [
     #     ValueError: limitが負数の場合。履歴件数として負数を指定できない
@@ -619,7 +693,9 @@ class DecisionTraceStore:
             raise ValueError("history limit must not be negative")
         if limit == 0:
             return []
-        action_entries = [entry for entry in self._read() if _is_action_history_entry(entry)]
+        action_entries = [
+            entry for entry in self._read() if _is_action_history_entry(entry)
+        ]
         return action_entries[-limit:]
 
     # {
@@ -648,7 +724,10 @@ class DecisionTraceStore:
         for record in records:
             patch = record.get("trace_update")
             if isinstance(patch, dict):
-                key = (str(record.get("snapshot_id", "")), str(record.get("action_id", "")))
+                key = (
+                    str(record.get("snapshot_id", "")),
+                    str(record.get("action_id", "")),
+                )
                 target = indexed_entries.get(key)
                 if target is not None:
                     target.update(patch)
@@ -671,6 +750,8 @@ class DecisionTraceStore:
             staged_write.publish()
         finally:
             staged_write.discard()
+
+
 def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     features = observation.features
     visible_text: list[str] = []
@@ -699,10 +780,20 @@ def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
     action_outcome = entry.get("action_outcome")
     if isinstance(action_outcome, dict):
         outcome_status = str(action_outcome.get("status", "unknown"))
-        state_changed = bool(action_outcome.get("state_changed", outcome_status == "changed"))
+        state_changed = bool(
+            action_outcome.get("state_changed", outcome_status == "changed")
+        )
     else:
-        outcome_status = str(previous.get("status", "unknown")) if isinstance(previous, dict) else "unknown"
-        state_changed = bool(previous.get("state_changed", False)) if isinstance(previous, dict) else False
+        outcome_status = (
+            str(previous.get("status", "unknown"))
+            if isinstance(previous, dict)
+            else "unknown"
+        )
+        state_changed = (
+            bool(previous.get("state_changed", False))
+            if isinstance(previous, dict)
+            else False
+        )
     return {
         "snapshot_id": str(entry.get("snapshot_id", "")),
         "screen_id": str(entry.get("screen_id", "")),
@@ -740,7 +831,9 @@ def _is_action_history_entry(entry: dict[str, Any]) -> bool:
     return str(reliability.get("status", "")).upper() != "REJECT"
 
 
-def _state_changed_from_history(observation: ScreenObservation, previous: dict[str, Any] | None) -> bool:
+def _state_changed_from_history(
+    observation: ScreenObservation, previous: dict[str, Any] | None
+) -> bool:
     if previous is None:
         return False
     current_signature = str(observation.features.get("signature", ""))
@@ -749,8 +842,14 @@ def _state_changed_from_history(observation: ScreenObservation, previous: dict[s
         return current_signature != previous_signature
     current_hash = str(observation.features.get("perceptual_hash", ""))
     previous_context = previous.get("context", {})
-    previous_state = previous_context.get("state", {}) if isinstance(previous_context, dict) else {}
-    previous_hash = str(previous_state.get("perceptual_hash", "")) if isinstance(previous_state, dict) else ""
+    previous_state = (
+        previous_context.get("state", {}) if isinstance(previous_context, dict) else {}
+    )
+    previous_hash = (
+        str(previous_state.get("perceptual_hash", ""))
+        if isinstance(previous_state, dict)
+        else ""
+    )
     if current_hash and previous_hash:
         return current_hash != previous_hash
     return str(previous.get("screen_id", "")) != observation.screen_id

@@ -224,6 +224,8 @@ plugin_manifest_schema          1
 
 - Issue #530: 検証済みExperienceからcount・Beta推定・EWMA・遷移頻度と数値hintを増分集計し、昇格前Knowledge候補を生成するBuilderを追加しました。unknownとno-effect、実入力とdry-runを分け、source/操作世代のwatermarkで再投入・相関frameを排除します。元Snapshotを変更せず、scope・保持期限・資源上限・privacyの条件を保持します。[設計と計測](architecture/knowledge_builder.md)を追加しました。Runtime更新・判断反映・昇格は#422/#531/#532で扱います。
 
+- Issue #531: scope・期限を照合したKnowledgeをstep固定のsoft evidenceとしてBaseline/Engine/Pipelineへ接続します。候補許可・Safety・認識最低値を変えず、priorと重みhintで判断が変化します。unknownはno-effectに変換しません。モデル公開は明示opt-inの4KiB圧縮文脈、ローカルTraceは版・hash・出所を保持します。[設計・残件・検証](architecture/knowledge_feature_adapter.md)を追加しました。
+
 - Issue #168: JSONL Experience Readerの任意Step/検索index、snapshot/delta再構築、schema v0移行、破損tail回復、checkpoint検証とArtifact参照検査を追加。
 
 - Issue #167: SHA-256 content-addressed Artifact Store、atomic publication、artifact type metadata schema、dedup/integrity/orphan検査とlocal benchmarkを追加。

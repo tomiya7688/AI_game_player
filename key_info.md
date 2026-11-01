@@ -2,6 +2,8 @@
 
 ## できること
 
+- 任意構成したKnowledgeFeatureAdapterで、scopeと期限が一致する版を一stepへ固定し、Baselineのsoft prior・重みへ反映できます。モデル文脈への追加は既定OFFです。[Knowledge投影の説明](doc/architecture/knowledge_feature_adapter.md)を参照してください。
+
 - 起動済みWindowsウィンドウの取得・選択・範囲キャプチャ
 - 画面取得ボタンと連続実行は同じframe producerから画面を取得し、重複したWindows captureを行いません。
 - 追加consumerは同じframe列を購読できます。最新frame方式は未処理frameを新しいframeへ置き換え、順序保持方式は設定上限まで到着順を維持して、満杯時は新しいframeを破棄します。この購読契約自体は録画機能を実装しません。

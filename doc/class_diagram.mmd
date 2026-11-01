@@ -181,6 +181,7 @@ classDiagram
         +decide()
         +choose_context()
         +_read_snapshot()
+        +_step_weights()
     }
     class BrightRegionDetector {
         +__init__()
@@ -713,6 +714,19 @@ classDiagram
     class KnowledgeBuilderPolicy {
         +__post_init__()
         +fingerprint()
+    }
+    class KnowledgeFeatureAdapter {
+        +__init__()
+        +apply()
+        +project()
+        +_make_projection()
+        +_fallback()
+    }
+    class KnowledgeProjection {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_model_dict()
     }
     class KnowledgeScope {
         +__post_init__()

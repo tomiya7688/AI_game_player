@@ -15,8 +15,13 @@ from ai_game_player.decision_verifier import ReliabilityStatus
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.event_journal import EventJournal
-from ai_game_player.fail_safe_runtime import FailSafeConfig, FailSafeRuntime, FailSafeState
+from ai_game_player.fail_safe_runtime import (
+    FailSafeConfig,
+    FailSafeRuntime,
+    FailSafeState,
+)
 from ai_game_player.journal_adapters import LegacyEventAdapter
+from ai_game_player.knowledge_feature_adapter import KnowledgeFeatureAdapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
@@ -65,6 +70,7 @@ class DecisionPipeline:
     #     runtime_log: application log。Journal指定時はeventを同じSessionへ複製する
     #     migrate_legacy: trueなら旧history・trace・execution・safety記録をJournalへ移行する
     #     migrate_runtime_log: trueなら旧RuntimeLog JSONLをJournalへ移行する
+    #     knowledge_adapter: 任意の選択済みKnowledgeをstepへ固定する投影器。Safetyや実入力の許可は変更しない
     #   ]
     #   戻り値: []
     # }
@@ -85,11 +91,15 @@ class DecisionPipeline:
         fail_safe_runtime: FailSafeRuntime | None = None,
         fail_safe_config: FailSafeConfig | None = None,
         external_watchdog: bool = True,
-        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        automated_cursor_position_callback: Callable[
+            [tuple[int, int] | None, bool], None
+        ]
+        | None = None,
         event_journal: EventJournal | None = None,
         runtime_log: RuntimeLog | None = None,
         migrate_legacy: bool = True,
         migrate_runtime_log: bool = True,
+        knowledge_adapter: KnowledgeFeatureAdapter | None = None,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
@@ -105,6 +115,7 @@ class DecisionPipeline:
             provider,
             event_journal=event_journal,
             migrate_legacy=migrate_legacy,
+            knowledge_adapter=knowledge_adapter,
         )
         self.controller = controller or RunController()
         self._seen_rearm_token = 0
@@ -117,7 +128,8 @@ class DecisionPipeline:
                 "execution.result",
                 migrate_legacy=migrate_legacy,
             )
-            if event_journal is not None else None,
+            if event_journal is not None
+            else None,
         )
         self.safety_evaluator = safety_evaluator or ActionSafetyEvaluator()
         safety_audit_path = game_directory / "action_safety.json"
@@ -129,7 +141,8 @@ class DecisionPipeline:
                 "safety.audit",
                 migrate_legacy=migrate_legacy,
             )
-            if event_journal is not None else None,
+            if event_journal is not None
+            else None,
         )
         self.last_safety_result: ActionSafetyResult | None = None
         if self.event_journal is not None and self.runtime_log is not None:
@@ -155,8 +168,13 @@ class DecisionPipeline:
                 automated_cursor_position_callback=automated_cursor_position_callback,
             )
         except Exception:
-            if self._runtime_log_attachment_token is not None and self.runtime_log is not None:
-                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
+            if (
+                self._runtime_log_attachment_token is not None
+                and self.runtime_log is not None
+            ):
+                self.runtime_log.detach_event_journal(
+                    self._runtime_log_attachment_token
+                )
                 self._runtime_log_detached = True
             raise
 
@@ -177,13 +195,24 @@ class DecisionPipeline:
     #   戻り値: [ScreenObservationと統合済みActionCandidate一覧の組]
     #   エラー: [source、OCR検出、候補変換の処理で発生した例外を呼び出し元へ伝える]
     # }
-    def _read_candidates(self, ocr_texts: list[dict[str, object]] | None = None) -> tuple[ScreenObservation, list[ActionCandidate]]:
+    def _read_candidates(
+        self, ocr_texts: list[dict[str, object]] | None = None
+    ) -> tuple[ScreenObservation, list[ActionCandidate]]:
         observation, configured = self.source.read()
         runtime = self.executor.fail_safe_runtime
         if runtime is not None and runtime.state == FailSafeState.ACTIVE:
             self.record_observation()
-        detected = self.ocr.detect(observation, ocr_texts if ocr_texts is not None else observation.features.get("ocr_candidates", []))
-        image = [ActionCandidate.from_dict(value) for value in observation.features.get("image_candidates", []) if isinstance(value, dict)]
+        detected = self.ocr.detect(
+            observation,
+            ocr_texts
+            if ocr_texts is not None
+            else observation.features.get("ocr_candidates", []),
+        )
+        image = [
+            ActionCandidate.from_dict(value)
+            for value in observation.features.get("image_candidates", [])
+            if isinstance(value, dict)
+        ]
         return observation, self.merger.merge(configured, detected, image)
 
     # {
@@ -205,8 +234,12 @@ class DecisionPipeline:
             candidates,
             purpose,
             personality,
-            before_provider=lambda: self.controller.ensure_running(expected_rearm_token),
-            commit_guard=lambda commit: self.controller.run_if_current(expected_rearm_token, commit),
+            before_provider=lambda: self.controller.ensure_running(
+                expected_rearm_token
+            ),
+            commit_guard=lambda commit: self.controller.run_if_current(
+                expected_rearm_token, commit
+            ),
         )
         return decision, candidates, observation
 
@@ -224,7 +257,11 @@ class DecisionPipeline:
         personality: str = "",
         expected_rearm_token: int | None = None,
     ) -> ActionDecision:
-        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        run_token = (
+            self.controller.rearm_token
+            if expected_rearm_token is None
+            else expected_rearm_token
+        )
         self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
         decision, _, _ = self._decide(ocr_texts, purpose, personality, run_token)
@@ -245,7 +282,11 @@ class DecisionPipeline:
         personality: str = "",
         expected_rearm_token: int | None = None,
     ) -> ExecutionResult:
-        run_token = self.controller.rearm_token if expected_rearm_token is None else expected_rearm_token
+        run_token = (
+            self.controller.rearm_token
+            if expected_rearm_token is None
+            else expected_rearm_token
+        )
         self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
         observation, candidates = self._read_candidates(ocr_texts)
@@ -255,27 +296,49 @@ class DecisionPipeline:
             purpose,
             personality,
             before_provider=lambda: self.controller.ensure_running(run_token),
-            commit_guard=lambda commit: self.controller.run_if_current(run_token, commit),
+            commit_guard=lambda commit: self.controller.run_if_current(
+                run_token, commit
+            ),
         )
         self.controller.ensure_running(run_token)
         reliability_result = self.engine.last_reliability_result
-        reliability_record = reliability_result.to_dict() if reliability_result is not None else None
-        safety_context, snapshot_id = self._safety_context(selected.action_id, purpose, reliability_record)
-        assessment = self.safety_evaluator.evaluate(observation, selected, safety_context)
+        reliability_record = (
+            reliability_result.to_dict() if reliability_result is not None else None
+        )
+        safety_context, snapshot_id = self._safety_context(
+            selected.action_id, purpose, reliability_record
+        )
+        assessment = self.safety_evaluator.evaluate(
+            observation, selected, safety_context
+        )
         self.last_safety_result = assessment
-        self.safety_audit.append_evaluation(assessment, snapshot_id=snapshot_id, goal=purpose)
+        self.safety_audit.append_evaluation(
+            assessment, snapshot_id=snapshot_id, goal=purpose
+        )
         if assessment.status == SafetyStatus.BLOCK:
-            self.engine.mark_last_decision_not_executed(f"Action Safety Evaluator blocked action: {selected.action_id}")
-            raise RuntimeError(f"Action Safety Evaluator blocked action: {selected.action_id}")
+            self.engine.mark_last_decision_not_executed(
+                f"Action Safety Evaluator blocked action: {selected.action_id}"
+            )
+            raise RuntimeError(
+                f"Action Safety Evaluator blocked action: {selected.action_id}"
+            )
         if assessment.requires_verification and not self.executor.dry_run:
             requests = ", ".join(assessment.verification_requests)
-            self.engine.mark_last_decision_not_executed(f"Action Safety verification required: {requests}")
-            raise RuntimeError(f"Action Safety Evaluator requires verification before live input: {requests}")
+            self.engine.mark_last_decision_not_executed(
+                f"Action Safety verification required: {requests}"
+            )
+            raise RuntimeError(
+                f"Action Safety Evaluator requires verification before live input: {requests}"
+            )
         if not self.executor.dry_run and reliability_result is None:
             raise RuntimeError(
                 "Decision Verifier did not produce a reliability result; live input is blocked"
             )
-        if not self.executor.dry_run and reliability_result is not None and reliability_result.status != ReliabilityStatus.TRUST:
+        if (
+            not self.executor.dry_run
+            and reliability_result is not None
+            and reliability_result.status != ReliabilityStatus.TRUST
+        ):
             self.engine.mark_last_decision_not_executed(
                 f"Decision Reliability requires verification: {reliability_result.status.value}"
             )
@@ -306,12 +369,19 @@ class DecisionPipeline:
     def load_execution_history(self) -> list[ExecutionResult]:
         return self.execution_history.load()
 
-    def record_safety_outcome(self, status: str, confidence: float, evidence: str = "") -> None:
+    def record_safety_outcome(
+        self, status: str, confidence: float, evidence: str = ""
+    ) -> None:
         if self.last_safety_result is None:
             raise RuntimeError("no action safety assessment is available")
-        self.safety_audit.append_outcome(self.last_safety_result.assessment_id, status, confidence, evidence)
+        self.safety_audit.append_outcome(
+            self.last_safety_result.assessment_id, status, confidence, evidence
+        )
         normalized = status.casefold()
-        changed = normalized in {"ongoing", "success"} or "screen signature changed" in evidence.casefold()
+        changed = (
+            normalized in {"ongoing", "success"}
+            or "screen signature changed" in evidence.casefold()
+        )
         self.executor.record_progress(changed)
 
     def trigger_emergency_stop(self, reason: str = "emergency stop requested") -> None:
@@ -340,7 +410,9 @@ class DecisionPipeline:
         except Exception as error:
             close_errors.append(error)
         if close_errors:
-            raise RuntimeError("Pipeline cleanup failed: " + "; ".join(map(str, close_errors))) from close_errors[0]
+            raise RuntimeError(
+                "Pipeline cleanup failed: " + "; ".join(map(str, close_errors))
+            ) from close_errors[0]
 
     # {
     #   責務: [close_execution_resources: 実入力executorを停止し失敗をJournalへ記録する]
@@ -396,7 +468,9 @@ class DecisionPipeline:
                 self._event_journal_closed = True
         if not self._runtime_log_detached and self.runtime_log is not None:
             if self._runtime_log_attachment_token is not None:
-                self.runtime_log.detach_event_journal(self._runtime_log_attachment_token)
+                self.runtime_log.detach_event_journal(
+                    self._runtime_log_attachment_token
+                )
             self._runtime_log_detached = True
         if close_error is not None:
             raise close_error
@@ -464,12 +538,16 @@ class DecisionPipeline:
     ) -> tuple[SafetyEvaluationContext, str]:
         recent = self.engine.trace.recent(1)
         if not recent:
-            return SafetyEvaluationContext(current_goal=purpose, decision_reliability=decision_reliability), ""
+            return SafetyEvaluationContext(
+                current_goal=purpose, decision_reliability=decision_reliability
+            ), ""
         entry = recent[-1]
         raw_context = entry.get("context", {})
         if not isinstance(raw_context, dict):
             return (
-                SafetyEvaluationContext(current_goal=purpose, decision_reliability=decision_reliability),
+                SafetyEvaluationContext(
+                    current_goal=purpose, decision_reliability=decision_reliability
+                ),
                 str(entry.get("snapshot_id", "")),
             )
         utility_score = None
@@ -477,14 +555,23 @@ class DecisionPipeline:
         candidates = raw_context.get("candidates", [])
         if isinstance(candidates, list):
             for candidate in candidates:
-                if not isinstance(candidate, dict) or str(candidate.get("action_id", "")) != action_id:
+                if (
+                    not isinstance(candidate, dict)
+                    or str(candidate.get("action_id", "")) != action_id
+                ):
                     continue
                 evaluation = candidate.get("evaluation", {})
                 if isinstance(evaluation, dict):
                     score = evaluation.get("score")
                     confidence = evaluation.get("confidence")
-                    utility_score = float(score) if isinstance(score, (int, float)) else None
-                    utility_confidence = float(confidence) if isinstance(confidence, (int, float)) else None
+                    utility_score = (
+                        float(score) if isinstance(score, (int, float)) else None
+                    )
+                    utility_confidence = (
+                        float(confidence)
+                        if isinstance(confidence, (int, float))
+                        else None
+                    )
                 break
         return (
             SafetyEvaluationContext(
