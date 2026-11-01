@@ -97,7 +97,7 @@ sampleが10.846/11.347µsでした。環境依存の観測値で、回帰閾値�
 |---|---|
 | Core | 単体試験、20,050ケースのpinned JS parity、CPU/heap測定 |
 | Runtime | 未接続。#478、#565、#566、#567で仮説・探索・情報価値・Decision接続を扱う |
-| Real-play | 別のChromium試験で下記を確認。Windowsの実入力試験は未確認 |
+| Real-play | Chromiumで3ゲーム404操作の遷移を照合。Windows CIで下記の600秒campaignを確認 |
 
 未達のRuntimeと実プレイをCoreの成功で代用しません。多ゲーム対応の成立、FPSのリアルタイム
 性能、未知規則の学習をこのモデル一つで達成したとは扱いません。
@@ -134,8 +134,16 @@ arrow keyを送ります。予測モデルは入力を選ばず、操作後の�
 
 全404操作で次盤面が予測分布内にあり、3試行ともStop後の追加入力を拒否しました。
 結果は`build/transition-2048/screen/report.json`と同じフォルダーの最終画面です。
-WindowsのWGC、Win32入力、独立watchdog、10分/30分campaignの達成証拠にはなりません。
+このChromium試験だけではWindowsのWGC、Win32入力、独立watchdog、10分/30分campaignの達成証拠にはなりません。
 既存の方向巡回を使ったため、攻略の強さが改善したという比較結果でもありません。
+
+同じ実装head `09d05b81588cb352b57fe9de348b2fb55c13ab15` のWindows CI
+[language-ci 41305360049](https://github.com/tomiya7688/AI_game_player/actions/runs/41305360049)
+では、601.037秒の実入力campaignが成功しました。306操作、2 episode、再起動1回、
+recovery 0回、最大tile 256、終了理由`duration_reached`、`live_input_verified=true`です。
+成果物`kadoka-windows-e2e-trace`（artifact 13082503657）のreportで確認しています。
+これは既存の巡回方策で継続実行できた証拠で、遷移モデルによる攻略改善や30分profileの
+達成を示しません。新しいheadのCIは別に確認します。
 
 ## 汎用経路を別ゲームで試した結果
 
