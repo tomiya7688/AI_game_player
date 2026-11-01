@@ -107,6 +107,7 @@ plugin_manifest_schema          1
 
 - Issue #649 / PR #651: Native Safety C ABIで押下時間と上限のNaN・正負Infinityを既存のHOLD_TIMEOUT理由で拒否し、有限値への回復を回帰確認しました。構造体ABI・バージョンは維持し、WGCの所有権・メモリ寿命の検証は#652へ残します。
 - Issue #653 / PR #655: SafetyGuardの時間設定は有限の正数、回数設定はboolを除く正の整数に限定し、wait文字列と押下時間の非有限値を拒否します。既定の許可・Stop・FailSafeを保全し、元authorの変更へ現mainと生成索引を統合しました。実OS入力での全保証とは区別します。
+- Issue #669: Python互換FailSafeConfigの5時間値を有限正数、queue上限を正整数へ限定。外部/直接commandの非有限・非数値時刻と、不正観測・watchdog lease時刻を拒否し、NaNによる期限迂回を入力なし回帰で修正しました。既存deadline・Stop/rearm・Native ABIを保ち、時計前提とRust安全停止#667との境界をFailSafeRuntime説明書へ記録しました。
 
 - Issue #491: 既存6軸PrimitiveEvaluatorを実Session/Context/Trace/Baselineへ接続しました。前実操作のreceipt/Outcomeと候補hypotheticalを分離し、未計測はavailable=False/confidence0、欠損coverageを保持したMCDAと共通NumericQualityでsoft順位付けします。Scope/goal/frameへ束縛したtyped profile/数値仮説だけを明示注入し、pixel/Model主張を意味的進捗へ転記しません。Safety/allowedは維持し、local監査とModel opt-in要約、suite digest・p50/p95を追加しました。[契約・根拠・未達](architecture/runtime_evaluation.md)。
 
