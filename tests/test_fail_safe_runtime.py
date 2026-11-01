@@ -1,6 +1,7 @@
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from ai_game_player.action_executor import ActionExecutor
@@ -15,7 +16,12 @@ from ai_game_player.fail_safe_runtime import (
     run_external_watchdog,
 )
 from ai_game_player.models import ActionCandidate
-from ai_game_player.safety_guard import SafetyGuard, SafetyGuardConfig, TargetState
+from ai_game_player.safety_guard import (
+    EmergencyStop,
+    SafetyGuard,
+    SafetyGuardConfig,
+    TargetState,
+)
 
 
 class FakeClock:
@@ -57,7 +63,12 @@ class FakeExecutor:
         return type(
             "Result",
             (),
-            {"action_id": candidate.action_id, "executed": True, "mode": "fake", "detail": "ok"},
+            {
+                "action_id": candidate.action_id,
+                "executed": True,
+                "mode": "fake",
+                "detail": "ok",
+            },
         )()
 
     def release_all(self) -> None:
@@ -65,7 +76,9 @@ class FakeExecutor:
 
 
 class FailSafeRuntimeTest(unittest.TestCase):
-    def make_runtime(self, directory: str, clock: FakeClock | None = None, **kwargs) -> FailSafeRuntime:
+    def make_runtime(
+        self, directory: str, clock: FakeClock | None = None, **kwargs
+    ) -> FailSafeRuntime:
         active_clock = clock or FakeClock()
         config = kwargs.pop(
             "config",
@@ -85,6 +98,126 @@ class FailSafeRuntimeTest(unittest.TestCase):
             external_watchdog=False,
             **kwargs,
         )
+
+    def test_fresh_initial_lease_starts_once_and_records_observation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = self.make_runtime(directory)
+            try:
+                epoch = runtime.initialize(target_pid=4242, target_handle=123)
+                self.assertTrue(epoch)
+                self.assertEqual(runtime.state, FailSafeState.ACTIVE)
+                self.assertEqual(runtime.reason, "initial_lease")
+                self.assertTrue(runtime.record_observation())
+                with self.assertRaises(RuntimeError):
+                    runtime.initialize(target_pid=4242, target_handle=123)
+                runtime.rearm(target_pid=4242, target_handle=123)
+                self.assertEqual(runtime.reason, "explicit_rearm")
+            finally:
+                runtime.close()
+
+    def test_initial_lease_cannot_resume_stopped_recovery_or_closed_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for state in ("stop", "recovery", "closed"):
+                with self.subTest(state=state):
+                    runtime = self.make_runtime(str(Path(directory) / state))
+                    try:
+                        if state == "stop":
+                            runtime.emergency_stop("initial Stop")
+                        elif state == "recovery":
+                            runtime.recovery_required("initial recovery")
+                        else:
+                            runtime.close()
+                        before = (runtime.state, runtime.reason, runtime.epoch)
+                        with self.assertRaises(RuntimeError):
+                            runtime.initialize(target_pid=4242, target_handle=123)
+                        self.assertEqual(
+                            (runtime.state, runtime.reason, runtime.epoch), before
+                        )
+                        runtime.rearm(target_pid=4242, target_handle=123)
+                        self.assertEqual(runtime.state, FailSafeState.ACTIVE)
+                    finally:
+                        runtime.close()
+
+    def test_initial_lease_is_one_time_and_honors_persisted_stop(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = self.make_runtime(directory)
+            try:
+                persisted = runtime.lease_store.read()
+                persisted["state"] = FailSafeState.EMERGENCY_STOP.value
+                persisted["reason"] = "external initial Stop"
+                runtime.lease_store.write(persisted)
+                with self.assertRaises(RuntimeError):
+                    runtime.initialize(target_pid=4242, target_handle=123)
+                self.assertEqual(
+                    runtime.lease_store.read()["state"],
+                    FailSafeState.EMERGENCY_STOP.value,
+                )
+                runtime.rearm(target_pid=4242, target_handle=123)
+                runtime.safe_idle()
+                with self.assertRaises(RuntimeError):
+                    runtime.initialize(target_pid=4242, target_handle=123)
+            finally:
+                runtime.close()
+
+    def test_stop_from_initial_release_callback_cannot_be_overwritten(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = self.make_runtime(directory)
+
+            def stop_once():
+                runtime.release_callback = None
+                runtime.emergency_stop("during initial arm IO")
+
+            runtime.release_callback = stop_once
+            try:
+                with self.assertRaises(RuntimeError):
+                    runtime.initialize(target_pid=4242, target_handle=123)
+                self.assertEqual(runtime.state, FailSafeState.EMERGENCY_STOP)
+                self.assertEqual(runtime.reason, "during initial arm IO")
+            finally:
+                runtime.close()
+
+    def test_executor_initial_lease_preserves_guard_session_budget(self):
+        clock = FakeClock()
+        guard = SafetyGuard(
+            SafetyGuardConfig(
+                require_target=False,
+                require_foreground=False,
+                max_session_seconds=5,
+            ),
+            emergency_stop=EmergencyStop(),
+            clock=clock,
+        )
+        with patch(
+            "ai_game_player.safety_guard._DEFAULT_EMERGENCY_STOP", EmergencyStop()
+        ):
+            executor = ActionExecutor(dry_run=True, safety_guard=guard)
+            clock.advance(6)
+            executor.initialize_safety(lambda: None)
+            decision = guard.check(
+                ActionCandidate("test", "click", "test", confidence=1, x=1, y=1)
+            )
+            self.assertFalse(decision.allowed)
+            self.assertEqual(decision.code, "session_time_limit")
+            executor.close()
+
+    def test_executor_initial_lease_preserves_guard_action_budget(self):
+        guard = SafetyGuard(
+            SafetyGuardConfig(
+                require_target=False, require_foreground=False, max_session_actions=1
+            ),
+            emergency_stop=EmergencyStop(),
+        )
+        candidate = ActionCandidate("test", "click", "test", confidence=1, x=1, y=1)
+        self.assertTrue(guard.check(candidate).allowed)
+        with patch(
+            "ai_game_player.safety_guard._DEFAULT_EMERGENCY_STOP", EmergencyStop()
+        ):
+            executor = ActionExecutor(dry_run=True, safety_guard=guard)
+            try:
+                executor.initialize_safety(lambda: None)
+                self.assertEqual(guard.check(candidate).code, "session_action_limit")
+            finally:
+                executor.close()
 
     def arm_and_observe(self, runtime: FailSafeRuntime) -> None:
         runtime.rearm(target_pid=4242, target_handle=99, session_id="session")
@@ -123,10 +256,14 @@ class FailSafeRuntimeTest(unittest.TestCase):
             runtime = self.make_runtime(directory)
             self.arm_and_observe(runtime)
 
-            first = runtime.make_command("same-candidate", target_pid=4242, target_handle=99)
+            first = runtime.make_command(
+                "same-candidate", target_pid=4242, target_handle=99
+            )
             self.assertTrue(runtime.check_command(first).allowed)
             runtime.complete_command(first)
-            second = runtime.make_command("same-candidate", target_pid=4242, target_handle=99)
+            second = runtime.make_command(
+                "same-candidate", target_pid=4242, target_handle=99
+            )
             self.assertTrue(runtime.check_command(second).allowed)
             runtime.complete_command(second)
 
@@ -144,13 +281,19 @@ class FailSafeRuntimeTest(unittest.TestCase):
 
             stale_epoch = FailSafeCommand(**{**current.to_dict(), "epoch": "old"})
             self.assertEqual(runtime.check_command(stale_epoch).code, "stale_epoch")
-            stale_session = FailSafeCommand(**{**current.to_dict(), "session_id": "old"})
+            stale_session = FailSafeCommand(
+                **{**current.to_dict(), "session_id": "old"}
+            )
             self.assertEqual(runtime.check_command(stale_session).code, "stale_session")
 
             old = FailSafeCommand(**{**current.to_dict(), "issued_at": clock() - 1.0})
             self.assertEqual(runtime.check_command(old).code, "stale_command")
-            stale_observation = FailSafeCommand(**{**current.to_dict(), "observation_at": clock() - 0.1})
-            self.assertEqual(runtime.check_command(stale_observation).code, "stale_observation")
+            stale_observation = FailSafeCommand(
+                **{**current.to_dict(), "observation_at": clock() - 0.1}
+            )
+            self.assertEqual(
+                runtime.check_command(stale_observation).code, "stale_observation"
+            )
             runtime.close()
 
     def test_target_change_and_capture_staleness_fail_closed(self):
@@ -158,7 +301,9 @@ class FailSafeRuntimeTest(unittest.TestCase):
             clock = FakeClock()
             runtime = self.make_runtime(directory, clock)
             self.arm_and_observe(runtime)
-            changed_target = runtime.make_command("a", target_pid=5000, target_handle=99)
+            changed_target = runtime.make_command(
+                "a", target_pid=5000, target_handle=99
+            )
             decision = runtime.check_command(changed_target)
             self.assertFalse(decision.allowed)
             self.assertEqual(decision.code, "target_changed")
@@ -291,11 +436,14 @@ class FailSafeRuntimeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             fake = FakeExecutor()
             stop_releases: list[str] = []
-            runtime = self.make_runtime(directory, release_callback=lambda: stop_releases.append("release"))
+            runtime = self.make_runtime(
+                directory, release_callback=lambda: stop_releases.append("release")
+            )
             guard = SafetyGuard(
                 SafetyGuardConfig(require_target=False, require_foreground=False),
                 window_handle=99,
                 target_probe=TargetProbe(),
+                emergency_stop=EmergencyStop(),
             )
             executor = ActionExecutor(
                 False,
