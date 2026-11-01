@@ -139,6 +139,8 @@
 
 - Issue #262: legacy History・DecisionTrace・Execution・Safety・RuntimeLogをSession Event Journalへ接続。旧JSON/JSONLを削除せず、recordをstable event ID付きで移行し、decision/execution/safetyの配列JSON全体を書き直さずにSession内Journalへ追記する。
 
+- Issue #613: Session記録、Experience／Knowledge、Artifact参照、Dataset生成とモデル学習・採用を分ける図解を追加しました。未実行と実入力、出所、保存とデータ保護の制約を区別します。
+
 - Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。
 - Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingはproviderが報告したinput-copy metricsを受け入れ、capacity retryを含む各ABI呼び出しの値を合算する。FrameAnalyzer注入点と同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
 
