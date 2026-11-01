@@ -152,3 +152,10 @@ traced allocationを分けて記録します。tracemalloc値をプロセス全�
 
 Coreは数値Knowledge候補の生成です。Runtimeの自動更新は#422、判断への反映は#531、
 評価・昇格は#532に分けます。このBuilderの単体成功だけで、実ゲームの有効行動が増えたとは扱いません。
+
+
+## 統合後の接続状態（2026-11-01）
+
+#530のBuilderは統合版#422のworkerから呼ばれます。生成候補は#532の限定的light検証と次Step境界の公開を通り、#531へ渡ります。全Journalの履歴scanやモデル重学習は行いません。
+
+信頼済みの安定識別とreceiptへ一致するverified効果が必要で、unknownだけの観測は因果学習しません。得点欄clickを禁止する方式ではありません。CPU結合fixtureと通常Sessionの接続は、Windows実ゲームでの学習効果や全ゲームへの汎化とは区別します。[現在の接続条件・残件](light_adaptation.md)を参照してください。
