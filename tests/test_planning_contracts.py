@@ -200,7 +200,17 @@ class PlanningContractTests(unittest.TestCase):
             result_from_dict({**result, "unverified_action": "right"})
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "message.json"
-            for raw in (b'{"x":1,"x":2}', b'{"x":NaN}', b"[]", b"x" * 4097):
+            for raw in (
+                b'{"x":1,"x":2}',
+                b'{"x":NaN}',
+                b"[]",
+                b"x" * 4097,
+                b'{"x":' + b"[" * 1500 + b"0" + b"]" * 1500 + b"}",
+            ):
                 path.write_bytes(raw)
                 with self.assertRaises(ValueError):
                     read_planning_json(path, 4096)
+            # Brackets and escaped quotes inside strings are not container depth.
+            text = '[\\"' * 100
+            publish_planning_json(path, {"text": text}, 4096)
+            self.assertEqual(read_planning_json(path, 4096), {"text": text})

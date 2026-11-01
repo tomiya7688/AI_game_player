@@ -49636,7 +49636,7 @@
       "module": "ai_game_player.planning_wire",
       "path": "src/ai_game_player/planning_wire.py",
       "source_location": {
-        "end_line": 208,
+        "end_line": 243,
         "start_line": 1
       },
       "symbols": [
@@ -49671,7 +49671,7 @@
           "signature": "(path: Path, value: dict[str, Any], maximum: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 36,
+            "end_line": 40,
             "start_line": 26
           }
         },
@@ -49700,8 +49700,31 @@
           "signature": "(path: Path, maximum: int) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 55,
-            "start_line": 45
+            "end_line": 63,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_json_nesting",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            }
+          ],
+          "qualified_name": "_check_json_nesting",
+          "return_annotation": "None",
+          "signature": "(raw: bytes) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 90,
+            "start_line": 72
           }
         },
         {
@@ -49723,8 +49746,8 @@
           "signature": "(pairs: list[tuple[str, object]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 70,
-            "start_line": 64
+            "end_line": 105,
+            "start_line": 99
           }
         },
         {
@@ -49746,8 +49769,8 @@
           "signature": "(_value: str) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 80,
-            "start_line": 79
+            "end_line": 115,
+            "start_line": 114
           }
         },
         {
@@ -49769,8 +49792,8 @@
           "signature": "(value: object) -> BeliefContext",
           "source_location": {
             "column": 0,
-            "end_line": 110,
-            "start_line": 89
+            "end_line": 145,
+            "start_line": 124
           }
         },
         {
@@ -49792,8 +49815,8 @@
           "signature": "(result: PlanningResult) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 120,
-            "start_line": 119
+            "end_line": 155,
+            "start_line": 154
           }
         },
         {
@@ -49815,8 +49838,8 @@
           "signature": "(value: object) -> PlanningResult",
           "source_location": {
             "column": 0,
-            "end_line": 188,
-            "start_line": 129
+            "end_line": 223,
+            "start_line": 164
           }
         },
         {
@@ -49838,8 +49861,8 @@
           "signature": "(value: object) -> tuple[WeightedValue, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 208,
-            "start_line": 197
+            "end_line": 243,
+            "start_line": 232
           }
         }
       ]
@@ -117705,7 +117728,7 @@
       "module": "tests.test_planning_contracts",
       "path": "tests/test_planning_contracts.py",
       "source_location": {
-        "end_line": 206,
+        "end_line": 216,
         "start_line": 1
       },
       "symbols": [
@@ -117727,7 +117750,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 206,
+            "end_line": 216,
             "start_line": 25
           }
         },
@@ -117865,7 +117888,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 206,
+            "end_line": 216,
             "start_line": 197
           }
         }
