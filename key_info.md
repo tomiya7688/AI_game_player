@@ -4,6 +4,8 @@
 
 ## できること
 
+- #659参照2048認識: 発光によるROIの局所外れ値を中央値と幾何支持で除外し、未知セルを候補にしません。得点はSCOREの位置証拠または明示文字列が必要で、曖昧ならunknownを保持します。[回帰・費用・限界](doc/architecture/reference_2048_recognition.md)。
+
 - #567任意Planner: 最初1手だけをVerifier/Safetyへ渡し、fresh実画面で状態・候補・期限を照合。非SELECTは有限再観測/無入力停止、予測と実Outcomeを分離します。[設計と限界](doc/architecture/planner_runtime.md)。
 
 - #491: 6軸評価を既定Session/Context/Traceへ接続。actualと候補hypothetical、未知と中立、coverage/支持率を区別し、typed profile/同frame仮説でBaselineのsoft順位を変えます。Safety/allowedは維持し、pixel/Model自己申告をactual進捗へ転記しません。[契約と費用](doc/architecture/runtime_evaluation.md)。

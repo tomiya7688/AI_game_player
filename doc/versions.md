@@ -1,3 +1,8 @@
+## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
+
+- 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
+- 比較probeのOCR bboxを保持し、SCOREの位置対応・明示文字列以外の曖昧な得点をunknownへ。元失敗2画像と複数glow/scale/位置/overlay、未知色・得点負例を回帰化しました。[設計と検証範囲](architecture/reference_2048_recognition.md)。
+
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
 - SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。

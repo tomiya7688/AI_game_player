@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import lru_cache
 from math import isfinite
+from statistics import median_low
 
 from ai_game_player.screen_capture import ScreenFrame
 
@@ -146,6 +147,33 @@ def group_board_color_rows(
     return row_groups
 
 
+# {
+#   責務: [_robust_board_bounds: 局所的な発光や短い内部断片を矩形の外端に採用しない]
+#   処理: [行の左右端の中央値を推定し、少なくとも片辺が盤面余白内で一致し盤面幅の過半数を覆う行から上下端を決める]
+#   引数: [group: 連続した盤面候補のy・左端・右端・一致画素数]
+#   戻り値: [tupleまたはNone: 観測で支持された左・上・右・下（右/下は範囲外）]
+# }
+def _robust_board_bounds(
+    group: list[tuple[int, int, int, int]],
+) -> tuple[int, int, int, int] | None:
+    if not group:
+        return None
+    left = median_low(row[1] for row in group)
+    right = median_low(row[2] for row in group)
+    tolerance = max(
+        MAXIMUM_ROW_GROUP_Y_DELTA, round((right - left) * BOARD_OUTER_PADDING_FRACTION)
+    )
+    aligned = [
+        row
+        for row in group
+        if (abs(row[1] - left) <= tolerance or abs(row[2] - right) <= tolerance)
+        and min(right, row[2]) - max(left, row[1]) > (right - left) / 2
+    ]
+    if not aligned:
+        return None
+    return left, aligned[0][0], right, aligned[-1][0] + 1
+
+
 @dataclass(frozen=True)
 class BoardRegion:
     # {
@@ -223,7 +251,7 @@ class Game2048BoardRecognizer:
 
     # {
     #   責務: [_find_board_region: row内の2048 CSS色分布から最大の正方形board候補を特定する]
-    #   処理: [paletteとのRGB二乗距離324以内のpixelをrow内gap16で帯状にまとめる。縦方向は盤面余白相当の短い欠落だけを橋渡しし、最長帯を縦横比と画素密度で検査する]
+    #   処理: [paletteとのRGB二乗距離324以内のpixelをrow内gap16で帯状にまとめる。縦方向は盤面余白相当の短い欠落だけを橋渡しし、行端点の中央値と幅過半数・片辺の整合から外れ値を除いた矩形を作り、縦横比と画素密度で検査する]
     #   引数: [frame: 検索対象となるBGRA画面]
     #   戻り値: [BoardRegionまたはNone: 条件を満たす盤面矩形と形状確信度]
     # }
@@ -279,10 +307,10 @@ class Game2048BoardRecognizer:
             round(min(frame.width, frame.height) * MINIMUM_BOARD_SIDE_FRAME_FRACTION),
         )
         for group in row_groups:
-            top = group[0][0]
-            bottom = group[-1][0] + 1
-            left = min(row[1] for row in group)
-            right = max(row[2] for row in group)
+            bounds = _robust_board_bounds(group)
+            if bounds is None:
+                continue
+            left, top, right, bottom = bounds
             width = right - left
             height = bottom - top
             side = max(width, height)
@@ -291,7 +319,9 @@ class Game2048BoardRecognizer:
             shape_confidence = 1.0 - abs(width - height) / side
             if shape_confidence < MINIMUM_BOARD_SHAPE_CONFIDENCE:
                 continue
-            density = sum(row[3] for row in group) / (width * height)
+            density = sum(
+                min(row[3], width) for row in group if top <= row[0] < bottom
+            ) / (width * height)
             if density < MINIMUM_BOARD_COLOR_DENSITY:
                 continue
             region_confidence = min(

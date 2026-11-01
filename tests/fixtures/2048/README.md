@@ -4,6 +4,12 @@
 
 `python -m unittest discover -s tests -p test_2048_gdi_row_gap.py -v`は実失敗画素を再解析し、hash一致と盤面・候補を確認します。`PYTHONPATH=src;.`を設定してリポジトリルートで実行してください。テストは画面取得や実入力を行いません。画像のゲーム描画元はGabriele Cirulli 2048のcommit `478b6ec346e3787f589e4af751378d06ded4cbbc`です。取得条件の詳細は同directoryのJSONに記録しています。
 
+## 発光による実プレイ回帰（Issue #659）
+
+`glow-256.*`と`glow-256-seed480.*`はsource `bb8648866b791c346d32e2068340ab0474b3563f` の隔離Chromium比較cohortから取得した未加工PNG/BGRAです。各JSONはhash・正しい矩形・視認した16セルと取得元を保持します。seed479の問題セルは、同画像の既知2と暗い字形maskが横1px整列で一致することを分類器と独立に検査します。
+
+`glow-render/`の6組は固定版CSSを描画した256/512/1024/2048・scale/位置/overlayの資料です。`tools/render_2048_glow_fixture.py`で再生成できます。localStorageの状態とDOM boundsは生成時oracleだけで、認識器へ渡しません。`test_2048_glow.py`は外部ライブラリやブラウザーなしにzlibを展開し、画素・OCR bboxだけを入力します。これらの画像にも以下の2048 MIT表記を適用します。
+
 ## 生成元2048のライセンス
 
 `gdi-internal-fragments.bgra.zlib`はpush run `39409678110`のartifact `12259118469`から取得した未加工画素です。対応JSONはhash、寸法、保存PNGから確認した16 cell、盤面矩形を記録します。短い欠落直後に現れる盤面内側の断片による3分割を再現し、同じ`test_2048_gdi_row_gap.py`で検査します。元のWGC timeoutやlease失効の原因を再現する資料ではありません。この画面の2048描画にも次のMIT表記を適用します。
