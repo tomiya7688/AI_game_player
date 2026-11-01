@@ -1,0 +1,30 @@
+{
+  "schema": "kadoka.inference.provider-manifest/1",
+  "provider_id": "kadoka.local.llamacpp",
+  "provider_version": "0.1.0",
+  "protocol_versions": [1],
+  "display_name": "Kadoka Bundled Local Inference",
+  "deployment": {
+    "kind": "bundled_local",
+    "base_url": "http://127.0.0.1:18080",
+    "health_path": "/kadoka/v1/health",
+    "capabilities_path": "/kadoka/v1/capabilities",
+    "models_path": "/kadoka/v1/models",
+    "inference_path": "/kadoka/v1/inference",
+    "cancel_path": "/kadoka/v1/cancel",
+    "default_timeout_ms": 10000
+  },
+  "capabilities": {
+    "operations": ["decision", "outcome_assessment", "text_generation"],
+    "input_modalities": ["text", "json"],
+    "structured_output": true,
+    "streaming": false,
+    "cancellation": true,
+    "max_concurrency": 1
+  },
+  "privacy": {
+    "may_transmit_off_device": false,
+    "credentials_required": false,
+    "declared_data_classes": ["decision_context", "ocr_text", "history", "trace"]
+  }
+}
