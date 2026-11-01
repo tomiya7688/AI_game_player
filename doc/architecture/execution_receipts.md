@@ -28,6 +28,8 @@ Issue #628は、保存した判断だけを直前の実操作として扱って�
 - `GameSessionController` のexecute後観測。終端・反復停止・runtime closeより前に完了する。
 - E2E Runnerの実行後probe、2048 campaignの最新観測。次操作がない最終actionも保存する。
 
+2048 campaignの初回観測は実操作前の初期化で、安全制御を開始して実行世代が進むため、操作後のcompletionへ渡さない。後続の観測は取得前の世代を保持し、取得中のStop/rearmを現在世代へ読み替えず拒否する。独立したepisodeの再起動でも同じ初期化境界を使う。
+
 `DecisionTraceStore.recent_actions()` は完全なreceiptとtrace参照、正常送信、学習可否を検証し、必要なら世代も限定する。planned/legacy不明を実操作扱いにせず、別操作の `previous_outcome` を当該操作の結果へ転用しない。Sessionの既定Journalは追記を使う。互換用JSON保存は遅延appendを世代guard内で最新配列へ適用し、計画準備から公開までに追加された入力auditを消さない。互換JSONは履歴全体の読書きが必要なため、長期SessionはJournalを使用する。
 
 ## 効果学習との境界
