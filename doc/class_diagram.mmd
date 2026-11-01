@@ -686,6 +686,16 @@ classDiagram
         +_read()
         +_write()
     }
+    class KnowledgeBuildResult {
+    }
+    class KnowledgeBuilder {
+        +__init__()
+        +build()
+    }
+    class KnowledgeBuilderPolicy {
+        +__post_init__()
+        +fingerprint()
+    }
     class KnowledgeScope {
         +__post_init__()
         +from_dict()
@@ -707,6 +717,9 @@ classDiagram
         +save()
         +read()
         +_index_path()
+    }
+    class KnowledgeUpdateSample {
+        +from_event()
     }
     class LearningCapabilityManifest {
         +__post_init__()
