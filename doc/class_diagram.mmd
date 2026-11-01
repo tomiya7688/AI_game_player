@@ -1235,6 +1235,68 @@ classDiagram
         +detach_event_journal()
         +write()
     }
+    str <|-- RuntimeMode
+    Enum <|-- RuntimeMode
+    class RuntimeMode {
+    }
+    str <|-- RuntimePhase
+    Enum <|-- RuntimePhase
+    class RuntimePhase {
+    }
+    str <|-- RuntimeOperation
+    Enum <|-- RuntimeOperation
+    class RuntimeOperation {
+    }
+    class RuntimeModeConfig {
+        +__post_init__()
+        +flags()
+        +to_dict()
+        +from_dict()
+        +operations()
+    }
+    ValueError <|-- RuntimeModeTransitionError
+    class RuntimeModeTransitionError {
+    }
+    RuntimeError <|-- RuntimeModePersistenceError
+    class RuntimeModePersistenceError {
+    }
+    class RuntimeModeController {
+        +__init__()
+        +snapshot()
+        +request_mode()
+        +apply_pending_mode()
+        +transition()
+        +begin_step()
+        +finish_step()
+        +permits()
+        +run_if_allowed()
+        +record_evaluation()
+        +degrade()
+        +request_stop()
+        +fail()
+        +recover_to_idle()
+        +resume_at_boundary()
+        +_signal_stop()
+        +_complete_stop_signal()
+        +flush()
+        +restore()
+        +_held_is_clear()
+        +_admit()
+        +_metadata_change()
+        +_change_locked()
+    }
+    class RuntimeModeRecorder {
+        +__init__()
+        +full()
+        +enqueue()
+        +flush()
+    }
+    class RuntimeModeSnapshot {
+        +mode()
+        +to_dict()
+    }
+    class RuntimeStepToken {
+    }
     str <|-- SafetyState
     Enum <|-- SafetyState
     class SafetyState {

@@ -46128,6 +46128,2012 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.runtime_mode_config",
+      "path": "src/ai_game_player/runtime_mode_config.py",
+      "source_location": {
+        "end_line": 263,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeMode",
+          "parameters": [],
+          "qualified_name": "RuntimeMode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 21,
+            "start_line": 16
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimePhase",
+          "parameters": [],
+          "qualified_name": "RuntimePhase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 36,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeOperation",
+          "parameters": [],
+          "qualified_name": "RuntimeOperation",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 55,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "RuntimeModeConfig",
+          "parameters": [],
+          "qualified_name": "RuntimeModeConfig",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 233,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeConfig.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 125,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "flags",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeConfig.flags",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 134
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeConfig.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 161,
+            "start_line": 155
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "RuntimeModeConfig.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 193,
+            "start_line": 171
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "operations",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimePhase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "phase"
+            }
+          ],
+          "qualified_name": "RuntimeModeConfig.operations",
+          "return_annotation": "frozenset[RuntimeOperation]",
+          "signature": "(self, phase: RuntimePhase) -> frozenset[RuntimeOperation]",
+          "source_location": {
+            "column": 4,
+            "end_line": 233,
+            "start_line": 202
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_runtime_mode_config",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "load_runtime_mode_config",
+          "return_annotation": "tuple[RuntimeModeConfig, str | None]",
+          "signature": "(value: object) -> tuple[RuntimeModeConfig, str | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 246,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validate_runtime_identifier",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "validate_runtime_identifier",
+          "return_annotation": "str",
+          "signature": "(value: object, name: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 263,
+            "start_line": 256
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.event_journal",
+        "ai_game_player.run_control",
+        "ai_game_player.runtime_mode_config",
+        "ai_game_player.runtime_mode_recorder",
+        "ai_game_player.runtime_mode_state"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "TypeVar"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "uuid",
+          "names": [
+            {
+              "alias": null,
+              "name": "uuid4"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            },
+            {
+              "alias": null,
+              "name": "RunController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_config"
+          ],
+          "module": "ai_game_player.runtime_mode_config",
+          "names": [
+            {
+              "alias": null,
+              "name": "PHASE_REQUIRED_OPERATION"
+            },
+            {
+              "alias": null,
+              "name": "MODE_CAPABILITIES"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeMode"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeModeConfig"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeOperation"
+            },
+            {
+              "alias": null,
+              "name": "RuntimePhase"
+            },
+            {
+              "alias": null,
+              "name": "validate_runtime_identifier"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_state"
+          ],
+          "module": "ai_game_player.runtime_mode_state",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeModeSnapshot"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeStepToken"
+            },
+            {
+              "alias": null,
+              "name": "read_runtime_mode_checkpoint"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_recorder"
+          ],
+          "module": "ai_game_player.runtime_mode_recorder",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeModeRecorder"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.runtime_mode_controller",
+      "path": "src/ai_game_player/runtime_mode_controller.py",
+      "source_location": {
+        "end_line": 745,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeModeTransitionError",
+          "parameters": [],
+          "qualified_name": "RuntimeModeTransitionError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 62,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeModePersistenceError",
+          "parameters": [],
+          "qualified_name": "RuntimeModePersistenceError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeModeController",
+          "parameters": [],
+          "qualified_name": "RuntimeModeController",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 745,
+            "start_line": 83
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimeModeConfig | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            },
+            {
+              "annotation": "RunController | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "run_control"
+            },
+            {
+              "annotation": "Callable[[], bool] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "held_input_probe"
+            },
+            {
+              "annotation": "EventJournal | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "journal"
+            },
+            {
+              "annotation": "Path | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "state_path"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "max_pending_events"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.__init__",
+          "return_annotation": "None",
+          "signature": "(self, config: RuntimeModeConfig | None = …, *, run_control: RunController | None = …, held_input_probe: Callable[[], bool] | None = …, journal: EventJournal | None = …, state_path: Path | None = …, max_pending_events: int = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.snapshot",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "request_mode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimeModeConfig",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.request_mode",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, config: RuntimeModeConfig) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 142
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "apply_pending_mode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.apply_pending_mode",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "apply",
+          "parameters": [
+            {
+              "annotation": "RuntimeModeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.apply_pending_mode.apply",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(state: RuntimeModeSnapshot) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 8,
+            "end_line": 182,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "transition",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimePhase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "phase"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.transition",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, phase: RuntimePhase) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 233,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "change",
+          "parameters": [
+            {
+              "annotation": "RuntimeModeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.transition.change",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(state: RuntimeModeSnapshot) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 8,
+            "end_line": 226,
+            "start_line": 201
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "begin_step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact_version"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.begin_step",
+          "return_annotation": "RuntimeStepToken",
+          "signature": "(self, artifact_version: str) -> RuntimeStepToken",
+          "source_location": {
+            "column": 4,
+            "end_line": 267,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "begin",
+          "parameters": [
+            {
+              "annotation": "RuntimeModeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.begin_step.begin",
+          "return_annotation": "RuntimeStepToken",
+          "signature": "(state: RuntimeModeSnapshot) -> RuntimeStepToken",
+          "source_location": {
+            "column": 8,
+            "end_line": 265,
+            "start_line": 245
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "finish_step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimeStepToken",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "token"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.finish_step",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, token: RuntimeStepToken) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 276
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "permits",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimeOperation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "operation"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.permits",
+          "return_annotation": "bool",
+          "signature": "(self, operation: RuntimeOperation) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 311,
+            "start_line": 289
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_if_allowed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RuntimeOperation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "operation"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected_epoch"
+            },
+            {
+              "annotation": "Callable[[], ResultT]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "commit"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.run_if_allowed",
+          "return_annotation": "ResultT",
+          "signature": "(self, operation: RuntimeOperation, expected_epoch: int, commit: Callable[[], ResultT]) -> ResultT",
+          "source_location": {
+            "column": 4,
+            "end_line": 343,
+            "start_line": 321
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "publish",
+          "parameters": [
+            {
+              "annotation": "RuntimeModeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.run_if_allowed.publish",
+          "return_annotation": "ResultT",
+          "signature": "(state: RuntimeModeSnapshot) -> ResultT",
+          "source_location": {
+            "column": 8,
+            "end_line": 337,
+            "start_line": 332
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_evaluation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate_version"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "passed"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "expected_epoch"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.record_evaluation",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, candidate_version: str, passed: bool, *, expected_epoch: int) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 368,
+            "start_line": 352
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "record",
+          "parameters": [
+            {
+              "annotation": "RuntimeModeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.record_evaluation.record",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(state: RuntimeModeSnapshot) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 8,
+            "end_line": 366,
+            "start_line": 359
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "degrade",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.degrade",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, reason: str) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 410,
+            "start_line": 377
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "request_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.request_stop",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, reason: str = …) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 436,
+            "start_line": 418
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.fail",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, reason: str) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 463,
+            "start_line": 444
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "recover_to_idle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.recover_to_idle",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 490,
+            "start_line": 472
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "resume_at_boundary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.resume_at_boundary",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 537,
+            "start_line": 499
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "resume",
+          "parameters": [],
+          "qualified_name": "RuntimeModeController.resume_at_boundary.resume",
+          "return_annotation": "None",
+          "signature": "() -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 530,
+            "start_line": 508
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_signal_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController._signal_stop",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 549,
+            "start_line": 545
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_complete_stop_signal",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController._complete_stop_signal",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 559,
+            "start_line": 557
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "flush",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.flush",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 575,
+            "start_line": 568
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "restore",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_path"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "arguments"
+            }
+          ],
+          "qualified_name": "RuntimeModeController.restore",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, state_path: Path, **arguments: Any) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 616,
+            "start_line": 584
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_held_is_clear",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeController._held_is_clear",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 630,
+            "start_line": 624
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_admit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[RuntimeModeSnapshot], ResultT]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "work"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_epoch"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "require_boundary"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "check_held"
+            }
+          ],
+          "qualified_name": "RuntimeModeController._admit",
+          "return_annotation": "ResultT",
+          "signature": "(self, work: Callable[[RuntimeModeSnapshot], ResultT], *, expected_epoch: int | None = …, require_boundary: bool = …, check_held: bool = …) -> ResultT",
+          "source_location": {
+            "column": 4,
+            "end_line": 681,
+            "start_line": 640
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "commit",
+          "parameters": [],
+          "qualified_name": "RuntimeModeController._admit.commit",
+          "return_annotation": "None",
+          "signature": "() -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 674,
+            "start_line": 663
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_metadata_change",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_version"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "changes"
+            }
+          ],
+          "qualified_name": "RuntimeModeController._metadata_change",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, event: str, *, expected_version: int | None = …, **changes: Any) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 703,
+            "start_line": 690
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_change_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "invalidate"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "force"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "changes"
+            }
+          ],
+          "qualified_name": "RuntimeModeController._change_locked",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(self, event: str | None, *, invalidate: bool = …, force: bool = …, **changes: Any) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 745,
+            "start_line": 713
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.atomic_json",
+        "ai_game_player.event_journal",
+        "ai_game_player.runtime_mode_state"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "deque"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "stage_json_write"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_state"
+          ],
+          "module": "ai_game_player.runtime_mode_state",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeModeSnapshot"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.runtime_mode_recorder",
+      "path": "src/ai_game_player/runtime_mode_recorder.py",
+      "source_location": {
+        "end_line": 100,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeModeRecorder",
+          "parameters": [],
+          "qualified_name": "RuntimeModeRecorder",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 100,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "EventJournal | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "journal"
+            },
+            {
+              "annotation": "Path | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state_path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "capacity"
+            }
+          ],
+          "qualified_name": "RuntimeModeRecorder.__init__",
+          "return_annotation": "None",
+          "signature": "(self, journal: EventJournal | None, state_path: Path | None, capacity: int) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 36,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "full",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeRecorder.full",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 47,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "enqueue",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_id"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "RuntimeModeRecorder.enqueue",
+          "return_annotation": "bool",
+          "signature": "(self, event_id: str, payload: dict) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "flush",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[], RuntimeModeSnapshot]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot"
+            }
+          ],
+          "qualified_name": "RuntimeModeRecorder.flush",
+          "return_annotation": "bool",
+          "signature": "(self, snapshot: Callable[[], RuntimeModeSnapshot]) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 71
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime_mode_config"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_config"
+          ],
+          "module": "ai_game_player.runtime_mode_config",
+          "names": [
+            {
+              "alias": null,
+              "name": "PHASE_REQUIRED_OPERATION"
+            },
+            {
+              "alias": null,
+              "name": "DEFAULT_RUNTIME_MODE"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeMode"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeModeConfig"
+            },
+            {
+              "alias": null,
+              "name": "RuntimePhase"
+            },
+            {
+              "alias": null,
+              "name": "validate_runtime_identifier"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.runtime_mode_state",
+      "path": "src/ai_game_player/runtime_mode_state.py",
+      "source_location": {
+        "end_line": 198,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "RuntimeModeSnapshot",
+          "parameters": [],
+          "qualified_name": "RuntimeModeSnapshot",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 79,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "mode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeSnapshot.mode",
+          "return_annotation": "RuntimeMode",
+          "signature": "(self) -> RuntimeMode",
+          "source_location": {
+            "column": 4,
+            "end_line": 52,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeSnapshot.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 60
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "RuntimeStepToken",
+          "parameters": [],
+          "qualified_name": "RuntimeStepToken",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 93,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_runtime_mode_checkpoint",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "read_runtime_mode_checkpoint",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(path: Path) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 0,
+            "end_line": 111,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_snapshot",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_read_snapshot",
+          "return_annotation": "RuntimeModeSnapshot",
+          "signature": "(value: object) -> RuntimeModeSnapshot",
+          "source_location": {
+            "column": 0,
+            "end_line": 182,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unique_fields",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, object]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_unique_fields",
+          "return_annotation": "dict",
+          "signature": "(pairs: list[tuple[str, object]]) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 198,
+            "start_line": 192
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.models"
@@ -106685,6 +108691,1341 @@
             "column": 12,
             "end_line": 107,
             "start_line": 105
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.event_journal",
+        "ai_game_player.fail_safe_runtime",
+        "ai_game_player.game_session",
+        "ai_game_player.models",
+        "ai_game_player.pipeline",
+        "ai_game_player.run_control",
+        "ai_game_player.runtime_mode_config",
+        "ai_game_player.runtime_mode_controller"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrozenInstanceError"
+            },
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "closing"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "sqlite3",
+          "names": [
+            {
+              "alias": null,
+              "name": "sqlite3"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.fail_safe_runtime"
+          ],
+          "module": "ai_game_player.fail_safe_runtime",
+          "names": [
+            {
+              "alias": null,
+              "name": "InputLedger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_session"
+          ],
+          "module": "ai_game_player.game_session",
+          "names": [
+            {
+              "alias": null,
+              "name": "GameSessionController"
+            },
+            {
+              "alias": null,
+              "name": "SessionStep"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.pipeline"
+          ],
+          "module": "ai_game_player.pipeline",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionPipeline"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            },
+            {
+              "alias": null,
+              "name": "RunController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_config"
+          ],
+          "module": "ai_game_player.runtime_mode_config",
+          "names": [
+            {
+              "alias": null,
+              "name": "DEFAULT_RUNTIME_MODE"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeMode"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeModeConfig"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeOperation"
+            },
+            {
+              "alias": null,
+              "name": "RuntimePhase"
+            },
+            {
+              "alias": null,
+              "name": "load_runtime_mode_config"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime_mode_controller"
+          ],
+          "module": "ai_game_player.runtime_mode_controller",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeModeController"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeModePersistenceError"
+            },
+            {
+              "alias": null,
+              "name": "RuntimeModeTransitionError"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_runtime_modes",
+      "path": "tests/test_runtime_modes.py",
+      "source_location": {
+        "end_line": 692,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RuntimeModeContractTests",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 688,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "make_controller",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "mode"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.make_controller",
+          "return_annotation": null,
+          "signature": "(self, mode = …, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_five_modes_eight_phases_and_default_light_are_fixed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_five_modes_eight_phases_and_default_light_are_fixed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 52,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_machine_readable_schema_default_and_phase_matrix_match_contract",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_machine_readable_schema_default_and_phase_matrix_match_contract",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_game_session_factory_shares_run_generation_and_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_existing_game_session_factory_shares_run_generation_and_stop",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "factory",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_existing_game_session_factory_shares_run_generation_and_stop.factory",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 89,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mode_flags_roundtrip_and_contradictory_overrides_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_mode_flags_roundtrip_and_contradictory_overrides_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_inference_only_keeps_action_and_safety_but_no_learning",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_inference_only_keeps_action_and_safety_but_no_learning",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_learning_only_never_grants_gameplay_and_alternating_changes_phase",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_learning_only_never_grants_gameplay_and_alternating_changes_phase",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 154
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_light_and_concurrent_modes_have_distinct_training_permissions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_light_and_concurrent_modes_have_distinct_training_permissions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 191,
+            "start_line": 177
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mode_change_waits_for_step_and_held_input_without_replacing_artifact",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_mode_change_waits_for_step_and_held_input_without_replacing_artifact",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_probe_blocks_learning_boundary_but_does_not_disable_inference",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_unknown_probe_blocks_learning_boundary_but_does_not_disable_inference",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 229,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_actual_input_ledger_is_a_usable_held_input_probe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_actual_input_ledger_is_a_usable_held_input_probe",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 231
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "held",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_actual_input_ledger_is_a_usable_held_input_probe.held",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 12,
+            "end_line": 237,
+            "start_line": 235
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_step_tokens_reject_double_start_foreign_completion_and_allow_stop_cleanup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_step_tokens_reject_double_start_foreign_completion_and_allow_stop_cleanup",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 268,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stop_is_prioritized_for_every_mode_and_phase_even_under_corrupt_state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_stop_is_prioritized_for_every_mode_and_phase_even_under_corrupt_state",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 289,
+            "start_line": 270
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_work_and_rearmed_run_are_rejected_before_commit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_stale_work_and_rearmed_run_are_rejected_before_commit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 312,
+            "start_line": 291
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_failed_evaluation_and_training_failure_preserve_champion_version",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_failed_evaluation_and_training_failure_preserve_champion_version",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 335,
+            "start_line": 314
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_degrade_preserves_user_selection_and_requires_safe_apply",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_degrade_preserves_user_selection_and_requires_safe_apply",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 353,
+            "start_line": 337
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_degrade_keeps_stricter_pending_mode_and_rejects_stale_request",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_degrade_keeps_stricter_pending_mode_and_rejects_stale_request",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 378,
+            "start_line": 355
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "concurrent_mode_change",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_degrade_keeps_stricter_pending_mode_and_rejects_stale_request.concurrent_mode_change",
+          "return_annotation": null,
+          "signature": "(event, **kwargs)",
+          "source_location": {
+            "column": 8,
+            "end_line": 368,
+            "start_line": 365
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "inject_change",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_degrade_keeps_stricter_pending_mode_and_rejects_stale_request.inject_change",
+          "return_annotation": null,
+          "signature": "(event, **kwargs)",
+          "source_location": {
+            "column": 8,
+            "end_line": 372,
+            "start_line": 370
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_journal_records_modes_phase_versions_and_degrade_reason",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_journal_records_modes_phase_versions_and_degrade_reason",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 409,
+            "start_line": 380
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_crash_recovery_from_learning_and_promotion_never_restarts_work",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_crash_recovery_from_learning_and_promotion_never_restarts_work",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 435,
+            "start_line": 411
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_checkpoint_uses_safe_default_and_requires_explicit_resume",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_invalid_checkpoint_uses_safe_default_and_requires_explicit_resume",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 455,
+            "start_line": 437
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_slow_held_probe_does_not_hold_stop_lock_and_late_transition_loses",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_slow_held_probe_does_not_hold_stop_lock_and_late_transition_loses",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 489,
+            "start_line": 457
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "probe",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_slow_held_probe_does_not_hold_stop_lock_and_late_transition_loses.probe",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 464,
+            "start_line": 460
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "transition",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_slow_held_probe_does_not_hold_stop_lock_and_late_transition_loses.transition",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 474,
+            "start_line": 470
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_resume_cannot_erase_new_stop_waiting_for_run_lock",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_resume_cannot_erase_new_stop_waiting_for_run_lock",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 543,
+            "start_line": 491
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "intercept",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "generation"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "callback"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_resume_cannot_erase_new_stop_waiting_for_run_lock.intercept",
+          "return_annotation": null,
+          "signature": "(generation, callback)",
+          "source_location": {
+            "column": 8,
+            "end_line": 505,
+            "start_line": 500
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "delayed",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_resume_cannot_erase_new_stop_waiting_for_run_lock.intercept.delayed",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 12,
+            "end_line": 503,
+            "start_line": 501
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "resume",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_resume_cannot_erase_new_stop_waiting_for_run_lock.resume",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 511,
+            "start_line": 507
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "probe",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_resume_cannot_erase_new_stop_waiting_for_run_lock.probe",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 520,
+            "start_line": 516
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_slow_journal_flush_does_not_block_stop_or_allow_stale_publication",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_slow_journal_flush_does_not_block_stop_or_allow_stale_publication",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 573,
+            "start_line": 545
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SlowJournal",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_slow_journal_flush_does_not_block_stop_or_allow_stale_publication.SlowJournal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 552,
+            "start_line": 548
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_slow_journal_flush_does_not_block_stop_or_allow_stale_publication.SlowJournal.append",
+          "return_annotation": null,
+          "signature": "(self, *args, **kwargs)",
+          "source_location": {
+            "column": 12,
+            "end_line": 552,
+            "start_line": 549
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_journal_failure_and_backpressure_fail_closed_without_mutating_artifact",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_journal_failure_and_backpressure_fail_closed_without_mutating_artifact",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 597,
+            "start_line": 575
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BrokenJournal",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_journal_failure_and_backpressure_fail_closed_without_mutating_artifact.BrokenJournal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 580,
+            "start_line": 578
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_journal_failure_and_backpressure_fail_closed_without_mutating_artifact.BrokenJournal.append",
+          "return_annotation": null,
+          "signature": "(self, *args, **kwargs)",
+          "source_location": {
+            "column": 12,
+            "end_line": 580,
+            "start_line": 579
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_inference_only_does_not_disable_outcome_verifier_or_safety",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_inference_only_does_not_disable_outcome_verifier_or_safety",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 623,
+            "start_line": 599
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Source",
+          "parameters": [],
+          "qualified_name": "RuntimeModeContractTests.test_inference_only_does_not_disable_outcome_verifier_or_safety.Source",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 604,
+            "start_line": 600
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_inference_only_does_not_disable_outcome_verifier_or_safety.Source.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 604,
+            "start_line": 601
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_seeded_state_machine_sequences_preserve_permissions_and_stop_invariants",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RuntimeModeContractTests.test_seeded_state_machine_sequences_preserve_permissions_and_stop_invariants",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 688,
+            "start_line": 625
           }
         }
       ]

@@ -2,6 +2,7 @@
 
 ## できること
 
+- Runtime Mode / Phase のコア契約（5 Mode / 8 Phase、既定 Light、安全境界、Step 版固定、共有 RunController の Stop、Journal / checkpoint）。詳細は `doc/architecture/runtime_modes.md`。
 - 任意構成したKnowledgeFeatureAdapterで、scopeと期限が一致する版を一stepへ固定し、Baselineのsoft prior・重みへ反映できます。モデル文脈への追加は既定OFFです。[Knowledge投影の説明](doc/architecture/knowledge_feature_adapter.md)を参照してください。
 
 - 起動済みWindowsウィンドウの取得・選択・範囲キャプチャ
@@ -27,6 +28,8 @@
 - Knowledgeの更新候補を、同じ根拠付き判断ケースの成果・回帰・資源で比較し、本番版参照を原子的に切替・復元するAPI（Issue #532）。実入力を発行せず、取得済みのstep用Snapshotを変更しません。
 
 ## 制約
+
+- Mode 契約の本番 Light Adaptation Runner 接続は Issue #422、重学習・交互 orchestration・資源制御・UI は後続 Issue で対応します。Mode 契約だけでは学習を起動しません。通常の Outcome / Verifier / Safety 評価を無効化しません。
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。

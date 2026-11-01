@@ -293,6 +293,7 @@ plugin_manifest_schema          1
 - Ruffの基本lint・共有モデルのstrict mypy・Python構文検証をPR CIおよびfinish_task.batへ追加し、開発依存として固定した。
 
 - Fail-safe Runtime / OS Emergency Stopを追加し、startup SAFE_IDLE、explicit re-arm、short lease/heartbeat、Observation freshness、epoch/sequence/session/target binding、bounded command age/queue、held-input TTL、crash-consistent journal、LLM/GPU非依存のout-of-process watchdogでcrash/OOM/通信断/capture/target/storage異常をfail closedする。
+- Issue #421: 5 Mode / 8 Phase、既定 Light、Mode 由来の能力 flag と矛盾 config を拒否する Schema・default・operation 表を追加。共有 RunController の停止世代、安全境界での Mode 変更、Step の Artifact 版固定、held input がある学習移行の拒否、評価合格後の公開 gate を実装します。遅い probe / Journal IO を Stop lock から分離し、有界 metadata 記録、atomic checkpoint、失敗時の停止、crash 後の停止 IDLE 復元を提供します。通常の Outcome / Verifier / Safety 評価は学習 Artifact 評価の flag から独立して継続します。既存 Session / InputLedger / EventJournal 接続はテスト済みで、本番 Light Runner は #422、交互実行 #423、並行学習 #424、資源制御 #425、UI #188 は後続です。詳細は `doc/architecture/runtime_modes.md`。
 - Before Observation + Action + After ObservationをStateDelta / ScreenDiff / Temporal / Terminal textの独立Evidenceとして検出し、conflict / confidence / provenance / abstentionを保持するdeterministic Outcome Fusionを追加する。低信頼時だけSemantic Providerへfallbackし、OutcomeEventを評価プリミティブへ接続する。
 - UPD Commander Base Designを段階導入し、新規Quality ApplicationでCommander / Messenger / Processingの責務境界を適用する。外部UPD checkerはcommit SHA固定でCI実行し、通常ゲームruntimeへchecker依存や追加処理を持ち込まない。
 - FrameAnalyzer / CandidateMerger / DecisionContextBuilder / SafetyGuardのCPU hot pathをbudget監視するperformance-ciとローカルperformance checkerを追加する。
