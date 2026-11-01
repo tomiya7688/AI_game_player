@@ -6,6 +6,12 @@ Kadoka is intentionally modular internally while remaining minimal for ordinary 
 
 Issue #661 fixes the planned permanent GUI to **Qt 6 Widgets/C++ native, no embedded WebView**, with a **separate Rust resident Core** and **optional Python/AI workers**. The design, failure boundaries, measurement gates and open implementation Issues #664–#667 are in [the migration source](qt_rust_migration.md). These components are not implemented by a placement declaration. Current Tkinter/Python+C++ and its Windows E2E remain operational compatibility paths. The layers and Python workflow below describe that current path, not a completed Rust migration.
 
+## Current integration boundary (2026-11-01)
+
+Feature baseline `77a8995` connects the #421 Mode controller and #422 bounded light-adaptation worker to the production `ManagedSessionRuntime` / `DecisionPipeline`. The #628 execution receipt records dispatch facts; explicit post-action observations remain separate from verified causal effects. Default learning identity is disabled: stable profile identity and a verified effect are needed for causal updates. A missing identity or unknown effect does not weaken inference, Verifier, Safety, or Stop.
+
+Knowledge storage, incremental statistics, per-step immutable projection, and limited validation/publication remain distinct #529–#532 responsibilities. Heavy training, general causal verification, automatic resource classification, and Windows gameplay improvement are not completed by this wiring. The finite-hypothesis Bayesian Predict/Observe Core (#564) consumes typed Belief storage and calibrated joint likelihoods; it does not wire Recognition/Decision or implement particle resampling. These remain separate boundaries. Reader-facing status and the outstanding evidence are in [the implementation status](../guide/implementation_status.md), [light-adaptation contract](light_adaptation.md), and [Belief contract](belief_snapshot.md).
+
 ## Layers
 
 ```text

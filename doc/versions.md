@@ -97,6 +97,8 @@ plugin_manifest_schema          1
 
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
 
+- Issue #491: 既存6軸PrimitiveEvaluatorを実Session/Context/Trace/Baselineへ接続しました。前実操作のreceipt/Outcomeと候補hypotheticalを分離し、未計測はavailable=False/confidence0、欠損coverageを保持したMCDAと共通NumericQualityでsoft順位付けします。Scope/goal/frameへ束縛したtyped profile/数値仮説だけを明示注入し、pixel/Model主張を意味的進捗へ転記しません。Safety/allowedは維持し、local監査とModel opt-in要約、suite digest・p50/p95を追加しました。[契約・根拠・未達](architecture/runtime_evaluation.md)。
+
 - Issue #422: 既定Light Modeを実Sessionへ接続し、非blocking有限queue、CPU/時間/保持量/書込/公開間隔の予算、immutable次版、Gate自身のsoft-prior限定検証、Mode世代CAS後のdurable ackと故障recoveryを追加しました。実送信receiptと明示因果証拠だけを既知効果へ変換し、unknown/得点表示/背景変化を成功やno-effectへ捏造しません。profile保証のhash識別と衝突保留、Stop時の有限事実checkpoint、数値Utility EWMA portを追加しました。[設計・測定・未実装の境界](architecture/light_adaptation.md)を参照してください。
 
 - Issue #637: 既存`--save-failure-evidence`の明示ON時、2048 browser起動失敗のcleanup前に所有PIDの最大3窓の固定分類・可視状態・矩形・phase時間と、取得可能なWGC画素を有界保存します。GDIのdesktop矩形代替は使わず、WGC不可時もmetadataを残します。既存PNG/BGRA writerとatomic JSONを再利用し、診断子processを5秒、画素を窓あたり8MiB・合計16MiBに制限します。Native WGCの任意byte上限はPython allocation前に検査し、拒否時もleaseを解放します。保存失敗でも元の起動例外とcleanupを維持し、PID/title・25秒・600秒・Safety条件は変更しません。自然起動失敗の原因は#459に残り、Windows実測はUnverifiedです。
@@ -172,6 +174,7 @@ plugin_manifest_schema          1
 - Issue #563（親 #478）: typed immutable WorldStateHypothesis / BeliefSnapshot と bounded Candidate Store を追加。校正確率と比較score、予測と観測仮説を区別し、同ID再送・相関証拠を再加算せず、Top-K / byte / TTLで除外した質量をunknownへ残します。Frame / turn / session / action epoch / source generation / clock originの混在、可変state・循環・NaN・timeoutを検査し、CPU測定と8/16曖昧2048・カード・位置fixtureを追加。本番Bayesian更新・Recognition接続は #564/#405/#407、実プレイは後続です。詳細は `doc/architecture/belief_snapshot.md`。
 
 - Issue #564（親 #478）: 型付きBeliefへPredict→Observe→Bayesian posterior更新を追加。排他的な遷移経路の確率合算、joint観測尤度、log空間、unknown尤度不明時の比較score、receipt/frame/相関の二重適用防止、旧prior版CAS、候補/byte/履歴/deadline上限を検証します。実Recognition校正と本番Planner接続は#405/#407/#565-#567に残します。詳細は `doc/architecture/belief_update.md`。
+- Issue #642: 実行受領記録・明示観測、Modeと実Sessionの軽量知識更新、Knowledgeの保存/集計/判断反映/検証、起動失敗診断と状態仮説の現在地へ、入口・判断・安全・記録資料を同期しました。安定識別の既定無効、一般の因果no_effect未達、#459原因未解決、Core/Runtime/Real-playの証拠範囲を明記し、過去の確認基準と統合後を区別します。 初回安全リースはStop解除・明示再開と区別し、現行ソース基準を更新して、過去の実画面測定headは保持します。
 - Issue #138: Play Workspaceの先頭へ「ゲーム / ウィンドウ」選択欄を配置する。ウィンドウ一覧の更新後も存在する選択対象は維持し、消えた選択対象は自動で別ウィンドウへ切り替えず再選択を求める。候補がない場合と一覧取得が失敗した場合は、利用者へ次の操作を表示する。
 - Issue #337: GUIの画面取得後、Observation内のOCR・画像候補と任意のAutomation候補をCandidateMergerで統合し、安全評価欄へ入力元と評価結果を表示する。Automation候補JSONは空配列のまま使える。画面previewは実行中Sessionの候補sourceを書き換えず、step開始時に評価した同じObservationと候補だけをSession sourceへ登録する。confidence `0.0` の画像候補は拒否する。
 - Issue #333: PythonとNative Runtimeのbright-region検出が明るさ・画素密度から実行信頼度を作らないようにする。両経路の明領域をUI要素として未確認のconfidence `0.0` で返し、画像候補だけの判断を候補評価器が拒否する。閉ループE2Eはsample gameのactive control情報と画面検出矩形を照合して実入力を検証する。
