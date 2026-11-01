@@ -28,7 +28,7 @@ Issue #628は、保存した判断だけを直前の実操作として扱って�
 - `GameSessionController` のexecute後観測。終端・反復停止・runtime closeより前に完了する。
 - E2E Runnerの実行後probe、2048 campaignの最新観測。次操作がない最終actionも保存する。
 
-2048 campaignの初回観測は実操作前の初期化で、安全制御を開始して実行世代が進むため、操作後のcompletionへ渡さない。後続の観測は取得前の世代を保持し、取得中のStop/rearmを現在世代へ読み替えず拒否する。独立したepisodeの再起動でも同じ初期化境界を使う。
+2048 campaignの初回観測は実操作前の初期化として操作後のcompletionへ渡さない。`initialize_safety(expected_rearm_token=token)` は取得前の実行世代を保ったまま、未使用のSAFE_IDLEに限り初回リースを開始し、初期世代は0のままとする。ユーザーの明示再開とは分け、RunController.start、SafetyGuard.rearm、default/local EmergencyStopのclearを呼ばない。取得中・対象確認/ledger/リース開始/観測記録のI/O中に生じたStop、rearm、緊急停止は前後照合で拒否し、Stop/RECOVERY/close後のRuntimeを再開しない。Run lock中にはI/Oを置かない。SafetyGuardのconstructorからの時間・操作回数制限も初期化でリセットしない。明示的なユーザーrearmは既存の再開契約を保つ。後続の観測も取得前の世代を保持し、取得中のStop/rearmを現在世代へ読み替えず拒否する。独立したepisodeの再起動でも同じ初期化境界を使う。
 
 `DecisionTraceStore.recent_actions()` は完全なreceiptとtrace参照、正常送信、学習可否を検証し、必要なら世代も限定する。planned/legacy不明を実操作扱いにせず、別操作の `previous_outcome` を当該操作の結果へ転用しない。Sessionの既定Journalは追記を使う。互換用JSON保存は遅延appendを世代guard内で最新配列へ適用し、計画準備から公開までに追加された入力auditを消さない。互換JSONは履歴全体の読書きが必要なため、長期SessionはJournalを使用する。
 
@@ -46,4 +46,4 @@ Runtime回帰は実Sessionの終端観測、既存Pipeline/E2E/campaign seam、W
 
 2026-11-01の補助実プレイでは、固定版Tetris（`4e497d1c858914f0a1f0818698029d1c7dad090b`）とBreakout（`4961fece5e9bfb21450b71d1bb8cb3efc8d19338`）をローカルHTTPで隔離Chromiumへ表示し、共通FrameAnalyzer/OCR・無変更RuleProvider・ActionExecutorでクリックした。手動候補やゲーム固有policyは追加していない。Tetrisは1操作後に許可候補がなく停止し、最後のreceiptとunknown結果が一致した。Breakoutは3操作すべてに同世代receiptとunchanged結果が保存された。クリックの有効性やプレイ能力の向上を示す結果ではなく、実画面での帰属確認と現行認識/探索の限界を示す。検証時のtraceと報告は `/tmp/628-tetris-play/`、`/tmp/628-breakout-play/` に保存した（開発環境の一時成果物）。
 
-main側で並行更新中の #619 flow/architecture/README、#622 judgment、#623 safety、#624 records_learning は、統合時にこのreceipt/dispatch契約と整合させる。旧資料の「未送信判断も参照し得る」「dispatch flagは入力API到達の証拠でない」という現状記載は本修正の統合後に更新する。
+#642の統合版資料同期で、flow/architecture入口、judgment、safety、records_learningをこのreceipt/dispatch契約へ合わせる。初版の未送信判断・送信開始フラグに関する制約は当時の実装説明であり、現在の契約と区別する。受領記録の修正だけで全ゲーム対応の因果検証や攻略改善を達成したとは扱わない。

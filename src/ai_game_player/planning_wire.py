@@ -54,7 +54,9 @@ def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
     _check_json_nesting(raw)
     try:
         result = json.loads(
-            raw, object_pairs_hook=_unique, parse_constant=_invalid_constant
+            raw.decode("utf-8"),
+            object_pairs_hook=_unique,
+            parse_constant=_invalid_constant,
         )
     except RecursionError as error:
         raise ValueError("planning message nesting budget exceeded") from error

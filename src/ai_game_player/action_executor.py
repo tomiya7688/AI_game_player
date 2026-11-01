@@ -285,6 +285,54 @@ class ActionExecutor:
             runtime.emergency_stop(reason)
         self._release_live_inputs()
 
+    # {
+    #   責務: [ensure_initialization_not_stopped: 初期化でdefault/localの緊急停止を解除せず拒否する]
+    #   処理: [双方の実Eventを読取り、停止中なら初期化を失敗させる]
+    #   引数: [なし] 戻り値: [なし]
+    #   エラー: [RuntimeError: いずれかの緊急停止が有効]
+    # }
+    def ensure_initialization_not_stopped(self) -> None:
+        if (
+            default_emergency_stop().is_triggered()
+            or self.emergency_stop.is_triggered()
+        ):
+            raise RuntimeError("emergency stop prevents initial safety lease")
+
+    # {
+    #   責務: [initialize_safety: Stop解除と区別して初回観測用のleaseを開始する]
+    #   処理: [各I/O前後で世代とEventを確認し、Guardの時計・履歴・停止をresetしない]
+    #   引数: [check_current: 呼出側の観測開始世代を検証する短い関数]
+    #   戻り値: [なし]
+    #   エラー: [RuntimeError/ExecutionCancelled: 対象・保存・世代・停止の検査失敗]
+    # }
+    def initialize_safety(self, check_current: Callable[[], None]) -> None:
+        # {
+        #   責務: [check: 世代とdefault/local Stopを一緒に検査する]
+        #   処理: [呼出側の世代確認後にEventを読み、I/Oは行わない]
+        #   引数: [なし] 戻り値: [なし]
+        #   エラー: [RuntimeError/ExecutionCancelled: 世代またはStopが無効]
+        # }
+        def check() -> None:
+            check_current()
+            self.ensure_initialization_not_stopped()
+
+        check()
+        runtime = self.fail_safe_runtime
+        if runtime is None:
+            return
+        target = self._current_target()
+        check()
+        if target is None or not target.valid or not target.visible or target.pid <= 0:
+            raise RuntimeError("initial safety lease requires a valid visible target")
+        runtime.ledger.configure(
+            target_handle=target.handle, input_mode=self.input_mode
+        )
+        check()
+        runtime.initialize(target_pid=target.pid, target_handle=target.handle)
+        check()
+        if runtime.state != FailSafeState.ACTIVE:
+            raise RuntimeError("initial safety lease is not active")
+
     def rearm_safety(self) -> None:
         self.safety_guard.rearm()
         runtime = self.fail_safe_runtime

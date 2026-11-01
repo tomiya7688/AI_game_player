@@ -95,7 +95,9 @@ flowchart TD
 
 例えば、前回「開始」を押したという記録がある場合、次に取得した画面でメニューが消えたか、別画面へ進んだかなどを調べます。その結果を今回の判断に渡します。**キー入力APIの送信成功はゲーム画面の変化の証拠ではありません。**
 
-**実行事実との対応：** `GamePlayerEngine.step()`は判断計画だけを保存します。正常送信のreceiptをsnapshot・action・実行世代へ固定し、次の明示観測を元操作へ一度だけ関連付けます。判断のみ・確認運転・入力前失敗は実操作pendingを更新しません。Windows入力器は前処理後の入力API呼出し直前でdispatch信号を立て、送信後例外や送信不明はunknownに留めます。最後の操作もSession終了前に観測を完了します。入力API到達とゲームへの効果は別です。詳細と検証範囲は [実行受領記録](execution_receipts.md)、停止・入力境界の残る制約は [#612](https://github.com/tomiya7688/AI_game_player/issues/612) を参照してください。
+**実行事実との対応：** `GamePlayerEngine.step()`は判断計画だけを保存します。正常送信のreceiptをsnapshot・action・実行世代へ固定し、次の明示観測を元操作へ一度だけ関連付けます。判断のみ・確認運転・入力前失敗は実操作pendingを更新しません。Windows入力器は前処理後の入力API呼出し直前でdispatch信号を立て、送信後例外や送信不明はunknownに留めます。最後の操作もSession終了前の明示観測の対象にし、観測失敗を成功へ置き換えません。入力API到達とゲームへの効果は別です。詳細と検証範囲は [実行受領記録](execution_receipts.md)、停止・入力境界の残る制約は [#612](https://github.com/tomiya7688/AI_game_player/issues/612) を参照してください。
+
+通常Sessionは#421のModeと#422の有限workerを所有し、各判断の開始時に安全境界を確認して知識の一版を固定します。検証済み効果と安定識別がある場合だけ数値知識を更新し、入力権限や安全規則は変更しません。識別の既定は無効、一般的な因果検証providerは未接続です。[接続条件と限界](light_adaptation.md)を参照してください。
 
 具体的な結果の統合方法は [OutcomeDetectionFusion機能説明書](../OutcomeDetectionFusion機能説明書.md)、判断材料の作り方は [DecisionContext機能説明書](../DecisionContext機能説明書.md) にあります。
 

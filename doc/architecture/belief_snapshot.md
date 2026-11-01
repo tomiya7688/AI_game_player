@@ -1,6 +1,6 @@
 # 型付き BeliefSnapshot と有界候補 Store
 
-Issue #478 の子 #563 が実装する **Versioned Bounded BeliefSnapshot Contract + Candidate Dedup/Residual Mass** の契約です。複数の plausible world を保持し、予測を観測事実へ変換しません。Bayesian filtering / particle filtering による更新本体は #564 がこの契約へ接続します。
+Issue #478 の子 #563 が実装する **Versioned Bounded BeliefSnapshot Contract + Candidate Dedup/Residual Mass** の契約です。複数の plausible world を保持し、予測を観測事実へ変換しません。統合版では#564の[有限仮説のBayesian更新Core](belief_update.md)がこの契約を使います。particle filterへ交換可能な境界と、resampling本体の実装は区別します。
 
 ## 実装とデータ境界
 
@@ -98,17 +98,17 @@ PYTHONPATH=src:. python tools/benchmark_belief_store.py --iterations 100 --candi
 
 | #478 / #563 の指定 | 実装・証拠 | 未達・後続 |
 |---|---|---|
-| POMDP beliefの複数plausible world | typed Hypothesis / Snapshot、8/16曖昧2048とcard / position fixture | prior×likelihoodのBayesian updateは #564 |
-| particle / weighted approximationの境界 | 有限weight付き状態と未知質量、origin / refs | particle生成・resampling / POMCP接続は #564。POMCPOW探索は明示非対象 |
-| 比較scoreと校正確率の区別 | weight kind + calibration ref、scoreではunknown1 | 校正器・観測尤度の実装は上流/#564 |
-| dedup / Top-K / 残余 | 厳密再送 / world max / K・byte drop、絶対確率保持 | 排他Transition経路の合算・contradiction posteriorは #564 |
+| POMDP beliefの複数plausible world | typed Hypothesis / Snapshot、8/16曖昧2048とcard / position fixture | 統合版#564のCoreで実装。本番の観測尤度と接続は#405/#407/#567 |
+| particle / weighted approximationの境界 | 有限weight付き状態と未知質量、origin / refs | 元Issue#564はParticle Filterへ交換可能な境界が要件。参照実装は有限全列挙で、resampling/POMCP/POMCPOW本体は実装対象外 |
+| 比較scoreと校正確率の区別 | weight kind + calibration ref、scoreではunknown1 | #564は校正済みjoint尤度を消費。実Recognizerの尤度校正は#405/#407 |
+| dedup / Top-K / 残余 | 厳密再送 / world max / K・byte drop、絶対確率保持 | 統合版#564のCoreで合算・矛盾時unknownを実装。本番接続は#567 |
 | scope / TTL / source整合 | 混在・stale・future・deadline・時計origin・reset CAS negative test | 本番 #405/#407 evidence Adapterは未接続 |
 | bounded memory / cost | 300回churn・12回restart、上限iterator、2規模benchmark | 実ゲーム状態での長時間Runtime計測は後続 |
 | Safety / Verifier維持 | 高確信Belief payloadがあっても既存allowed IDs・Verifierがunsafe Actionを拒否するtest | Planner / OS入力の接続は対象外 |
 
 **Core:** このPRの型付き不変契約・Candidate Store・Schema・診断を実装済み。
 
-**Runtime:** #479 の実在 `Game2048State` を任意fixture Adapterが使い、DecisionContext / Verifierの既存APIとCPU結合テスト済み。本番Recognition / Decision / Journalへ自動接続しません。Snapshotの `to_dict/to_bytes` を明示的にJournalへ投影するhostの配線、#405/#407 evidence、#564 Estimatorが後続です。RegistryやTransitionModelの登録は必須にしません。
+**Runtime:** #479 の実在 `Game2048State` を任意fixture Adapterが使い、DecisionContext / Verifierの既存APIとCPU結合テスト済み。本番Recognition / Decision / Journalへ自動接続しません。Snapshotの `to_dict/to_bytes` を明示的にJournalへ投影するhostの配線、#405/#407 evidence、#567のtrusted Runtime Adapterは未達です。#564 Estimatorは統合版のCoreとして追加されていますが、既存Outcomeや実行受領記録を置き換えません。RegistryやTransitionModelの登録は必須にしません。
 
 **Real-play:** このPRでは実施していません。fixtureの内部盤面は合成認識データで、実ゲームDOMや内部状態を認識器の正解として使いません。ゲーム上での仮説更新・操作の改善や勝率の受入れ完了にはしません。
 

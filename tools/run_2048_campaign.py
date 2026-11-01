@@ -399,9 +399,8 @@ class ReferenceGame2048Episode(CampaignEpisode):
             )
         pipeline = self.pipeline
         complete = getattr(pipeline, "complete_execution_observation", None)
-        observation_token = (
-            pipeline.controller.rearm_token if callable(complete) else None
-        )
+        controller = getattr(pipeline, "controller", None)
+        observation_token = controller.rearm_token if controller is not None else None
         first_observation = not self._safety_rearmed
         capture_started_at = time.monotonic()
 
@@ -431,9 +430,12 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 # {
                 #   理由: [playable boardの取得は最大45秒待つため、5秒の観測leaseは最初の新鮮なboard取得直後に開始し、episode起動中の失効を防ぐ]
                 # }
-                pipeline.rearm_safety()
+                if observation_token is None:
+                    raise RuntimeError(
+                        "initial observation requires a captured Run generation"
+                    )
+                pipeline.initialize_safety(expected_rearm_token=observation_token)
                 self._safety_rearmed = True
-                pipeline.record_observation()
             except Exception as error:
                 raise CampaignFailure(
                     "safety_block",
@@ -444,7 +446,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     f"error={type(error).__name__}: {error}",
                 ) from error
         latest = getattr(self.source, "latest_observation", None)
-        # 初回は実操作前の初期化で、安全再開によって世代も進む。
+        # 初回は実操作前の初期lease開始で、停止解除や新世代Startは行わない。
         # 後続の観測だけを、取得開始時に保持した実行世代へ結び付ける。
         if not first_observation and latest is not None and callable(complete):
             complete(latest, expected_rearm_token=observation_token)
