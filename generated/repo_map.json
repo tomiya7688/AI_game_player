@@ -128155,6 +128155,175 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_seed"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "urllib.request",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlopen"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_seed"
+          ],
+          "module": "tools.reference_game_seed",
+          "names": [
+            {
+              "alias": null,
+              "name": "seeded_index"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "LoopbackStaticServer"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_reference_game_seed",
+      "path": "tests/test_reference_game_seed.py",
+      "source_location": {
+        "end_line": 48,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReferenceGameSeedTests",
+          "parameters": [],
+          "qualified_name": "ReferenceGameSeedTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 48,
+            "start_line": 10
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_explicit_seed_only_changes_served_response_not_pinned_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameSeedTests.test_explicit_seed_only_changes_served_response_not_pinned_files",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 36,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_seed_and_unknown_or_oversized_html_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameSeedTests.test_invalid_seed_and_unknown_or_oversized_html_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 38
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.region_detector"
@@ -148074,6 +148243,477 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.action_executor",
+        "ai_game_player.campaign_contract",
+        "ai_game_player.run_control",
+        "tools",
+        "tools.compare_2048_windows_planning"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.action_executor"
+          ],
+          "module": "ai_game_player.action_executor",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionResult"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.campaign_contract"
+          ],
+          "module": "ai_game_player.campaign_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "CampaignState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "RunController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "tools",
+            "tools.compare_2048_windows_planning"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "comparison",
+              "name": "compare_2048_windows_planning"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_windows_planning_comparison",
+      "path": "tests/test_windows_planning_comparison.py",
+      "source_location": {
+        "end_line": 123,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeMonitor",
+          "parameters": [],
+          "qualified_name": "FakeMonitor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 18,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeMonitor.start",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 15,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeMonitor.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 18,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeEpisode",
+          "parameters": [],
+          "qualified_name": "FakeEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "FakeEpisode.__init__",
+          "return_annotation": null,
+          "signature": "(self, *args, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 34,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "execute",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "expected_rearm_token"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "FakeEpisode.execute",
+          "return_annotation": null,
+          "signature": "(self, expected_rearm_token = …, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "observe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeEpisode.observe",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeEpisode.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 46,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WindowsPlanningComparisonTests",
+          "parameters": [],
+          "qualified_name": "WindowsPlanningComparisonTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 123,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_short_comparison_requires_actual_inputs_and_stop_stale_rejection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningComparisonTests.test_short_comparison_requires_actual_inputs_and_stop_stale_rejection",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 77,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_score_is_failure_and_owned_episode_is_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningComparisonTests.test_missing_score_is_failure_and_owned_episode_is_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "WindowsPlanningComparisonTests.test_missing_score_is_failure_and_owned_episode_is_closed.factory",
+          "return_annotation": null,
+          "signature": "(*args, **kwargs)",
+          "source_location": {
+            "column": 8,
+            "end_line": 85,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_optional_sampler_becomes_a_reported_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningComparisonTests.test_missing_optional_sampler_becomes_a_reported_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 109
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "tools",
         "tools.workflow_security_check"
       ],
@@ -154472,7 +155112,20 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "uuid",
+          "names": [
+            {
+              "alias": null,
+              "name": "uuid4"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.action_executor"
@@ -154488,7 +155141,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.baseline_provider"
@@ -154504,7 +155157,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_orchestrator"
@@ -154520,7 +155173,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_withheld"
@@ -154536,7 +155189,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_transition"
@@ -154556,7 +155209,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -154576,7 +155229,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 23,
+          "line": 24,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.pipeline"
@@ -154592,7 +155245,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 25,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planner_factory"
@@ -154608,7 +155261,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 26,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_contract"
@@ -154624,7 +155277,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -154640,7 +155293,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 27,
+          "line": 28,
           "local_dependencies": [
             "tools",
             "tools.browser_probe_support"
@@ -154660,7 +155313,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
+          "line": 29,
           "local_dependencies": [
             "tools",
             "tools.run_2048_campaign"
@@ -154676,7 +155329,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 102,
+          "line": 103,
           "local_dependencies": [],
           "module": "resource",
           "names": [
@@ -154690,7 +155343,7 @@
       "module": "tools.compare_2048_planning",
       "path": "tools/compare_2048_planning.py",
       "source_location": {
-        "end_line": 287,
+        "end_line": 288,
         "start_line": 1
       },
       "symbols": [
@@ -154710,8 +155363,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 73,
-            "start_line": 31
+            "end_line": 74,
+            "start_line": 32
           }
         },
         {
@@ -154739,8 +155392,8 @@
           "signature": "(self, seed)",
           "source_location": {
             "column": 4,
-            "end_line": 39,
-            "start_line": 32
+            "end_line": 40,
+            "start_line": 33
           }
         },
         {
@@ -154762,8 +155415,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 41
+            "end_line": 70,
+            "start_line": 42
           }
         },
         {
@@ -154785,8 +155438,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 73,
-            "start_line": 71
+            "end_line": 74,
+            "start_line": 72
           }
         },
         {
@@ -154805,8 +155458,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 97,
-            "start_line": 76
+            "end_line": 98,
+            "start_line": 77
           }
         },
         {
@@ -154834,8 +155487,8 @@
           "signature": "(self, source)",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 77
+            "end_line": 80,
+            "start_line": 78
           }
         },
         {
@@ -154863,8 +155516,8 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 81
+            "end_line": 98,
+            "start_line": 82
           }
         },
         {
@@ -154879,8 +155532,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 113,
-            "start_line": 100
+            "end_line": 114,
+            "start_line": 101
           }
         },
         {
@@ -154908,8 +155561,8 @@
           "signature": "(values, fraction)",
           "source_location": {
             "column": 0,
-            "end_line": 120,
-            "start_line": 116
+            "end_line": 121,
+            "start_line": 117
           }
         },
         {
@@ -154955,8 +155608,8 @@
           "signature": "(provider_name, seed, max_steps, *, depth = …, wall_time_ms = …)",
           "source_location": {
             "column": 0,
-            "end_line": 228,
-            "start_line": 123
+            "end_line": 229,
+            "start_line": 124
           }
         },
         {
@@ -154978,8 +155631,418 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 283,
-            "start_line": 231
+            "end_line": 284,
+            "start_line": 232
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_orchestrator",
+        "ai_game_player.decision_withheld",
+        "ai_game_player.frame_analyzer",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.ocr_recognizer",
+        "ai_game_player.run_control",
+        "tools",
+        "tools.browser_probe_support",
+        "tools.planning_resource_monitor",
+        "tools.reference_game_2048_source",
+        "tools.run_2048_campaign"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "statistics"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_orchestrator"
+          ],
+          "module": "ai_game_player.decision_orchestrator",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionOrchestrator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_withheld"
+          ],
+          "module": "ai_game_player.decision_withheld",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionDisposition"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_analyzer"
+          ],
+          "module": "ai_game_player.frame_analyzer",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameAnalyzer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.ocr_recognizer"
+          ],
+          "module": "ai_game_player.ocr_recognizer",
+          "names": [
+            {
+              "alias": null,
+              "name": "TesseractOcrRecognizer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "tools",
+            "tools.browser_probe_support"
+          ],
+          "module": "tools.browser_probe_support",
+          "names": [
+            {
+              "alias": null,
+              "name": "new_probe_directory"
+            },
+            {
+              "alias": null,
+              "name": "publish_validation_report"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_resource_monitor"
+          ],
+          "module": "tools.planning_resource_monitor",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningResourceMonitor"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "SOURCE_LOCK_PATH"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "tools",
+            "tools.run_2048_campaign"
+          ],
+          "module": "tools.run_2048_campaign",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Episode"
+            },
+            {
+              "alias": null,
+              "name": "CAMPAIGN_PURPOSE"
+            }
+          ]
+        }
+      ],
+      "module": "tools.compare_2048_windows_planning",
+      "path": "tools/compare_2048_windows_planning.py",
+      "source_location": {
+        "end_line": 253,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate_visible_score",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr"
+            }
+          ],
+          "qualified_name": "evaluate_visible_score",
+          "return_annotation": null,
+          "signature": "(episode, ocr)",
+          "source_location": {
+            "column": 0,
+            "end_line": 36,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seed"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "max_steps"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cache"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output"
+            }
+          ],
+          "qualified_name": "run_episode",
+          "return_annotation": null,
+          "signature": "(provider, seed, max_steps, cache, output)",
+          "source_location": {
+            "column": 0,
+            "end_line": 193,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": null,
+          "signature": "(argv = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 249,
+            "start_line": 196
           }
         }
       ]
@@ -158108,6 +159171,192 @@
       "dependencies": [],
       "imports": [
         {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "psutil",
+          "names": [
+            {
+              "alias": null,
+              "name": "psutil"
+            }
+          ]
+        }
+      ],
+      "module": "tools.planning_resource_monitor",
+      "path": "tools/planning_resource_monitor.py",
+      "source_location": {
+        "end_line": 70,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningResourceMonitor",
+          "parameters": [],
+          "qualified_name": "PlanningResourceMonitor",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 7
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "interval_seconds"
+            }
+          ],
+          "qualified_name": "PlanningResourceMonitor.__init__",
+          "return_annotation": null,
+          "signature": "(self, interval_seconds = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 8
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "sample",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningResourceMonitor.sample",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "start",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningResourceMonitor.start",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "loop",
+          "parameters": [],
+          "qualified_name": "PlanningResourceMonitor.start.loop",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 49,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningResourceMonitor.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 57
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
           "kind": "from",
           "level": 0,
           "line": 3,
@@ -159485,6 +160734,7 @@
         "ai_game_player.window_selector",
         "tools",
         "tools.reference_game_2048_source",
+        "tools.reference_game_seed",
         "tools.startup_failure_evidence"
       ],
       "imports": [
@@ -159626,6 +160876,22 @@
           "kind": "from",
           "level": 0,
           "line": 14,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_seed"
+          ],
+          "module": "tools.reference_game_seed",
+          "names": [
+            {
+              "alias": null,
+              "name": "seeded_index"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -159638,7 +160904,7 @@
         {
           "kind": "from",
           "level": 1,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -159654,7 +160920,7 @@
         {
           "kind": "from",
           "level": 1,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "tools",
             "tools.startup_failure_evidence"
@@ -159670,7 +160936,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 282,
+          "line": 313,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.window_selector"
@@ -159686,7 +160952,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 448,
+          "line": 489,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -159700,7 +160966,7 @@
       "module": "tools.reference_game_2048_launcher",
       "path": "tools/reference_game_2048_launcher.py",
       "source_location": {
-        "end_line": 521,
+        "end_line": 562,
         "start_line": 1
       },
       "symbols": [
@@ -159720,8 +160986,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 77,
-            "start_line": 42
+            "end_line": 78,
+            "start_line": 43
           }
         },
         {
@@ -159743,8 +161009,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 51
+            "end_line": 55,
+            "start_line": 52
           }
         },
         {
@@ -159772,8 +161038,8 @@
           "signature": "(self, status_code: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 62
+            "end_line": 68,
+            "start_line": 63
           }
         },
         {
@@ -159795,8 +161061,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 77,
-            "start_line": 75
+            "end_line": 78,
+            "start_line": 76
           }
         },
         {
@@ -159815,8 +161081,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 167,
-            "start_line": 80
+            "end_line": 186,
+            "start_line": 81
           }
         },
         {
@@ -159838,8 +161104,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 83
+            "end_line": 91,
+            "start_line": 84
           }
         },
         {
@@ -159861,8 +161127,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 90
+            "end_line": 100,
+            "start_line": 93
           }
         },
         {
@@ -159886,8 +161152,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 103,
-            "start_line": 100
+            "end_line": 106,
+            "start_line": 103
           }
         },
         {
@@ -159915,8 +161181,8 @@
           "signature": "(self, source_path: Path) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 108,
-            "start_line": 105
+            "end_line": 111,
+            "start_line": 108
           }
         },
         {
@@ -159944,8 +161210,8 @@
           "signature": "(self, source_path: Path) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 110
+            "end_line": 166,
+            "start_line": 113
           }
         },
         {
@@ -159966,8 +161232,31 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 131,
-            "start_line": 120
+            "end_line": 150,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "do_GET",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer._start_locked.QuietRequestHandler.do_GET",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 12,
+            "end_line": 138,
+            "start_line": 127
           }
         },
         {
@@ -160001,8 +161290,8 @@
           "signature": "(self, format: str, *args: object) -> None",
           "source_location": {
             "column": 12,
-            "end_line": 122,
-            "start_line": 121
+            "end_line": 141,
+            "start_line": 140
           }
         },
         {
@@ -160036,8 +161325,8 @@
           "signature": "(self, code: int, message: str | None = …) -> None",
           "source_location": {
             "column": 12,
-            "end_line": 131,
-            "start_line": 124
+            "end_line": 150,
+            "start_line": 143
           }
         },
         {
@@ -160059,8 +161348,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 151,
-            "start_line": 149
+            "end_line": 170,
+            "start_line": 168
           }
         },
         {
@@ -160082,8 +161371,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 167,
-            "start_line": 153
+            "end_line": 186,
+            "start_line": 172
           }
         },
         {
@@ -160102,8 +161391,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 335,
-            "start_line": 170
+            "end_line": 366,
+            "start_line": 189
           }
         },
         {
@@ -160143,8 +161432,8 @@
           "signature": "(self, browser_path: Path, source_path: Path, *, failure_evidence: StartupFailureEvidence | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 173
+            "end_line": 207,
+            "start_line": 192
           }
         },
         {
@@ -160178,8 +161467,8 @@
           "signature": "(self, url: str, timeout_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 244,
-            "start_line": 184
+            "end_line": 275,
+            "start_line": 209
           }
         },
         {
@@ -160207,8 +161496,8 @@
           "signature": "(self, poll_seconds: float = …) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 251,
-            "start_line": 246
+            "end_line": 282,
+            "start_line": 277
           }
         },
         {
@@ -160230,8 +161519,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 253
+            "end_line": 292,
+            "start_line": 284
           }
         },
         {
@@ -160253,8 +161542,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 277,
-            "start_line": 263
+            "end_line": 308,
+            "start_line": 294
           }
         },
         {
@@ -160282,8 +161571,8 @@
           "signature": "(self, timeout_seconds: float)",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 279
+            "end_line": 344,
+            "start_line": 310
           }
         },
         {
@@ -160305,8 +161594,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 335,
-            "start_line": 315
+            "end_line": 366,
+            "start_line": 346
           }
         },
         {
@@ -160325,8 +161614,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 415,
-            "start_line": 338
+            "end_line": 456,
+            "start_line": 369
           }
         },
         {
@@ -160366,8 +161655,8 @@
           "signature": "(self, cache_root: Path, browser_path: Path | None = …, *, failure_evidence: StartupFailureEvidence | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 347,
-            "start_line": 341
+            "end_line": 384,
+            "start_line": 372
           }
         },
         {
@@ -160391,8 +161680,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 351,
-            "start_line": 350
+            "end_line": 388,
+            "start_line": 387
           }
         },
         {
@@ -160416,8 +161705,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 355,
-            "start_line": 354
+            "end_line": 392,
+            "start_line": 391
           }
         },
         {
@@ -160441,8 +161730,8 @@
           "signature": "(self) -> subprocess.Popen[bytes] | None",
           "source_location": {
             "column": 4,
-            "end_line": 359,
-            "start_line": 358
+            "end_line": 396,
+            "start_line": 395
           }
         },
         {
@@ -160466,8 +161755,8 @@
           "signature": "(self) -> bool | None",
           "source_location": {
             "column": 4,
-            "end_line": 363,
-            "start_line": 362
+            "end_line": 400,
+            "start_line": 399
           }
         },
         {
@@ -160495,8 +161784,8 @@
           "signature": "(self, window_wait_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 395,
-            "start_line": 365
+            "end_line": 436,
+            "start_line": 402
           }
         },
         {
@@ -160518,8 +161807,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 400,
-            "start_line": 397
+            "end_line": 441,
+            "start_line": 438
           }
         },
         {
@@ -160541,8 +161830,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 409,
-            "start_line": 402
+            "end_line": 450,
+            "start_line": 443
           }
         },
         {
@@ -160564,8 +161853,8 @@
           "signature": "(self) -> ReferenceGame2048Launcher",
           "source_location": {
             "column": 4,
-            "end_line": 412,
-            "start_line": 411
+            "end_line": 453,
+            "start_line": 452
           }
         },
         {
@@ -160605,8 +161894,8 @@
           "signature": "(self, exc_type, exc_value, traceback) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 415,
-            "start_line": 414
+            "end_line": 456,
+            "start_line": 455
           }
         },
         {
@@ -160621,8 +161910,8 @@
           "signature": "() -> Path",
           "source_location": {
             "column": 0,
-            "end_line": 441,
-            "start_line": 418
+            "end_line": 482,
+            "start_line": 459
           }
         },
         {
@@ -160650,8 +161939,8 @@
           "signature": "(window_handle: int, expected_process_id: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 521,
-            "start_line": 444
+            "end_line": 562,
+            "start_line": 485
           }
         }
       ]
@@ -161069,6 +162358,74 @@
             "column": 4,
             "end_line": 349,
             "start_line": 293
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.reference_game_seed",
+      "path": "tools/reference_game_seed.py",
+      "source_location": {
+        "end_line": 30,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "seeded_index",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source_path"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seed"
+            }
+          ],
+          "qualified_name": "seeded_index",
+          "return_annotation": null,
+          "signature": "(source_path: Path, seed: int | None)",
+          "source_location": {
+            "column": 0,
+            "end_line": 30,
+            "start_line": 10
           }
         }
       ]
@@ -162560,7 +163917,7 @@
       "module": "tools.run_2048_campaign",
       "path": "tools/run_2048_campaign.py",
       "source_location": {
-        "end_line": 671,
+        "end_line": 676,
         "start_line": 1
       },
       "symbols": [
@@ -162872,7 +164229,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 532,
+            "end_line": 537,
             "start_line": 302
           }
         },
@@ -162942,14 +164299,20 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "planning_settle_ms"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "test_seed"
             }
           ],
           "qualified_name": "ReferenceGame2048Episode.__init__",
           "return_annotation": "None",
-          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …) -> None",
+          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …, test_seed: int | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 381,
+            "end_line": 386,
             "start_line": 303
           }
         },
@@ -162972,8 +164335,8 @@
           "signature": "(self) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 439,
-            "start_line": 383
+            "end_line": 444,
+            "start_line": 388
           }
         },
         {
@@ -162988,8 +164351,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 8,
-            "end_line": 407,
-            "start_line": 396
+            "end_line": 412,
+            "start_line": 401
           }
         },
         {
@@ -163011,8 +164374,8 @@
           "signature": "(self) -> CampaignActionResult",
           "source_location": {
             "column": 4,
-            "end_line": 485,
-            "start_line": 441
+            "end_line": 490,
+            "start_line": 446
           }
         },
         {
@@ -163034,8 +164397,8 @@
           "signature": "(self) -> dict[str, object] | None",
           "source_location": {
             "column": 4,
-            "end_line": 490,
-            "start_line": 487
+            "end_line": 495,
+            "start_line": 492
           }
         },
         {
@@ -163075,8 +164438,8 @@
           "signature": "(self, status: str, confidence: float, evidence: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 503,
-            "start_line": 492
+            "end_line": 508,
+            "start_line": 497
           }
         },
         {
@@ -163098,8 +164461,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 532,
-            "start_line": 505
+            "end_line": 537,
+            "start_line": 510
           }
         },
         {
@@ -163121,8 +164484,8 @@
           "signature": "(root: Path) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 547,
-            "start_line": 535
+            "end_line": 552,
+            "start_line": 540
           }
         },
         {
@@ -163137,8 +164500,8 @@
           "signature": "() -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 596,
-            "start_line": 550
+            "end_line": 601,
+            "start_line": 555
           }
         },
         {
@@ -163153,8 +164516,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 667,
-            "start_line": 599
+            "end_line": 672,
+            "start_line": 604
           }
         }
       ]

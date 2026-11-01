@@ -11,6 +11,7 @@ import tempfile
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from tools.reference_game_seed import seeded_index
 from pathlib import Path
 from .reference_game_2048_source import PinnedGameSource
 from .startup_failure_evidence import StartupFailureEvidence
@@ -86,6 +87,8 @@ class LoopbackStaticServer:
         self._url: str | None = None
         self._lifecycle_lock = threading.Lock()
         self._page_responses = PageResponseCounts()
+        self.test_seed: int | None = None
+        self.test_seed_metadata: dict | None = None
 
     def page_response_summary(self) -> str:
         """Return GET-page HTTP response counts, not proof of browser receipt or rendering.
@@ -116,8 +119,24 @@ class LoopbackStaticServer:
             )
         # Old daemon handlers may finish after close; they retain only their own counters.
         page_responses = PageResponseCounts()
+        seeded_response, self.test_seed_metadata = seeded_index(
+            source_path, self.test_seed
+        )
 
         class QuietRequestHandler(SimpleHTTPRequestHandler):
+            def do_GET(self) -> None:
+                if seeded_response is not None and self.path.partition("?")[0] in (
+                    "/",
+                    "/index.html",
+                ):
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(seeded_response)))
+                    self.end_headers()
+                    self.wfile.write(seeded_response)
+                else:
+                    super().do_GET()
+
             def log_message(self, format: str, *args: object) -> None:
                 return
 
@@ -170,7 +189,13 @@ class LoopbackStaticServer:
 class BrowserWindowSession:
     """Own the isolated browser process, profile, and Windows target window."""
 
-    def __init__(self, browser_path: Path, source_path: Path, *, failure_evidence: StartupFailureEvidence | None = None) -> None:
+    def __init__(
+        self,
+        browser_path: Path,
+        source_path: Path,
+        *,
+        failure_evidence: StartupFailureEvidence | None = None,
+    ) -> None:
         self.browser_path = browser_path.resolve()
         self.source_path = source_path
         self.process: subprocess.Popen[bytes] | None = None
@@ -228,10 +253,16 @@ class BrowserWindowSession:
             try:
                 if self.failure_evidence is not None and self.process is not None:
                     try:
-                        phase_durations_ms["startup_total"] = (time.monotonic() - started) * 1000
+                        phase_durations_ms["startup_total"] = (
+                            time.monotonic() - started
+                        ) * 1000
                         if wait_started is not None:
-                            phase_durations_ms["window_wait"] = (time.monotonic() - wait_started) * 1000
-                        self.failure_evidence_manifest = self.failure_evidence.save(self.process.pid, phase_durations_ms)
+                            phase_durations_ms["window_wait"] = (
+                                time.monotonic() - wait_started
+                            ) * 1000
+                        self.failure_evidence_manifest = self.failure_evidence.save(
+                            self.process.pid, phase_durations_ms
+                        )
                     except Exception as evidence_error:
                         # Diagnostics must never replace the original startup failure.
                         self.failure_evidence_error = type(evidence_error).__name__
@@ -338,7 +369,13 @@ class BrowserWindowSession:
 class ReferenceGame2048Launcher:
     """Compose source verification, local serving, and browser-window lifecycle for 2048."""
 
-    def __init__(self, cache_root: Path, browser_path: Path | None = None, *, failure_evidence: StartupFailureEvidence | None = None) -> None:
+    def __init__(
+        self,
+        cache_root: Path,
+        browser_path: Path | None = None,
+        *,
+        failure_evidence: StartupFailureEvidence | None = None,
+    ) -> None:
         self.cache_root = cache_root
         self.browser_path = browser_path
         self.source_path: Path | None = None
@@ -385,9 +422,13 @@ class ReferenceGame2048Launcher:
                     f"{startup_error}; {self.server.page_response_summary()}",
                 )
                 if self.browser.failure_evidence_manifest is not None:
-                    startup_error.args = (f"{startup_error}; startup_evidence={self.browser.failure_evidence_manifest}",)
+                    startup_error.args = (
+                        f"{startup_error}; startup_evidence={self.browser.failure_evidence_manifest}",
+                    )
                 elif self.browser.failure_evidence_error is not None:
-                    startup_error.args = (f"{startup_error}; startup_evidence_error={self.browser.failure_evidence_error}",)
+                    startup_error.args = (
+                        f"{startup_error}; startup_evidence_error={self.browser.failure_evidence_error}",
+                    )
             try:
                 self.close()
             except Exception:

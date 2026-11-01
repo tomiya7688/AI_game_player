@@ -10,6 +10,7 @@ import statistics
 import subprocess
 import tempfile
 import time
+from uuid import uuid4
 
 from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.baseline_provider import BaselineDecisionProvider
@@ -34,7 +35,7 @@ class HeadlessSource:
         self.state = self.model.restart(seed)
         self.rng = random.Random(seed)
         self.sequence = 0
-        self.source_id = f"headless.{seed}"
+        self.source_id = "headless." + uuid4().hex
         self.invalid_actions = 0
         self.reobserve_count = 0
 

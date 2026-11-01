@@ -311,6 +311,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
         decision_provider: str = "cycling",
         planner_conditional: bool = False,
         planning_settle_ms: int = 900,
+        test_seed: int | None = None,
     ) -> None:
         if decision_provider not in {"cycling", "baseline", "planner"}:
             raise ValueError("unknown campaign decision provider")
@@ -320,6 +321,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
             raise ValueError("planning settle must be 0..2000ms")
         self.episode_number = episode_number
         self.launcher = ReferenceGame2048Launcher(cache_root, browser_path)
+        if test_seed is not None:
+            if type(test_seed) is not int or not 0 <= test_seed <= 0xFFFFFFFF:
+                raise ValueError("campaign comparison seed must be uint32")
+            self.launcher.server.test_seed = test_seed
         if save_failure_evidence:
             self.launcher.failure_evidence = StartupFailureEvidence(
                 runtime_root / f"episode-{episode_number:04d}"
