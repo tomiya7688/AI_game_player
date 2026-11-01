@@ -26818,6 +26818,586 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_builder_policy",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_snapshot",
+        "ai_game_player.knowledge_update_sample",
+        "ai_game_player.knowledge_update_statistics"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "itertools",
+          "names": [
+            {
+              "alias": null,
+              "name": "islice"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Iterable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_builder_policy"
+          ],
+          "module": "ai_game_player.knowledge_builder_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeBuilderPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            },
+            {
+              "alias": null,
+              "name": "validate_identifier"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot"
+          ],
+          "module": "ai_game_player.knowledge_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_update_sample"
+          ],
+          "module": "ai_game_player.knowledge_update_sample",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeUpdateSample"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOME_EVENT_TYPE"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_update_statistics"
+          ],
+          "module": "ai_game_player.knowledge_update_statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "estimate_uncertainty"
+            },
+            {
+              "alias": null,
+              "name": "update_action_statistics"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_builder",
+      "path": "src/ai_game_player/knowledge_builder.py",
+      "source_location": {
+        "end_line": 241,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgeBuildResult",
+          "parameters": [],
+          "qualified_name": "KnowledgeBuildResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "KnowledgeBuilder",
+          "parameters": [],
+          "qualified_name": "KnowledgeBuilder",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 147,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeBuilderPolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilder.__init__",
+          "return_annotation": "None",
+          "signature": "(self, policy: KnowledgeBuilderPolicy | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 52,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "build",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeSnapshot | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "previous"
+            },
+            {
+              "annotation": "Iterable[ExperienceEvent]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "events"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "scope"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "version"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "created_at"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expires_at"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilder.build",
+          "return_annotation": "KnowledgeBuildResult",
+          "signature": "(self, previous: KnowledgeSnapshot | None, events: Iterable[ExperienceEvent], *, scope: KnowledgeScope, version: str, created_at: str, expires_at: str | None = …) -> KnowledgeBuildResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_initial_data",
+          "parameters": [
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "version"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "created_at"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expires_at"
+            }
+          ],
+          "qualified_name": "_initial_data",
+          "return_annotation": "dict",
+          "signature": "(scope: KnowledgeScope, version: str, created_at: str, expires_at: str | None) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 179,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_accept_sequence",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "KnowledgeUpdateSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            },
+            {
+              "annotation": "KnowledgeBuilderPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_accept_sequence",
+          "return_annotation": "bool",
+          "signature": "(data: dict, sample: KnowledgeUpdateSample, policy: KnowledgeBuilderPolicy) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 207,
+            "start_line": 189
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_record_source",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "KnowledgeUpdateSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            },
+            {
+              "annotation": "KnowledgeBuilderPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_record_source",
+          "return_annotation": "None",
+          "signature": "(data: dict, sample: KnowledgeUpdateSample, policy: KnowledgeBuilderPolicy) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 241,
+            "start_line": 217
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.knowledge_scope"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            },
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "validate_identifier"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_builder_policy",
+      "path": "src/ai_game_player/knowledge_builder_policy.py",
+      "source_location": {
+        "end_line": 96,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgeBuilderPolicy",
+          "parameters": [],
+          "qualified_name": "KnowledgeBuilderPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 96,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "fingerprint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderPolicy.fingerprint",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 91
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -28023,6 +28603,506 @@
             "column": 4,
             "end_line": 192,
             "start_line": 187
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_snapshot"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            },
+            {
+              "alias": null,
+              "name": "validate_identifier"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot"
+          ],
+          "module": "ai_game_player.knowledge_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "MAX_COUNT"
+            },
+            {
+              "alias": null,
+              "name": "THRESHOLD_HINT_KEYS"
+            },
+            {
+              "alias": null,
+              "name": "WEIGHT_HINT_KEYS"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_update_sample",
+      "path": "src/ai_game_player/knowledge_update_sample.py",
+      "source_location": {
+        "end_line": 258,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgeUpdateSample",
+          "parameters": [],
+          "qualified_name": "KnowledgeUpdateSample",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 224,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "ExperienceEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "KnowledgeUpdateSample.from_event",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, event: ExperienceEvent) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 224,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_number",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "minimum"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_number",
+          "return_annotation": "float",
+          "signature": "(value: object, minimum: float, maximum: float, name: str) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 241,
+            "start_line": 234
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_hints",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "keys"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_hints",
+          "return_annotation": "tuple[tuple[str, float], ...]",
+          "signature": "(value: object, keys: frozenset[str], maximum: float, name: str) -> tuple[tuple[str, float], ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 251
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.knowledge_builder_policy",
+        "ai_game_player.knowledge_update_sample"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "fsum"
+            },
+            {
+              "alias": null,
+              "name": "sqrt"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_builder_policy"
+          ],
+          "module": "ai_game_player.knowledge_builder_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeBuilderPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_update_sample"
+          ],
+          "module": "ai_game_player.knowledge_update_sample",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeUpdateSample"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_update_statistics",
+      "path": "src/ai_game_player/knowledge_update_statistics.py",
+      "source_location": {
+        "end_line": 191,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "update_action_statistics",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "KnowledgeUpdateSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "outcome"
+            },
+            {
+              "annotation": "KnowledgeBuilderPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "update_action_statistics",
+          "return_annotation": "None",
+          "signature": "(data: dict, sample: KnowledgeUpdateSample, outcome: str, policy: KnowledgeBuilderPolicy) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 81,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "estimate_uncertainty",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "estimate_uncertainty",
+          "return_annotation": "float",
+          "signature": "(data: dict) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 101,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_update_transition",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "KnowledgeUpdateSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            },
+            {
+              "annotation": "KnowledgeBuilderPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_update_transition",
+          "return_annotation": "None",
+          "signature": "(data: dict, sample: KnowledgeUpdateSample, policy: KnowledgeBuilderPolicy) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 149,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_update_hints",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "KnowledgeUpdateSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            },
+            {
+              "annotation": "KnowledgeBuilderPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_update_hints",
+          "return_annotation": "None",
+          "signature": "(data: dict, sample: KnowledgeUpdateSample, policy: KnowledgeBuilderPolicy) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 181,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bounded_change",
+          "parameters": [
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "limit"
+            }
+          ],
+          "qualified_name": "_bounded_change",
+          "return_annotation": "float",
+          "signature": "(current: float, target: float, limit: float) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 191,
+            "start_line": 190
           }
         }
       ]
@@ -78464,6 +79544,805 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_builder",
+        "ai_game_player.knowledge_builder_policy",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_snapshot",
+        "ai_game_player.knowledge_update_sample"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrozenInstanceError"
+            },
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "itertools",
+          "names": [
+            {
+              "alias": null,
+              "name": "itertools"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceProvenance"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_builder"
+          ],
+          "module": "ai_game_player.knowledge_builder",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_builder_policy"
+          ],
+          "module": "ai_game_player.knowledge_builder_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeBuilderPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot"
+          ],
+          "module": "ai_game_player.knowledge_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_update_sample"
+          ],
+          "module": "ai_game_player.knowledge_update_sample",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeUpdateSample"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_knowledge_builder",
+      "path": "tests/test_knowledge_builder.py",
+      "source_location": {
+        "end_line": 423,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "effect_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sequence"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "outcome"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "source"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "scope"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "correlation"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "generation"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "provenance"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "confidence"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "verified"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "execution_status"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "hints"
+            }
+          ],
+          "qualified_name": "effect_event",
+          "return_annotation": null,
+          "signature": "(sequence, outcome = …, action = …, *, source = …, scope = …, correlation = …, generation = …, provenance = …, confidence = …, verified = …, execution_status = …, hints = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 63,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "build",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "events"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "previous"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "version"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "build",
+          "return_annotation": null,
+          "signature": "(events, previous = …, version = …, **kwargs)",
+          "source_location": {
+            "column": 0,
+            "end_line": 69,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "KnowledgeBuilderTest",
+          "parameters": [],
+          "qualified_name": "KnowledgeBuilderTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 419,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sample_projection_is_immutable_and_policy_version_is_recorded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_sample_projection_is_immutable_and_policy_version_is_recorded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_no_effect_is_learned_without_declaring_action_unsafe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_no_effect_is_learned_without_declaring_action_unsafe",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repeated_success_and_failure_change_soft_priors_in_opposite_directions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_repeated_success_and_failure_change_soft_priors_in_opposite_directions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pixel_change_passive_score_and_model_claims_remain_unknown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_pixel_change_passive_score_and_model_claims_remain_unknown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unverified_low_confidence_and_missing_evidence_do_not_learn_effect",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_unverified_low_confidence_and_missing_evidence_do_not_learn_effect",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unexecuted_actions_are_excluded_and_unknown_dispatch_does_not_gain_reward",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_unexecuted_actions_are_excluded_and_unknown_dispatch_does_not_gain_reward",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 164,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_generation_and_receipt_mismatch_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_same_generation_and_receipt_mismatch_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 166
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_identical_experience_and_old_sequences_never_count_again_after_restore",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_identical_experience_and_old_sequences_never_count_again_after_restore",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 180,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_correlated_frames_and_detectors_are_one_sample_and_checkpoint_survives",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_correlated_frames_and_detectors_are_one_sample_and_checkpoint_survives",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 206,
+            "start_line": 182
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_effect_does_not_dilute_known_reward_mean",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_unknown_effect_does_not_dilute_known_reward_mean",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 208
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_one_outlier_and_first_prior_have_bounded_influence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_one_outlier_and_first_prior_have_bounded_influence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_transition_reliability_and_numeric_hints_update_with_finite_bounds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_transition_reliability_and_numeric_hints_update_with_finite_bounds",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 268,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_untrusted_input_cannot_create_transition_or_hint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_untrusted_input_cannot_create_transition_or_hint",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 283,
+            "start_line": 270
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_empty_irrelevant_and_sensitive_stream_preserve_static_or_existing_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_empty_irrelevant_and_sensitive_stream_preserve_static_or_existing_snapshot",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 297,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_scope_version_and_retention_failures_never_modify_old_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_scope_version_and_retention_failures_never_modify_old_snapshot",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 312,
+            "start_line": 299
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_batch_and_memory_capacities_fail_atomically_and_bound_iterator_consumption",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_batch_and_memory_capacities_fail_atomically_and_bound_iterator_consumption",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 348,
+            "start_line": 314
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "stream",
+          "parameters": [],
+          "qualified_name": "KnowledgeBuilderTest.test_batch_and_memory_capacities_fail_atomically_and_bound_iterator_consumption.stream",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 330,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bad_payload_and_safety_override_hints_are_rejected_without_echoing_content",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_bad_payload_and_safety_override_hints_are_rejected_without_echoing_content",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 366,
+            "start_line": 350
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_policy_rejects_unbounded_or_invalid_settings",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_policy_rejects_unbounded_or_invalid_settings",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 382,
+            "start_line": 368
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_seeded_incremental_batches_match_whole_stream_and_provenance_has_no_raw_data",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeBuilderTest.test_seeded_incremental_batches_match_whole_stream_and_provenance_has_no_raw_data",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 419,
+            "start_line": 384
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store",
         "ai_game_player.baseline_provider",
         "ai_game_player.bounded_file",
@@ -112329,6 +114208,244 @@
             "column": 0,
             "end_line": 249,
             "start_line": 248
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_builder",
+        "ai_game_player.knowledge_scope"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "platform",
+          "names": [
+            {
+              "alias": null,
+              "name": "platform"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "statistics"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "tracemalloc",
+          "names": [
+            {
+              "alias": null,
+              "name": "tracemalloc"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceProvenance"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_builder"
+          ],
+          "module": "ai_game_player.knowledge_builder",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        }
+      ],
+      "module": "tools.benchmark_knowledge_builder",
+      "path": "tools/benchmark_knowledge_builder.py",
+      "source_location": {
+        "end_line": 124,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "event_stream",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "first"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "count"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seed"
+            }
+          ],
+          "qualified_name": "event_stream",
+          "return_annotation": null,
+          "signature": "(scope, first, count, seed)",
+          "source_location": {
+            "column": 0,
+            "end_line": 52,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": null,
+          "signature": "(argv = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 120,
+            "start_line": 55
           }
         }
       ]
