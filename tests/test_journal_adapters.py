@@ -28,11 +28,15 @@ def read_events(database_path: Path) -> list[EventEnvelope]:
         rows = connection.execute(
             "SELECT envelope_json FROM events ORDER BY sequence"
         ).fetchall()
-    return [EventEnvelope.from_dict(json.loads(row[0], parse_float=Decimal)) for row in rows]
+    return [
+        EventEnvelope.from_dict(json.loads(row[0], parse_float=Decimal)) for row in rows
+    ]
 
 
 class LegacyEventAdapterTest(unittest.TestCase):
-    def test_session_pipeline_writes_decision_safety_execution_and_runtime_events_to_journal(self):
+    def test_session_pipeline_writes_decision_safety_execution_and_runtime_events_to_journal(
+        self,
+    ):
         class Source:
             def read(self):
                 return ScreenObservation("menu", 200, 120), [
@@ -92,7 +96,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             self.assertEqual("jump", events[0].payload["legacy_record"]["action_id"])
             self.assertEqual("stop", events[1].payload["legacy_record"]["action_id"])
             self.assertEqual(original_text, legacy_path.read_text(encoding="utf-8"))
-            self.assertEqual([{"action_id": "jump", "confidence": 0.75}], second_adapter.records)
+            self.assertEqual(
+                [{"action_id": "jump", "confidence": 0.75}], second_adapter.records
+            )
 
     # {
     #   責務: [test_migration_preserves_decimal_tokens_in_json_and_jsonl: 旧recordのDecimal精度を保つ]
@@ -103,14 +109,19 @@ class LegacyEventAdapterTest(unittest.TestCase):
     def test_migration_preserves_decimal_tokens_in_json_and_jsonl(self):
         precise_decimal = "0.1000000000000000000000000001"
         for json_lines, file_name, content in (
-            (False, "legacy.json", "[{\"value\":" + precise_decimal + "}]"),
+            (False, "legacy.json", '[{"value":' + precise_decimal + "}]"),
             (True, "legacy.jsonl", '{"value": ' + precise_decimal + "}\n"),
         ):
-            with self.subTest(json_lines=json_lines), tempfile.TemporaryDirectory() as directory:
+            with (
+                self.subTest(json_lines=json_lines),
+                tempfile.TemporaryDirectory() as directory,
+            ):
                 root = Path(directory)
                 source_path = root / file_name
                 source_path.write_text(content, encoding="utf-8")
-                with EventJournal(root / "events.sqlite3", session_id="session-decimal") as journal:
+                with EventJournal(
+                    root / "events.sqlite3", session_id="session-decimal"
+                ) as journal:
                     LegacyEventAdapter(
                         journal,
                         source_path,
@@ -140,7 +151,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 self.assertEqual(saved, retried)
                 with self.assertRaisesRegex(EventJournalError, "different event"):
                     journal.append(
-                        "migration.record", event_id="legacy-event-1", payload={"value": 2}
+                        "migration.record",
+                        event_id="legacy-event-1",
+                        payload={"value": 2},
                     )
                 reordered_retry = journal.append(
                     "migration.record",
@@ -159,11 +172,15 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 encoding="utf-8",
             )
             original_text = legacy_path.read_text(encoding="utf-8")
-            with EventJournal(root / "events.sqlite3", session_id="session-1") as journal:
+            with EventJournal(
+                root / "events.sqlite3", session_id="session-1"
+            ) as journal:
                 adapter = LegacyEventAdapter(journal, legacy_path, "execution.result")
                 history = ExecutionHistory(legacy_path, adapter)
                 history.append(ExecutionResult("new", False, "dry_run", "preview"))
-                self.assertEqual(["old", "new"], [result.action_id for result in history.load()])
+                self.assertEqual(
+                    ["old", "new"], [result.action_id for result in history.load()]
+                )
             self.assertEqual(original_text, legacy_path.read_text(encoding="utf-8"))
 
     def test_later_session_reads_legacy_cache_without_replaying_events(self):
@@ -191,7 +208,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             root = Path(directory)
             legacy_path = root / "runtime.jsonl"
             legacy_path.write_text('{"event": "truncated"', encoding="utf-8")
-            with EventJournal(root / "events.sqlite3", session_id="session-later") as journal:
+            with EventJournal(
+                root / "events.sqlite3", session_id="session-later"
+            ) as journal:
                 adapter = LegacyEventAdapter(
                     journal,
                     legacy_path,
@@ -205,13 +224,17 @@ class LegacyEventAdapterTest(unittest.TestCase):
 
     def test_event_id_lookup_sqlite_error_uses_event_journal_error_contract(self):
         with tempfile.TemporaryDirectory() as directory:
-            with EventJournal(Path(directory) / "events.sqlite3", session_id="session-error") as journal:
+            with EventJournal(
+                Path(directory) / "events.sqlite3", session_id="session-error"
+            ) as journal:
                 with patch.object(
                     journal,
                     "_read_event_by_id",
                     side_effect=sqlite3.OperationalError("database is locked"),
                 ):
-                    with self.assertRaisesRegex(EventJournalError, "retry lookup failed"):
+                    with self.assertRaisesRegex(
+                        EventJournalError, "retry lookup failed"
+                    ):
                         journal.append("legacy.record", event_id="legacy-1")
 
     def test_runtime_log_migrates_old_jsonl_and_keeps_append_compatibility(self):
@@ -222,7 +245,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 '{"event":"old","message":"kept","context":{}}\n',
                 encoding="utf-8",
             )
-            with EventJournal(root / "events.sqlite3", session_id="session-1") as journal:
+            with EventJournal(
+                root / "events.sqlite3", session_id="session-1"
+            ) as journal:
                 logger = RuntimeLog(legacy_path)
                 attachment_token = logger.attach_event_journal(journal)
                 logger.write("new", "recorded", {"step": 2})
@@ -234,14 +259,20 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 ["old", "new"],
                 [event.payload["legacy_record"]["event"] for event in events],
             )
-            self.assertEqual(2, len(legacy_path.read_text(encoding="utf-8").splitlines()))
+            self.assertEqual(
+                2, len(legacy_path.read_text(encoding="utf-8").splitlines())
+            )
 
     def test_runtime_log_rejects_overlapping_sessions_and_stale_detach(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             logger = RuntimeLog(root / "runtime.jsonl")
-            with EventJournal(root / "first.sqlite3", session_id="first") as first_journal:
-                with EventJournal(root / "second.sqlite3", session_id="second") as second_journal:
+            with EventJournal(
+                root / "first.sqlite3", session_id="first"
+            ) as first_journal:
+                with EventJournal(
+                    root / "second.sqlite3", session_id="second"
+                ) as second_journal:
                     first_token = logger.attach_event_journal(first_journal)
                     with self.assertRaisesRegex(RuntimeError, "already attached"):
                         logger.attach_event_journal(second_journal)
@@ -253,7 +284,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
                     logger.detach_event_journal(first_token)
                     self.assertIsNone(logger._event_adapter)
 
-    def test_journal_factory_without_runtime_log_parameter_does_not_mark_log_migrated(self):
+    def test_journal_factory_without_runtime_log_parameter_does_not_mark_log_migrated(
+        self,
+    ):
         class Provider:
             def close(self):
                 return None
@@ -320,7 +353,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             root = Path(directory)
             game_directory = root / "game"
             game_directory.mkdir()
-            (game_directory / "execution_history.json").write_text("not valid JSON", encoding="utf-8")
+            (game_directory / "execution_history.json").write_text(
+                "not valid JSON", encoding="utf-8"
+            )
             configuration = SessionRuntimeConfiguration(
                 provider_name="fake",
                 model="model",
@@ -358,7 +393,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             history_path = game_directory / "history.json"
             history_path.write_text('[{"legacy":"history"}]', encoding="utf-8")
             interrupted_journal_path = session_events_directory / "interrupted.sqlite3"
-            with EventJournal(interrupted_journal_path, session_id="interrupted") as journal:
+            with EventJournal(
+                interrupted_journal_path, session_id="interrupted"
+            ) as journal:
                 journal.append(
                     "decision.history",
                     event_id="interrupted-history-import",
@@ -366,12 +403,14 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 )
             pending_path = session_events_directory / "legacy_migration_v1.pending"
             pending_path.write_text(
-                json.dumps({
-                    "journal_name": interrupted_journal_path.name,
-                    "game_history": True,
-                    "runtime_log": False,
-                    "runtime_log_source": None,
-                }),
+                json.dumps(
+                    {
+                        "journal_name": interrupted_journal_path.name,
+                        "game_history": True,
+                        "runtime_log": False,
+                        "runtime_log_source": None,
+                    }
+                ),
                 encoding="utf-8",
             )
             configuration = SessionRuntimeConfiguration(
@@ -399,7 +438,8 @@ class LegacyEventAdapterTest(unittest.TestCase):
             self.assertFalse(interrupted_journal_path.exists())
             self.assertFalse(pending_path.exists())
             history_events = [
-                event for event in read_events(recovered_journal_path)
+                event
+                for event in read_events(recovered_journal_path)
                 if event.event_type == "decision.history"
             ]
             self.assertEqual(1, len(history_events))
@@ -421,17 +461,23 @@ class LegacyEventAdapterTest(unittest.TestCase):
             )
             runtime_marker.touch()
             interrupted_journal_path = session_events_directory / "interrupted.sqlite3"
-            with EventJournal(interrupted_journal_path, session_id="interrupted") as journal:
-                journal.append("runtime.log", event_id="runtime-import", payload={"event": "old"})
+            with EventJournal(
+                interrupted_journal_path, session_id="interrupted"
+            ) as journal:
+                journal.append(
+                    "runtime.log", event_id="runtime-import", payload={"event": "old"}
+                )
             pending_path = session_events_directory / "legacy_migration_v1.pending"
             pending_path.write_text(
-                json.dumps({
-                    "journal_name": interrupted_journal_path.name,
-                    "game_history": True,
-                    "runtime_log": True,
-                    "runtime_log_source": str(runtime_log_path.resolve()),
-                    "factory_completed": False,
-                }),
+                json.dumps(
+                    {
+                        "journal_name": interrupted_journal_path.name,
+                        "game_history": True,
+                        "runtime_log": True,
+                        "runtime_log_source": str(runtime_log_path.resolve()),
+                        "factory_completed": False,
+                    }
+                ),
                 encoding="utf-8",
             )
             configuration = SessionRuntimeConfiguration(
@@ -457,7 +503,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
 
             self.assertFalse(interrupted_journal_path.exists())
             self.assertTrue(runtime_marker.exists())
-            self.assertTrue((session_events_directory / "legacy_migration_v1.complete").exists())
+            self.assertTrue(
+                (session_events_directory / "legacy_migration_v1.complete").exists()
+            )
             self.assertFalse(pending_path.exists())
 
     def test_factory_completed_pending_record_finishes_its_own_markers(self):
@@ -479,20 +527,24 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 )
             pending_path = session_events_directory / "legacy_migration_v1.pending"
             pending_path.write_text(
-                json.dumps({
-                    "journal_name": journal_path.name,
-                    "game_history": True,
-                    "runtime_log": True,
-                    "runtime_log_source": str(runtime_log_path.resolve()),
-                    "factory_completed": True,
-                }),
+                json.dumps(
+                    {
+                        "journal_name": journal_path.name,
+                        "game_history": True,
+                        "runtime_log": True,
+                        "runtime_log_source": str(runtime_log_path.resolve()),
+                        "factory_completed": True,
+                    }
+                ),
                 encoding="utf-8",
             )
 
             _recover_interrupted_migration(pending_path, session_events_directory)
 
             self.assertTrue(journal_path.exists())
-            self.assertTrue((session_events_directory / "legacy_migration_v1.complete").exists())
+            self.assertTrue(
+                (session_events_directory / "legacy_migration_v1.complete").exists()
+            )
             self.assertTrue(runtime_marker.exists())
             self.assertFalse(pending_path.exists())
             self.assertEqual(1, len(read_events(journal_path)))
@@ -506,7 +558,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             root = Path(directory)
             game_directory = root / "game"
             game_directory.mkdir()
-            (game_directory / "execution_history.json").write_text("invalid JSON", encoding="utf-8")
+            (game_directory / "execution_history.json").write_text(
+                "invalid JSON", encoding="utf-8"
+            )
             configuration = SessionRuntimeConfiguration(
                 provider_name="fake",
                 model="model",
@@ -533,7 +587,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
                     )
 
             self.assertTrue(
-                (game_directory / "session_events" / "legacy_migration_v1.pending").exists()
+                (
+                    game_directory / "session_events" / "legacy_migration_v1.pending"
+                ).exists()
             )
 
     def test_runtime_log_migration_marker_is_scoped_to_source_across_games(self):
@@ -578,7 +634,14 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 runtime_log=RuntimeLog(runtime_log_path),
             )
             shared_source_path = shared_source.pipeline.event_journal.path
-            self.assertEqual(0, shared_source.pipeline.event_journal.last_sequence)
+            self.assertEqual(
+                [],
+                [
+                    event
+                    for event in read_events(shared_source_path)
+                    if event.event_type == "runtime.log"
+                ],
+            )
             shared_source.close()
 
             second_source_path = root / "runtime-second.jsonl"
@@ -595,10 +658,19 @@ class LegacyEventAdapterTest(unittest.TestCase):
             changed_source_journal_path = changed_source.pipeline.event_journal.path
             changed_source.close()
 
-            self.assertEqual(0, len(read_events(shared_source_path)))
+            self.assertEqual(
+                [],
+                [
+                    event
+                    for event in read_events(shared_source_path)
+                    if event.event_type == "runtime.log"
+                ],
+            )
             self.assertEqual(
                 "second-source",
-                read_events(changed_source_journal_path)[0].payload["legacy_record"]["event"],
+                read_events(changed_source_journal_path)[0].payload["legacy_record"][
+                    "event"
+                ],
             )
 
     def test_provider_is_closed_when_migration_lock_cannot_be_acquired(self):
@@ -725,7 +797,8 @@ class LegacyEventAdapterTest(unittest.TestCase):
             pipeline.close()
 
             failure_events = [
-                event for event in read_events(journal_path)
+                event
+                for event in read_events(journal_path)
                 if event.event_type == "runtime.log"
                 and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
             ]
@@ -742,20 +815,26 @@ class LegacyEventAdapterTest(unittest.TestCase):
             pipeline = DecisionPipeline(
                 object(),
                 root,
-                event_journal=EventJournal(journal_path, session_id="session-no-runtime-log"),
+                event_journal=EventJournal(
+                    journal_path, session_id="session-no-runtime-log"
+                ),
             )
 
             pipeline.record_shutdown_failure("provider", RuntimeError("close failed"))
             pipeline.close()
 
             failure_events = [
-                event for event in read_events(journal_path)
+                event
+                for event in read_events(journal_path)
                 if event.event_type == "runtime.log"
                 and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
             ]
             self.assertEqual(1, len(failure_events))
             self.assertEqual("failed", failure_events[0].status)
-            self.assertEqual("provider", failure_events[0].payload["legacy_record"]["context"]["resource"])
+            self.assertEqual(
+                "provider",
+                failure_events[0].payload["legacy_record"]["context"]["resource"],
+            )
 
     def test_positional_only_journal_factory_uses_legacy_pipeline_path(self):
         class Provider:
@@ -825,11 +904,14 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 "flush",
                 side_effect=EventJournalError("injected checkpoint failure"),
             ):
-                with self.assertRaisesRegex(RuntimeError, "injected checkpoint failure"):
+                with self.assertRaisesRegex(
+                    RuntimeError, "injected checkpoint failure"
+                ):
                     pipeline.close()
 
             failure_events = [
-                event for event in read_events(journal_path)
+                event
+                for event in read_events(journal_path)
                 if event.event_type == "runtime.log"
                 and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
             ]
@@ -850,11 +932,14 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 "flush",
                 side_effect=EventJournalError("injected checkpoint failure"),
             ):
-                with self.assertRaisesRegex(RuntimeError, "injected checkpoint failure"):
+                with self.assertRaisesRegex(
+                    RuntimeError, "injected checkpoint failure"
+                ):
                     pipeline.close()
 
             failure_events = [
-                event for event in read_events(journal_path)
+                event
+                for event in read_events(journal_path)
                 if event.event_type == "runtime.log"
                 and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
             ]
@@ -878,9 +963,13 @@ class LegacyEventAdapterTest(unittest.TestCase):
 
             def close_then_report_checkpoint_failure():
                 close_journal()
-                raise EventJournalError("final checkpoint failed after connection close")
+                raise EventJournalError(
+                    "final checkpoint failed after connection close"
+                )
 
-            with patch.object(journal, "close", side_effect=close_then_report_checkpoint_failure):
+            with patch.object(
+                journal, "close", side_effect=close_then_report_checkpoint_failure
+            ):
                 with self.assertRaisesRegex(RuntimeError, "final checkpoint failed"):
                     runtime.close()
                 self.assertTrue(pipeline._event_journal_closed)
@@ -919,7 +1008,8 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 runtime.close()
 
             failure_events = [
-                event for event in read_events(journal_path)
+                event
+                for event in read_events(journal_path)
                 if event.event_type == "runtime.log"
                 and event.payload["legacy_record"]["event"] == "session.shutdown_failed"
             ]
@@ -942,7 +1032,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
             root = Path(directory)
             game_directory = root / "game"
             game_directory.mkdir()
-            (game_directory / "history.json").write_text('[{"legacy":"history"}]', encoding="utf-8")
+            (game_directory / "history.json").write_text(
+                '[{"legacy":"history"}]', encoding="utf-8"
+            )
             execution_history_path = game_directory / "execution_history.json"
             execution_history_path.write_text("not valid JSON", encoding="utf-8")
             configuration = SessionRuntimeConfiguration(
@@ -968,7 +1060,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
 
             session_events = game_directory / "session_events"
             self.assertEqual([], list(session_events.glob("*.sqlite3")))
-            self.assertFalse(session_events.joinpath("legacy_migration_v1.complete").exists())
+            self.assertFalse(
+                session_events.joinpath("legacy_migration_v1.complete").exists()
+            )
 
             execution_history_path.write_text("[]", encoding="utf-8")
             runtime = composition.create_session_runtime(
@@ -982,7 +1076,10 @@ class LegacyEventAdapterTest(unittest.TestCase):
             self.assertEqual(1, len(list(session_events.glob("*.sqlite3"))))
             self.assertEqual(
                 1,
-                sum(event.event_type == "decision.history" for event in read_events(journal_path)),
+                sum(
+                    event.event_type == "decision.history"
+                    for event in read_events(journal_path)
+                ),
             )
 
     def test_runtime_log_migration_has_completion_marker_independent_of_history(self):
@@ -1026,7 +1123,9 @@ class LegacyEventAdapterTest(unittest.TestCase):
                 runtime_log=logger,
             )
             journal_path = runtime_with_logger.pipeline.event_journal.path
-            self.assertEqual(1, runtime_with_logger.pipeline.event_journal.last_sequence)
+            self.assertEqual(
+                1, runtime_with_logger.pipeline.event_journal.last_sequence
+            )
             runtime_with_logger.close()
 
             migrated_events = read_events(journal_path)

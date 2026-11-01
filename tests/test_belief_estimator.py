@@ -1,7 +1,9 @@
 import ast
 from dataclasses import replace
 from itertools import repeat
+from fractions import Fraction
 from pathlib import Path
+import random
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -175,6 +177,71 @@ class BeliefEstimatorTests(unittest.TestCase):
         self.assertEqual(
             posterior.candidates[0].origin, HypothesisOrigin.POSTERIOR_HYPOTHESIS
         )
+
+    def test_joint_recognizer_and_outcome_refs_apply_one_factor(self):
+        prior = self.initialize()
+        batch = self.batch(prior, (0.1, 0.9))
+        outcome = BeliefEvidenceRef(
+            "actual-outcome-2",
+            batch.correlation_id,
+            BeliefEvidenceKind.OUTCOME,
+            "outcome-evaluator",
+            "v1",
+            batch.context,
+            1000,
+        )
+        posterior = self.filter.observe(
+            prior, replace(batch, evidence_refs=(*batch.evidence_refs, outcome))
+        ).snapshot
+        self.assertAlmostEqual(posterior.candidates[0].weight.value, 0.36 / 0.42)
+        self.assertEqual(len(posterior.candidates[0].evidence_refs), 2)
+
+    def test_seeded_posterior_matches_exact_fraction_oracle(self):
+        rng = random.Random(564)
+        for case in range(50):
+            with self.subTest(case=case):
+                self.setUp()
+                counts = [rng.randint(1, 100) for _ in range(8)]
+                unknown_count = rng.randint(0, 100)
+                total = sum(counts) + unknown_count
+                likelihoods = [rng.randint(0, 30) for _ in counts]
+                unknown_likelihood = rng.randint(0, 30)
+                prior = self.filter.initialize(
+                    context(),
+                    hypotheses(
+                        context(),
+                        tuple(range(8)),
+                        tuple(value / total for value in counts),
+                    ),
+                    unknown_mass=unknown_count / total,
+                ).snapshot
+                batch = self.batch(
+                    prior,
+                    tuple(
+                        likelihoods[item.state_ref.state] for item in prior.candidates
+                    ),
+                    unknown=unknown_likelihood,
+                )
+                posterior = self.filter.observe(prior, batch).snapshot
+                exact = [
+                    Fraction(count, total) * likelihood
+                    for count, likelihood in zip(counts, likelihoods)
+                ]
+                residual = Fraction(unknown_count, total) * unknown_likelihood
+                denominator = sum(exact, residual)
+                actual = {
+                    item.state_ref.state: item.weight.value
+                    for item in posterior.candidates
+                }
+                for state, value in enumerate(exact):
+                    self.assertAlmostEqual(
+                        actual.get(state, 0.0), float(value / denominator), places=12
+                    )
+                self.assertAlmostEqual(
+                    posterior.residual_unknown_mass,
+                    float(residual / denominator),
+                    places=12,
+                )
 
     def test_predict_then_observe_keeps_time_and_provenance(self):
         prior = self.initialize()

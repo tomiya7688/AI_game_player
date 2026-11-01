@@ -19,16 +19,26 @@ from ai_game_player.no_allowed_candidates_error import NoAllowedCandidatesError
 #   ]
 # }
 class RuleProvider:
-    def assess_outcome(self, observation: ScreenObservation, previous: ScreenObservation | None = None):
+    def assess_outcome(
+        self, observation: ScreenObservation, previous: ScreenObservation | None = None
+    ):
         from ai_game_player.outcome import OutcomeEvaluator
 
         return OutcomeEvaluator().assess(observation)
 
-    def choose(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
+    def choose(
+        self,
+        candidates: list[ActionCandidate],
+        observation: ScreenObservation | None = None,
+        purpose: str = "",
+        personality: str = "",
+    ) -> ActionDecision:
         if not candidates:
             raise ValueError("許可された操作候補がありません")
         candidate = max(candidates, key=lambda value: value.confidence)
-        return ActionDecision(candidate.action_id, "信頼度が最も高い安全な候補", "local_rule")
+        return ActionDecision(
+            candidate.action_id, "信頼度が最も高い安全な候補", "local_rule"
+        )
 
     # {
     #   責務: [
@@ -37,6 +47,8 @@ class RuleProvider:
     #   処理: [
     #     1: 判断材料に含まれる許可候補だけを選択対象にする
     #     2: 目的寄与、寄与予測の確信度、画面認識の確信度、候補IDの順に比較する
+    #     2a: 同stepの有効Knowledgeがある時だけ既存Baselineのsoft scoreを比較値に使う。
+    #         RuleProvider自身に新しいabstain/thresholdを追加せず、許可候補を維持する
     #     3: 選択理由と画面観測ID・画面ID・状態照合値を返し、後段の検証に使えるようにする
     #   ]
     #   引数: [
@@ -59,16 +71,31 @@ class RuleProvider:
             if context.candidates:
                 raise ValueError("許可された操作候補がありません")
             raise NoAllowedCandidatesError("許可された操作候補がありません")
+        scores = None
+        knowledge_version = None
+        if context.knowledge_projection is not None:
+            projection = context.knowledge_projection.to_dict()
+            if projection.get("status") == "applied" and projection.get("priors"):
+                from ai_game_player.baseline_provider import BaselineDecisionProvider
+
+                scored = BaselineDecisionProvider().decide(context)
+                scores = scored.score_by_action
+                allowed = [
+                    candidate for candidate in allowed if candidate.action_id in scores
+                ]
+                knowledge_version = scored.knowledge_snapshot_version
         candidate = max(
             allowed,
             key=lambda value: (
-                value.utility_score,
+                scores[value.action_id] if scores is not None else value.utility_score,
                 value.utility_confidence,
                 value.recognition_confidence,
                 value.action_id,
             ),
         )
         reason = f"utility={candidate.utility_score:.3f}, confidence={candidate.utility_confidence:.3f}"
+        if knowledge_version is not None:
+            reason += f"; soft-knowledge={knowledge_version}"
         if "repetition" in {entry.evaluator for entry in candidate.evaluations}:
             reason += "; repetition-aware"
         return ActionDecision(
@@ -99,7 +126,9 @@ class RuleProvider:
 # }
 class OllamaProvider:
     @staticmethod
-    def list_models(endpoint: str = "http://127.0.0.1:11434", timeout: int = 5) -> list[str]:
+    def list_models(
+        endpoint: str = "http://127.0.0.1:11434", timeout: int = 5
+    ) -> list[str]:
         request = Request(endpoint.rstrip("/") + "/api/tags", method="GET")
         try:
             with urlopen(request, timeout=timeout) as response:
@@ -107,16 +136,24 @@ class OllamaProvider:
             models = payload.get("models", [])
             if not isinstance(models, list):
                 raise ValueError("Ollama models must be an array")
-            return [str(item["name"]) for item in models if isinstance(item, dict) and item.get("name")]
+            return [
+                str(item["name"])
+                for item in models
+                if isinstance(item, dict) and item.get("name")
+            ]
         except Exception as exc:
             raise RuntimeError(f"Ollamaモデル一覧を取得できません: {exc}") from exc
 
-    def __init__(self, model: str, endpoint: str = "http://127.0.0.1:11434", timeout: int = 120):
+    def __init__(
+        self, model: str, endpoint: str = "http://127.0.0.1:11434", timeout: int = 120
+    ):
         self.model = model
         self.endpoint = endpoint.rstrip("/")
         self.timeout = timeout
 
-    def assess_outcome(self, observation: ScreenObservation, previous: ScreenObservation | None = None):
+    def assess_outcome(
+        self, observation: ScreenObservation, previous: ScreenObservation | None = None
+    ):
         from ai_game_player.outcome import OutcomeAssessment
 
         context = {
@@ -124,7 +161,12 @@ class OllamaProvider:
             "observation": observation.to_dict(),
             "previous": previous.to_dict() if previous else {},
         }
-        payload = {"model": self.model, "stream": False, "format": "json", "prompt": json.dumps(context, ensure_ascii=False)}
+        payload = {
+            "model": self.model,
+            "stream": False,
+            "format": "json",
+            "prompt": json.dumps(context, ensure_ascii=False),
+        }
         request = Request(
             self.endpoint + "/api/generate",
             data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
@@ -133,7 +175,9 @@ class OllamaProvider:
         )
         try:
             with urlopen(request, timeout=self.timeout) as response:
-                parsed = json.loads(json.loads(response.read().decode("utf-8"))["response"])
+                parsed = json.loads(
+                    json.loads(response.read().decode("utf-8"))["response"]
+                )
             status = str(parsed["status"]).lower()
             if status not in {"success", "failure", "ongoing", "unknown"}:
                 raise ValueError("invalid outcome status")
@@ -167,7 +211,13 @@ class OllamaProvider:
     #     ValueError: 候補が空、応答IDが許可一覧にない、または判断理由が文字列でない場合
     #   ]
     # }
-    def choose(self, candidates: list[ActionCandidate], observation: ScreenObservation | None = None, purpose: str = "", personality: str = "") -> ActionDecision:
+    def choose(
+        self,
+        candidates: list[ActionCandidate],
+        observation: ScreenObservation | None = None,
+        purpose: str = "",
+        personality: str = "",
+    ) -> ActionDecision:
         if not candidates:
             raise ValueError("許可された操作候補がありません")
         context = {
@@ -179,7 +229,10 @@ class OllamaProvider:
         }
         decision = self._request_decision(context)
         allowed_action_ids = {candidate.action_id for candidate in candidates}
-        if not isinstance(decision.action_id, str) or decision.action_id not in allowed_action_ids:
+        if (
+            not isinstance(decision.action_id, str)
+            or decision.action_id not in allowed_action_ids
+        ):
             raise ValueError("Ollamaが許可候補外の操作を選択しました")
         validation_error_codes = (decision.validation_error or "").split(";")
         if "invalid_decision_reason_type" in validation_error_codes:
@@ -210,7 +263,9 @@ class OllamaProvider:
     #     ValueError: 判断材料に許可候補が1件もない場合
     #   ]
     # }
-    def choose_context(self, context: DecisionContext, personality: str = "") -> ActionDecision:
+    def choose_context(
+        self, context: DecisionContext, personality: str = ""
+    ) -> ActionDecision:
         if not context.allowed_action_ids:
             raise ValueError("許可された操作候補がありません")
         prompt_context = {
@@ -240,7 +295,12 @@ class OllamaProvider:
     #   ]
     # }
     def _request_decision(self, context: dict[str, object]) -> ActionDecision:
-        payload = {"model": self.model, "stream": False, "format": "json", "prompt": json.dumps(context, ensure_ascii=False)}
+        payload = {
+            "model": self.model,
+            "stream": False,
+            "format": "json",
+            "prompt": json.dumps(context, ensure_ascii=False),
+        }
         request = Request(
             self.endpoint + "/api/generate",
             data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
@@ -256,7 +316,9 @@ class OllamaProvider:
         # JSON構文や必須のresponse項目が壊れていても、通信障害と区別できるよう検証器向けの失敗値にする。
         try:
             response_payload = json.loads(response_body.decode("utf-8"))
-            if not isinstance(response_payload, dict) or not isinstance(response_payload.get("response"), str):
+            if not isinstance(response_payload, dict) or not isinstance(
+                response_payload.get("response"), str
+            ):
                 raise ValueError("Ollama response must contain a string response field")
             parsed = json.loads(response_payload["response"])
             if not isinstance(parsed, dict):
@@ -270,11 +332,20 @@ class OllamaProvider:
             )
 
         # 数値などの不正型を文字列へ変えると誤って有効扱いされるため、値をそのまま検証器へ渡す。
-        allowed_response_fields = {"action_id", "reason", "snapshot_id", "screen_id", "state_signature"}
+        allowed_response_fields = {
+            "action_id",
+            "reason",
+            "snapshot_id",
+            "screen_id",
+            "state_signature",
+        }
         unexpected_fields = set(parsed).difference(allowed_response_fields)
         validation_errors = []
         if unexpected_fields:
-            validation_errors.append("unexpected_decision_fields:" + ",".join(sorted(str(name) for name in unexpected_fields)))
+            validation_errors.append(
+                "unexpected_decision_fields:"
+                + ",".join(sorted(str(name) for name in unexpected_fields))
+            )
         if "reason" in parsed and not isinstance(parsed["reason"], str):
             validation_errors.append("invalid_decision_reason_type")
         validation_error = ";".join(validation_errors) or None
