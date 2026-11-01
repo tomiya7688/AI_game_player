@@ -70,3 +70,12 @@ Linux x86_64 / Python 3.12.14、seed565、warmup2＋各20回、depth3 / nodes500
 | 曖昧8/16 2048 | 251.86 / 252.03ms | 171.24 / 179.49ms | 2が19/20、1が1/20 | 17.70MiB | 0.94MiB |
 
 採用checkpointの最大node / chance branchはint208 / 120、2048は3706 / 3543、trace上限32、最大resultは43983bytesです。両fixtureとも元unknown0.1を保持します。2048は計算deadlineで未完了depth3を捨て、期限前受領のdepth2（1回はdepth1）を採用しました。250msは関数returnの厳密上限ではなく、回収込み最大255.71msでした。cold spawnが支配的で、FPSに必要な低遅延や実ゲームの攻略成績をこのCPU測定で証明していません。完全な設定・source hash・固有run IDはローカルの `build/expectimax/report.json` と固有archiveへ出力されます（生成物はcommit対象外）。
+
+
+## 実プレイで見つかったbin平均の丸め回帰
+
+#567のdepth2 / 400ms実画面smokeは、8実操作の後に非選択へ停止しました。純粋Coreへ最終盤面 `[[0,2,0,0],[0,0,0,2],[0,0,0,4],[0,0,8,4]]`、score=None、単一relative score1 / unknown1を渡すと、修正前は5/5回 `invalid_model_or_quality` でした。計算予算ではなく、depth1完成後のdepth2でtrace binの点平均が支持区間を外れたためです。不正model時に完成済み浅い結果も破棄する境界は維持します。
+
+同じ値 `0.1666666666666667` の二分岐でも、個別に丸めた2つの質量比の合計が1を超え、平均が `0.16666666666666674` と1 ULP高くなっていました。大きい質量側を基準とする凸補間を使い、数学的な点の凸包へ丸め誤差だけを制限します。確率質量や元の支持包絡は変えず、不正なWeightedValueの厳密検証も緩めません。
+
+最小数値例・実盤面は修正前FAIL→後PASS、固定seedのFraction oracleで極端な質量比・subnormalも検査します。action_epoch8を含めた同じ400ms設定のCPU再現では修正後5/5回SELECT / depth2（親込み367.72–389.70ms、nodes6881、chance6567）でした。200msへ短縮すると3/3回SELECT / depth1 / compute_budget（親込み201.44–201.45ms）となり、期限前受領の完成depth1を観測TTL内で保持しました。実画面の続行や強さの証拠は#567側の再実行と区別します。元のsource/provenance/unknownと非選択reasonは失敗診断に必要です。
