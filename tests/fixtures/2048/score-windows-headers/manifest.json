@@ -1,0 +1,270 @@
+{
+  "source_head": "c974ba69d155d74dad2d5d28e983f9a5c3e41271",
+  "source_pr": 662,
+  "scope": "owned reference-game header pixels only; evaluation OCR regression, never AI state input",
+  "transport": "bounded stdout chunks reconstructed; count, length and full PNG SHA256 verified",
+  "license": "Existing pinned 2048 MIT source; see ../README.md and tools/reference_games/2048.source.lock.json",
+  "cases": [
+    {
+      "image_id": "124944163043-baseline-481",
+      "job_id": 124944163043,
+      "png_sha256": "539a8c0d287af21baa9cdec165a3fbfad7eb05ee17604172486c88bdbc26ed4e",
+      "header_bgra_sha256": "3c6d7227519cb0aaaefb8f0f902f9a87303dfcfdf3e79619be184ef049abab05",
+      "bgra_zlib": "3c6d7227519cb0aa.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 52,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944163043-cycling-481",
+      "job_id": 124944163043,
+      "png_sha256": "e4b159e7c95e2e14c4ffbc7b5a8388206360c1413f66c09518373b73fe8d14a2",
+      "header_bgra_sha256": "5afbee818cb5beee49933fe3c9fe0e133402962f8819265ceb22fce59526dfed",
+      "bgra_zlib": "5afbee818cb5beee.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 48,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944163043-planner-481",
+      "job_id": 124944163043,
+      "png_sha256": "eaaabdd2976280e3012a9bc56462bdbd6be76462dd0d1c35d4f0a11e0ba2ade8",
+      "header_bgra_sha256": "53418c41da3accb303a339f2e97e56934a6e637da2d2edf6a960a90c144f5250",
+      "bgra_zlib": "53418c41da3accb3.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 0,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944177440-baseline-479",
+      "job_id": 124944177440,
+      "png_sha256": "fded9c78f78b1764f9e2af089bd3843ed0022205c1939c69f51f0de6563c0c15",
+      "header_bgra_sha256": "e1137c27dc3d2512cd96b192359f91783194825ff7a3994c93242a115bbb24eb",
+      "bgra_zlib": "e1137c27dc3d2512.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 28,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944177440-cycling-479",
+      "job_id": 124944177440,
+      "png_sha256": "7868226cb056c06c3d2c9f9bc3f6f3e69d63c949af0d6b5ab82421ce5f06cac2",
+      "header_bgra_sha256": "d01d1ee5d928b8ae40ff5eb3ce394aca7095ad7f795c1b4eb1b6a14b8d86b581",
+      "bgra_zlib": "d01d1ee5d928b8ae.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 36,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944177440-planner-479",
+      "job_id": 124944177440,
+      "png_sha256": "28cad769ad1ce2fc4a244a3d4a6462f835fc432d1342193ed89bff35fdb72853",
+      "header_bgra_sha256": "f596dfc9d1ff25b6f78ffd501cc73d0ba5bc0c278a07e945069b4aaabe11cbac",
+      "bgra_zlib": "f596dfc9d1ff25b6.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 0,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944177450-baseline-480",
+      "job_id": 124944177450,
+      "png_sha256": "41dc4ac3a7cee43914da13389a9910f8692f55b6580ed6038fecf959f588e5e1",
+      "header_bgra_sha256": "92f1fae94578007e78c36ddaeb7a7ceecd1bc697bb40e052d68d863f28d3651e",
+      "bgra_zlib": "92f1fae94578007e.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 28,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944177450-cycling-480",
+      "job_id": 124944177450,
+      "png_sha256": "41dc4ac3a7cee43914da13389a9910f8692f55b6580ed6038fecf959f588e5e1",
+      "header_bgra_sha256": "92f1fae94578007e78c36ddaeb7a7ceecd1bc697bb40e052d68d863f28d3651e",
+      "bgra_zlib": "92f1fae94578007e.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 28,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    },
+    {
+      "image_id": "124944177450-planner-480",
+      "job_id": 124944177450,
+      "png_sha256": "eaaabdd2976280e3012a9bc56462bdbd6be76462dd0d1c35d4f0a11e0ba2ade8",
+      "header_bgra_sha256": "53418c41da3accb303a339f2e97e56934a6e637da2d2edf6a960a90c144f5250",
+      "bgra_zlib": "53418c41da3accb3.bgra.zlib",
+      "header_size": [
+        640,
+        240
+      ],
+      "crop_bbox": [
+        202,
+        0,
+        640,
+        240
+      ],
+      "original_frame_size": [
+        904,
+        648
+      ],
+      "board_bbox": [
+        260,
+        232,
+        375,
+        375
+      ],
+      "visible_score": 0,
+      "truth": "independent visual reading of owned game UI; OCR output is not the label"
+    }
+  ]
+}

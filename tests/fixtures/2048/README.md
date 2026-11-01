@@ -29,3 +29,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+`score-windows-headers/manifest.json` はPR #662のowned-window診断ログから復元した9件の得点headerを参照します。元PNGのchunk数・byte数・SHA256を検証し、640×240の画素だけをzlibへ保存しています。元frameは904×648、cropは(202,0,640,240)です。回帰ではこのheaderを元座標へ配置し、領域外を白で埋めます。完全な実frameやAIへのstate入力ではありません。期待得点は独立したUI視認に基づき、OCRの出力をラベルにしません。既存固定2048のMIT来歴を継承し、未知のゲームassetを追加しません。

@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   contract-assets:
     name: Provider schema / Reference game source pins
@@ -307,17 +311,130 @@ jobs:
           PYTHONPATH: "src;."
           KADOKA_RUN_2048_INTEGRATION: "1"
         run: python -u -X faulthandler -m unittest discover -s tests -p "test_2048_campaign.py" -v
+      - name: Install optional post-failure browser diagnostic client
+        shell: pwsh
+        run: python -m pip install -e ".[browser-validation]"
       - name: Run the 600-second pinned-game campaign
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence
+        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence --save-browser-diagnostics --save-heartbeat-diagnostics
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: kadoka-windows-e2e-trace
           path: build/e2e
           if-no-files-found: warn
+
+  windows-planning-comparison:
+    name: Windows planning comparison (seed ${{ matrix.seed }})
+    runs-on: windows-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: ["479", "480", "481"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install optional comparison OCR and process sampler
+        id: comparison_dependencies
+        shell: pwsh
+        run: |
+          python -m pip install -e ".[ocr,browser-validation]" psutil==7.1.0
+          if ($LASTEXITCODE -ne 0) { throw "Comparison Python dependencies failed" }
+          choco install tesseract --no-progress --yes
+          if ($LASTEXITCODE -ne 0) { throw "Comparison OCR executable install failed" }
+          $ocr = Join-Path $env:ProgramFiles "Tesseract-OCR\tesseract.exe"
+          if (-not (Test-Path $ocr)) { throw "Comparison OCR executable missing" }
+          "TESSERACT_CMD=$ocr" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          (Split-Path $ocr) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Build Native Runtime with owned WGC capture
+        id: comparison_native
+        shell: pwsh
+        run: |
+          cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "Native configure failed" }
+          cmake --build build/native --config Release --parallel
+          if ($LASTEXITCODE -ne 0) { throw "Native build failed" }
+          $runtime = Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
+          if (-not $runtime) { throw "Native runtime missing" }
+          "KADOKA_NATIVE_RUNTIME=$($runtime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Probe Windows held-reader native rename semantics
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python -u -X faulthandler tools/probe_windows_planning_io.py --output build/planning-comparison/windows/native-file-io-probe.json
+      - name: Verify bounded planner slow-memory-Stop worker regressions on Windows
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: |
+          python -u -X faulthandler -m unittest discover -s tests -p "test_reference_game_http_server.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Owned private HTTP queue/phase regressions failed" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_publisher.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Planning atomic-publisher regressions failed" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_reader.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Bounded shared-reader regressions failed" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Bounded planner regressions failed" }
+      - name: Repeat bounded worker checkpoint diagnostics (seed 479 only)
+        if: matrix.seed == '479'
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: |
+          for ($attempt = 1; $attempt -le 20; $attempt++) {
+            Write-Host "Windows bounded worker diagnostic attempt $attempt/20"
+            python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -k "test_final_marker_does_not_leave_an_older_checkpoint_adopted" -k "test_reference_play_board_keeps_valid_deeper_checkpoint" -v
+            if ($LASTEXITCODE -ne 0) { throw "Bounded worker diagnostic failed at attempt $attempt/20" }
+          }
+      - name: Diagnose fixed-pixel OCR engine model and segmentation
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          COMPARISON_SEED: ${{ matrix.seed }}
+        run: |
+          python -u tools/probe_windows_planning_score_ocr.py --output "build/planning-comparison/windows/score-ocr-probe-$env:COMPARISON_SEED/report.json"
+          if ($LASTEXITCODE -ne 0) { throw "Fixed-pixel OCR diagnostic failed" }
+      - name: Diagnose whitelist output and fixed whitespace variants
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          COMPARISON_SEED: ${{ matrix.seed }}
+        run: |
+          python -u tools/probe_windows_planning_score_engine.py --case-id 124944163043-planner-481 --case-id 124944163043-baseline-481 --output "build/planning-comparison/windows/score-engine-probe-$env:COMPARISON_SEED/report.json"
+          if ($LASTEXITCODE -ne 0) { throw "Fixed-pixel OCR engine diagnostic failed" }
+      - name: Validate same-pixel score OCR fixtures with installed Tesseract
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: |
+          python -c "import shutil; assert shutil.which('tesseract'), 'Installed comparison Tesseract must be on PATH'"
+          if ($LASTEXITCODE -ne 0) { throw "Comparison OCR dependency is unavailable" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_score*.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Same-pixel score OCR regressions failed" }
+      - name: Compare short owned-window play with identical seed and step budget
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          COMPARISON_SEED: ${{ matrix.seed }}
+        run: python -u -X faulthandler tools/compare_2048_windows_planning.py --seed $env:COMPARISON_SEED --max-steps 12 --allow-live-input --save-failure-evidence --save-browser-diagnostics --save-heartbeat-diagnostics
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-planning-comparison-${{ matrix.seed }}
+          path: build/planning-comparison/windows
+          if-no-files-found: error
 
   detect-optional-languages:
     name: Detect optional language sources

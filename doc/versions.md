@@ -1,3 +1,24 @@
+## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
+
+- 37bbの全18比較は17成功/1初期化失敗、Planner72実入力/保留0と両600秒成功を保存し、失敗PNG/元時刻・hash・HB/CDPを保全。私有固定ゲームHTTPだけ有限backlog32を要求し、GET工程の診断欠落flagと事後ResourceTiming/Grid/Tile有無を追加します。Linux機構/反事実試験は元Windows原因や新head成功の証明ではなく、元予算・未知拒否・入力条件は維持します。
+- 294は63/64必須CIと両600秒Campaignが成功、PR480 Plannerの12保留/実入力0は失敗として保持。一時planning IPCだけ単一encode/flush-close/atomic publishと有界raw再利用へ分離し、一般Store/lease/Stopの永続化・400ms等の元条件は維持。取得済み固定artifact3step/actions:readを除去し、旧empty/lease原因未確定と新Windows未確認を明記します。
+- 8dcの空盤面45秒失敗とcontrol lease失効を保った一時診断を追加。同一最後frameの保全後だけ事後CDPを一度実行し、明示heartbeat memory snapshotをclose前に保存。通常OFF/元エラー/入力・lease・TTL・合否を維持。標準artifact download→bounded exportは元検査後の一時stepとし、次の原因修正で除去します。原因修正・新Windows成功は未確認です。
+- 短比較の初期parityをSAFE_IDLEで検証し、元Run token・同一絶対45秒期限・新物理frame・既存5秒age/Stopを初回activationまで保持。通常600秒経路を維持し、固定d4e15a1の新phase実Windowsは全18試行成功/213実入力=盤面変化/3保留/全Stop・旧世代拒否を確認。機能コードhashを保った資料のみの後継headの必須CIと600秒受入は別に確認します。175の旧phase全18成功/212入力/4保留は別cohortへ保存し、起動前testは元15秒/4候補で未準備を待ちます。
+- 参照2048のnonterminal全空盤は画素confidenceを保持して未準備とし、汎用Coreの共通合法手無しをcontrolled cutoffへ分離。評価OCRはbinary空時だけ同じ2ROIのgray/無whitelistへ進み、literal numeric/.65/端切れ/矛盾拒否を維持。親processの予算内工程時刻は診断だけに保持し、400ms/TTL/child wire/入力は変更しません。
+- 評価Scoreのengine差を固定128条件で診断。同RGB/modelのWin0空を保全し、whitelist/出力形式/白余白整列/階調を同じ変換で比較。選択mode/.65/入力/学習/0期待値は変更しません。
+- 実request以後の物理frameをread_fresh/初期parity後に要求し、旧queueはlease前に破棄。空の予算保留通知は完成SELECTの受領期限と区別し、比較だけmax12判断attempt/holdも消費してfresh再計画します。400ms/3s/4s/5s/GUI停止仕様は維持。評価Scoreは全foreground union＋異なる2marginへ進め、Winの0画像失敗をPSM/model/画素hash診断で再検証します。
+- 評価専用Score OCRで、同frameのSCORE panelを局所Otsu/連結成分で分離しbilinear3倍・二値化・白余白を追加。文字推測や値補完をせず、0.65/二幅一致/元support端切れ拒否を維持。9実Win header×2geometryと元4桁画像を回帰化し、実OS失敗を成功へ書換えません。
+- Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICSへ変更。一般atomic_jsonは維持し、未対応はfail-closed。5bbcのWindows実OSで旧handle維持・新規open=newの20回とnative30ケースを確認しました。別のc974 stressでは深さ未完のcompute_budgetが残り、全32gate完了とは扱いません。
+- 実ログのWGC timeout約2秒とbackend切替時の署名拒否に対し、独立の短比較だけWGC待ちを250msへ明示設定。一般capture/既存600秒Campaignの2000ms、5秒実観測age、Planner4秒TTL・3秒再観測予算は維持し、調整後Windows gameplayは次CIで検証します。
+- 初期parityの両未知を成功へ変えず、既存ready期限内・最大2回の新しい実frameだけで再検査し、available/parity成立後に入力開始。final-markerの順序回帰は固定clockと同期protocolで最終再読を直接検証し、実worker予算・遅延拒否・OS probeは維持します。
+- SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
+- 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
+- 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
+- Windows短比較の各provider終了時に、失敗段階・元探索理由・入力件数・score読取状態・Stop/旧世代検証結果の有界JSONをjobログへ出力。成果物が取得できない場合も未検証を成功へ置換せず診断できます。
+- 得点評価だけにSCOREラベル由来の数字行OCR（拡大・2幅一致・端切れ拒否）を追加。元Snapshotの版/期限と工程時間を診断し、短比較は実盤面変化も必須にします。既定depth2の固定3seed実画面比較を、旧失敗cohort・Windows未達と区別して保存します。
+- Windowsの追加診断はworker例外の固定分類、実frame生産/受領/OS送信時刻を分離。得点にもclockと2つの鮮度barrierを適用し、短比較の明示Native FAST_CV profileは同画素の候補・意味・判断の同値とDLL hashを検証します。既定の入力OCR/Campaign/TTL/Safety期限は維持します。
+- 実ログのcheckpoint_publishアクセス拒否に対し、Windows親readerへdelete共有とplanning限定POSIX publicationを組み合わせます（reader共有だけでは従来os.replaceの失敗が残りました）。未来時刻のWGC frameは既存の契約違反経路で破棄してGDIを新規取得し、解析中の5秒失効もcache公開前に拒否します。
+
 ## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
 
 - Play画面の「一覧更新」へ共通ToolTipを接続し、ゲームのウィンドウを起動・再起動した後に一覧を取得し直す操作を案内します。マウスのホバーとキーボードのフォーカスで表示します。
@@ -176,6 +197,7 @@ plugin_manifest_schema          1
 - Issue #563（親 #478）: typed immutable WorldStateHypothesis / BeliefSnapshot と bounded Candidate Store を追加。校正確率と比較score、予測と観測仮説を区別し、同ID再送・相関証拠を再加算せず、Top-K / byte / TTLで除外した質量をunknownへ残します。Frame / turn / session / action epoch / source generation / clock originの混在、可変state・循環・NaN・timeoutを検査し、CPU測定と8/16曖昧2048・カード・位置fixtureを追加。本番Bayesian更新・Recognition接続は #564/#405/#407、実プレイは後続です。詳細は `doc/architecture/belief_snapshot.md`。
 - Issue #565（親 #480 / #478）: 複数Belief対応の汎用bounded Expectimax、反復深化、有限transposition cacheと制限workerを追加。部分観測では共通open-loop MPC、明示した完全将来観測時のみ状態別maxを使います。校正確率・score・品質支持区間・unknownを区別し、保守的trace圧縮、Stop/世代/expiry、遅いmodel・memory超過・不正IPCのfallbackを検証。CPU測定と不完全情報oracleを追加しました。実プレイで見つかったbin平均の1ULP支持区間逸脱は凸補間とFraction oracle・実盤面回帰で修正しました。本番Provider・実プレイ比較は#567、risk/VOIは#566です。[設計と制約](architecture/expectimax_planning.md)。
 - Issue #566: 探索の仮説別Q区間とbelief×chanceのinterval leafから、下側CVaR・破局質量・未知tailを評価する汎用Planning Policyを追加。risk-neutral EVPI/EVSIと実採択policyの情報利益を区別し、観測後mapping全体のriskを再検査します。新Frameで復活しないGoal episode予算と実行ack、hard allowed/veto、共通Outcomeを保持。[設計と検証](architecture/planning_risk_information.md)を参照してください。本番Provider/実プレイ比較は#567、Unknownness Policy本体は#206、gain/資源/観測校正producerは#409/#425/#405/#407に残ります。
+
 - Issue #566: 実Chromium smokeが検出した約5e-17の期待値区間逆転を補正し、元の点評価を含む外向き包絡を保持します。CVaR/破局率の混合演算は数値padding内の閾値を保留として追跡し、丸めによる有利な合格を避けます。実数確率の校正や統計CIとは区別します。
 - Issue #564（親 #478）: 型付きBeliefへPredict→Observe→Bayesian posterior更新を追加。排他的な遷移経路の確率合算、joint観測尤度、log空間、unknown尤度不明時の比較score、receipt/frame/相関の二重適用防止、旧prior版CAS、候補/byte/履歴/deadline上限を検証します。実Recognition校正と本番Planner接続は#405/#407/#565-#567に残します。詳細は `doc/architecture/belief_update.md`。
 - Issue #642: 実行受領記録・明示観測、Modeと実Sessionの軽量知識更新、Knowledgeの保存/集計/判断反映/検証、起動失敗診断と状態仮説の現在地へ、入口・判断・安全・記録資料を同期しました。安定識別の既定無効、一般の因果no_effect未達、#459原因未解決、Core/Runtime/Real-playの証拠範囲を明記し、過去の確認基準と統合後を区別します。 初回安全リースはStop解除・明示再開と区別し、現行ソース基準を更新して、過去の実画面測定headは保持します。

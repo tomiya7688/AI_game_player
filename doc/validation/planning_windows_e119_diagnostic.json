@@ -1,0 +1,596 @@
+{
+  "schema_version": 1,
+  "source_commit": "e1191dbc6a9734e3c066b33d4c8f8949611fc965",
+  "scope": "fixed-head Windows diagnostic cohorts; failures are retained; no successful-only mean",
+  "profile": {
+    "maximum_actions": 12,
+    "ordinary_abstention_ends_episode": true,
+    "wgc_wait_ms": 250,
+    "belief_ttl_seconds": 4,
+    "inner_reobserve_seconds": 3,
+    "observation_age_seconds": 5,
+    "planning_wall_ms": 400
+  },
+  "jobs": [
+    {
+      "job_id": 124950464609,
+      "workflow_run_id": 41340897286,
+      "event": "push",
+      "score_fixture": {
+        "status": "failure",
+        "same_zero_images_failed_geometry_cases": 6,
+        "nonzero_geometry_cases_passed": 12,
+        "engine": "tesseract v5.5.3.20260724"
+      },
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 479,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 36,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "baseline",
+          "seed": 479,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 28,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "planner",
+          "seed": 479,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 56,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": "completed_depth",
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true,
+          "worker": {
+            "schema_version": 1,
+            "python_exception_status": "absent",
+            "python_exception": null,
+            "exitcode_raw": 1,
+            "exitcode_signed32": 1,
+            "exitcode_hex": "0x00000001",
+            "exit_observed_before_cleanup": false,
+            "parent_cleanup_requested": true,
+            "finished_exists": true,
+            "checkpoint_exists": true,
+            "highest_received_depth": 2,
+            "failure_classification": "parent_cleanup"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": 124950464613,
+      "workflow_run_id": 41340897286,
+      "event": "push",
+      "score_fixture": {
+        "status": "failure",
+        "same_zero_images_failed_geometry_cases": 6,
+        "nonzero_geometry_cases_passed": 12,
+        "engine": "tesseract v5.5.3.20260724"
+      },
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 480,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 28,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "baseline",
+          "seed": 480,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 28,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "planner",
+          "seed": 480,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "failure_message": "post-decision visible score OCR is unavailable; do not claim score comparison",
+          "actual_actions": 0,
+          "board_changes": 0,
+          "score": null,
+          "score_confidence": 0,
+          "score_status": "unavailable",
+          "stop_probe": "unverified",
+          "stale_probe": "unverified",
+          "core_reason": "compute_budget",
+          "reason_codes": [
+            "invalid_planning_evidence",
+            "planning_core_compute_budget"
+          ],
+          "decision_attempts": [
+            {
+              "outcome": "abstain",
+              "reason_codes": [
+                "invalid_planning_evidence",
+                "planning_core_compute_budget"
+              ],
+              "reobservations": 0,
+              "elapsed_ns": 428579300
+            }
+          ],
+          "preprocessing_match": true,
+          "worker": {
+            "schema_version": 1,
+            "python_exception_status": "absent",
+            "python_exception": null,
+            "exitcode_raw": 1,
+            "exitcode_signed32": 1,
+            "exitcode_hex": "0x00000001",
+            "exit_observed_before_cleanup": false,
+            "parent_cleanup_requested": true,
+            "finished_exists": false,
+            "checkpoint_exists": false,
+            "highest_received_depth": 0,
+            "failure_classification": "parent_cleanup"
+          },
+          "recent_capture_times": [
+            {
+              "request_started_ns": 529605468300,
+              "produced_at_ns": 529687500000,
+              "host_received_ns": 529721871400,
+              "frame_id": 1,
+              "backend": "wgc",
+              "frame_size": [
+                892,
+                642
+              ],
+              "age_after_analysis_ns": 226038700,
+              "board_signature": "4d1d3a8f183c718ff0113788bf7156e9bd7b68738f2ce91f85a1c92804f31b99"
+            },
+            {
+              "request_started_ns": 531007815100,
+              "produced_at_ns": 531285048500,
+              "host_received_ns": 531285224700,
+              "frame_id": null,
+              "backend": "gdi",
+              "frame_size": [
+                904,
+                648
+              ],
+              "age_after_analysis_ns": 178456400,
+              "board_signature": "4d1d3a8f183c718ff0113788bf7156e9bd7b68738f2ce91f85a1c92804f31b99"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "job_id": 124950464695,
+      "workflow_run_id": 41340897286,
+      "event": "push",
+      "score_fixture": {
+        "status": "failure",
+        "same_zero_images_failed_geometry_cases": 6,
+        "nonzero_geometry_cases_passed": 12,
+        "engine": "tesseract v5.5.3.20260724"
+      },
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 481,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 48,
+          "score_confidence": 0.95,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "baseline",
+          "seed": 481,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 52,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "planner",
+          "seed": 481,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 56,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": "compute_budget",
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true,
+          "worker": {
+            "schema_version": 1,
+            "python_exception_status": "absent",
+            "python_exception": null,
+            "exitcode_raw": 1,
+            "exitcode_signed32": 1,
+            "exitcode_hex": "0x00000001",
+            "exit_observed_before_cleanup": false,
+            "parent_cleanup_requested": true,
+            "finished_exists": false,
+            "checkpoint_exists": true,
+            "highest_received_depth": 1,
+            "failure_classification": "parent_cleanup"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": 124950482141,
+      "workflow_run_id": 41340903120,
+      "event": "pull_request",
+      "score_fixture": {
+        "status": "failure",
+        "same_zero_images_failed_geometry_cases": 6,
+        "nonzero_geometry_cases_passed": 12,
+        "engine": "tesseract v5.5.3.20260724"
+      },
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 479,
+          "success": false,
+          "failure_stage": "decision_execution",
+          "failure_type": "RuntimeError",
+          "failure_message": "comparison typed board unavailable before decision",
+          "actual_actions": 0,
+          "board_changes": 0,
+          "score": null,
+          "score_confidence": null,
+          "score_status": "unavailable",
+          "stop_probe": "unverified",
+          "stale_probe": "unverified",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true,
+          "recent_capture_times": [
+            {
+              "request_started_ns": 225420873500,
+              "produced_at_ns": 225531250000,
+              "host_received_ns": 225552508700,
+              "frame_id": 1,
+              "backend": "wgc",
+              "frame_size": [
+                892,
+                642
+              ],
+              "age_after_analysis_ns": 262199900,
+              "board_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6"
+            },
+            {
+              "request_started_ns": 227032907000,
+              "produced_at_ns": 225593750000,
+              "host_received_ns": 227038335900,
+              "frame_id": 2,
+              "backend": "wgc",
+              "frame_size": [
+                892,
+                642
+              ],
+              "age_after_analysis_ns": 1666800900,
+              "board_signature": "cd1d2904e1c24e700eec46d4a3a982f59ea48d070cfcecb8ed791776674fe9d1"
+            }
+          ]
+        },
+        {
+          "provider": "baseline",
+          "seed": 479,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 28,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "planner",
+          "seed": 479,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 52,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": "compute_budget",
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true,
+          "worker": {
+            "schema_version": 1,
+            "python_exception_status": "absent",
+            "python_exception": null,
+            "exitcode_raw": 1,
+            "exitcode_signed32": 1,
+            "exitcode_hex": "0x00000001",
+            "exit_observed_before_cleanup": false,
+            "parent_cleanup_requested": true,
+            "finished_exists": false,
+            "checkpoint_exists": true,
+            "highest_received_depth": 1,
+            "failure_classification": "parent_cleanup"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": 124950481968,
+      "workflow_run_id": 41340903120,
+      "event": "pull_request",
+      "score_fixture": {
+        "status": "failure",
+        "same_zero_images_failed_geometry_cases": 6,
+        "nonzero_geometry_cases_passed": 12,
+        "engine": "tesseract v5.5.3.20260724"
+      },
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 480,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 28,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "baseline",
+          "seed": 480,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 28,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "planner",
+          "seed": 480,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 56,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": "compute_budget",
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true,
+          "worker": {
+            "schema_version": 1,
+            "python_exception_status": "absent",
+            "python_exception": null,
+            "exitcode_raw": 1,
+            "exitcode_signed32": 1,
+            "exitcode_hex": "0x00000001",
+            "exit_observed_before_cleanup": false,
+            "parent_cleanup_requested": true,
+            "finished_exists": false,
+            "checkpoint_exists": true,
+            "highest_received_depth": 1,
+            "failure_classification": "parent_cleanup"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": 124950482041,
+      "workflow_run_id": 41340903120,
+      "event": "pull_request",
+      "score_fixture": {
+        "status": "failure",
+        "same_zero_images_failed_geometry_cases": 6,
+        "nonzero_geometry_cases_passed": 12,
+        "engine": "tesseract v5.5.3.20260724"
+      },
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 481,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 48,
+          "score_confidence": 0.95,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "baseline",
+          "seed": 481,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 52,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": null,
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true
+        },
+        {
+          "provider": "planner",
+          "seed": 481,
+          "success": true,
+          "failure_stage": null,
+          "failure_type": null,
+          "failure_message": null,
+          "actual_actions": 12,
+          "board_changes": 12,
+          "score": 56,
+          "score_confidence": 0.96,
+          "score_status": "verified_ocr",
+          "stop_probe": "rejected",
+          "stale_probe": "rejected",
+          "core_reason": "compute_budget",
+          "reason_codes": [],
+          "decision_attempts": [],
+          "preprocessing_match": true,
+          "worker": {
+            "schema_version": 1,
+            "python_exception_status": "absent",
+            "python_exception": null,
+            "exitcode_raw": 1,
+            "exitcode_signed32": 1,
+            "exitcode_hex": "0x00000001",
+            "exit_observed_before_cleanup": false,
+            "parent_cleanup_requested": true,
+            "finished_exists": false,
+            "checkpoint_exists": true,
+            "highest_received_depth": 1,
+            "failure_classification": "parent_cleanup"
+          }
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "The zero score OCR replay failed on Windows while the same fixed pixels passed on Linux 5.5.0; engine/model causes were not separated.",
+    "push480 Planner reached its 400ms compute cutoff with no completed checkpoint and correctly sent no input; policy overclassified the unavailable notice as invalid evidence.",
+    "PR479 Cycling rejected an unknown typed board after its post-validation WGC frame was produced 1.44 seconds before the request.",
+    "The next request barrier, bounded-attempt benchmark profile and foreground-union preprocessing have not been measured in this cohort.",
+    "This is distinct from both the required 600s campaign and frozen Chromium/headless studies."
+  ]
+}

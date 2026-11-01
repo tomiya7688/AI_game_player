@@ -5,9 +5,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.planning_file_publisher import publish_planning_bytes
 from ai_game_player.belief_contract import BeliefContext
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_file_reader import read_planning_bytes
+from ai_game_player.planning_worker_diagnostic import mark_parent_timing
 from ai_game_player.planning_result import (
     HypothesisActionValue,
     PlanningActionValue,
@@ -18,12 +20,13 @@ from ai_game_player.planning_result import (
 
 
 # {
-#   責務: [publish_planning_json: 小さい既存atomic JSON基盤で完全なmessageだけを公開する]
-#   処理: [serialize後の実byte予算を検査し、同一directoryの一時fileを原子的に置換する]
-#   引数: [path: worker所有通信先, value: 検証済みmessage, maximum: 実file byte上限]
-#   戻り値: [なし] エラー: [ValueError/OSError: サイズ/JSON/IO失敗]
+#   責務: [encode_planning_json: 一時IPCのJSONを一度だけ同一UTF-8 byte列へ固定する]
+#   引数: [value: object message, maximum: 実byte上限] 戻り値: [bytes: 有界JSON]
+#   処理: [既存indent/非ASCII表現を維持し、NaN・byte超過・過剰nestingを公開前に拒否]
 # }
-def publish_planning_json(path: Path, value: dict[str, Any], maximum: int) -> None:
+def encode_planning_json(value: dict[str, Any], maximum: int) -> bytes:
+    if type(maximum) is not int or maximum < 0 or not isinstance(value, dict):
+        raise ValueError("planning message requires an object and byte budget")
     try:
         encoded = json.dumps(
             value, ensure_ascii=False, indent=2, allow_nan=False
@@ -33,23 +36,42 @@ def publish_planning_json(path: Path, value: dict[str, Any], maximum: int) -> No
     if len(encoded) > maximum:
         raise ValueError("planning message byte budget exceeded")
     _check_json_nesting(encoded)
-    staged = stage_json_write(path, value)
-    try:
-        staged.publish()
-    finally:
-        staged.discard()
+    return encoded
 
 
 # {
-#   責務: [read_planning_json: 信頼された一時directory内のmessageを有界に読む]
-#   処理: [最大+1byteだけ読み、重複key/NaN/非objectを拒否する]
-#   引数: [path: message先, maximum: byte上限] 戻り値: [dict: 独立JSON object]
-#   エラー: [OSError/ValueError: 未公開/破損/サイズ超過]
+#   責務: [publish_planning_json: 一要求のrequest/ready/checkpoint/finishedだけを原子的に公開]
+#   処理: [一度encodeしたbyte列をflush/close→既存atomic renameへ渡す。永続成果物には使わない]
+#   引数: [path/value/maximum: 所有一時directoryの通信先・message・byte上限,
+#     parent_timing: requestのencode/write/publish工程だけを測る任意診断]
+#   戻り値: [なし] エラー: [ValueError/OSError: JSON/budget/IO失敗。耐久性は保証しない]
 # }
-def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
-    with path.open("rb") as stream:
-        raw = stream.read(maximum + 1)
-    if len(raw) > maximum:
+def publish_planning_json(
+    path: Path,
+    value: dict[str, Any],
+    maximum: int,
+    *,
+    parent_timing: dict[str, Any] | None = None,
+) -> None:
+    mark_parent_timing(parent_timing, "request_encode_started_at_ns")
+    encoded = encode_planning_json(value, maximum)
+    mark_parent_timing(parent_timing, "request_encode_finished_at_ns")
+    publish_planning_bytes(path, encoded, maximum, parent_timing=parent_timing)
+
+
+# {
+#   責務: [decode_planning_json: 一つの受領byte列から有界JSON objectを復号する]
+#   処理: [file再読をせず、既存のUTF-8/duplicate key/NaN/nesting検査を維持]
+#   引数: [raw: 一度だけ読んだ不変bytes, maximum: 実byte上限] 戻り値: [独立dict]
+#   エラー: [ValueError: 型・budget・JSON構造違反]
+# }
+def decode_planning_json(raw: bytes, maximum: int) -> dict[str, Any]:
+    if (
+        type(maximum) is not int
+        or maximum < 0
+        or type(raw) is not bytes
+        or len(raw) > maximum
+    ):
         raise ValueError("planning message byte budget exceeded")
     _check_json_nesting(raw)
     try:
@@ -63,6 +85,15 @@ def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
     if not isinstance(result, dict):
         raise ValueError("planning message must be an object")
     return result
+
+
+# {
+#   責務: [read_planning_json: 所有IPCを最大+1byteだけ一度読み、同じbyte列を復号する]
+#   引数: [path: message先, maximum: byte上限] 戻り値: [dict: 検査済みobject]
+#   エラー: [OSError/ValueError: 未公開・破損・budget違反。再試行しない]
+# }
+def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
+    return decode_planning_json(read_planning_bytes(path, maximum), maximum)
 
 
 # {

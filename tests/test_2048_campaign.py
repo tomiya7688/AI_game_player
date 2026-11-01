@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 
 from ai_game_player.campaign_runner import CampaignFailure, CampaignState
 from ai_game_player.models import ScreenObservation
+from ai_game_player.screen_capture import ScreenFrame
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
 from ai_game_player.run_control import ExecutionCancelled, RunController
@@ -17,6 +18,18 @@ from tools import run_2048_campaign
 
 
 class ReferenceGame2048EpisodeTests(unittest.TestCase):
+    def test_capture_wait_profile_is_explicit_and_general_source_keeps_default(self):
+        with patch.object(run_2048_campaign, "WindowsScreenCapture") as factory:
+            default = run_2048_campaign.Cached2048ObservationSource(123, None)
+            factory.assert_called_once_with()
+            default.close()
+        with patch.object(run_2048_campaign, "WindowsScreenCapture") as factory:
+            comparison = run_2048_campaign.Cached2048ObservationSource(
+                123, None, wgc_timeout_ms=250
+            )
+            factory.assert_called_once_with(wgc_timeout_ms=250)
+            comparison.close()
+
     def test_capture_refreshes_fail_safe_and_uses_campaign_observation_timeout(self):
         events = []
         current_time = [100.0]
@@ -127,37 +140,52 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
 
         class FakeCapture:
             frame_number = 0
+            last_capture_backend = "gdi"
 
             def capture(self, _window_handle):
                 self.frame_number += 1
                 events.append(f"captured-{self.frame_number}")
-                return self.frame_number
+                return ScreenFrame(
+                    1,
+                    1,
+                    b"\0" * 4,
+                    captured_at=run_2048_campaign.time.monotonic(),
+                    frame_id=self.frame_number,
+                )
 
         class FakeAnalyzer:
             def analyze(self, frame, _screen_id):
-                events.append(f"analyzed-{frame}")
-                return SimpleNamespace(features={"signature": f"frame-{frame}"})
+                events.append(f"analyzed-{frame.frame_id}")
+                return SimpleNamespace(
+                    features={"signature": f"frame-{frame.frame_id}"}
+                )
 
         class FakeAdapter:
             def adapt(self, frame, _observation):
-                events.append(f"adapted-{frame}")
-                state = SimpleNamespace(
+                events.append(f"adapted-{frame.frame_id}")
+                state = ScreenObservation(
+                    "fixture",
+                    1,
+                    1,
                     features={
                         "game_2048": {
                             "board": [[2]],
                             "game_over": False,
                             "score": 0,
-                            "state_signature": f"board-{frame}",
+                            "state_signature": f"board-{frame.frame_id}",
                         }
-                    }
+                    },
                 )
-                candidates = [] if frame == 1 else [object()]
+                candidates = [] if frame.frame_id == 1 else [object()]
                 return state, candidates
 
         source = run_2048_campaign.Cached2048ObservationSource.__new__(
             run_2048_campaign.Cached2048ObservationSource
         )
         source.window_handle = 123
+        source.source_id = "fixture_capture"
+        source.capture_sequence = 0
+        source.not_before = 0.0
         source.capture = FakeCapture()
         source.analyzer = FakeAnalyzer()
         source.adapter = FakeAdapter()
@@ -480,28 +508,40 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
     def test_recognition_timeout_reports_capture_diagnostics(self):
         class FakeCapture:
             frame_number = 0
+            last_capture_backend = "gdi"
 
             def capture(self, _window_handle):
                 self.frame_number += 1
-                return self.frame_number
+                return ScreenFrame(
+                    1,
+                    1,
+                    b"\0" * 4,
+                    captured_at=float(self.frame_number),
+                    frame_id=self.frame_number,
+                )
 
         class FakeAnalyzer:
             def analyze(self, frame, _screen_id):
-                return SimpleNamespace(features={"signature": f"frame-{frame}"})
+                return SimpleNamespace(
+                    features={"signature": f"frame-{frame.frame_id}"}
+                )
 
         class FakeAdapter:
             minimum_candidate_confidence = 0.65
 
             def adapt(self, _frame, _observation):
                 return (
-                    SimpleNamespace(
+                    ScreenObservation(
+                        "fixture",
+                        1,
+                        1,
                         features={
                             "game_2048": {
                                 "board": None,
                                 "game_over": None,
                                 "confidence": 0.417334,
                             }
-                        }
+                        },
                     ),
                     [],
                 )
@@ -510,6 +550,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             run_2048_campaign.Cached2048ObservationSource
         )
         source.window_handle = 123
+        source.source_id = "fixture_capture"
+        source.capture_sequence = 0
+        source.not_before = 0.0
         source.capture = FakeCapture()
         source.analyzer = FakeAnalyzer()
         source.adapter = FakeAdapter()
@@ -528,6 +571,11 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
                 run_2048_campaign.time, "monotonic", side_effect=advance_monotonic_clock
             ),
             patch.object(run_2048_campaign.time, "sleep"),
+            patch.object(
+                run_2048_campaign.time,
+                "monotonic_ns",
+                side_effect=lambda: int(current_time[0] * 1_000_000_000),
+            ),
         ):
             with self.assertRaises(CampaignFailure) as raised:
                 source.capture_playable_state()

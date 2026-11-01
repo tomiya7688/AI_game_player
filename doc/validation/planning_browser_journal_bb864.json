@@ -1,0 +1,471 @@
+{
+  "schema_version": 1,
+  "git_sha_at_start": "bb8648866b791c346d32e2068340ab0474b3563f",
+  "git_status_at_start": "",
+  "source_at_start": {
+    "python_file_count": 231,
+    "sha256": "355d9ba96939ceb158f5b55f8689f07295cbc80e0a34f48bf1ec69986fb7fdbe"
+  },
+  "harness_sha256": "c45fb725711a3c3d56ebeed11de6dcc39c0a981ac6dbe91c0fc9c5653e6e64bb",
+  "sensor_sha256": "ef70ba79c5314e51742a6dbfac166d132561dc24699e82afc7ce569b27703616",
+  "pinned_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "profiles": {
+    "baseline": {
+      "min_margin": 0.0,
+      "min_recognition": 0.65
+    },
+    "planner": {
+      "allow_conditional": true,
+      "unknown_world_mass": 1,
+      "calibrated_accuracy_claim": false,
+      "max_depth": 1,
+      "max_nodes": 10000,
+      "wall_time_ms": 400
+    },
+    "cycling": {
+      "provider": "CyclingDirectionProvider",
+      "configuration": "existing default"
+    }
+  },
+  "settle_milliseconds": 1000,
+  "decision_data": "screenshot and existing recognizer only; seeded RNG initialization is test setup, score DOM read only after play",
+  "windows_field_play": "Unverified; isolated Chromium input backend",
+  "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+  "git_sha_at_end": "bb8648866b791c346d32e2068340ab0474b3563f",
+  "git_status_at_end": "",
+  "source_at_end": {
+    "python_file_count": 231,
+    "sha256": "355d9ba96939ceb158f5b55f8689f07295cbc80e0a34f48bf1ec69986fb7fdbe"
+  },
+  "source_changed_during_run": false,
+  "harness_sha256_at_end": "c45fb725711a3c3d56ebeed11de6dcc39c0a981ac6dbe91c0fc9c5653e6e64bb",
+  "sensor_sha256_at_end": "ef70ba79c5314e51742a6dbfac166d132561dc24699e82afc7ce569b27703616",
+  "source_consistent": true,
+  "evidence_directory": "build/transition-2048/journal-paired-screen/run-3de18f03ecfd4897b4b8edc87d08c2cc",
+  "success": false,
+  "source_report_path": "/workspace/AI_game_player-validation-567/build/transition-2048/journal-paired-screen/run-3de18f03ecfd4897b4b8edc87d08c2cc/report.json",
+  "source_report_sha256": "0e9dcc3ca6997e6706bd390b3cb5c4fb9de2e556ca2e969d0b5c3405a6df6af6",
+  "cohort_status": "failed 2/3 planner episodes; do not omit failures or compute a success-only planner mean",
+  "bookkeeping_limit": "Old helper retained last_state on capture exception and omitted post-error score/last incomplete action; failed episodes terminal_board_unverified is not reliable. New helper clears state, preserves attempt/journal and counts missing completion.",
+  "episodes": [
+    {
+      "seed": 479,
+      "provider": "cycling",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": true,
+      "game_won": false,
+      "max_tile": 128,
+      "step_cap_reached": false,
+      "visible_score": "1332",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 139
+      },
+      "outcome_status_counts": {
+        "unknown": 139
+      },
+      "confirmed_backend_key_sends": 139,
+      "cleanup_errors": [],
+      "actions": 139,
+      "validated_transition_count": 139,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 0,
+      "invalid_action_rate": 0.0,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 139,
+      "nodes": 0,
+      "duration_seconds": 170.5224204040005,
+      "decision_execution_ms": {
+        "p50": 1048.733062,
+        "p95": 1104.0179016000002
+      },
+      "step_wall_ms": {
+        "p50": 1211.002332,
+        "p95": 1273.7570896
+      },
+      "host_cpu_ms": {
+        "p50": 184.145836,
+        "p95": 244.9145187
+      },
+      "host_process_peak_rss_kib": 96424,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 480,
+      "provider": "cycling",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": true,
+      "game_won": false,
+      "max_tile": 128,
+      "step_cap_reached": false,
+      "visible_score": "1140",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 127
+      },
+      "outcome_status_counts": {
+        "unknown": 127
+      },
+      "confirmed_backend_key_sends": 127,
+      "cleanup_errors": [],
+      "actions": 127,
+      "validated_transition_count": 127,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 3,
+      "invalid_action_rate": 0.023622047244094488,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 127,
+      "nodes": 0,
+      "duration_seconds": 155.14380289199835,
+      "decision_execution_ms": {
+        "p50": 1048.639582,
+        "p95": 1101.9235167
+      },
+      "step_wall_ms": {
+        "p50": 1210.162011,
+        "p95": 1279.4518851
+      },
+      "host_cpu_ms": {
+        "p50": 182.144675,
+        "p95": 241.65934629999995
+      },
+      "host_process_peak_rss_kib": 97600,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 481,
+      "provider": "cycling",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": true,
+      "game_won": false,
+      "max_tile": 128,
+      "step_cap_reached": false,
+      "visible_score": "1256",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 138
+      },
+      "outcome_status_counts": {
+        "unknown": 138
+      },
+      "confirmed_backend_key_sends": 138,
+      "cleanup_errors": [],
+      "actions": 138,
+      "validated_transition_count": 138,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 4,
+      "invalid_action_rate": 0.028985507246376812,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 138,
+      "nodes": 0,
+      "duration_seconds": 170.18042767000043,
+      "decision_execution_ms": {
+        "p50": 1053.905366,
+        "p95": 1115.30494465
+      },
+      "step_wall_ms": {
+        "p50": 1216.2688,
+        "p95": 1288.91591115
+      },
+      "host_cpu_ms": {
+        "p50": 187.37198999999998,
+        "p95": 251.42618514999998
+      },
+      "host_process_peak_rss_kib": 97764,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 479,
+      "provider": "baseline",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": true,
+      "game_won": false,
+      "max_tile": 64,
+      "step_cap_reached": false,
+      "visible_score": "664",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 92
+      },
+      "outcome_status_counts": {
+        "unknown": 92
+      },
+      "confirmed_backend_key_sends": 92,
+      "cleanup_errors": [],
+      "actions": 92,
+      "validated_transition_count": 92,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 4,
+      "invalid_action_rate": 0.043478260869565216,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 92,
+      "nodes": 0,
+      "duration_seconds": 111.49485521899987,
+      "decision_execution_ms": {
+        "p50": 1035.8330135,
+        "p95": 1081.43719145
+      },
+      "step_wall_ms": {
+        "p50": 1194.9363535,
+        "p95": 1239.77386585
+      },
+      "host_cpu_ms": {
+        "p50": 169.880916,
+        "p95": 212.27474165
+      },
+      "host_process_peak_rss_kib": 97912,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 480,
+      "provider": "baseline",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": true,
+      "game_won": false,
+      "max_tile": 128,
+      "step_cap_reached": false,
+      "visible_score": "1344",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 148
+      },
+      "outcome_status_counts": {
+        "unknown": 148
+      },
+      "confirmed_backend_key_sends": 148,
+      "cleanup_errors": [],
+      "actions": 148,
+      "validated_transition_count": 148,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 6,
+      "invalid_action_rate": 0.04054054054054054,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 148,
+      "nodes": 0,
+      "duration_seconds": 181.48846962599964,
+      "decision_execution_ms": {
+        "p50": 1053.2751895000001,
+        "p95": 1115.44279095
+      },
+      "step_wall_ms": {
+        "p50": 1210.749473,
+        "p95": 1289.1490855
+      },
+      "host_cpu_ms": {
+        "p50": 186.21215949999998,
+        "p95": 260.6492329
+      },
+      "host_process_peak_rss_kib": 98836,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 481,
+      "provider": "baseline",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": true,
+      "game_won": false,
+      "max_tile": 128,
+      "step_cap_reached": false,
+      "visible_score": "1448",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 153
+      },
+      "outcome_status_counts": {
+        "unknown": 153
+      },
+      "confirmed_backend_key_sends": 153,
+      "cleanup_errors": [],
+      "actions": 153,
+      "validated_transition_count": 153,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 5,
+      "invalid_action_rate": 0.032679738562091505,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 153,
+      "nodes": 0,
+      "duration_seconds": 187.78432166499988,
+      "decision_execution_ms": {
+        "p50": 1055.184659,
+        "p95": 1115.3599915999998
+      },
+      "step_wall_ms": {
+        "p50": 1215.549687,
+        "p95": 1286.1267172
+      },
+      "host_cpu_ms": {
+        "p50": 190.717803,
+        "p95": 259.0654062
+      },
+      "host_process_peak_rss_kib": 99660,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 479,
+      "provider": "planner",
+      "dispositions": [],
+      "error": {
+        "type": "RuntimeError",
+        "message": "screen contains unresolved cells: {'board': [[0, 0, 0, 0], [4, 0, 0, 0], [None, 4, 16, 2], [256, 8, 4, 0]], 'board_bbox': (64, 274, 511, 511), 'cell_confidence': [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [0.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0]], 'confidence': 0.9375, 'game_over': False, 'score': 2048, 'score_confidence': 0.5, 'state_signature': '6270f76031852ab242554452bd0fdf73bbe949dac223859972659b4929e10764'}"
+      },
+      "game_won": false,
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 134
+      },
+      "outcome_status_counts": {
+        "unknown": 134
+      },
+      "confirmed_backend_key_sends": 135,
+      "cleanup_errors": [],
+      "actions": 135,
+      "validated_transition_count": 134,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 0,
+      "invalid_action_rate": 0.0,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 135,
+      "nodes": 9056,
+      "duration_seconds": 202.9286076419994,
+      "decision_execution_ms": {
+        "p50": 1317.8636155,
+        "p95": 1419.20609555
+      },
+      "step_wall_ms": {
+        "p50": 1486.3285275,
+        "p95": 1622.69797245
+      },
+      "host_cpu_ms": {
+        "p50": 385.875634,
+        "p95": 513.28878165
+      },
+      "host_process_peak_rss_kib": 107724,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 480,
+      "provider": "planner",
+      "dispositions": [],
+      "error": {
+        "type": "RuntimeError",
+        "message": "screen contains unresolved cells: {'board': [[0, 0, 0, 0], [0, 0, 2, 0], [0, 0, 16, 4], [2, 2, None, 256]], 'board_bbox': (75, 274, 511, 511), 'cell_confidence': [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 0.0, 1.0]], 'confidence': 0.9375, 'game_over': False, 'score': 2048, 'score_confidence': 0.5, 'state_signature': '6601b83a3d92cbb2dfae680f7f4975b710457d04738c2f23f0acda78b18767b8'}"
+      },
+      "game_won": false,
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 130
+      },
+      "outcome_status_counts": {
+        "unknown": 130
+      },
+      "confirmed_backend_key_sends": 131,
+      "cleanup_errors": [],
+      "actions": 131,
+      "validated_transition_count": 130,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 0,
+      "invalid_action_rate": 0.0,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 131,
+      "nodes": 9198,
+      "duration_seconds": 197.28132979099973,
+      "decision_execution_ms": {
+        "p50": 1318.261732,
+        "p95": 1421.91633995
+      },
+      "step_wall_ms": {
+        "p50": 1485.5447345,
+        "p95": 1630.8980193000002
+      },
+      "host_cpu_ms": {
+        "p50": 380.37120649999997,
+        "p95": 514.09816515
+      },
+      "host_process_peak_rss_kib": 108420,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 481,
+      "provider": "planner",
+      "dispositions": [],
+      "stopped_input_rejected": true,
+      "key_sends_after_stop": 0,
+      "game_over": false,
+      "game_won": false,
+      "max_tile": 256,
+      "step_cap_reached": true,
+      "visible_score": "2312",
+      "terminal_board_unverified": false,
+      "execution_status_counts": {
+        "executed": 180
+      },
+      "outcome_status_counts": {
+        "unknown": 180
+      },
+      "confirmed_backend_key_sends": 180,
+      "cleanup_errors": [],
+      "actions": 180,
+      "validated_transition_count": 180,
+      "transition_mismatch_count": 0,
+      "unverified_transition_count": 0,
+      "invalid_action_count": 0,
+      "invalid_action_rate": 0.0,
+      "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+      "policy_reobservations": 0,
+      "policy_reobserve_per_action": 0.0,
+      "survival_steps": 180,
+      "nodes": 10576,
+      "duration_seconds": 279.54283216099975,
+      "decision_execution_ms": {
+        "p50": 1358.181872,
+        "p95": 1520.2669208999996
+      },
+      "step_wall_ms": {
+        "p50": 1533.7445195,
+        "p95": 1732.9477686500002
+      },
+      "host_cpu_ms": {
+        "p50": 426.67185900000004,
+        "p95": 620.2981819
+      },
+      "host_process_peak_rss_kib": 115584,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    }
+  ]
+}

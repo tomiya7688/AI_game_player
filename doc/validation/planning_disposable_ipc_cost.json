@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "legacy_pipeline_reference_sha": "294cab92d6970aa1cd3485f21d180786d76c848b",
+  "base_sha": "294cab92d6970aa1cd3485f21d180786d76c848b",
+  "candidate_diff_sha256": "4da4acd104b5262ae9590c78a9d40ec57b79f281c0febbd2b5059a2a1b579180",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "filesystem": "tmpfs",
+  "repetitions": 30,
+  "warmup": 3,
+  "seed": null,
+  "tracemalloc_repetitions_separate_from_latency": 3,
+  "scope": "planning disposable IPC only; no actual game/input; not Windows latency or causal fsync proof",
+  "samples": [
+    {
+      "encoded_bytes": 1130,
+      "methods": {
+        "previous_durable_double_encode": {
+          "wall_ms": {
+            "p50": 0.0948185,
+            "p95": 0.187173,
+            "min": 0.086971,
+            "max": 0.266253
+          },
+          "cpu_ms": {
+            "p50": 0.0955375,
+            "p95": 0.18816,
+            "min": 0.08758,
+            "max": 0.267678
+          },
+          "tracemalloc_peak_bytes": 23651
+        },
+        "disposable_single_encode": {
+          "wall_ms": {
+            "p50": 0.077292,
+            "p95": 0.156687,
+            "min": 0.067953,
+            "max": 0.209186
+          },
+          "cpu_ms": {
+            "p50": 0.0778605,
+            "p95": 0.157465,
+            "min": 0.068542,
+            "max": 0.210202
+          },
+          "tracemalloc_peak_bytes": 14644
+        },
+        "previous_double_read": {
+          "wall_ms": {
+            "p50": 0.042173,
+            "p95": 0.061283,
+            "min": 0.035544,
+            "max": 0.107102
+          },
+          "cpu_ms": {
+            "p50": 0.0425335,
+            "p95": 0.061662,
+            "min": 0.035893,
+            "max": 0.108001
+          },
+          "tracemalloc_peak_bytes": 8062
+        },
+        "single_read_and_decode": {
+          "wall_ms": {
+            "p50": 0.0325945,
+            "p95": 0.061213,
+            "min": 0.030516,
+            "max": 0.074693
+          },
+          "cpu_ms": {
+            "p50": 0.0330295,
+            "p95": 0.061842,
+            "min": 0.030886,
+            "max": 0.075392
+          },
+          "tracemalloc_peak_bytes": 6954
+        }
+      }
+    },
+    {
+      "encoded_bytes": 16490,
+      "methods": {
+        "previous_durable_double_encode": {
+          "wall_ms": {
+            "p50": 0.48933,
+            "p95": 0.649712,
+            "min": 0.419505,
+            "max": 0.834081
+          },
+          "cpu_ms": {
+            "p50": 0.4904945,
+            "p95": 0.6517,
+            "min": 0.420205,
+            "max": 0.836074
+          },
+          "tracemalloc_peak_bytes": 70400
+        },
+        "disposable_single_encode": {
+          "wall_ms": {
+            "p50": 0.435749,
+            "p95": 0.537974,
+            "min": 0.371772,
+            "max": 1.17047
+          },
+          "cpu_ms": {
+            "p50": 0.43658399999999997,
+            "p95": 0.538922,
+            "min": 0.372564,
+            "max": 1.172264
+          },
+          "tracemalloc_peak_bytes": 38631
+        },
+        "previous_double_read": {
+          "wall_ms": {
+            "p50": 0.364691,
+            "p95": 0.398152,
+            "min": 0.316529,
+            "max": 0.398733
+          },
+          "cpu_ms": {
+            "p50": 0.365068,
+            "p95": 0.398723,
+            "min": 0.316941,
+            "max": 0.399395
+          },
+          "tracemalloc_peak_bytes": 68715
+        },
+        "single_read_and_decode": {
+          "wall_ms": {
+            "p50": 0.3618575,
+            "p95": 0.417251,
+            "min": 0.309809,
+            "max": 0.453776
+          },
+          "cpu_ms": {
+            "p50": 0.362364,
+            "p95": 0.418142,
+            "min": 0.310412,
+            "max": 0.455137
+          },
+          "tracemalloc_peak_bytes": 51815
+        }
+      }
+    },
+    {
+      "encoded_bytes": 65642,
+      "methods": {
+        "previous_durable_double_encode": {
+          "wall_ms": {
+            "p50": 1.6036000000000001,
+            "p95": 1.829817,
+            "min": 1.500959,
+            "max": 1.916017
+          },
+          "cpu_ms": {
+            "p50": 1.605544,
+            "p95": 1.831886,
+            "min": 1.502786,
+            "max": 1.917994
+          },
+          "tracemalloc_peak_bytes": 217723
+        },
+        "disposable_single_encode": {
+          "wall_ms": {
+            "p50": 1.44542,
+            "p95": 1.704898,
+            "min": 1.351443,
+            "max": 1.774072
+          },
+          "cpu_ms": {
+            "p50": 1.4467125,
+            "p95": 1.700841,
+            "min": 1.352773,
+            "max": 1.770715
+          },
+          "tracemalloc_peak_bytes": 139146
+        },
+        "previous_double_read": {
+          "wall_ms": {
+            "p50": 1.3488995,
+            "p95": 1.569844,
+            "min": 1.264422,
+            "max": 1.786161
+          },
+          "cpu_ms": {
+            "p50": 1.349823,
+            "p95": 1.571419,
+            "min": 1.265383,
+            "max": 1.788231
+          },
+          "tracemalloc_peak_bytes": 265126
+        },
+        "single_read_and_decode": {
+          "wall_ms": {
+            "p50": 1.314307,
+            "p95": 1.399356,
+            "min": 1.232003,
+            "max": 1.574701
+          },
+          "cpu_ms": {
+            "p50": 1.3152325,
+            "p95": 1.400554,
+            "min": 1.232655,
+            "max": 1.576726
+          },
+          "tracemalloc_peak_bytes": 199554
+        }
+      }
+    }
+  ]
+}

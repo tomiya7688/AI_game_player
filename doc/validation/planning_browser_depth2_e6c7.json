@@ -1,0 +1,973 @@
+{
+  "schema_version": 1,
+  "source_commit": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+  "source_python_sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6",
+  "cohort_conditions": "final-depth2-cohort.json",
+  "sample_count": 9,
+  "all_source_consistent": true,
+  "all_input_receipt_transition_counts_match": true,
+  "all_merge_score_sums_match_independent_visible_metric": true,
+  "all_Stop_checks_pass": true,
+  "summary": {
+    "cycling": {
+      "scores": [
+        1332,
+        1140,
+        1256
+      ],
+      "mean_score": 1242.6666666666667,
+      "actions": 404,
+      "max_tiles": [
+        128,
+        128,
+        128
+      ],
+      "noop_count": 7,
+      "game_over_count": 3,
+      "step_cap_count": 0
+    },
+    "baseline": {
+      "scores": [
+        664,
+        1344,
+        1448
+      ],
+      "mean_score": 1152,
+      "actions": 393,
+      "max_tiles": [
+        64,
+        128,
+        128
+      ],
+      "noop_count": 15,
+      "game_over_count": 3,
+      "step_cap_count": 0
+    },
+    "planner": {
+      "scores": [
+        2268,
+        2244,
+        2268
+      ],
+      "mean_score": 2260,
+      "actions": 540,
+      "max_tiles": [
+        256,
+        256,
+        256
+      ],
+      "noop_count": 0,
+      "game_over_count": 0,
+      "step_cap_count": 3
+    }
+  },
+  "episodes": [
+    {
+      "provider": "cycling",
+      "seed": 479,
+      "actions": 139,
+      "max_tile": 128,
+      "game_over": true,
+      "step_cap_reached": false,
+      "invalid_action_count": 0,
+      "nodes": 0,
+      "duration_seconds": 171.47944412200013,
+      "decision_execution_ms": {
+        "p50": 1050.9994,
+        "p95": 1115.5805916
+      },
+      "host_cpu_ms": {
+        "p50": 181.50952,
+        "p95": 276.96731900000003
+      },
+      "visible_score": 1332,
+      "merge_score_sum": 1332,
+      "completed_depth_counts": {},
+      "report_path": "build/transition-2048/final-depth2-seed-479/run-332b365026f34fa793834b80cfbd568d/report.json"
+    },
+    {
+      "provider": "baseline",
+      "seed": 479,
+      "actions": 92,
+      "max_tile": 64,
+      "game_over": true,
+      "step_cap_reached": false,
+      "invalid_action_count": 4,
+      "nodes": 0,
+      "duration_seconds": 111.85675833699861,
+      "decision_execution_ms": {
+        "p50": 1035.8230795,
+        "p95": 1073.57394475
+      },
+      "host_cpu_ms": {
+        "p50": 166.29121800000001,
+        "p95": 216.98732349999997
+      },
+      "visible_score": 664,
+      "merge_score_sum": 664,
+      "completed_depth_counts": {},
+      "report_path": "build/transition-2048/final-depth2-seed-479/run-332b365026f34fa793834b80cfbd568d/report.json"
+    },
+    {
+      "provider": "planner",
+      "seed": 479,
+      "actions": 180,
+      "max_tile": 256,
+      "game_over": false,
+      "step_cap_reached": true,
+      "invalid_action_count": 0,
+      "nodes": 622044,
+      "duration_seconds": 306.53547324100145,
+      "decision_execution_ms": {
+        "p50": 1522.041445,
+        "p95": 1617.54918745
+      },
+      "host_cpu_ms": {
+        "p50": 378.769219,
+        "p95": 512.42928425
+      },
+      "visible_score": 2268,
+      "merge_score_sum": 2268,
+      "completed_depth_counts": {
+        "1": 7,
+        "2": 173
+      },
+      "report_path": "build/transition-2048/final-depth2-seed-479/run-332b365026f34fa793834b80cfbd568d/report.json"
+    },
+    {
+      "provider": "cycling",
+      "seed": 480,
+      "actions": 127,
+      "max_tile": 128,
+      "game_over": true,
+      "step_cap_reached": false,
+      "invalid_action_count": 3,
+      "nodes": 0,
+      "duration_seconds": 155.63267190199986,
+      "decision_execution_ms": {
+        "p50": 1047.71927,
+        "p95": 1102.3925812
+      },
+      "host_cpu_ms": {
+        "p50": 176.915243,
+        "p95": 244.81708400000002
+      },
+      "visible_score": 1140,
+      "merge_score_sum": 1140,
+      "completed_depth_counts": {},
+      "report_path": "build/transition-2048/final-depth2-seed-480/run-a172abfab3644945b84bf6c324aaf127/report.json"
+    },
+    {
+      "provider": "baseline",
+      "seed": 480,
+      "actions": 148,
+      "max_tile": 128,
+      "game_over": true,
+      "step_cap_reached": false,
+      "invalid_action_count": 6,
+      "nodes": 0,
+      "duration_seconds": 183.4738057789982,
+      "decision_execution_ms": {
+        "p50": 1057.488699,
+        "p95": 1121.9530916
+      },
+      "host_cpu_ms": {
+        "p50": 194.4098315,
+        "p95": 266.84724275
+      },
+      "visible_score": 1344,
+      "merge_score_sum": 1344,
+      "completed_depth_counts": {},
+      "report_path": "build/transition-2048/final-depth2-seed-480/run-a172abfab3644945b84bf6c324aaf127/report.json"
+    },
+    {
+      "provider": "planner",
+      "seed": 480,
+      "actions": 180,
+      "max_tile": 256,
+      "game_over": false,
+      "step_cap_reached": true,
+      "invalid_action_count": 0,
+      "nodes": 616817,
+      "duration_seconds": 307.2885059040018,
+      "decision_execution_ms": {
+        "p50": 1525.0883525,
+        "p95": 1612.1167929499998
+      },
+      "host_cpu_ms": {
+        "p50": 391.181322,
+        "p95": 499.82174365
+      },
+      "visible_score": 2244,
+      "merge_score_sum": 2244,
+      "completed_depth_counts": {
+        "1": 9,
+        "2": 171
+      },
+      "report_path": "build/transition-2048/final-depth2-seed-480/run-a172abfab3644945b84bf6c324aaf127/report.json"
+    },
+    {
+      "provider": "cycling",
+      "seed": 481,
+      "actions": 138,
+      "max_tile": 128,
+      "game_over": true,
+      "step_cap_reached": false,
+      "invalid_action_count": 4,
+      "nodes": 0,
+      "duration_seconds": 169.98735830499936,
+      "decision_execution_ms": {
+        "p50": 1048.8775645,
+        "p95": 1117.8496103999998
+      },
+      "host_cpu_ms": {
+        "p50": 182.479749,
+        "p95": 274.2961745
+      },
+      "visible_score": 1256,
+      "merge_score_sum": 1256,
+      "completed_depth_counts": {},
+      "report_path": "build/transition-2048/final-depth2-seed-481/run-8657fe90e1934c81935a69f637aae6d7/report.json"
+    },
+    {
+      "provider": "baseline",
+      "seed": 481,
+      "actions": 153,
+      "max_tile": 128,
+      "game_over": true,
+      "step_cap_reached": false,
+      "invalid_action_count": 5,
+      "nodes": 0,
+      "duration_seconds": 189.9298836329981,
+      "decision_execution_ms": {
+        "p50": 1061.448767,
+        "p95": 1123.7840437999998
+      },
+      "host_cpu_ms": {
+        "p50": 193.598859,
+        "p95": 270.8274864
+      },
+      "visible_score": 1448,
+      "merge_score_sum": 1448,
+      "completed_depth_counts": {},
+      "report_path": "build/transition-2048/final-depth2-seed-481/run-8657fe90e1934c81935a69f637aae6d7/report.json"
+    },
+    {
+      "provider": "planner",
+      "seed": 481,
+      "actions": 180,
+      "max_tile": 256,
+      "game_over": false,
+      "step_cap_reached": true,
+      "invalid_action_count": 0,
+      "nodes": 482702,
+      "duration_seconds": 298.09626350700273,
+      "decision_execution_ms": {
+        "p50": 1474.5286655,
+        "p95": 1594.6894483999997
+      },
+      "host_cpu_ms": {
+        "p50": 383.864592,
+        "p95": 490.95493515000004
+      },
+      "visible_score": 2268,
+      "merge_score_sum": 2268,
+      "completed_depth_counts": {
+        "1": 5,
+        "2": 175
+      },
+      "report_path": "build/transition-2048/final-depth2-seed-481/run-8657fe90e1934c81935a69f637aae6d7/report.json"
+    }
+  ],
+  "limits": [
+    "Three seeds per provider; descriptive evidence, not statistical significance or all-game accuracy.",
+    "180-step cap censors surviving Planner episodes; not game wins.",
+    "Planner conditional single-hypothesis assumption explicit; global world risk remains unknown.",
+    "Three independent seed processes ran concurrently on a four-core cloud quota; latency/CPU/RSS are not isolated measurements.",
+    "Isolated Chromium backend; Windows WGC/Win32 comparison is separate."
+  ],
+  "source_summary_sha256": "6d0b171fbbb2c411d0562fdcea79f6edb466ef44698727c54a1490ff031e26df",
+  "conditions_sha256": "a48055db878ea76d988bba2afd3ee61da9a89421c598fe644ffaf97ef58ef8aa",
+  "conditions": {
+    "schema_version": 1,
+    "source_commit": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+    "started_at_utc": "2026-11-01 17:02:02 UTC",
+    "seeds": [
+      479,
+      480,
+      481
+    ],
+    "providers": [
+      "cycling",
+      "baseline",
+      "planner"
+    ],
+    "steps_per_episode": 180,
+    "planner": {
+      "max_depth": 2,
+      "wall_time_ms": 400,
+      "max_nodes": 10000,
+      "conditional_assumption": true
+    },
+    "execution": "Three independent seed trials run concurrently; each trial runs its three providers sequentially with independent browser contexts.",
+    "cpu_quota_cores": 4,
+    "memory_limit_bytes": 17179869184,
+    "measurement_scope": "Scores, censored survival, input/receipt/transition/Stop validity measured in isolated browser pages. Latency, CPU and RSS are descriptive under concurrent cloud load and cannot establish isolated performance or FPS."
+  },
+  "previous_failed_cohort": "planning_browser_journal_bb864.json",
+  "measurement_kind": "actual isolated Chromium input via screenshot-only source; Windows remains separate and unverified",
+  "total_actual_inputs": 1337,
+  "reports": [
+    {
+      "path": "build/transition-2048/final-depth2-seed-479/run-332b365026f34fa793834b80cfbd568d/report.json",
+      "sha256": "f3ef3409cd51eb49619c1a5a11698f2b0c5fca6cf75025675647e0415c4c4933",
+      "metadata": {
+        "schema_version": 1,
+        "git_sha_at_start": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+        "git_status_at_start": "",
+        "source_at_start": {
+          "python_file_count": 262,
+          "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+        },
+        "harness_sha256": "e1bf3829ce34424a2be67db165f2276bbfe8b07946d48e1f7a0c21d636273ed2",
+        "sensor_sha256": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+        "pinned_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+        "profiles": {
+          "baseline": {
+            "min_margin": 0.0,
+            "min_recognition": 0.65
+          },
+          "planner": {
+            "allow_conditional": true,
+            "unknown_world_mass": 1,
+            "calibrated_accuracy_claim": false,
+            "max_depth": 2,
+            "max_nodes": 10000,
+            "wall_time_ms": 400,
+            "search_budget": {
+              "max_depth": 2,
+              "max_nodes": 10000,
+              "max_actions": 16,
+              "max_chance_outcomes": 256,
+              "max_state_bytes": 16384,
+              "max_cache_entries": 256,
+              "max_cache_bytes": 4194304,
+              "max_trace_values": 32,
+              "max_request_bytes": 1048576,
+              "max_result_bytes": 524288,
+              "wall_time_ms": 400,
+              "worker_memory_bytes": 268435456,
+              "max_unknown_mass": 0.25,
+              "allow_conditional_selection": true
+            }
+          },
+          "cycling": {
+            "provider": "CyclingDirectionProvider",
+            "configuration": "existing default"
+          }
+        },
+        "settle_milliseconds": 1000,
+        "decision_data": "screenshot and existing recognizer only; seeded RNG initialization is test setup, score DOM read only after play",
+        "windows_field_play": "Unverified; isolated Chromium input backend",
+        "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+        "git_sha_at_end": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+        "git_status_at_end": "",
+        "source_at_end": {
+          "python_file_count": 262,
+          "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+        },
+        "source_changed_during_run": false,
+        "harness_sha256_at_end": "e1bf3829ce34424a2be67db165f2276bbfe8b07946d48e1f7a0c21d636273ed2",
+        "sensor_sha256_at_end": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+        "source_consistent": true,
+        "success": true
+      },
+      "episodes": [
+        {
+          "seed": 479,
+          "provider": "cycling",
+          "visible_score": "1332",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": true,
+          "game_won": false,
+          "max_tile": 128,
+          "step_cap_reached": false,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 139
+          },
+          "outcome_status_counts": {
+            "unknown": 139
+          },
+          "confirmed_backend_key_sends": 139,
+          "unique_completed_receipts": 139,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 139,
+          "validated_transition_count": 139,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 0,
+          "invalid_action_rate": 0.0,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 139,
+          "nodes": 0,
+          "unverified_action_count": 0,
+          "duration_seconds": 171.47944412200013,
+          "decision_execution_ms": {
+            "p50": 1050.9994,
+            "p95": 1115.5805916
+          },
+          "step_wall_ms": {
+            "p50": 1207.486271,
+            "p95": 1323.2780728
+          },
+          "host_cpu_ms": {
+            "p50": 181.50952,
+            "p95": 276.96731900000003
+          },
+          "host_process_peak_rss_kib": 100412,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        },
+        {
+          "seed": 479,
+          "provider": "baseline",
+          "visible_score": "664",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": true,
+          "game_won": false,
+          "max_tile": 64,
+          "step_cap_reached": false,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 92
+          },
+          "outcome_status_counts": {
+            "unknown": 92
+          },
+          "confirmed_backend_key_sends": 92,
+          "unique_completed_receipts": 92,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 92,
+          "validated_transition_count": 92,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 4,
+          "invalid_action_rate": 0.043478260869565216,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 92,
+          "nodes": 0,
+          "unverified_action_count": 0,
+          "duration_seconds": 111.85675833699861,
+          "decision_execution_ms": {
+            "p50": 1035.8230795,
+            "p95": 1073.57394475
+          },
+          "step_wall_ms": {
+            "p50": 1196.383002,
+            "p95": 1244.76075955
+          },
+          "host_cpu_ms": {
+            "p50": 166.29121800000001,
+            "p95": 216.98732349999997
+          },
+          "host_process_peak_rss_kib": 101468,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        },
+        {
+          "seed": 479,
+          "provider": "planner",
+          "visible_score": "2268",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": false,
+          "game_won": false,
+          "max_tile": 256,
+          "step_cap_reached": true,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 180
+          },
+          "outcome_status_counts": {
+            "unknown": 180
+          },
+          "confirmed_backend_key_sends": 180,
+          "unique_completed_receipts": 180,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 180,
+          "validated_transition_count": 180,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 0,
+          "invalid_action_rate": 0.0,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 180,
+          "nodes": 622044,
+          "unverified_action_count": 0,
+          "duration_seconds": 306.53547324100145,
+          "decision_execution_ms": {
+            "p50": 1522.041445,
+            "p95": 1617.54918745
+          },
+          "step_wall_ms": {
+            "p50": 1690.5339685,
+            "p95": 1822.4176131
+          },
+          "host_cpu_ms": {
+            "p50": 378.769219,
+            "p95": 512.42928425
+          },
+          "host_process_peak_rss_kib": 111032,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        }
+      ]
+    },
+    {
+      "path": "build/transition-2048/final-depth2-seed-480/run-a172abfab3644945b84bf6c324aaf127/report.json",
+      "sha256": "adef062702119b0dd60fd38425b13ed2b40a72d477aa9fdd7a056c94081691ab",
+      "metadata": {
+        "schema_version": 1,
+        "git_sha_at_start": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+        "git_status_at_start": "",
+        "source_at_start": {
+          "python_file_count": 262,
+          "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+        },
+        "harness_sha256": "e1bf3829ce34424a2be67db165f2276bbfe8b07946d48e1f7a0c21d636273ed2",
+        "sensor_sha256": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+        "pinned_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+        "profiles": {
+          "baseline": {
+            "min_margin": 0.0,
+            "min_recognition": 0.65
+          },
+          "planner": {
+            "allow_conditional": true,
+            "unknown_world_mass": 1,
+            "calibrated_accuracy_claim": false,
+            "max_depth": 2,
+            "max_nodes": 10000,
+            "wall_time_ms": 400,
+            "search_budget": {
+              "max_depth": 2,
+              "max_nodes": 10000,
+              "max_actions": 16,
+              "max_chance_outcomes": 256,
+              "max_state_bytes": 16384,
+              "max_cache_entries": 256,
+              "max_cache_bytes": 4194304,
+              "max_trace_values": 32,
+              "max_request_bytes": 1048576,
+              "max_result_bytes": 524288,
+              "wall_time_ms": 400,
+              "worker_memory_bytes": 268435456,
+              "max_unknown_mass": 0.25,
+              "allow_conditional_selection": true
+            }
+          },
+          "cycling": {
+            "provider": "CyclingDirectionProvider",
+            "configuration": "existing default"
+          }
+        },
+        "settle_milliseconds": 1000,
+        "decision_data": "screenshot and existing recognizer only; seeded RNG initialization is test setup, score DOM read only after play",
+        "windows_field_play": "Unverified; isolated Chromium input backend",
+        "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+        "git_sha_at_end": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+        "git_status_at_end": "",
+        "source_at_end": {
+          "python_file_count": 262,
+          "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+        },
+        "source_changed_during_run": false,
+        "harness_sha256_at_end": "e1bf3829ce34424a2be67db165f2276bbfe8b07946d48e1f7a0c21d636273ed2",
+        "sensor_sha256_at_end": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+        "source_consistent": true,
+        "success": true
+      },
+      "episodes": [
+        {
+          "seed": 480,
+          "provider": "cycling",
+          "visible_score": "1140",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": true,
+          "game_won": false,
+          "max_tile": 128,
+          "step_cap_reached": false,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 127
+          },
+          "outcome_status_counts": {
+            "unknown": 127
+          },
+          "confirmed_backend_key_sends": 127,
+          "unique_completed_receipts": 127,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 127,
+          "validated_transition_count": 127,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 3,
+          "invalid_action_rate": 0.023622047244094488,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 127,
+          "nodes": 0,
+          "unverified_action_count": 0,
+          "duration_seconds": 155.63267190199986,
+          "decision_execution_ms": {
+            "p50": 1047.71927,
+            "p95": 1102.3925812
+          },
+          "step_wall_ms": {
+            "p50": 1204.078202,
+            "p95": 1282.2678476
+          },
+          "host_cpu_ms": {
+            "p50": 176.915243,
+            "p95": 244.81708400000002
+          },
+          "host_process_peak_rss_kib": 99368,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        },
+        {
+          "seed": 480,
+          "provider": "baseline",
+          "visible_score": "1344",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": true,
+          "game_won": false,
+          "max_tile": 128,
+          "step_cap_reached": false,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 148
+          },
+          "outcome_status_counts": {
+            "unknown": 148
+          },
+          "confirmed_backend_key_sends": 148,
+          "unique_completed_receipts": 148,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 148,
+          "validated_transition_count": 148,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 6,
+          "invalid_action_rate": 0.04054054054054054,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 148,
+          "nodes": 0,
+          "unverified_action_count": 0,
+          "duration_seconds": 183.4738057789982,
+          "decision_execution_ms": {
+            "p50": 1057.488699,
+            "p95": 1121.9530916
+          },
+          "step_wall_ms": {
+            "p50": 1223.3169779999998,
+            "p95": 1302.3415966
+          },
+          "host_cpu_ms": {
+            "p50": 194.4098315,
+            "p95": 266.84724275
+          },
+          "host_process_peak_rss_kib": 102012,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        },
+        {
+          "seed": 480,
+          "provider": "planner",
+          "visible_score": "2244",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": false,
+          "game_won": false,
+          "max_tile": 256,
+          "step_cap_reached": true,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 180
+          },
+          "outcome_status_counts": {
+            "unknown": 180
+          },
+          "confirmed_backend_key_sends": 180,
+          "unique_completed_receipts": 180,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 180,
+          "validated_transition_count": 180,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 0,
+          "invalid_action_rate": 0.0,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 180,
+          "nodes": 616817,
+          "unverified_action_count": 0,
+          "duration_seconds": 307.2885059040018,
+          "decision_execution_ms": {
+            "p50": 1525.0883525,
+            "p95": 1612.1167929499998
+          },
+          "step_wall_ms": {
+            "p50": 1697.2810205,
+            "p95": 1799.5272295500001
+          },
+          "host_cpu_ms": {
+            "p50": 391.181322,
+            "p95": 499.82174365
+          },
+          "host_process_peak_rss_kib": 110636,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        }
+      ]
+    },
+    {
+      "path": "build/transition-2048/final-depth2-seed-481/run-8657fe90e1934c81935a69f637aae6d7/report.json",
+      "sha256": "db3d16a36368f9b8941fe8fc4d4270b04a831b0fd01e6676821438cccd5908eb",
+      "metadata": {
+        "schema_version": 1,
+        "git_sha_at_start": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+        "git_status_at_start": "",
+        "source_at_start": {
+          "python_file_count": 262,
+          "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+        },
+        "harness_sha256": "e1bf3829ce34424a2be67db165f2276bbfe8b07946d48e1f7a0c21d636273ed2",
+        "sensor_sha256": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+        "pinned_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+        "profiles": {
+          "baseline": {
+            "min_margin": 0.0,
+            "min_recognition": 0.65
+          },
+          "planner": {
+            "allow_conditional": true,
+            "unknown_world_mass": 1,
+            "calibrated_accuracy_claim": false,
+            "max_depth": 2,
+            "max_nodes": 10000,
+            "wall_time_ms": 400,
+            "search_budget": {
+              "max_depth": 2,
+              "max_nodes": 10000,
+              "max_actions": 16,
+              "max_chance_outcomes": 256,
+              "max_state_bytes": 16384,
+              "max_cache_entries": 256,
+              "max_cache_bytes": 4194304,
+              "max_trace_values": 32,
+              "max_request_bytes": 1048576,
+              "max_result_bytes": 524288,
+              "wall_time_ms": 400,
+              "worker_memory_bytes": 268435456,
+              "max_unknown_mass": 0.25,
+              "allow_conditional_selection": true
+            }
+          },
+          "cycling": {
+            "provider": "CyclingDirectionProvider",
+            "configuration": "existing default"
+          }
+        },
+        "settle_milliseconds": 1000,
+        "decision_data": "screenshot and existing recognizer only; seeded RNG initialization is test setup, score DOM read only after play",
+        "windows_field_play": "Unverified; isolated Chromium input backend",
+        "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+        "git_sha_at_end": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+        "git_status_at_end": "",
+        "source_at_end": {
+          "python_file_count": 262,
+          "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+        },
+        "source_changed_during_run": false,
+        "harness_sha256_at_end": "e1bf3829ce34424a2be67db165f2276bbfe8b07946d48e1f7a0c21d636273ed2",
+        "sensor_sha256_at_end": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+        "source_consistent": true,
+        "success": true
+      },
+      "episodes": [
+        {
+          "seed": 481,
+          "provider": "cycling",
+          "visible_score": "1256",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": true,
+          "game_won": false,
+          "max_tile": 128,
+          "step_cap_reached": false,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 138
+          },
+          "outcome_status_counts": {
+            "unknown": 138
+          },
+          "confirmed_backend_key_sends": 138,
+          "unique_completed_receipts": 138,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 138,
+          "validated_transition_count": 138,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 4,
+          "invalid_action_rate": 0.028985507246376812,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 138,
+          "nodes": 0,
+          "unverified_action_count": 0,
+          "duration_seconds": 169.98735830499936,
+          "decision_execution_ms": {
+            "p50": 1048.8775645,
+            "p95": 1117.8496103999998
+          },
+          "step_wall_ms": {
+            "p50": 1209.2987105000002,
+            "p95": 1308.4387699499998
+          },
+          "host_cpu_ms": {
+            "p50": 182.479749,
+            "p95": 274.2961745
+          },
+          "host_process_peak_rss_kib": 100616,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        },
+        {
+          "seed": 481,
+          "provider": "baseline",
+          "visible_score": "1448",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": true,
+          "game_won": false,
+          "max_tile": 128,
+          "step_cap_reached": false,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 153
+          },
+          "outcome_status_counts": {
+            "unknown": 153
+          },
+          "confirmed_backend_key_sends": 153,
+          "unique_completed_receipts": 153,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 153,
+          "validated_transition_count": 153,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 5,
+          "invalid_action_rate": 0.032679738562091505,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 153,
+          "nodes": 0,
+          "unverified_action_count": 0,
+          "duration_seconds": 189.9298836329981,
+          "decision_execution_ms": {
+            "p50": 1061.448767,
+            "p95": 1123.7840437999998
+          },
+          "step_wall_ms": {
+            "p50": 1221.257037,
+            "p95": 1306.926983
+          },
+          "host_cpu_ms": {
+            "p50": 193.598859,
+            "p95": 270.8274864
+          },
+          "host_process_peak_rss_kib": 102336,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        },
+        {
+          "seed": 481,
+          "provider": "planner",
+          "visible_score": "2268",
+          "stopped_input_rejected": true,
+          "key_sends_after_stop": 0,
+          "game_over": false,
+          "game_won": false,
+          "max_tile": 256,
+          "step_cap_reached": true,
+          "terminal_board_unverified": false,
+          "execution_status_counts": {
+            "executed": 180
+          },
+          "outcome_status_counts": {
+            "unknown": 180
+          },
+          "confirmed_backend_key_sends": 180,
+          "unique_completed_receipts": 180,
+          "missing_completion_count": 0,
+          "pending_execution_observation_count": 0,
+          "cleanup_errors": [],
+          "actions": 180,
+          "validated_transition_count": 180,
+          "transition_mismatch_count": 0,
+          "unverified_transition_count": 0,
+          "invalid_action_count": 0,
+          "invalid_action_rate": 0.0,
+          "invalid_metric": "deterministic no-op under reference model from dispatch-bound observed board; not canonical causal learning evidence",
+          "policy_reobservations": 0,
+          "policy_reobserve_per_action": 0.0,
+          "survival_steps": 180,
+          "nodes": 482702,
+          "unverified_action_count": 0,
+          "duration_seconds": 298.09626350700273,
+          "decision_execution_ms": {
+            "p50": 1474.5286655,
+            "p95": 1594.6894483999997
+          },
+          "step_wall_ms": {
+            "p50": 1642.948895,
+            "p95": 1776.6612541000002
+          },
+          "host_cpu_ms": {
+            "p50": 383.864592,
+            "p95": 490.95493515000004
+          },
+          "host_process_peak_rss_kib": 110932,
+          "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+        }
+      ]
+    }
+  ]
+}

@@ -11,7 +11,10 @@ from ai_game_player.capture_geometry import (
     crop_screen_frame,
 )
 from ai_game_player.capture_region import CaptureRegion, PixelRect
-from ai_game_player.windows_abi import configure_gdi32_prototypes, configure_user32_prototypes
+from ai_game_player.windows_abi import (
+    configure_gdi32_prototypes,
+    configure_user32_prototypes,
+)
 
 
 class BitmapInfoHeader(ctypes.Structure):
@@ -49,6 +52,7 @@ class ScreenFrame:
     window_bounds: PixelRect | None = None
     capture_geometry: CaptureGeometry | None = None
 
+
 # {
 #   責務: [WindowsScreenCapture: 選択HWNDのBGRA frameをWGCから取得し、利用不能時は既存GDI経路へfallbackする]
 #   フィールド: [native_runtime/wgc_session: 選択window captureに使うNative資源, last_backend_error: WGC fallbackの最後の理由]
@@ -58,7 +62,8 @@ class WindowsScreenCapture:
 
     # {
     #   責務: [__init__: Windows API依存、optional WGC session生成関数、capture資源状態を初期化する]
-    #   引数: [user32/gdi32: Windows APIのtest double。片方だけの注入は拒否, wgc_capture_factory: HWNDからnative capture sessionを作るoptional test seam]
+    #   引数: [user32/gdi32: Windows APIのtest double。片方だけの注入は拒否, wgc_capture_factory: HWNDからnative capture sessionを作るoptional test seam,
+    #     wgc_timeout_ms: 明示profileだけの1..2000ms待ち。省略時はnative既定2000msを保持]
     #   戻り値: []
     # }
     def __init__(
@@ -67,18 +72,27 @@ class WindowsScreenCapture:
         user32: Any | None = None,
         gdi32: Any | None = None,
         wgc_capture_factory: Callable[[int], Any] | None = None,
+        wgc_timeout_ms: int | None = None,
     ) -> None:
         if (user32 is None) != (gdi32 is None):
             raise ValueError("user32 and gdi32 must be provided together")
+        if wgc_timeout_ms is not None and (
+            type(wgc_timeout_ms) is not int or not 1 <= wgc_timeout_ms <= 2000
+        ):
+            raise ValueError("explicit WGC wait must be an integer in 1..2000ms")
         self._user32 = user32
         self._gdi32 = gdi32
         self._wgc_capture_factory = wgc_capture_factory
+        self._wgc_timeout_ms = wgc_timeout_ms
         self._native_runtime: Any | None = None
         self._wgc_session: Any | None = None
         self._wgc_window_handle: int | None = None
         self._wgc_disabled = False
         self._closed = False
         self.last_backend_error: str | None = None
+        self.last_capture_backend: str | None = None
+        self.last_gdi_method: str | None = None
+        self.last_backend_failure_reason: str | None = None
         self._capture_region: CaptureRegion | None = None
 
     # {
@@ -110,7 +124,9 @@ class WindowsScreenCapture:
             window_bounds = self._get_window_bounds(window_handle)
         frame = self._capture_unrestricted(capture_handle, include_bounds=True)
         if frame.screen_bounds is None:
-            frame = replace(frame, screen_bounds=PixelRect(0, 0, frame.width, frame.height))
+            frame = replace(
+                frame, screen_bounds=PixelRect(0, 0, frame.width, frame.height)
+            )
         if window_bounds is not None:
             frame = replace(frame, window_bounds=window_bounds)
         return crop_screen_frame(frame, capture_region)
@@ -129,14 +145,20 @@ class WindowsScreenCapture:
         include_bounds: bool = False,
     ) -> ScreenFrame:
         if self._closed:
-            raise RuntimeError("WindowsScreenCapture is closed and cannot capture another frame")
+            raise RuntimeError(
+                "WindowsScreenCapture is closed and cannot capture another frame"
+            )
+        self.last_capture_backend = None
+        self.last_gdi_method = None
         if self._user32 is None and os.name != "nt":
             raise RuntimeError("WindowsScreenCapture requires Windows")
         user32 = self._user32 or ctypes.windll.user32
         gdi32 = self._gdi32 or ctypes.windll.gdi32
         configure_user32_prototypes(user32)
         configure_gdi32_prototypes(gdi32, BitmapInfo)
-        capture_window = window_handle is not None and window_handle != user32.GetDesktopWindow()
+        capture_window = (
+            window_handle is not None and window_handle != user32.GetDesktopWindow()
+        )
         window_bounds = None
         if capture_window:
             if not user32.IsWindow(window_handle):
@@ -150,6 +172,7 @@ class WindowsScreenCapture:
                 window_bounds = PixelRect(left, top, width, height)
             wgc_frame = self._capture_with_wgc(int(window_handle))
             if wgc_frame is not None:
+                self.last_capture_backend = "wgc"
                 if not include_bounds:
                     return wgc_frame
                 if window_bounds is None:
@@ -158,7 +181,9 @@ class WindowsScreenCapture:
                         raise RuntimeError("GetWindowRect failed")
                     left, top, right, bottom = rect
                     window_bounds = PixelRect(left, top, right - left, bottom - top)
-                return replace(wgc_frame, screen_bounds=window_bounds, window_bounds=window_bounds)
+                return replace(
+                    wgc_frame, screen_bounds=window_bounds, window_bounds=window_bounds
+                )
         use_desktop_pixels = not capture_window
         if capture_window:
             if not user32.IsWindow(window_handle):
@@ -171,7 +196,12 @@ class WindowsScreenCapture:
                 width, height = right - left, bottom - top
                 window_bounds = PixelRect(left, top, width, height)
             use_desktop_pixels = self._is_visible_and_unoccluded(
-                user32, window_handle, left, top, right, bottom,
+                user32,
+                window_handle,
+                left,
+                top,
+                right,
+                bottom,
             )
         elif window_handle is None:
             left, top = 0, 0
@@ -184,6 +214,7 @@ class WindowsScreenCapture:
         if width <= 0 or height <= 0:
             raise RuntimeError("Capture area has no visible size")
 
+        self.last_capture_backend = "gdi"
         screen_dc = user32.GetDC(0) if use_desktop_pixels else None
         if use_desktop_pixels and not screen_dc:
             raise RuntimeError("GetDC failed")
@@ -195,22 +226,39 @@ class WindowsScreenCapture:
             if not memory_dc:
                 raise RuntimeError("CreateCompatibleDC failed")
             header = BitmapInfoHeader(
-                ctypes.sizeof(BitmapInfoHeader), width, -height, 1, 32, 0,
-                width * height * BGRA_BYTES_PER_PIXEL, 0, 0, 0, 0,
+                ctypes.sizeof(BitmapInfoHeader),
+                width,
+                -height,
+                1,
+                32,
+                0,
+                width * height * BGRA_BYTES_PER_PIXEL,
+                0,
+                0,
+                0,
+                0,
             )
             bitmap_info = BitmapInfo(header, (ctypes.c_uint32 * 3)(0, 0, 0))
             pixel_data = ctypes.c_void_p()
             bitmap = gdi32.CreateDIBSection(
-                screen_dc or 0, ctypes.byref(bitmap_info), 0,
-                ctypes.byref(pixel_data), None, 0,
+                screen_dc or 0,
+                ctypes.byref(bitmap_info),
+                0,
+                ctypes.byref(pixel_data),
+                None,
+                0,
             )
             if not bitmap:
                 raise RuntimeError("CreateDIBSection failed")
             previous_object = gdi32.SelectObject(memory_dc, bitmap)
-            if not previous_object or previous_object in (-1, ctypes.c_void_p(-1).value):
+            if not previous_object or previous_object in (
+                -1,
+                ctypes.c_void_p(-1).value,
+            ):
                 previous_object = None
                 raise RuntimeError("SelectObject failed")
             if capture_window and not use_desktop_pixels:
+                self.last_gdi_method = "wm_print"
                 message_result = ctypes.c_size_t()
                 rendered = user32.SendMessageTimeoutW(
                     window_handle,
@@ -222,11 +270,17 @@ class WindowsScreenCapture:
                     ctypes.byref(message_result),
                 )
                 if not rendered:
-                    raise RuntimeError("WM_PRINT failed or timed out; the selected window did not provide its contents")
+                    raise RuntimeError(
+                        "WM_PRINT failed or timed out; the selected window did not provide its contents"
+                    )
                 if not user32.IsWindow(window_handle):
                     raise RuntimeError("Selected window handle was lost during capture")
-            elif not gdi32.BitBlt(memory_dc, 0, 0, width, height, screen_dc, left, top, 0x00CC0020):
-                raise RuntimeError("BitBlt failed")
+            else:
+                self.last_gdi_method = "bitblt"
+                if not gdi32.BitBlt(
+                    memory_dc, 0, 0, width, height, screen_dc, left, top, 0x00CC0020
+                ):
+                    raise RuntimeError("BitBlt failed")
             if not pixel_data:
                 raise RuntimeError("CreateDIBSection returned no pixel buffer")
             screen_bounds = window_bounds or PixelRect(left, top, width, height)
@@ -284,16 +338,25 @@ class WindowsScreenCapture:
             self._wgc_disabled = False
         if self._wgc_disabled:
             return None
+        self.last_backend_failure_reason = None
         try:
             if self._wgc_session is None:
                 if self._wgc_capture_factory is not None:
                     self._wgc_session = self._wgc_capture_factory(window_handle)
                 elif self._native_runtime is None:
-                    from ai_game_player.runtime.native import NativeLoadStatus, discover_native_runtime
+                    from ai_game_player.runtime.native import (
+                        NativeLoadStatus,
+                        discover_native_runtime,
+                    )
 
                     load_result = discover_native_runtime()
-                    if load_result.status != NativeLoadStatus.AVAILABLE or load_result.runtime is None:
-                        self.last_backend_error = load_result.reason or "Native Runtime is unavailable"
+                    if (
+                        load_result.status != NativeLoadStatus.AVAILABLE
+                        or load_result.runtime is None
+                    ):
+                        self.last_backend_error = (
+                            load_result.reason or "Native Runtime is unavailable"
+                        )
                         self._wgc_disabled = True
                         return None
                     self._native_runtime = load_result.runtime
@@ -301,14 +364,22 @@ class WindowsScreenCapture:
                         self.last_backend_error = "Windows Graphics Capture is not supported by this Windows runtime"
                         self._wgc_disabled = True
                         return None
-                    self._wgc_session = self._native_runtime.open_wgc_window(window_handle)
+                    self._wgc_session = self._native_runtime.open_wgc_window(
+                        window_handle
+                    )
                 else:
                     if not self._native_runtime.is_wgc_capture_supported():
                         self.last_backend_error = "Windows Graphics Capture is not supported by this Windows runtime"
                         self._wgc_disabled = True
                         return None
-                    self._wgc_session = self._native_runtime.open_wgc_window(window_handle)
-            frame = self._wgc_session.capture()
+                    self._wgc_session = self._native_runtime.open_wgc_window(
+                        window_handle
+                    )
+            frame = (
+                self._wgc_session.capture()
+                if self._wgc_timeout_ms is None
+                else self._wgc_session.capture(timeout_ms=self._wgc_timeout_ms)
+            )
             if (
                 not isinstance(frame, ScreenFrame)
                 or frame.width <= 0
@@ -316,15 +387,37 @@ class WindowsScreenCapture:
                 or len(frame.bgra) != frame.width * frame.height * BGRA_BYTES_PER_PIXEL
                 or frame.captured_at <= 0
             ):
-                raise RuntimeError("WGC returned a frame that violates the packed BGRA contract")
+                raise RuntimeError(
+                    "WGC returned a frame that violates the packed BGRA contract"
+                )
+            if (
+                os.name == "nt"
+                and "queryperformancecounter"
+                not in time.get_clock_info("monotonic").implementation.casefold()
+            ):
+                self.last_backend_failure_reason = "wgc_clock_unverified"
+                raise RuntimeError(
+                    "WGC timestamp clock is incompatible with host monotonic QPC"
+                )
+            if frame.captured_at > time.monotonic():
+                self.last_backend_failure_reason = "wgc_future_timestamp"
+                raise RuntimeError(
+                    "WGC timestamp is ahead of the host acquisition clock"
+                )
             self.last_backend_error = None
             return frame
         except Exception as error:
             self.last_backend_error = f"{type(error).__name__}: {error}"
             from ai_game_player.runtime.native import NativeRuntimeError, NativeStatus
 
-            if isinstance(error, NativeRuntimeError) and error.status_code == NativeStatus.TIMEOUT:
+            if (
+                isinstance(error, NativeRuntimeError)
+                and error.status_code == NativeStatus.TIMEOUT
+            ):
+                self.last_backend_failure_reason = "wgc_timeout"
                 return None
+            if self.last_backend_failure_reason is None:
+                self.last_backend_failure_reason = "wgc_runtime_or_contract_error"
             self._close_wgc_session()
             self._wgc_disabled = True
             return None
@@ -355,7 +448,9 @@ class WindowsScreenCapture:
         if self._closed:
             return
         if not self._close_wgc_session():
-            raise RuntimeError(f"WGC session could not be closed: {self.last_backend_error}")
+            raise RuntimeError(
+                f"WGC session could not be closed: {self.last_backend_error}"
+            )
         runtime = self._native_runtime
         if runtime is not None:
             runtime.close()
@@ -363,13 +458,22 @@ class WindowsScreenCapture:
         self._closed = True
 
     @staticmethod
-    def _is_visible_and_unoccluded(user32: Any, window: int, left: int, top: int, right: int, bottom: int) -> bool:
+    def _is_visible_and_unoccluded(
+        user32: Any, window: int, left: int, top: int, right: int, bottom: int
+    ) -> bool:
         if not user32.IsWindowVisible(window) or user32.IsIconic(window):
             return False
-        if left < 0 or top < 0 or right > user32.GetSystemMetrics(0) or bottom > user32.GetSystemMetrics(1):
+        if (
+            left < 0
+            or top < 0
+            or right > user32.GetSystemMetrics(0)
+            or bottom > user32.GetSystemMetrics(1)
+        ):
             return False
 
-        above = user32.GetWindow(window, 3)  # GW_HWNDPREV: windows above the target in z-order.
+        above = user32.GetWindow(
+            window, 3
+        )  # GW_HWNDPREV: windows above the target in z-order.
         visited: set[int] = set()
         while above:
             above_handle = int(above)
@@ -381,7 +485,12 @@ class WindowsScreenCapture:
                 if not user32.GetWindowRect(above, ctypes.byref(rect)):
                     return False
                 other_left, other_top, other_right, other_bottom = rect
-                if left < other_right and other_left < right and top < other_bottom and other_top < bottom:
+                if (
+                    left < other_right
+                    and other_left < right
+                    and top < other_bottom
+                    and other_top < bottom
+                ):
                     return False
             above = user32.GetWindow(above, 3)
         return True

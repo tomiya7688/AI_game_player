@@ -8,6 +8,7 @@ classDiagram
     class ActionExecutor {
         +__init__()
         +execute()
+        +_check_input_admission()
         +record_progress()
         +record_observation()
         +heartbeat()
@@ -174,7 +175,7 @@ classDiagram
     class BaselineDecision {
         +to_dict()
     }
-    ValueError <|-- BaselineWithheld
+    DecisionWithheld <|-- BaselineWithheld
     class BaselineWithheld {
         +__init__()
     }
@@ -375,6 +376,7 @@ classDiagram
     class CapturedObservationSource {
         +__init__()
         +read()
+        +read_fresh()
     }
     class AppConfig {
     }
@@ -429,6 +431,8 @@ classDiagram
         +prepare_append()
         +mark_action_not_executed()
         +append_rejection()
+        +append_disposition()
+        +_planning_trace_value()
         +_append_entry()
         +_update_entry()
         +record_action_outcome()
@@ -437,6 +441,11 @@ classDiagram
         +recent_actions()
         +_read()
         +_write()
+    }
+    class DecisionOrchestrator {
+        +__init__()
+        +run()
+        +_deadline_check()
     }
     str <|-- ReliabilityStatus
     Enum <|-- ReliabilityStatus
@@ -457,6 +466,14 @@ classDiagram
         +_index_candidates()
         +_build_result()
     }
+    class DecisionDisposition {
+        +__post_init__()
+        +to_dict()
+    }
+    ValueError <|-- DecisionWithheld
+    class DecisionWithheld {
+        +__init__()
+    }
     class DeferredTraceAppend {
         +__init__()
         +publish()
@@ -465,6 +482,8 @@ classDiagram
     class GamePlayerEngine {
         +__init__()
         +step()
+        +_planning_audit()
+        +_publish_planning_prediction()
         +mark_last_decision_not_executed()
         +_bind_legacy_context_references()
         +step_with_candidate()
@@ -472,6 +491,7 @@ classDiagram
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
         +record_execution_receipt()
+        +has_pending_execution_observation()
         +complete_execution_observation()
     }
     class AxisPrediction {
@@ -714,7 +734,10 @@ classDiagram
         +rearm()
         +_require_initial_idle_locked()
         +_arm_locked()
+        +configure_heartbeat_diagnostics()
+        +heartbeat_diagnostic_snapshot()
         +heartbeat()
+        +_traced_heartbeat()
         +record_observation()
         +make_command()
         +check_command()
@@ -849,6 +872,16 @@ classDiagram
         +_cancel_scheduled()
         +_notify_error()
         +_notify()
+    }
+    class _Entry {
+    }
+    class HeartbeatDiagnostics {
+        +__init__()
+        +begin()
+        +mark()
+        +renewal()
+        +finish()
+        +snapshot()
     }
     class HistoryStore {
         +__init__()
@@ -1104,6 +1137,11 @@ classDiagram
         +assess_outcome()
         +_word_salad_reason()
     }
+    class ObservationFreshness {
+        +__post_init__()
+        +from_observation()
+        +is_newer_than()
+    }
     class WindowCaptureSource {
         +__init__()
         +capture()
@@ -1250,6 +1288,7 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +_record_planning_withheld()
         +_record_execution_receipt()
         +complete_execution_observation()
         +load_execution_history()
@@ -1264,6 +1303,37 @@ classDiagram
         +_sync_runtime_rearm()
         +_bind_execution_stop_checker()
         +_safety_context()
+    }
+    class Reference2048PlanningObservation {
+        +__init__()
+        +prepare()
+        +semantic_state()
+        +current_belief()
+        +_state()
+    }
+    class PlannerObservationInput {
+        +__post_init__()
+    }
+    Protocol <|-- PlannerObservationAdapter
+    class PlannerObservationAdapter {
+        +prepare()
+        +semantic_state()
+        +current_belief()
+    }
+    class PlannerDecisionProvider {
+        +__init__()
+        +prepare_planning_context()
+        +validate_execution_observation()
+        +choose_context()
+        +validate_planned_selection()
+        +check_planned_dispatch()
+        +_current_belief()
+        +_assert_current_belief()
+        +note_runtime_stage()
+        +runtime_diagnostics()
+        +acknowledge_planned_execution()
+        +requires_fresh_selection()
+        +_withhold()
     }
     class Reference2048Quality {
         +evaluate()
@@ -1281,6 +1351,9 @@ classDiagram
     }
     class SearchBudget {
         +__post_init__()
+    }
+    ctypes.Structure <|-- _RenameInfoEx
+    class _RenameInfoEx {
     }
     class PlanningObservationModel {
         +__post_init__()
@@ -1338,6 +1411,19 @@ classDiagram
         +_now()
         +_check_deadline()
         +_finish()
+    }
+    class PlanningSelectionGuard {
+        +check_authority()
+        +validate_fresh()
+        +_reject()
+    }
+    str <|-- WorkerPhase
+    Enum <|-- WorkerPhase
+    class WorkerPhase {
+    }
+    class WorkerDiagnostic {
+        +mark()
+        +record_exception()
     }
     str <|-- PlayerState
     Enum <|-- PlayerState
@@ -2003,6 +2089,8 @@ classDiagram
     }
     class WindowsInputExecutor {
         +__init__()
+        +_admit_input()
+        +_mark_dispatch_started()
         +has_held_inputs()
         +execute()
         +_verify_target_identity()

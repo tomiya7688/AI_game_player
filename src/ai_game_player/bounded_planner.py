@@ -1,6 +1,7 @@
 """期限前の完全深さreportだけを採用する、停止可能な制限process planner。"""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import asdict, replace
 import os
 from pathlib import Path
@@ -19,9 +20,18 @@ from ai_game_player.belief_snapshot import BeliefSnapshot
 from ai_game_player.belief_validation import belief_id
 from ai_game_player.planning_contract import PlanningRegistration, SearchBudget
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_file_reader import read_planning_bytes
 from ai_game_player.planning_result import PlanningCounters, PlanningResult
+from ai_game_player.planning_worker_diagnostic import (
+    collect_worker_diagnostic,
+    new_parent_timing,
+    mark_parent_timing,
+    record_parent_io_error,
+    merge_parent_timing,
+)
 from ai_game_player.planning_wire import (
     publish_planning_json,
+    decode_planning_json,
     read_planning_json,
     result_from_dict,
 )
@@ -32,7 +42,8 @@ from ai_game_player.world_state_hypothesis import HypothesisOrigin
 # {
 #   責務: [BoundedExpectimaxPlanner: 純粋な探索callbackを親の停止/観測/メモリ境界から分離する]
 #   フィールド: [registrations: trustedコードだけが作るfactory登録, clock_id: 観測と共有する親monotonic origin,
-#     controller: 既存Run世代, _busy: 同時workerを一つへ制限, _poisoned: 回収不能worker後に新規起動しない]
+#     controller: 既存Run世代, _busy: 同時workerを一つへ制限, _poisoned: 回収不能worker後に新規起動しない,
+#     last_worker_diagnostic: 有界固定metadata。入力許可や学習factに使用しない]
 # }
 class BoundedExpectimaxPlanner:
     # {
@@ -61,6 +72,7 @@ class BoundedExpectimaxPlanner:
         self.controller = controller or RunController()
         self._busy = threading.Lock()
         self._poisoned = False
+        self.last_worker_diagnostic: dict[str, Any] | None = None
 
     # {
     #   責務: [plan: 観測・許可候補・予算を検査し隔離workerの完全深さ結果を返す]
@@ -75,6 +87,7 @@ class BoundedExpectimaxPlanner:
         budget: SearchBudget | None = None,
         current_belief: Callable[[], BeliefSnapshot[Any] | None] | None = None,
     ) -> PlanningResult:
+        self.last_worker_diagnostic = None
         if not isinstance(belief, BeliefSnapshot):
             raise ValueError("planner requires a typed belief snapshot")
         if (
@@ -136,10 +149,10 @@ class BoundedExpectimaxPlanner:
             return fallback(invalid)
         if self._poisoned or not self._busy.acquire(blocking=False):
             return fallback("planner_unavailable_or_busy")
+        parent_timing = new_parent_timing(started, cutoff)
         try:
-            with tempfile.TemporaryDirectory(
-                prefix="kadoka-planning-"
-            ) as directory_name:
+            with _planning_directory(parent_timing) as directory_name:
+                mark_parent_timing(parent_timing, "request_build_started_at_ns")
                 directory = Path(directory_name)
                 nonce = uuid4().hex
                 request = {
@@ -168,11 +181,16 @@ class BoundedExpectimaxPlanner:
                         if item.weight.value > 0
                     ],
                 }
+                mark_parent_timing(parent_timing, "request_build_finished_at_ns")
                 try:
                     publish_planning_json(
-                        directory / "request.json", request, budget.max_request_bytes
+                        directory / "request.json",
+                        request,
+                        budget.max_request_bytes,
+                        parent_timing=parent_timing,
                     )
-                except (ValueError, OSError):
+                except (ValueError, OSError) as error:
+                    record_parent_io_error(parent_timing, "request_publish", error)
                     return fallback("request_byte_or_io_budget")
                 return self._run(
                     directory,
@@ -184,15 +202,19 @@ class BoundedExpectimaxPlanner:
                     token,
                     cutoff,
                     current_belief,
+                    parent_timing,
                 )
         except OSError:
             return fallback("worker_io_or_cleanup_failed")
         finally:
+            self.last_worker_diagnostic = merge_parent_timing(
+                self.last_worker_diagnostic, parent_timing
+            )
             self._busy.release()
 
     # {
     #   責務: [_run: 親deadlineとStopを監視し受領済みcheckpointだけを採用する]
-    #   引数: [directory, nonce, belief, allowed, registration, budget, token, cutoff, current] 戻り値: [宣言した型の結果。契約違反は呼出元境界へ通知]
+    #   引数: [directory, nonce, belief, allowed, registration, budget, token, cutoff, current, parent_timing: 採用に使わない任意の親工程診断] 戻り値: [宣言した型の結果。契約違反は呼出元境界へ通知]
     # }
     def _run(
         self,
@@ -205,6 +227,7 @@ class BoundedExpectimaxPlanner:
         token: int,
         cutoff: int,
         current: Callable[[], BeliefSnapshot[Any] | None] | None,
+        parent_timing: dict[str, Any] | None = None,
     ) -> PlanningResult:
         enforcement = "not_applied"
 
@@ -241,6 +264,7 @@ class BoundedExpectimaxPlanner:
                 environment.get("PYTHONPATH", ""),
             ]
         )
+        mark_parent_timing(parent_timing, "spawn_started_at_ns")
         try:
             process = subprocess.Popen(
                 command,
@@ -251,12 +275,15 @@ class BoundedExpectimaxPlanner:
                 creationflags=(0x08000000 | 0x00000200) if os.name == "nt" else 0,
                 start_new_session=os.name != "nt",
             )
-        except (OSError, ValueError):
+        except (OSError, ValueError) as error:
+            record_parent_io_error(parent_timing, "worker_start", error)
             return fallback("worker_start_failed")
+        mark_parent_timing(parent_timing, "spawn_returned_at_ns")
         latest: PlanningResult | None = None
         last_bytes: bytes | None = None
         reason = "compute_budget"
         invalid = None
+        io_phase = "ready_read"
         try:
             while True:
                 invalid = self._current_error(belief, token, current)
@@ -267,6 +294,8 @@ class BoundedExpectimaxPlanner:
                     break
                 ready_path = directory / "ready.json"
                 if ready_path.exists() and enforcement == "not_applied":
+                    io_phase = "ready_read"
+                    mark_parent_timing(parent_timing, "ready_read_started_at_ns")
                     ready = read_planning_json(ready_path, 4096)
                     if (
                         set(ready)
@@ -278,18 +307,37 @@ class BoundedExpectimaxPlanner:
                     ):
                         raise ValueError("invalid resource limit acknowledgement")
                     enforcement = ready["limit_enforcement"]
+                    mark_parent_timing(parent_timing, "ready_received_at_ns")
                 checkpoint_path = directory / "checkpoint.json"
                 if checkpoint_path.exists():
-                    with checkpoint_path.open("rb") as stream:
-                        raw = stream.read(budget.max_result_bytes + 1)
+                    mark_parent_timing(parent_timing, "checkpoint_first_seen_at_ns")
+                    io_phase = "checkpoint_raw_read"
+                    mark_parent_timing(
+                        parent_timing, "checkpoint_raw_read_started_at_ns"
+                    )
+                    raw = read_planning_bytes(checkpoint_path, budget.max_result_bytes)
+                    mark_parent_timing(
+                        parent_timing, "checkpoint_raw_read_finished_at_ns"
+                    )
                     if raw != last_bytes:
                         if len(raw) > budget.max_result_bytes:
                             raise ValueError("oversized planning checkpoint")
-                        message = read_planning_json(
-                            checkpoint_path, budget.max_result_bytes
+                        io_phase = "checkpoint_json_read"
+                        mark_parent_timing(
+                            parent_timing, "checkpoint_json_read_started_at_ns"
+                        )
+                        message = decode_planning_json(raw, budget.max_result_bytes)
+                        mark_parent_timing(
+                            parent_timing, "checkpoint_json_read_finished_at_ns"
                         )
                         received = time.monotonic_ns()
+                        mark_parent_timing(
+                            parent_timing,
+                            "first_checkpoint_received_at_ns",
+                            observed_ns=received,
+                        )
                         if received < cutoff:
+                            io_phase = "checkpoint_validate"
                             latest = self._validate_checkpoint(
                                 message,
                                 nonce,
@@ -301,10 +349,22 @@ class BoundedExpectimaxPlanner:
                                 cutoff,
                                 received,
                             )
+                            mark_parent_timing(
+                                parent_timing,
+                                "first_valid_checkpoint_received_at_ns",
+                                observed_ns=received,
+                            )
+                            mark_parent_timing(
+                                parent_timing, "first_checkpoint_validated_at_ns"
+                            )
                             last_bytes = raw
                 finished_path = directory / "finished.json"
                 if finished_path.exists():
+                    mark_parent_timing(parent_timing, "finished_first_seen_at_ns")
+                    io_phase = "finished_read"
+                    mark_parent_timing(parent_timing, "finished_read_started_at_ns")
                     finished = read_planning_json(finished_path, 4096)
+                    mark_parent_timing(parent_timing, "finished_read_finished_at_ns")
                     if (
                         set(finished) != {"nonce", "reason", "budget_exit"}
                         or finished["nonce"] not in (nonce, None)
@@ -320,6 +380,7 @@ class BoundedExpectimaxPlanner:
                             "depth_budget",
                             "worker_memory_limit",
                             "no_common_future_sequence",
+                            "no_common_legal_action",
                         }
                         or not finished["budget_exit"]
                     ):
@@ -338,11 +399,25 @@ class BoundedExpectimaxPlanner:
                         and checkpoint_path.exists()
                         and time.monotonic_ns() < cutoff
                     ):
+                        mark_parent_timing(parent_timing, "checkpoint_first_seen_at_ns")
+                        io_phase = "checkpoint_json_read"
+                        mark_parent_timing(
+                            parent_timing, "checkpoint_json_read_started_at_ns"
+                        )
                         message = read_planning_json(
                             checkpoint_path, budget.max_result_bytes
                         )
+                        mark_parent_timing(
+                            parent_timing, "checkpoint_json_read_finished_at_ns"
+                        )
                         received = time.monotonic_ns()
+                        mark_parent_timing(
+                            parent_timing,
+                            "first_checkpoint_received_at_ns",
+                            observed_ns=received,
+                        )
                         if received < cutoff:
+                            io_phase = "checkpoint_validate"
                             candidate = self._validate_checkpoint(
                                 message,
                                 nonce,
@@ -353,6 +428,14 @@ class BoundedExpectimaxPlanner:
                                 token,
                                 cutoff,
                                 received,
+                            )
+                            mark_parent_timing(
+                                parent_timing,
+                                "first_valid_checkpoint_received_at_ns",
+                                observed_ns=received,
+                            )
+                            mark_parent_timing(
+                                parent_timing, "first_checkpoint_validated_at_ns"
                             )
                             if (
                                 latest is None
@@ -369,10 +452,34 @@ class BoundedExpectimaxPlanner:
                 time.sleep(
                     min(0.002, max(0.0, (cutoff - time.monotonic_ns()) / 1_000_000_000))
                 )
-        except (OSError, ValueError, TypeError, OverflowError):
+        except (OSError, ValueError, TypeError, OverflowError) as error:
+            record_parent_io_error(parent_timing, io_phase, error)
             invalid = "worker_protocol_failure"
         finally:
-            self._poisoned = not _stop_owned_process(process)
+            try:
+                exit_seen = process.poll() is not None
+            except Exception:
+                exit_seen = False
+            mark_parent_timing(parent_timing, "process_cleanup_started_at_ns")
+            try:
+                self._poisoned = not _stop_owned_process(process)
+            except OSError as error:
+                record_parent_io_error(parent_timing, "process_cleanup", error)
+                raise
+            finally:
+                mark_parent_timing(parent_timing, "process_cleanup_finished_at_ns")
+            try:
+                self.last_worker_diagnostic = collect_worker_diagnostic(
+                    directory,
+                    process.poll(),
+                    cleanup_requested=not exit_seen,
+                    exit_seen_before_cleanup=exit_seen,
+                    highest_received_depth=latest.completed_depth
+                    if latest is not None
+                    else 0,
+                )
+            except Exception:
+                self.last_worker_diagnostic = None
         if self._poisoned:
             return fallback("worker_cleanup_incomplete")
         invalid = invalid or self._current_error(belief, token, current)
@@ -587,3 +694,29 @@ def _stop_owned_process(process: subprocess.Popen[bytes]) -> bool:
             return True
         except (OSError, subprocess.TimeoutExpired):
             return process.poll() is not None
+
+
+# {
+#   責務: [_planning_directory: 元TemporaryDirectoryのcleanupを同じ例外契約で計測する]
+#   処理: [retry/無視/期限延長なし。診断はcleanupの開始/完了と固定IOcodeだけを保持]
+# }
+@contextmanager
+def _planning_directory(parent_timing: dict[str, Any] | None) -> Iterator[str]:
+    mark_parent_timing(parent_timing, "directory_create_started_at_ns")
+    try:
+        directory = tempfile.TemporaryDirectory(prefix="kadoka-planning-")
+    except OSError as error:
+        record_parent_io_error(parent_timing, "directory_create", error)
+        raise
+    mark_parent_timing(parent_timing, "directory_created_at_ns")
+    try:
+        yield directory.name
+    finally:
+        mark_parent_timing(parent_timing, "directory_cleanup_started_at_ns")
+        try:
+            directory.cleanup()
+        except OSError as error:
+            record_parent_io_error(parent_timing, "directory_cleanup", error)
+            raise
+        finally:
+            mark_parent_timing(parent_timing, "directory_cleanup_finished_at_ns")

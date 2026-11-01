@@ -1,0 +1,1261 @@
+{
+  "source_baseline": "d6b90e8ed128f3469a6e9f2b331ae21a9920b83d",
+  "status": "next evaluation-only candidate; Windows improvement unverified",
+  "historical_reference": "planning_score_panel_ocr.json",
+  "known_windows_failure": {
+    "source": "e1191dbc6a9734e3c066b33d4c8f8949611fc965 / d6b90e8",
+    "engine": "tesseract v5.5.3.20260724",
+    "failure": "same source PNG; 0 images3 x2geometry numeric unknown; nonzero12 cases passed; gate unchanged"
+  },
+  "method": "First inspect complete foreground in trusted SCORE panel and reject support boundary contact, then foreground union + small margin and panel-interior widening. Reject identical clamped ROIs. Same frame/PSM7/confidence .65/strict numeric/two distinct widths/padding correction unchanged. No value or seed condition.",
+  "helper_sha256": {
+    "tools/planning_score_evaluation.py": "c554bcd4140149ca0a93004395e1c3436481f388813bf3732b9f51043691d49a",
+    "tools/planning_score_panel.py": "018f59373a17a8bcbcb966578b5c499555693d9250ea8eac0c4805609586e02b",
+    "tools/probe_windows_planning_score_ocr.py": "233e06112de04c4fe6589154aeaddb7320a7f651452edcfce487a70ce9637daa"
+  },
+  "linux_engine": "tesseract 5.5.0",
+  "linux_eng_traineddata": {
+    "bytes": 4113088,
+    "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+  },
+  "linux_replay": {
+    "cases": 18,
+    "correct": 18,
+    "min_confidence": 0.72847725,
+    "records": [
+      {
+        "file": "124944163043-baseline-481.png",
+        "scaled": false,
+        "expected": 52,
+        "value": 52,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              30,
+              21
+            ],
+            [
+              523,
+              108,
+              38,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944163043-baseline-481.png",
+        "scaled": true,
+        "expected": 52,
+        "value": 52,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              30,
+              21
+            ],
+            [
+              523,
+              108,
+              38,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944163043-cycling-481.png",
+        "scaled": false,
+        "expected": 48,
+        "value": 48,
+        "confidence": 0.8664791099999999,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.8664791099999999
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              525,
+              108,
+              31,
+              21
+            ],
+            [
+              521,
+              108,
+              39,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.8664791099999999,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944163043-cycling-481.png",
+        "scaled": true,
+        "expected": 48,
+        "value": 48,
+        "confidence": 0.8664791099999999,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.8664791099999999
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              525,
+              108,
+              31,
+              21
+            ],
+            [
+              521,
+              108,
+              39,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.8664791099999999,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944163043-planner-481.png",
+        "scaled": false,
+        "expected": 0,
+        "value": 0,
+        "confidence": 0.72847725,
+        "header": {
+          "status": "otsu_panel_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.96542015
+          ],
+          "panel_count": 1
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              548,
+              108,
+              19,
+              21
+            ],
+            [
+              544,
+              108,
+              27,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96542015,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944163043-planner-481.png",
+        "scaled": true,
+        "expected": 0,
+        "value": 0,
+        "confidence": 0.72847725,
+        "header": {
+          "status": "otsu_panel_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.96542015
+          ],
+          "panel_count": 1
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              548,
+              108,
+              19,
+              21
+            ],
+            [
+              544,
+              108,
+              27,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96542015,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177440-baseline-479.png",
+        "scaled": false,
+        "expected": 28,
+        "value": 28,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177440-baseline-479.png",
+        "scaled": true,
+        "expected": 28,
+        "value": 28,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177440-cycling-479.png",
+        "scaled": false,
+        "expected": 36,
+        "value": 36,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177440-cycling-479.png",
+        "scaled": true,
+        "expected": 36,
+        "value": 36,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177440-planner-479.png",
+        "scaled": false,
+        "expected": 0,
+        "value": 0,
+        "confidence": 0.72847725,
+        "header": {
+          "status": "otsu_panel_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.96542015
+          ],
+          "panel_count": 1
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              548,
+              108,
+              19,
+              21
+            ],
+            [
+              544,
+              108,
+              27,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96542015,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177440-planner-479.png",
+        "scaled": true,
+        "expected": 0,
+        "value": 0,
+        "confidence": 0.72847725,
+        "header": {
+          "status": "otsu_panel_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.96542015
+          ],
+          "panel_count": 1
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              548,
+              108,
+              19,
+              21
+            ],
+            [
+              544,
+              108,
+              27,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96542015,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177450-baseline-480.png",
+        "scaled": false,
+        "expected": 28,
+        "value": 28,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177450-baseline-480.png",
+        "scaled": true,
+        "expected": 28,
+        "value": 28,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177450-cycling-480.png",
+        "scaled": false,
+        "expected": 28,
+        "value": 28,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177450-cycling-480.png",
+        "scaled": true,
+        "expected": 28,
+        "value": 28,
+        "confidence": 0.93546165,
+        "header": {
+          "status": "scaled_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.93546165
+          ]
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              527,
+              108,
+              29,
+              21
+            ],
+            [
+              523,
+              108,
+              37,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.93546165,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177450-planner-480.png",
+        "scaled": false,
+        "expected": 0,
+        "value": 0,
+        "confidence": 0.72847725,
+        "header": {
+          "status": "otsu_panel_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.96542015
+          ],
+          "panel_count": 1
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              548,
+              108,
+              19,
+              21
+            ],
+            [
+              544,
+              108,
+              27,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96542015,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      },
+      {
+        "file": "124944177450-planner-480.png",
+        "scaled": true,
+        "expected": 0,
+        "value": 0,
+        "confidence": 0.72847725,
+        "header": {
+          "status": "otsu_panel_header_label",
+          "crop_bbox": [
+            410,
+            63,
+            225,
+            94
+          ],
+          "scale": 3,
+          "label_count": 1,
+          "label_confidences": [
+            0.96542015
+          ],
+          "panel_count": 1
+        },
+        "line": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              548,
+              108,
+              19,
+              21
+            ],
+            [
+              544,
+              108,
+              27,
+              21
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96542015,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        }
+      }
+    ],
+    "note": "0 confidence remains .728 on Linux. This does not prove a Windows fix."
+  },
+  "four_digit_glow": [
+    {
+      "fixture": "glow-256",
+      "geometry": "raw",
+      "png_sha256": "49f7f4dcec40cbd31618232a187cc98f057f1f00934c965113e88e872ee8705e",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1824,
+      "confidence": 0.96027214,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            372,
+            114,
+            66,
+            27
+          ],
+          [
+            367,
+            114,
+            76,
+            27
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1,
+        "preprocessing": "bilinear_otsu_supported_panel"
+      }
+    },
+    {
+      "fixture": "glow-256",
+      "geometry": "scaled_window",
+      "png_sha256": "49f7f4dcec40cbd31618232a187cc98f057f1f00934c965113e88e872ee8705e",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1824,
+      "confidence": 0.96027214,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            372,
+            114,
+            66,
+            27
+          ],
+          [
+            367,
+            114,
+            76,
+            27
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1,
+        "preprocessing": "bilinear_otsu_supported_panel"
+      }
+    },
+    {
+      "fixture": "glow-256-seed480",
+      "geometry": "raw",
+      "png_sha256": "3420d594b7660e1a89e4a76686a93cb65bdede185a1f3e29598fcda2fb04a1af",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1808,
+      "confidence": 0.9500784299999999,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            372,
+            114,
+            66,
+            27
+          ],
+          [
+            367,
+            114,
+            76,
+            27
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1,
+        "preprocessing": "bilinear_otsu_supported_panel"
+      }
+    },
+    {
+      "fixture": "glow-256-seed480",
+      "geometry": "scaled_window",
+      "png_sha256": "3420d594b7660e1a89e4a76686a93cb65bdede185a1f3e29598fcda2fb04a1af",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1808,
+      "confidence": 0.9500784299999999,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            372,
+            114,
+            66,
+            27
+          ],
+          [
+            367,
+            114,
+            76,
+            27
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1,
+        "preprocessing": "bilinear_otsu_supported_panel"
+      }
+    }
+  ],
+  "offcenter_six_digit_actual_ocr": [
+    {
+      "clipped": false,
+      "expected": 123456,
+      "value": 123456,
+      "confidence": 0.96438911,
+      "diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            326,
+            114,
+            88,
+            27
+          ],
+          [
+            321,
+            114,
+            98,
+            27
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96768242,
+        "numeric_word_count": 1,
+        "preprocessing": "bilinear_otsu_supported_panel"
+      },
+      "calls": [
+        {
+          "mode": "text_block",
+          "size": [
+            904,
+            648
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "confidence": 0.96768242,
+              "x": 408,
+              "y": 100,
+              "width": 42,
+              "height": 9,
+              "bbox": [
+                408,
+                100,
+                42,
+                9
+              ]
+            },
+            {
+              "text": "BEST",
+              "confidence": 0.9438133999999999,
+              "x": 546,
+              "y": 100,
+              "width": 31,
+              "height": 9
+            },
+            {
+              "text": "123456",
+              "confidence": 0.96646591,
+              "x": 332,
+              "y": 119,
+              "width": 77,
+              "height": 17
+            },
+            {
+              "text": "999999",
+              "confidence": 0.96303284,
+              "x": 521,
+              "y": 119,
+              "width": 78,
+              "height": 17
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "size": [
+            288,
+            105
+          ],
+          "words": [
+            {
+              "text": "123456",
+              "confidence": 0.96438911,
+              "x": 28,
+              "y": 27,
+              "width": 235,
+              "height": 51
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "size": [
+            318,
+            105
+          ],
+          "words": [
+            {
+              "text": "123456",
+              "confidence": 0.96438911,
+              "x": 43,
+              "y": 27,
+              "width": 235,
+              "height": 51
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "clipped": true,
+      "expected": null,
+      "value": null,
+      "confidence": 0,
+      "diagnostic": {
+        "status": "score_numeric_support_unavailable"
+      },
+      "calls": [
+        {
+          "mode": "text_block",
+          "size": [
+            904,
+            648
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "confidence": 0.96768242,
+              "x": 408,
+              "y": 100,
+              "width": 42,
+              "height": 9,
+              "bbox": [
+                408,
+                100,
+                42,
+                9
+              ]
+            },
+            {
+              "text": "BEST",
+              "confidence": 0.9438133999999999,
+              "x": 546,
+              "y": 100,
+              "width": 31,
+              "height": 9
+            },
+            {
+              "text": "123456",
+              "confidence": 0.76254143,
+              "x": 300,
+              "y": 119,
+              "width": 77,
+              "height": 17
+            },
+            {
+              "text": "999999",
+              "confidence": 0.96303284,
+              "x": 521,
+              "y": 119,
+              "width": 78,
+              "height": 17
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cost": {
+    "scope": "trusted SCORE label already read; panel_for_label plus complete foreground union plus two bilinear/Otsu crops; excludes OCR/header recovery/capture/full-frame buffer/Windows",
+    "cases": [
+      {
+        "image": "124944163043-baseline-481.png",
+        "five_repeats_ns": [
+          21776777,
+          20776475,
+          20837708,
+          21250121,
+          21224442
+        ],
+        "median_ms": 21.224442
+      },
+      {
+        "image": "124944163043-cycling-481.png",
+        "five_repeats_ns": [
+          21156510,
+          20798279,
+          20856897,
+          20762704,
+          21683195
+        ],
+        "median_ms": 20.856897
+      },
+      {
+        "image": "124944163043-planner-481.png",
+        "five_repeats_ns": [
+          16028812,
+          16228663,
+          16154681,
+          16016833,
+          16187891
+        ],
+        "median_ms": 16.154681
+      },
+      {
+        "image": "124944177440-baseline-479.png",
+        "five_repeats_ns": [
+          20336059,
+          20012300,
+          20367968,
+          20008175,
+          20969016
+        ],
+        "median_ms": 20.336059
+      },
+      {
+        "image": "124944177440-cycling-479.png",
+        "five_repeats_ns": [
+          20367867,
+          20178426,
+          20092142,
+          20029056,
+          19870897
+        ],
+        "median_ms": 20.092142
+      },
+      {
+        "image": "124944177440-planner-479.png",
+        "five_repeats_ns": [
+          15945896,
+          16048240,
+          16037604,
+          16380402,
+          15927868
+        ],
+        "median_ms": 16.037604
+      },
+      {
+        "image": "124944177450-baseline-480.png",
+        "five_repeats_ns": [
+          20065881,
+          19930877,
+          20136628,
+          20469101,
+          21346266
+        ],
+        "median_ms": 20.136628
+      },
+      {
+        "image": "124944177450-cycling-480.png",
+        "five_repeats_ns": [
+          19974033,
+          19888463,
+          20229519,
+          20545305,
+          20335068
+        ],
+        "median_ms": 20.229519
+      },
+      {
+        "image": "124944177450-planner-480.png",
+        "five_repeats_ns": [
+          16009021,
+          15959226,
+          16024094,
+          16286611,
+          16179268
+        ],
+        "median_ms": 16.024094
+      }
+    ],
+    "median_ms": 20.136628,
+    "python_peak_last_case_bytes": 139749
+  },
+  "diagnostic_only": {
+    "psm": [
+      7,
+      8,
+      10,
+      13
+    ],
+    "fields": [
+      "raw bounded words/confidence/bbox",
+      "prepared RGB/BGRA/PNG SHA256",
+      "prepared width/height and source ROI",
+      "engine first line/executable SHA/eng.traineddata SHA"
+    ],
+    "model_and_psm_selection_changed": false
+  },
+  "deferred": "latest Windows same fixture gate and live comparison. No Source/Planner/learning/input OCR connection."
+}

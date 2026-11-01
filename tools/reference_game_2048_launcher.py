@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import hashlib
 from functools import partial
 import os
 import shutil
@@ -11,6 +12,8 @@ import tempfile
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from tools.reference_game_seed import seeded_index
+from tools.reference_game_http_server import ReferenceGameHTTPServer
 from pathlib import Path
 from .reference_game_2048_source import PinnedGameSource
 from .startup_failure_evidence import StartupFailureEvidence
@@ -86,6 +89,16 @@ class LoopbackStaticServer:
         self._url: str | None = None
         self._lifecycle_lock = threading.Lock()
         self._page_responses = PageResponseCounts()
+        self.test_seed: int | None = None
+        self.test_seed_metadata: dict | None = None
+        self.post_failure_render_diagnostics = False
+        self._resource_responses = None
+
+    def resource_response_summary(self) -> dict[str, object]:
+        """Return optional allowlist write counts; never claim browser receipt."""
+        with self._lifecycle_lock:
+            counts = self._resource_responses
+        return counts.snapshot() if counts is not None else {"status": "not_enabled"}
 
     def page_response_summary(self) -> str:
         """Return GET-page HTTP response counts, not proof of browser receipt or rendering.
@@ -116,13 +129,119 @@ class LoopbackStaticServer:
             )
         # Old daemon handlers may finish after close; they retain only their own counters.
         page_responses = PageResponseCounts()
+        seeded_response, self.test_seed_metadata = seeded_index(
+            source_path, self.test_seed
+        )
+        resource_responses = None
+        resource_names = {}
+        if self.post_failure_render_diagnostics:
+            from tools.reference_browser_diagnostics import (
+                ResourceResponseCounts,
+                RESOURCE_NAMES,
+            )
+
+            resource_responses = ResourceResponseCounts()
+            resource_names = RESOURCE_NAMES
 
         class QuietRequestHandler(SimpleHTTPRequestHandler):
+            def do_GET(self) -> None:
+                self._response_status = 0
+                self._resource_name = resource_names.get(self.path.partition("?")[0])
+                self._resource_phase = "request"
+                if resource_responses is not None and self._resource_name is not None:
+                    resource_responses.started(self._resource_name)
+                try:
+                    if seeded_response is not None and self.path.partition("?")[0] in (
+                        "/",
+                        "/index.html",
+                    ):
+                        completed = False
+                        try:
+                            self.send_response(200)
+                            self.send_header("Content-Type", "text/html; charset=utf-8")
+                            self.send_header(
+                                "Content-Length", str(len(seeded_response))
+                            )
+                            self.end_headers()
+                            self.wfile.write(seeded_response)
+                            completed = True
+                        finally:
+                            if resource_responses is not None:
+                                # A failed sendall may already have written a prefix.
+                                # Its byte count is unknown: 0 is a lower bound only.
+                                resource_responses.record(
+                                    "page",
+                                    200,
+                                    len(seeded_response) if completed else 0,
+                                    hashlib.sha256(seeded_response).hexdigest()
+                                    if completed
+                                    else None,
+                                    completed,
+                                    written_known=completed,
+                                )
+                    else:
+                        super().do_GET()
+                except BaseException:
+                    if (
+                        resource_responses is not None
+                        and self._resource_name is not None
+                    ):
+                        resource_responses.failed(
+                            self._resource_name, self._resource_phase
+                        )
+                    raise
+
+            def end_headers(self) -> None:
+                super().end_headers()
+                self._resource_phase = "body"
+                resource_name = getattr(self, "_resource_name", None)
+                if resource_responses is not None and resource_name is not None:
+                    resource_responses.headers_completed(resource_name)
+
+            def copyfile(self, source, outputfile) -> None:
+                if resource_responses is None or self._resource_name is None:
+                    super().copyfile(source, outputfile)
+                    return
+                written = 0
+                digest = hashlib.sha256()
+                complete = False
+                try:
+                    while chunk := source.read(65536):
+                        outputfile.write(chunk)
+                        written += len(chunk)
+                        digest.update(chunk)
+                    complete = True
+                finally:
+                    resource_responses.record(
+                        self._resource_name,
+                        self._response_status,
+                        written,
+                        digest.hexdigest(),
+                        complete,
+                        written_known=complete,
+                    )
+
             def log_message(self, format: str, *args: object) -> None:
                 return
 
             def send_response(self, code: int, message: str | None = None) -> None:
+                self._resource_phase = "headers"
                 super().send_response(code, message)
+                self._response_status = code
+                if (
+                    resource_responses is not None
+                    and code != 200
+                    and getattr(self, "_resource_name", None) is not None
+                ):
+                    # Error-body text is deliberately excluded; retain only its status.
+                    resource_responses.record(
+                        self._resource_name,
+                        code,
+                        0,
+                        hashlib.sha256(b"").hexdigest(),
+                        False,
+                        written_known=False,
+                    )
                 # A response header is not evidence that the browser received or rendered it.
                 if self.command == "GET" and self.path.partition("?")[0] in (
                     "/",
@@ -131,7 +250,7 @@ class LoopbackStaticServer:
                     page_responses.record(code)
 
         handler = partial(QuietRequestHandler, directory=str(source_path))
-        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        server = ReferenceGameHTTPServer(("127.0.0.1", 0), handler)
         thread = threading.Thread(
             target=server.serve_forever, name="2048-static-server", daemon=True
         )
@@ -141,6 +260,7 @@ class LoopbackStaticServer:
             server.server_close()
             raise
         self._page_responses = page_responses
+        self._resource_responses = resource_responses
         self._server = server
         self._thread = thread
         self._url = f"http://127.0.0.1:{server.server_address[1]}/"
@@ -170,7 +290,14 @@ class LoopbackStaticServer:
 class BrowserWindowSession:
     """Own the isolated browser process, profile, and Windows target window."""
 
-    def __init__(self, browser_path: Path, source_path: Path, *, failure_evidence: StartupFailureEvidence | None = None) -> None:
+    def __init__(
+        self,
+        browser_path: Path,
+        source_path: Path,
+        *,
+        failure_evidence: StartupFailureEvidence | None = None,
+        post_failure_render_diagnostics: bool = False,
+    ) -> None:
         self.browser_path = browser_path.resolve()
         self.source_path = source_path
         self.process: subprocess.Popen[bytes] | None = None
@@ -180,6 +307,10 @@ class BrowserWindowSession:
         self.failure_evidence = failure_evidence
         self.failure_evidence_manifest: Path | None = None
         self.failure_evidence_error: str | None = None
+        self.post_failure_render_diagnostics = post_failure_render_diagnostics
+        self._diagnostic_url: str | None = None
+        self._render_diagnostic_claimed = False
+        self._render_diagnostic_lock = threading.Lock()
 
     def start(self, url: str, timeout_seconds: float = WINDOW_WAIT_SECONDS) -> None:
         if os.name != "nt":
@@ -210,6 +341,15 @@ class BrowserWindowSession:
                 "--disable-extensions",
                 "--disable-background-mode",
             ]
+            if self.post_failure_render_diagnostics:
+                # Validation-only opt-in; do not expose DevTools on a non-loopback interface.
+                arguments.extend(
+                    (
+                        "--remote-debugging-address=127.0.0.1",
+                        "--remote-debugging-port=0",
+                    )
+                )
+            self._diagnostic_url = url
             self.process = subprocess.Popen(
                 arguments,
                 cwd=self.source_path,
@@ -228,10 +368,16 @@ class BrowserWindowSession:
             try:
                 if self.failure_evidence is not None and self.process is not None:
                     try:
-                        phase_durations_ms["startup_total"] = (time.monotonic() - started) * 1000
+                        phase_durations_ms["startup_total"] = (
+                            time.monotonic() - started
+                        ) * 1000
                         if wait_started is not None:
-                            phase_durations_ms["window_wait"] = (time.monotonic() - wait_started) * 1000
-                        self.failure_evidence_manifest = self.failure_evidence.save(self.process.pid, phase_durations_ms)
+                            phase_durations_ms["window_wait"] = (
+                                time.monotonic() - wait_started
+                            ) * 1000
+                        self.failure_evidence_manifest = self.failure_evidence.save(
+                            self.process.pid, phase_durations_ms
+                        )
                     except Exception as evidence_error:
                         # Diagnostics must never replace the original startup failure.
                         self.failure_evidence_error = type(evidence_error).__name__
@@ -242,6 +388,34 @@ class BrowserWindowSession:
                 except Exception:
                     raise startup_error
             raise
+
+    def collect_failure_render_diagnostics(
+        self, *, failure_confirmed: bool, frame_preserved: bool
+    ) -> dict[str, object]:
+        """Inspect once after the caller preserved the failed screenshot; never retry it."""
+        if not self.post_failure_render_diagnostics:
+            return {"status": "unavailable", "reason": "not_enabled"}
+        if failure_confirmed is not True or frame_preserved is not True:
+            return {"status": "unavailable", "reason": "failure_frame_not_preserved"}
+        with self._render_diagnostic_lock:
+            if self._render_diagnostic_claimed:
+                return {"status": "unavailable", "reason": "already_attempted"}
+            self._render_diagnostic_claimed = True
+        if (
+            self._profile is None
+            or self.process is None
+            or self.window_info is None
+            or self._diagnostic_url is None
+        ):
+            return {"status": "unavailable", "reason": "owner_unavailable"}
+        from tools.reference_browser_diagnostics import inspect_failed_browser
+
+        return inspect_failed_browser(
+            Path(self._profile.name),
+            self._diagnostic_url,
+            self.process,
+            self.window_info.handle,
+        )
 
     def wait_until_closed(self, poll_seconds: float = 0.25) -> int:
         if self.process is None:
@@ -338,13 +512,22 @@ class BrowserWindowSession:
 class ReferenceGame2048Launcher:
     """Compose source verification, local serving, and browser-window lifecycle for 2048."""
 
-    def __init__(self, cache_root: Path, browser_path: Path | None = None, *, failure_evidence: StartupFailureEvidence | None = None) -> None:
+    def __init__(
+        self,
+        cache_root: Path,
+        browser_path: Path | None = None,
+        *,
+        failure_evidence: StartupFailureEvidence | None = None,
+        post_failure_render_diagnostics: bool = False,
+    ) -> None:
         self.cache_root = cache_root
         self.browser_path = browser_path
         self.source_path: Path | None = None
         self.server = LoopbackStaticServer()
+        self.server.post_failure_render_diagnostics = post_failure_render_diagnostics
         self.browser: BrowserWindowSession | None = None
         self.failure_evidence = failure_evidence
+        self.post_failure_render_diagnostics = post_failure_render_diagnostics
 
     @property
     def url(self) -> str:
@@ -371,6 +554,9 @@ class ReferenceGame2048Launcher:
             self.server.start(self.source_path)
             self.browser = BrowserWindowSession(browser_path, self.source_path)
             self.browser.failure_evidence = self.failure_evidence
+            self.browser.post_failure_render_diagnostics = (
+                self.post_failure_render_diagnostics
+            )
             self.browser.start(self.server.url, window_wait_seconds)
         except Exception as startup_error:
             if (
@@ -385,14 +571,35 @@ class ReferenceGame2048Launcher:
                     f"{startup_error}; {self.server.page_response_summary()}",
                 )
                 if self.browser.failure_evidence_manifest is not None:
-                    startup_error.args = (f"{startup_error}; startup_evidence={self.browser.failure_evidence_manifest}",)
+                    startup_error.args = (
+                        f"{startup_error}; startup_evidence={self.browser.failure_evidence_manifest}",
+                    )
                 elif self.browser.failure_evidence_error is not None:
-                    startup_error.args = (f"{startup_error}; startup_evidence_error={self.browser.failure_evidence_error}",)
+                    startup_error.args = (
+                        f"{startup_error}; startup_evidence_error={self.browser.failure_evidence_error}",
+                    )
             try:
                 self.close()
             except Exception:
                 raise startup_error
             raise
+
+    def collect_failure_render_diagnostics(
+        self, *, failure_confirmed: bool, frame_preserved: bool
+    ) -> dict[str, object]:
+        """Forward the post-failure-only diagnostic without changing episode status."""
+        if self.browser is None:
+            return {"status": "unavailable", "reason": "owner_unavailable"}
+        result = self.browser.collect_failure_render_diagnostics(
+            failure_confirmed=failure_confirmed, frame_preserved=frame_preserved
+        )
+        if (
+            failure_confirmed is True
+            and frame_preserved is True
+            and self.post_failure_render_diagnostics
+        ):
+            result["server_responses"] = self.server.resource_response_summary()
+        return result
 
     def wait_until_closed(self) -> int:
         if self.browser is None:

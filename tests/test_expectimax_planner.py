@@ -1,11 +1,13 @@
-from dataclasses import replace
+from dataclasses import asdict, replace
 from fractions import Fraction
 import json
 import math
 import random
 from pathlib import Path
 import subprocess
+import sys
 import threading
+import tempfile
 from types import SimpleNamespace
 import time
 import unittest
@@ -33,16 +35,23 @@ from ai_game_player.expectimax_search import (
 )
 from ai_game_player.game_2048_state import Game2048State
 from ai_game_player.game_2048_transition import ACTION_DIRECTION_BY_ID
-from ai_game_player.planning_2048 import reference_2048_registration
+from ai_game_player.planning_2048 import (
+    create_reference_2048_domain,
+    reference_2048_registration,
+)
 from ai_game_player.planning_contract import (
     PlanningDomain,
     PlanningRegistration,
     SearchBudget,
 )
-from ai_game_player.planning_result import WeightedValue
+from ai_game_player.planning_result import PlanningCounters, WeightedValue
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.planning_worker_limits import apply_worker_limits
-from ai_game_player.planning_wire import read_planning_json
+from ai_game_player.planning_worker import _execute
+from ai_game_player import planning_worker
+from ai_game_player.planning_worker_diagnostic import WorkerDiagnostic
+from ai_game_player.planning_file_reader import read_planning_bytes
+from ai_game_player.planning_wire import publish_planning_json, read_planning_json
 from ai_game_player.run_control import RunController
 from ai_game_player.transition_model import ActionTransition, ChanceOutcome
 from ai_game_player.world_state_hypothesis import (
@@ -149,6 +158,10 @@ def split_legal_domain():
     return domain("split_legal")
 
 
+def unexpected_factory_domain():
+    raise RuntimeError("private-model-string-must-not-be-recorded")
+
+
 def table_domain():
     return domain("table")
 
@@ -197,12 +210,48 @@ def intersection_domain():
     return domain("intersection")
 
 
+def disjoint_legal_domain():
+    value = table_domain()
+    return replace(
+        value, legal_actions=lambda state: ("left",) if state == 0 else ("right",)
+    )
+
+
+def terminal_domain():
+    return replace(table_domain(), legal_actions=lambda state: ())
+
+
 def unknown_quality_domain():
     return domain("unknown_quality")
 
 
 def partial_quality_domain():
     return domain("partial_quality")
+
+
+def planning_result_diagnostic(result):
+    """Bounded metadata only: never include state, forecasts, frames or free errors."""
+    now = time.monotonic_ns()
+    return json.dumps(
+        {
+            "outcome": result.outcome,
+            "reason": result.reason,
+            "reason_codes": getattr(result, "reason_codes", ()),
+            "completed_depth": result.completed_depth,
+            "limit_enforcement": result.limit_enforcement,
+            "counters": asdict(result.counters),
+            "received_before_cutoff": result.created_at_ns
+            < result.compute_cutoff_at_ns,
+            "fresh_at_assert": result.created_at_ns <= now < result.expires_at_ns,
+            "receipt_to_compute_cutoff_ns": result.compute_cutoff_at_ns
+            - result.created_at_ns,
+            "receipt_to_expiry_ns": result.expires_at_ns - result.created_at_ns,
+            "receipt_age_ns": now - result.created_at_ns,
+            "run_generation": result.run_generation,
+        },
+        sort_keys=True,
+        ensure_ascii=True,
+    )[:2048]
 
 
 class ExpectimaxPlannerTests(unittest.TestCase):
@@ -303,11 +352,64 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             budget=budget or SearchBudget(max_depth=1, wall_time_ms=1000),
             current_belief=current,
         )
+        if (
+            result.outcome != PlanningOutcome.SELECT
+            and planner.last_worker_diagnostic is not None
+        ):
+            print(
+                "PLANNER_WORKER_DIAGNOSTIC "
+                + json.dumps(planner.last_worker_diagnostic, sort_keys=True)[:4096],
+                flush=True,
+            )
         return result
+
+    def test_worker_python_exception_has_only_fixed_metadata(self):
+        registration = self.registration("unexpected_factory_domain")
+        belief, _ = self.belief()
+        planner = BoundedExpectimaxPlanner(
+            (registration,), clock_id=belief.context.clock_id
+        )
+        result = planner.plan(
+            belief,
+            ("left",),
+            registration_id=registration.registration_id,
+            budget=SearchBudget(wall_time_ms=1000),
+        )
+        self.assertEqual(result.reason, "worker_failed")
+        diagnostic = planner.last_worker_diagnostic
+        self.assertIsNotNone(diagnostic)
+        self.assertEqual(diagnostic["python_exception_status"], "recorded")
+        self.assertEqual(diagnostic["python_exception"]["phase"], "factory_create")
+        self.assertEqual(
+            diagnostic["python_exception"]["exception_category"], "runtime"
+        )
+        self.assertTrue(diagnostic["finished_exists"])
+        self.assertFalse(diagnostic["checkpoint_exists"])
+        self.assertNotIn("private-model-string", json.dumps(diagnostic))
+
+    def test_parent_diagnostic_failure_cannot_change_selection_or_cleanup(self):
+        with patch(
+            "ai_game_player.bounded_planner.collect_worker_diagnostic",
+            side_effect=MemoryError,
+        ):
+            result = self.run_plan()
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
+
+    def test_preflight_fallback_clears_previous_worker_diagnostic(self):
+        belief, _ = self.belief()
+        planner = BoundedExpectimaxPlanner((), clock_id=belief.context.clock_id)
+        planner.last_worker_diagnostic = {"previous": True}
+        result = planner.plan(belief, ("left",), registration_id="unknown")
+        self.assertEqual(result.reason, "transition_unavailable")
+        self.assertIsNone(planner.last_worker_diagnostic)
 
     def test_multiple_worlds_and_chance_match_independent_fraction_oracle(self):
         result = self.run_plan()
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertEqual(result.selected_action_id, "right")
         expected_left = Fraction(1, 4) * (
             Fraction(3, 4) * Fraction(4, 5) + Fraction(1, 4) * Fraction(-4, 5)
@@ -346,6 +448,48 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self.assertEqual(no_common.outcome, PlanningOutcome.ABSTAIN)
         self.assertIsNone(no_common.selected_action_id)
 
+    def test_no_common_legal_action_is_unavailable_not_an_invalid_model(self):
+        for factory, allowed in (
+            ("disjoint_legal_domain", ("left", "right")),
+            ("terminal_domain", ("left", "right")),
+            ("intersection_domain", ("left",)),
+        ):
+            with self.subTest(factory=factory):
+                result = self.run_plan(factory=factory, allowed=allowed)
+                self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
+                self.assertEqual(result.reason, "no_common_legal_action")
+                self.assertEqual(result.completed_depth, 0)
+                self.assertIsNone(result.selected_action_id)
+                self.assertEqual(result.action_values, ())
+
+    def test_reference_empty_nonterminal_board_has_no_legal_action_without_numeric_error(
+        self,
+    ):
+        state = Game2048State(((0,) * 4,) * 4)
+        with patch("time.monotonic_ns", return_value=1000):
+            search = ExpectimaxSearch(
+                create_reference_2048_domain(),
+                reference_2048_registration(),
+                SearchBudget(
+                    max_depth=2,
+                    max_nodes=10000,
+                    wall_time_ms=400,
+                    allow_conditional_selection=True,
+                ),
+                (
+                    SearchHypothesis(
+                        "recognized_board",
+                        TypedStateRef("2048", "2048-state.v1", Game2048State, state),
+                        1,
+                    ),
+                ),
+                tuple(ACTION_DIRECTION_BY_ID),
+                BeliefWeightKind.RELATIVE_SCORE,
+                1,
+            )
+            with self.assertRaisesRegex(SearchCutoff, "^no_common_legal_action$"):
+                next(search.deepen())
+
     def test_transposition_cache_and_iterative_deepening_stay_within_budgets(self):
         belief, _ = self.belief(states=(0,), weights=(0.9,))
         result = self.run_plan(
@@ -358,7 +502,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 wall_time_ms=1000,
             ),
         )
-        self.assertEqual(result.completed_depth, 3)
+        self.assertEqual(result.completed_depth, 3, planning_result_diagnostic(result))
         self.assertGreater(result.counters.cache_hits, 0)
         self.assertLessEqual(result.counters.peak_cache_entries, 2)
         self.assertLessEqual(result.counters.cache_bytes, 1000)
@@ -368,36 +512,110 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             allowed=("left",),
             budget=SearchBudget(max_depth=3, wall_time_ms=1000),
         )
-        self.assertEqual(deep.completed_depth, 3)
+        self.assertEqual(deep.completed_depth, 3, planning_result_diagnostic(deep))
         self.assertAlmostEqual(deep.action_values[0].expected_quality, 0.27)
 
     def test_final_marker_does_not_leave_an_older_checkpoint_adopted(self):
-        finished_seen = [False]
+        # Protocol ordering is deterministic; real process/time limits have separate regressions.
+        belief, _ = self.belief()
+        now = belief.created_at_ns
+        finished_seen = []
+        checkpoint_reads = []
+        published = {}
+        enforcement = (
+            "windows_job_commit" if sys.platform == "win32" else "linux_rlimit_as"
+        )
+
+        def capture_publication(path, value, maximum):
+            publish_planning_json(path, value, maximum)
+            if path.name == "checkpoint.json":
+                published[value["result"]["completed_depth"]] = read_planning_json(
+                    path, maximum
+                )
+
+        def completed_worker(command, **kwargs):
+            directory = Path(command[command.index("--memory-bytes") - 1])
+            # Execute only the pure worker protocol synchronously. This fake does not test OS guards.
+            with (
+                patch(
+                    "ai_game_player.planning_wire.publish_planning_json",
+                    capture_publication,
+                ),
+                patch(
+                    "ai_game_player.planning_file_reader.read_planning_bytes",
+                    wraps=read_planning_bytes,
+                ) as worker_reads,
+                patch.object(
+                    Path,
+                    "read_bytes",
+                    side_effect=AssertionError("unbounded request reread"),
+                ),
+            ):
+                self.assertEqual(
+                    _execute(directory, enforcement, WorkerDiagnostic()), 0
+                )
+            worker_reads.assert_called_once_with(
+                directory / "request.json", 16 * 1024 * 1024
+            )
+            self.assertEqual(sorted(published), [1, 2, 3])
+            return SimpleNamespace(poll=lambda: 0)
 
         def read_with_old_checkpoint(path, maximum):
             value = read_planning_json(path, maximum)
             if path.name == "finished.json":
-                finished_seen[0] = True
-            elif path.name == "checkpoint.json" and not finished_seen[0]:
-                # Simulate reading the old inode immediately before the final atomic replacement.
-                value["result"]["completed_depth"] = 1
-                value["result"]["continuation_semantics"] = "one_step"
+                finished_seen.append(value["reason"])
+            elif path.name == "checkpoint.json":
+                checkpoint_reads.append(value["result"]["completed_depth"])
             return value
 
-        with patch(
-            "ai_game_player.bounded_planner.read_planning_json",
-            read_with_old_checkpoint,
+        def read_old_raw_checkpoint(path, maximum):
+            if path.name == "checkpoint.json" and not finished_seen:
+                # An opened old inode returns the actual complete depth-one bytes.
+                checkpoint_reads.append(1)
+                return json.dumps(
+                    published[1], ensure_ascii=False, indent=2, allow_nan=False
+                ).encode("utf-8")
+            return read_planning_bytes(path, maximum)
+
+        with (
+            patch("time.monotonic_ns", return_value=now),
+            patch(
+                "ai_game_player.bounded_planner.subprocess.Popen",
+                side_effect=completed_worker,
+            ) as spawn,
+            patch(
+                "ai_game_player.bounded_planner.read_planning_json",
+                read_with_old_checkpoint,
+            ),
+            patch(
+                "ai_game_player.bounded_planner.read_planning_bytes",
+                read_old_raw_checkpoint,
+            ),
         ):
-            result = self.run_plan(budget=SearchBudget(max_depth=3, wall_time_ms=1000))
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
-        self.assertEqual(result.completed_depth, 3)
+            result = self.run_plan(
+                belief=belief, budget=SearchBudget(max_depth=3, wall_time_ms=1000)
+            )
+        spawn.assert_called_once()
+        self.assertEqual(finished_seen, ["depth_budget"])
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
+        self.assertEqual(result.completed_depth, 3, planning_result_diagnostic(result))
+        self.assertEqual(checkpoint_reads, [1, 3])
+        self.assertEqual(result.counters.nodes_visited, 112)
+        self.assertEqual(result.reason, "completed_depth")
+        self.assertEqual(result.created_at_ns, now)
+        self.assertEqual(result.compute_cutoff_at_ns, now + 1_000_000_000)
+        self.assertEqual(result.expires_at_ns, belief.expires_at_ns)
 
     def test_infeasible_common_future_sequence_keeps_completed_shallow_depth(self):
         result = self.run_plan(
             factory="split_legal_domain",
             budget=SearchBudget(max_depth=3, wall_time_ms=1000),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertEqual(result.completed_depth, 1)
         self.assertEqual(result.continuation_semantics, "one_step")
         self.assertEqual(result.reason, "no_common_future_sequence")
@@ -537,8 +755,16 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 allow_conditional_selection=True,
             ),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
-        self.assertEqual(result.completed_depth, 2)
+        if result.outcome != PlanningOutcome.SELECT:
+            print(
+                "PLANNER_WORKER_DIAGNOSTIC "
+                + json.dumps(planner.last_worker_diagnostic, sort_keys=True)[:4096],
+                flush=True,
+            )
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
+        self.assertEqual(result.completed_depth, 2, planning_result_diagnostic(result))
         self.assertEqual(result.probability_semantics, "conditional_score")
         self.assertEqual(result.residual_unknown_mass, 1)
         for action in result.action_values:
@@ -562,7 +788,11 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 max_depth=1, allow_conditional_selection=True, wall_time_ms=1000
             ),
         )
-        self.assertEqual(experiment.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            experiment.outcome,
+            PlanningOutcome.SELECT,
+            planning_result_diagnostic(experiment),
+        )
         self.assertEqual(experiment.probability_semantics, "conditional_score")
         for action in experiment.action_values:
             self.assertIsNone(action.expected_quality)
@@ -618,32 +848,191 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             "clock_origin_mismatch",
         )
 
+    def assert_empty_worker_cutoff(self, result, diagnostic):
+        metadata = planning_result_diagnostic(result)
+        self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN, metadata)
+        self.assertEqual(result.reason, "compute_budget", metadata)
+        self.assertEqual(result.completed_depth, 0, metadata)
+        self.assertIsNone(result.selected_action_id, metadata)
+        self.assertEqual(result.action_values, (), metadata)
+        self.assertEqual(result.probability_semantics, "unknown", metadata)
+        self.assertEqual(result.counters, PlanningCounters(), metadata)
+        if result.limit_enforcement != "not_applied":
+            self.assertIn(
+                result.limit_enforcement,
+                ("linux_rlimit_as", "windows_job_commit"),
+                metadata,
+            )
+            return "ready_acknowledged_cutoff"
+        # No ACK alone proves neither guard application nor entry into the slow callback.
+        self.assertIsNotNone(diagnostic, metadata)
+        self.assertIs(type(diagnostic["exitcode_raw"]), int, metadata)
+        self.assertEqual(
+            diagnostic["failure_classification"], "parent_cleanup", metadata
+        )
+        self.assertIs(diagnostic["parent_cleanup_requested"], True, metadata)
+        self.assertIs(diagnostic["exit_observed_before_cleanup"], False, metadata)
+        self.assertEqual(diagnostic["python_exception_status"], "absent", metadata)
+        self.assertIsNone(diagnostic["python_exception"], metadata)
+        self.assertIs(diagnostic["finished_exists"], False, metadata)
+        self.assertIs(diagnostic["checkpoint_exists"], False, metadata)
+        self.assertEqual(diagnostic["highest_received_depth"], 0, metadata)
+        return "ready_unreceived_cutoff"
+
     def test_slow_model_and_evaluator_are_killed_without_parent_blocking(self):
         real_popen = subprocess.Popen
-        for factory in ("slow_domain", "slow_quality_domain"):
+        for bootstrap_wait, factory in (
+            (True, "slow_domain"),
+            (False, "slow_domain"),
+            (False, "slow_quality_domain"),
+        ):
             created = []
 
             def launch(*args, **kwargs):
-                process = real_popen(*args, **kwargs)
+                # A finite sleeper models the interval before worker guard/ready initialization.
+                command = (
+                    [sys.executable, "-c", "import time; time.sleep(2)"]
+                    if bootstrap_wait
+                    else args[0]
+                )
+                process = real_popen(command, **kwargs)
                 created.append(process)
                 return process
 
             with (
-                self.subTest(factory=factory),
+                self.subTest(factory=factory, bootstrap_wait=bootstrap_wait),
                 patch("ai_game_player.bounded_planner.subprocess.Popen", launch),
             ):
                 started = time.monotonic()
-                result = self.run_plan(
-                    factory=factory, budget=SearchBudget(max_depth=1, wall_time_ms=250)
+                belief, _ = self.belief()
+                registration = self.registration(factory)
+                planner = BoundedExpectimaxPlanner(
+                    (registration,), clock_id=belief.context.clock_id
+                )
+                result = planner.plan(
+                    belief,
+                    ("left", "right"),
+                    registration_id=registration.registration_id,
+                    budget=SearchBudget(max_depth=1, wall_time_ms=250),
                 )
                 self.assertLess(time.monotonic() - started, 1.5)
-                self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
-                self.assertEqual(result.completed_depth, 0)
                 self.assertTrue(created)
                 self.assertTrue(all(process.poll() is not None for process in created))
-                self.assertIn(
-                    result.limit_enforcement, ("linux_rlimit_as", "windows_job_commit")
+                classification = self.assert_empty_worker_cutoff(
+                    result, planner.last_worker_diagnostic
                 )
+                if bootstrap_wait:
+                    self.assertEqual(classification, "ready_unreceived_cutoff")
+                print(
+                    "PLANNER_WORKER_CUTOFF "
+                    + json.dumps(
+                        {
+                            "factory": factory,
+                            "bootstrap_wait": bootstrap_wait,
+                            "classification": classification,
+                            "diagnostic": planner.last_worker_diagnostic,
+                        },
+                        sort_keys=True,
+                    )[:4096],
+                    flush=True,
+                )
+
+    def test_unreceived_ack_requires_empty_budget_cutoff_and_known_parent_cleanup(self):
+        belief, _ = self.belief()
+        planner = BoundedExpectimaxPlanner((), clock_id=belief.context.clock_id)
+        result = planner._fallback(
+            belief,
+            ("left", "right"),
+            None,
+            0,
+            time.monotonic_ns() - 1,
+            "compute_budget",
+        )
+        diagnostic = {
+            "exitcode_raw": 1,
+            "failure_classification": "parent_cleanup",
+            "parent_cleanup_requested": True,
+            "exit_observed_before_cleanup": False,
+            "python_exception_status": "absent",
+            "python_exception": None,
+            "finished_exists": False,
+            "checkpoint_exists": False,
+            "highest_received_depth": 0,
+        }
+        self.assertEqual(
+            self.assert_empty_worker_cutoff(result, diagnostic),
+            "ready_unreceived_cutoff",
+        )
+        for field, value in (
+            ("exitcode_raw", None),
+            ("exitcode_raw", True),
+            ("failure_classification", "abnormal_exit"),
+            ("parent_cleanup_requested", False),
+            ("exit_observed_before_cleanup", True),
+            ("python_exception_status", "recorded"),
+            ("python_exception", {}),
+            ("finished_exists", True),
+            ("checkpoint_exists", True),
+            ("highest_received_depth", 1),
+        ):
+            with self.subTest(field=field), self.assertRaises(AssertionError):
+                self.assert_empty_worker_cutoff(result, {**diagnostic, field: value})
+        for invalid in (
+            replace(result, reason="worker_failed"),
+            replace(result, counters=PlanningCounters(nodes_visited=1)),
+        ):
+            with self.subTest(reason=invalid.reason), self.assertRaises(AssertionError):
+                self.assert_empty_worker_cutoff(invalid, diagnostic)
+        with self.assertRaises(AssertionError):
+            self.assert_empty_worker_cutoff(result, None)
+
+    def test_worker_applies_resource_limits_before_execute_and_blocks_on_guard_failure(
+        self,
+    ):
+        for failed in (False, True):
+            events = []
+
+            def apply(memory_bytes, wall_time_ms):
+                self.assertEqual((memory_bytes, wall_time_ms), (64 * 1024**2, 250))
+                events.append("limits")
+                if failed:
+                    raise OSError("fixture unsupported limits")
+                return "linux_rlimit_as", object()
+
+            def execute(directory, method, diagnostic):
+                self.assertEqual(events, ["limits"])
+                self.assertEqual(method, "linux_rlimit_as")
+                events.append("execute")
+                return 0
+
+            with (
+                self.subTest(failed=failed),
+                tempfile.TemporaryDirectory() as directory,
+                patch.object(planning_worker, "apply_worker_limits", apply),
+                patch.object(planning_worker, "_execute", side_effect=execute) as run,
+                patch.object(planning_worker, "_finish") as finish,
+            ):
+                status = planning_worker.main(
+                    [
+                        directory,
+                        "--memory-bytes",
+                        str(64 * 1024**2),
+                        "--wall-time-ms",
+                        "250",
+                    ]
+                )
+                self.assertEqual(status, 1 if failed else 0)
+                self.assertEqual(
+                    events, ["limits"] if failed else ["limits", "execute"]
+                )
+                if failed:
+                    run.assert_not_called()
+                    finish.assert_called_once_with(
+                        Path(directory), "unsupported_resource_limits"
+                    )
+                else:
+                    run.assert_called_once()
+                    finish.assert_not_called()
 
     def test_completed_depth_received_before_cutoff_survives_slow_later_depth(self):
         belief, _ = self.belief(states=(0,), weights=(0.9,))
@@ -653,7 +1042,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             allowed=("left",),
             budget=SearchBudget(max_depth=3, wall_time_ms=300),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertEqual(result.completed_depth, 1)
         self.assertEqual(result.reason, "compute_budget")
         self.assertLess(result.created_at_ns, result.compute_cutoff_at_ns)
@@ -807,7 +1198,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             budget=SearchBudget(max_depth=1, wall_time_ms=1000),
             current_belief=lambda: store.read(belief.context),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertNotIn(
             "2048-move-left", {item.action_id for item in result.action_values}
         )

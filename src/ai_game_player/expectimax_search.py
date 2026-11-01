@@ -35,7 +35,7 @@ class SearchFailure(ValueError):
 
 
 # {
-#   責務: [SearchCutoff: node/協調time予算で未完了深さを破棄する]
+#   責務: [SearchCutoff: node/協調time予算または共通合法集合の欠如をcontrolled保留として通知する]
 #   フィールド: [なし: 完了済みcheckpointの採用は親の受領deadline/鮮度が決める]
 # }
 class SearchCutoff(RuntimeError):
@@ -256,7 +256,7 @@ class ExpectimaxSearch(Generic[StateT]):
             self._check()
             common.intersection_update(self._legal(item.state_ref.state))
         if not common:
-            raise SearchFailure("no_common_legal_action")
+            raise SearchCutoff("no_common_legal_action")
         actions = tuple(sorted(common))
         for depth in range(1, self.budget.max_depth + 1):
             values = tuple(

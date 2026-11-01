@@ -16,6 +16,9 @@ from ai_game_player.decision_verifier import ReliabilityStatus
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
 from ai_game_player.execution_receipt import ExecutionObservation, ExecutionReceipt
+from ai_game_player.decision_withheld import DecisionDisposition, DecisionWithheld
+from ai_game_player.observation_freshness import ObservationFreshness
+from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.event_journal import EventJournal
 from ai_game_player.fail_safe_runtime import (
     FailSafeConfig,
@@ -107,6 +110,9 @@ class DecisionPipeline:
         evaluation_adapter: RuntimeEvaluationAdapter | None = None,
     ) -> None:
         self.source = source
+        self.last_observation: ScreenObservation | None = None
+        self.expected_fresh_reference: ObservationFreshness | None = None
+        self.reobservation_check: Callable[[], None] | None = None
         self.ocr = OcrTextCandidateDetector()
         self.merger = CandidateMerger()
         self.event_journal = event_journal
@@ -202,9 +208,40 @@ class DecisionPipeline:
     #   エラー: [source、OCR検出、候補変換の処理で発生した例外を呼び出し元へ伝える]
     # }
     def _read_candidates(
-        self, ocr_texts: list[dict[str, object]] | None = None
+        self,
+        ocr_texts: list[dict[str, object]] | None = None,
+        *,
+        require_fresh_observation: bool = False,
     ) -> tuple[ScreenObservation, list[ActionCandidate]]:
-        observation, configured = self.source.read()
+        if require_fresh_observation:
+            fresh_reader = getattr(self.source, "read_fresh", None)
+            if not callable(fresh_reader):
+                raise DecisionWithheld(
+                    DecisionDisposition(
+                        PlanningOutcome.ABSTAIN,
+                        ("fresh_source_unavailable",),
+                        "observation_source",
+                    )
+                )
+            observation, configured = fresh_reader()
+            try:
+                reference = ObservationFreshness.from_observation(observation)
+                if (
+                    self.expected_fresh_reference is not None
+                    and not reference.is_newer_than(self.expected_fresh_reference)
+                ):
+                    raise ValueError("fresh source returned a cached or foreign frame")
+            except ValueError:
+                raise DecisionWithheld(
+                    DecisionDisposition(
+                        PlanningOutcome.ABSTAIN,
+                        ("fresh_capture_not_new",),
+                        "observation_source",
+                    )
+                ) from None
+        else:
+            observation, configured = self.source.read()
+        self.last_observation = observation
         runtime = self.executor.fail_safe_runtime
         if runtime is not None and runtime.state == FailSafeState.ACTIVE:
             self.record_observation()
@@ -233,8 +270,11 @@ class DecisionPipeline:
         purpose: str = "",
         personality: str = "",
         expected_rearm_token: int | None = None,
+        require_fresh_observation: bool = False,
     ) -> tuple[ActionDecision, list[ActionCandidate], ScreenObservation]:
-        observation, candidates = self._read_candidates(ocr_texts)
+        observation, candidates = self._read_candidates(
+            ocr_texts, require_fresh_observation=require_fresh_observation
+        )
         decision, _ = self.engine.step_with_candidate(
             observation,
             candidates,
@@ -263,6 +303,7 @@ class DecisionPipeline:
         purpose: str = "",
         personality: str = "",
         expected_rearm_token: int | None = None,
+        require_fresh_observation: bool = False,
     ) -> ActionDecision:
         run_token = (
             self.controller.rearm_token
@@ -271,7 +312,9 @@ class DecisionPipeline:
         )
         self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        decision, _, _ = self._decide(ocr_texts, purpose, personality, run_token)
+        decision, _, _ = self._decide(
+            ocr_texts, purpose, personality, run_token, require_fresh_observation
+        )
         self.controller.ensure_running(run_token)
         return decision
 
@@ -288,6 +331,7 @@ class DecisionPipeline:
         purpose: str = "",
         personality: str = "",
         expected_rearm_token: int | None = None,
+        require_fresh_observation: bool = False,
     ) -> ExecutionResult:
         run_token = (
             self.controller.rearm_token
@@ -296,12 +340,14 @@ class DecisionPipeline:
         )
         self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
-        observation, candidates = self._read_candidates(ocr_texts)
+        observation, candidates = self._read_candidates(
+            ocr_texts, require_fresh_observation=require_fresh_observation
+        )
         if not self.executor.dry_run:
             self.complete_execution_observation(
                 observation, expected_rearm_token=run_token
             )
-        _, selected = self.engine.step_with_candidate(
+        decision, selected = self.engine.step_with_candidate(
             observation,
             candidates,
             purpose,
@@ -334,7 +380,9 @@ class DecisionPipeline:
             raise RuntimeError(
                 f"Action Safety Evaluator blocked action: {selected.action_id}"
             )
-        if assessment.requires_verification and not self.executor.dry_run:
+        if (
+            assessment.requires_verification or assessment.verification_requests
+        ) and not self.executor.dry_run:
             requests = ", ".join(assessment.verification_requests)
             self.engine.mark_last_decision_not_executed(
                 f"Action Safety verification required: {requests}"
@@ -360,7 +408,96 @@ class DecisionPipeline:
             )
 
         self.controller.ensure_running(run_token)
+        if not self.executor.dry_run and getattr(
+            self.engine.provider, "requires_fresh_selection", False
+        ):
+            try:
+                self.expected_fresh_reference = ObservationFreshness.from_observation(
+                    observation
+                )
+                note_stage = getattr(self.engine.provider, "note_runtime_stage", None)
+                if callable(note_stage):
+                    note_stage("fresh_read_start")
+                fresh_observation, fresh_candidates = self._read_candidates(
+                    ocr_texts, require_fresh_observation=True
+                )
+                if callable(note_stage):
+                    note_stage("fresh_read_end")
+                self.controller.ensure_running(run_token)
+                allowed_fresh = self.engine.evaluator.evaluate(
+                    fresh_observation, fresh_candidates
+                )
+                getattr(self.engine.provider, "validate_planned_selection")(
+                    fresh_observation, allowed_fresh, selected, run_token
+                )
+                context = self.engine.last_decision_context
+                if context is None:
+                    raise RuntimeError("planning decision context is missing")
+                fresh_reliability = self.engine.decision_verifier.verify(
+                    decision,
+                    context,
+                    fresh_observation,
+                    evaluator_allowed_action_ids=[
+                        item.action_id for item in allowed_fresh
+                    ],
+                )
+                if callable(note_stage):
+                    note_stage("verification_end")
+                if fresh_reliability.status != ReliabilityStatus.TRUST:
+                    raise DecisionWithheld(
+                        DecisionDisposition(
+                            PlanningOutcome.ABSTAIN,
+                            ("planning_fresh_verification_required",),
+                            "belief_planner",
+                            snapshot_id,
+                        )
+                    )
+                fresh_safety_context, _ = self._safety_context(
+                    selected.action_id, purpose, fresh_reliability.to_dict()
+                )
+                assessment = self.safety_evaluator.evaluate(
+                    fresh_observation, selected, fresh_safety_context
+                )
+                if callable(note_stage):
+                    note_stage("safety_end")
+                self.last_safety_result = assessment
+                self.safety_audit.append_evaluation(
+                    assessment, snapshot_id=snapshot_id, goal=purpose
+                )
+                if (
+                    assessment.status == SafetyStatus.BLOCK
+                    or assessment.requires_verification
+                    or assessment.verification_requests
+                ):
+                    raise DecisionWithheld(
+                        DecisionDisposition(
+                            PlanningOutcome.ABSTAIN,
+                            ("planning_fresh_safety_withheld",),
+                            "belief_planner",
+                            snapshot_id,
+                        )
+                    )
+                observation = fresh_observation
+            except DecisionWithheld as withheld:
+                self._record_planning_withheld(withheld, run_token)
+                raise
+        self.controller.ensure_running(run_token)
         self._bind_execution_stop_checker(run_token)
+        check_dispatch = getattr(self.engine.provider, "check_planned_dispatch", None)
+
+        # {
+        #   責務: [before_dispatch: 実送信の直前に世代/総再観測時間/一手期限を再確認する]
+        #   処理: [I/O無し検査をActionExecutorとWindows実OS境界で共用する]
+        #   引数: [なし] 戻り値: [なし] エラー: [ExecutionCancelled/DecisionWithheld: 無入力で拒否]
+        # }
+        def before_dispatch() -> None:
+            self.controller.ensure_running(run_token)
+            if self.reobservation_check is not None:
+                self.reobservation_check()
+            if callable(check_dispatch):
+                check_dispatch(run_token)
+
+        self.executor.before_dispatch = before_dispatch
         try:
             result = self.executor.execute(selected)
         except Exception as error:
@@ -375,7 +512,19 @@ class DecisionPipeline:
                 dispatch,
                 type(error).__name__,
             )
+            if isinstance(error, DecisionWithheld):
+                context = self.engine.last_decision_context
+                if context is not None:
+                    disposition = error.disposition
+                    self.controller.run_if_current(
+                        run_token,
+                        lambda: self.engine.trace.append_disposition(
+                            context, disposition
+                        ),
+                    )
             raise
+        finally:
+            self.executor.before_dispatch = None
         dispatch = getattr(self.executor, "input_dispatch_started", None)
         if result.mode == "dry_run":
             status, dispatch = "dry_run", False
@@ -399,6 +548,28 @@ class DecisionPipeline:
             self.execution_history.append(result)
             self.safety_audit.append_execution(assessment.assessment_id, result)
         return result
+
+    # {
+    #   責務: [_record_planning_withheld: fresh入力検査の非操作結果を現世代だけへ保存する]
+    #   処理: [元のplanned判断を未実行にし、非SELECT監査を独立追記する]
+    #   引数: [withheld: 固定理由, generation: 判断開始世代] 戻り値: [なし]
+    # }
+    def _record_planning_withheld(
+        self, withheld: DecisionWithheld, generation: int
+    ) -> None:
+        context = self.engine.last_decision_context
+
+        # {
+        #   責務: [publish: 現Run世代の未実行状態と非操作監査をまとめて確定する]
+        #   処理: [実入力済みのOutcomeを変更しない]
+        #   引数: [なし] 戻り値: [なし]
+        # }
+        def publish() -> None:
+            self.engine.mark_last_decision_not_executed(str(withheld))
+            if context is not None:
+                self.engine.trace.append_disposition(context, withheld.disposition)
+
+        self.controller.run_if_current(generation, publish)
 
     # {
     #   責務: [_record_execution_receipt: Executor結果を同じ判断snapshot・実行世代へ結び付ける]
@@ -442,6 +613,11 @@ class DecisionPipeline:
         # }
         def register_current() -> None:
             self.engine.record_execution_receipt(observation, receipt)
+            acknowledge = getattr(
+                self.engine.provider, "acknowledge_planned_execution", None
+            )
+            if callable(acknowledge):
+                acknowledge(receipt)
             if status == "not_executed":
                 self.engine.mark_last_decision_not_executed(
                     f"OS入力を開始する前に実行器が失敗しました: {reason}"
@@ -476,6 +652,9 @@ class DecisionPipeline:
         self.controller.ensure_running(token)
         if self.executor.dry_run:
             return None
+        validate = getattr(self.engine.provider, "validate_execution_observation", None)
+        if callable(validate) and self.engine.has_pending_execution_observation:
+            validate(observation)
         return self.engine.complete_execution_observation(
             observation,
             token,

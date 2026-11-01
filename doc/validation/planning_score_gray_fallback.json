@@ -1,0 +1,263 @@
+{
+  "source_baseline": "ba195cf9bdd29cb2eb584c5bebfe7e54d816ca00",
+  "status": "implementation candidate; new Windows OS execution unverified",
+  "method": "Existing binary pair first. Only an empty pair can use same support+two distinct ROIs with common grayscale/unrestricted PSM7. Any valid partial binary value must agree; conflicts/ambiguity/low confidence/clipping remain unknown. No per-value/seed rule, text substitution or model dependency.",
+  "source_sha256": {
+    "src/ai_game_player/ocr_recognizer.py": "b1d0779200f4197c61a74369af54e127fc4872a765d77d158c3cdf045b69f8ce",
+    "tools/planning_score_panel.py": "a8a03921214b12fdeaaa166469f53a4d3bea6c4a1e716624e843360803f89a94",
+    "tools/planning_score_evaluation.py": "1df8fb5c2a9574a2207827646c3a8d58f1ea8f1dcfea10ed62869893a6d8b331"
+  },
+  "real_windows_evidence": {
+    "source": "9194782f13b7bf5b6622ff8ada8c00840c50986f",
+    "run": 41345206059,
+    "job": 124963444206,
+    "version": "tesseract v5.5.3.20260724",
+    "records": "../../tests/fixtures/2048/score-windows-headers/windows_919_numeric_raw.json",
+    "replay": "Generated RGB exactly matches raw Win binary empty and grayscale literal0/conf.68712212 in both ROIs; scaled/offset mapping and input immutability checked. This is not a new Windows live run."
+  },
+  "linux": {
+    "header_cases": 18,
+    "correct": 18,
+    "binary_success_uses_no_fallback": true,
+    "four_digit_glow": [
+      {
+        "fixture": "glow-256",
+        "geometry": "raw",
+        "value": 1824,
+        "confidence": 0.96027214
+      },
+      {
+        "fixture": "glow-256",
+        "geometry": "scaled_window",
+        "value": 1824,
+        "confidence": 0.96027214
+      },
+      {
+        "fixture": "glow-256-seed480",
+        "geometry": "raw",
+        "value": 1808,
+        "confidence": 0.9500784299999999
+      },
+      {
+        "fixture": "glow-256-seed480",
+        "geometry": "scaled_window",
+        "value": 1808,
+        "confidence": 0.9500784299999999
+      }
+    ],
+    "independent_six_digit": [
+      {
+        "clipped": false,
+        "expected": 123456,
+        "value": 123456,
+        "confidence": 0.96438911,
+        "diagnostic": {
+          "status": "single_numeric_line_width_agreement",
+          "crop_bboxes": [
+            [
+              326,
+              114,
+              88,
+              27
+            ],
+            [
+              321,
+              114,
+              98,
+              27
+            ]
+          ],
+          "scale": 3,
+          "score_label_confidence": 0.96768242,
+          "numeric_word_count": 1,
+          "preprocessing": "bilinear_otsu_supported_panel"
+        },
+        "calls": [
+          {
+            "mode": "text_block",
+            "size": [
+              904,
+              648
+            ],
+            "words": [
+              {
+                "text": "SCORE",
+                "confidence": 0.96768242,
+                "x": 408,
+                "y": 100,
+                "width": 42,
+                "height": 9,
+                "bbox": [
+                  408,
+                  100,
+                  42,
+                  9
+                ]
+              },
+              {
+                "text": "BEST",
+                "confidence": 0.9438133999999999,
+                "x": 546,
+                "y": 100,
+                "width": 31,
+                "height": 9
+              },
+              {
+                "text": "123456",
+                "confidence": 0.96646591,
+                "x": 332,
+                "y": 119,
+                "width": 77,
+                "height": 17
+              },
+              {
+                "text": "999999",
+                "confidence": 0.96303284,
+                "x": 521,
+                "y": 119,
+                "width": 78,
+                "height": 17
+              }
+            ]
+          },
+          {
+            "mode": "single_numeric_line",
+            "size": [
+              288,
+              105
+            ],
+            "words": [
+              {
+                "text": "123456",
+                "confidence": 0.96438911,
+                "x": 28,
+                "y": 27,
+                "width": 235,
+                "height": 51
+              }
+            ]
+          },
+          {
+            "mode": "single_numeric_line",
+            "size": [
+              318,
+              105
+            ],
+            "words": [
+              {
+                "text": "123456",
+                "confidence": 0.96438911,
+                "x": 43,
+                "y": 27,
+                "width": 235,
+                "height": 51
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "clipped": true,
+        "expected": null,
+        "value": null,
+        "confidence": 0,
+        "diagnostic": {
+          "status": "score_numeric_support_unavailable"
+        },
+        "calls": [
+          {
+            "mode": "text_block",
+            "size": [
+              904,
+              648
+            ],
+            "words": [
+              {
+                "text": "SCORE",
+                "confidence": 0.96768242,
+                "x": 408,
+                "y": 100,
+                "width": 42,
+                "height": 9,
+                "bbox": [
+                  408,
+                  100,
+                  42,
+                  9
+                ]
+              },
+              {
+                "text": "BEST",
+                "confidence": 0.9438133999999999,
+                "x": 546,
+                "y": 100,
+                "width": 31,
+                "height": 9
+              },
+              {
+                "text": "123456",
+                "confidence": 0.76254143,
+                "x": 300,
+                "y": 119,
+                "width": 77,
+                "height": 17
+              },
+              {
+                "text": "999999",
+                "confidence": 0.96303284,
+                "x": 521,
+                "y": 119,
+                "width": 78,
+                "height": 17
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "forced_gray_multidigit_review": "Independent actual Tesseract: 1234/.9540583 and123456/.95882462, both2ROI agree; blank rejected before OCR. /tmp/review_score_gray_actual_digits.py (reviewer, same fixed source)."
+  },
+  "negative_checks": [
+    "binary width conflict/ambiguous/low confidence/edge never calls fallback",
+    "gray two widths conflict/O/quote/low confidence/edge/empty remain unknown",
+    "valid binary partial value vs different gray value remains unknown",
+    "same partial value can recover only when both gray ROIs agree",
+    "document/text_block/single_numeric_line config unchanged; new explicit evaluation mode only"
+  ],
+  "cost": {
+    "scope": "fixed raw0 header; panel+full foreground support+2ROI preparation; empty path adds common grayscale2ROI. Excludes OCR/process/frame buffer/Windows; no real-time guarantee",
+    "measurements": {
+      "binary": {
+        "times_ns": [
+          17688635,
+          17606962,
+          17565589,
+          17721375,
+          17561913,
+          17521922,
+          17521092,
+          17969649,
+          17718040
+        ],
+        "median_ms": 17.606962,
+        "peak_python_bytes": 139861
+      },
+      "empty_binary_then_gray": {
+        "times_ns": [
+          30054836,
+          29993092,
+          29994154,
+          29933442,
+          29673569,
+          32199312,
+          29625486,
+          29557464,
+          29747210
+        ],
+        "median_ms": 29.933442,
+        "peak_python_bytes": 139861
+      }
+    }
+  },
+  "deferred": "Actual latest-head Windows fixture/live/Stop/CI completion; replay does not replace gates."
+}

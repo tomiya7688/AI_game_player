@@ -99,6 +99,7 @@ class WindowsInputTest(unittest.TestCase):
     def test_dispatch_flag_resets_before_target_validation(self):
         executor = WindowsInputExecutor(window_handle=123, window_process_id=456)
         executor.input_dispatch_started = True
+        executor.input_dispatch_started_at_ns = 123
         with (
             patch.object(windows_input.os, "name", "nt"),
             patch.object(
@@ -110,6 +111,7 @@ class WindowsInputTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "target lost"):
                 executor.execute(ActionCandidate("key", "key", "LEFT"))
         self.assertFalse(executor.input_dispatch_started)
+        self.assertIsNone(executor.input_dispatch_started_at_ns)
 
     def test_coordinate_conversion_failure_is_not_dispatch(self):
         user32 = FakeUser32()
@@ -147,6 +149,7 @@ class WindowsInputTest(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "API result unknown"):
                     executor.execute(ActionCandidate("key", "key", "LEFT"))
             self.assertTrue(executor.input_dispatch_started)
+            self.assertIsNotNone(executor.input_dispatch_started_at_ns)
 
     def test_successful_key_dispatch_and_wait_are_distinct(self):
         user32 = FakeUser32()
@@ -164,6 +167,7 @@ class WindowsInputTest(unittest.TestCase):
                 executor.execute(ActionCandidate("wait", "wait", "0")).executed
             )
             self.assertFalse(executor.input_dispatch_started)
+            self.assertIsNone(executor.input_dispatch_started_at_ns)
 
     def test_key_label_is_passed_to_vk_key_scan_as_wchar(self):
         class RecordingUser32(FakeUser32):

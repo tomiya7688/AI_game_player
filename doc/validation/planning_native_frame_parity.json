@@ -1,0 +1,33 @@
+{
+  "same_pixel_sha256": "7a3114205d3d41f9b991617dac7cf7d36bc814afc4940601df48b67d9b61a3cc",
+  "primitive_fields_equal": {
+    "mean_rgb": true,
+    "mean_brightness": true,
+    "perceptual_hash": true,
+    "signature": true,
+    "image_candidates": true,
+    "detected_elements": true
+  },
+  "candidate_equal": true,
+  "semantic_equal": true,
+  "baseline_decision_equal": true,
+  "planner_input_equal": true,
+  "scope": "same frame statistics/components, reference candidates/state and Baseline decision; Planner inputs equal, deadline-dependent search depth is not an identical-choice guarantee",
+  "analysis_ns": {
+    "python": 89928170,
+    "native": 1472566
+  },
+  "binary": {
+    "sha256": "1a115ef2487440d354a8aad563f785ce87dc11eb82ff30a5b93f228b4c90d1a5",
+    "abi_version": 1,
+    "capabilities": [
+      "fast_cv",
+      "safety"
+    ]
+  },
+  "match": true,
+  "measurement_scope": "Linux C++ same-pixel reference fixture; separate from actual Windows WGC/GDI proof",
+  "native_source_commit": "5017ee6f6fcd6a3c8bf14bba09cf35044c0ca38b",
+  "python_helper_sha256": "9e62ac315c4d43f8a79bcaac896376679e88aab621acf53a1930af7434c91190",
+  "measurement_source_state": "local Python validation patch before commit; native source matches the recorded main ancestor"
+}

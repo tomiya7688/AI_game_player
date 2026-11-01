@@ -1,0 +1,1449 @@
+{
+  "source_head": "207eaa38e603ec4c556dc3f83be477720414b482",
+  "source_status": "",
+  "helper_sha256": "ec7ad6f206440f8555f81728f602bc46a67e8bfd25bd406628caf74420f53b73",
+  "helper_path": "/workspace/AI_game_player-issue-567/tools/planning_score_evaluation.py",
+  "engine": "tesseract 5.5.0",
+  "method": "Independent Tesseract CLI TSV parser, full-page SCORE words removed, actual pixels -> header PSM6 -> paired-width PSM7 -> existing strict Adapter",
+  "cases": [
+    {
+      "fixture": "glow-256",
+      "geometry": "raw",
+      "png_sha256": "49f7f4dcec40cbd31618232a187cc98f057f1f00934c965113e88e872ee8705e",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1824,
+      "confidence": 0.96027214,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            365,
+            109,
+            79,
+            36
+          ],
+          [
+            346,
+            109,
+            117,
+            36
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1
+      },
+      "recovered_candidates": [
+        {
+          "text": "SCORE",
+          "x": 385.0,
+          "y": 100.0,
+          "width": 39.0,
+          "height": 9.0,
+          "confidence": 0.96027214,
+          "bbox": [
+            385.0,
+            100.0,
+            39.0,
+            9.0
+          ]
+        },
+        {
+          "text": "1824",
+          "x": 377.0,
+          "y": 119.0,
+          "width": 56.0,
+          "height": 17.0,
+          "confidence": 0.9631810000000001,
+          "bbox": [
+            377.0,
+            119.0,
+            56.0,
+            17.0
+          ]
+        }
+      ],
+      "ocr_calls": [
+        {
+          "mode": "document",
+          "frame_size": [
+            650,
+            850
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 385,
+              "y": 100,
+              "width": 39,
+              "height": 9,
+              "confidence": 0.9596552300000001
+            },
+            {
+              "text": "EST",
+              "x": 514,
+              "y": 100,
+              "width": 21,
+              "height": 9,
+              "confidence": 0.75973526
+            },
+            {
+              "text": "2048",
+              "x": 79,
+              "y": 111,
+              "width": 187,
+              "height": 56,
+              "confidence": 0.85528137
+            },
+            {
+              "text": "&",
+              "x": 377,
+              "y": 119,
+              "width": 172,
+              "height": 17,
+              "confidence": 0.46552254
+            },
+            {
+              "text": "Join",
+              "x": 75,
+              "y": 206,
+              "width": 32,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "the",
+              "x": 113,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "numbers",
+              "x": 145,
+              "y": 206,
+              "width": 69,
+              "height": 13,
+              "confidence": 0.96327278
+            },
+            {
+              "text": "and",
+              "x": 220,
+              "y": 206,
+              "width": 28,
+              "height": 13,
+              "confidence": 0.96791695
+            },
+            {
+              "text": "get",
+              "x": 255,
+              "y": 206,
+              "width": 25,
+              "height": 17,
+              "confidence": 0.9696316500000001
+            },
+            {
+              "text": "to",
+              "x": 285,
+              "y": 206,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.9693679000000001
+            },
+            {
+              "text": "the",
+              "x": 307,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "2048",
+              "x": 338,
+              "y": 206,
+              "width": 43,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "tile!",
+              "x": 385,
+              "y": 205,
+              "width": 31,
+              "height": 14,
+              "confidence": 0.96181297
+            },
+            {
+              "text": "HOW",
+              "x": 76,
+              "y": 832,
+              "width": 39,
+              "height": 13,
+              "confidence": 0.96495605
+            },
+            {
+              "text": "TO",
+              "x": 120,
+              "y": 832,
+              "width": 21,
+              "height": 13,
+              "confidence": 0.96464745
+            },
+            {
+              "text": "PLAY:",
+              "x": 147,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.96507957
+            },
+            {
+              "text": "Use",
+              "x": 198,
+              "y": 832,
+              "width": 29,
+              "height": 13,
+              "confidence": 0.96039101
+            },
+            {
+              "text": "your",
+              "x": 232,
+              "y": 835,
+              "width": 36,
+              "height": 14,
+              "confidence": 0.96155647
+            },
+            {
+              "text": "arrow",
+              "x": 274,
+              "y": 835,
+              "width": 48,
+              "height": 10,
+              "confidence": 0.96700401
+            },
+            {
+              "text": "keys",
+              "x": 327,
+              "y": 831,
+              "width": 37,
+              "height": 18,
+              "confidence": 0.9539707199999999
+            },
+            {
+              "text": "to",
+              "x": 369,
+              "y": 832,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.96948364
+            },
+            {
+              "text": "move",
+              "x": 391,
+              "y": 835,
+              "width": 42,
+              "height": 10,
+              "confidence": 0.9662838
+            },
+            {
+              "text": "the",
+              "x": 438,
+              "y": 832,
+              "width": 26,
+              "height": 13,
+              "confidence": 0.9686924
+            },
+            {
+              "text": "tiles.",
+              "x": 469,
+              "y": 832,
+              "width": 38,
+              "height": 13,
+              "confidence": 0.96255234
+            },
+            {
+              "text": "When",
+              "x": 513,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.88440414
+            }
+          ]
+        },
+        {
+          "mode": "text_block",
+          "frame_size": [
+            900,
+            375
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 330,
+              "y": 153,
+              "width": 117,
+              "height": 27,
+              "confidence": 0.96027214
+            },
+            {
+              "text": "BEST",
+              "x": 690,
+              "y": 153,
+              "width": 90,
+              "height": 27,
+              "confidence": 0.95801552
+            },
+            {
+              "text": "1824",
+              "x": 306,
+              "y": 210,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.96006493
+            },
+            {
+              "text": "1824",
+              "x": 651,
+              "y": 210,
+              "width": 171,
+              "height": 51,
+              "confidence": 0.9677752700000001
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            237,
+            108
+          ],
+          "words": [
+            {
+              "text": "1824",
+              "x": 36,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.9631810000000001
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            351,
+            108
+          ],
+          "words": [
+            {
+              "text": "1824",
+              "x": 93,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.9631810000000001
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "glow-256",
+      "geometry": "scaled_window",
+      "png_sha256": "49f7f4dcec40cbd31618232a187cc98f057f1f00934c965113e88e872ee8705e",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1824,
+      "confidence": 0.96027214,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            365,
+            109,
+            79,
+            36
+          ],
+          [
+            346,
+            109,
+            117,
+            36
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1
+      },
+      "recovered_candidates": [
+        {
+          "text": "SCORE",
+          "x": 800.0,
+          "y": 240.0,
+          "width": 78.0,
+          "height": 18.0,
+          "confidence": 0.96027214,
+          "bbox": [
+            800.0,
+            240.0,
+            78.0,
+            18.0
+          ]
+        },
+        {
+          "text": "1824",
+          "x": 784.0,
+          "y": 278.0,
+          "width": 112.0,
+          "height": 34.0,
+          "confidence": 0.9631810000000001,
+          "bbox": [
+            784.0,
+            278.0,
+            112.0,
+            34.0
+          ]
+        }
+      ],
+      "ocr_calls": [
+        {
+          "mode": "document",
+          "frame_size": [
+            650,
+            850
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 385,
+              "y": 100,
+              "width": 39,
+              "height": 9,
+              "confidence": 0.9596552300000001
+            },
+            {
+              "text": "EST",
+              "x": 514,
+              "y": 100,
+              "width": 21,
+              "height": 9,
+              "confidence": 0.75973526
+            },
+            {
+              "text": "2048",
+              "x": 79,
+              "y": 111,
+              "width": 187,
+              "height": 56,
+              "confidence": 0.85528137
+            },
+            {
+              "text": "&",
+              "x": 377,
+              "y": 119,
+              "width": 172,
+              "height": 17,
+              "confidence": 0.46552254
+            },
+            {
+              "text": "Join",
+              "x": 75,
+              "y": 206,
+              "width": 32,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "the",
+              "x": 113,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "numbers",
+              "x": 145,
+              "y": 206,
+              "width": 69,
+              "height": 13,
+              "confidence": 0.96327278
+            },
+            {
+              "text": "and",
+              "x": 220,
+              "y": 206,
+              "width": 28,
+              "height": 13,
+              "confidence": 0.96791695
+            },
+            {
+              "text": "get",
+              "x": 255,
+              "y": 206,
+              "width": 25,
+              "height": 17,
+              "confidence": 0.9696316500000001
+            },
+            {
+              "text": "to",
+              "x": 285,
+              "y": 206,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.9693679000000001
+            },
+            {
+              "text": "the",
+              "x": 307,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "2048",
+              "x": 338,
+              "y": 206,
+              "width": 43,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "tile!",
+              "x": 385,
+              "y": 205,
+              "width": 31,
+              "height": 14,
+              "confidence": 0.96181297
+            },
+            {
+              "text": "HOW",
+              "x": 76,
+              "y": 832,
+              "width": 39,
+              "height": 13,
+              "confidence": 0.96495605
+            },
+            {
+              "text": "TO",
+              "x": 120,
+              "y": 832,
+              "width": 21,
+              "height": 13,
+              "confidence": 0.96464745
+            },
+            {
+              "text": "PLAY:",
+              "x": 147,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.96507957
+            },
+            {
+              "text": "Use",
+              "x": 198,
+              "y": 832,
+              "width": 29,
+              "height": 13,
+              "confidence": 0.96039101
+            },
+            {
+              "text": "your",
+              "x": 232,
+              "y": 835,
+              "width": 36,
+              "height": 14,
+              "confidence": 0.96155647
+            },
+            {
+              "text": "arrow",
+              "x": 274,
+              "y": 835,
+              "width": 48,
+              "height": 10,
+              "confidence": 0.96700401
+            },
+            {
+              "text": "keys",
+              "x": 327,
+              "y": 831,
+              "width": 37,
+              "height": 18,
+              "confidence": 0.9539707199999999
+            },
+            {
+              "text": "to",
+              "x": 369,
+              "y": 832,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.96948364
+            },
+            {
+              "text": "move",
+              "x": 391,
+              "y": 835,
+              "width": 42,
+              "height": 10,
+              "confidence": 0.9662838
+            },
+            {
+              "text": "the",
+              "x": 438,
+              "y": 832,
+              "width": 26,
+              "height": 13,
+              "confidence": 0.9686924
+            },
+            {
+              "text": "tiles.",
+              "x": 469,
+              "y": 832,
+              "width": 38,
+              "height": 13,
+              "confidence": 0.96255234
+            },
+            {
+              "text": "When",
+              "x": 513,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.88440414
+            }
+          ]
+        },
+        {
+          "mode": "text_block",
+          "frame_size": [
+            900,
+            375
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 330,
+              "y": 153,
+              "width": 117,
+              "height": 27,
+              "confidence": 0.96027214
+            },
+            {
+              "text": "BEST",
+              "x": 690,
+              "y": 153,
+              "width": 90,
+              "height": 27,
+              "confidence": 0.95801552
+            },
+            {
+              "text": "1824",
+              "x": 306,
+              "y": 210,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.96006493
+            },
+            {
+              "text": "1824",
+              "x": 651,
+              "y": 210,
+              "width": 171,
+              "height": 51,
+              "confidence": 0.9677752700000001
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            237,
+            108
+          ],
+          "words": [
+            {
+              "text": "1824",
+              "x": 36,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.9631810000000001
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            351,
+            108
+          ],
+          "words": [
+            {
+              "text": "1824",
+              "x": 93,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.9631810000000001
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "glow-256-seed480",
+      "geometry": "raw",
+      "png_sha256": "3420d594b7660e1a89e4a76686a93cb65bdede185a1f3e29598fcda2fb04a1af",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1808,
+      "confidence": 0.95962486,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            365,
+            109,
+            79,
+            36
+          ],
+          [
+            346,
+            109,
+            117,
+            36
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1
+      },
+      "recovered_candidates": [
+        {
+          "text": "SCORE",
+          "x": 385.0,
+          "y": 100.0,
+          "width": 39.0,
+          "height": 9.0,
+          "confidence": 0.96027214,
+          "bbox": [
+            385.0,
+            100.0,
+            39.0,
+            9.0
+          ]
+        },
+        {
+          "text": "1808",
+          "x": 377.0,
+          "y": 119.0,
+          "width": 56.0,
+          "height": 17.0,
+          "confidence": 0.95962486,
+          "bbox": [
+            377.0,
+            119.0,
+            56.0,
+            17.0
+          ]
+        }
+      ],
+      "ocr_calls": [
+        {
+          "mode": "document",
+          "frame_size": [
+            650,
+            850
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 385,
+              "y": 100,
+              "width": 39,
+              "height": 9,
+              "confidence": 0.9596552300000001
+            },
+            {
+              "text": "ES",
+              "x": 514,
+              "y": 100,
+              "width": 13,
+              "height": 9,
+              "confidence": 0.42708069000000004
+            },
+            {
+              "text": "2048",
+              "x": 79,
+              "y": 111,
+              "width": 187,
+              "height": 56,
+              "confidence": 0.92079117
+            },
+            {
+              "text": "\u00a9",
+              "x": 377,
+              "y": 119,
+              "width": 142,
+              "height": 17,
+              "confidence": 0.006552430000000001
+            },
+            {
+              "text": "Join",
+              "x": 75,
+              "y": 206,
+              "width": 32,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "the",
+              "x": 113,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "numbers",
+              "x": 145,
+              "y": 206,
+              "width": 69,
+              "height": 13,
+              "confidence": 0.96327278
+            },
+            {
+              "text": "and",
+              "x": 220,
+              "y": 206,
+              "width": 28,
+              "height": 13,
+              "confidence": 0.96791695
+            },
+            {
+              "text": "get",
+              "x": 255,
+              "y": 206,
+              "width": 25,
+              "height": 17,
+              "confidence": 0.9696316500000001
+            },
+            {
+              "text": "to",
+              "x": 285,
+              "y": 206,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.9693679000000001
+            },
+            {
+              "text": "the",
+              "x": 307,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "2048",
+              "x": 338,
+              "y": 206,
+              "width": 43,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "tile!",
+              "x": 385,
+              "y": 205,
+              "width": 31,
+              "height": 14,
+              "confidence": 0.96181297
+            },
+            {
+              "text": "HOW",
+              "x": 76,
+              "y": 832,
+              "width": 39,
+              "height": 13,
+              "confidence": 0.96495605
+            },
+            {
+              "text": "TO",
+              "x": 120,
+              "y": 832,
+              "width": 21,
+              "height": 13,
+              "confidence": 0.96464745
+            },
+            {
+              "text": "PLAY:",
+              "x": 147,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.96507957
+            },
+            {
+              "text": "Use",
+              "x": 198,
+              "y": 832,
+              "width": 29,
+              "height": 13,
+              "confidence": 0.96039101
+            },
+            {
+              "text": "your",
+              "x": 232,
+              "y": 835,
+              "width": 36,
+              "height": 14,
+              "confidence": 0.96155647
+            },
+            {
+              "text": "arrow",
+              "x": 274,
+              "y": 835,
+              "width": 48,
+              "height": 10,
+              "confidence": 0.96700401
+            },
+            {
+              "text": "keys",
+              "x": 327,
+              "y": 831,
+              "width": 37,
+              "height": 18,
+              "confidence": 0.9539707199999999
+            },
+            {
+              "text": "to",
+              "x": 369,
+              "y": 832,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.96948364
+            },
+            {
+              "text": "move",
+              "x": 391,
+              "y": 835,
+              "width": 42,
+              "height": 10,
+              "confidence": 0.9662838
+            },
+            {
+              "text": "the",
+              "x": 438,
+              "y": 832,
+              "width": 26,
+              "height": 13,
+              "confidence": 0.9686924
+            },
+            {
+              "text": "tiles.",
+              "x": 469,
+              "y": 832,
+              "width": 38,
+              "height": 13,
+              "confidence": 0.96255234
+            },
+            {
+              "text": "When",
+              "x": 513,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.88440414
+            }
+          ]
+        },
+        {
+          "mode": "text_block",
+          "frame_size": [
+            900,
+            375
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 330,
+              "y": 153,
+              "width": 117,
+              "height": 27,
+              "confidence": 0.96027214
+            },
+            {
+              "text": "BEST",
+              "x": 690,
+              "y": 153,
+              "width": 90,
+              "height": 27,
+              "confidence": 0.95801552
+            },
+            {
+              "text": "1808",
+              "x": 306,
+              "y": 210,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.9597890499999999
+            },
+            {
+              "text": "1808",
+              "x": 651,
+              "y": 210,
+              "width": 171,
+              "height": 51,
+              "confidence": 0.96529655
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            237,
+            108
+          ],
+          "words": [
+            {
+              "text": "1808",
+              "x": 36,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.95962486
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            351,
+            108
+          ],
+          "words": [
+            {
+              "text": "1808",
+              "x": 93,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.95962486
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "glow-256-seed480",
+      "geometry": "scaled_window",
+      "png_sha256": "3420d594b7660e1a89e4a76686a93cb65bdede185a1f3e29598fcda2fb04a1af",
+      "original_score_words_removed": 1,
+      "before_score": null,
+      "recovered_score": 1808,
+      "confidence": 0.95962486,
+      "header_diagnostic": {
+        "status": "scaled_header_label",
+        "crop_bbox": [
+          275,
+          49,
+          300,
+          125
+        ],
+        "scale": 3,
+        "label_count": 1,
+        "label_confidences": [
+          0.96027214
+        ]
+      },
+      "line_diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            365,
+            109,
+            79,
+            36
+          ],
+          [
+            346,
+            109,
+            117,
+            36
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.96027214,
+        "numeric_word_count": 1
+      },
+      "recovered_candidates": [
+        {
+          "text": "SCORE",
+          "x": 800.0,
+          "y": 240.0,
+          "width": 78.0,
+          "height": 18.0,
+          "confidence": 0.96027214,
+          "bbox": [
+            800.0,
+            240.0,
+            78.0,
+            18.0
+          ]
+        },
+        {
+          "text": "1808",
+          "x": 784.0,
+          "y": 278.0,
+          "width": 112.0,
+          "height": 34.0,
+          "confidence": 0.95962486,
+          "bbox": [
+            784.0,
+            278.0,
+            112.0,
+            34.0
+          ]
+        }
+      ],
+      "ocr_calls": [
+        {
+          "mode": "document",
+          "frame_size": [
+            650,
+            850
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 385,
+              "y": 100,
+              "width": 39,
+              "height": 9,
+              "confidence": 0.9596552300000001
+            },
+            {
+              "text": "ES",
+              "x": 514,
+              "y": 100,
+              "width": 13,
+              "height": 9,
+              "confidence": 0.42708069000000004
+            },
+            {
+              "text": "2048",
+              "x": 79,
+              "y": 111,
+              "width": 187,
+              "height": 56,
+              "confidence": 0.92079117
+            },
+            {
+              "text": "\u00a9",
+              "x": 377,
+              "y": 119,
+              "width": 142,
+              "height": 17,
+              "confidence": 0.006552430000000001
+            },
+            {
+              "text": "Join",
+              "x": 75,
+              "y": 206,
+              "width": 32,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "the",
+              "x": 113,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96266914
+            },
+            {
+              "text": "numbers",
+              "x": 145,
+              "y": 206,
+              "width": 69,
+              "height": 13,
+              "confidence": 0.96327278
+            },
+            {
+              "text": "and",
+              "x": 220,
+              "y": 206,
+              "width": 28,
+              "height": 13,
+              "confidence": 0.96791695
+            },
+            {
+              "text": "get",
+              "x": 255,
+              "y": 206,
+              "width": 25,
+              "height": 17,
+              "confidence": 0.9696316500000001
+            },
+            {
+              "text": "to",
+              "x": 285,
+              "y": 206,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.9693679000000001
+            },
+            {
+              "text": "the",
+              "x": 307,
+              "y": 206,
+              "width": 25,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "2048",
+              "x": 338,
+              "y": 206,
+              "width": 43,
+              "height": 13,
+              "confidence": 0.96680954
+            },
+            {
+              "text": "tile!",
+              "x": 385,
+              "y": 205,
+              "width": 31,
+              "height": 14,
+              "confidence": 0.96181297
+            },
+            {
+              "text": "HOW",
+              "x": 76,
+              "y": 832,
+              "width": 39,
+              "height": 13,
+              "confidence": 0.96495605
+            },
+            {
+              "text": "TO",
+              "x": 120,
+              "y": 832,
+              "width": 21,
+              "height": 13,
+              "confidence": 0.96464745
+            },
+            {
+              "text": "PLAY:",
+              "x": 147,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.96507957
+            },
+            {
+              "text": "Use",
+              "x": 198,
+              "y": 832,
+              "width": 29,
+              "height": 13,
+              "confidence": 0.96039101
+            },
+            {
+              "text": "your",
+              "x": 232,
+              "y": 835,
+              "width": 36,
+              "height": 14,
+              "confidence": 0.96155647
+            },
+            {
+              "text": "arrow",
+              "x": 274,
+              "y": 835,
+              "width": 48,
+              "height": 10,
+              "confidence": 0.96700401
+            },
+            {
+              "text": "keys",
+              "x": 327,
+              "y": 831,
+              "width": 37,
+              "height": 18,
+              "confidence": 0.9539707199999999
+            },
+            {
+              "text": "to",
+              "x": 369,
+              "y": 832,
+              "width": 16,
+              "height": 13,
+              "confidence": 0.96948364
+            },
+            {
+              "text": "move",
+              "x": 391,
+              "y": 835,
+              "width": 42,
+              "height": 10,
+              "confidence": 0.9662838
+            },
+            {
+              "text": "the",
+              "x": 438,
+              "y": 832,
+              "width": 26,
+              "height": 13,
+              "confidence": 0.9686924
+            },
+            {
+              "text": "tiles.",
+              "x": 469,
+              "y": 832,
+              "width": 38,
+              "height": 13,
+              "confidence": 0.96255234
+            },
+            {
+              "text": "When",
+              "x": 513,
+              "y": 832,
+              "width": 44,
+              "height": 13,
+              "confidence": 0.88440414
+            }
+          ]
+        },
+        {
+          "mode": "text_block",
+          "frame_size": [
+            900,
+            375
+          ],
+          "words": [
+            {
+              "text": "SCORE",
+              "x": 330,
+              "y": 153,
+              "width": 117,
+              "height": 27,
+              "confidence": 0.96027214
+            },
+            {
+              "text": "BEST",
+              "x": 690,
+              "y": 153,
+              "width": 90,
+              "height": 27,
+              "confidence": 0.95801552
+            },
+            {
+              "text": "1808",
+              "x": 306,
+              "y": 210,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.9597890499999999
+            },
+            {
+              "text": "1808",
+              "x": 651,
+              "y": 210,
+              "width": 171,
+              "height": 51,
+              "confidence": 0.96529655
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            237,
+            108
+          ],
+          "words": [
+            {
+              "text": "1808",
+              "x": 36,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.95962486
+            }
+          ]
+        },
+        {
+          "mode": "single_numeric_line",
+          "frame_size": [
+            351,
+            108
+          ],
+          "words": [
+            {
+              "text": "1808",
+              "x": 93,
+              "y": 30,
+              "width": 168,
+              "height": 51,
+              "confidence": 0.95962486
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "helper_sha256_after": "ec7ad6f206440f8555f81728f602bc46a67e8bfd25bd406628caf74420f53b73",
+  "helper_source_consistent": true,
+  "source_status_at_end": ""
+}

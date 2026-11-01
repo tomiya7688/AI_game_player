@@ -1,0 +1,3093 @@
+{
+  "source_baseline": "ba195cf9bdd29cb2eb584c5bebfe7e54d816ca00",
+  "status": "diagnostic only; Windows variants unverified; no selected OCR mode or confidence change",
+  "tool_sha256": "f78a9edab0a772928da924ef2154acf9e5fbc0ea74f2187fc71000c92a5c7c3f",
+  "command": "python tools/probe_windows_planning_score_engine.py --case-id 124944163043-planner-481 --case-id 124944163043-baseline-481 --output build/planning-comparison/windows/engine-probe/report.json",
+  "linux": {
+    "scope": "explicit owned fixture diagnostic only; shared transforms for all selected cases; no input, score replacement, PSM selection or learning",
+    "version": "tesseract 5.5.0",
+    "diagnostic_script_sha256": "f78a9edab0a772928da924ef2154acf9e5fbc0ea74f2187fc71000c92a5c7c3f",
+    "executable": {
+      "status": "available",
+      "bytes": 51536,
+      "sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b"
+    },
+    "eng_traineddata": {
+      "status": "available",
+      "bytes": 4113088,
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+    },
+    "case_ids": [
+      "124944163043-planner-481",
+      "124944163043-baseline-481"
+    ],
+    "psm": 7,
+    "records": [
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "ddc8b3ee45217f25c3e98372e8a606b9aff1b9799491b8dc881373cbc03f57f2",
+        "png_sha256": "9dc8afba886fc84db06ddcefb8e9621b5ed78e8bce1bf3acb06b785ca4c02356",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "ddc8b3ee45217f25c3e98372e8a606b9aff1b9799491b8dc881373cbc03f57f2",
+        "png_sha256": "9dc8afba886fc84db06ddcefb8e9621b5ed78e8bce1bf3acb06b785ca4c02356",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "ddc8b3ee45217f25c3e98372e8a606b9aff1b9799491b8dc881373cbc03f57f2",
+        "png_sha256": "9dc8afba886fc84db06ddcefb8e9621b5ed78e8bce1bf3acb06b785ca4c02356",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "ddc8b3ee45217f25c3e98372e8a606b9aff1b9799491b8dc881373cbc03f57f2",
+        "png_sha256": "9dc8afba886fc84db06ddcefb8e9621b5ed78e8bce1bf3acb06b785ca4c02356",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "e2397c86066746d40240341a294e3be5c3192817725ea06b79cc79a26014f52d",
+        "png_sha256": "caea572e67924a8df4f1f63899280a29abc823e48cbdc1a5bdc88a9674cce2df",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "e2397c86066746d40240341a294e3be5c3192817725ea06b79cc79a26014f52d",
+        "png_sha256": "caea572e67924a8df4f1f63899280a29abc823e48cbdc1a5bdc88a9674cce2df",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "e2397c86066746d40240341a294e3be5c3192817725ea06b79cc79a26014f52d",
+        "png_sha256": "caea572e67924a8df4f1f63899280a29abc823e48cbdc1a5bdc88a9674cce2df",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "e2397c86066746d40240341a294e3be5c3192817725ea06b79cc79a26014f52d",
+        "png_sha256": "caea572e67924a8df4f1f63899280a29abc823e48cbdc1a5bdc88a9674cce2df",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 113,
+        "height": 87,
+        "rgb_sha256": "0827ae1345748c88205f76d294751ed969c33e1fe9fa1676f5c9040fd6c858d1",
+        "png_sha256": "a2b9a4fa5831e5415b9e25c155e776d228f37a8e282fb4da6c21f7c1b19844c4",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 113,
+        "height": 87,
+        "rgb_sha256": "0827ae1345748c88205f76d294751ed969c33e1fe9fa1676f5c9040fd6c858d1",
+        "png_sha256": "a2b9a4fa5831e5415b9e25c155e776d228f37a8e282fb4da6c21f7c1b19844c4",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 113,
+        "height": 87,
+        "rgb_sha256": "0827ae1345748c88205f76d294751ed969c33e1fe9fa1676f5c9040fd6c858d1",
+        "png_sha256": "a2b9a4fa5831e5415b9e25c155e776d228f37a8e282fb4da6c21f7c1b19844c4",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 113,
+        "height": 87,
+        "rgb_sha256": "0827ae1345748c88205f76d294751ed969c33e1fe9fa1676f5c9040fd6c858d1",
+        "png_sha256": "a2b9a4fa5831e5415b9e25c155e776d228f37a8e282fb4da6c21f7c1b19844c4",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "7ab4e40f62e0b55e351bd6b39664802218fdfa30d9b5ec11a4d70c453dad8d16",
+        "png_sha256": "39dd7f57bf94c48ddc6c570568f060a2801751b459c6849bf368c0cb7c4a1aad",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "7ab4e40f62e0b55e351bd6b39664802218fdfa30d9b5ec11a4d70c453dad8d16",
+        "png_sha256": "39dd7f57bf94c48ddc6c570568f060a2801751b459c6849bf368c0cb7c4a1aad",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              25,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "7ab4e40f62e0b55e351bd6b39664802218fdfa30d9b5ec11a4d70c453dad8d16",
+        "png_sha256": "39dd7f57bf94c48ddc6c570568f060a2801751b459c6849bf368c0cb7c4a1aad",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 115,
+        "height": 87,
+        "rgb_sha256": "7ab4e40f62e0b55e351bd6b39664802218fdfa30d9b5ec11a4d70c453dad8d16",
+        "png_sha256": "39dd7f57bf94c48ddc6c570568f060a2801751b459c6849bf368c0cb7c4a1aad",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              25,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 120,
+        "height": 87,
+        "rgb_sha256": "14c2eb6b33108525464a8a8d345751d036c13463b81bd8d15b1b4c05209bce61",
+        "png_sha256": "02ee14775a49ce1cdd0fe9d9d18082cb4f34c9bdc6cb0102b0aea2e1f0ed70db",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 120,
+        "height": 87,
+        "rgb_sha256": "14c2eb6b33108525464a8a8d345751d036c13463b81bd8d15b1b4c05209bce61",
+        "png_sha256": "02ee14775a49ce1cdd0fe9d9d18082cb4f34c9bdc6cb0102b0aea2e1f0ed70db",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 120,
+        "height": 87,
+        "rgb_sha256": "14c2eb6b33108525464a8a8d345751d036c13463b81bd8d15b1b4c05209bce61",
+        "png_sha256": "02ee14775a49ce1cdd0fe9d9d18082cb4f34c9bdc6cb0102b0aea2e1f0ed70db",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 120,
+        "height": 87,
+        "rgb_sha256": "14c2eb6b33108525464a8a8d345751d036c13463b81bd8d15b1b4c05209bce61",
+        "png_sha256": "02ee14775a49ce1cdd0fe9d9d18082cb4f34c9bdc6cb0102b0aea2e1f0ed70db",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "4eb1902e0a9697c71ec2b6631323d46d687dae20b68be346b7cfa9a3273ed920",
+        "png_sha256": "9ee2f6fd53178461417809d5a040fd10c22cb7cdec40c2a0b0adf8a365c91351",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "f150c287db4d4e04fcfd8974447cfd964cbaf28f1d2542085040bd5f8db42b73",
+        "png_sha256": "1ca3d365f7f8251a635c4d0fe705660e638c8d891dd52ae67262a9efc41cf420",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "f150c287db4d4e04fcfd8974447cfd964cbaf28f1d2542085040bd5f8db42b73",
+        "png_sha256": "1ca3d365f7f8251a635c4d0fe705660e638c8d891dd52ae67262a9efc41cf420",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.170441,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "f150c287db4d4e04fcfd8974447cfd964cbaf28f1d2542085040bd5f8db42b73",
+        "png_sha256": "1ca3d365f7f8251a635c4d0fe705660e638c8d891dd52ae67262a9efc41cf420",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          527,
+          108,
+          557,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 114,
+        "height": 87,
+        "rgb_sha256": "f150c287db4d4e04fcfd8974447cfd964cbaf28f1d2542085040bd5f8db42b73",
+        "png_sha256": "1ca3d365f7f8251a635c4d0fe705660e638c8d891dd52ae67262a9efc41cf420",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.170441,
+            "bbox": [
+              24,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "4c0dc61526126154fddf3ace075dd777a191b2db0f12a0b0583a6ae4418507a2",
+        "png_sha256": "b01fc2a847959d6962e3e1f7c8974e747ed668e4cfd4e19cbcf078e27bdee9a7",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "4c0dc61526126154fddf3ace075dd777a191b2db0f12a0b0583a6ae4418507a2",
+        "png_sha256": "b01fc2a847959d6962e3e1f7c8974e747ed668e4cfd4e19cbcf078e27bdee9a7",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "4c0dc61526126154fddf3ace075dd777a191b2db0f12a0b0583a6ae4418507a2",
+        "png_sha256": "b01fc2a847959d6962e3e1f7c8974e747ed668e4cfd4e19cbcf078e27bdee9a7",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "4c0dc61526126154fddf3ace075dd777a191b2db0f12a0b0583a6ae4418507a2",
+        "png_sha256": "b01fc2a847959d6962e3e1f7c8974e747ed668e4cfd4e19cbcf078e27bdee9a7",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "d9f5fc2b1ed166a336d22a18e6f96fc530575b9add2d7d9ef2e33bcecc1bf631",
+        "png_sha256": "2e0509a139e16ceb55b9985685fa70742d106580bf36cc59bb1fd6ab8c33b42f",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "d9f5fc2b1ed166a336d22a18e6f96fc530575b9add2d7d9ef2e33bcecc1bf631",
+        "png_sha256": "2e0509a139e16ceb55b9985685fa70742d106580bf36cc59bb1fd6ab8c33b42f",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "d9f5fc2b1ed166a336d22a18e6f96fc530575b9add2d7d9ef2e33bcecc1bf631",
+        "png_sha256": "2e0509a139e16ceb55b9985685fa70742d106580bf36cc59bb1fd6ab8c33b42f",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "d9f5fc2b1ed166a336d22a18e6f96fc530575b9add2d7d9ef2e33bcecc1bf631",
+        "png_sha256": "2e0509a139e16ceb55b9985685fa70742d106580bf36cc59bb1fd6ab8c33b42f",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 137,
+        "height": 87,
+        "rgb_sha256": "1cc3461b03d9851d6989488c1d30c6a62aee6e8062de2c148a2bcb094471b0e2",
+        "png_sha256": "d1a4fd836a042e94afa072acebc57897d6f72090281cf97660060eb703ab232e",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 137,
+        "height": 87,
+        "rgb_sha256": "1cc3461b03d9851d6989488c1d30c6a62aee6e8062de2c148a2bcb094471b0e2",
+        "png_sha256": "d1a4fd836a042e94afa072acebc57897d6f72090281cf97660060eb703ab232e",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 137,
+        "height": 87,
+        "rgb_sha256": "1cc3461b03d9851d6989488c1d30c6a62aee6e8062de2c148a2bcb094471b0e2",
+        "png_sha256": "d1a4fd836a042e94afa072acebc57897d6f72090281cf97660060eb703ab232e",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 137,
+        "height": 87,
+        "rgb_sha256": "1cc3461b03d9851d6989488c1d30c6a62aee6e8062de2c148a2bcb094471b0e2",
+        "png_sha256": "d1a4fd836a042e94afa072acebc57897d6f72090281cf97660060eb703ab232e",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "f207b49e8758bf6330a1546a6c1b8279f8c1e5994e35f5eb658b764663e3fe31",
+        "png_sha256": "a89a9a629366e5753731954b587911ff7742187c03998c7feb850e1879771fcc",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "f207b49e8758bf6330a1546a6c1b8279f8c1e5994e35f5eb658b764663e3fe31",
+        "png_sha256": "a89a9a629366e5753731954b587911ff7742187c03998c7feb850e1879771fcc",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              37,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "f207b49e8758bf6330a1546a6c1b8279f8c1e5994e35f5eb658b764663e3fe31",
+        "png_sha256": "a89a9a629366e5753731954b587911ff7742187c03998c7feb850e1879771fcc",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 139,
+        "height": 87,
+        "rgb_sha256": "f207b49e8758bf6330a1546a6c1b8279f8c1e5994e35f5eb658b764663e3fe31",
+        "png_sha256": "a89a9a629366e5753731954b587911ff7742187c03998c7feb850e1879771fcc",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              37,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 144,
+        "height": 87,
+        "rgb_sha256": "daae3bd605ae3f53df288f6cfbf03e424485f3a474fa018bcb4c21d8b74f1fd6",
+        "png_sha256": "88a5db400d7b7e91e7fece9059a295e81790be0fe7e01aa0fe52296547d07126",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 160,
+        "height": 87,
+        "rgb_sha256": "4bd8401d1cd7038d0c3ecb9f24e2279a9bce0643c30a02045e99476a38dd3ebe",
+        "png_sha256": "a1ef4bb2d6922d1296054476b9e2a28bc2bf8983c03e0b0630888632bf860bec",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 160,
+        "height": 87,
+        "rgb_sha256": "4bd8401d1cd7038d0c3ecb9f24e2279a9bce0643c30a02045e99476a38dd3ebe",
+        "png_sha256": "a1ef4bb2d6922d1296054476b9e2a28bc2bf8983c03e0b0630888632bf860bec",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 160,
+        "height": 87,
+        "rgb_sha256": "4bd8401d1cd7038d0c3ecb9f24e2279a9bce0643c30a02045e99476a38dd3ebe",
+        "png_sha256": "a1ef4bb2d6922d1296054476b9e2a28bc2bf8983c03e0b0630888632bf860bec",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 160,
+        "height": 87,
+        "rgb_sha256": "4bd8401d1cd7038d0c3ecb9f24e2279a9bce0643c30a02045e99476a38dd3ebe",
+        "png_sha256": "a1ef4bb2d6922d1296054476b9e2a28bc2bf8983c03e0b0630888632bf860bec",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.016098,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "6ccf5ec9e6afcf8158e101e7c32f28508fe7a3a2dc8fcf2413edb74938cd6116",
+        "png_sha256": "3b2bb02c9bf449b69a639a60b75b366d2345717d84ebddcbb847917a843b86d8",
+        "whitelist": false,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "6ccf5ec9e6afcf8158e101e7c32f28508fe7a3a2dc8fcf2413edb74938cd6116",
+        "png_sha256": "3b2bb02c9bf449b69a639a60b75b366d2345717d84ebddcbb847917a843b86d8",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.170441,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "6ccf5ec9e6afcf8158e101e7c32f28508fe7a3a2dc8fcf2413edb74938cd6116",
+        "png_sha256": "3b2bb02c9bf449b69a639a60b75b366d2345717d84ebddcbb847917a843b86d8",
+        "whitelist": true,
+        "output": "text",
+        "text": "52",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-baseline-481",
+        "original_roi": [
+          523,
+          108,
+          561,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 138,
+        "height": 87,
+        "rgb_sha256": "6ccf5ec9e6afcf8158e101e7c32f28508fe7a3a2dc8fcf2413edb74938cd6116",
+        "png_sha256": "3b2bb02c9bf449b69a639a60b75b366d2345717d84ebddcbb847917a843b86d8",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "52",
+            "confidence": 96.170441,
+            "bbox": [
+              36,
+              24,
+              65,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "735a18ec7bf2aaec7fc382993eb291842f377d1d69dca4be044ae71f7e023274",
+        "png_sha256": "7ef80d3262c07ec2c3faa457049f831b174dbc41c3c9946f180d62d978ad58d1",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "735a18ec7bf2aaec7fc382993eb291842f377d1d69dca4be044ae71f7e023274",
+        "png_sha256": "7ef80d3262c07ec2c3faa457049f831b174dbc41c3c9946f180d62d978ad58d1",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "735a18ec7bf2aaec7fc382993eb291842f377d1d69dca4be044ae71f7e023274",
+        "png_sha256": "7ef80d3262c07ec2c3faa457049f831b174dbc41c3c9946f180d62d978ad58d1",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "735a18ec7bf2aaec7fc382993eb291842f377d1d69dca4be044ae71f7e023274",
+        "png_sha256": "7ef80d3262c07ec2c3faa457049f831b174dbc41c3c9946f180d62d978ad58d1",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "911e353f1e3de4e45601345a71c7e9c16281616b50bf5341f1b84ec0089b033f",
+        "png_sha256": "fc1bb811a7ebfb95e46a66295ac7b7b1c30425dd9b495f10c4d33b91b55a2447",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "911e353f1e3de4e45601345a71c7e9c16281616b50bf5341f1b84ec0089b033f",
+        "png_sha256": "fc1bb811a7ebfb95e46a66295ac7b7b1c30425dd9b495f10c4d33b91b55a2447",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "911e353f1e3de4e45601345a71c7e9c16281616b50bf5341f1b84ec0089b033f",
+        "png_sha256": "fc1bb811a7ebfb95e46a66295ac7b7b1c30425dd9b495f10c4d33b91b55a2447",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "911e353f1e3de4e45601345a71c7e9c16281616b50bf5341f1b84ec0089b033f",
+        "png_sha256": "fc1bb811a7ebfb95e46a66295ac7b7b1c30425dd9b495f10c4d33b91b55a2447",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 80,
+        "height": 87,
+        "rgb_sha256": "30e7317f178c8b73f6d3521838708d1080f1e85abe00f2f0ca5b60aea84d9404",
+        "png_sha256": "498ad9a99bb9736ec7724bfa8d644c7399d87b599185356a38f7d2723494a0db",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 80,
+        "height": 87,
+        "rgb_sha256": "30e7317f178c8b73f6d3521838708d1080f1e85abe00f2f0ca5b60aea84d9404",
+        "png_sha256": "498ad9a99bb9736ec7724bfa8d644c7399d87b599185356a38f7d2723494a0db",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 80,
+        "height": 87,
+        "rgb_sha256": "30e7317f178c8b73f6d3521838708d1080f1e85abe00f2f0ca5b60aea84d9404",
+        "png_sha256": "498ad9a99bb9736ec7724bfa8d644c7399d87b599185356a38f7d2723494a0db",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 80,
+        "height": 87,
+        "rgb_sha256": "30e7317f178c8b73f6d3521838708d1080f1e85abe00f2f0ca5b60aea84d9404",
+        "png_sha256": "498ad9a99bb9736ec7724bfa8d644c7399d87b599185356a38f7d2723494a0db",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "82c3364cf5f2d0b376985acaabf45c2c8010c8cb00a9c6f6d7339ef872bb2736",
+        "png_sha256": "54ffd4ab8ae51bedcad51c792eebd692868f0a4d21ed79c2247c9db19f87d5da",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "82c3364cf5f2d0b376985acaabf45c2c8010c8cb00a9c6f6d7339ef872bb2736",
+        "png_sha256": "54ffd4ab8ae51bedcad51c792eebd692868f0a4d21ed79c2247c9db19f87d5da",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              35,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "82c3364cf5f2d0b376985acaabf45c2c8010c8cb00a9c6f6d7339ef872bb2736",
+        "png_sha256": "54ffd4ab8ae51bedcad51c792eebd692868f0a4d21ed79c2247c9db19f87d5da",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 82,
+        "height": 87,
+        "rgb_sha256": "82c3364cf5f2d0b376985acaabf45c2c8010c8cb00a9c6f6d7339ef872bb2736",
+        "png_sha256": "54ffd4ab8ae51bedcad51c792eebd692868f0a4d21ed79c2247c9db19f87d5da",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              35,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 88,
+        "height": 87,
+        "rgb_sha256": "a3a59144b9ff6b8b02eac05a36d1f2dfb1be10f938f3e6785de4f0e3fb3dcd4b",
+        "png_sha256": "6c99ea2098ea9ff3360963c97a4820dac8d5e86fc5fa4c11ab51ec2e3ddd3675",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 88,
+        "height": 87,
+        "rgb_sha256": "a3a59144b9ff6b8b02eac05a36d1f2dfb1be10f938f3e6785de4f0e3fb3dcd4b",
+        "png_sha256": "6c99ea2098ea9ff3360963c97a4820dac8d5e86fc5fa4c11ab51ec2e3ddd3675",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 88,
+        "height": 87,
+        "rgb_sha256": "a3a59144b9ff6b8b02eac05a36d1f2dfb1be10f938f3e6785de4f0e3fb3dcd4b",
+        "png_sha256": "6c99ea2098ea9ff3360963c97a4820dac8d5e86fc5fa4c11ab51ec2e3ddd3675",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 88,
+        "height": 87,
+        "rgb_sha256": "a3a59144b9ff6b8b02eac05a36d1f2dfb1be10f938f3e6785de4f0e3fb3dcd4b",
+        "png_sha256": "6c99ea2098ea9ff3360963c97a4820dac8d5e86fc5fa4c11ab51ec2e3ddd3675",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": null,
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": "binary_width_align16",
+        "width": 96,
+        "height": 87,
+        "rgb_sha256": "389082e784c710ddcacb436efa7452b4eecea9d9e0378ebfb668b4e6f6507829",
+        "png_sha256": "4bb39dc233e134968a9b067de776e6dea10eb3609e5337d2faf26cf1898a19b2",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "4d34c94f0da686059b6a088dc981ec92ce25c611ff1d83ad75840bd4d37a5d67",
+        "png_sha256": "e0f364b024f0857edce3d664bc6aada26f4836b744573059ef661e06efbc1fd8",
+        "whitelist": false,
+        "output": "text",
+        "text": "‘",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "4d34c94f0da686059b6a088dc981ec92ce25c611ff1d83ad75840bd4d37a5d67",
+        "png_sha256": "e0f364b024f0857edce3d664bc6aada26f4836b744573059ef661e06efbc1fd8",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "‘",
+            "confidence": 49.417747,
+            "bbox": [
+              34,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "4d34c94f0da686059b6a088dc981ec92ce25c611ff1d83ad75840bd4d37a5d67",
+        "png_sha256": "e0f364b024f0857edce3d664bc6aada26f4836b744573059ef661e06efbc1fd8",
+        "whitelist": true,
+        "output": "text",
+        "text": "",
+        "empty": true
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          548,
+          108,
+          567,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 81,
+        "height": 87,
+        "rgb_sha256": "4d34c94f0da686059b6a088dc981ec92ce25c611ff1d83ad75840bd4d37a5d67",
+        "png_sha256": "e0f364b024f0857edce3d664bc6aada26f4836b744573059ef661e06efbc1fd8",
+        "whitelist": true,
+        "output": "tsv",
+        "words": []
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "adaf9f534f550a1cd245698be1d1558d335d44ce5d8273a8388bcc906a057c3a",
+        "png_sha256": "a797b3f684c4c57a94401f93932874caa05407303107215fa92bcdb85c302c16",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "adaf9f534f550a1cd245698be1d1558d335d44ce5d8273a8388bcc906a057c3a",
+        "png_sha256": "a797b3f684c4c57a94401f93932874caa05407303107215fa92bcdb85c302c16",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "adaf9f534f550a1cd245698be1d1558d335d44ce5d8273a8388bcc906a057c3a",
+        "png_sha256": "a797b3f684c4c57a94401f93932874caa05407303107215fa92bcdb85c302c16",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_reference",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "adaf9f534f550a1cd245698be1d1558d335d44ce5d8273a8388bcc906a057c3a",
+        "png_sha256": "a797b3f684c4c57a94401f93932874caa05407303107215fa92bcdb85c302c16",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "3be38ae7801f73e1939117d95769c9be1377ee225e24c8165b144d8ff4cb51dd",
+        "png_sha256": "befa7f3329fcf6bdc79406aa22c53d0ff81114dae5a2cfb94321ca13d3c6b136",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "3be38ae7801f73e1939117d95769c9be1377ee225e24c8165b144d8ff4cb51dd",
+        "png_sha256": "befa7f3329fcf6bdc79406aa22c53d0ff81114dae5a2cfb94321ca13d3c6b136",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "3be38ae7801f73e1939117d95769c9be1377ee225e24c8165b144d8ff4cb51dd",
+        "png_sha256": "befa7f3329fcf6bdc79406aa22c53d0ff81114dae5a2cfb94321ca13d3c6b136",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "3be38ae7801f73e1939117d95769c9be1377ee225e24c8165b144d8ff4cb51dd",
+        "png_sha256": "befa7f3329fcf6bdc79406aa22c53d0ff81114dae5a2cfb94321ca13d3c6b136",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 104,
+        "height": 87,
+        "rgb_sha256": "8d6f7510c1506177b846cc04fa3ba86ed962781d68c09c1479c3314bf63acbf3",
+        "png_sha256": "77ca0e23a7d00849efefa31471a175445486084d5d7ad3b6a508b12d58f1a500",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 104,
+        "height": 87,
+        "rgb_sha256": "8d6f7510c1506177b846cc04fa3ba86ed962781d68c09c1479c3314bf63acbf3",
+        "png_sha256": "77ca0e23a7d00849efefa31471a175445486084d5d7ad3b6a508b12d58f1a500",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 104,
+        "height": 87,
+        "rgb_sha256": "8d6f7510c1506177b846cc04fa3ba86ed962781d68c09c1479c3314bf63acbf3",
+        "png_sha256": "77ca0e23a7d00849efefa31471a175445486084d5d7ad3b6a508b12d58f1a500",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_right_minus1",
+        "alias_of_identical_pixels": null,
+        "width": 104,
+        "height": 87,
+        "rgb_sha256": "8d6f7510c1506177b846cc04fa3ba86ed962781d68c09c1479c3314bf63acbf3",
+        "png_sha256": "77ca0e23a7d00849efefa31471a175445486084d5d7ad3b6a508b12d58f1a500",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "e9c53f0c7089e4034254bc89cdd23abfd1e4667aae1d90143dc3689d7c1247f2",
+        "png_sha256": "1b9d7502f4f7d092bffb0a198e8e739b54b58a7a116bc18892a33ee6e5289885",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "e9c53f0c7089e4034254bc89cdd23abfd1e4667aae1d90143dc3689d7c1247f2",
+        "png_sha256": "1b9d7502f4f7d092bffb0a198e8e739b54b58a7a116bc18892a33ee6e5289885",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              47,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "e9c53f0c7089e4034254bc89cdd23abfd1e4667aae1d90143dc3689d7c1247f2",
+        "png_sha256": "1b9d7502f4f7d092bffb0a198e8e739b54b58a7a116bc18892a33ee6e5289885",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_left_plus1",
+        "alias_of_identical_pixels": null,
+        "width": 106,
+        "height": 87,
+        "rgb_sha256": "e9c53f0c7089e4034254bc89cdd23abfd1e4667aae1d90143dc3689d7c1247f2",
+        "png_sha256": "1b9d7502f4f7d092bffb0a198e8e739b54b58a7a116bc18892a33ee6e5289885",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              47,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align8",
+        "alias_of_identical_pixels": null,
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align16",
+        "alias_of_identical_pixels": "binary_width_align8",
+        "width": 112,
+        "height": 87,
+        "rgb_sha256": "5548f506b56f5731c63148e74d435d3f66bdd27326d9a1c5836dad138216f057",
+        "png_sha256": "a8c32ff1d4a525fbc59e2e8e2c6e17bf61e9d3cdabfb6affec756affd4ab5450",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "a36106824f10e235eab6c49b6be7238eff1f4b26316a066bed4df82d8a3a739e",
+        "png_sha256": "4d80c1301b4f30a25ebe694d791cc16401c0923720e6ff999c6810ac28b46229",
+        "whitelist": false,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "a36106824f10e235eab6c49b6be7238eff1f4b26316a066bed4df82d8a3a739e",
+        "png_sha256": "4d80c1301b4f30a25ebe694d791cc16401c0923720e6ff999c6810ac28b46229",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "a36106824f10e235eab6c49b6be7238eff1f4b26316a066bed4df82d8a3a739e",
+        "png_sha256": "4d80c1301b4f30a25ebe694d791cc16401c0923720e6ff999c6810ac28b46229",
+        "whitelist": true,
+        "output": "text",
+        "text": "0",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "binary_width_align32",
+        "alias_of_identical_pixels": null,
+        "width": 128,
+        "height": 87,
+        "rgb_sha256": "a36106824f10e235eab6c49b6be7238eff1f4b26316a066bed4df82d8a3a739e",
+        "png_sha256": "4d80c1301b4f30a25ebe694d791cc16401c0923720e6ff999c6810ac28b46229",
+        "whitelist": true,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "0",
+            "confidence": 72.847725,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "9f2d3b5a78ace06244b8897e9806af524c9d7a48ff88193e87205d03cee5987b",
+        "png_sha256": "fe8ebf2330fa4cfb9f985a1f781d424b138ad55d5f356beac81e333b0493f487",
+        "whitelist": false,
+        "output": "text",
+        "text": "‘",
+        "empty": false
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "9f2d3b5a78ace06244b8897e9806af524c9d7a48ff88193e87205d03cee5987b",
+        "png_sha256": "fe8ebf2330fa4cfb9f985a1f781d424b138ad55d5f356beac81e333b0493f487",
+        "whitelist": false,
+        "output": "tsv",
+        "words": [
+          {
+            "text": "‘",
+            "confidence": 49.417747,
+            "bbox": [
+              46,
+              30,
+              11,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "9f2d3b5a78ace06244b8897e9806af524c9d7a48ff88193e87205d03cee5987b",
+        "png_sha256": "fe8ebf2330fa4cfb9f985a1f781d424b138ad55d5f356beac81e333b0493f487",
+        "whitelist": true,
+        "output": "text",
+        "text": "",
+        "empty": true
+      },
+      {
+        "image_id": "124944163043-planner-481",
+        "original_roi": [
+          544,
+          108,
+          571,
+          129
+        ],
+        "variant": "grayscale_same_bilinear",
+        "alias_of_identical_pixels": null,
+        "width": 105,
+        "height": 87,
+        "rgb_sha256": "9f2d3b5a78ace06244b8897e9806af524c9d7a48ff88193e87205d03cee5987b",
+        "png_sha256": "fe8ebf2330fa4cfb9f985a1f781d424b138ad55d5f356beac81e333b0493f487",
+        "whitelist": true,
+        "output": "tsv",
+        "words": []
+      }
+    ]
+  },
+  "known_windows_baseline": {
+    "source": "3613b4bd66c81e520674ab490bbb72ac01599830",
+    "job_id": 124957297763,
+    "engine": "tesseract v5.5.3.20260724",
+    "executable_sha256": "c66f0f12ed76f6aa455dac97684bbc86756d6a732380bee09122454cfda3f420",
+    "eng_traineddata_sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+    "eng_bytes": 4113088,
+    "zero_prepared_rgb_sha256": [
+      "735a18ec7bf2aaec7fc382993eb291842f377d1d69dca4be044ae71f7e023274",
+      "adaf9f534f550a1cd245698be1d1558d335d44ce5d8273a8388bcc906a057c3a"
+    ],
+    "all_four_psm_zero_words": [],
+    "nonzero_control": "52 conf96.18 normally recognized"
+  },
+  "limits": "Same-pixel/model hash agreement does not identify the responsible engine/build difference. Upstream whitelist/TRand reports are analogous, not proof of this cause. Empty/non-numeric/low-confidence remain unknown; no O-to-0 mapping or score-specific rule."
+}
