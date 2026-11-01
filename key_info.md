@@ -1,6 +1,6 @@
 # AI Game Player 現在の機能
 
-確認基準：2026-11-01、統合feature `f145c946`。部品・本番接続・実ゲーム検証を区別します。[場所別の状態と根拠](doc/guide/implementation_status.md)も参照してください。
+確認基準：2026-11-01、統合feature `77a8995e`。部品・本番接続・実ゲーム検証を区別します。[場所別の状態と根拠](doc/guide/implementation_status.md)も参照してください。
 
 ## できること
 
