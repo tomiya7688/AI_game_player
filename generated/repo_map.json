@@ -46630,6 +46630,328 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_validation",
+        "ai_game_player.evaluation_quality",
+        "ai_game_player.transition_model"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Generic"
+            },
+            {
+              "alias": null,
+              "name": "Protocol"
+            },
+            {
+              "alias": null,
+              "name": "TypeVar"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            },
+            {
+              "alias": null,
+              "name": "belief_number"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.evaluation_quality"
+          ],
+          "module": "ai_game_player.evaluation_quality",
+          "names": [
+            {
+              "alias": null,
+              "name": "NumericQuality"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.transition_model"
+          ],
+          "module": "ai_game_player.transition_model",
+          "names": [
+            {
+              "alias": null,
+              "name": "TransitionModel"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_contract",
+      "path": "src/ai_game_player/planning_contract.py",
+      "source_location": {
+        "end_line": 169,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "Protocol[StateInT]"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StateQualityEvaluator",
+          "parameters": [],
+          "qualified_name": "StateQualityEvaluator",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "evaluate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "StateInT",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "StateQualityEvaluator.evaluate",
+          "return_annotation": "NumericQuality",
+          "signature": "(self, state: StateInT) -> NumericQuality",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [
+            "Generic[StateT]"
+          ],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningDomain",
+          "parameters": [],
+          "qualified_name": "PlanningDomain",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 62,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningDomain.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningRegistration",
+          "parameters": [],
+          "qualified_name": "PlanningRegistration",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 114,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRegistration.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 114,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "SearchBudget",
+          "parameters": [],
+          "qualified_name": "SearchBudget",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 169,
+            "start_line": 128
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SearchBudget.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 169,
+            "start_line": 150
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -46674,6 +46996,723 @@
             "column": 0,
             "end_line": 15,
             "start_line": 11
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_validation",
+        "ai_game_player.planning_outcome"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            },
+            {
+              "alias": null,
+              "name": "belief_number"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_result",
+      "path": "src/ai_game_player/planning_result.py",
+      "source_location": {
+        "end_line": 373,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_quality",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_quality",
+          "return_annotation": "float",
+          "signature": "(value: object) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 24,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "WeightedValue",
+          "parameters": [],
+          "qualified_name": "WeightedValue",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 53,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WeightedValue.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "HypothesisActionValue",
+          "parameters": [],
+          "qualified_name": "HypothesisActionValue",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 96,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "HypothesisActionValue.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningActionValue",
+          "parameters": [],
+          "qualified_name": "PlanningActionValue",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 147,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningActionValue.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningCounters",
+          "parameters": [],
+          "qualified_name": "PlanningCounters",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 182,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningCounters.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningResult",
+          "parameters": [],
+          "qualified_name": "PlanningResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 350,
+            "start_line": 197
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningResult.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 350,
+            "start_line": 228
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_trace",
+          "parameters": [
+            {
+              "annotation": "tuple[WeightedValue, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "values"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "unknown"
+            }
+          ],
+          "qualified_name": "_trace",
+          "return_annotation": "None",
+          "signature": "(values: tuple[WeightedValue, ...], unknown: float) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 373,
+            "start_line": 359
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.atomic_json",
+        "ai_game_player.belief_contract",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_result"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "stage_json_write"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisActionValue"
+            },
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "PlanningCounters"
+            },
+            {
+              "alias": null,
+              "name": "PlanningResult"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_wire",
+      "path": "src/ai_game_player/planning_wire.py",
+      "source_location": {
+        "end_line": 207,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "publish_planning_json",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "publish_planning_json",
+          "return_annotation": "None",
+          "signature": "(path: Path, value: dict, maximum: int) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_planning_json",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "read_planning_json",
+          "return_annotation": "dict",
+          "signature": "(path: Path, maximum: int) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 54,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unique",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, object]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_unique",
+          "return_annotation": "dict",
+          "signature": "(pairs: list[tuple[str, object]]) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 69,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_invalid_constant",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_value"
+            }
+          ],
+          "qualified_name": "_invalid_constant",
+          "return_annotation": "object",
+          "signature": "(_value: str) -> object",
+          "source_location": {
+            "column": 0,
+            "end_line": 79,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "context_from_dict",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "context_from_dict",
+          "return_annotation": "BeliefContext",
+          "signature": "(value: object) -> BeliefContext",
+          "source_location": {
+            "column": 0,
+            "end_line": 109,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "result_to_dict",
+          "parameters": [
+            {
+              "annotation": "PlanningResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "result_to_dict",
+          "return_annotation": "dict",
+          "signature": "(result: PlanningResult) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 119,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "result_from_dict",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "result_from_dict",
+          "return_annotation": "PlanningResult",
+          "signature": "(value: object) -> PlanningResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 187,
+            "start_line": 128
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_trace_from",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_trace_from",
+          "return_annotation": "tuple[WeightedValue, ...]",
+          "signature": "(value: object) -> tuple[WeightedValue, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 207,
+            "start_line": 196
           }
         }
       ]
@@ -111791,6 +112830,367 @@
             "column": 12,
             "end_line": 390,
             "start_line": 386
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.evaluation_quality",
+        "ai_game_player.planning_contract",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_wire"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.evaluation_quality"
+          ],
+          "module": "ai_game_player.evaluation_quality",
+          "names": [
+            {
+              "alias": null,
+              "name": "NumericQuality"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_contract"
+          ],
+          "module": "ai_game_player.planning_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRegistration"
+            },
+            {
+              "alias": null,
+              "name": "SearchBudget"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisActionValue"
+            },
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "PlanningCounters"
+            },
+            {
+              "alias": null,
+              "name": "PlanningResult"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_wire"
+          ],
+          "module": "ai_game_player.planning_wire",
+          "names": [
+            {
+              "alias": null,
+              "name": "publish_planning_json"
+            },
+            {
+              "alias": null,
+              "name": "read_planning_json"
+            },
+            {
+              "alias": null,
+              "name": "result_from_dict"
+            },
+            {
+              "alias": null,
+              "name": "result_to_dict"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_contracts",
+      "path": "tests/test_planning_contracts.py",
+      "source_location": {
+        "end_line": 196,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningContractTests",
+          "parameters": [],
+          "qualified_name": "PlanningContractTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 196,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningContractTests.result",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_typed_result_and_atomic_bounded_json_roundtrip",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningContractTests.test_typed_result_and_atomic_bounded_json_roundtrip",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 92,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_partial_quality_bounds_do_not_become_world_probabilities",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningContractTests.test_partial_quality_bounds_do_not_become_world_probabilities",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 94
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_mass_interval_numbers_and_budget_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningContractTests.test_invalid_mass_interval_numbers_and_budget_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 109
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_uncalibrated_global_value_stays_unknown_but_conditional_chance_is_preserved",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningContractTests.test_uncalibrated_global_value_stays_unknown_but_conditional_chance_is_preserved",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 185,
+            "start_line": 154
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wire_rejects_unknown_fields_duplicate_keys_and_oversized_messages",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningContractTests.test_wire_rejects_unknown_fields_duplicate_keys_and_oversized_messages",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 196,
+            "start_line": 187
           }
         }
       ]

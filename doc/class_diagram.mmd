@@ -1199,9 +1199,38 @@ classDiagram
         +_bind_execution_stop_checker()
         +_safety_context()
     }
+    Protocol <|-- StateQualityEvaluator
+    class StateQualityEvaluator {
+        +evaluate()
+    }
+    Generic <|-- PlanningDomain
+    class PlanningDomain {
+        +__post_init__()
+    }
+    class PlanningRegistration {
+        +__post_init__()
+    }
+    class SearchBudget {
+        +__post_init__()
+    }
     str <|-- PlanningOutcome
     Enum <|-- PlanningOutcome
     class PlanningOutcome {
+    }
+    class WeightedValue {
+        +__post_init__()
+    }
+    class HypothesisActionValue {
+        +__post_init__()
+    }
+    class PlanningActionValue {
+        +__post_init__()
+    }
+    class PlanningCounters {
+        +__post_init__()
+    }
+    class PlanningResult {
+        +__post_init__()
     }
     str <|-- PlayerState
     Enum <|-- PlayerState
