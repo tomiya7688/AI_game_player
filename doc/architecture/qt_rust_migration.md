@@ -8,11 +8,13 @@
 
 これは採用方針の確定です。**Qt Shell、Rust常駐プロセス、両者の接続、安全制御の移行は未実装**です。現在の画面はTkinter、主制御・認識・判断・評価はPython、任意のWGC取得・前処理・決定論的検証はC++です。既存C ABI v1、Python実装、Tkinter、Windows E2Eを移行中も維持します。現在の配布入口はPyInstallerと既存Native DLLであり、Qt DLLを配布済みとは扱いません。確認基準は `main@c634588` のソースと #661 コメント2件です。Qt/Rustの実機性能・配布適合は未確認です。
 
-統合資料は親 `5e2df80d`（#662、実機能親 #660 `37bbafb`とmain `507d`を含む）へ同期しました。親にはplanning専用の使い捨てIPC改善と通常OFFの失敗後診断が含まれます。本PR固有の変更は配置・境界の正本化と宣言検査であり、親の数値Core・任意Planner・認識・Safety・GUIを維持します。固定cohortの実測と最新headのCIは別に確認し、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[固定実測・範囲・最新CIの参照](planner_runtime.md)を正本とします。
+統合資料は親 `3a18617b`（#662、実機能親 #660 `18e00e6`とmain `507d`を含む）へ同期しました。親にはplanning専用の使い捨てIPC改善、私有固定ゲームHTTPの有限accept queue、通常OFFの失敗後診断が含まれます。本PR固有の変更は配置・境界の正本化と宣言検査であり、親の数値Core・任意Planner・認識・Safety・GUIを維持します。固定cohortの実測と最新headのCIは別に確認し、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[固定実測・範囲・最新CIの参照](planner_runtime.md)を正本とします。
 
 Windowsのplanning通信には、旧readerを開いたままの公開20回とnative HANDLE経路30ケースの実OS証拠があります。さらに新preflight phaseの固定 `d4e15a1` cohortは6 job・全18 episode成功、213実入力・213盤面変化・3保留、全Stop/旧世代拒否と厳密0得点fixture通過を記録しました。同じ3 seedをpush/PRで反復した結果で、独立6 seedや汎用ゲーム優位性の証拠ではありません。親の評価専用Otsu panel、短比較だけのWGC profile、有界fresh再取得、最終checkpoint再読fixtureを保持し、既存3秒制約や通常600秒gateの拡張、Qt/Rustの完成とは扱いません。
 
 現在のplanning IPCは、一process寿命・nonce/世代/元deadlineで束縛したmessageだけを単一encode・flush/close後の原子的公開へ分離し、有界raw bytesを再利用します。電源断後のmessage回復を要さない通信に限定し、一般Store・Journal・制御lease・Stop・ledgerの永続化契約は維持します。このPython互換経路の改善は、将来のRust resident Coreやboot fencingの完成を意味しません。旧8dcの保存画像には数字tileのない16セル空盤面が実在し、旧lease最終値はcleanup後のruntime_closed/expiry0でした。起動・取得・描画や失効直前の原因は未確定で、診断導入や旧成功cohortを新headのWindows合格へ転用しません。[使い捨てIPCの範囲と旧失敗の証拠](planner_runtime.md)を参照してください。
+
+親の私有HTTPサーバーは有限backlog32を要求し、GET工程の診断欠落と明示opt-inの事後ResourceTimingを記録します。これは参照ゲーム検証側の有界構成で、Qt ShellやRust IPCの実装ではありません。37bbの失敗画面・事後CDPとLinuxの機構／反事実fixtureは保持し、起動失敗の原因確定や18e以後のWindows解消とは扱いません。通常の起動・所有対象・期限・Stop・実入力の合否は維持します。[私有HTTPの範囲と未確認事項](reference_http_accept_queue.md)を参照してください。
 
 実験用の独立Chromiumが参照ゲームを開く場合も、製品GUIへブラウザエンジンを組み込む設計ではありません。これはゲーム側の検証環境で、恒久GUIのQt Widgets採用と区別します。
 
