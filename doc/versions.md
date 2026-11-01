@@ -220,6 +220,8 @@ plugin_manifest_schema          1
 
 - Issue #182: Learning Capabilityのversioned schemaに沿うExperience Dataset Builder、5種のtyped sample、provenance/label・sensitive artifact制御、dedup、再現可能split、JSON export/importとcontent digestを追加。
 
+- Issue #529: game/scene/profile/Player lineageで隔離した不変KnowledgeSnapshot v1と、既存Artifact Storeを使う保存・読取APIを追加しました。行動結果4分類、prior、数値hint、出所、uncertainty、期限、重複投入追跡用watermarkを検証し、欠落・破損・scope/版不整合でstatic defaultへ戻す結果を返します。Artifactの有界読込も追加し、metadata/payloadの過大入力をSHA検証付きで拒否します。[契約と検証範囲](architecture/knowledge_snapshot.md)を参照してください。Builder/判断反映/昇格は#530-#532に残ります。
+
 - Issue #168: JSONL Experience Readerの任意Step/検索index、snapshot/delta再構築、schema v0移行、破損tail回復、checkpoint検証とArtifact参照検査を追加。
 
 - Issue #167: SHA-256 content-addressed Artifact Store、atomic publication、artifact type metadata schema、dedup/integrity/orphan検査とlocal benchmarkを追加。

@@ -19,6 +19,8 @@
 - Native Runtime C ABI v1の任意ロード、version検証、instance初期化／終了とstatus変換
 - FAST_CV対応Native RuntimeをFrameAnalyzerへ明示注入した場合、BGRA統計・perceptual hash・bright-regionをC++でbatch処理できます。未注入時はPython実装を使います。
 
+- 数値Knowledge Snapshot v1をgame/scene/profile/Player lineageで隔離して保存・読取できます。不変版、出所、uncertainty、期限、整合性と読込容量を検証し、不正時はstatic fallbackを返します（Issue #529）。
+
 ## 制約
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
