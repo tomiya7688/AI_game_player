@@ -221,6 +221,17 @@ Win919の固定128条件で、同0 glyphのbinary/whitelistは空、binary/無wh
 
 `activate_preflight`は新しい物理frameのbarrierを立て、前frameと異なるID・増加時刻、元5秒age、typed boardを検査してから既存initialize_safetyを一度だけ呼びます。元token、default/local Stop、所有launcher PID/HWNDとTargetState、SAFE_IDLE・未実行を照合し、ACTIVE/Recovery/閉鎖/二重activationを拒否します。Sourceのcapture前後・解析後・公開前の取消確認はSafetyを更新しません。処理中のOS呼出しを強制中断できるとは主張しません。
 
-絶対期限はtarget照合の戻り後、capture戻り後、arm前後、最後の短い世代guard内でも検査します。そのguardではclockと二つのStop Eventだけを読み、元5秒age/未来時刻も再検査して成功flagを公開します。I/O・target probe・Runtime lockをguardへ持ち込みません。arm後の期限切れ・古いframe・Stopはcontrollerを先に停止してからRuntime緊急停止を試み、副次的な保存失敗で元activationエラーを失いません。新phaseの実Windows試験は次headで未確認です。175で全比較が成功しているため、過去のlease失敗の真因を解決したとは主張しません。
+絶対期限はtarget照合の戻り後、capture戻り後、arm前後、最後の短い世代guard内でも検査します。そのguardではclockと二つのStop Eventだけを読み、元5秒age/未来時刻も再検査して成功flagを公開します。I/O・target probe・Runtime lockをguardへ持ち込みません。arm後の期限切れ・古いframe・Stopはcontrollerを先に停止してからRuntime緊急停止を試み、副次的な保存失敗で元activationエラーを失いません。このSAFE_IDLE phaseは固定d4e15a1のWindows全18試行で成功しました（下記）。175も全比較が成功しているため、過去のlease失敗の真因を解決したとは主張しません。
 
 起動前テストもboard非Noneだけで準備完了にせず、state_availableと元4 Arrow候補を元15秒内で待ちます。0.25秒poll・入力0・元の4候補assertと期限を維持し、間に合わない状態は失敗です。未準備状態と期限の有界診断をstdoutへ残します。
+
+
+#### d4e15a1固定headのSAFE_IDLE Windows実測（最終資料）
+
+[全6 job・18 episodeの原本SHA、機能コードfingerprintと全結果](../validation/planning_windows_d4e15a1.json)を保存しました。SAFE_IDLEで初期画面/parityを検証してから元tokenで一度だけ有効化する新phaseを、Cycling/Baseline/Planner×seed479/480/481×push/PRで実行し、全18件が成功しました。213実入力=213実行履歴=213盤面変化、3保留、Stopと旧世代は全件拒否、厳密0得点fixtureも6 jobすべて通過しました。3保留はPR seed481 Plannerの12判断attempt中に発生し、残る9実入力で最低3入力と盤面変化の条件を満たしました。保留を無視した無制限再試行にはしていません。
+
+原本の6 jobを成功選別せず保持し、各job/run/event、score/confidence、全attemptを含むlatency、受領checkpointのnodes、CPU/RSSの計測範囲、実backend/fallback、Native DLLのSHA/ABI/capabilitiesを記録しています。元raw JSONのSHAと、測定d4のsrc/native/tools/tests全追跡fileのSHA-256集約・git tree ID・主要entrypointのhashを固定し、この資料追記後も同じ機能コードであることを検査します。実際のGDI fallbackをWGC成功の証拠にはしません。
+
+この比較は最大12判断attemptで打ち切る短枠です。同じ3 seedの2 event反復を独立6 seedとは扱わず、終局得点・長期survival・統計的改善・isolated性能を主張しません。既存400ms探索/4秒Belief TTL/3秒内部再観測/5秒実観測age/.75秒制御lease/.65得点信頼度は維持し、未校正のworld riskはunknown mass1・条件付き選択の明示opt-inのままです。評価用得点を判断や因果学習へ戻しません。
+
+別の通常600秒受入は原本収集時点で進行中であり、この資料では完了扱いにしません。最終の資料のみ更新したheadは測定headと区別し、[PR660の最新push/PR CI](https://github.com/tomiya7688/AI_game_player/pull/660/checks)の必須64 gateを別途確認してから統合します。固定実測のため、CI更新ごとの資料commitは増やしません。旧175の212入力・4保留、旧919/e119等の失敗は測定条件とheadを付けた歴史として保持します。
