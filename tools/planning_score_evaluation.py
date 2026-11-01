@@ -5,6 +5,7 @@ import math
 import re
 
 from ai_game_player.screen_capture import ScreenFrame
+from tools.planning_score_panel import find_panels, panel_for_label, prepare_panel_ocr
 
 
 def _scaled_crop(frame, left, top, right, bottom):
@@ -95,6 +96,50 @@ def reread_score_header_label(frame, observation, board_bounds, ocr):
         "label_count": len(labels),
         "label_confidences": [label["confidence"] for label in labels[:2]],
     }
+    if not labels:
+        try:
+            panels = find_panels(frame, (left, top, right, bottom))
+            for panel in panels:
+                box = (panel.left, panel.top, panel.right, panel.bottom)
+                prepared, pad = prepare_panel_ocr(frame, box, panel)
+                for word in ocr.recognize(prepared, mode="text_block")[:64]:
+                    if (
+                        word.get("text", "").strip().casefold() != "score"
+                        or not 0.65 <= word.get("confidence", 0) <= 1
+                    ):
+                        continue
+                    mapped = dict(word)
+                    wx, wy = (
+                        panel.left + (word["x"] - pad) / 3,
+                        panel.top + (word["y"] - pad) / 3,
+                    )
+                    ww, wh = word["width"] / 3, word["height"] / 3
+                    if not (
+                        panel.left < wx < wx + ww < panel.right
+                        and panel.top < wy < wy + wh < panel.bottom
+                    ):
+                        continue
+                    if geometry is not None:
+                        convert = (
+                            geometry.roi_to_window
+                            if geometry.window_bounds is not None
+                            else geometry.roi_to_screen
+                        )
+                        right_x, bottom_y = convert(wx + ww, wy + wh)
+                        wx, wy = convert(wx, wy)
+                        ww, wh = right_x - wx, bottom_y - wy
+                    mapped.update(
+                        x=wx, y=wy, width=ww, height=wh, bbox=(wx, wy, ww, wh)
+                    )
+                    labels.append(mapped)
+            diagnostic.update(
+                status="otsu_panel_header_label",
+                panel_count=len(panels),
+                label_count=len(labels),
+                label_confidences=[label["confidence"] for label in labels[:2]],
+            )
+        except ValueError:
+            diagnostic["panel_status"] = "unsupported_panel"
     if len(labels) != 1:
         return None, diagnostic
     return replace(
@@ -138,13 +183,24 @@ def reread_score_line(frame, observation, ocr):
         right, bottom = to_roi(x + width, y + height)
         x, y = to_roi(x, y)
         width, height = right - x, bottom - y
+    try:
+        panel = panel_for_label(frame, (x, y, width, height))
+    except ValueError:
+        panel = None
     center_x = x + width / 2
     top = math.floor(y + height)
     bottom = math.ceil(y + height * 5)
+    if panel is not None:
+        bottom = min(bottom, panel.bottom - 1)
     scale = 3
     readings = []
     crops = []
-    for half_width in (width, width * 1.5):
+    half_width_base = (
+        max(width, center_x - panel.left, panel.right - center_x)
+        if panel is not None
+        else width
+    )
+    for half_width in (half_width_base, half_width_base * 1.5):
         left, right = (
             math.floor(center_x - half_width),
             math.ceil(center_x + half_width),
@@ -161,8 +217,24 @@ def reread_score_line(frame, observation, ocr):
             or (right - left) * (bottom - top) * scale * scale > 1_000_000
         ):
             return None, {"status": "score_line_crop_out_of_bounds"}
-        cropped = _scaled_crop(frame, left, top, right, bottom)
-        words = ocr.recognize(cropped, mode="single_numeric_line")
+        if [left, top, right - left, bottom - top] in crops:
+            return None, {"status": "score_line_distinct_crops_unavailable"}
+        pad = 0
+        if panel is None:
+            cropped = _scaled_crop(frame, left, top, right, bottom)
+        else:
+            try:
+                cropped, pad = prepare_panel_ocr(
+                    frame, (left, top, right, bottom), panel, numeric=True
+                )
+            except ValueError:
+                return None, {"status": "score_panel_contrast_unavailable"}
+        words = [
+            dict(word) for word in ocr.recognize(cropped, mode="single_numeric_line")
+        ]
+        for word in words:
+            word["x"] -= pad
+            word["y"] -= pad
         if len(words) != 1 or not re.fullmatch(
             r"[0-9][0-9,]{0,11}", words[0].get("text", "")
         ):
@@ -171,8 +243,8 @@ def reread_score_line(frame, observation, ocr):
         if (
             word["x"] <= scale
             or word["y"] <= scale
-            or word["x"] + word["width"] >= cropped.width - scale
-            or word["y"] + word["height"] >= cropped.height - scale
+            or word["x"] + word["width"] >= cropped.width - pad * 2 - scale
+            or word["y"] + word["height"] >= cropped.height - pad * 2 - scale
         ):
             return None, {"status": "score_line_touches_crop_edge"}
         readings.append((word, left))
@@ -209,4 +281,7 @@ def reread_score_line(frame, observation, ocr):
         "scale": scale,
         "score_label_confidence": label["confidence"],
         "numeric_word_count": 1,
+        "preprocessing": "bilinear_otsu_supported_panel"
+        if panel is not None
+        else "nearest_raw",
     }

@@ -389,6 +389,16 @@ jobs:
             python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -k "test_final_marker_does_not_leave_an_older_checkpoint_adopted" -k "test_reference_play_board_keeps_valid_deeper_checkpoint" -v
             if ($LASTEXITCODE -ne 0) { throw "Bounded worker diagnostic failed at attempt $attempt/20" }
           }
+      - name: Validate same-pixel score OCR fixtures with installed Tesseract
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: |
+          python -c "import shutil; assert shutil.which('tesseract'), 'Installed comparison Tesseract must be on PATH'"
+          if ($LASTEXITCODE -ne 0) { throw "Comparison OCR dependency is unavailable" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_score*.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Same-pixel score OCR regressions failed" }
       - name: Compare short owned-window play with identical seed and step budget
         if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
         shell: pwsh

@@ -6,14 +6,17 @@
 
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
-- Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICS候補へ変更。一般atomic_jsonは維持し、未対応はfail-closed。shared-delete readerだけでは失敗した実OS20回を保持し、native30ケースprobe・held-open20回・worker20回で再検証します。実Windows成功は新CI確認まで未確認です。
+- 評価専用Score OCRで、同frameのSCORE panelを局所Otsu/連結成分で分離しbilinear3倍・二値化・白余白を追加。文字推測や値補完をせず、0.65/二幅一致/元support端切れ拒否を維持。9実Win header×2geometryと元4桁画像を回帰化し、実OS失敗を成功へ書換えません。
+- Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICSへ変更。一般atomic_jsonは維持し、未対応はfail-closed。5bbcのWindows実OSで旧handle維持・新規open=newの20回とnative30ケースを確認しました。別のc974 stressでは深さ未完のcompute_budgetが残り、全32gate完了とは扱いません。
+- 実ログのWGC timeout約2秒とbackend切替時の署名拒否に対し、独立の短比較だけWGC待ちを250msへ明示設定。一般capture/既存600秒Campaignの2000ms、5秒実観測age、Planner4秒TTL・3秒再観測予算は維持し、調整後Windows gameplayは次CIで検証します。
+- 初期parityの両未知を成功へ変えず、既存ready期限内・最大2回の新しい実frameだけで再検査し、available/parity成立後に入力開始。final-markerの順序回帰は固定clockと同期protocolで最終再読を直接検証し、実worker予算・遅延拒否・OS probeは維持します。
 - SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
 - 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
 - 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
 - Windows短比較の各provider終了時に、失敗段階・元探索理由・入力件数・score読取状態・Stop/旧世代検証結果の有界JSONをjobログへ出力。成果物が取得できない場合も未検証を成功へ置換せず診断できます。
 - 得点評価だけにSCOREラベル由来の数字行OCR（拡大・2幅一致・端切れ拒否）を追加。元Snapshotの版/期限と工程時間を診断し、短比較は実盤面変化も必須にします。既定depth2の固定3seed実画面比較を、旧失敗cohort・Windows未達と区別して保存します。
 - Windowsの追加診断はworker例外の固定分類、実frame生産/受領/OS送信時刻を分離。得点にもclockと2つの鮮度barrierを適用し、短比較の明示Native FAST_CV profileは同画素の候補・意味・判断の同値とDLL hashを検証します。既定の入力OCR/Campaign/TTL/Safety期限は維持します。
-- 実ログのcheckpoint_publishアクセス拒否に対し、Windows親readerへdelete共有を追加し読取中のatomic replaceを妨げません。未来時刻のWGC frameは既存の契約違反経路で破棄してGDIを新規取得し、解析中の5秒失効もcache公開前に拒否します。
+- 実ログのcheckpoint_publishアクセス拒否に対し、Windows親readerへdelete共有とplanning限定POSIX publicationを組み合わせます（reader共有だけでは従来os.replaceの失敗が残りました）。未来時刻のWGC frameは既存の契約違反経路で破棄してGDIを新規取得し、解析中の5秒失効もcache公開前に拒否します。
 
 ## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
 

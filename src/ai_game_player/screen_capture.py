@@ -62,7 +62,8 @@ class WindowsScreenCapture:
 
     # {
     #   責務: [__init__: Windows API依存、optional WGC session生成関数、capture資源状態を初期化する]
-    #   引数: [user32/gdi32: Windows APIのtest double。片方だけの注入は拒否, wgc_capture_factory: HWNDからnative capture sessionを作るoptional test seam]
+    #   引数: [user32/gdi32: Windows APIのtest double。片方だけの注入は拒否, wgc_capture_factory: HWNDからnative capture sessionを作るoptional test seam,
+    #     wgc_timeout_ms: 明示profileだけの1..2000ms待ち。省略時はnative既定2000msを保持]
     #   戻り値: []
     # }
     def __init__(
@@ -71,12 +72,18 @@ class WindowsScreenCapture:
         user32: Any | None = None,
         gdi32: Any | None = None,
         wgc_capture_factory: Callable[[int], Any] | None = None,
+        wgc_timeout_ms: int | None = None,
     ) -> None:
         if (user32 is None) != (gdi32 is None):
             raise ValueError("user32 and gdi32 must be provided together")
+        if wgc_timeout_ms is not None and (
+            type(wgc_timeout_ms) is not int or not 1 <= wgc_timeout_ms <= 2000
+        ):
+            raise ValueError("explicit WGC wait must be an integer in 1..2000ms")
         self._user32 = user32
         self._gdi32 = gdi32
         self._wgc_capture_factory = wgc_capture_factory
+        self._wgc_timeout_ms = wgc_timeout_ms
         self._native_runtime: Any | None = None
         self._wgc_session: Any | None = None
         self._wgc_window_handle: int | None = None
@@ -368,7 +375,11 @@ class WindowsScreenCapture:
                     self._wgc_session = self._native_runtime.open_wgc_window(
                         window_handle
                     )
-            frame = self._wgc_session.capture()
+            frame = (
+                self._wgc_session.capture()
+                if self._wgc_timeout_ms is None
+                else self._wgc_session.capture(timeout_ms=self._wgc_timeout_ms)
+            )
             if (
                 not isinstance(frame, ScreenFrame)
                 or frame.width <= 0

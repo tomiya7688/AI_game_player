@@ -67,6 +67,7 @@ class Cached2048ObservationSource:
         *,
         native_preprocessing: bool = False,
         window_process_id: int | None = None,
+        wgc_timeout_ms: int | None = None,
     ) -> None:
         if type(native_preprocessing) is not bool:
             raise ValueError("native preprocessing requires an explicit boolean")
@@ -97,7 +98,13 @@ class Cached2048ObservationSource:
             "native_fast_cv_v1" if native_preprocessing else "python_reference"
         )
         try:
-            self.capture = WindowsScreenCapture()
+            self.capture = WindowsScreenCapture(
+                **(
+                    {"wgc_timeout_ms": wgc_timeout_ms}
+                    if wgc_timeout_ms is not None
+                    else {}
+                )
+            )
             self.analyzer = FrameAnalyzer(
                 ocr_recognizer, frame_preprocessor=self._preprocessor_runtime
             )
@@ -506,6 +513,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
         native_preprocessing: bool = False,
         test_seed: int | None = None,
         event_journal: EventJournal | None = None,
+        wgc_timeout_ms: int | None = None,
     ) -> None:
         if type(native_preprocessing) is not bool:
             raise ValueError("native preprocessing requires an explicit boolean")
@@ -550,6 +558,11 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 evidence,
                 window_process_id=window.process_id,
                 **({"native_preprocessing": True} if native_preprocessing else {}),
+                **(
+                    {"wgc_timeout_ms": wgc_timeout_ms}
+                    if wgc_timeout_ms is not None
+                    else {}
+                ),
             )
             controller = RunController()
             provider = (
@@ -590,7 +603,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
             self.close()
             raise
 
-    def observe(self) -> CampaignState:
+    def observe(self, *, timeout_seconds: float | None = None) -> CampaignState:
         if self.source is None:
             raise CampaignFailure(
                 "capture_failure", "2048 episode has no window observation source"
@@ -620,7 +633,12 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 refresh_observation_after_frame
                 if pipeline is not None and not first_observation
                 else None
-            )
+            ),
+            **(
+                {"timeout_seconds": timeout_seconds}
+                if timeout_seconds is not None
+                else {}
+            ),
         )
         capture_elapsed_seconds = time.monotonic() - capture_started_at
         if pipeline is not None and first_observation:

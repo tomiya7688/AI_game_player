@@ -143,6 +143,32 @@ class TimeoutThenFrameWgcCapture(FakeWgcCapture):
 
 
 class ScreenCaptureTest(unittest.TestCase):
+    def test_explicit_bounded_wgc_wait_preserves_timeout_fallback_and_session(self):
+        class ProfileCapture(FakeWgcCapture):
+            def capture(self, *, timeout_ms):
+                self.timeout_ms = timeout_ms
+                raise NativeRuntimeError("wgc_next_frame", NativeStatus.TIMEOUT)
+
+        session = ProfileCapture()
+        capture = WindowsScreenCapture(
+            user32=FakeUser32(),
+            gdi32=FakeGdi32(),
+            wgc_capture_factory=lambda _handle: session,
+            wgc_timeout_ms=250,
+        )
+        self.assertIsNone(capture.capture(123).frame_id)
+        self.assertEqual(session.timeout_ms, 250)
+        self.assertEqual(capture.last_capture_backend, "gdi")
+        self.assertEqual(capture.last_backend_failure_reason, "wgc_timeout")
+        self.assertFalse(session.closed)
+        capture.close()
+        self.assertTrue(session.closed)
+
+    def test_explicit_wgc_wait_rejects_unbounded_and_nonpositive_values(self):
+        for value in (True, 0, -1, 2001, 250.0):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                WindowsScreenCapture(wgc_timeout_ms=value)
+
     def test_frame_contract(self):
         frame = ScreenFrame(2, 3, b"x" * 24)
         self.assertEqual(len(frame.bgra), frame.width * frame.height * 4)
