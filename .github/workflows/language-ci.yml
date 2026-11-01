@@ -389,6 +389,15 @@ jobs:
             python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -k "test_final_marker_does_not_leave_an_older_checkpoint_adopted" -k "test_reference_play_board_keeps_valid_deeper_checkpoint" -v
             if ($LASTEXITCODE -ne 0) { throw "Bounded worker diagnostic failed at attempt $attempt/20" }
           }
+      - name: Diagnose fixed-pixel OCR engine model and segmentation
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          COMPARISON_SEED: ${{ matrix.seed }}
+        run: |
+          python -u tools/probe_windows_planning_score_ocr.py --output "build/planning-comparison/windows/score-ocr-probe-$env:COMPARISON_SEED/report.json"
+          if ($LASTEXITCODE -ne 0) { throw "Fixed-pixel OCR diagnostic failed" }
       - name: Validate same-pixel score OCR fixtures with installed Tesseract
         if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
         shell: pwsh

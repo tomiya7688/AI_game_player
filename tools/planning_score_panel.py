@@ -138,6 +138,56 @@ def panel_for_label(
     return matches[0]
 
 
+def _numeric_support(
+    frame: ScreenFrame, box: tuple[int, int, int, int], panel: Panel
+) -> tuple[tuple[int, int, int, int], list[int], int]:
+    left, top = max(box[0], panel.left + 2), max(box[1], panel.top + 2)
+    right, bottom = min(box[2], panel.right - 2), min(box[3], panel.bottom - 2)
+    ink = _gray(frame, (left, top, right, bottom))
+    ink_threshold = _otsu(ink)
+    ink_width, ink_height = right - left, bottom - top
+    if any(
+        value > ink_threshold
+        and (x == 0 or x == ink_width - 1 or y == 0 or y == ink_height - 1)
+        for y in range(ink_height)
+        for x in range(ink_width)
+        for value in (ink[y * ink_width + x],)
+    ):
+        raise ValueError("score foreground touches source support boundary")
+    return (left, top, right, bottom), ink, ink_threshold
+
+
+def numeric_crops(
+    frame: ScreenFrame, panel: Panel, top: int, bottom: int
+) -> list[tuple[int, int, int, int]]:
+    """全foreground unionを保持し、余白比の違う実2cropをpanel内だけで作る。"""
+    support, pixels, threshold = _numeric_support(
+        frame, (panel.left, top, panel.right, bottom), panel
+    )
+    left, top, right, bottom = support
+    width = right - left
+    points = [
+        (i % width, i // width) for i, value in enumerate(pixels) if value > threshold
+    ]
+    if not points:
+        raise ValueError("score numeric foreground is unavailable")
+    min_x, max_x = min(x for x, y in points), max(x for x, y in points)
+    min_y, max_y = min(y for x, y in points), max(y for x, y in points)
+    margin = max(2, math.ceil((max_y - min_y + 1) / 4))
+    crops = [
+        (
+            max(left, left + min_x - padding),
+            max(top, top + min_y - margin),
+            min(right, left + max_x + 1 + padding),
+            min(bottom, top + max_y + 1 + margin),
+        )
+        for padding in (margin, margin * 2)
+    ]
+    if crops[0] == crops[1]:
+        raise ValueError("score requires two distinct foreground crops")
+    return crops
+
+
 def prepare_panel_ocr(
     frame: ScreenFrame,
     box: tuple[int, int, int, int],
@@ -152,19 +202,7 @@ def prepare_panel_ocr(
     # Two pixels exclude rounded panel corners; touching this supported interior
     # boundary is ambiguous and cannot become accepted OCR evidence.
     if numeric:
-        left, top = max(box[0], panel.left + 2), max(box[1], panel.top + 2)
-        right, bottom = min(box[2], panel.right - 2), min(box[3], panel.bottom - 2)
-        ink = _gray(frame, (left, top, right, bottom))
-        ink_threshold = _otsu(ink)
-        ink_width, ink_height = right - left, bottom - top
-        if any(
-            value > ink_threshold
-            and (x == 0 or x == ink_width - 1 or y == 0 or y == ink_height - 1)
-            for y in range(ink_height)
-            for x in range(ink_width)
-            for value in (ink[y * ink_width + x],)
-        ):
-            raise ValueError("score foreground touches source support boundary")
+        _numeric_support(frame, box, panel)
         panel = Panel(panel.left + 1, panel.top + 1, panel.right - 1, panel.bottom - 1)
     # Require both supported panel background and visible glyph contrast.
     _otsu(pixels)

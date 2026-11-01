@@ -4,6 +4,7 @@ import io
 import json
 from types import SimpleNamespace
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ from ai_game_player.campaign_contract import CampaignState
 from ai_game_player.run_control import RunController
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_result import PlanningCounters
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
 from tools import compare_2048_windows_planning as comparison
@@ -32,6 +34,7 @@ class FakeEpisode:
     def __init__(self, *args, **kwargs):
         self.wgc_timeout_ms = kwargs.get("wgc_timeout_ms")
         self.records = []
+        self.frame_count = 0
         self.closed = False
         self.launcher = SimpleNamespace(
             server=SimpleNamespace(test_seed_metadata={"seed": kwargs["test_seed"]})
@@ -51,11 +54,18 @@ class FakeEpisode:
         return result
 
     def observe(self, **kwargs):
+        self.frame_count += 1
         self.source.latest_observation = ScreenObservation(
             "fixture",
             100,
             100,
             features={
+                "capture_metadata": {
+                    "source_id": "comparison-fixture",
+                    "source_generation": 1,
+                    "frame_id": f"frame-{self.frame_count}",
+                    "monotonic_ns": time.monotonic_ns(),
+                },
                 "game_2048": {
                     "board": [
                         [2 + 2 * len(self.records), 0, 0, 0],
@@ -63,7 +73,7 @@ class FakeEpisode:
                         [0] * 4,
                         [0] * 4,
                     ]
-                }
+                },
             },
         )
         return CampaignState(f"board{len(self.records)}", False, 0, 2)
@@ -73,6 +83,128 @@ class FakeEpisode:
 
 
 class WindowsPlanningComparisonTests(unittest.TestCase):
+    def hold_episode(
+        self, outcomes, *, during_hold=None, capture_mode="fresh", with_plan=False
+    ):
+        episodes = []
+        remaining = iter(outcomes)
+
+        class Episode(FakeEpisode):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                episodes.append(self)
+                if with_plan:
+                    self.pipeline.engine.provider.last_planning_result = (
+                        SimpleNamespace(
+                            reason="compute_budget",
+                            completed_depth=0,
+                            counters=PlanningCounters(nodes_visited=7),
+                        )
+                    )
+
+            def observe(self, **kwargs):
+                old = self.source.latest_observation
+                state = super().observe(**kwargs)
+                if self.frame_count > 2 and capture_mode == "cached":
+                    self.source.latest_observation = old
+                if self.frame_count > 2 and capture_mode == "target_lost":
+                    raise RuntimeError("owned target was lost")
+                return state
+
+        def run(orchestrator, **kwargs):
+            choice = next(remaining)
+            if choice == "select":
+                return episodes[0].execute()
+            if during_hold is not None:
+                during_hold(episodes[0])
+            return DecisionDisposition(
+                PlanningOutcome(choice), ("planning_unavailable",), "planner"
+            )
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", Episode),
+            patch.object(comparison.DecisionOrchestrator, "run", run),
+            patch.object(
+                comparison.TesseractOcrRecognizer, "optional", return_value=object()
+            ),
+            patch.object(
+                comparison,
+                "evaluate_visible_score",
+                return_value={"value": 0, "confidence": 0.9},
+            ),
+        ):
+            result = comparison.run_episode(
+                "planner", 480, 12, Path(directory), Path(directory)
+            )
+        return result, episodes[0]
+
+    def test_all_twelve_holds_consume_attempts_without_inputs_and_fail_gate(self):
+        result, episode = self.hold_episode(["abstain"] * 12, with_plan=True)
+        self.assertFalse(result["success"])
+        self.assertEqual(
+            (result["attempts"], result["holds"], result["actions"]), (12, 12, 0)
+        )
+        self.assertEqual(result["hold_rate"], 1)
+        self.assertEqual(result["nodes"], 12 * 7)
+        self.assertTrue(result["all_attempts_held"])
+        self.assertEqual(result["board_changes"], 0)
+        self.assertEqual(episode.records, [])
+        self.assertEqual(len(result["latency_ms"]["samples"]), 12)
+        self.assertEqual(len(result["attempt_records"]), 12)
+        self.assertEqual(result["resources"]["samples"], 3)
+        self.assertEqual(episode.frame_count, 13)
+        self.assertTrue(episode.closed)
+
+    def test_one_hold_then_eleven_inputs_reports_the_hold_and_same_attempt_cap(self):
+        result, episode = self.hold_episode(["abstain"] + ["select"] * 11)
+        self.assertTrue(result["success"])
+        self.assertEqual(
+            (result["attempts"], result["holds"], result["actions"]), (12, 1, 11)
+        )
+        self.assertAlmostEqual(result["hold_rate"], 1 / 12)
+        self.assertFalse(result["all_attempts_held"])
+        self.assertEqual(result["board_changes"], 11)
+        self.assertEqual(len(result["latency_ms"]["samples"]), 12)
+        self.assertEqual(len(result["attempt_records"]), 12)
+        self.assertEqual(result["attempt_records"][0]["outcome"], "abstain")
+        self.assertTrue(result["stopped_input_rejected"])
+        self.assertTrue(result["stale_generation_rejected"])
+        summary = comparison.comparison_summary(result)
+        self.assertEqual(summary["decision_attempt_count"], 12)
+        self.assertAlmostEqual(summary["hold_rate"], 1 / 12)
+        self.assertEqual(summary["confirmed_actual_actions"], 11)
+        self.assertEqual(len(episode.records), 11)
+
+    def test_stop_or_rearm_during_hold_never_captures_or_sends_another_input(self):
+        for rearm in (False, True):
+            with self.subTest(rearm=rearm):
+
+                def interrupt(episode):
+                    episode.pipeline.controller.stop("fixture Stop")
+                    if rearm:
+                        episode.pipeline.controller.start()
+
+                result, episode = self.hold_episode(["abstain"], during_hold=interrupt)
+                self.assertFalse(result["success"])
+                self.assertEqual((result["attempts"], result["actions"]), (1, 0))
+                self.assertEqual(len(result["latency_ms"]["samples"]), 1)
+                self.assertEqual(episode.records, [])
+                self.assertEqual(episode.frame_count, 2)
+
+    def test_escalate_target_loss_and_cached_capture_end_the_bounded_comparison(self):
+        for disposition, capture in (
+            ("escalate", "fresh"),
+            ("abstain", "cached"),
+            ("abstain", "target_lost"),
+        ):
+            with self.subTest(disposition=disposition, capture=capture):
+                result, episode = self.hold_episode([disposition], capture_mode=capture)
+                self.assertFalse(result["success"])
+                self.assertEqual((result["attempts"], result["actions"]), (1, 0))
+                self.assertEqual(episode.records, [])
+
     def test_initial_unknown_requires_fresh_available_parity_before_any_input(self):
         unknown = {
             "match": False,
