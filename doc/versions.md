@@ -55,7 +55,7 @@
 
 ## Unreleased
 
-- Issue #613: Session記録、Experience／Knowledge、Artifact参照、Dataset生成とモデル学習・採用を分ける図解を追加しました。未実行と実入力、出所、保存とデータ保護の制約を区別します。
+- Issue #608: 動作順と実行場所の日本語図を追加しました。単独操作の登録済み観測と連続取得、前回判断と実入力、確認運転と実入力時の追加確認を区別し、停止競合と記録の未保証範囲を明示します。
 
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
 
@@ -136,6 +136,8 @@
 - Issue #258: 1つのcapture backendから得た`ScreenFrame`を複数のconsumerへ配るShared Frame Producerを追加。`frame_id`とsource世代を付け、BGRA寸法・monotonic timestampを検証する。最新frame置換と順序維持のbounded queue、drop metrics、source切替、停止とcapture失敗通知をfake backendで検証する。
 
 - Issue #262: legacy History・DecisionTrace・Execution・Safety・RuntimeLogをSession Event Journalへ接続。旧JSON/JSONLを削除せず、recordをstable event ID付きで移行し、decision/execution/safetyの配列JSON全体を書き直さずにSession内Journalへ追記する。
+
+- Issue #613: Session記録、Experience／Knowledge、Artifact参照、Dataset生成とモデル学習・採用を分ける図解を追加しました。未実行と実入力、出所、保存とデータ保護の制約を区別します。
 
 - Issue #261: versioned Session Event EnvelopeとSQLite WAL Journalを追加。UTC/monotonic timestamp、session sequence、correlation IDs、compact payload/artifact referencesを定義し、complete record検証・未コミットtransactionの復旧・flush/checkpointを実装。SQLite本体とfsync付きJSONL参照の30分相当append benchmarkを追加。
 - Issue #204: Native Runtimeへ粗粒度FAST_CV frame-preprocess C ABIを追加。BGRAからRGB/brightness統計、dHash、4近傍bright-regionをNativeでまとめて計算し、caller-owned region buffer・buffer-too-small retry・timing/frame-payload/output/copy metricsを定義。NativeRuntime bindingはproviderが報告したinput-copy metricsを受け入れ、capacity retryを含む各ABI呼び出しの値を合算する。FrameAnalyzer注入点と同じPython参照実装へのfallbackを追加。C/C++ ABI testとWindows DLLを使ったPython/native parity testで検証。
