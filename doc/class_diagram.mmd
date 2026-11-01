@@ -734,7 +734,10 @@ classDiagram
         +rearm()
         +_require_initial_idle_locked()
         +_arm_locked()
+        +configure_heartbeat_diagnostics()
+        +heartbeat_diagnostic_snapshot()
         +heartbeat()
+        +_traced_heartbeat()
         +record_observation()
         +make_command()
         +check_command()
@@ -869,6 +872,16 @@ classDiagram
         +_cancel_scheduled()
         +_notify_error()
         +_notify()
+    }
+    class _Entry {
+    }
+    class HeartbeatDiagnostics {
+        +__init__()
+        +begin()
+        +mark()
+        +renewal()
+        +finish()
+        +snapshot()
     }
     class HistoryStore {
         +__init__()

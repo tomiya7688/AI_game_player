@@ -20,6 +20,7 @@ from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.observation_freshness import ObservationFreshness
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.run_control import ExecutionCancelled
+from ai_game_player.screen_capture import ScreenFrame
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.planning_comparison_source import source_fingerprint
 from tools.planning_resource_monitor import PlanningResourceMonitor
@@ -41,6 +42,20 @@ def failure_header_bbox(frame, label_bbox=None):
         center = label_bbox[0] + label_bbox[2] / 2
     left = max(0, min(frame.width - width, int(center - width / 2)))
     return [left, 0, width, min(240, frame.height)]
+
+
+def preflight_failure_bbox(frame):
+    """Bounded same-frame preview; original coordinates and any clipping stay explicit."""
+    if (
+        not isinstance(frame, ScreenFrame)
+        or type(frame.width) is not int
+        or type(frame.height) is not int
+        or frame.width <= 0
+        or frame.height <= 0
+    ):
+        return None
+    width = min(640, frame.width)
+    return [(frame.width - width) // 2, 0, width, min(640, frame.height)]
 
 
 def evaluate_visible_score(episode, ocr, *, failure_header=None):
@@ -129,7 +144,15 @@ def observed_board(episode):
 
 
 def run_episode(
-    provider, seed, max_steps, cache, output, *, save_failure_evidence=False
+    provider,
+    seed,
+    max_steps,
+    cache,
+    output,
+    *,
+    save_failure_evidence=False,
+    save_browser_diagnostics=False,
+    save_heartbeat_diagnostics=False,
 ):
     monitor = None
     episode = None
@@ -176,6 +199,8 @@ def run_episode(
             native_preprocessing=True,
             wgc_timeout_ms=250,
             comparison_preflight=True,
+            save_browser_diagnostics=save_browser_diagnostics,
+            save_heartbeat_diagnostics=save_heartbeat_diagnostics,
             test_seed=seed,
             event_journal=journal,
         )
@@ -439,9 +464,38 @@ def run_episode(
                 "comparison minimum actual input, observed board change or Stop/stale guard failed"
             )
     except Exception as error:
+        failure_frame, failure_capture, failure_state = None, {}, {}
+        if save_failure_evidence and phase in {
+            "initial_observation",
+            "preprocessing_validation",
+            "post_validation_observation",
+        }:
+            snapshot = getattr(
+                getattr(episode, "source", None), "failure_debug_snapshot", None
+            )
+            if callable(snapshot):
+                try:
+                    failure_frame, failure_capture, failure_state = snapshot()
+                except Exception:
+                    pass
+        result["failure_observation"] = failure_state
         result["failure_header"] = failure_header.emit(
-            episode, failed=True, frame=None, crop_bbox=None, capture_diagnostics={}
+            episode,
+            failed=True,
+            frame=failure_frame,
+            crop_bbox=preflight_failure_bbox(failure_frame),
+            capture_diagnostics=failure_capture,
+            diagnostic_scope="preflight_board"
+            if failure_frame is not None
+            else "header",
         )
+        collect = getattr(episode, "collect_failure_diagnostics", None)
+        if callable(collect):
+            score_header = result.get("score_evaluation", {}).get("failure_header", {})
+            result["failure_diagnostics"] = collect(
+                frame_preserved=result["failure_header"].get("status") == "ready"
+                or score_header.get("status") == "ready"
+            )
         planning = getattr(
             getattr(getattr(episode, "pipeline", None), "engine", None),
             "provider",
@@ -598,6 +652,8 @@ def comparison_summary(result):
         "score_confidence": score.get("confidence"),
         "score_attempts": score.get("attempts", [])[:2],
         "failure_header": score.get("failure_header", result.get("failure_header")),
+        "failure_observation": result.get("failure_observation"),
+        "failure_diagnostics": result.get("failure_diagnostics"),
         "elapsed_seconds": result.get("wall_seconds"),
         "stop_probe": "rejected"
         if result.get("stopped_input_rejected")
@@ -620,6 +676,8 @@ def main(argv=None):
     parser.add_argument(
         "--output", type=Path, default=Path("build/planning-comparison/windows")
     )
+    parser.add_argument("--save-browser-diagnostics", action="store_true")
+    parser.add_argument("--save-heartbeat-diagnostics", action="store_true")
     args = parser.parse_args(argv)
     if not args.allow_live_input:
         parser.error(
@@ -640,6 +698,8 @@ def main(argv=None):
         "game_source_lock": json.loads(SOURCE_LOCK_PATH.read_text()),
         "seed": args.seed,
         "failure_evidence_enabled": args.save_failure_evidence,
+        "browser_failure_diagnostics_enabled": args.save_browser_diagnostics,
+        "heartbeat_failure_diagnostics_enabled": args.save_heartbeat_diagnostics,
         "max_steps": args.max_steps,
         "profile": "short Windows comparison; independent of required 600s gate",
         "capture_profile": {
@@ -670,6 +730,8 @@ def main(argv=None):
             args.cache_dir,
             output / provider,
             save_failure_evidence=args.save_failure_evidence,
+            save_browser_diagnostics=args.save_browser_diagnostics,
+            save_heartbeat_diagnostics=args.save_heartbeat_diagnostics,
         )
         print(json.dumps(comparison_summary(result), ensure_ascii=True), flush=True)
         report["episodes"].append(result)

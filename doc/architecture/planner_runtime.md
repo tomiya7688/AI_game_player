@@ -234,4 +234,17 @@ Win919の固定128条件で、同0 glyphのbinary/whitelistは空、binary/無wh
 
 この比較は最大12判断attemptで打ち切る短枠です。同じ3 seedの2 event反復を独立6 seedとは扱わず、終局得点・長期survival・統計的改善・isolated性能を主張しません。既存400ms探索/4秒Belief TTL/3秒内部再観測/5秒実観測age/.75秒制御lease/.65得点信頼度は維持し、未校正のworld riskはunknown mass1・条件付き選択の明示opt-inのままです。評価用得点を判断や因果学習へ戻しません。
 
-別の通常600秒受入は原本収集時点で進行中であり、この資料では完了扱いにしません。最終の資料のみ更新したheadは測定headと区別し、[PR660の最新push/PR CI](https://github.com/tomiya7688/AI_game_player/pull/660/checks)の必須64 gateを別途確認してから統合します。固定実測のため、CI更新ごとの資料commitは増やしません。旧175の212入力・4保留、旧919/e119等の失敗は測定条件とheadを付けた歴史として保持します。
+別の通常600秒受入は原本収集時点で進行中であり、この資料では完了扱いにしません。この測定結果の資料のみを更新した8dc0c03は測定headと区別し、[PR660の最新push/PR CI](https://github.com/tomiya7688/AI_game_player/pull/660/checks)の必須64 gateを別途確認してから統合します。固定実測のため、CI更新ごとの資料commitは増やしません。旧175の212入力・4保留、旧919/e119等の失敗は測定条件とheadを付けた歴史として保持します。
+
+
+#### 8dc以後の失敗を保つ一時診断wave
+
+[8dc push seed479の全3 providerと失敗記録](../validation/planning_windows_8dc_failure_diagnostics.json)を保存しました。Cycling/Planner各12入力が成功した同じjobで、Baselineはinitial_observationの45秒期限に達して入力0でした。直近4物理frameは約2.99秒間BGRA hash6ce4…/全空盤面semantic a41f…が一致しましたが、45秒全期間の画素一致やブラウザ描画完了は証明できません。別の通常600秒episode2 recognition_failureとcontrol lease失効の既存artifactも保持します。d4の成功cohortを失敗の否定に使わず、起動JS、renderer、合成面取得、schedule等の原因は未確定です。
+
+今回の変更は原因を直したものではありません。`--save-failure-evidence`を明示した短比較のpreflightだけ、同呼出しの最後の既存物理frame1件・元producer時刻・取得参照・固定4×4 board/availability/unknown/confidence/bboxを診断専用に保持します。認識projectionは推定観測で、ground truthではありません。開始時とcloseで破棄し、成功cache/latest_frame、候補、lease、receipt、学習へ渡しません。期限やStopで戻る時にも新captureを行わず、元エラーを保ちます。所有launcher生存PID/HWND/現在TargetStateを再照合してから、preflight失敗に限りboard+header最大640×640・PNG128KiB・4KiB chunks・1episode1枚を輸送します。既存Score headerの640×240上限は維持します。
+
+検証workflowだけが新CLI `--save-browser-diagnostics` / `--save-heartbeat-diagnostics`を明示します。通常GUI/actor/CLIは既定OFFです。heartbeatは初期化前に有効化する最大8完了+進行中1件のmemory記録で、既存のauthority時計取得回数、周期、fsync、.75秒制御lease、5秒実観測age、epochは維持します。failureのclose前にRuntime lockを取らずsnapshotし、その後、元frameのPNG輸送readyまたは通常recognitionの既存manifest保存成功がある場合だけ[事後CDP描画診断](reference_browser_post_failure_diagnostics.md)を一度呼びます。SafetyBlock等で画素が未保全ならCDPは呼びません。snapshotをCDPより先に固定し、CDP後の画面状態を元frameの時点や入力許可へ流用しません。
+
+診断結果は既存atomic_jsonでepisode内のfailure-diagnostics.jsonへ保存し、有界stdoutにも出します。各sectionの不正/過大値や診断保存・通信失敗はunavailableとなり、他の有効sectionと元failureを維持します。heartbeat snapshotは追加authority時計や永続化を行わず、通常OFFではrecorder/sampling/filewriteを行いません。診断のclock/コピー・失敗後CDP自体はタイミングへ影響し得るため、このinstrumented headの所要時間を過去headの改善実測とはしません。
+
+既存artifactを標準actions/download-artifact@v4で取得する3stepは全元runtime/test/比較/uploadの後、seed479だけに置きます。read権限のみ、新required名やcontinue-on-errorは追加せず、元jobの失敗を維持します。固定manifestの元画素/寸法/SHA・PNG metadata/byte・crop境界を検査し、制御traceは固定型fieldだけを出力します。片方の欠落/不正でも有効な他方を出し、section error/exit1を保ちます。過去artifactは90日等で失効し得るため恒常CI依存にせず、次の真の原因修正commitで固定download/export stepを除去します。新Windowsでの診断出力と原原因は未確認です。400ms/3s/4s/5s/.75s/45s/未知拒否/最低実入力/盤面変化/600秒gateの条件は変更しません。

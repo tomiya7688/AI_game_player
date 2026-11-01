@@ -15,6 +15,7 @@ from typing import Callable, cast
 from uuid import uuid4
 
 from ai_game_player.cross_process_lock import cross_process_file_lock
+from ai_game_player.heartbeat_diagnostic import HeartbeatDiagnostics
 
 
 # {
@@ -336,11 +337,18 @@ class ExternalWatchdogProcess:
 #     journal/lease_store/ledger: 状態と入力所有権の永続化, _state/_reason/_epoch/_session_id: 実行状態と世代,
 #     _initial_lease_available: constructor後の一度だけ初期待機を開始できる権利,
 #     _target_pid/_target_handle: 許可対象, _last_observation_at/_lease_expires_at/_observation_expires_at: 期限,
-#     _last_sequence/_next_sequence/_inflight: 操作連番と処理数, _watchdog/_heartbeat_thread: 有限leaseの監視]
+#     _last_sequence/_next_sequence/_inflight: 操作連番と処理数, _watchdog/_heartbeat_thread: 有限leaseの監視,
+#     _heartbeat_diagnostics: 明示検証時だけのmemory recorder。通常はNone]
 # }
 class FailSafeRuntime:
     """Short-lease fail-closed gate between SafetyGuard and OS input."""
 
+    # {
+    #   責務: [__init__: 保存済み復旧状態を読み、Runtime・入力所有権・監視の寿命を準備する]
+    #   引数: [state_directory/config: 保存先と予算, clock: authorityのUnix秒時計,
+    #     journal/lease_store/ledger: 既存永続化部品, release_callback/external_watchdog: 入力解放と外部監視]
+    #   戻り値: [なし] 処理: [診断は未有効のNoneとし、既存の復旧・保存失敗処理を維持]
+    # }
     def __init__(
         self,
         state_directory: Path,
@@ -361,6 +369,7 @@ class FailSafeRuntime:
         self.ledger = ledger or InputLedger(self.state_directory / "input_ledger.json", clock=clock)
         self.release_callback = release_callback
         self._lock = threading.RLock()
+        self._heartbeat_diagnostics: HeartbeatDiagnostics | None = None
         self._state = FailSafeState.SAFE_IDLE
         self._initial_lease_available = True
         self._reason = "startup_safe_idle"
@@ -513,12 +522,81 @@ class FailSafeRuntime:
             raise RuntimeError("initial safety lease was stopped while arming")
         return self._epoch
 
+    # {
+    #   責務: [configure_heartbeat_diagnostics: 明示検証flagでmemory診断だけを切り替える]
+    #   引数: [enabled: bool必須] 戻り値: [なし]
+    #   処理: [確保失敗は診断OFFへ戻し、authority時計・lease・世代・Stopを変更しない]
+    # }
+    def configure_heartbeat_diagnostics(self, *, enabled: bool) -> None:
+        """明示検証flagだけで有効化。通常はrecorder/clock/file I/O無し。"""
+        if type(enabled) is not bool:
+            raise ValueError("heartbeat diagnostics require an explicit boolean")
+        try:
+            self._heartbeat_diagnostics = HeartbeatDiagnostics() if enabled else None
+        except Exception:
+            self._heartbeat_diagnostics = None
+
+    # {
+    #   責務: [heartbeat_diagnostic_snapshot: close前の固定metadataを非blockingで複製する]
+    #   引数: [なし] 戻り値: [dictまたはNone: OFF・診断失敗なら欠落を返す]
+    #   処理: [Runtime lock・file I/O・追加clock取得をせず、元例外やStopへ干渉しない]
+    # }
+    def heartbeat_diagnostic_snapshot(self) -> dict[str, object] | None:
+        """元例外/closeを変更せず、Runtime lockを取らずに固定metadataを返す。"""
+        try:
+            recorder = self._heartbeat_diagnostics
+            return None if type(recorder) is not HeartbeatDiagnostics else recorder.snapshot()
+        except Exception:
+            return None
+
+    # {
+    #   責務: [heartbeat: 既存の永続Stop確認と期限付き制御lease更新を行う]
+    #   引数: [なし] 戻り値: [bool: 元の更新結果。保存読取の例外契約は維持]
+    #   処理: [明示診断ON時だけphaseを記録し、通常は診断clock/I/Oを追加しない]
+    # }
     def heartbeat(self) -> bool:
+        recorder = self._heartbeat_diagnostics
+        if type(recorder) is HeartbeatDiagnostics:
+            return self._traced_heartbeat(recorder)
         with self._lock:
             if self._state != FailSafeState.ACTIVE or not self._honor_persisted_stop_locked():
                 return False
             self._renew_lease_locked()
             return self._write_lease_or_fail("heartbeat_storage_failure")
+
+    # {
+    #   責務: [_traced_heartbeat: 元heartbeatと同じlock・Stop確認・更新へ診断を添える]
+    #   引数: [recorder: 有効化済みmemory recorder] 戻り値: [bool: 元の更新結果]
+    #   処理: [処理区間はmonotonic、wall値は既存renewの値だけ複製。元例外をそのまま再送出]
+    # }
+    def _traced_heartbeat(self, recorder: HeartbeatDiagnostics) -> bool:
+        row = recorder.begin()
+        try:
+            with self._lock:
+                recorder.mark(row, "lock_acquired_mono_ns")
+                if self._state != FailSafeState.ACTIVE:
+                    recorder.finish(row, "not_active")
+                    return False
+                recorder.mark(row, "persisted_read_started_mono_ns")
+                try:
+                    current = self._honor_persisted_stop_locked()
+                finally:
+                    recorder.mark(row, "persisted_read_finished_mono_ns")
+                if not current:
+                    recorder.finish(row, "persisted_stop")
+                    return False
+                renewed = self._renew_lease_locked()
+                recorder.renewal(row, renewed, self._lease_expires_at)
+                recorder.mark(row, "lease_write_started_mono_ns")
+                try:
+                    allowed = self._write_lease_or_fail("heartbeat_storage_failure")
+                finally:
+                    recorder.mark(row, "lease_write_finished_mono_ns")
+                recorder.finish(row, "renewed" if allowed else "storage_failure")
+                return allowed
+        except BaseException:
+            recorder.finish(row, "raised")
+            raise
 
     # {
     #   責務: [record_observation: 有限正数で未来許容内の観測時刻だけを受理する]
@@ -656,8 +734,15 @@ class FailSafeRuntime:
             if not self.heartbeat() and self.state != FailSafeState.ACTIVE:
                 return
 
-    def _renew_lease_locked(self) -> None:
-        self._lease_expires_at = self.clock() + self.config.lease_timeout_seconds
+    # {
+    #   責務: [_renew_lease_locked: Runtime lock内で既存時計から制御lease期限を更新する]
+    #   引数: [なし。呼出元がRuntime lockを保持] 戻り値: [float: 既に取得したauthorityのUnix秒]
+    #   処理: [clock呼出しは従来どおり1回。戻り値の複製で期限の後付け延長や追加取得をしない]
+    # }
+    def _renew_lease_locked(self) -> float:
+        renewed = self.clock()
+        self._lease_expires_at = renewed + self.config.lease_timeout_seconds
+        return renewed
 
     def _honor_persisted_stop_locked(self) -> bool:
         persisted = self.lease_store.read()

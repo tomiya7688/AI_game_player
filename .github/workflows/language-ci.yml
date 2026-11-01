@@ -311,11 +311,14 @@ jobs:
           PYTHONPATH: "src;."
           KADOKA_RUN_2048_INTEGRATION: "1"
         run: python -u -X faulthandler -m unittest discover -s tests -p "test_2048_campaign.py" -v
+      - name: Install optional post-failure browser diagnostic client
+        shell: pwsh
+        run: python -m pip install -e ".[browser-validation]"
       - name: Run the 600-second pinned-game campaign
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence
+        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence --save-browser-diagnostics --save-heartbeat-diagnostics
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -327,6 +330,9 @@ jobs:
     name: Windows planning comparison (seed ${{ matrix.seed }})
     runs-on: windows-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -342,7 +348,7 @@ jobs:
         id: comparison_dependencies
         shell: pwsh
         run: |
-          python -m pip install -e ".[ocr]" psutil==7.1.0
+          python -m pip install -e ".[ocr,browser-validation]" psutil==7.1.0
           if ($LASTEXITCODE -ne 0) { throw "Comparison Python dependencies failed" }
           choco install tesseract --no-progress --yes
           if ($LASTEXITCODE -ne 0) { throw "Comparison OCR executable install failed" }
@@ -423,13 +429,43 @@ jobs:
         env:
           PYTHONPATH: "src;."
           COMPARISON_SEED: ${{ matrix.seed }}
-        run: python -u -X faulthandler tools/compare_2048_windows_planning.py --seed $env:COMPARISON_SEED --max-steps 12 --allow-live-input --save-failure-evidence
+        run: python -u -X faulthandler tools/compare_2048_windows_planning.py --seed $env:COMPARISON_SEED --max-steps 12 --allow-live-input --save-failure-evidence --save-browser-diagnostics --save-heartbeat-diagnostics
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: windows-planning-comparison-${{ matrix.seed }}
           path: build/planning-comparison/windows
           if-no-files-found: error
+      - name: Read pinned historical recognition failure artifact (seed 479 only)
+        id: known_failure_8dc
+        if: ${{ always() && !cancelled() && matrix.seed == '479' && steps.comparison_dependencies.outcome == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          run-id: '41349184700'
+          artifact-ids: '13100932060'
+          merge-multiple: true
+          path: ${{ runner.temp }}/fixed-failure-artifacts/known-8dc
+      - name: Read pinned historical control lease failure artifact (seed 479 only)
+        id: known_failure_d954
+        if: ${{ always() && !cancelled() && matrix.seed == '479' && steps.comparison_dependencies.outcome == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          run-id: '41349710044'
+          artifact-ids: '13100474424'
+          merge-multiple: true
+          path: ${{ runner.temp }}/fixed-failure-artifacts/known-d954
+      - name: Export bounded pinned historical game pixels and typed control evidence
+        if: ${{ always() && !cancelled() && matrix.seed == '479' && (steps.known_failure_8dc.outcome == 'success' || steps.known_failure_d954.outcome == 'success') }}
+        shell: pwsh
+        env:
+          FIXED_FAILURE_DOWNLOAD_ROOT: ${{ runner.temp }}/fixed-failure-artifacts
+        run: |
+          python -u tools/export_fixed_failure_artifacts.py --download-root "$env:FIXED_FAILURE_DOWNLOAD_ROOT"
+          if ($LASTEXITCODE -ne 0) { throw "Pinned failure evidence export rejected" }
 
   detect-optional-languages:
     name: Detect optional language sources
