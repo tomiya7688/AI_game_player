@@ -21,6 +21,7 @@ from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.history import HistoryStore
 from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.knowledge import KnowledgeStore
+from ai_game_player.knowledge_feature_adapter import KnowledgeFeatureAdapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.outcome_fusion import OutcomeDetector
@@ -44,14 +45,14 @@ _ALLOWED_CANDIDATES_CONTEXT: ContextVar[tuple[ActionCandidate, ...] | None] = (
 
 # {
 #   責務: [GamePlayerEngine: 許可候補の判断・信頼性検査・実操作Outcome追跡とJournal保存を管理する]
-#   フィールド: [decision_verifier: provider回答を画面と候補へ照合する検査器, trace: snapshotに判断根拠と実行結果を結ぶ追記履歴, event_journal: 指定時に履歴を保存するSession Journal]
+#   フィールド: [decision_verifier: provider回答を画面と候補へ照合する検査器, trace: snapshotに判断根拠と実行結果を結ぶ追記履歴, event_journal: 指定時に履歴を保存するSession Journal, knowledge_adapter: 一stepへ固定する任意soft evidence投影器]
 #   処理: [停止世代guard内で履歴を公開し、planned判断と実行受領記録を分離し、実操作後の明示観測だけを同世代へ帰属する]
 # }
 class GamePlayerEngine:
     # {
     #   責務: [__init__: ゲーム保存先・判断部品・任意Session Journalを接続する]
     #   処理: [旧history/traceを必要時だけJournalへ移行し、検証器とprevious action状態を初期化する]
-    #   引数: [game_directory: ゲーム別保存先, provider: 判断provider, context_builder: 判断材料作成器, outcome_detector: 操作結果検出器, event_journal: 現Sessionのevent保存先, migrate_legacy: 旧recordを初回Sessionへ移行するか]
+    #   引数: [game_directory: ゲーム別保存先, provider: 判断provider, context_builder: 判断材料作成器, outcome_detector: 操作結果検出器, event_journal: 現Sessionのevent保存先, migrate_legacy: 旧recordを初回Sessionへ移行するか, knowledge_adapter: 選択済みKnowledgeを一stepへ固定する任意の投影器]
     #   戻り値: [なし。構成部品を以後のstepで利用できる状態にする]
     # }
     def __init__(
@@ -62,9 +63,11 @@ class GamePlayerEngine:
         outcome_detector: OutcomeDetector | None = None,
         event_journal: EventJournal | None = None,
         migrate_legacy: bool = True,
+        knowledge_adapter: KnowledgeFeatureAdapter | None = None,
     ) -> None:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
+        self.knowledge_adapter = knowledge_adapter
         history_path = game_directory / "history.json"
         trace_path = game_directory / "decision_trace.json"
         self.history = HistoryStore(
@@ -143,6 +146,8 @@ class GamePlayerEngine:
             previous_outcome=previous_outcome,
             current_goal=purpose,
         )
+        if self.knowledge_adapter is not None:
+            context = self.knowledge_adapter.apply(context, observation)
         if before_provider is not None:
             before_provider()
         if self._uses_context_api():

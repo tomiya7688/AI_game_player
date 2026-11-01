@@ -10,6 +10,7 @@ from ai_game_player.deferred_trace_append import DeferredTraceAppend
 from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
+from ai_game_player.knowledge_projection import KnowledgeProjection
 from ai_game_player.execution_receipt import ExecutionReceipt
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
@@ -107,7 +108,7 @@ class CandidateDecisionContext:
 @dataclass(frozen=True)
 # {
 #   責務: [DecisionContext: 1回の選択に使った画面・許可候補・過去の結果を同じ観測IDに結び付ける]
-#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性]
+#   フィールド: [snapshot_id: 判断対象の画面観測ID, state: 画面状態の要約, candidates: 検出した候補と評価根拠, allowed_action_ids: 実行可能と評価された候補ID, previous_outcome: 直前に実行した候補の結果, recent_history: 過去の判断履歴, goal: 最終目標と短期目標, uncertainty: 判断材料に残る不確実性, knowledge_projection: このstepだけの任意soft evidence。実観測と区別する]
 # }
 class DecisionContext:
     snapshot_id: str
@@ -118,9 +119,16 @@ class DecisionContext:
     recent_history: tuple[dict[str, Any], ...]
     goal: dict[str, str]
     uncertainty: tuple[str, ...]
+    knowledge_projection: KnowledgeProjection | None = None
 
-    def to_dict(self) -> dict[str, Any]:
-        return {
+    # {
+    #   責務: [to_dict: 判断材料をモデル要求またはローカルTrace向けの独立辞書に変換する]
+    #   処理: [Knowledgeは公開opt-in時、またはローカルTraceへの明示要求時だけ含める]
+    #   引数: [include_knowledge: Trueはローカル監査用。モデル送信では既定Falseを使う]
+    #   戻り値: [dict: 観測とKnowledgeの出所を分離したJSON化可能な判断材料]
+    # }
+    def to_dict(self, *, include_knowledge: bool = False) -> dict[str, Any]:
+        value = {
             "schema": "decision-context/v1",
             "snapshot_id": self.snapshot_id,
             "state": self.state,
@@ -131,6 +139,15 @@ class DecisionContext:
             "goal": self.goal,
             "uncertainty": list(self.uncertainty),
         }
+        if self.knowledge_projection is not None and (
+            include_knowledge or self.knowledge_projection.expose_to_models
+        ):
+            value["knowledge_projection"] = (
+                self.knowledge_projection.to_dict()
+                if include_knowledge
+                else self.knowledge_projection.to_model_dict()
+            )
+        return value
 
 
 class CandidateContextEvaluator(Protocol):
@@ -515,7 +532,7 @@ class DecisionTraceStore:
                 if candidate.action_id == decision.action_id
                 for evidence in candidate.knowledge
             ],
-            "context": context.to_dict(),
+            "context": context.to_dict(include_knowledge=True),
         }
         if reliability is not None:
             entry["reliability"] = reliability
@@ -569,7 +586,7 @@ class DecisionTraceStore:
             "action_id": reliability.get("action_id", ""),
             "decision": None,
             "reliability": reliability,
-            "context": context.to_dict(),
+            "context": context.to_dict(include_knowledge=True),
         }
         self._append_entry(rejection)
 

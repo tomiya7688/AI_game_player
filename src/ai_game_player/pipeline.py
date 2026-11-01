@@ -23,6 +23,7 @@ from ai_game_player.fail_safe_runtime import (
     FailSafeState,
 )
 from ai_game_player.journal_adapters import LegacyEventAdapter
+from ai_game_player.knowledge_feature_adapter import KnowledgeFeatureAdapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
@@ -71,6 +72,7 @@ class DecisionPipeline:
     #     runtime_log: application log。Journal指定時はeventを同じSessionへ複製する
     #     migrate_legacy: trueなら旧history・trace・execution・safety記録をJournalへ移行する
     #     migrate_runtime_log: trueなら旧RuntimeLog JSONLをJournalへ移行する
+    #     knowledge_adapter: 選択済みKnowledgeをstep固定で投影する。Safetyや実入力許可は変更しない
     #   ]
     #   戻り値: []
     # }
@@ -99,6 +101,7 @@ class DecisionPipeline:
         runtime_log: RuntimeLog | None = None,
         migrate_legacy: bool = True,
         migrate_runtime_log: bool = True,
+        knowledge_adapter: KnowledgeFeatureAdapter | None = None,
     ) -> None:
         self.source = source
         self.ocr = OcrTextCandidateDetector()
@@ -114,6 +117,7 @@ class DecisionPipeline:
             provider,
             event_journal=event_journal,
             migrate_legacy=migrate_legacy,
+            knowledge_adapter=knowledge_adapter,
         )
         self.controller = controller or RunController()
         self._seen_rearm_token = 0

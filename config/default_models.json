@@ -1,0 +1,131 @@
+{
+  "schema": "kadoka.default-models/1",
+  "runtime_family": "llama.cpp-compatible",
+  "distribution_policy": {
+    "weights_committed_to_git": false,
+    "verify_license_and_sha256_before_use": true,
+    "default_network_scope": "localhost-only",
+    "release_1_0_weights_bundled": false,
+    "first_run_auto_acquire": true,
+    "show_license_during_acquire": true,
+    "official_pretrained_profile_bundled_in_1_0": false
+  },
+  "profiles": [
+    {
+      "id": "smoke-tiny",
+      "purpose": "CI, contract test, startup and provider smoke verification",
+      "source_repository": "lmstudio-community/SmolLM2-135M-Instruct-GGUF",
+      "source_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "file": "SmolLM2-135M-Instruct-Q4_K_M.gguf",
+      "quantization": "Q4_K_M",
+      "reported_size": "105 MB",
+      "sha256": "bda484992f9655d22504b14e57985257fa6a86937c61f957cf99c10a3bcae169",
+      "license": "Apache-2.0",
+      "default_context_tokens": 2048,
+      "multimodal_projector_loaded": false,
+      "acceptance": {
+        "quality_role": "ci_endurance_not_release_quality",
+        "must_not_be_used_as_release_quality_baseline": true,
+        "ci_gameplay": {
+          "enabled": true,
+          "reference_level": 1,
+          "game_id": "2048",
+          "decision_provider_required": true,
+          "rule_fallback_for_decision": false,
+          "campaign_wall_seconds": 600,
+          "restart_after_terminal": true,
+          "continue_until_campaign_deadline": true,
+          "hard_fail_on": [
+            "provider_crash",
+            "provider_timeout_budget_exhausted",
+            "schema_violation",
+            "selected_action_outside_allowed_action_ids",
+            "safety_bypass",
+            "execution_failure",
+            "unrecoverable_stall"
+          ],
+          "metrics_only": [
+            "score",
+            "max_tile",
+            "episodes",
+            "accepted_actions",
+            "rejected_actions",
+            "provider_latency",
+            "recovery_count"
+          ],
+          "quality_threshold_enabled": false
+        }
+      }
+    },
+    {
+      "id": "standard-small",
+      "purpose": "Default local decision model candidate",
+      "source_repository": "bartowski/Qwen_Qwen3.5-2B-GGUF",
+      "source_model": "Qwen/Qwen3.5-2B",
+      "file": "Qwen_Qwen3.5-2B-Q4_K_M.gguf",
+      "quantization": "Q4_K_M",
+      "reported_size": "1.40 GB",
+      "sha256": "57a1085840f497d764a7fc5d346922dbde961efb54cc792ea81d694fd846a1d8",
+      "license": "Apache-2.0",
+      "default_context_tokens": 4096,
+      "multimodal_projector_loaded": false,
+      "hardware_acceptance": {
+        "reference_gpu": "NVIDIA GeForce GTX 1080",
+        "reference_vram_gb": 8,
+        "concurrent_kadoka_components": true,
+        "status": "unverified",
+        "required_measurements": [
+          "peak_vram_mb",
+          "peak_system_ram_mb",
+          "decision_latency_p50_ms",
+          "decision_latency_p95_ms",
+          "tokens_per_second",
+          "oom_count"
+        ],
+        "required_oom_count": 0,
+        "reference_gpu_compute_capability": "6.1",
+        "backend_candidates": [
+          "kadoka-bundled-cuda12-sm61",
+          "vulkan",
+          "cpu"
+        ],
+        "official_upstream_cuda_prebuilt_assumed_compatible": false,
+        "notes": [
+          "GTX 1080 is Pascal / sm_61.",
+          "Do not assume current upstream Windows CUDA prebuilt binaries include sm_61.",
+          "Benchmark Kadoka-bundled CUDA 12 sm_61 build and Vulkan before selecting the default backend."
+        ]
+      },
+      "ci_acceptance": {
+        "pr_gate": {
+          "scope": "inference_runtime_model_packaging_changes",
+          "functional_inference_required": true,
+          "minimum_successful_decisions": 1,
+          "full_gameplay_benchmark_required": false,
+          "long_duration_benchmark_required": false,
+          "artifact_cache_key_fields": [
+            "source_repository",
+            "file",
+            "sha256"
+          ],
+          "vram": {
+            "measure_when_available": true,
+            "peak_increment_limit_mib": 6144,
+            "baseline_subtracted": true,
+            "measurement_scope": "entire_kadoka_acceptance_command",
+            "fail_when_measured_over_limit": true,
+            "unavailable_policy": "do_not_fail_vram_only"
+          }
+        },
+        "release_gate_before_1_0_0": {
+          "gtx1080_real_hardware_required": true,
+          "concurrent_kadoka_components_required": true,
+          "real_game_playability_required": true,
+          "public_or_mit_game_required": false,
+          "reject_default_model_if_unplayable": true,
+          "full_memory_latency_stability_benchmark_required": true
+        }
+      }
+    }
+  ]
+}

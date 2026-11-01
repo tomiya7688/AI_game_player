@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/inference-provider/v1/cancel-response.schema.json",
+  "title": "Kadoka Inference Cancel Response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "target_request_id", "status"],
+  "properties": {
+    "schema": { "const": "kadoka.inference.cancel-response/1" },
+    "target_request_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "status": { "enum": ["accepted", "not_found", "already_finished", "unsupported"] },
+    "message": { "type": ["string", "null"], "maxLength": 2048 }
+  }
+}
