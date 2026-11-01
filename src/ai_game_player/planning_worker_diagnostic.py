@@ -238,8 +238,12 @@ _PARENT_IO_PHASES = frozenset(
 )
 
 
+# {
+#   責務: [_parent_clock_ns: 親工程の診断用monotonic時刻を取得する]
+#   処理: [採用deadlineとは独立したclock入口として呼出元で計測失敗を隔離する]
+#   引数: [なし] 戻り値: [int: 親process内だけで比較するnanosecond時刻]
+# }
 def _parent_clock_ns() -> int:
-    """診断用clock入口。実deadlineのauthorityとは独立に失敗を隔離する。"""
     return time.monotonic_ns()
 
 

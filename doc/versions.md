@@ -1,5 +1,6 @@
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- 短比較の初期parityをSAFE_IDLEで検証し、元Run token・同一絶対45秒期限・新物理frame・既存5秒age/Stopを初回activationまで保持。通常600秒経路は維持し、新phase実Windowsは未確認。175の旧phase全18成功/212入力/4保留は別cohortへ保存し、起動前testは元15秒/4候補で未準備を待ちます。
 - 参照2048のnonterminal全空盤は画素confidenceを保持して未準備とし、汎用Coreの共通合法手無しをcontrolled cutoffへ分離。評価OCRはbinary空時だけ同じ2ROIのgray/無whitelistへ進み、literal numeric/.65/端切れ/矛盾拒否を維持。親processの予算内工程時刻は診断だけに保持し、400ms/TTL/child wire/入力は変更しません。
 - 評価Scoreのengine差を固定128条件で診断。同RGB/modelのWin0空を保全し、whitelist/出力形式/白余白整列/階調を同じ変換で比較。選択mode/.65/入力/学習/0期待値は変更しません。
 - 実request以後の物理frameをread_fresh/初期parity後に要求し、旧queueはlease前に破棄。空の予算保留通知は完成SELECTの受領期限と区別し、比較だけmax12判断attempt/holdも消費してfresh再計画します。400ms/3s/4s/5s/GUI停止仕様は維持。評価Scoreは全foreground union＋異なる2marginへ進め、Winの0画像失敗をPSM/model/画素hash診断で再検証します。

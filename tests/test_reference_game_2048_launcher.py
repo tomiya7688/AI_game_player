@@ -581,17 +581,43 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         observation = frame_analyzer.analyze(frame, "live-2048")
                         adapted, candidates = adapter.adapt(frame, observation)
                         game_state = adapted.features["game_2048"]
-                        if (
-                            game_state["board"] is not None
-                            or time.monotonic() >= deadline
-                        ):
+                        candidate_labels = [candidate.label for candidate in candidates]
+                        checked_at = time.monotonic()
+                        ready_for_input = (
+                            game_state.get("state_available") is True
+                            and candidate_labels == ["UP", "DOWN", "LEFT", "RIGHT"]
+                            and checked_at < deadline
+                        )
+                        if ready_for_input or checked_at >= deadline:
                             break
                         time.sleep(LIVE_BOARD_POLL_INTERVAL_SECONDS)
                 finally:
                     capture.close()
                     print("2048 integration: HWND capture resources closed", flush=True)
+                readiness_diagnostic = {
+                    "event": "2048_integration_startup_readiness",
+                    "ready_for_input": ready_for_input,
+                    "capture_attempts": capture_attempt,
+                    "render_timeout_seconds": LIVE_BOARD_RENDER_TIMEOUT_SECONDS,
+                    "render_deadline_reached": checked_at >= deadline,
+                    "board": game_state.get("board"),
+                    "confidence": game_state.get("confidence"),
+                    "state_available": game_state.get("state_available"),
+                    "unavailable_reason": game_state.get("unavailable_reason"),
+                    "game_over": game_state.get("game_over"),
+                    "candidate_count": len(candidates),
+                    "candidate_labels": [candidate.label for candidate in candidates][
+                        :4
+                    ],
+                }
+                print(
+                    json.dumps(readiness_diagnostic, ensure_ascii=True, sort_keys=True)[
+                        :2048
+                    ],
+                    flush=True,
+                )
                 failure_diagnostic = None
-                if game_state["board"] is None:
+                if not ready_for_input:
                     diagnostic_directory = Path("build/e2e")
                     diagnostic_directory.mkdir(parents=True, exist_ok=True)
                     user32 = ctypes.windll.user32
@@ -671,6 +697,7 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                             frame, nearest_distance_by_rgb
                         ),
                         "capture_backend_error": capture.last_backend_error,
+                        "readiness": readiness_diagnostic,
                     }
                     failure_diagnostic = json.dumps(
                         diagnostic, ensure_ascii=False, sort_keys=True
@@ -679,11 +706,11 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         json.dumps(diagnostic, ensure_ascii=False, indent=2),
                         encoding="utf-8",
                     )
-                self.assertIsNotNone(
-                    game_state["board"],
+                self.assertTrue(
+                    ready_for_input,
                     f"frame={frame.width}x{frame.height}, mean={observation.features.get('mean_rgb')}, "
                     f"confidence={game_state['confidence']}, foreground={launcher.window_is_foreground}, "
-                    f"diagnostics={failure_diagnostic}",
+                    f"readiness={readiness_diagnostic}, diagnostics={str(failure_diagnostic)[:2048]}",
                 )
                 self.assertEqual(
                     [candidate.label for candidate in candidates],

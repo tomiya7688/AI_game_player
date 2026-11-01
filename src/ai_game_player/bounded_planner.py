@@ -208,7 +208,7 @@ class BoundedExpectimaxPlanner:
 
     # {
     #   責務: [_run: 親deadlineとStopを監視し受領済みcheckpointだけを採用する]
-    #   引数: [directory, nonce, belief, allowed, registration, budget, token, cutoff, current] 戻り値: [宣言した型の結果。契約違反は呼出元境界へ通知]
+    #   引数: [directory, nonce, belief, allowed, registration, budget, token, cutoff, current, parent_timing: 採用に使わない任意の親工程診断] 戻り値: [宣言した型の結果。契約違反は呼出元境界へ通知]
     # }
     def _run(
         self,

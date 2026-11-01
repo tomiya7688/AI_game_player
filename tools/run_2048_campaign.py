@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from dataclasses import replace
 from uuid import uuid4
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -32,7 +33,9 @@ from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.planner_factory import reference_2048_planner_provider
 from ai_game_player.run_control import RunController
 from ai_game_player.decision_context import DecisionContext
-from ai_game_player.fail_safe_runtime import FailSafeConfig
+from ai_game_player.fail_safe_runtime import FailSafeConfig, FailSafeState
+from ai_game_player.observation_freshness import ObservationFreshness
+from ai_game_player.game_2048_state import Game2048State
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -125,6 +128,7 @@ class Cached2048ObservationSource:
         self.latest_frame: ScreenFrame | None = None
         self.recent_capture_diagnostics: list[dict[str, object]] = []
         self._last_accepted_frame_ns = 0
+        self._closed = False
 
     def _capture_timed_frame(self):
         started_ns = time.monotonic_ns()
@@ -206,7 +210,12 @@ class Cached2048ObservationSource:
         on_fresh_frame: Callable[[], None] | None = None,
         *,
         timeout_seconds: float = SCREEN_READY_TIMEOUT_SECONDS,
+        check_cancelled: Callable[[], None] | None = None,
     ) -> CampaignState:
+        if getattr(self, "_closed", False):
+            raise RuntimeError("observation source is closed")
+        if check_cancelled is not None:
+            check_cancelled()
         self.observation_timing = ObservationTiming()
         self._cached_read = None
         self.latest_observation = None
@@ -226,6 +235,8 @@ class Cached2048ObservationSource:
         frame_signatures: set[str] = set()
         last_frame: ScreenFrame | None = None
         while time.monotonic() < deadline:
+            if check_cancelled is not None:
+                check_cancelled()
             capture_attempts += 1
             try:
                 with self.observation_timing.measure("capture"):
@@ -235,6 +246,8 @@ class Cached2048ObservationSource:
                     "capture_failure",
                     f"2048 window capture failed: {type(error).__name__}: {error}",
                 ) from error
+            if check_cancelled is not None:
+                check_cancelled()
             last_frame = frame
             self.latest_capture_diagnostics = measured
             self.recent_capture_diagnostics = [
@@ -283,19 +296,6 @@ class Cached2048ObservationSource:
                 ):
                     self.latest_capture_diagnostics["discarded_analysis_timeout"] = True
                     continue
-                self.capture_sequence += 1
-                adapted = replace(
-                    adapted,
-                    features={
-                        **adapted.features,
-                        "capture_metadata": {
-                            "source_id": self.source_id,
-                            "frame_id": f"{self.source_id}.frame{self.capture_sequence}",
-                            "source_generation": 0,
-                            "monotonic_ns": int(frame.captured_at * 1_000_000_000),
-                        },
-                    },
-                )
             except Exception as error:
                 raise self._recognition_failure(
                     f"2048 screen analysis failed: {type(error).__name__}: {error}",
@@ -303,6 +303,22 @@ class Cached2048ObservationSource:
                     {},
                     {"capture_attempts": capture_attempts},
                 ) from error
+
+            if check_cancelled is not None:
+                check_cancelled()
+            self.capture_sequence += 1
+            adapted = replace(
+                adapted,
+                features={
+                    **adapted.features,
+                    "capture_metadata": {
+                        "source_id": self.source_id,
+                        "frame_id": f"{self.source_id}.frame{self.capture_sequence}",
+                        "source_generation": 0,
+                        "monotonic_ns": int(frame.captured_at * 1_000_000_000),
+                    },
+                },
+            )
 
             frame_signature = observation.features.get("signature")
             if isinstance(frame_signature, str) and frame_signature:
@@ -331,6 +347,8 @@ class Cached2048ObservationSource:
                 and type(terminal) is bool
                 and (terminal or candidates)
             ):
+                if check_cancelled is not None:
+                    check_cancelled()
                 score = raw_state.get("score")
                 max_tile = max(
                     (
@@ -355,7 +373,11 @@ class Cached2048ObservationSource:
                         self.failure_evidence.record_playable(frame, raw_state)
                 return CampaignState(signature, terminal, score, max_tile)
             with self.observation_timing.measure("retry_wait"):
+                if check_cancelled is not None:
+                    check_cancelled()
                 time.sleep(SCREEN_READY_POLL_SECONDS)
+            if check_cancelled is not None:
+                check_cancelled()
 
         confidence = last_state.get("confidence")
         candidate_confidence_threshold = getattr(
@@ -431,6 +453,7 @@ class Cached2048ObservationSource:
         return self.read()
 
     def close(self) -> None:
+        self._closed = True
         capture_error = None
         try:
             self.capture.close()
@@ -492,13 +515,20 @@ class ReferenceGame2048Episode(CampaignEpisode):
     def validate_preprocessing(self):
         from tools.planning_frame_parity import validate_native_preprocessing
 
+        if self._comparison_preflight:
+            assert self._preflight_token is not None
+            self._check_preflight_current(self._preflight_token)
+
         if self.source is None:
             raise RuntimeError("comparison source is unavailable")
         runtime = self.source._preprocessor_runtime
         if runtime is None:
             raise RuntimeError("explicit native comparison preprocessor is unavailable")
         try:
-            return validate_native_preprocessing(self.source.latest_frame, runtime)
+            report = validate_native_preprocessing(self.source.latest_frame, runtime)
+            if self._comparison_preflight:
+                self._check_preflight_current(self._preflight_token)
+            return report
         finally:
             self.source.latest_frame = None
 
@@ -517,7 +547,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
         test_seed: int | None = None,
         event_journal: EventJournal | None = None,
         wgc_timeout_ms: int | None = None,
+        comparison_preflight: bool = False,
     ) -> None:
+        if type(comparison_preflight) is not bool:
+            raise ValueError("comparison preflight requires an explicit boolean")
         if type(native_preprocessing) is not bool:
             raise ValueError("native preprocessing requires an explicit boolean")
         if decision_provider not in {"cycling", "baseline", "planner"}:
@@ -540,6 +573,9 @@ class ReferenceGame2048Episode(CampaignEpisode):
         self.pipeline: DecisionPipeline | None = None
         self._safety_rearmed = False
         self._closed = False
+        self._comparison_preflight = comparison_preflight
+        self._preflight_token: int | None = None
+        self._preflight_deadline: float | None = None
         try:
             self.launcher.start()
             window = self.launcher.window_info
@@ -568,6 +604,8 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 ),
             )
             controller = RunController()
+            if comparison_preflight:
+                self._preflight_token = controller.rearm_token
             provider = (
                 reference_2048_planner_provider(
                     controller=controller, allow_conditional=planner_conditional
@@ -606,7 +644,199 @@ class ReferenceGame2048Episode(CampaignEpisode):
             self.close()
             raise
 
+    def _check_preflight_current(
+        self, expected_rearm_token: int, *, activation_completed: bool = False
+    ) -> None:
+        if (
+            not self._comparison_preflight
+            or self._closed
+            or self._safety_rearmed
+            or type(expected_rearm_token) is not int
+            or expected_rearm_token != self._preflight_token
+            or self.pipeline is None
+            or self.source is None
+            or getattr(self.source, "_closed", False)
+        ):
+            raise RuntimeError("comparison preflight is not available in this episode")
+        pipeline, source = self.pipeline, self.source
+        pipeline.controller.ensure_running(expected_rearm_token)
+        pipeline.executor.ensure_initialization_not_stopped()
+        runtime = pipeline.executor.fail_safe_runtime
+        valid_runtime = runtime is not None and (
+            (
+                runtime.state is FailSafeState.ACTIVE
+                and bool(runtime.epoch)
+                and runtime.reason == "initial_lease"
+            )
+            if activation_completed
+            else (
+                runtime.state is FailSafeState.SAFE_IDLE
+                and not runtime.epoch
+                and runtime.reason == "startup_safe_idle"
+            )
+        )
+        if not valid_runtime or pipeline.engine.has_pending_execution_observation:
+            raise RuntimeError(
+                "comparison preflight requires a fresh SAFE_IDLE runtime"
+            )
+        process = self.launcher.browser_process
+        window = self.launcher.window_info
+        if (
+            process is None
+            or process.poll() is not None
+            or window is None
+            or window.handle != source.window_handle
+            or process.pid != window.process_id
+            or source.window_process_id != process.pid
+            or pipeline.executor.window_handle != source.window_handle
+            or pipeline.executor.window_process_id != process.pid
+        ):
+            raise RuntimeError("comparison preflight ownership is unavailable")
+        target = pipeline.executor.safety_guard.target_probe.inspect(
+            source.window_handle
+        )
+        if (
+            not target.valid
+            or not target.visible
+            or target.handle != source.window_handle
+            or target.pid != process.pid
+        ):
+            raise RuntimeError("comparison preflight target ownership changed")
+        pipeline.controller.ensure_running(expected_rearm_token)
+        pipeline.executor.ensure_initialization_not_stopped()
+
+    def _check_preflight_deadline(self, deadline_monotonic: float) -> None:
+        """Keep the original comparison readiness deadline across every idle capture."""
+        if type(deadline_monotonic) not in (int, float) or not math.isfinite(
+            deadline_monotonic
+        ):
+            raise ValueError("preflight requires a finite absolute ready deadline")
+        now = time.monotonic()
+        original = self._preflight_deadline
+        if original is None:
+            if not now < deadline_monotonic <= now + SCREEN_READY_TIMEOUT_SECONDS:
+                raise ValueError(
+                    "preflight requires the existing bounded ready deadline"
+                )
+            self._preflight_deadline = deadline_monotonic
+        elif deadline_monotonic != original:
+            raise ValueError("preflight cannot replace the original ready deadline")
+        if now >= deadline_monotonic:
+            raise RuntimeError("comparison preflight ready deadline expired")
+
+    def _check_preflight_capture_current(
+        self, expected_rearm_token: int, deadline_monotonic: float
+    ) -> None:
+        self._check_preflight_deadline(deadline_monotonic)
+        self._check_preflight_current(expected_rearm_token)
+        # Target inspection may perform I/O; its return cannot renew the budget.
+        self._check_preflight_deadline(deadline_monotonic)
+
+    def capture_preflight(
+        self, *, expected_rearm_token: int, deadline_monotonic: float
+    ) -> CampaignState:
+        """Capture owned readiness evidence while the input gate remains SAFE_IDLE."""
+        self._check_preflight_deadline(deadline_monotonic)
+        self._check_preflight_capture_current(expected_rearm_token, deadline_monotonic)
+        assert self.source is not None
+        state = self.source.capture_playable_state(
+            on_fresh_frame=None,
+            timeout_seconds=deadline_monotonic - time.monotonic(),
+            check_cancelled=lambda: self._check_preflight_capture_current(
+                expected_rearm_token, deadline_monotonic
+            ),
+        )
+        self._check_preflight_capture_current(expected_rearm_token, deadline_monotonic)
+        return state
+
+    def activate_preflight(
+        self, *, expected_rearm_token: int, deadline_monotonic: float
+    ) -> CampaignState:
+        """Acquire a new physical frame, then initialize the original gate exactly once."""
+        self._check_preflight_capture_current(expected_rearm_token, deadline_monotonic)
+        assert self.source is not None and self.pipeline is not None
+        previous = (
+            ObservationFreshness.from_observation(self.source.latest_observation)
+            if self.source.latest_observation is not None
+            else None
+        )
+        requested = time.monotonic()
+        self.source.not_before = max(self.source.not_before, requested)
+        state = self.capture_preflight(
+            expected_rearm_token=expected_rearm_token,
+            deadline_monotonic=deadline_monotonic,
+        )
+        self._check_preflight_current(expected_rearm_token)
+        observation = self.source.latest_observation
+        if observation is None:
+            raise RuntimeError("comparison activation requires a physical observation")
+        capture = ObservationFreshness.from_observation(observation)
+        now = time.monotonic_ns()
+        if (
+            (previous is not None and not capture.is_newer_than(previous))
+            or capture.source_id != self.source.source_id
+            or capture.captured_at_ns < int(requested * 1e9)
+            or not 0
+            <= now - capture.captured_at_ns
+            < CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS * 1e9
+        ):
+            raise RuntimeError("comparison activation frame is stale or unrelated")
+        game = observation.features.get("game_2048", {})
+        if game.get("state_available") is False:
+            raise RuntimeError("comparison activation board is unavailable")
+        Game2048State(
+            tuple(tuple(row) for row in game["board"]),
+            score=game.get("score"),
+            over=game["game_over"],
+        )
+        self._check_preflight_capture_current(expected_rearm_token, deadline_monotonic)
+        try:
+            self.pipeline.initialize_safety(expected_rearm_token=expected_rearm_token)
+            self._check_preflight_current(
+                expected_rearm_token, activation_completed=True
+            )
+            self._check_preflight_deadline(deadline_monotonic)
+            if (
+                not 0
+                <= time.monotonic_ns() - capture.captured_at_ns
+                < CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS * 1e9
+            ):
+                raise RuntimeError(
+                    "comparison activation observation expired during initialization"
+                )
+
+            def publish_activation() -> None:
+                # Only clocks and Stop Event reads belong under the short generation lock.
+                self.pipeline.executor.ensure_initialization_not_stopped()
+                self._check_preflight_deadline(deadline_monotonic)
+                if (
+                    not 0
+                    <= time.monotonic_ns() - capture.captured_at_ns
+                    < CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS * 1e9
+                ):
+                    raise RuntimeError(
+                        "comparison activation observation expired before publication"
+                    )
+                self._safety_rearmed = True
+
+            self.pipeline.controller.run_if_current(
+                expected_rearm_token, publish_activation
+            )
+        except Exception:
+            if self.pipeline.controller.is_running:
+                self.pipeline.controller.stop("comparison activation failed")
+            runtime = self.pipeline.executor.fail_safe_runtime
+            if runtime is not None and runtime.state is FailSafeState.ACTIVE:
+                try:
+                    runtime.emergency_stop("comparison_activation_failed")
+                except Exception as stop_error:
+                    self._preflight_cleanup_error_type = type(stop_error).__name__[:64]
+            raise
+        return state
+
     def observe(self, *, timeout_seconds: float | None = None) -> CampaignState:
+        if getattr(self, "_comparison_preflight", False) and not self._safety_rearmed:
+            raise RuntimeError("comparison requires explicit preflight activation")
         if self.source is None:
             raise CampaignFailure(
                 "capture_failure", "2048 episode has no window observation source"
