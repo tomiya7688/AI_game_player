@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "git_commit": "ee2dbe413a575686c113ef23363babbdc60dc48e",
+  "git_status": "",
+  "source_at_start": {
+    "python_file_count": 261,
+    "sha256": "6d0d425fbc83b5bda2f27deaf2e16fc1f69eaeaaba632b40f39003c3ccbf3fac"
+  },
+  "harness_sha256": "57903b6c60b6c3e1e8c9b16a0ac110d1368b68ad06aeffe1a73e0fb6e19372c7",
+  "scope": "synthetic deepcopy of Journal adapter cache; not end-to-end latency or actual play",
+  "fixture": "same two-world/two-action/32-chance-atom result for both layouts; only full-payload vs stable eventref differs",
+  "records": 180,
+  "samples": 11,
+  "full": {
+    "copy_p50_ms": 102.929124,
+    "copy_p95_ms": 105.879332,
+    "peak_copy_allocation_bytes": 14986776,
+    "serialized_bytes": 6359760,
+    "samples_ms": [
+      105.049448,
+      105.879332,
+      103.975295,
+      101.552333,
+      102.929124,
+      100.721758,
+      104.076779,
+      108.552242,
+      100.893357,
+      99.488625,
+      102.115154
+    ]
+  },
+  "reference": {
+    "copy_p50_ms": 7.165008,
+    "copy_p95_ms": 9.222256,
+    "peak_copy_allocation_bytes": 1086400,
+    "serialized_bytes": 368280,
+    "samples_ms": [
+      6.953357,
+      7.079048,
+      6.866406,
+      7.341945,
+      6.718162,
+      12.584277,
+      9.222256,
+      7.069203,
+      7.165008,
+      7.365871,
+      7.236025
+    ]
+  },
+  "source_at_end": {
+    "python_file_count": 261,
+    "sha256": "6d0d425fbc83b5bda2f27deaf2e16fc1f69eaeaaba632b40f39003c3ccbf3fac"
+  },
+  "source_consistent": true,
+  "source_report_sha256": "ebe9fa9cc66530d2c57f8c1f16629180b0794b8344a24c54bb819da96e380538",
+  "source_report_path": "build/planning-comparison/trace-cost/run-4bfd90ed9d9f4cc5ae83a9b387c2a3d3/report.json"
+}

@@ -94,6 +94,8 @@ class PlannerDecisionProvider:
         self._guard = None
         self._authorized_capture = None
         self._prepared = None
+        self.last_planning_result = None
+        self.last_policy_decision = None
         self._allowed_candidates = candidates
         self._context, self._observation = context, observation
         self._run_generation = 0 if run_generation is None else run_generation
@@ -220,7 +222,10 @@ class PlannerDecisionProvider:
             raise DecisionWithheld(
                 DecisionDisposition(
                     decision.outcome,
-                    decision.reason_codes or ("planning_withheld",),
+                    (
+                        *(decision.reason_codes or ("planning_withheld",))[:31],
+                        "planning_core_" + result.reason[:128],
+                    ),
                     "belief_planner",
                     context.snapshot_id,
                 )

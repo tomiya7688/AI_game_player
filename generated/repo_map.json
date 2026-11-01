@@ -24619,7 +24619,7 @@
       "module": "ai_game_player.expectimax_search",
       "path": "src/ai_game_player/expectimax_search.py",
       "source_location": {
-        "end_line": 577,
+        "end_line": 585,
         "start_line": 1
       },
       "symbols": [
@@ -24774,7 +24774,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 146,
+            "end_line": 154,
             "start_line": 92
           }
         },
@@ -24838,7 +24838,7 @@
           "signature": "(self, outcomes: tuple[WeightedValue, ...], multiplier: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 134,
+            "end_line": 142,
             "start_line": 105
           }
         },
@@ -24861,8 +24861,8 @@
           "signature": "(self) -> tuple[tuple[WeightedValue, ...], float]",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 140
+            "end_line": 154,
+            "start_line": 148
           }
         },
         {
@@ -24883,8 +24883,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 569,
-            "start_line": 156
+            "end_line": 577,
+            "start_line": 164
           }
         },
         {
@@ -24948,8 +24948,8 @@
           "signature": "(self, domain: PlanningDomain[StateT], registration: PlanningRegistration, budget: SearchBudget, hypotheses: tuple[SearchHypothesis[StateT], ...], allowed: tuple[str, ...], kind: BeliefWeightKind, residual: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 161
+            "end_line": 228,
+            "start_line": 169
           }
         },
         {
@@ -24971,8 +24971,8 @@
           "signature": "(self) -> PlanningCounters",
           "source_location": {
             "column": 4,
-            "end_line": 235,
-            "start_line": 226
+            "end_line": 243,
+            "start_line": 234
           }
         },
         {
@@ -24994,8 +24994,8 @@
           "signature": "(self) -> Iterator[tuple[int, tuple[PlanningActionValue, ...], PlanningCounters]]",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 241
+            "end_line": 269,
+            "start_line": 249
           }
         },
         {
@@ -25029,8 +25029,8 @@
           "signature": "(self, action: str, depth: int) -> PlanningActionValue",
           "source_location": {
             "column": 4,
-            "end_line": 279,
-            "start_line": 267
+            "end_line": 287,
+            "start_line": 275
           }
         },
         {
@@ -25064,8 +25064,8 @@
           "signature": "(self, state: TypedStateRef[StateT], sequence: tuple[str, ...]) -> NodeValue",
           "source_location": {
             "column": 4,
-            "end_line": 306,
-            "start_line": 285
+            "end_line": 314,
+            "start_line": 293
           }
         },
         {
@@ -25105,8 +25105,8 @@
           "signature": "(self, action: str, depth: int, sequence: tuple[str, ...] | None = …) -> PlanningActionValue",
           "source_location": {
             "column": 4,
-            "end_line": 365,
-            "start_line": 312
+            "end_line": 373,
+            "start_line": 320
           }
         },
         {
@@ -25140,8 +25140,8 @@
           "signature": "(self, state: TypedStateRef[StateT], remaining: int) -> NodeValue",
           "source_location": {
             "column": 4,
-            "end_line": 397,
-            "start_line": 371
+            "end_line": 405,
+            "start_line": 379
           }
         },
         {
@@ -25187,8 +25187,8 @@
           "signature": "(self, state: TypedStateRef[StateT], action: str, remaining: int, tail: tuple[str, ...] | None = …) -> NodeValue",
           "source_location": {
             "column": 4,
-            "end_line": 472,
-            "start_line": 403
+            "end_line": 480,
+            "start_line": 411
           }
         },
         {
@@ -25216,8 +25216,8 @@
           "signature": "(self, state: StateT) -> NodeValue",
           "source_location": {
             "column": 4,
-            "end_line": 494,
-            "start_line": 478
+            "end_line": 502,
+            "start_line": 486
           }
         },
         {
@@ -25245,8 +25245,8 @@
           "signature": "(self, state: StateT) -> tuple[str, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 512,
-            "start_line": 500
+            "end_line": 520,
+            "start_line": 508
           }
         },
         {
@@ -25274,8 +25274,8 @@
           "signature": "(self, state: StateT) -> TypedStateRef[StateT]",
           "source_location": {
             "column": 4,
-            "end_line": 529,
-            "start_line": 518
+            "end_line": 537,
+            "start_line": 526
           }
         },
         {
@@ -25309,8 +25309,8 @@
           "signature": "(self, key: tuple[str, int | tuple[str, ...]], value: NodeValue) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 551,
-            "start_line": 535
+            "end_line": 559,
+            "start_line": 543
           }
         },
         {
@@ -25332,8 +25332,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 561,
-            "start_line": 557
+            "end_line": 569,
+            "start_line": 565
           }
         },
         {
@@ -25355,8 +25355,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 569,
-            "start_line": 567
+            "end_line": 577,
+            "start_line": 575
           }
         },
         {
@@ -25378,8 +25378,8 @@
           "signature": "(value: float) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 577,
-            "start_line": 576
+            "end_line": 585,
+            "start_line": 584
           }
         }
       ]
@@ -52028,7 +52028,7 @@
       "module": "ai_game_player.planner_provider",
       "path": "src/ai_game_player/planner_provider.py",
       "source_location": {
-        "end_line": 383,
+        "end_line": 388,
         "start_line": 1
       },
       "symbols": [
@@ -52048,7 +52048,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 383,
+            "end_line": 388,
             "start_line": 38
           }
         },
@@ -52160,7 +52160,7 @@
           "signature": "(self, context: DecisionContext, observation: ScreenObservation, run_generation: int | None, candidates: tuple[ActionCandidate, ...]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 143,
+            "end_line": 145,
             "start_line": 87
           }
         },
@@ -52189,8 +52189,8 @@
           "signature": "(self, observation: ScreenObservation) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 151
+            "end_line": 163,
+            "start_line": 153
           }
         },
         {
@@ -52224,8 +52224,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 255,
-            "start_line": 169
+            "end_line": 260,
+            "start_line": 171
           }
         },
         {
@@ -52271,8 +52271,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate], selected: ActionCandidate, generation: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 263
+            "end_line": 283,
+            "start_line": 268
           }
         },
         {
@@ -52300,8 +52300,8 @@
           "signature": "(self, generation: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 290,
-            "start_line": 285
+            "end_line": 295,
+            "start_line": 290
           }
         },
         {
@@ -52323,8 +52323,8 @@
           "signature": "(self) -> Any",
           "source_location": {
             "column": 4,
-            "end_line": 315,
-            "start_line": 297
+            "end_line": 320,
+            "start_line": 302
           }
         },
         {
@@ -52346,8 +52346,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 322
+            "end_line": 329,
+            "start_line": 327
           }
         },
         {
@@ -52375,8 +52375,8 @@
           "signature": "(self, receipt: ExecutionReceipt) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 358,
-            "start_line": 331
+            "end_line": 363,
+            "start_line": 336
           }
         },
         {
@@ -52400,8 +52400,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 365
+            "end_line": 371,
+            "start_line": 370
           }
         },
         {
@@ -52435,8 +52435,8 @@
           "signature": "(self, reason: str, outcome: PlanningOutcome = …) -> NoReturn",
           "source_location": {
             "column": 4,
-            "end_line": 383,
-            "start_line": 373
+            "end_line": 388,
+            "start_line": 378
           }
         }
       ]
@@ -99343,6 +99343,7 @@
         "ai_game_player.evaluation_quality",
         "ai_game_player.expectimax_search",
         "ai_game_player.game_2048_state",
+        "ai_game_player.game_2048_transition",
         "ai_game_player.planning_2048",
         "ai_game_player.planning_contract",
         "ai_game_player.planning_outcome",
@@ -99394,9 +99395,35 @@
           ]
         },
         {
-          "kind": "from",
+          "kind": "import",
           "level": 0,
           "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -99409,7 +99436,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 5,
+          "line": 7,
           "local_dependencies": [],
           "module": "subprocess",
           "names": [
@@ -99422,7 +99449,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 6,
+          "line": 8,
           "local_dependencies": [],
           "module": "threading",
           "names": [
@@ -99435,7 +99462,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 9,
           "local_dependencies": [],
           "module": "types",
           "names": [
@@ -99448,7 +99475,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 10,
           "local_dependencies": [],
           "module": "time",
           "names": [
@@ -99461,7 +99488,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 9,
+          "line": 11,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -99474,7 +99501,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 12,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -99487,7 +99514,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.belief_candidate_store"
@@ -99507,7 +99534,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.belief_contract"
@@ -99543,7 +99570,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 26,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.bounded_planner"
@@ -99559,7 +99586,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.evaluation_quality"
@@ -99575,7 +99602,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 28,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.expectimax_search"
@@ -99603,7 +99630,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 32,
+          "line": 34,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_state"
@@ -99619,7 +99646,23 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 33,
+          "line": 35,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_transition"
+          ],
+          "module": "ai_game_player.game_2048_transition",
+          "names": [
+            {
+              "alias": null,
+              "name": "ACTION_DIRECTION_BY_ID"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 36,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_2048"
@@ -99635,7 +99678,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 34,
+          "line": 37,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_contract"
@@ -99659,7 +99702,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 39,
+          "line": 42,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_result"
@@ -99675,7 +99718,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 40,
+          "line": 43,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_outcome"
@@ -99691,7 +99734,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 41,
+          "line": 44,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_worker_limits"
@@ -99707,7 +99750,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 42,
+          "line": 45,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_wire"
@@ -99723,7 +99766,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 43,
+          "line": 46,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -99739,7 +99782,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 44,
+          "line": 47,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.transition_model"
@@ -99759,7 +99802,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 45,
+          "line": 48,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.world_state_hypothesis"
@@ -99784,7 +99827,7 @@
       "module": "tests.test_expectimax_planner",
       "path": "tests/test_expectimax_planner.py",
       "source_location": {
-        "end_line": 817,
+        "end_line": 917,
         "start_line": 1
       },
       "symbols": [
@@ -99804,8 +99847,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 95,
-            "start_line": 52
+            "end_line": 98,
+            "start_line": 55
           }
         },
         {
@@ -99833,8 +99876,8 @@
           "signature": "(self, behavior = …)",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 53
+            "end_line": 58,
+            "start_line": 56
           }
         },
         {
@@ -99868,8 +99911,8 @@
           "signature": "(self, state, action_id)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 57
+            "end_line": 72,
+            "start_line": 60
           }
         },
         {
@@ -99897,8 +99940,8 @@
           "signature": "(self, transition)",
           "source_location": {
             "column": 4,
-            "end_line": 95,
-            "start_line": 71
+            "end_line": 98,
+            "start_line": 74
           }
         },
         {
@@ -99917,8 +99960,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 120,
-            "start_line": 98
+            "end_line": 123,
+            "start_line": 101
           }
         },
         {
@@ -99946,8 +99989,8 @@
           "signature": "(self, behavior = …)",
           "source_location": {
             "column": 4,
-            "end_line": 100,
-            "start_line": 99
+            "end_line": 103,
+            "start_line": 102
           }
         },
         {
@@ -99975,8 +100018,8 @@
           "signature": "(self, state)",
           "source_location": {
             "column": 4,
-            "end_line": 120,
-            "start_line": 102
+            "end_line": 123,
+            "start_line": 105
           }
         },
         {
@@ -99998,8 +100041,8 @@
           "signature": "(raw)",
           "source_location": {
             "column": 0,
-            "end_line": 127,
-            "start_line": 123
+            "end_line": 130,
+            "start_line": 126
           }
         },
         {
@@ -100021,8 +100064,8 @@
           "signature": "(behavior)",
           "source_location": {
             "column": 0,
-            "end_line": 142,
-            "start_line": 130
+            "end_line": 145,
+            "start_line": 133
           }
         },
         {
@@ -100044,8 +100087,8 @@
           "signature": "(state)",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 131
+            "end_line": 141,
+            "start_line": 134
           }
         },
         {
@@ -100060,8 +100103,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 146,
-            "start_line": 145
+            "end_line": 149,
+            "start_line": 148
           }
         },
         {
@@ -100076,8 +100119,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 150,
-            "start_line": 149
+            "end_line": 153,
+            "start_line": 152
           }
         },
         {
@@ -100092,8 +100135,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 154,
-            "start_line": 153
+            "end_line": 157,
+            "start_line": 156
           }
         },
         {
@@ -100108,8 +100151,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 158,
-            "start_line": 157
+            "end_line": 161,
+            "start_line": 160
           }
         },
         {
@@ -100124,8 +100167,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 162,
-            "start_line": 161
+            "end_line": 165,
+            "start_line": 164
           }
         },
         {
@@ -100140,8 +100183,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 166,
-            "start_line": 165
+            "end_line": 169,
+            "start_line": 168
           }
         },
         {
@@ -100156,8 +100199,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 170,
-            "start_line": 169
+            "end_line": 173,
+            "start_line": 172
           }
         },
         {
@@ -100172,8 +100215,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 174,
-            "start_line": 173
+            "end_line": 177,
+            "start_line": 176
           }
         },
         {
@@ -100188,8 +100231,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 178,
-            "start_line": 177
+            "end_line": 181,
+            "start_line": 180
           }
         },
         {
@@ -100204,8 +100247,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 182,
-            "start_line": 181
+            "end_line": 185,
+            "start_line": 184
           }
         },
         {
@@ -100220,8 +100263,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 186,
-            "start_line": 185
+            "end_line": 189,
+            "start_line": 188
           }
         },
         {
@@ -100236,8 +100279,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 190,
-            "start_line": 189
+            "end_line": 193,
+            "start_line": 192
           }
         },
         {
@@ -100252,8 +100295,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 194,
-            "start_line": 193
+            "end_line": 197,
+            "start_line": 196
           }
         },
         {
@@ -100268,8 +100311,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 198,
-            "start_line": 197
+            "end_line": 201,
+            "start_line": 200
           }
         },
         {
@@ -100284,8 +100327,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 202,
-            "start_line": 201
+            "end_line": 205,
+            "start_line": 204
           }
         },
         {
@@ -100306,8 +100349,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 777,
-            "start_line": 205
+            "end_line": 877,
+            "start_line": 208
           }
         },
         {
@@ -100371,8 +100414,8 @@
           "signature": "(self, *, states = …, weights = …, kind = …, ttl = …, game_id = …, schema = …, state_type = …)",
           "source_location": {
             "column": 4,
-            "end_line": 264,
-            "start_line": 206
+            "end_line": 267,
+            "start_line": 209
           }
         },
         {
@@ -100400,8 +100443,8 @@
           "signature": "(self, factory = …)",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 266
+            "end_line": 281,
+            "start_line": 269
           }
         },
         {
@@ -100459,8 +100502,8 @@
           "signature": "(self, *, factory = …, belief = …, budget = …, allowed = …, current = …, controller = …)",
           "source_location": {
             "column": 4,
-            "end_line": 303,
-            "start_line": 280
+            "end_line": 306,
+            "start_line": 283
           }
         },
         {
@@ -100482,8 +100525,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 333,
-            "start_line": 305
+            "end_line": 336,
+            "start_line": 308
           }
         },
         {
@@ -100505,8 +100548,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 344,
-            "start_line": 335
+            "end_line": 347,
+            "start_line": 338
           }
         },
         {
@@ -100528,8 +100571,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 369,
-            "start_line": 346
+            "end_line": 372,
+            "start_line": 349
           }
         },
         {
@@ -100551,8 +100594,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 390,
-            "start_line": 371
+            "end_line": 393,
+            "start_line": 374
           }
         },
         {
@@ -100580,8 +100623,8 @@
           "signature": "(path, maximum)",
           "source_location": {
             "column": 8,
-            "end_line": 382,
-            "start_line": 374
+            "end_line": 385,
+            "start_line": 377
           }
         },
         {
@@ -100603,8 +100646,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 400,
-            "start_line": 392
+            "end_line": 403,
+            "start_line": 395
           }
         },
         {
@@ -100626,8 +100669,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 422,
-            "start_line": 402
+            "end_line": 425,
+            "start_line": 405
           }
         },
         {
@@ -100649,8 +100692,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 439,
-            "start_line": 424
+            "end_line": 442,
+            "start_line": 427
           }
         },
         {
@@ -100672,8 +100715,77 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 449,
-            "start_line": 441
+            "end_line": 452,
+            "start_line": 444
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bin_merge_of_equal_points_cannot_round_above_its_support",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectimaxPlannerTests.test_bin_merge_of_equal_points_cannot_round_above_its_support",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 467,
+            "start_line": 454
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bin_convex_means_match_fraction_oracle_across_extreme_masses",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectimaxPlannerTests.test_bin_convex_means_match_fraction_oracle_across_extreme_masses",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 497,
+            "start_line": 469
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reference_play_board_keeps_valid_deeper_checkpoint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectimaxPlannerTests.test_reference_play_board_keeps_valid_deeper_checkpoint",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 549,
+            "start_line": 499
           }
         },
         {
@@ -100695,8 +100807,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 473,
-            "start_line": 451
+            "end_line": 573,
+            "start_line": 551
           }
         },
         {
@@ -100718,8 +100830,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 488,
-            "start_line": 475
+            "end_line": 588,
+            "start_line": 575
           }
         },
         {
@@ -100741,8 +100853,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 501,
-            "start_line": 490
+            "end_line": 601,
+            "start_line": 590
           }
         },
         {
@@ -100764,8 +100876,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 519,
-            "start_line": 503
+            "end_line": 619,
+            "start_line": 603
           }
         },
         {
@@ -100787,8 +100899,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 546,
-            "start_line": 521
+            "end_line": 646,
+            "start_line": 621
           }
         },
         {
@@ -100816,8 +100928,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 529,
-            "start_line": 526
+            "end_line": 629,
+            "start_line": 626
           }
         },
         {
@@ -100839,8 +100951,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 561,
-            "start_line": 548
+            "end_line": 661,
+            "start_line": 648
           }
         },
         {
@@ -100862,8 +100974,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 577,
-            "start_line": 563
+            "end_line": 677,
+            "start_line": 663
           }
         },
         {
@@ -100885,8 +100997,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 619,
-            "start_line": 579
+            "end_line": 719,
+            "start_line": 679
           }
         },
         {
@@ -100914,8 +101026,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 591,
-            "start_line": 587
+            "end_line": 691,
+            "start_line": 687
           }
         },
         {
@@ -100930,8 +101042,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 600,
-            "start_line": 593
+            "end_line": 700,
+            "start_line": 693
           }
         },
         {
@@ -100953,8 +101065,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 661,
-            "start_line": 621
+            "end_line": 761,
+            "start_line": 721
           }
         },
         {
@@ -100982,8 +101094,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 632,
-            "start_line": 629
+            "end_line": 732,
+            "start_line": 729
           }
         },
         {
@@ -101005,8 +101117,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 668,
-            "start_line": 663
+            "end_line": 768,
+            "start_line": 763
           }
         },
         {
@@ -101028,8 +101140,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 682,
-            "start_line": 670
+            "end_line": 782,
+            "start_line": 770
           }
         },
         {
@@ -101051,8 +101163,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 716,
-            "start_line": 684
+            "end_line": 816,
+            "start_line": 784
           }
         },
         {
@@ -101074,8 +101186,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 754,
-            "start_line": 718
+            "end_line": 854,
+            "start_line": 818
           }
         },
         {
@@ -101097,8 +101209,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 777,
-            "start_line": 756
+            "end_line": 877,
+            "start_line": 856
           }
         },
         {
@@ -101117,8 +101229,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 794,
-            "start_line": 780
+            "end_line": 894,
+            "start_line": 880
           }
         },
         {
@@ -101152,8 +101264,8 @@
           "signature": "(self, state, action_id)",
           "source_location": {
             "column": 4,
-            "end_line": 791,
-            "start_line": 781
+            "end_line": 891,
+            "start_line": 881
           }
         },
         {
@@ -101181,8 +101293,8 @@
           "signature": "(self, transition)",
           "source_location": {
             "column": 4,
-            "end_line": 794,
-            "start_line": 793
+            "end_line": 894,
+            "start_line": 893
           }
         },
         {
@@ -101201,8 +101313,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 803,
-            "start_line": 797
+            "end_line": 903,
+            "start_line": 897
           }
         },
         {
@@ -101230,8 +101342,8 @@
           "signature": "(self, state)",
           "source_location": {
             "column": 4,
-            "end_line": 803,
-            "start_line": 798
+            "end_line": 903,
+            "start_line": 898
           }
         },
         {
@@ -101246,8 +101358,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 813,
-            "start_line": 806
+            "end_line": 913,
+            "start_line": 906
           }
         },
         {
@@ -101262,8 +101374,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 817,
-            "start_line": 816
+            "end_line": 917,
+            "start_line": 916
           }
         }
       ]
@@ -128163,7 +128275,7 @@
       "module": "tests.test_planner_provider",
       "path": "tests/test_planner_provider.py",
       "source_location": {
-        "end_line": 511,
+        "end_line": 540,
         "start_line": 1
       },
       "symbols": [
@@ -128509,7 +128621,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 511,
+            "end_line": 540,
             "start_line": 117
           }
         },
@@ -129152,6 +129264,52 @@
             "column": 8,
             "end_line": 501,
             "start_line": 462
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nonselect_retains_the_original_core_reason",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlannerProviderTests.test_nonselect_retains_the_original_core_reason",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 530,
+            "start_line": 513
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_a_step_without_planning_does_not_reuse_the_previous_core_audit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlannerProviderTests.test_a_step_without_planning_does_not_reuse_the_previous_core_audit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 540,
+            "start_line": 532
           }
         }
       ]
@@ -164707,7 +164865,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 472,
+          "line": 492,
           "local_dependencies": [],
           "module": "resource",
           "names": [
@@ -164720,7 +164878,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 530,
+          "line": 550,
           "local_dependencies": [],
           "module": "playwright.sync_api",
           "names": [
@@ -164734,7 +164892,7 @@
       "module": "tools.compare_2048_browser_planning",
       "path": "tools/compare_2048_browser_planning.py",
       "source_location": {
-        "end_line": 645,
+        "end_line": 665,
         "start_line": 1
       },
       "symbols": [
@@ -164969,7 +165127,7 @@
           "signature": "(browser, target, seed, provider_name, max_steps, output, *, planner_depth = …, planner_wall_ms = …)",
           "source_location": {
             "column": 0,
-            "end_line": 492,
+            "end_line": 512,
             "start_line": 99
           }
         },
@@ -165033,7 +165191,7 @@
           "signature": "(exc_type, _error, _traceback)",
           "source_location": {
             "column": 12,
-            "end_line": 203,
+            "end_line": 211,
             "start_line": 180
           }
         },
@@ -165049,8 +165207,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 231,
-            "start_line": 220
+            "end_line": 239,
+            "start_line": 228
           }
         },
         {
@@ -165065,8 +165223,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 641,
-            "start_line": 495
+            "end_line": 661,
+            "start_line": 515
           }
         }
       ]

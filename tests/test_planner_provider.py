@@ -509,3 +509,32 @@ class PlannerProviderTests(unittest.TestCase):
         after = run("reference")
         self.assertEqual(before, after)
         self.assertEqual(after, ((["move"] * 5, ["executed"] * 5), 5))
+
+    def test_nonselect_retains_the_original_core_reason(self):
+        self.planner.after = lambda result: replace(
+            result,
+            outcome=PlanningOutcome.ABSTAIN,
+            selected_action_id=None,
+            action_values=(),
+            completed_depth=0,
+            reason="invalid_model_or_quality",
+        )
+        pipeline, _, backend = self.pipeline()
+        result = DecisionOrchestrator(pipeline).run(execute=True)
+        self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
+        self.assertIn("planning_core_invalid_model_or_quality", result.reason_codes)
+        self.assertEqual(
+            self.provider.last_planning_audit["prediction"]["reason"],
+            "invalid_model_or_quality",
+        )
+        self.assertEqual(backend.actions, [])
+
+    def test_a_step_without_planning_does_not_reuse_the_previous_core_audit(self):
+        pipeline, _, _ = self.pipeline(dry=True)
+        pipeline.run()
+        self.assertIsNotNone(self.provider.last_planning_result)
+        with patch.object(self.adapter, "prepare", return_value=None):
+            pipeline.run()
+        self.assertIsNone(self.provider.last_planning_result)
+        self.assertIsNone(self.provider.last_policy_decision)
+        self.assertNotIn("prediction", self.provider.last_planning_audit)

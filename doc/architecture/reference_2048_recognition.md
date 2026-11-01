@@ -33,4 +33,20 @@ PYTHONPATH=src:. python tools/render_2048_glow_fixture.py --output build/glow-fi
 
 画像生成はPillow/Playwrightと隔離Chromiumを使う明示的な開発操作で、通常runtimeの依存へ追加しない。生成元は既存lockのGabriele Cirulli 2048、ライセンス表記は`tests/fixtures/2048/README.md`を参照する。
 
-**Core:** 元画像の修正前FAIL、修正後PASS、未知色と曖昧scoreの拒否を検査する。**Runtime:** 既存Adapterと比較probeへ接続し、入力許可・Stopを維持する。**Real-play:** 修正版の独立head/cohortでseed479/480の135/131手以降を再試験する。旧失敗を成功へ読み替えない。Windows WGC/Win32や全ゲームの認識・攻略精度はこの修正の受入れではなく、#30/#96/#480等の未達として残す。
+**Core:** 元画像の修正前FAIL、修正後PASS、未知色と曖昧scoreの拒否を検査する。**Runtime:** 既存Adapterと比較probeへ接続し、入力許可・Stopを維持する。**Real-play:** source `5ed5cf5a11ed3b35738fb777204ca49b5912e079` の独立cohortで、seed479/480が元の135/131手を越え各180手capまで進み、全360遷移を照合した。旧失敗を成功へ読み替えない。Windows WGC/Win32や全ゲームの認識・攻略精度はこの修正の受入れではなく、#30/#96/#480等の未達として残す。
+
+
+## 修正版depth1の実画面受入れ
+
+cohort `run-fb9ac0a0c93a43a0a0b2f793adc9e698` は、同じdepth1/node10000/400ms/1000ms settle・画像だけの認識経路で測定した。world unknown massは1のまま、conditional opt-inの比較であり、確率校正済みの攻略精度とはしない。
+
+| seed | 実送信 / unique観測完了 / 遷移一致 | UI得点 / 最大tile | invalid・未検証・pending・Stop後入力 |
+|---|---|---|---|
+| 479 | 180 / 180 / 180 | 2284 / 256 | 各0 |
+| 480 | 180 / 180 / 180 | 2260 / 256 | 各0 |
+
+両episodeとも180手上限で終了し、勝利・game overは観測していない。全receiptのOutcomeはunknownで、因果成功や学習改善の正解へ変換しない。Sourceの両端headは5ed5、dirty文字列は両端空、source/harness/sensor hashは一致し、`source_consistent=true`、`success=true`、cleanup errorなし。
+
+[測定要約JSON](../validation/recognition_659_screen_5ed5.json)は全reportのSHA-256と条件・資源測定のscopeを保持する。完全reportは開発環境の`build/transition-2048/issue-659-fixed-screen/run-fb9ac0a0c93a43a0a0b2f793adc9e698/report.json`。環境切替後に元exec session IDが失われたためOS終了codeの直接取得はUnverifiedであり、mainのsuccess=true→return0分岐と最終reportログを確認した範囲にとどめる。
+
+この測定後に親#565/#566/#567の数値wave（凸平均の1ULP区間逸脱修正）を通常mergeする。5ed5のdepth1証拠を、後続headのdepth2探索やWindows受入れの代用にしない。5ed5のWindows CIで残った探索深さと短時間比較の失敗は、新headの両event CIで再検証する。
