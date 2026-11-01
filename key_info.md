@@ -4,6 +4,8 @@
 
 ## できること
 
+- #491: 6軸評価を既定Session/Context/Traceへ接続。actualと候補hypothetical、未知と中立、coverage/支持率を区別し、typed profile/同frame仮説でBaselineのsoft順位を変えます。Safety/allowedは維持し、pixel/Model自己申告をactual進捗へ転記しません。[契約と費用](doc/architecture/runtime_evaluation.md)。
+
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
 
 - 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。

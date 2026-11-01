@@ -13,6 +13,7 @@
 | ゲーム固有の操作の検証 | [判断パイプライン機能説明書](../判断パイプライン機能説明書.md)・[操作実行機能説明書](../操作実行機能説明書.md) |
 | 状態仮説と未知質量・仮想遷移の境界 | [BeliefSnapshot](belief_snapshot.md)・[予測とBayes更新](belief_update.md)・[仮想遷移](transition_simulation.md) |
 | 操作中の軽量知識更新・Mode・証拠の条件 | [Light Adaptationの本番接続と限界](light_adaptation.md)・[Mode/Phase契約](runtime_modes.md) |
+| 汎用6軸の値・欠損・候補予測と実操作の区別 | [Runtime Evaluation](runtime_evaluation.md) |
 
 **統合確認：** 2026-11-01、feature `77a8995e92c59c2fe3610840dfbe7438297ba44e` とmainの資料7件を照合しました。初版の確認基準と現在の接続状態を区別し、実ゲームの効果は証拠がある範囲だけ記します。 初版は2026-10-31のmain `4d8ae6f`を基準にしました。モデル稼働・Windows操作・プレイ改善は資料作成や図の存在だけでは確認できません。
 
