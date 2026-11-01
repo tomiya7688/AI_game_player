@@ -8,13 +8,15 @@
 
 これは採用方針の確定です。**Qt Shell、Rust常駐プロセス、両者の接続、安全制御の移行は未実装**です。現在の画面はTkinter、主制御・認識・判断・評価はPython、任意のWGC取得・前処理・決定論的検証はC++です。既存C ABI v1、Python実装、Tkinter、Windows E2Eを移行中も維持します。現在の配布入口はPyInstallerと既存Native DLLであり、Qt DLLを配布済みとは扱いません。確認基準は `main@c634588` のソースと #661 コメント2件です。Qt/Rustの実機性能・配布適合は未確認です。
 
-統合資料は親 `ba195cf9`（#662、#660 `3613b4`とmain `507d`を含む）へ同期しました。既存の数値Core・任意Planner・認識・Safety修正は維持し、アルゴリズムやGUIを変更するPRではありません。Windows比較の最終受入は検証中で、過去headの合格、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[現在の実行・測定・未確認事項](planner_runtime.md)を参照してください。
+統合資料は親 `deec3e5c`（#662、#660 `175af6b`とmain `507d`を含む）へ同期しました。既存の数値Core・任意Planner・認識・Safety修正は維持し、アルゴリズムやGUIを変更するPRではありません。Windows比較の最終受入は検証中で、過去headの合格、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[現在の実行・測定・未確認事項](planner_runtime.md)を参照してください。
 
 Windowsのplanning通信には、旧readerを開いたままの公開20回とnative HANDLE経路30ケースの実OS証拠があります。この部分の解決を、残るscore/worker/gameplay全体の合格にはしません。親の評価専用Otsu panel、短比較だけのWGC待ちprofile、既存期限内の有界fresh再取得、決定的な最終checkpoint再読fixtureを保持し、新Windows結果で受入れを確認します。既存の実3秒再観測制約や通常600秒gateを広げた意味にも、Qt/Rustの実装証拠にも扱いません。
 
 実験用の独立Chromiumが参照ゲームを開く場合も、製品GUIへブラウザエンジンを組み込む設計ではありません。これはゲーム側の検証環境で、恒久GUIのQt Widgets採用と区別します。
 
 新しい親では、Sourceの取得要求より新しい物理Frameを要求するbarrier、厳密な空ABSTAIN通知、比較だけの有界保留継続、全foreground支持の数値ROIとraw engine/model診断を追加しています。既存の予算・guard・GUIは維持します。Windowsの0画像fixture失敗や各cohortの失敗は保持し、診断やLinux再生だけで解決済みにしません。
+
+現在の評価OCRは、binaryの有効な読取を保持し、少なくとも一方が空でpairを完成できないときだけ同support/同2ROIのgrayscaleへ限定して再読する実装を含みます。値補完・O→0変換・confidence昇格は行いません。汎用Coreの共通合法手なしはNoInput、参照2048の未知cell/非終端の全空盤はstate_available=falseとして候補を公開しません。新Windowsの0回帰・実比較・startup readinessは未確定で、boardが存在するだけの旧test準備条件からsource不具合を断定しません。未完のSAFE_IDLE事前校正APIも今回の実装に含めません。
 
 ## 完成時の実行場所（全てtarget/planned）
 
@@ -51,6 +53,12 @@ Pythonの既存Planner/Evaluator等は移行中の参照実装として残りま
 Command/Event/Status/Stopのwire schemaとcodecは #665、bridgeとframe所有権は #666 で確定し、今は実在APIとしません。queueの件数・byte・時間の上限は初回実装のversioned設定に含め、起動時に検証します。Stop路の優先性はqueueを別にする宣言だけで証明せず、飽和・切断・worker crashを故障注入して確認します。大画像はFrameRefで識別し、共有メモリとコピーの速度・寿命・配布負荷を比較して選びます。
 
 例えば得点欄をクリックした場合、入力受理Eventは「送信された」という事実です。ゲームが進んだという意味にはしません。操作後の新しい観測とreceiptを対応させ、結果が不明なら不明のまま表示・保存します。Qtへの表示イベントが遅れても、旧画面の入力権を復活させません。
+
+## IPCの権限と再起動の境界（いずれも予定）
+
+別プロセス間の接続は、現在user/instanceに限定したOS ACL（接続権限）とpeer/bootstrap handshakeで相手と役割を確認する設計です。接続名、PID、送信者の自己申告roleだけを信頼しません。Start/rearmを送るcontrol frontendとworkerの結果通知権を分け、Model出力やworker結果をcontrol Commandへ昇格させません。FrameRefはCore所有のimmutable画素をread-onlyに共有し、Qt/workerが受理済みframeを書き換えられない権限と寿命を定義します。具体化と偽peer/誤role/writable共有の負例は #665/#666、既存の境界基準は #112/#113 を再利用します。現在これらのIPC保護を実装済みとはしません。
+
+Coreの各bootを区別し、再起動はSAFE_IDLEから開始する設計です。保存されたRUNNINGや旧leaseから入力許可・Stop解除を復活させず、前bootのcommand/結果/FrameRefを新instanceへ適用しません。Qt再接続時に残るpreviewはstale表示とし、Start/rearmを自動実行しません。同じtargetのinput authorityは一つにし、停止・owned input解放確認・旧世代失効を経て原子的に引き継ぎます。片側crash時はNative watchdog等の確認なしに許可を戻しません。#665がboot/世代の契約、#666が再接続と旧参照失効、#667が二重Core/旧boot/遅着workerとhandoffの実Windows検証を担当します。これは将来の受入要件で、#669の有限値検査や現UI互換テストを完成証拠にしません。
 
 ## 時計の基準を混同しない
 

@@ -398,6 +398,15 @@ jobs:
         run: |
           python -u tools/probe_windows_planning_score_ocr.py --output "build/planning-comparison/windows/score-ocr-probe-$env:COMPARISON_SEED/report.json"
           if ($LASTEXITCODE -ne 0) { throw "Fixed-pixel OCR diagnostic failed" }
+      - name: Diagnose whitelist output and fixed whitespace variants
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          COMPARISON_SEED: ${{ matrix.seed }}
+        run: |
+          python -u tools/probe_windows_planning_score_engine.py --case-id 124944163043-planner-481 --case-id 124944163043-baseline-481 --output "build/planning-comparison/windows/score-engine-probe-$env:COMPARISON_SEED/report.json"
+          if ($LASTEXITCODE -ne 0) { throw "Fixed-pixel OCR engine diagnostic failed" }
       - name: Validate same-pixel score OCR fixtures with installed Tesseract
         if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
         shell: pwsh

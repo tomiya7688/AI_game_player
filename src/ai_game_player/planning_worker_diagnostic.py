@@ -195,3 +195,179 @@ def _present(path: Path) -> bool | None:
         return path.is_file()
     except OSError:
         return None
+
+
+_PARENT_MARKS = frozenset(
+    (
+        "directory_create_started_at_ns",
+        "directory_created_at_ns",
+        "spawn_started_at_ns",
+        "spawn_returned_at_ns",
+        "ready_read_started_at_ns",
+        "ready_received_at_ns",
+        "checkpoint_first_seen_at_ns",
+        "checkpoint_raw_read_started_at_ns",
+        "checkpoint_raw_read_finished_at_ns",
+        "checkpoint_json_read_started_at_ns",
+        "checkpoint_json_read_finished_at_ns",
+        "first_checkpoint_received_at_ns",
+        "first_valid_checkpoint_received_at_ns",
+        "first_checkpoint_validated_at_ns",
+        "finished_first_seen_at_ns",
+        "finished_read_started_at_ns",
+        "finished_read_finished_at_ns",
+        "process_cleanup_started_at_ns",
+        "process_cleanup_finished_at_ns",
+        "directory_cleanup_started_at_ns",
+        "directory_cleanup_finished_at_ns",
+    )
+)
+_PARENT_IO_PHASES = frozenset(
+    (
+        "directory_create",
+        "request_publish",
+        "worker_start",
+        "ready_read",
+        "checkpoint_raw_read",
+        "checkpoint_json_read",
+        "checkpoint_validate",
+        "finished_read",
+        "process_cleanup",
+        "directory_cleanup",
+    )
+)
+
+
+def _parent_clock_ns() -> int:
+    """診断用clock入口。実deadlineのauthorityとは独立に失敗を隔離する。"""
+    return time.monotonic_ns()
+
+
+# {
+#   責務: [new_parent_timing: 一requestの親clock内だけで比較する固定容量metadataを作る]
+#   処理: [元deadlineを複製するだけで新しい権限やI/Oを作らず、OOM時は診断なしへ戻る]
+# }
+def new_parent_timing(started: int, cutoff: int) -> dict[str, Any] | None:
+    try:
+        if (
+            type(started) is not int
+            or type(cutoff) is not int
+            or not 0 <= started <= cutoff <= 2**63 - 1
+        ):
+            return None
+        return {
+            "schema_version": 1,
+            "clock_scope": "current_parent_process_only",
+            "plan_started_at_ns": started,
+            "compute_cutoff_at_ns": cutoff,
+            "last_observed_at_ns": started,
+            "clock_invalid": False,
+            "io_errors": [],
+        }
+    except Exception:
+        return None
+
+
+# {
+#   責務: [mark_parent_timing: 各固定phaseの最初の時刻だけをbest-effortで保持する]
+#   処理: [時計不正/後退/OOMで元の結果を変えず、既存phaseへの反復はclockも呼ばない]
+# }
+def mark_parent_timing(
+    timing: dict[str, Any] | None, phase: str, *, observed_ns: int | None = None
+) -> None:
+    try:
+        if timing is None or phase not in _PARENT_MARKS or phase in timing:
+            return
+        now = _parent_clock_ns() if observed_ns is None else observed_ns
+        if (
+            type(now) is not int
+            or not timing["last_observed_at_ns"] <= now <= 2**63 - 1
+        ):
+            timing["clock_invalid"] = True
+            return
+        timing[phase] = now
+        timing["last_observed_at_ns"] = now
+    except Exception:
+        pass
+
+
+# {
+#   責務: [record_parent_io_error: 親の失敗を固定phase/category/code最大2件へ限定する]
+#   処理: [自由な例外文/path/stateを保存せず、診断の失敗も元例外を変更しない]
+# }
+def record_parent_io_error(
+    timing: dict[str, Any] | None, phase: str, error: BaseException
+) -> None:
+    try:
+        if (
+            timing is None
+            or phase not in _PARENT_IO_PHASES
+            or len(timing["io_errors"]) >= 2
+        ):
+            return
+        timing["io_errors"].append(
+            {
+                "phase": phase,
+                "exception_category": _category(error),
+                "errno": _code(getattr(error, "errno", None)),
+                "winerror": _code(getattr(error, "winerror", None)),
+            }
+        )
+    except Exception:
+        pass
+
+
+# {
+#   責務: [merge_parent_timing: cleanup後の一request診断を独立snapshotへ複製する]
+#   処理: [資源不足や不正metadataでも元の診断/結果を返し、時刻を結果採用に使用しない]
+# }
+def merge_parent_timing(
+    diagnostic: dict[str, Any] | None, timing: dict[str, Any] | None
+) -> dict[str, Any] | None:
+    try:
+        if timing is None:
+            return diagnostic
+        fields = {
+            "schema_version",
+            "clock_scope",
+            "plan_started_at_ns",
+            "compute_cutoff_at_ns",
+            "last_observed_at_ns",
+            "clock_invalid",
+            "io_errors",
+        }
+        if (
+            type(timing) is not dict
+            or set(timing) - fields - _PARENT_MARKS
+            or not fields <= set(timing)
+            or timing["schema_version"] != 1
+            or timing["clock_scope"] != "current_parent_process_only"
+            or type(timing["clock_invalid"]) is not bool
+            or type(timing["io_errors"]) is not list
+            or len(timing["io_errors"]) > 2
+            or any(
+                type(timing[key]) is not int or not 0 <= timing[key] <= 2**63 - 1
+                for key in set(timing)
+                - {"schema_version", "clock_scope", "clock_invalid", "io_errors"}
+            )
+            or not timing["plan_started_at_ns"] <= timing["compute_cutoff_at_ns"]
+            or timing["last_observed_at_ns"] < timing["plan_started_at_ns"]
+        ):
+            return diagnostic
+        for item in timing["io_errors"]:
+            if (
+                type(item) is not dict
+                or set(item) != {"phase", "exception_category", "errno", "winerror"}
+                or item["phase"] not in _PARENT_IO_PHASES
+                or item["exception_category"] not in _CATEGORIES
+                or any(
+                    item[key] is not None and _code(item[key]) != item[key]
+                    for key in ("errno", "winerror")
+                )
+            ):
+                return diagnostic
+        snapshot = dict(timing)
+        snapshot["io_errors"] = [dict(item) for item in timing["io_errors"]]
+        return {**(diagnostic or {}), "parent_timing": snapshot}
+    except Exception:
+        return diagnostic

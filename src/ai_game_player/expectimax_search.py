@@ -256,7 +256,7 @@ class ExpectimaxSearch(Generic[StateT]):
             self._check()
             common.intersection_update(self._legal(item.state_ref.state))
         if not common:
-            raise SearchFailure("no_common_legal_action")
+            raise SearchCutoff("no_common_legal_action")
         actions = tuple(sorted(common))
         for depth in range(1, self.budget.max_depth + 1):
             values = tuple(

@@ -183,3 +183,29 @@ Windows5.5.3で0 glyphのfixtureだけがnumeric unknownになったため、次
 [e119のpush/PR全18 episodeと失敗原因](../validation/planning_windows_e119_diagnostic.json)を保存します。同一3seedを2 triggerで測った記録で、独立した6seedとは扱いません。16 episodeは各12実入力/12盤面変化・score OCR・Stop/stale拒否が成立しましたが、push480 Plannerは400msで完成checkpointが無く入力0、PR479 Cyclingはparity後のunknown boardを入力前に拒否しました。失敗を除くscore平均は出しません。全6jobでは0画像3件×2geometryのOCR fixtureが失敗し、Windows5.5.3とLinux5.5.0のengine/model差はこのheadでは未分離です。
 
 PR479の初期WGC frame生産225.531秒に対して、parity後の取得要求227.033秒が生産225.594秒のqueued frameを返しました。IDと生産時刻は増えていても、要求より約1.44秒前のanimation画像でした。次実装はread_fresh入口と正常parity後の取得直前に実monotonicのnot_beforeを進め、要求より古い画像を既存のcallback前dropで捨てます。元producer時刻を上書きせず、実request40.0秒に対して39.9秒の画像はlease/解析/Source連番を更新せず、40.1秒だけを採用する前FAIL→後PASS回帰を追加しました。既存600秒Campaignもこの厳しいfresh境界を新headで再検証します。
+
+#### 同model・同画素のengine差の切分け
+
+3613のWin5.5.3.20260724とLinux5.5.0はeng.traineddataが同じ4,113,088byte/SHA7d4322bd…、0のprepared RGBも735a18ec…（81×87）/adaf9f53…（105×87）で一致しました。それでもWinのPSM7/8/10/13は空、Linuxの7/10は0/.728で、modelや元画素の相違では説明できません。engine/build/出力条件のどれが原因かは未確定です。
+
+[上流#3759](https://github.com/tesseract-ocr/tesseract/issues/3759)と[#3485](https://github.com/tesseract-ocr/tesseract/issues/3485#issuecomment-931756245)にはwhitelistで語が消える報告、[#4595](https://github.com/tesseract-ocr/tesseract/issues/4595#issuecomment-6216793409)には5.5.0→5.5.3のMSVC比較をConvolve境界TRand差へ結び付けた調査があります。今回の0と同因だとは断定しません。
+
+次の[固定128条件診断](../validation/planning_score_engine_probe.json)は、失敗画像と非0対照の明示2fixtureに同じ変換を適用し、PSM7を固定してwhitelist有無・plain/TSV・外側の白列±1/左+1・幅8/16/32整列・同resamplerの非二値grayscaleを比較します。余白の削除前に白画素だけか確認し、同RGB aliasを独立な例として数えません。raw confidence0も保ち、stderr/任意model文字列を収集しません。既存のPSM選択・.65・厳密numeric・2ROI・入力/学習は変更せず、新Win出力まで修正方法を選びません。
+
+250msの親deadline回帰では、ready ACKを必ず受領できるという速度前提を置きません。3613のWindowsログは親応答1.5秒以内・ABSTAIN・完成depth0・子process回収を満たし、not_appliedの検査だけが失敗しました。not_appliedは親でACK未受領という意味で、guard未適用やcallback実行を証明しません。テストは250ms/1.5秒を維持したまま、全ケースでcompute_budget・無操作・空values・unknown確率・完成counter全0・子回収を要求します。ACK未受領分岐は既知exit・親cleanup要求・Python例外なし・finished/checkpointなし・最高受領depth0も必須とし、未受領cutoffとして別記録します。明示的なbootstrap待機fixtureでこの分岐を検証し、異常exitや壊れた診断を成功へ置換しません。
+
+OS資源制限はこの応答時間試験だけで実証したとは扱いません。別の決定的順序回帰でworker.mainがapplylimits→executeの順で進み、制限適用失敗時にはexecuteを呼ばないことを確認します。実workerの64MiB/1秒OOM回帰は実OS適用ACKを引き続き必須とし、unsupported/Stop/stale等の既存負例と400ms・TTLを維持します。これは実装上のguardを緩める変更ではなく、親の観測可能なcutoff契約と資源制限の実証を別々に厳密化するテスト変更です。
+
+ba195のWindows seed481は12回のfresh判断すべてが0入力・invalid_model_or_qualityで、最後のworker例外はsearch/validationでした。保存されたboard semantic SHA-256 `a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6` は、既存state_signature規則で全16セル0・score未知・nonterminalへ完全一致します。初期2/4tileの480候補とは不一致でした。この事後照合は診断用で、DOMや隠れstateを判断へ導入していません。実描画の準備中か認識の誤りかはこのsignatureだけでは断定しません。
+
+汎用Coreは全支持worldと許可候補の共通合法Actionが空ならno_common_legal_actionで無入力の保留を返します。合法手が無いterminalやworld間の不一致を不正modelと混同せず、chance確率・品質区間の厳密検証は維持します。固定2048 Adapterだけはnonterminalの全空盤を利用不可とし、認識した空セルとpixel confidenceは保持したままstate_available=false/empty_nonterminalを記録し、Arrow候補とPlanner stateを公開しません。one-tile観測や明示terminal/fullboardは別に保持し、初期tile2個を一般ルールにしません。既存Sourceのfresh再取得/準備期限で回復を待ち、予算やTTLは変更しません。
+
+#### 空OCRだけに使う評価用grayscale fallback
+
+Win919の固定128条件で、同0 glyphのbinary/whitelistは空、binary/無whitelistは0/.6447で基準未満、同bilinear grayscale/無whitelistは0/.6871で全glyphと2ROIが一致しました。Linuxではbinary0/.728が有効で、grayscale0は非数値/.494なので一律の置換はしません。
+
+既存binary2ROIが読める場合はそのまま採用し、少なくとも一方が空でpairを完成できない場合だけ、同frame/同support/同2ROIを共通grayscale・PSM7無whitelistで再読します。binaryの有効な部分値があればgray両値との一致が必須です。既知の幅間不一致、曖昧語、低confidence、元支持辺/端切れは救済せずunknownにします。SCOREアンカー、厳密numeric/.65、元座標へのpadding/倍率補正を維持し、O→0変換や値/seed別処理はありません。document/text_block/single_numeric_lineの既定configは不変で、新modeはこの評価呼出しだけに使います。Source/入力OCR/Planner/学習へ接続せず、モデル追加もありません。
+
+[Win rawのexact画素replayとLinux4/6桁・負例・費用](../validation/planning_score_gray_fallback.json)は、実Win128のRGB/TSV対応を用いたreplayと、新headの未実行Win OS trialを区別します。旧Win0失敗を成功へ書換えず、新headで全18fixture/実比較を再検証します。
+
+919のWindows push seed479は12保留中、初めの2件がworker_io_or_cleanup_failed、残り10件がcompute_budgetでした。成功PR同seedと初期same-pixel SHAは一致し、最後の診断にはcheckpoint pathあり・最高受領depth0が残りました。現記録だけでは公開前、raw/JSON読取、検証、cleanupのどこに時間を使ったかを確定できません。親processだけの固定monotonic時刻（spawn/ready/checkpoint初観測・読取・初valid受領/processと一時directoryのcleanup）と最大2件の固定IOphase/category/errno/winerrorを全attemptへ保持します。時刻は同じ親process内の比較に限り、cutoff後の観測を結果採用へ使いません。既存ready/checkpoint wire・exact field検査・publisher・400ms/TTL・OS制限順序は変更せず、追加file I/Oも行いません。計測のclock取得・metadata複製自体は少量の時間を加えるため診断headの所要時間は観測の影響を受け得ます。OOM・不正/後退clock・不正metadataは診断欠落として扱い、元結果やcleanup失敗を変更しません。Windows上の原因は次headの段階別証拠が届くまで未確定です。

@@ -44,6 +44,16 @@ class PlanningFrameParityTests(unittest.TestCase):
             self.assertFalse(unavailable["semantic_equal"])
             self.assertFalse(unavailable["match"])
 
+            # Pixel-perfect empty cells do not prove a playable nonterminal game.
+            fixture = read_fixture("standard.json")
+            fixture["board"] = [[0] * 4 for _ in range(4)]
+            empty = validate_native_preprocessing(render_fixture(fixture), runtime)
+            self.assertEqual(empty["semantic_available"], [False, False])
+            self.assertEqual(empty["semantic_confidence"], [1, 1])
+            self.assertEqual(empty["candidate_counts"], [0, 0])
+            self.assertTrue(empty["semantic_values_equal"])
+            self.assertFalse(empty["match"])
+
             def changed(frame, **options):
                 batch = reference.preprocess(frame, **options)
                 return replace(batch, mean_brightness=batch.mean_brightness + 1)

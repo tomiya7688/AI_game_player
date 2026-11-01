@@ -50,7 +50,7 @@ class ReferenceGame2048Adapter:
 
     # {
     #   責務: [adapt: DOMやgame内部stateを使わず、screen frameと同じframe由来Observationから盤面・score・終了状態・key候補を作る]
-    #   処理: [boardを認識し、OCR scoreとlegal-move条件を合わせたstate signatureを作成する。盤面が低確信度・未知cellを含む・game-overの場合はkey候補を出さない]
+    #   処理: [boardを認識し、OCR scoreとlegal-move条件を合わせたstate signatureを作成する。盤面が低確信度・未知cellを含む・非終端の全空・game-overの場合はkey候補を出さない]
     #   引数: [frame: Observation生成元と同じcapture時点のBGRA画面, observation: OCRなど同じframeから抽出済みの画面特徴]
     #   戻り値: [tuple[ScreenObservation, list[ActionCandidate]]: game_2048 stateを追加したObservationと4方向keyboard候補]
     #   エラー: [raw frameの寸法不一致: BoardRecognizerのValueErrorを呼び出し元へ送出]
@@ -65,6 +65,16 @@ class ReferenceGame2048Adapter:
         score, score_confidence = _read_score(observation, coordinate_bounds)
         game_over = _is_game_over(observation, board.cells if board else None)
         state_signature = _state_signature(board.cells, score, game_over) if board else None
+        # Empty cells can be certain pixels while this nonterminal screen is not ready.
+        nonterminal_empty = board is not None and not game_over and all(
+            value == 0 for row in board.cells for value in row
+        )
+        state_available = (
+            board is not None
+            and board.confidence >= self.minimum_candidate_confidence
+            and not nonterminal_empty
+            and not any(value is None for row in board.cells for value in row)
+        )
         detected_game_over: bool | None = game_over if board is not None or game_over else None
         game_state: dict[str, Any] = {
             "board": [list(row) for row in board.cells] if board else None,
@@ -75,17 +85,15 @@ class ReferenceGame2048Adapter:
             "score": score,
             "score_confidence": score_confidence,
             "state_signature": state_signature,
+            "state_available": state_available,
+            "unavailable_reason": "empty_nonterminal" if nonterminal_empty else None,
         }
         features = dict(observation.features)
         features["game_2048"] = game_state
         adapted_observation = replace(observation, features=features)
-        if (
-            board is None
-            or board.confidence < self.minimum_candidate_confidence
-            or game_over
-            or any(value is None for row in board.cells for value in row)
-        ):
+        if not state_available or game_over:
             return adapted_observation, []
+        assert board is not None
         candidates = [
             ActionCandidate(f"2048-move-{direction.lower()}", "key", direction, confidence=board.confidence)
             for direction in ARROW_DIRECTIONS
