@@ -12,6 +12,7 @@
 | 機械的な呼出し一覧 | [既存のシーケンス図](../sequence_diagram.mmd)・[クラス図](../class_diagram.mmd) |
 | ゲーム固有の操作の検証 | [判断パイプライン機能説明書](../判断パイプライン機能説明書.md)・[操作実行機能説明書](../操作実行機能説明書.md) |
 | 操作中の軽量知識更新・Mode・証拠の条件 | [Light Adaptationの本番接続と限界](light_adaptation.md)・[Mode/Phase契約](runtime_modes.md) |
+| 汎用6軸の値・欠損・候補予測と実操作の区別 | [Runtime Evaluation](runtime_evaluation.md) |
 
 **この資料の確認範囲：** 2026-10-31、main `4d8ae6f515024b7ba8bed900b50735ab8cc07ea4`。ソースコードと既存文書を照合した静的説明です。モデルを起動する試験、Windows実機での画面取得、実際のゲーム操作、図の複数画面幅での目視確認は、資料執筆だけでは完了しません。
 
