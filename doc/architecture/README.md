@@ -12,7 +12,7 @@
 | PythonとC++の分け方を開発者として考える | [既存Runtime Architecture](runtime_layers.md)・[Native境界](native_runtime_boundary.md) |
 | 機械的な呼出し一覧 | [既存のシーケンス図](../sequence_diagram.mmd)・[クラス図](../class_diagram.mmd) |
 | ゲーム固有の操作の検証 | [判断パイプライン機能説明書](../判断パイプライン機能説明書.md)・[操作実行機能説明書](../操作実行機能説明書.md) |
-| 状態仮説と未知質量・仮想遷移の境界 | [BeliefSnapshot](belief_snapshot.md)・[予測とBayes更新](belief_update.md)・[仮想遷移](transition_simulation.md) |
+| 状態仮説と未知質量・仮想遷移の境界 | [BeliefSnapshot](belief_snapshot.md)・[予測とBayes更新](belief_update.md)・[仮想遷移](transition_simulation.md)・[bounded探索Core](expectimax_planning.md) |
 | 操作中の軽量知識更新・Mode・証拠の条件 | [Light Adaptationの本番接続と限界](light_adaptation.md)・[Mode/Phase契約](runtime_modes.md) |
 | 汎用6軸の値・欠損・候補予測と実操作の区別 | [Runtime Evaluation](runtime_evaluation.md) |
 

@@ -4,6 +4,8 @@ from typing import Any, Mapping
 
 from ai_game_player.decision_context import DecisionContext
 from ai_game_player.models import ActionDecision
+from ai_game_player.decision_withheld import DecisionDisposition, DecisionWithheld
+from ai_game_player.planning_outcome import PlanningOutcome
 
 BASELINE_PROVIDER_ID = "baseline_weighted_score"
 BASELINE_VERSION = "1"
@@ -140,7 +142,7 @@ class BaselineDecision:
 #   ]
 #   フィールド: [decision: 保留（abstainまたはobserve_more）の理由と内訳を持つ判断]
 # }
-class BaselineWithheld(ValueError):
+class BaselineWithheld(DecisionWithheld):
     # {
     #   責務: [__init__: 保留した判断を保持し、保留の種別と規則名を含む例外文を作る]
     #   引数: [decision: 選択しなかったBaselineDecision（abstainまたはobserve_more）]
@@ -148,7 +150,11 @@ class BaselineWithheld(ValueError):
     # }
     def __init__(self, decision: BaselineDecision) -> None:
         super().__init__(
-            f"baseline withheld action: {decision.kind} ({decision.rule_id})"
+            DecisionDisposition(
+                PlanningOutcome(decision.kind),
+                (decision.rule_id,),
+                decision.provider_id,
+            )
         )
         self.decision = decision
 

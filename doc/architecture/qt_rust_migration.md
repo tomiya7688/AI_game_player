@@ -8,6 +8,10 @@
 
 これは採用方針の確定です。**Qt Shell、Rust常駐プロセス、両者の接続、安全制御の移行は未実装**です。現在の画面はTkinter、主制御・認識・判断・評価はPython、任意のWGC取得・前処理・決定論的検証はC++です。既存C ABI v1、Python実装、Tkinter、Windows E2Eを移行中も維持します。現在の配布入口はPyInstallerと既存Native DLLであり、Qt DLLを配布済みとは扱いません。確認基準は `main@c634588` のソースと #661 コメント2件です。Qt/Rustの実機性能・配布適合は未確認です。
 
+統合資料は親 `c974ba69`（#662、#660とmain `507d`を含む）へ同期しました。既存の数値Core・任意Planner・認識・Safety修正は維持し、アルゴリズムやGUIを変更するPRではありません。Windows比較の最終受入は検証中で、過去headの合格、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[現在の実行・測定・未確認事項](planner_runtime.md)を参照してください。
+
+実験用の独立Chromiumが参照ゲームを開く場合も、製品GUIへブラウザエンジンを組み込む設計ではありません。これはゲーム側の検証環境で、恒久GUIのQt Widgets採用と区別します。
+
 ## 完成時の実行場所（全てtarget/planned）
 
 ```mermaid
@@ -44,6 +48,14 @@ Command/Event/Status/Stopのwire schemaとcodecは #665、bridgeとframe所有�
 
 例えば得点欄をクリックした場合、入力受理Eventは「送信された」という事実です。ゲームが進んだという意味にはしません。操作後の新しい観測とreceiptを対応させ、結果が不明なら不明のまま表示・保存します。Qtへの表示イベントが遅れても、旧画面の入力権を復活させません。
 
+## 時計の基準を混同しない
+
+現互換のFailSafeRuntimeは既定`time.time`を使い、永続leaseと外部watchdogが同じwall clock（実日時の時計）を参照します。Frameの`captured_at`とPlannerはmonotonic/QPC（経過時間を測る時計）で、Source age検査はその領域内で行います。Safety callbackの完了時刻は既存の別clockで記録します。**既存の全deadlineがmonotonicへ統一済みとはしません。** #669は有限性・型の数値境界だけで、clock移行・rollback全般やRust安全停止の完成ではありません。[現FailSafeの時計前提](../FailSafeRuntime説明書.md)を維持します。
+
+将来のRust `Instant`、Qt/C++ QPC、Python monotonicのraw値を、名前が同じというだけで跨いで比較しません。clock-domain、epoch、skew、量子化と不確かさを定義し、実測で共有を確認したclockか、配送遅延も含め親deadlineを延長しないCore受領基準の変換だけを使います。`BeliefContext.clock_id`/親deadlineとworker elapsedを分離し、不明・変換不能なら拒否します。これは #665/#666 の受入条件で、今回新clockを実装した意味ではありません。
+
+具体的な負例として、Windows診断head `1d5192`・seed481では、両方QPC表記でもWGC生産時刻`793906250000ns`がhost受領`793905507500ns`より`742500ns`未来でした。時刻を書き換えたり、無根拠の許容幅を足して適合扱いにしません。現互換の対応は不適合WGCを破棄し同じ対象からGDIを新規取得する検証で、GDIにも通常のclock/barrier/age検査が必要です。[負例・fallback・最新Windows未確認事項](planner_runtime.md)と #666 に記録しました。QPCというmetadata名だけでepochや変換の正しさを証明できない例であり、Rust時計移行の完了証拠ではありません。
+
 ## 4つの実装PRと既存Issueの接続
 
 | 成果物（いずれも未実装） | 独立Issue | 完了の単位 |
@@ -55,7 +67,7 @@ Command/Event/Status/Stopのwire schemaとcodecは #665、bridgeとframe所有�
 
 #664/#665→#666→#667の順に接続します。UI単体smoke、Core契約、bridge契約、実入力E2Eは別の証拠です。利用者にCargo/CMake/MSVC/Python/Node/SDKの手動導入を要求しない配布は #149、Qt実物のinventory/noticeは #228、DLL改変版の差替えは #663 です。資料入口と日本語図は #606 を再利用します。
 
-## 進行中PRの監査（2026-11-01時点）
+## 今回の統合作業の監査（2026-11-01時点）
 
 他担当のworktreeや未コミットファイルを変更せず、rootと担当へ本決定を通知しました。過去の実プレイ証拠の基準commitを未来のRust実装へ書き換えません。
 
@@ -67,15 +79,18 @@ Command/Event/Status/Stopのwire schemaとcodecは #665、bridgeとframe所有�
 | #658 | Pythonの有界Expectimax/MPC参照API。数学/予算/worker結果契約を保持。Rust常駐Core実装と混同しない |
 | #656 | PythonのVOI/下側リスク参照API。「Core」は数学参照実装。Qt/Rust未実装、将来optional workerの結果契約を維持 |
 | #660 | Plannerの実行接続とplayability証拠は旧互換Runtime。UI非依存の判断・receipt・Safety契約を維持し、Qt切替で証拠を失わない |
-| #662 | ROI/認識修正はUI非依存のPython参照側。認識成功を入力許可に変換せず、Rust化だけを理由に破棄しない |
+| #662 | ROI/認識・Windows診断修正は旧互換側。認識成功を入力許可に変換せず、数値/画像の検証と最終Windows受入を区別。Rust化だけを理由に破棄しない |
+| #651 / #655 / #669 | 現Native/Python Safetyの非有限値・型の境界修正。現在の実装として維持し、時計移行やRust安全停止の証明へ拡張しない |
 
-この監査は採用方式との整合です。各PRのrequired CI/reviewを免除せず、実装済みとの主張も拡張しません。未統合の領域別資料は統合後に「旧互換／任意workerの参照」と「Rust常駐Core」を再照合します。
+この監査は採用方式との整合です。各PRのrequired CI/reviewを免除せず、実装済みとの主張も拡張しません。統合したExpectimax/Planning Riskの領域資料に「Python数値参照」と「Rust常駐Core」を区別する注記を加え、Planner Runtimeの旧互換表記と整合しました。元の数学・実行・測定根拠は保持します。
 
 ## 実機・性能の採用gate（全て未確認）
 
 採用するのは、プロセス分離、版付きメッセージ、世代で古い要求を拒否する方式、有界producer/consumer queue、leaseによる寿命管理、故障注入による停止検証です。新しい学習モデルを導入する変更ではありません。既存の[`RunController`](../../src/ai_game_player/run_control.py)、[`ExecutionReceipt`](../../src/ai_game_player/execution_receipt.py)、[`SharedFrameProducer`](../../src/ai_game_player/shared_frame_producer.py)の実装を参照しつつ、Rust/Qtで同じ契約が成立するかを #665–#667 で改めて検証します。現Pythonのテスト合格をRustの証拠へ転用しません。Qt UI threadへの更新は[Qtのthread/queued connection規約](https://doc.qt.io/qt-6/threads-qobject.html)、C++との所有権境界は[Rust FFIの安全責務](https://doc.rust-lang.org/nomicon/ffi.html)に従い具体化します。
 
 Qtが最小RAMとは仮定しません。同一Windows機材・OS・版・profile・seed・ゲーム・targetサイズ・preview設定を固定し、現Tk版とQt/Rust版を比較します。startupは起動要求から操作可能まで、idleは安定した観測期間のPrivate Bytes/Working SetとCPU、previewはoff/onの差とコピーbytes、frame配送は取得時刻からUI表示までを測ります。Stopは要求→latch→最後の送信→所有inputのrelease-allまでを分けます。全てsample数・p50/p95/p99・最大・失敗/欠損件数を保存します。
+
+画面・常駐Core・必要時workerを個別と製品process-tree合計で記録し、ゲームや実験用browser、モデルの占有範囲も別に明示します。経過時間の測定と永続leaseのwall時刻を混ぜず、跨ぐ区間は検証したclock変換または不確かさ付きの測定条件を残します。
 
 基準測定後、#664–#667で数値予算と許容差を採用前に固定します。未測定値を合格としません。UI freeze、worker kill、通常queue/preview飽和、target喪失、開始時Stop、古い世代、DLL欠損、不適合版、二重GUIを検査します。契約fixture、Windows実入力、実ゲームの攻略性能を分け、成功した例だけで比較しません。悪化時は原因と上限を修正し、入力権は旧構成へ停止境界で戻せるようにします。
 

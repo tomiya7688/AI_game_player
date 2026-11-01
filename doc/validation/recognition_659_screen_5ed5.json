@@ -1,0 +1,133 @@
+{
+  "issue": 659,
+  "artifact_type": "curated evaluation-only summary; raw actions/receipt traces remain in explicit local report",
+  "cohort": "run-fb9ac0a0c93a43a0a0b2f793adc9e698",
+  "full_report_sha256": "f12caf94c3cfc6370f08bf34086e520f3ec0f83f91d40155563dfb0ed598b180",
+  "measured_report_path": "build/transition-2048/issue-659-fixed-screen/run-fb9ac0a0c93a43a0a0b2f793adc9e698/report.json",
+  "git_sha_at_start": "5ed5cf5a11ed3b35738fb777204ca49b5912e079",
+  "git_sha_at_end": "5ed5cf5a11ed3b35738fb777204ca49b5912e079",
+  "git_status_at_start": "",
+  "git_status_at_end": "",
+  "source_at_start": {
+    "python_file_count": 262,
+    "sha256": "e25e6f826f627097a1545efe41cf90e35ea1572a3be9d55b225530a7a5f1a3e1"
+  },
+  "source_at_end": {
+    "python_file_count": 262,
+    "sha256": "e25e6f826f627097a1545efe41cf90e35ea1572a3be9d55b225530a7a5f1a3e1"
+  },
+  "source_consistent": true,
+  "source_changed_during_run": false,
+  "harness_sha256": "53452b6e6856f756b25b1c41e42862ef21ca2ebbc9ee2b15dd4e710916fcaa91",
+  "harness_sha256_at_end": "53452b6e6856f756b25b1c41e42862ef21ca2ebbc9ee2b15dd4e710916fcaa91",
+  "sensor_sha256": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+  "sensor_sha256_at_end": "b6a3c9d28337e4eb6014902604ad321892fb2d0300fd512ff6314a53d2e7e0ef",
+  "pinned_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "planner_profile": {
+    "allow_conditional": true,
+    "unknown_world_mass": 1,
+    "calibrated_accuracy_claim": false,
+    "max_depth": 1,
+    "max_nodes": 10000,
+    "wall_time_ms": 400,
+    "search_budget": {
+      "max_depth": 1,
+      "max_nodes": 10000,
+      "max_actions": 16,
+      "max_chance_outcomes": 256,
+      "max_state_bytes": 16384,
+      "max_cache_entries": 256,
+      "max_cache_bytes": 4194304,
+      "max_trace_values": 32,
+      "max_request_bytes": 1048576,
+      "max_result_bytes": 524288,
+      "wall_time_ms": 400,
+      "worker_memory_bytes": 268435456,
+      "max_unknown_mass": 0.25,
+      "allow_conditional_selection": true
+    }
+  },
+  "settle_milliseconds": 1000,
+  "decision_data": "screenshot and existing recognizer only; seeded RNG initialization is test setup, score DOM read only after play",
+  "windows_field_play": "Unverified; isolated Chromium input backend",
+  "success": true,
+  "shell_exit_code": "Unverified: original exec process ID was lost during environment context switch; main success=true return-0 path and final report log verified",
+  "episodes": [
+    {
+      "seed": 479,
+      "provider": "planner",
+      "actions": 180,
+      "visible_score": "2284",
+      "max_tile": 256,
+      "unique_completed_receipts": 180,
+      "missing_completion_count": 0,
+      "pending_execution_observation_count": 0,
+      "validated_transition_count": 180,
+      "transition_mismatch_count": 0,
+      "invalid_action_count": 0,
+      "unverified_action_count": 0,
+      "key_sends_after_stop": 0,
+      "stopped_input_rejected": true,
+      "step_cap_reached": true,
+      "game_over": false,
+      "game_won": false,
+      "outcome_status_counts": {
+        "unknown": 180
+      },
+      "cleanup_errors": [],
+      "duration_seconds": 267.13625614800185,
+      "decision_execution_ms": {
+        "p50": 1304.7031925000001,
+        "p95": 1397.0292204
+      },
+      "step_wall_ms": {
+        "p50": 1473.0213955,
+        "p95": 1592.6534081500001
+      },
+      "host_cpu_ms": {
+        "p50": 368.06480799999997,
+        "p95": 481.66594675
+      },
+      "host_process_peak_rss_kib": 104224,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    },
+    {
+      "seed": 480,
+      "provider": "planner",
+      "actions": 180,
+      "visible_score": "2260",
+      "max_tile": 256,
+      "unique_completed_receipts": 180,
+      "missing_completion_count": 0,
+      "pending_execution_observation_count": 0,
+      "validated_transition_count": 180,
+      "transition_mismatch_count": 0,
+      "invalid_action_count": 0,
+      "unverified_action_count": 0,
+      "key_sends_after_stop": 0,
+      "stopped_input_rejected": true,
+      "step_cap_reached": true,
+      "game_over": false,
+      "game_won": false,
+      "outcome_status_counts": {
+        "unknown": 180
+      },
+      "cleanup_errors": [],
+      "duration_seconds": 267.9501774700002,
+      "decision_execution_ms": {
+        "p50": 1307.608372,
+        "p95": 1405.3488664
+      },
+      "step_wall_ms": {
+        "p50": 1476.979983,
+        "p95": 1600.5764814000001
+      },
+      "host_cpu_ms": {
+        "p50": 371.46223599999996,
+        "p95": 493.32393315
+      },
+      "host_process_peak_rss_kib": 106092,
+      "resource_scope": "Linux harness host process only; RSS is cumulative high-water and includes retained reports. Browser/worker CPU and RAM are excluded. Both decision_execution_ms and step_wall_ms include 1000ms backend animation settling; neither is planner-only latency."
+    }
+  ]
+}

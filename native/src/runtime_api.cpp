@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -149,7 +150,8 @@ int32_t kadoka_safety_validate_action(
         set_result(out_result, 0, KADOKA_SAFETY_REASON_INVALID_VIEWPORT);
         return 0;
     }
-    if (action->hold_seconds < 0.0 || action->max_hold_seconds <= 0.0 ||
+    if (!std::isfinite(action->hold_seconds) || !std::isfinite(action->max_hold_seconds) ||
+        action->hold_seconds < 0.0 || action->max_hold_seconds <= 0.0 ||
         action->hold_seconds > action->max_hold_seconds) {
         set_result(out_result, 0, KADOKA_SAFETY_REASON_HOLD_TIMEOUT);
         return 0;

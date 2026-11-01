@@ -376,6 +376,49 @@ class SafetyGuardTest(unittest.TestCase):
                 self.assertFalse(decision.allowed)
                 self.assertEqual(decision.code, "denied_key")
 
+    def test_config_rejects_non_finite_time_limits(self):
+        time_fields = (
+            "rate_window_seconds",
+            "burst_window_seconds",
+            "max_session_seconds",
+            "max_hold_seconds",
+            "max_wait_seconds",
+        )
+        for field in time_fields:
+            for invalid in (float("nan"), float("inf"), float("-inf")):
+                with self.subTest(field=field, invalid=str(invalid)):
+                    with self.assertRaises(ValueError):
+                        SafetyGuardConfig.from_dict({field: invalid})
+
+    def test_config_rejects_non_integer_limits(self):
+        integer_fields = (
+            "max_actions_per_second",
+            "max_burst_actions",
+            "max_same_action_repeats",
+            "max_cycle_repeats",
+            "max_session_actions",
+            "no_progress_repeat_limit",
+        )
+        for field in integer_fields:
+            for invalid in (float("nan"), float("inf"), 1.5, True):
+                with self.subTest(field=field, invalid=str(invalid)):
+                    with self.assertRaises(ValueError):
+                        SafetyGuardConfig.from_dict({field: invalid})
+
+    def test_wait_non_finite_duration_is_blocked(self):
+        guard = SafetyGuard(
+            SafetyGuardConfig(require_target=False, require_foreground=False),
+            emergency_stop=EmergencyStop(),
+            native_validator=None,
+        )
+        for duration in ("nan", "inf", "-inf"):
+            with self.subTest(duration=duration):
+                result = guard.check(ActionCandidate("wait-" + duration, "wait", duration))
+                self.assertFalse(result.allowed)
+                self.assertEqual(result.code, "wait_timeout")
+        accepted = guard.check(ActionCandidate("wait-short", "wait", "0.2"))
+        self.assertTrue(accepted.allowed)
+
     def test_key_hold_has_hard_maximum(self):
         guard = SafetyGuard(
             SafetyGuardConfig(require_target=False, require_foreground=False, max_hold_seconds=0.5),

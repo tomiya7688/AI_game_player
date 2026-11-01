@@ -93,6 +93,7 @@ class ActionExecutor:
     ) -> None:
         self.dry_run = dry_run
         self.input_dispatch_started: bool | None = False
+        self.before_dispatch: Callable[[], None] | None = None
         self.live_executor = live_executor
         self.window_handle = window_handle
         self.input_mode = input_mode
@@ -225,6 +226,7 @@ class ActionExecutor:
                     self.input_mode,
                     window_process_id=self.window_process_id,
                     stop_checker=self._stop_requested,
+                    input_admission=self._check_input_admission,
                     automated_cursor_position_callback=self.automated_cursor_position_callback,
                     input_ledger=runtime.ledger if runtime is not None else None,
                     hold_ttl_seconds=runtime.config.hold_ttl_seconds
@@ -232,6 +234,8 @@ class ActionExecutor:
                     else None,
                 )
                 self.live_executor = executor
+            if self.before_dispatch is not None:
+                self.before_dispatch()
             self.input_dispatch_started = None
             try:
                 result = executor.execute(candidate)
@@ -248,6 +252,15 @@ class ActionExecutor:
         finally:
             if runtime is not None and command is not None:
                 runtime.complete_command(command)
+
+    # {
+    #   責務: [_check_input_admission: 動的な一手期限検査をWindows送信境界へ委譲する]
+    #   処理: [backend作成時の古いcallbackを固定せず、現在実行のguardだけを読む]
+    #   引数: [なし] 戻り値: [なし] エラー: [Exception: 現実行の最終検査拒否]
+    # }
+    def _check_input_admission(self) -> None:
+        if self.before_dispatch is not None:
+            self.before_dispatch()
 
     def record_progress(self, state_changed: bool) -> None:
         self.safety_guard.record_progress(state_changed)

@@ -1,3 +1,20 @@
+## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
+
+- 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
+- 修正版5ed5の画像だけを用いるdepth1実プレイではseed479/480各180手・360遷移/観測完了を照合し、元の135/131手の認識停止を越えました。測定headと限界は[認識資料](architecture/reference_2048_recognition.md)へ記録します。
+- 比較probeのOCR bboxを保持し、SCOREの位置対応・明示文字列以外の曖昧な得点をunknownへ。元失敗2画像と複数glow/scale/位置/overlay、未知色・得点負例を回帰化しました。[設計と検証範囲](architecture/reference_2048_recognition.md)。
+
+## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
+
+- Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICS候補へ変更。一般atomic_jsonは維持し、未対応はfail-closed。shared-delete readerだけでは失敗した実OS20回を保持し、native30ケースprobe・held-open20回・worker20回で再検証します。実Windows成功は新CI確認まで未確認です。
+- SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
+- 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
+- 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
+- Windows短比較の各provider終了時に、失敗段階・元探索理由・入力件数・score読取状態・Stop/旧世代検証結果の有界JSONをjobログへ出力。成果物が取得できない場合も未検証を成功へ置換せず診断できます。
+- 得点評価だけにSCOREラベル由来の数字行OCR（拡大・2幅一致・端切れ拒否）を追加。元Snapshotの版/期限と工程時間を診断し、短比較は実盤面変化も必須にします。既定depth2の固定3seed実画面比較を、旧失敗cohort・Windows未達と区別して保存します。
+- Windowsの追加診断はworker例外の固定分類、実frame生産/受領/OS送信時刻を分離。得点にもclockと2つの鮮度barrierを適用し、短比較の明示Native FAST_CV profileは同画素の候補・意味・判断の同値とDLL hashを検証します。既定の入力OCR/Campaign/TTL/Safety期限は維持します。
+- 実ログのcheckpoint_publishアクセス拒否に対し、Windows親readerへdelete共有を追加し読取中のatomic replaceを妨げません。未来時刻のWGC frameは既存の契約違反経路で破棄してGDIを新規取得し、解析中の5秒失効もcache公開前に拒否します。
+
 ## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
 
 - Play画面の「一覧更新」へ共通ToolTipを接続し、ゲームのウィンドウを起動・再起動した後に一覧を取得し直す操作を案内します。マウスのホバーとキーボードのフォーカスで表示します。
@@ -97,6 +114,10 @@ plugin_manifest_schema          1
 
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
 
+- Issue #649 / PR #651: Native Safety C ABIで押下時間と上限のNaN・正負Infinityを既存のHOLD_TIMEOUT理由で拒否し、有限値への回復を回帰確認しました。構造体ABI・バージョンは維持し、WGCの所有権・メモリ寿命の検証は#652へ残します。
+- Issue #653 / PR #655: SafetyGuardの時間設定は有限の正数、回数設定はboolを除く正の整数に限定し、wait文字列と押下時間の非有限値を拒否します。既定の許可・Stop・FailSafeを保全し、元authorの変更へ現mainと生成索引を統合しました。実OS入力での全保証とは区別します。
+- Issue #669: Python互換FailSafeConfigの5時間値を有限正数、queue上限を正整数へ限定。外部/直接commandの非有限・非数値時刻と、不正観測・watchdog lease時刻を拒否し、NaNによる期限迂回を入力なし回帰で修正しました。既存deadline・Stop/rearm・Native ABIを保ち、時計前提とRust安全停止#667との境界をFailSafeRuntime説明書へ記録しました。
+
 - Issue #491: 既存6軸PrimitiveEvaluatorを実Session/Context/Trace/Baselineへ接続しました。前実操作のreceipt/Outcomeと候補hypotheticalを分離し、未計測はavailable=False/confidence0、欠損coverageを保持したMCDAと共通NumericQualityでsoft順位付けします。Scope/goal/frameへ束縛したtyped profile/数値仮説だけを明示注入し、pixel/Model主張を意味的進捗へ転記しません。Safety/allowedは維持し、local監査とModel opt-in要約、suite digest・p50/p95を追加しました。[契約・根拠・未達](architecture/runtime_evaluation.md)。
 
 - Issue #422: 既定Light Modeを実Sessionへ接続し、非blocking有限queue、CPU/時間/保持量/書込/公開間隔の予算、immutable次版、Gate自身のsoft-prior限定検証、Mode世代CAS後のdurable ackと故障recoveryを追加しました。実送信receiptと明示因果証拠だけを既知効果へ変換し、unknown/得点表示/背景変化を成功やno-effectへ捏造しません。profile保証のhash識別と衝突保留、Stop時の有限事実checkpoint、数値Utility EWMA portを追加しました。[設計・測定・未実装の境界](architecture/light_adaptation.md)を参照してください。
@@ -172,7 +193,10 @@ plugin_manifest_schema          1
 - Issue #479: 汎用の任意登録`TransitionModel`契約と、実入力を発行しない2048参照遷移を追加しました。移動・一手一合成と確率spawnを分離し、不変盤面、未認識score、勝利後継続、終了、seed付き仮想restartを扱います。未知ゲームのモデルは利用不可として返します。
 - Issue #479: hash検証済み固定版JavaScriptとslide/move/continue/restartを比較するOracle、CPU/heap測定、単体試験とCIの比較を追加しました。仮説更新・探索・本番Decisionへの接続は#478/#565-#567に残り、この追加だけでは実プレイの強化済みとは扱いません。[設計と検証手順](architecture/transition_simulation.md)を追加しました。
 - Issue #563（親 #478）: typed immutable WorldStateHypothesis / BeliefSnapshot と bounded Candidate Store を追加。校正確率と比較score、予測と観測仮説を区別し、同ID再送・相関証拠を再加算せず、Top-K / byte / TTLで除外した質量をunknownへ残します。Frame / turn / session / action epoch / source generation / clock originの混在、可変state・循環・NaN・timeoutを検査し、CPU測定と8/16曖昧2048・カード・位置fixtureを追加。本番Bayesian更新・Recognition接続は #564/#405/#407、実プレイは後続です。詳細は `doc/architecture/belief_snapshot.md`。
+- Issue #565（親 #480 / #478）: 複数Belief対応の汎用bounded Expectimax、反復深化、有限transposition cacheと制限workerを追加。部分観測では共通open-loop MPC、明示した完全将来観測時のみ状態別maxを使います。校正確率・score・品質支持区間・unknownを区別し、保守的trace圧縮、Stop/世代/expiry、遅いmodel・memory超過・不正IPCのfallbackを検証。CPU測定と不完全情報oracleを追加しました。実プレイで見つかったbin平均の1ULP支持区間逸脱は凸補間とFraction oracle・実盤面回帰で修正しました。本番Provider・実プレイ比較は#567、risk/VOIは#566です。[設計と制約](architecture/expectimax_planning.md)。
+- Issue #566: 探索の仮説別Q区間とbelief×chanceのinterval leafから、下側CVaR・破局質量・未知tailを評価する汎用Planning Policyを追加。risk-neutral EVPI/EVSIと実採択policyの情報利益を区別し、観測後mapping全体のriskを再検査します。新Frameで復活しないGoal episode予算と実行ack、hard allowed/veto、共通Outcomeを保持。[設計と検証](architecture/planning_risk_information.md)を参照してください。本番Provider/実プレイ比較は#567、Unknownness Policy本体は#206、gain/資源/観測校正producerは#409/#425/#405/#407に残ります。
 
+- Issue #566: 実Chromium smokeが検出した約5e-17の期待値区間逆転を補正し、元の点評価を含む外向き包絡を保持します。CVaR/破局率の混合演算は数値padding内の閾値を保留として追跡し、丸めによる有利な合格を避けます。実数確率の校正や統計CIとは区別します。
 - Issue #564（親 #478）: 型付きBeliefへPredict→Observe→Bayesian posterior更新を追加。排他的な遷移経路の確率合算、joint観測尤度、log空間、unknown尤度不明時の比較score、receipt/frame/相関の二重適用防止、旧prior版CAS、候補/byte/履歴/deadline上限を検証します。実Recognition校正と本番Planner接続は#405/#407/#565-#567に残します。詳細は `doc/architecture/belief_update.md`。
 - Issue #642: 実行受領記録・明示観測、Modeと実Sessionの軽量知識更新、Knowledgeの保存/集計/判断反映/検証、起動失敗診断と状態仮説の現在地へ、入口・判断・安全・記録資料を同期しました。安定識別の既定無効、一般の因果no_effect未達、#459原因未解決、Core/Runtime/Real-playの証拠範囲を明記し、過去の確認基準と統合後を区別します。 初回安全リースはStop解除・明示再開と区別し、現行ソース基準を更新して、過去の実画面測定headは保持します。
 - Issue #138: Play Workspaceの先頭へ「ゲーム / ウィンドウ」選択欄を配置する。ウィンドウ一覧の更新後も存在する選択対象は維持し、消えた選択対象は自動で別ウィンドウへ切り替えず再選択を求める。候補がない場合と一覧取得が失敗した場合は、利用者へ次の操作を表示する。

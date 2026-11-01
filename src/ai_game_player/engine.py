@@ -1,3 +1,4 @@
+import json
 from dataclasses import replace
 from collections.abc import Callable
 from contextvars import ContextVar
@@ -15,6 +16,7 @@ from ai_game_player.decision_verifier import (
 )
 from ai_game_player.atomic_json import StagedJsonWrite
 from ai_game_player.deferred_trace_append import DeferredTraceAppend
+from ai_game_player.decision_withheld import DecisionWithheld
 from ai_game_player.event_journal import EventJournal
 from ai_game_player.execution_receipt import ExecutionObservation, ExecutionReceipt
 from ai_game_player.evaluator import ActionEvaluator
@@ -69,6 +71,7 @@ class GamePlayerEngine:
     ) -> None:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
+        self.event_journal = event_journal
         self.knowledge_adapter = knowledge_adapter
         self.evaluation_adapter = evaluation_adapter or RuntimeEvaluationAdapter()
         self.last_decision_context: DecisionContext | None = None
@@ -161,13 +164,45 @@ class GamePlayerEngine:
         self.last_decision_context = context
         if before_provider is not None:
             before_provider()
-        if self._uses_context_api():
-            raw_decision = self.provider.choose_context(context, personality)
-        else:
-            raw_decision = self.provider.choose(
-                allowed, observation, purpose, personality
+        try:
+            prepare_planning = getattr(self.provider, "prepare_planning_context", None)
+            if callable(prepare_planning):
+                prepare_planning(
+                    context,
+                    observation,
+                    _ACTION_GENERATION_CONTEXT.get(),
+                    allowed_snapshot,
+                )
+            if self._uses_context_api():
+                raw_decision = self.provider.choose_context(context, personality)
+            else:
+                raw_decision = self.provider.choose(
+                    allowed, observation, purpose, personality
+                )
+                raw_decision = self._bind_legacy_context_references(
+                    raw_decision, context
+                )
+        except DecisionWithheld as withheld:
+            withheld.disposition = replace(
+                withheld.disposition, context_snapshot_id=context.snapshot_id
             )
-            raw_decision = self._bind_legacy_context_references(raw_decision, context)
+            disposition = withheld.disposition
+            audit = self._planning_audit()
+
+            # {
+            #   責務: [publish_disposition: 非操作監査と仮想予測eventを同Run世代で公開する]
+            #   処理: [実Outcome/receiptを新規生成しない]
+            #   引数: [なし] 戻り値: [なし]
+            # }
+            def publish_disposition() -> None:
+                self._publish_planning_prediction(context, audit)
+                self.trace.append_disposition(context, disposition, audit)
+
+            if commit_guard is None:
+                publish_disposition()
+            else:
+                commit_guard(publish_disposition)
+            raise
         reliability = self.decision_verifier.verify(
             raw_decision,
             context,
@@ -202,6 +237,7 @@ class GamePlayerEngine:
                 "Decision output could not be normalized after verification"
             )
         trace_reference = (context.snapshot_id, decision.action_id)
+        planning_audit = self._planning_audit()
         staged_writes: list[
             StagedJsonWrite | StagedJournalAppend | DeferredTraceAppend
         ] = []
@@ -213,6 +249,7 @@ class GamePlayerEngine:
                     decision,
                     reliability=reliability.to_dict(),
                     action_generation=_ACTION_GENERATION_CONTEXT.get(),
+                    planning_audit=planning_audit,
                 )
             )
 
@@ -223,6 +260,7 @@ class GamePlayerEngine:
             #   戻り値: []
             # }
             def publish_commit() -> None:
+                self._publish_planning_prediction(context, planning_audit)
                 for staged_write in staged_writes:
                     staged_write.publish()
                 self._last_decision_trace_reference = trace_reference
@@ -235,6 +273,43 @@ class GamePlayerEngine:
             for staged_write in staged_writes:
                 staged_write.discard()
         return decision
+
+    # {
+    #   責務: [_planning_audit: 予測専用metadataをactual Outcomeと別fieldへ固定する]
+    #   処理: [有限JSONの独立copyだけを保存し、候補/入力許可として解釈しない]
+    #   引数: [なし] 戻り値: [dictまたはNone: 同判断の任意予測監査]
+    #   エラー: [ValueError: 非有限/過大な監査]
+    # }
+    def _planning_audit(self) -> dict | None:
+        audit = getattr(self.provider, "last_planning_audit", None)
+        if not isinstance(audit, dict):
+            return None
+        audit = {**audit, "actual_outcome": False}
+        encoded = json.dumps(audit, ensure_ascii=True, allow_nan=False)
+        if len(encoded.encode("utf-8")) > 2 * 1024 * 1024:
+            raise ValueError("planning audit exceeds bounded trace size")
+        return json.loads(encoded)
+
+    # {
+    #   責務: [_publish_planning_prediction: 仮想予測を実Outcomeとは別event typeで保存する]
+    #   処理: [Journalがある時だけplanning.predictionを追記し、canonical実経験へ昇格しない]
+    #   引数: [context: 元判断scope, audit: bounded仮想metadata] 戻り値: [なし]
+    # }
+    def _publish_planning_prediction(
+        self, context: DecisionContext, audit: dict | None
+    ) -> None:
+        if (
+            self.event_journal is not None
+            and audit is not None
+            and "prediction" in audit
+        ):
+            self.event_journal.append(
+                "planning.prediction",
+                event_id="planning." + context.snapshot_id,
+                snapshot_id=context.snapshot_id,
+                status=str(audit.get("status", "unknown")),
+                payload={**audit, "actual_outcome": False},
+            )
 
     # {
     #   責務: [mark_last_decision_not_executed: 入力を送らなかったplanned判断を監査上の停止として記録する]
@@ -445,6 +520,18 @@ class GamePlayerEngine:
             )
             self.last_outcome_event = None
             self.last_execution_observation = None
+
+    # {
+    #   責務: [has_pending_execution_observation: 実操作後の観測待ちが残るか示す]
+    #   処理: [保存済みOutcomeやplanned判断を未観測扱いにしない]
+    #   引数: [なし] 戻り値: [bool: 同実操作の明示完了前]
+    # }
+    @property
+    def has_pending_execution_observation(self) -> bool:
+        return (
+            self._pending_execution_receipt is not None
+            and not self._pending_outcome_observed
+        )
 
     # {
     #   責務: [complete_execution_observation: 実操作後の明示観測を同じ世代の元操作へ一度だけ結び付ける]

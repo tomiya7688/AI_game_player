@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ctypes
 import json
+import math
 import os
 import subprocess
 import sys
@@ -10,10 +11,28 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Callable
+from typing import Callable, cast
 from uuid import uuid4
 
 from ai_game_player.cross_process_lock import cross_process_file_lock
+
+
+# {
+#   責務: [_finite_time: 外部数値を比較する前に有限の実数へ限定する]
+#   処理: [bool/文字列/任意objectを拒否し、巨大整数のfloat変換もValueErrorへ統一する]
+#   引数: [value: 秒単位の時刻または時間上限] 戻り値: [float: 有限値。正数条件は呼出元が持つ]
+#   エラー: [ValueError: 非数値またはNaN/Infinity/表現不能値]
+# }
+def _finite_time(value: object) -> float:
+    if type(value) not in (int, float):
+        raise ValueError("fail-safe times must be finite numeric values")
+    try:
+        result = float(cast(int | float, value))
+    except OverflowError as error:
+        raise ValueError("fail-safe times must be finite numeric values") from error
+    if not math.isfinite(result):
+        raise ValueError("fail-safe times must be finite numeric values")
+    return result
 
 
 class FailSafeState(str, Enum):
@@ -32,6 +51,11 @@ class FailSafeConfig:
     hold_ttl_seconds: float = 1.0
     watchdog_poll_seconds: float = 0.05
 
+    # {
+    #   責務: [__post_init__: 有限正数の時間上限と正整数のqueue上限だけを受け付ける]
+    #   処理: [型・非有限値を大小比較の前に拒否し、既存poll/lease大小条件を維持する]
+    #   引数: [self: 構築中の設定] 戻り値: [なし] エラー: [ValueError: 不正な数値境界]
+    # }
     def __post_init__(self) -> None:
         times = (
             self.lease_timeout_seconds,
@@ -40,9 +64,9 @@ class FailSafeConfig:
             self.hold_ttl_seconds,
             self.watchdog_poll_seconds,
         )
-        if any(value <= 0 for value in times):
+        if any(_finite_time(value) <= 0 for value in times):
             raise ValueError("fail-safe time limits must be positive")
-        if self.max_queue_depth < 1:
+        if type(self.max_queue_depth) is not int or self.max_queue_depth < 1:
             raise ValueError("fail-safe queue depth must be positive")
         if self.watchdog_poll_seconds >= self.lease_timeout_seconds:
             raise ValueError("watchdog poll interval must be shorter than lease timeout")
@@ -62,14 +86,20 @@ class FailSafeCommand:
     def to_dict(self) -> dict[str, object]:
         return self.__dict__.copy()
 
+    # {
+    #   責務: [from_dict: 復号commandの2時刻を有限数値として検証する]
+    #   処理: [文字列/boolの暗黙変換をせず、不正時刻をRuntimeへ渡さない。他ID契約は維持する]
+    #   引数: [value: 外部commandのJSON object] 戻り値: [FailSafeCommand: 数値時刻を持つcommand]
+    #   エラー: [ValueError: 時刻または既存ID復号に失敗]
+    # }
     @classmethod
     def from_dict(cls, value: dict[str, object]) -> "FailSafeCommand":
         return cls(
             action_id=str(value.get("action_id", "")),
             sequence=int(value.get("sequence", 0)),
             epoch=str(value.get("epoch", "")),
-            issued_at=float(value.get("issued_at", 0.0)),
-            observation_at=float(value.get("observation_at", 0.0)),
+            issued_at=_finite_time(value.get("issued_at", 0.0)),
+            observation_at=_finite_time(value.get("observation_at", 0.0)),
             target_pid=int(value.get("target_pid", 0)),
             target_handle=int(value.get("target_handle", 0)),
             session_id=str(value.get("session_id", "")),
@@ -490,12 +520,22 @@ class FailSafeRuntime:
             self._renew_lease_locked()
             return self._write_lease_or_fail("heartbeat_storage_failure")
 
+    # {
+    #   責務: [record_observation: 有限正数で未来許容内の観測時刻だけを受理する]
+    #   処理: [不正値は受理済み時刻を変更せずRecoveryへ移し、leaseへNaN等を書かない]
+    #   引数: [observed_at: clockと同じ秒基準の観測時刻。Noneは現在時刻]
+    #   戻り値: [bool: 観測を受理・保存したか。既存Stop latchは解除しない]
+    # }
     def record_observation(self, observed_at: float | None = None) -> bool:
         with self._lock:
             if self._state != FailSafeState.ACTIVE or not self._honor_persisted_stop_locked():
                 return False
             now = self.clock()
-            timestamp = now if observed_at is None else float(observed_at)
+            try:
+                timestamp = _finite_time(now if observed_at is None else observed_at)
+            except ValueError:
+                self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_observation_timestamp")
+                return False
             if timestamp <= 0 or timestamp > now + 1.0:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_observation_timestamp")
                 return False
@@ -525,6 +565,11 @@ class FailSafeRuntime:
                 session_id=self._session_id if session_id is None else str(session_id),
             )
 
+    # {
+    #   責務: [check_command: finite時刻を含む既存lease/観測/世代/対象の全条件で入力をgateする]
+    #   処理: [直接typed commandも時刻を検査し、不正commandではsequence/inflightを前進しない]
+    #   引数: [command: 復号済み、または直接作成したcommand] 戻り値: [FailSafeDecision: 許可または固定拒否code]
+    # }
     def check_command(self, command: FailSafeCommand) -> FailSafeDecision:
         with self._lock:
             now = self.clock()
@@ -540,6 +585,11 @@ class FailSafeRuntime:
                 return self._block("observation_stale", "fresh observation is required")
             if command.epoch != self._epoch:
                 return self._block("stale_epoch", "command epoch does not match active control epoch")
+            try:
+                _finite_time(command.issued_at)
+                _finite_time(command.observation_at)
+            except ValueError:
+                return self._block("invalid_command_timestamp", "command timestamps must be finite numeric values")
             age = now - command.issued_at
             if age < -0.05 or age > self.config.max_command_age_seconds:
                 return self._block("stale_command", "command age exceeds fail-safe limit")
@@ -725,6 +775,12 @@ class FailSafeRuntime:
         return FailSafeDecision(False, code, reason, self._state)
 
 
+# {
+#   責務: [run_external_watchdog: 親から独立してlease・観測期限を監視し保持入力を解放する]
+#   処理: [外部leaseの期限・観測時刻も有限数値に限定し、不正時は期限を失効してRecoveryへ移す]
+#   引数: [state_directory: 所有状態directory, max_runtime_seconds: 開発時の実行上限]
+#   戻り値: [int: 監視の終了code。通常期限・既存Stopの意味を変更しない]
+# }
 def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float | None = None) -> int:
     """Run the dependency-minimal watchdog in a separate process."""
 
@@ -767,12 +823,18 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
             reason = "target_process_lost"
         elif os.name == "nt" and target_handle > 0 and not _windows_target_matches(target_handle, target_pid):
             reason = "target_window_lost"
-        elif now > float(lease.get("lease_expires_at", 0.0)):
-            reason = "lease_expired"
         else:
-            observation_expires = float(lease.get("observation_expires_at", 0.0))
-            if observation_expires <= 0 or now > observation_expires:
-                reason = "observation_stale"
+            try:
+                lease_expires = _finite_time(lease.get("lease_expires_at", 0.0))
+                observation_expires = _finite_time(lease.get("observation_expires_at", 0.0))
+                _finite_time(lease.get("observation_at", 0.0))
+            except ValueError:
+                reason = "invalid_lease_timestamp"
+            else:
+                if now > lease_expires:
+                    reason = "lease_expired"
+                elif observation_expires <= 0 or now > observation_expires:
+                    reason = "observation_stale"
 
         if reason:
             _release_ledger(ledger, release_all=True, now=now)
@@ -780,6 +842,9 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
             updated["state"] = FailSafeState.RECOVERY_REQUIRED.value
             updated["reason"] = reason
             updated["lease_expires_at"] = 0.0
+            if reason == "invalid_lease_timestamp":
+                updated["observation_at"] = 0.0
+                updated["observation_expires_at"] = 0.0
             updated["updated_at"] = now
             try:
                 lease_store.write(updated)

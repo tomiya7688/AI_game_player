@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "mode": "headless_fixture",
+  "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+  "fixture_minimum_step_period_ms": 125,
+  "timing_scope": "decision latency excludes common pacing; episode wall includes pacing; Safety limits unchanged",
+  "git_commit": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+  "git_commit_at_end": "e6c7b66a886fe35f1dba9b0d2bec6e04514df02d",
+  "git_status": "",
+  "git_status_at_end": "",
+  "harness_sha256": "32b4fff658dd3ff114d10e4009155b33705b2229c49f335df4a86709273248eb",
+  "rng": "same Python Random(seed), accepted move sample_spawn from getrandbits32; separate from Chromium LCG test RNG",
+  "decision_state": "public model board/score fixture only; no browser/OS or hidden RNG supplied to provider",
+  "quality_claim": "conditional single-world experiment; global world risk unknown, no calibration or statistical significance claim",
+  "windows_actual": "Unverified; existing Windows600s gate remains required",
+  "baseline_profile": {
+    "min_margin": 0,
+    "min_recognition": 0.65
+  },
+  "planning_budget": {
+    "max_depth": 2,
+    "max_nodes": 10000,
+    "max_actions": 16,
+    "max_chance_outcomes": 256,
+    "max_state_bytes": 16384,
+    "max_cache_entries": 256,
+    "max_cache_bytes": 4194304,
+    "max_trace_values": 32,
+    "max_request_bytes": 1048576,
+    "max_result_bytes": 524288,
+    "wall_time_ms": 400,
+    "worker_memory_bytes": 268435456,
+    "max_unknown_mass": 0.25,
+    "allow_conditional_selection": true
+  },
+  "source_at_start": {
+    "python_file_count": 262,
+    "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+  },
+  "source_at_end": {
+    "python_file_count": 262,
+    "sha256": "c78a6dd98471bcc648598e4ce85e4a19ad898892f0581206cb3c3488a31f52c6"
+  },
+  "source_consistent": true,
+  "full_report_sha256": "4e785fb88a159cc8e10a1d8b99d421c3e3bb1f01bd51e9d3287de600b7641a1c",
+  "verified_process_exit_code": 0,
+  "original_report_path": "/workspace/AI_game_player-validation-final-gameplay/build/planning-comparison/final-depth2-e6c7/run-5418393541cc4415b05b2fdd184a76d1/report.json",
+  "sample_count": 9,
+  "summary": {
+    "cycling": {
+      "scores": [
+        1472,
+        728,
+        1672
+      ],
+      "mean_score": 1290.6666666666667,
+      "actions": 430,
+      "max_tiles": [
+        128,
+        64,
+        128
+      ],
+      "terminal_count": 3,
+      "step_cap_count": 0,
+      "invalid_actions": 12,
+      "withheld_count": 0
+    },
+    "baseline": {
+      "scores": [
+        1696,
+        2036,
+        1876
+      ],
+      "mean_score": 1869.3333333333333,
+      "actions": 540,
+      "max_tiles": [
+        128,
+        256,
+        128
+      ],
+      "terminal_count": 0,
+      "step_cap_count": 3,
+      "invalid_actions": 31,
+      "withheld_count": 0
+    },
+    "planner": {
+      "scores": [
+        2004,
+        2264,
+        2280
+      ],
+      "mean_score": 2182.6666666666665,
+      "actions": 540,
+      "max_tiles": [
+        128,
+        256,
+        256
+      ],
+      "terminal_count": 0,
+      "step_cap_count": 3,
+      "invalid_actions": 0,
+      "withheld_count": 0
+    }
+  },
+  "episodes": [
+    {
+      "provider": "cycling",
+      "seed": 479,
+      "max_steps": 180,
+      "actions": 156,
+      "score": 1472,
+      "max_tile": 128,
+      "terminal": true,
+      "survival_steps": 156,
+      "wall_seconds": 19.576670709997416,
+      "invalid_actions": 2,
+      "invalid_action_rate": 0.01282051282051282,
+      "extra_capture_count": 0,
+      "policy_reobservations": 0,
+      "nodes": 0,
+      "receipt_count": 156,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 9.449762,
+        "worker_cpu_seconds": 0.0,
+        "parent_peak_rss_kib": 37572,
+        "worker_peak_rss_kib": 23548
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 60.160914500000004,
+        "p95": 112.377656
+      },
+      "completed_depth_counts": {},
+      "probability_semantics": {},
+      "global_risk_known_counts": {}
+    },
+    {
+      "provider": "baseline",
+      "seed": 479,
+      "max_steps": 180,
+      "actions": 180,
+      "score": 1696,
+      "max_tile": 128,
+      "terminal": false,
+      "survival_steps": 180,
+      "wall_seconds": 22.770395620998897,
+      "invalid_actions": 9,
+      "invalid_action_rate": 0.05,
+      "extra_capture_count": 0,
+      "policy_reobservations": 0,
+      "nodes": 0,
+      "receipt_count": 180,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 12.59036,
+        "worker_cpu_seconds": 0.0,
+        "parent_peak_rss_kib": 39600,
+        "worker_peak_rss_kib": 23548
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 67.31194350000001,
+        "p95": 133.617566
+      },
+      "completed_depth_counts": {},
+      "probability_semantics": {},
+      "global_risk_known_counts": {}
+    },
+    {
+      "provider": "planner",
+      "seed": 479,
+      "max_steps": 180,
+      "actions": 180,
+      "score": 2004,
+      "max_tile": 128,
+      "terminal": false,
+      "survival_steps": 180,
+      "wall_seconds": 59.141335709002306,
+      "invalid_actions": 0,
+      "invalid_action_rate": 0.0,
+      "extra_capture_count": 180,
+      "policy_reobservations": 0,
+      "nodes": 551851,
+      "receipt_count": 180,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 20.150315,
+        "worker_cpu_seconds": 41.428572,
+        "parent_peak_rss_kib": 42856,
+        "worker_peak_rss_kib": 42728
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 334.254088,
+        "p95": 413.136379
+      },
+      "completed_depth_counts": {
+        "1": 3,
+        "2": 177
+      },
+      "probability_semantics": {
+        "conditional_score": 180
+      },
+      "global_risk_known_counts": {
+        "False": 180
+      }
+    },
+    {
+      "provider": "cycling",
+      "seed": 480,
+      "max_steps": 180,
+      "actions": 98,
+      "score": 728,
+      "max_tile": 64,
+      "terminal": true,
+      "survival_steps": 98,
+      "wall_seconds": 12.24755592600195,
+      "invalid_actions": 1,
+      "invalid_action_rate": 0.01020408163265306,
+      "extra_capture_count": 0,
+      "policy_reobservations": 0,
+      "nodes": 0,
+      "receipt_count": 98,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 3.885952000000003,
+        "worker_cpu_seconds": 0.0,
+        "parent_peak_rss_kib": 42856,
+        "worker_peak_rss_kib": 42728
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 38.156986,
+        "p95": 74.195395
+      },
+      "completed_depth_counts": {},
+      "probability_semantics": {},
+      "global_risk_known_counts": {}
+    },
+    {
+      "provider": "baseline",
+      "seed": 480,
+      "max_steps": 180,
+      "actions": 180,
+      "score": 2036,
+      "max_tile": 256,
+      "terminal": false,
+      "survival_steps": 180,
+      "wall_seconds": 22.751781430000847,
+      "invalid_actions": 10,
+      "invalid_action_rate": 0.05555555555555555,
+      "extra_capture_count": 0,
+      "policy_reobservations": 0,
+      "nodes": 0,
+      "receipt_count": 180,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 12.617767,
+        "worker_cpu_seconds": 0.0,
+        "parent_peak_rss_kib": 42856,
+        "worker_peak_rss_kib": 42728
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 69.49205699999999,
+        "p95": 131.566679
+      },
+      "completed_depth_counts": {},
+      "probability_semantics": {},
+      "global_risk_known_counts": {}
+    },
+    {
+      "provider": "planner",
+      "seed": 480,
+      "max_steps": 180,
+      "actions": 180,
+      "score": 2264,
+      "max_tile": 256,
+      "terminal": false,
+      "survival_steps": 180,
+      "wall_seconds": 58.305415262999304,
+      "invalid_actions": 0,
+      "invalid_action_rate": 0.0,
+      "extra_capture_count": 180,
+      "policy_reobservations": 0,
+      "nodes": 525924,
+      "receipt_count": 180,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 19.910123,
+        "worker_cpu_seconds": 40.46164199999999,
+        "parent_peak_rss_kib": 43372,
+        "worker_peak_rss_kib": 43244
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 322.403984,
+        "p95": 438.131844
+      },
+      "completed_depth_counts": {
+        "1": 5,
+        "2": 175
+      },
+      "probability_semantics": {
+        "conditional_score": 180
+      },
+      "global_risk_known_counts": {
+        "False": 180
+      }
+    },
+    {
+      "provider": "cycling",
+      "seed": 481,
+      "max_steps": 180,
+      "actions": 176,
+      "score": 1672,
+      "max_tile": 128,
+      "terminal": true,
+      "survival_steps": 176,
+      "wall_seconds": 22.204384092998225,
+      "invalid_actions": 9,
+      "invalid_action_rate": 0.05113636363636364,
+      "extra_capture_count": 0,
+      "policy_reobservations": 0,
+      "nodes": 0,
+      "receipt_count": 176,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 12.096209000000002,
+        "worker_cpu_seconds": 0.0,
+        "parent_peak_rss_kib": 43372,
+        "worker_peak_rss_kib": 43244
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 66.89632449999999,
+        "p95": 129.228683
+      },
+      "completed_depth_counts": {},
+      "probability_semantics": {},
+      "global_risk_known_counts": {}
+    },
+    {
+      "provider": "baseline",
+      "seed": 481,
+      "max_steps": 180,
+      "actions": 180,
+      "score": 1876,
+      "max_tile": 128,
+      "terminal": false,
+      "survival_steps": 180,
+      "wall_seconds": 22.699008951996802,
+      "invalid_actions": 12,
+      "invalid_action_rate": 0.06666666666666667,
+      "extra_capture_count": 0,
+      "policy_reobservations": 0,
+      "nodes": 0,
+      "receipt_count": 180,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 12.595828000000012,
+        "worker_cpu_seconds": 0.0,
+        "parent_peak_rss_kib": 43372,
+        "worker_peak_rss_kib": 43244
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 67.49143749999999,
+        "p95": 130.023805
+      },
+      "completed_depth_counts": {},
+      "probability_semantics": {},
+      "global_risk_known_counts": {}
+    },
+    {
+      "provider": "planner",
+      "seed": 481,
+      "max_steps": 180,
+      "actions": 180,
+      "score": 2280,
+      "max_tile": 256,
+      "terminal": false,
+      "survival_steps": 180,
+      "wall_seconds": 62.13904014600121,
+      "invalid_actions": 0,
+      "invalid_action_rate": 0.0,
+      "extra_capture_count": 180,
+      "policy_reobservations": 0,
+      "nodes": 620297,
+      "receipt_count": 180,
+      "stopped_input_rejected": true,
+      "withheld": null,
+      "resources": {
+        "parent_cpu_seconds": 20.458616000000006,
+        "worker_cpu_seconds": 44.087278,
+        "parent_peak_rss_kib": 43500,
+        "worker_peak_rss_kib": 43500
+      },
+      "resource_semantics": "Linux ru_maxrss is process-lifetime high-water KiB, not per-episode delta; CPU includes waited workers",
+      "latency_ms": {
+        "p50": 348.155101,
+        "p95": 461.861538
+      },
+      "completed_depth_counts": {
+        "1": 1,
+        "2": 179
+      },
+      "probability_semantics": {
+        "conditional_score": 180
+      },
+      "global_risk_known_counts": {
+        "False": 180
+      }
+    }
+  ],
+  "limits": [
+    "Headless public model-state fixture, not screenshot recognition or actual browser/OS play.",
+    "Python Random(seed) differs from Browser LCG; do not pool episodes or treat same seed as same trajectory across backends.",
+    "Three seeds per provider; descriptive conditional evidence, not calibrated probability, causal learning or statistical significance.",
+    "180-step cap censors surviving episodes; not game wins.",
+    "Common pacing is excluded from decision latency and included in episode wall time; resource scope is as reported.",
+    "Windows actual input/600s gates remain separate."
+  ]
+}
