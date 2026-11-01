@@ -95,6 +95,8 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #491: 6軸評価と汎用plannerが共有する標準Pythonのimmutable `NumericQuality` を追加しました。未計測と中立値、支持率と値、projection/profile版・opaque出所を区別します。本番6軸Adapterへの接続は同Issueで進行中です。[契約](architecture/runtime_evaluation.md)。
+
 - Issue #422: 既定Light Modeを実Sessionへ接続し、非blocking有限queue、CPU/時間/保持量/書込/公開間隔の予算、immutable次版、Gate自身のsoft-prior限定検証、Mode世代CAS後のdurable ackと故障recoveryを追加しました。実送信receiptと明示因果証拠だけを既知効果へ変換し、unknown/得点表示/背景変化を成功やno-effectへ捏造しません。profile保証のhash識別と衝突保留、Stop時の有限事実checkpoint、数値Utility EWMA portを追加しました。[設計・測定・未実装の境界](architecture/light_adaptation.md)を参照してください。
 
 - Issue #637: 既存`--save-failure-evidence`の明示ON時、2048 browser起動失敗のcleanup前に所有PIDの最大3窓の固定分類・可視状態・矩形・phase時間と、取得可能なWGC画素を有界保存します。GDIのdesktop矩形代替は使わず、WGC不可時もmetadataを残します。既存PNG/BGRA writerとatomic JSONを再利用し、診断子processを5秒、画素を窓あたり8MiB・合計16MiBに制限します。Native WGCの任意byte上限はPython allocation前に検査し、拒否時もleaseを解放します。保存失敗でも元の起動例外とcleanupを維持し、PID/title・25秒・600秒・Safety条件は変更しません。自然起動失敗の原因は#459に残り、Windows実測はUnverifiedです。

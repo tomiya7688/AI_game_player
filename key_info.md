@@ -2,6 +2,8 @@
 
 ## できること
 
+- #491共有値: `NumericQuality` は利用可否・品質・支持率・版・opaque出所を区別する不変数値契約です。6軸の本番Adapter接続は同Issueで進行中です。
+
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
 
 - 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。

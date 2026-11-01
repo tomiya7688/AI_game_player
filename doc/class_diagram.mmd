@@ -490,6 +490,13 @@ classDiagram
         +__init__()
         +append()
     }
+    class NumericQuality {
+        +__post_init__()
+        +effective_value()
+        +bounds()
+        +to_dict()
+        +from_dict()
+    }
     class ActionEvaluator {
         +explain()
         +evaluate()

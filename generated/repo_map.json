@@ -19600,6 +19600,220 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "cast"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.evaluation_quality",
+      "path": "src/ai_game_player/evaluation_quality.py",
+      "source_location": {
+        "end_line": 146,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "NumericQuality",
+          "parameters": [],
+          "qualified_name": "NumericQuality",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 146,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQuality.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "effective_value",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQuality.effective_value",
+          "return_annotation": "float",
+          "signature": "(self) -> float",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "bounds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQuality.bounds",
+          "return_annotation": "tuple[float, float]",
+          "signature": "(self) -> tuple[float, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQuality.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "NumericQuality.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 146,
+            "start_line": 117
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.models"
@@ -82164,6 +82378,191 @@
             "column": 4,
             "end_line": 89,
             "start_line": 82
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.evaluation_quality"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrozenInstanceError"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "pickle",
+          "names": [
+            {
+              "alias": null,
+              "name": "pickle"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.evaluation_quality"
+          ],
+          "module": "ai_game_player.evaluation_quality",
+          "names": [
+            {
+              "alias": null,
+              "name": "NumericQuality"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_evaluation_quality",
+      "path": "tests/test_evaluation_quality.py",
+      "source_location": {
+        "end_line": 69,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "NumericQualityTests",
+          "parameters": [],
+          "qualified_name": "NumericQualityTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 65,
+            "start_line": 8
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missingness_is_distinct_from_measured_neutral_quality",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQualityTests.test_missingness_is_distinct_from_measured_neutral_quality",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 15,
+            "start_line": 9
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_support_shrinks_soft_value_without_claiming_probability_calibration",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQualityTests.test_support_shrinks_soft_value_without_claiming_probability_calibration",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 28,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_partial_coverage_never_becomes_certain_and_unknown_bounds_remain_open",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQualityTests.test_partial_coverage_never_becomes_certain_and_unknown_bounds_remain_open",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 30
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_unknown_values_nonfinite_versions_and_raw_references_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NumericQualityTests.test_invalid_unknown_values_nonfinite_versions_and_raw_references_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 65,
+            "start_line": 45
           }
         }
       ]
