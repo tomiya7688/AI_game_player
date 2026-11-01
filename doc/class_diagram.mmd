@@ -265,6 +265,14 @@ classDiagram
         +to_dict()
         +to_bytes()
     }
+    class BoundedExpectimaxPlanner {
+        +__init__()
+        +plan()
+        +_run()
+        +_validate_checkpoint()
+        +_current_error()
+        +_fallback()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
@@ -548,6 +556,43 @@ classDiagram
     class ExecutionObservation {
         +__post_init__()
         +to_dict()
+    }
+    ValueError <|-- SearchFailure
+    class SearchFailure {
+    }
+    RuntimeError <|-- SearchCutoff
+    class SearchCutoff {
+    }
+    RuntimeError <|-- SequenceInfeasible
+    class SequenceInfeasible {
+    }
+    Generic <|-- SearchHypothesis
+    class SearchHypothesis {
+        +__post_init__()
+    }
+    class NodeValue {
+    }
+    class TraceAccumulator {
+        +__init__()
+        +add()
+        +finish()
+    }
+    Generic <|-- ExpectimaxSearch
+    class ExpectimaxSearch {
+        +__init__()
+        +counters()
+        +deepen()
+        +_open_loop_root()
+        +_sequence()
+        +_root_action()
+        +_max()
+        +_action()
+        +_leaf()
+        +_legal()
+        +_freeze()
+        +_cache_put()
+        +_visit()
+        +_check()
     }
     class ArtifactReference {
         +__post_init__()
@@ -1198,6 +1243,9 @@ classDiagram
         +_sync_runtime_rearm()
         +_bind_execution_stop_checker()
         +_safety_context()
+    }
+    class Reference2048Quality {
+        +evaluate()
     }
     Protocol <|-- StateQualityEvaluator
     class StateQualityEvaluator {

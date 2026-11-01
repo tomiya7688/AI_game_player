@@ -65,6 +65,25 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         self.assertEqual(decision.outcome, PlanningOutcome.ABSTAIN)
         self.assertIsNone(decision.selected_action_id)
 
+    def test_deep_voi_is_fixed_menu_diagnostic_unless_consumer_preserves_menu(self):
+        plan = replace(
+            self.disagreement_plan(),
+            completed_depth=2,
+            continuation_semantics="open_loop_mpc",
+        )
+        model = observation_model(self.belief)
+        result = self.decide(plan, observation_model=model)
+        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(result.information_scope, "fixed_continuation_policy_menu")
+        self.assertIn("reoptimized_continuation_voi_unknown", result.reason_codes)
+        self.assertEqual(self.episode.usage, (0, 0))
+        result = self.decide(
+            plan, observation_model=model, preserve_continuation_menu=True
+        )
+        self.assertEqual(result.outcome, PlanningOutcome.OBSERVE_MORE)
+        self.assertEqual(result.continuation_semantics, "open_loop_mpc")
+        self.assertTrue(result.observation_contingent_risk.acceptable)
+
     def test_zero_probability_world_does_not_create_action_disagreement(self):
         belief = make_belief((1.0, 0.0))
         result = self.decide(self.disagreement_plan(belief), belief)
