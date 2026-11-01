@@ -1,0 +1,96 @@
+{
+  "platform_scope": "Linux urllib HTTP-client bursts only; no completed Chromium playback. Separate Chromium process attempt timed out at8s.",
+  "bursts": [
+    {
+      "index": 0,
+      "all_match": true,
+      "max_ms": 30.060194,
+      "errors": []
+    },
+    {
+      "index": 1,
+      "all_match": true,
+      "max_ms": 1028.784635,
+      "errors": []
+    },
+    {
+      "index": 2,
+      "all_match": true,
+      "max_ms": 1023.14611,
+      "errors": []
+    },
+    {
+      "index": 3,
+      "all_match": true,
+      "max_ms": 1022.649375,
+      "errors": []
+    },
+    {
+      "index": 4,
+      "all_match": true,
+      "max_ms": 1022.222641,
+      "errors": []
+    },
+    {
+      "index": 5,
+      "all_match": true,
+      "max_ms": 1023.099817,
+      "errors": []
+    },
+    {
+      "index": 6,
+      "all_match": true,
+      "max_ms": 1022.313541,
+      "errors": []
+    },
+    {
+      "index": 7,
+      "all_match": true,
+      "max_ms": 1019.797967,
+      "errors": []
+    },
+    {
+      "index": 8,
+      "all_match": true,
+      "max_ms": 1024.016338,
+      "errors": []
+    },
+    {
+      "index": 9,
+      "all_match": true,
+      "max_ms": 1024.259031,
+      "errors": []
+    },
+    {
+      "index": 10,
+      "all_match": true,
+      "max_ms": 1021.305976,
+      "errors": []
+    },
+    {
+      "index": 11,
+      "all_match": true,
+      "max_ms": 1022.132016,
+      "errors": []
+    }
+  ],
+  "browser_loads": [],
+  "browser_probe": "not_completed_container_chromium_8s_process_timeout_no_Windows_inference",
+  "queue_size": 5,
+  "idle_preconnects": {
+    "idle_connections": 16,
+    "all_match": true,
+    "max_ms": 1022.459495,
+    "errors": []
+  },
+  "source_base_sha": "37bbafb1975e79fca7307dd621b61680403a91de",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "http_success_probe_script_sha256": "65bac06ec8b7c6000a9ed5caa952b3863bc52d7dc66c5f76829012c69d93869c",
+  "browser_attempt": {
+    "status": "not_completed",
+    "process_timeout_seconds": 8,
+    "completed_browser_loads": 0,
+    "scope": "separate prior local Chromium invocation; no Windows inference"
+  }
+}

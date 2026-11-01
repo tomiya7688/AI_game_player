@@ -263,3 +263,18 @@ request/ready/checkpoint/finishedはnonceと世代、元deadlineで束縛した�
 標準downloadで既存artifactの画像/制御sectionは取得できました。元8dc600秒episode2のPNGはmanifest BGRA hashと対応し、目視でも16セル空・見出し/NewGame描画済みでした。CV誤読だけを支持する証拠ではなく、JS/RAF・compositor・captureのどこに原因があるかは未分離です。旧lease最終fileはcleanup後のruntime_closed/safe_idle/expiry0で、失敗直前の履歴を回復できません。元の失敗と診断観測の時点を区別し、起動・leaseの未確定原因は既存[Issue #459](https://github.com/tomiya7688/AI_game_player/issues/459)で追跡します。
 
 データ取得の役目を終えた固定artifact download/exportの3stepとactions:read権限をCIから除去します。通常のゲームartifact upload・元64必須gate・明示失敗診断は維持し、offline exporterと回帰testは開発用に残します。新functional headの全必須CIと実Windows結果を確認するまで統合・完了とは扱いません。
+
+
+#### 37bb固定headの全Windows比較と失敗画像
+
+[全6job・18episodeと機能コードhash、72 Planner attemptの準備時間](../validation/planning_windows_37bb.json)を保存しました。17成功/1失敗、204実入力=204盤面変化、Plannerは全6試行で72実入力・保留0です。同3 seedのpush/PR反復で、最大12判断attemptの短枠です。両通常600秒Campaignのjobも成功しましたが、旧empty/lease失敗が無かったことにはせず、長期攻略や統計的優位へ一般化しません。
+
+before-spawnは全72件でp50 2.16085ms/p95(nearest-rank)6.0003ms/max6.7896ms、request build/encode/write-close/publishのp50は.053/.20485/.61665/.36565msでした。旧unpaired Windows hostでの95–788msとは条件が異なり、fsync・OSの単独因果やisolated性能の証明ではありません。
+
+唯一の比較失敗はPR seed481 Baselineの初期45秒・入力0です。保全した同一物理frameを、PNG byte数/SHA/chunk順序と元frameSHA・producer時刻に束縛して保存しました。
+
+![37bb PR481 Baselineの保全画面](../validation/images/planning_37bb_pr481_baseline_empty.png)
+
+16空セル・見出し/NewGame・Score0は実画素で確認できました。元frame保全後のCDPはreadyState complete/visible/focused、grid/tile rootあり・tile_count0・HTMLActuator constructor falseを記録し、server summaryにはhtml_actuator/grid/tileのresponse rowがありません。これは事後観測で、server書込みはbrowser受領の証明ではありません。Grid/Tile constructorやResourceTimingは37bbではまだ測っていません。空heartbeat ringもSAFE_IDLE未初期化と整合し、active heartbeat欠落とは断定しません。既存[Issue459](https://github.com/tomiya7688/AI_game_player/issues/459)で起動/lease原因の未確定条件を保持します。
+
+次の私有HTTPサーバーの有限accept queueとpostfailure ResourceTimingは新profileとして検証します。Linuxのbounded burst機構試験や同じempty表示を作るcounterfactual fixtureだけで、37bbの根本原因やWindowsでの解消を証明しません。元400ms/3s/4s/5s/.75s/45s、未知拒否・実入力・Stop・所有対象の基準は維持します。

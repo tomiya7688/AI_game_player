@@ -147319,7 +147319,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 309,
+          "line": 319,
           "local_dependencies": [],
           "module": "websockets.asyncio.server",
           "names": [
@@ -147333,7 +147333,7 @@
       "module": "tests.test_reference_browser_diagnostics",
       "path": "tests/test_reference_browser_diagnostics.py",
       "source_location": {
-        "end_line": 410,
+        "end_line": 420,
         "start_line": 1
       },
       "symbols": [
@@ -147349,7 +147349,7 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 26,
+            "end_line": 36,
             "start_line": 20
           }
         },
@@ -147371,8 +147371,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 303,
-            "start_line": 29
+            "end_line": 313,
+            "start_line": 39
           }
         },
         {
@@ -147394,8 +147394,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 43,
-            "start_line": 30
+            "end_line": 53,
+            "start_line": 40
           }
         },
         {
@@ -147417,8 +147417,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 45
+            "end_line": 97,
+            "start_line": 55
           }
         },
         {
@@ -147440,8 +147440,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 89
+            "end_line": 112,
+            "start_line": 99
           }
         },
         {
@@ -147463,8 +147463,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 104
+            "end_line": 160,
+            "start_line": 114
           }
         },
         {
@@ -147486,8 +147486,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 192,
-            "start_line": 152
+            "end_line": 202,
+            "start_line": 162
           }
         },
         {
@@ -147509,8 +147509,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 229,
-            "start_line": 194
+            "end_line": 239,
+            "start_line": 204
           }
         },
         {
@@ -147532,8 +147532,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 270,
-            "start_line": 231
+            "end_line": 280,
+            "start_line": 241
           }
         },
         {
@@ -147555,8 +147555,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 290,
-            "start_line": 272
+            "end_line": 300,
+            "start_line": 282
           }
         },
         {
@@ -147578,8 +147578,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 274,
-            "start_line": 273
+            "end_line": 284,
+            "start_line": 283
           }
         },
         {
@@ -147601,8 +147601,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 303,
-            "start_line": 292
+            "end_line": 313,
+            "start_line": 302
           }
         },
         {
@@ -147623,8 +147623,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 406,
-            "start_line": 306
+            "end_line": 416,
+            "start_line": 316
           }
         },
         {
@@ -147646,8 +147646,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 384,
-            "start_line": 307
+            "end_line": 394,
+            "start_line": 317
           }
         },
         {
@@ -147669,8 +147669,8 @@
           "signature": "(socket)",
           "source_location": {
             "column": 8,
-            "end_line": 340,
-            "start_line": 315
+            "end_line": 350,
+            "start_line": 325
           }
         },
         {
@@ -147692,8 +147692,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 406,
-            "start_line": 386
+            "end_line": 416,
+            "start_line": 396
           }
         },
         {
@@ -147721,8 +147721,365 @@
           "signature": "(reader, writer)",
           "source_location": {
             "column": 8,
-            "end_line": 393,
-            "start_line": 389
+            "end_line": 403,
+            "start_line": 399
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.probe_reference_browser_resources"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "tools",
+            "tools.probe_reference_browser_resources"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "probe",
+              "name": "probe_reference_browser_resources"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_reference_browser_resource_probe",
+      "path": "tests/test_reference_browser_resource_probe.py",
+      "source_location": {
+        "end_line": 53,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ResourceProbeBoundaries",
+          "parameters": [],
+          "qualified_name": "ResourceProbeBoundaries",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 49,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_output_equal_or_inside_source_rejected_before_any_writes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ResourceProbeBoundaries.test_output_equal_or_inside_source_rejected_before_any_writes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 33,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_thread_start_failure_closes_bound_server_without_shutdown_or_join",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ResourceProbeBoundaries.test_thread_start_failure_closes_bound_server_without_shutdown_or_join",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 49,
+            "start_line": 35
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tests.test_reference_browser_diagnostics",
+        "tools",
+        "tools.reference_browser_diagnostics"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "deepcopy"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_browser_diagnostics"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "diag",
+              "name": "reference_browser_diagnostics"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "tests.test_reference_browser_diagnostics"
+          ],
+          "module": "tests.test_reference_browser_diagnostics",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_value"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_reference_browser_resource_timing",
+      "path": "tests/test_reference_browser_resource_timing.py",
+      "source_location": {
+        "end_line": 118,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BrowserResourceTimingTests",
+          "parameters": [],
+          "qualified_name": "BrowserResourceTimingTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 114,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_remains_none_and_response_fits_existing_wire_caps",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserResourceTimingTests.test_unknown_remains_none_and_response_fits_existing_wire_caps",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 12
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_is_distinct_from_unknown_and_duplicate_is_not_chosen",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserResourceTimingTests.test_missing_is_distinct_from_unknown_and_duplicate_is_not_chosen",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_urls_free_text_out_of_range_and_inconsistent_caps",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserResourceTimingTests.test_rejects_urls_free_text_out_of_range_and_inconsistent_caps",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expression_only_reads_fixed_resources_and_never_records_network_events",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BrowserResourceTimingTests.test_expression_only_reads_fixed_resources_and_never_records_network_events",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 114,
+            "start_line": 98
           }
         }
       ]
@@ -149299,6 +149656,423 @@
             "column": 4,
             "end_line": 724,
             "start_line": 531
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.reference_browser_diagnostics",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_http_server"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "concurrent.futures",
+          "names": [
+            {
+              "alias": null,
+              "name": "ThreadPoolExecutor"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "http.client",
+          "names": [
+            {
+              "alias": null,
+              "name": "HTTPConnection"
+            },
+            {
+              "alias": null,
+              "name": "RemoteDisconnected"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "http.server",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleHTTPRequestHandler"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "urllib.error",
+          "names": [
+            {
+              "alias": null,
+              "name": "URLError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "urllib.request",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlopen"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlsplit"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_browser_diagnostics"
+          ],
+          "module": "tools.reference_browser_diagnostics",
+          "names": [
+            {
+              "alias": null,
+              "name": "RESOURCE_NAMES"
+            },
+            {
+              "alias": null,
+              "name": "ResourceResponseCounts"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "LoopbackStaticServer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_http_server"
+          ],
+          "module": "tools.reference_game_http_server",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGameHTTPServer"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_reference_game_http_server",
+      "path": "tests/test_reference_game_http_server.py",
+      "source_location": {
+        "end_line": 216,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReferenceGameHttpServerTests",
+          "parameters": [],
+          "qualified_name": "ReferenceGameHttpServerTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 216,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_finite_queue_is_configured_before_listen_and_keeps_private_address",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_finite_queue_is_configured_before_listen_and_keeps_private_address",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 35,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_concurrent_ten_scripts_preserve_bytes_counters_and_port_lifetime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_concurrent_ten_scripts_preserve_bytes_counters_and_port_lifetime",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 37
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_concurrent_ten_scripts_preserve_bytes_counters_and_port_lifetime.read",
+          "return_annotation": null,
+          "signature": "(name)",
+          "source_location": {
+            "column": 12,
+            "end_line": 57,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_static_200_header_failure_creates_started_row_without_false_response",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_static_200_header_failure_creates_started_row_without_false_response",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 121,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_head_and_unsupported_methods_keep_http_semantics_without_get_rows",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_head_and_unsupported_methods_keep_http_semantics_without_get_rows",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 146,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_response_counter_oom_preserves_original_header_send_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_response_counter_oom_preserves_original_header_send_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 185,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_phase_counters_are_fixed_allowlist_bounded_and_failure_noninterfering",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGameHttpServerTests.test_phase_counters_are_fixed_allowlist_bounded_and_failure_noninterfering",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 187
           }
         }
       ]
@@ -188434,6 +189208,962 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.game_2048_board",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.reference_browser_diagnostics",
+        "tools.reference_game_2048_source"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "functools",
+          "names": [
+            {
+              "alias": null,
+              "name": "partial"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "http.server",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleHTTPRequestHandler"
+            },
+            {
+              "alias": null,
+              "name": "ThreadingHTTPServer"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [],
+          "module": "socket",
+          "names": [
+            {
+              "alias": null,
+              "name": "socket"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlsplit"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [],
+          "module": "uuid",
+          "names": [
+            {
+              "alias": null,
+              "name": "uuid4"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_board"
+          ],
+          "module": "ai_game_player.game_2048_board",
+          "names": [
+            {
+              "alias": null,
+              "name": "Game2048BoardRecognizer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_browser_diagnostics"
+          ],
+          "module": "tools.reference_browser_diagnostics",
+          "names": [
+            {
+              "alias": null,
+              "name": "EXPRESSION_SHA256"
+            },
+            {
+              "alias": null,
+              "name": "RENDER_EXPRESSION"
+            },
+            {
+              "alias": null,
+              "name": "_field_count"
+            },
+            {
+              "alias": null,
+              "name": "_sanitize"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "PinnedGameSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 171,
+          "local_dependencies": [],
+          "module": "PIL",
+          "names": [
+            {
+              "alias": null,
+              "name": "Image"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 270,
+          "local_dependencies": [],
+          "module": "playwright.sync_api",
+          "names": [
+            {
+              "alias": null,
+              "name": "sync_playwright"
+            }
+          ]
+        }
+      ],
+      "module": "tools.probe_reference_browser_resources",
+      "path": "tools/probe_reference_browser_resources.py",
+      "source_location": {
+        "end_line": 317,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ThreadingHTTPServer"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ResourceFixtureServer",
+          "parameters": [],
+          "qualified_name": "ResourceFixtureServer",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_handler",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "_handler",
+          "return_annotation": "Any",
+          "signature": "(source: Path, case: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 89,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [
+            "SimpleHTTPRequestHandler"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Handler",
+          "parameters": [],
+          "qualified_name": "_handler.Handler",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "log_message",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            }
+          ],
+          "qualified_name": "_handler.Handler.log_message",
+          "return_annotation": "None",
+          "signature": "(self, *args: Any) -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 68,
+            "start_line": 67
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "do_GET",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "_handler.Handler.do_GET",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 87,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "empty"
+            }
+          ],
+          "qualified_name": "_check",
+          "return_annotation": "None",
+          "signature": "(case: str, value: dict[str, Any], empty: bool) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 164,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_one_case",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "browser"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "_one_case",
+          "return_annotation": "None",
+          "signature": "(browser: Any, source: Path, case: str, output: Path, result: dict[str, Any]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 235,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "restrict",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "route"
+            }
+          ],
+          "qualified_name": "_one_case.restrict",
+          "return_annotation": "None",
+          "signature": "(route: Any) -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 192,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 313,
+            "start_line": 243
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.browser_probe_support",
+        "tools.reference_browser_diagnostics",
+        "tools.reference_game_2048_launcher",
+        "tools.reference_game_2048_source",
+        "tools.reference_game_http_server"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "errno",
+          "names": [
+            {
+              "alias": null,
+              "name": "errno"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "concurrent.futures",
+          "names": [
+            {
+              "alias": null,
+              "name": "ThreadPoolExecutor"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "platform",
+          "names": [
+            {
+              "alias": null,
+              "name": "platform"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "selectors",
+          "names": [
+            {
+              "alias": null,
+              "name": "selectors"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "socket",
+          "names": [
+            {
+              "alias": null,
+              "name": "socket"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [],
+          "module": "urllib.request",
+          "names": [
+            {
+              "alias": null,
+              "name": "urlopen"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "tools",
+            "tools.browser_probe_support"
+          ],
+          "module": "tools.browser_probe_support",
+          "names": [
+            {
+              "alias": null,
+              "name": "publish_validation_report"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_browser_diagnostics"
+          ],
+          "module": "tools.reference_browser_diagnostics",
+          "names": [
+            {
+              "alias": null,
+              "name": "RESOURCE_NAMES"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_launcher"
+          ],
+          "module": "tools.reference_game_2048_launcher",
+          "names": [
+            {
+              "alias": null,
+              "name": "LoopbackStaticServer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_2048_source"
+          ],
+          "module": "tools.reference_game_2048_source",
+          "names": [
+            {
+              "alias": null,
+              "name": "PinnedGameSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_http_server"
+          ],
+          "module": "tools.reference_game_http_server",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGameHTTPServer"
+            }
+          ]
+        }
+      ],
+      "module": "tools.probe_reference_http_queue",
+      "path": "tools/probe_reference_http_queue.py",
+      "source_location": {
+        "end_line": 186,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "queue_capacity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "backlog"
+            }
+          ],
+          "qualified_name": "queue_capacity",
+          "return_annotation": null,
+          "signature": "(backlog)",
+          "source_location": {
+            "column": 0,
+            "end_line": 68,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "http_bursts",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "backlog"
+            }
+          ],
+          "qualified_name": "http_bursts",
+          "return_annotation": null,
+          "signature": "(source, backlog)",
+          "source_location": {
+            "column": 0,
+            "end_line": 123,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [
+            "ReferenceGameHTTPServer"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ProbeServer",
+          "parameters": [],
+          "qualified_name": "http_bursts.ProbeServer",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "http_bursts.read",
+          "return_annotation": null,
+          "signature": "(path)",
+          "source_location": {
+            "column": 16,
+            "end_line": 100,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 182,
+            "start_line": 126
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.planning_file_publisher",
         "ai_game_player.planning_file_reader"
       ],
@@ -190421,7 +192151,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 162,
+          "line": 273,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -190434,7 +192164,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 347,
+          "line": 530,
           "local_dependencies": [],
           "module": "websockets.asyncio.client",
           "names": [
@@ -190448,7 +192178,7 @@
       "module": "tools.reference_browser_diagnostics",
       "path": "tools/reference_browser_diagnostics.py",
       "source_location": {
-        "end_line": 449,
+        "end_line": 632,
         "start_line": 1
       },
       "symbols": [
@@ -190468,7 +192198,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 105,
+            "end_line": 146,
             "start_line": 53
           }
         },
@@ -190491,8 +192221,171 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 58,
+            "end_line": 59,
             "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_entry",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "ResourceResponseCounts._entry",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self, name: str) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 75,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_mark",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "phase"
+            }
+          ],
+          "qualified_name": "ResourceResponseCounts._mark",
+          "return_annotation": "None",
+          "signature": "(self, name: str, field: str, phase: str | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "started",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "ResourceResponseCounts.started",
+          "return_annotation": "None",
+          "signature": "(self, name: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "headers_completed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "ResourceResponseCounts.headers_completed",
+          "return_annotation": "None",
+          "signature": "(self, name: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "failed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "phase"
+            }
+          ],
+          "qualified_name": "ResourceResponseCounts.failed",
+          "return_annotation": "None",
+          "signature": "(self, name: str, phase: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 99
           }
         },
         {
@@ -190550,8 +192443,8 @@
           "signature": "(self, name: str, status: int, written: int, digest: str | None, complete: bool, *, written_known: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 94,
-            "start_line": 60
+            "end_line": 134,
+            "start_line": 103
           }
         },
         {
@@ -190573,8 +192466,8 @@
           "signature": "(self) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 105,
-            "start_line": 96
+            "end_line": 146,
+            "start_line": 136
           }
         },
         {
@@ -190595,8 +192488,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 155,
-            "start_line": 150
+            "end_line": 266,
+            "start_line": 261
           }
         },
         {
@@ -190618,8 +192511,8 @@
           "signature": "(self) -> int | None",
           "source_location": {
             "column": 4,
-            "end_line": 155,
-            "start_line": 155
+            "end_line": 266,
+            "start_line": 266
           }
         },
         {
@@ -190647,8 +192540,8 @@
           "signature": "(process: OwnedProcess, hwnd: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 178,
-            "start_line": 158
+            "end_line": 289,
+            "start_line": 269
           }
         },
         {
@@ -190676,8 +192569,8 @@
           "signature": "(value: object, depth: int = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 193,
-            "start_line": 181
+            "end_line": 304,
+            "start_line": 292
           }
         },
         {
@@ -190699,8 +192592,8 @@
           "signature": "(raw: str | bytes) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 199,
-            "start_line": 196
+            "end_line": 310,
+            "start_line": 307
           }
         },
         {
@@ -190722,8 +192615,8 @@
           "signature": "(url: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 214,
-            "start_line": 202
+            "end_line": 325,
+            "start_line": 313
           }
         },
         {
@@ -190745,8 +192638,8 @@
           "signature": "(profile: Path) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 267,
-            "start_line": 217
+            "end_line": 378,
+            "start_line": 328
           }
         },
         {
@@ -190768,8 +192661,8 @@
           "signature": "(port: int) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 299,
-            "start_line": 270
+            "end_line": 410,
+            "start_line": 381
           }
         },
         {
@@ -190803,8 +192696,8 @@
           "signature": "(targets: object, url: str, port: int) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 323,
-            "start_line": 302
+            "end_line": 434,
+            "start_line": 413
           }
         },
         {
@@ -190826,8 +192719,31 @@
           "signature": "(value: object) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 341,
-            "start_line": 326
+            "end_line": 454,
+            "start_line": 437
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_sanitize_timing",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_sanitize_timing",
+          "return_annotation": "None",
+          "signature": "(value: object) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 524,
+            "start_line": 463
           }
         },
         {
@@ -190867,8 +192783,8 @@
           "signature": "(profile: Path, url: str, process: OwnedProcess, hwnd: int) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 419,
-            "start_line": 344
+            "end_line": 602,
+            "start_line": 527
           }
         },
         {
@@ -190889,8 +192805,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 352,
-            "start_line": 349
+            "end_line": 535,
+            "start_line": 532
           }
         },
         {
@@ -190918,8 +192834,8 @@
           "signature": "(self, exc: Exception) -> Exception",
           "source_location": {
             "column": 8,
-            "end_line": 352,
-            "start_line": 351
+            "end_line": 535,
+            "start_line": 534
           }
         },
         {
@@ -190959,8 +192875,8 @@
           "signature": "(profile: Path, url: str, process: OwnedProcess, hwnd: int) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 449,
-            "start_line": 422
+            "end_line": 632,
+            "start_line": 605
           }
         }
       ]
@@ -191105,6 +193021,7 @@
         "tools",
         "tools.reference_browser_diagnostics",
         "tools.reference_game_2048_source",
+        "tools.reference_game_http_server",
         "tools.reference_game_seed",
         "tools.startup_failure_evidence"
       ],
@@ -191276,6 +193193,22 @@
           "kind": "from",
           "level": 0,
           "line": 16,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_game_http_server"
+          ],
+          "module": "tools.reference_game_http_server",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGameHTTPServer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -191288,7 +193221,7 @@
         {
           "kind": "from",
           "level": 1,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_source"
@@ -191304,7 +193237,7 @@
         {
           "kind": "from",
           "level": 1,
-          "line": 18,
+          "line": 19,
           "local_dependencies": [
             "tools",
             "tools.startup_failure_evidence"
@@ -191320,7 +193253,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 137,
+          "line": 138,
           "local_dependencies": [
             "tools",
             "tools.reference_browser_diagnostics"
@@ -191340,7 +193273,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 387,
+          "line": 411,
           "local_dependencies": [
             "tools",
             "tools.reference_browser_diagnostics"
@@ -191356,7 +193289,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 432,
+          "line": 456,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.window_selector"
@@ -191372,7 +193305,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 631,
+          "line": 655,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -191386,7 +193319,7 @@
       "module": "tools.reference_game_2048_launcher",
       "path": "tools/reference_game_2048_launcher.py",
       "source_location": {
-        "end_line": 704,
+        "end_line": 728,
         "start_line": 1
       },
       "symbols": [
@@ -191406,8 +193339,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 79,
-            "start_line": 44
+            "end_line": 80,
+            "start_line": 45
           }
         },
         {
@@ -191429,8 +193362,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 53
+            "end_line": 57,
+            "start_line": 54
           }
         },
         {
@@ -191458,8 +193391,8 @@
           "signature": "(self, status_code: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 64
+            "end_line": 70,
+            "start_line": 65
           }
         },
         {
@@ -191481,8 +193414,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 77
+            "end_line": 80,
+            "start_line": 78
           }
         },
         {
@@ -191501,8 +193434,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 263,
-            "start_line": 82
+            "end_line": 287,
+            "start_line": 83
           }
         },
         {
@@ -191524,8 +193457,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 94,
-            "start_line": 85
+            "end_line": 95,
+            "start_line": 86
           }
         },
         {
@@ -191547,8 +193480,8 @@
           "signature": "(self) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 100,
-            "start_line": 96
+            "end_line": 101,
+            "start_line": 97
           }
         },
         {
@@ -191570,8 +193503,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 109,
-            "start_line": 102
+            "end_line": 110,
+            "start_line": 103
           }
         },
         {
@@ -191595,8 +193528,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 112
+            "end_line": 116,
+            "start_line": 113
           }
         },
         {
@@ -191624,8 +193557,8 @@
           "signature": "(self, source_path: Path) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 120,
-            "start_line": 117
+            "end_line": 121,
+            "start_line": 118
           }
         },
         {
@@ -191653,8 +193586,8 @@
           "signature": "(self, source_path: Path) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 243,
-            "start_line": 122
+            "end_line": 267,
+            "start_line": 123
           }
         },
         {
@@ -191675,8 +193608,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 226,
-            "start_line": 145
+            "end_line": 250,
+            "start_line": 146
           }
         },
         {
@@ -191698,8 +193631,31 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 12,
-            "end_line": 176,
-            "start_line": 146
+            "end_line": 192,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "end_headers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LoopbackStaticServer._start_locked.QuietRequestHandler.end_headers",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 12,
+            "end_line": 199,
+            "start_line": 194
           }
         },
         {
@@ -191733,8 +193689,8 @@
           "signature": "(self, source, outputfile) -> None",
           "source_location": {
             "column": 12,
-            "end_line": 199,
-            "start_line": 178
+            "end_line": 222,
+            "start_line": 201
           }
         },
         {
@@ -191768,8 +193724,8 @@
           "signature": "(self, format: str, *args: object) -> None",
           "source_location": {
             "column": 12,
-            "end_line": 202,
-            "start_line": 201
+            "end_line": 225,
+            "start_line": 224
           }
         },
         {
@@ -191803,8 +193759,8 @@
           "signature": "(self, code: int, message: str | None = …) -> None",
           "source_location": {
             "column": 12,
-            "end_line": 226,
-            "start_line": 204
+            "end_line": 250,
+            "start_line": 227
           }
         },
         {
@@ -191826,8 +193782,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 245
+            "end_line": 271,
+            "start_line": 269
           }
         },
         {
@@ -191849,8 +193805,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 263,
-            "start_line": 249
+            "end_line": 287,
+            "start_line": 273
           }
         },
         {
@@ -191869,8 +193825,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 485,
-            "start_line": 266
+            "end_line": 509,
+            "start_line": 290
           }
         },
         {
@@ -191916,8 +193872,8 @@
           "signature": "(self, browser_path: Path, source_path: Path, *, failure_evidence: StartupFailureEvidence | None = …, post_failure_render_diagnostics: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 289,
-            "start_line": 269
+            "end_line": 313,
+            "start_line": 293
           }
         },
         {
@@ -191951,8 +193907,8 @@
           "signature": "(self, url: str, timeout_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 291
+            "end_line": 390,
+            "start_line": 315
           }
         },
         {
@@ -191986,8 +193942,8 @@
           "signature": "(self, *, failure_confirmed: bool, frame_preserved: bool) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 394,
-            "start_line": 368
+            "end_line": 418,
+            "start_line": 392
           }
         },
         {
@@ -192015,8 +193971,8 @@
           "signature": "(self, poll_seconds: float = …) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 401,
-            "start_line": 396
+            "end_line": 425,
+            "start_line": 420
           }
         },
         {
@@ -192038,8 +193994,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 411,
-            "start_line": 403
+            "end_line": 435,
+            "start_line": 427
           }
         },
         {
@@ -192061,8 +194017,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 427,
-            "start_line": 413
+            "end_line": 451,
+            "start_line": 437
           }
         },
         {
@@ -192090,8 +194046,8 @@
           "signature": "(self, timeout_seconds: float)",
           "source_location": {
             "column": 4,
-            "end_line": 463,
-            "start_line": 429
+            "end_line": 487,
+            "start_line": 453
           }
         },
         {
@@ -192113,8 +194069,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 485,
-            "start_line": 465
+            "end_line": 509,
+            "start_line": 489
           }
         },
         {
@@ -192133,8 +194089,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 598,
-            "start_line": 488
+            "end_line": 622,
+            "start_line": 512
           }
         },
         {
@@ -192180,8 +194136,8 @@
           "signature": "(self, cache_root: Path, browser_path: Path | None = …, *, failure_evidence: StartupFailureEvidence | None = …, post_failure_render_diagnostics: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 506,
-            "start_line": 491
+            "end_line": 530,
+            "start_line": 515
           }
         },
         {
@@ -192205,8 +194161,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 510,
-            "start_line": 509
+            "end_line": 534,
+            "start_line": 533
           }
         },
         {
@@ -192230,8 +194186,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 514,
-            "start_line": 513
+            "end_line": 538,
+            "start_line": 537
           }
         },
         {
@@ -192255,8 +194211,8 @@
           "signature": "(self) -> subprocess.Popen[bytes] | None",
           "source_location": {
             "column": 4,
-            "end_line": 518,
-            "start_line": 517
+            "end_line": 542,
+            "start_line": 541
           }
         },
         {
@@ -192280,8 +194236,8 @@
           "signature": "(self) -> bool | None",
           "source_location": {
             "column": 4,
-            "end_line": 522,
-            "start_line": 521
+            "end_line": 546,
+            "start_line": 545
           }
         },
         {
@@ -192309,8 +194265,8 @@
           "signature": "(self, window_wait_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 561,
-            "start_line": 524
+            "end_line": 585,
+            "start_line": 548
           }
         },
         {
@@ -192344,8 +194300,8 @@
           "signature": "(self, *, failure_confirmed: bool, frame_preserved: bool) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 578,
-            "start_line": 563
+            "end_line": 602,
+            "start_line": 587
           }
         },
         {
@@ -192367,8 +194323,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 583,
-            "start_line": 580
+            "end_line": 607,
+            "start_line": 604
           }
         },
         {
@@ -192390,8 +194346,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 592,
-            "start_line": 585
+            "end_line": 616,
+            "start_line": 609
           }
         },
         {
@@ -192413,8 +194369,8 @@
           "signature": "(self) -> ReferenceGame2048Launcher",
           "source_location": {
             "column": 4,
-            "end_line": 595,
-            "start_line": 594
+            "end_line": 619,
+            "start_line": 618
           }
         },
         {
@@ -192454,8 +194410,8 @@
           "signature": "(self, exc_type, exc_value, traceback) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 598,
-            "start_line": 597
+            "end_line": 622,
+            "start_line": 621
           }
         },
         {
@@ -192470,8 +194426,8 @@
           "signature": "() -> Path",
           "source_location": {
             "column": 0,
-            "end_line": 624,
-            "start_line": 601
+            "end_line": 648,
+            "start_line": 625
           }
         },
         {
@@ -192499,8 +194455,8 @@
           "signature": "(window_handle: int, expected_process_id: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 704,
-            "start_line": 627
+            "end_line": 728,
+            "start_line": 651
           }
         }
       ]
@@ -192918,6 +194874,54 @@
             "column": 4,
             "end_line": 349,
             "start_line": 293
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "http.server",
+          "names": [
+            {
+              "alias": null,
+              "name": "ThreadingHTTPServer"
+            }
+          ]
+        }
+      ],
+      "module": "tools.reference_game_http_server",
+      "path": "tools/reference_game_http_server.py",
+      "source_location": {
+        "end_line": 18,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ThreadingHTTPServer"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReferenceGameHTTPServer",
+          "parameters": [],
+          "qualified_name": "ReferenceGameHTTPServer",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 18,
+            "start_line": 6
           }
         }
       ]

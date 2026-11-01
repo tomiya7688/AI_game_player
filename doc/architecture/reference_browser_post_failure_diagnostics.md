@@ -60,5 +60,66 @@ Windows HWND 所有確認を mock しているため、Windows 実機の所有�
 失敗原因・最終 CI は未検証である。明示検証経路へ接続した診断であり、元の
 initial observation failure を修正したと主張しない。
 
+## 固定scriptの読込診断（37bb失敗後の候補）
+
+37bb PR seed481 の失敗は `readyState=complete`・visible/focus・
+GameManager/Input/Storage constructor有り、HTMLActuator無し・tile DOM 0
+だった。server summary の html_actuator/grid/tile 応答も無かった。
+これはRAFだけの推測よりscript読込の調査を先に行う根拠だが、既存
+summary はcopyfile前のHTTP200 header失敗を記録しないため、応答row無しを
+要求未到達と断定できない。
+
+同一の固定CDP式にGrid/Tileのconstructor booleanとResource Timingを追加する。
+固定11件の同一originのJS/CSSだけを内部比較し、URL/name/queryやConsole、
+response本文は出さない。DOM scriptは先頭最大32件、Resource Timing配列は
+128件を超えれば全timingをunknownにして走査しない。Web APIが返す配列の
+内部生成やrendererのlayout等の処理時間をhard保証するものではない。
+同名entryの重複は一つを選ばずunknown、API無し・読取例外はNoneにする。
+保持する固定数値はentry件数/HTTP status/byteサイズだけであり、renderer
+時刻はresponseStart/Endの存在booleanだけを出す。未対応・非finiteはNone、
+観測0はfalse、正数はtrueとし、parent monotonic時計へ相対msを混ぜない。
+返却120fields（CDP envelopeを含めても既存256内）で、
+16KiB message/64KiB累積の上限を変えない。
+
+entry 0件は「記録が見つからない」であり、未要求・network失敗・成功の
+いずれも断定しない。API不在のentry件数Noneと、記録を確認した0件を
+区別する。responseStatus非対応のNoneと観測0も区別し、status0やtransferSize0
+だけで原因を命名しない。cache等でも0になる属性がある。Network.enableを
+失敗後に呼んで過去のloadingFailedイベントを得たとは主張せず、observerや
+新しいRAF callback、reload、入力・再試行を加えない。
+
+Linux実Chromiumの隔離fixtureでは、同じ3scriptを意図的abort/404/200空module
+へ変えた場合のconstructor欠落・tile DOM0・16空セル画素を再現し、statusと
+byte観測を区別した。通常fixture、API不在・entry読取エラー・overflow・
+missing/duplicate・非finite属性の負例を含む
+[全10条件の要約](../validation/reference_browser_resource_timing_linux.json)を保持する。
+これはloader失敗が同じ見た目を作る証拠であり、元Windows
+failureのnetwork error種別やbacklog原因を証明するものではない。
+
+再現用の開発専用toolは `tools/probe_reference_browser_resources.py`。
+Playwright/Pillowは任意の検証依存で、製品runtimeへ追加しない。既に
+materialize済みのsourceをlockと前後照合し、downloadは呼ばない。私有
+loopbackページだけを扱い、固定10caseを省略せず、失敗もreportへ残して
+最後に非zero判定する。通常のユーザー起動経路からは呼ばない。
+outputがverified source自身/子孫なら書込前に拒否する。server threadを
+開始できない場合もsocketをcloseし、未開始serverのshutdown待ちは行わない。
+
+```bash
+PYTHONPATH=src:. python -m tools.probe_reference_browser_resources \
+  --source-dir build/reference-game/478b6ec346e3787f589e4af751378d06ded4cbbc \
+  --browser /usr/bin/chromium --output build/resource-diagnostic-fixtures
+```
+
+新しいUUID directoryへreportと全画像を保存する。生の盤面値・得点・
+storage・自由Consoleはexportせず、画像の空盤面booleanを独立に照合する。
+このfixture用HTTP queue64は宣言したloader faultを再現するための条件で、
+製品serverのqueueやWindowsのbacklog原因を検証した値ではない。
+
+一次資料: [W3C Resource Timing §3.2](https://www.w3.org/TR/2026/CRD-resource-timing-20260901/#resources-included)
+はnetwork error等でabortしたfetchのtimingも対象とし、[§3.3](https://www.w3.org/TR/2026/CRD-resource-timing-20260901/#sec-performanceresourcetiming)
+はstatus/size属性を定義する（Candidate Recommendation Draft、2026-09-01）。
+[Performance Timeline](https://w3c.github.io/performance-timeline/)の取得APIを
+read-onlyで使用する。将来仕様や実装差はunknownへ保つ。
+
 参考: [CDP Runtime.evaluate](https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#method-evaluate)、
 [websockets 15.0.1 asyncio client](https://websockets.readthedocs.io/en/15.0.1/reference/asyncio/client.html)。
