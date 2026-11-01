@@ -2,6 +2,8 @@
 
 ## できること
 
+- #567任意Planner: 最初1手だけをVerifier/Safetyへ渡し、fresh実画面で状態・候補・期限を照合。非SELECTは有限再観測/無入力停止、予測と実Outcomeを分離します。[設計と限界](doc/architecture/planner_runtime.md)。
+
 - #491共有値: `NumericQuality` は利用可否・品質・支持率・版・opaque出所を区別する不変数値契約です。6軸の本番Adapter接続は同Issueで進行中です。
 
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。

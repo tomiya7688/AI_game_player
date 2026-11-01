@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 from collections.abc import Callable
 from datetime import datetime, timezone
+from dataclasses import replace
+from uuid import uuid4
 import json
 import os
 from pathlib import Path
@@ -23,6 +25,11 @@ from ai_game_player.campaign_runner import (
     CampaignRunner,
     CampaignState,
 )
+from ai_game_player.baseline_provider import BaselineDecisionProvider
+from ai_game_player.decision_orchestrator import DecisionOrchestrator
+from ai_game_player.decision_withheld import DecisionDisposition
+from ai_game_player.planner_factory import reference_2048_planner_provider
+from ai_game_player.run_control import RunController
 from ai_game_player.decision_context import DecisionContext
 from ai_game_player.fail_safe_runtime import FailSafeConfig
 from ai_game_player.frame_analyzer import FrameAnalyzer
@@ -64,14 +71,24 @@ class Cached2048ObservationSource:
         self.failure_evidence = failure_evidence
         self._cached_read: tuple[ScreenObservation, list[ActionCandidate]] | None = None
         self.latest_observation: ScreenObservation | None = None
+        self.source_id = "campaign." + uuid4().hex
+        self.capture_sequence = 0
+        self.settle_seconds = 0.0
+        self.not_before = 0.0
+        self.fresh_frame_callback: Callable[[], None] | None = None
 
     def capture_playable_state(
         self,
         on_fresh_frame: Callable[[], None] | None = None,
+        *,
+        timeout_seconds: float = SCREEN_READY_TIMEOUT_SECONDS,
     ) -> CampaignState:
         self.observation_timing = ObservationTiming()
         started_at = time.monotonic()
-        deadline = started_at + SCREEN_READY_TIMEOUT_SECONDS
+        deadline = started_at + min(SCREEN_READY_TIMEOUT_SECONDS, timeout_seconds)
+        remaining = self.not_before - started_at
+        if remaining > 0:
+            time.sleep(min(remaining, max(0, deadline - time.monotonic())))
         last_state: dict[str, object] = {}
         capture_attempts = 0
         last_board_detected = False
@@ -99,6 +116,19 @@ class Cached2048ObservationSource:
                     observation = self.analyzer.analyze(frame, "live-2048-campaign")
                 with self.observation_timing.measure("board_adaptation"):
                     adapted, candidates = self.adapter.adapt(frame, observation)
+                self.capture_sequence += 1
+                adapted = replace(
+                    adapted,
+                    features={
+                        **adapted.features,
+                        "capture_metadata": {
+                            "source_id": self.source_id,
+                            "frame_id": f"{self.source_id}.frame{self.capture_sequence}",
+                            "source_generation": 0,
+                            "monotonic_ns": int(frame.captured_at * 1_000_000_000),
+                        },
+                    },
+                )
             except Exception as error:
                 raise self._recognition_failure(
                     f"2048 screen analysis failed: {type(error).__name__}: {error}",
@@ -218,6 +248,12 @@ class Cached2048ObservationSource:
         self._cached_read = None
         return cached_read
 
+    def read_fresh(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
+        self.capture_playable_state(
+            on_fresh_frame=self.fresh_frame_callback, timeout_seconds=3.0
+        )
+        return self.read()
+
     def close(self) -> None:
         self.capture.close()
 
@@ -272,7 +308,16 @@ class ReferenceGame2048Episode(CampaignEpisode):
         browser_path: Path | None,
         ocr_recognizer: object | None,
         save_failure_evidence: bool = False,
+        decision_provider: str = "cycling",
+        planner_conditional: bool = False,
+        planning_settle_ms: int = 900,
     ) -> None:
+        if decision_provider not in {"cycling", "baseline", "planner"}:
+            raise ValueError("unknown campaign decision provider")
+        if planner_conditional and decision_provider != "planner":
+            raise ValueError("conditional planning requires the planner profile")
+        if type(planning_settle_ms) is not int or not 0 <= planning_settle_ms <= 2000:
+            raise ValueError("planning settle must be 0..2000ms")
         self.episode_number = episode_number
         self.launcher = ReferenceGame2048Launcher(cache_root, browser_path)
         if save_failure_evidence:
@@ -301,10 +346,24 @@ class ReferenceGame2048Episode(CampaignEpisode):
             self.source = Cached2048ObservationSource(
                 window.handle, ocr_recognizer, evidence
             )
+            controller = RunController()
+            provider = (
+                reference_2048_planner_provider(
+                    controller=controller, allow_conditional=planner_conditional
+                )
+                if decision_provider == "planner"
+                else BaselineDecisionProvider(min_margin=0, min_recognition=0.65)
+                if decision_provider == "baseline"
+                else CyclingDirectionProvider()
+            )
+            if decision_provider != "cycling":
+                self.source.settle_seconds = planning_settle_ms / 1000
+                self.source.not_before = time.monotonic() + self.source.settle_seconds
             self.pipeline = DecisionPipeline(
                 self.source,
                 runtime_root / f"episode-{episode_number:04d}",
-                CyclingDirectionProvider(),
+                provider,
+                controller=controller,
                 dry_run=False,
                 window_handle=window.handle,
                 window_process_id=window.process_id,
@@ -316,6 +375,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     observation_timeout_seconds=CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
                 ),
             )
+            self.source.fresh_frame_callback = self.pipeline.record_observation
         except Exception:
             self.close()
             raise
@@ -382,7 +442,16 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 "execution_failure", "2048 episode has no live decision pipeline"
             )
         try:
-            result = self.pipeline.run_and_execute(purpose=CAMPAIGN_PURPOSE)
+            result = DecisionOrchestrator(self.pipeline).run(
+                execute=True, purpose=CAMPAIGN_PURPOSE
+            )
+            if isinstance(result, DecisionDisposition):
+                raise CampaignFailure(
+                    "decision_failure",
+                    "input withheld: " + json.dumps(result.to_dict(), sort_keys=True),
+                )
+            if self.source is not None:
+                self.source.not_before = time.monotonic() + self.source.settle_seconds
         except Exception as error:
             safety_result = self.pipeline.last_safety_result
             runtime = self.pipeline.executor.fail_safe_runtime
@@ -500,7 +569,29 @@ def _parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="save bounded owned-window startup evidence and owned 2048 recognition failure frames (PNG/BGRA)",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--decision-provider",
+        choices=("cycling", "baseline", "planner"),
+        default="cycling",
+        help="optional decision comparison; default Windows endurance gate remains cycling",
+    )
+    parser.add_argument(
+        "--planner-conditional",
+        action="store_true",
+        help="explicit experiment: permit a single uncalibrated recognized world; global risk remains unknown",
+    )
+    parser.add_argument(
+        "--planning-settle-ms",
+        type=int,
+        default=900,
+        help="bounded screenshot settling profile for baseline/planner, independent of Safety lease",
+    )
+    result = parser.parse_args()
+    if result.planner_conditional and result.decision_provider != "planner":
+        parser.error("--planner-conditional requires --decision-provider planner")
+    if not 0 <= result.planning_settle_ms <= 2000:
+        parser.error("--planning-settle-ms must be 0..2000")
+    return result
 
 
 def main() -> int:
@@ -539,6 +630,9 @@ def main() -> int:
                 arguments.browser,
                 ocr_recognizer,
                 save_failure_evidence=arguments.save_failure_evidence,
+                decision_provider=arguments.decision_provider,
+                planner_conditional=arguments.planner_conditional,
+                planning_settle_ms=arguments.planning_settle_ms,
             ),
             output_root / "trace.jsonl",
             output_root / "report.json",
@@ -547,6 +641,12 @@ def main() -> int:
                 "game_source_commit": source_lock.get("commit"),
                 "game_source_tree": source_lock.get("git_tree_sha"),
                 "profile": arguments.profile,
+                "decision_provider": arguments.decision_provider,
+                "planner_conditional": arguments.planner_conditional,
+                "planning_global_world_risk": "unknown"
+                if arguments.decision_provider == "planner"
+                else "not_applicable",
+                "planning_settle_ms": arguments.planning_settle_ms,
                 "input_mode": "window_message",
                 "score_ocr_enabled": ocr_recognizer is not None,
                 "failure_evidence_enabled": arguments.save_failure_evidence,

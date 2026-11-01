@@ -11,6 +11,7 @@ import zlib
 
 from ai_game_player.campaign_runner import CampaignFailure
 from ai_game_player.screen_capture import ScreenFrame
+from ai_game_player.models import ScreenObservation
 from tools.recognition_failure_evidence import RecognitionFailureEvidence
 from tools import run_2048_campaign
 
@@ -18,9 +19,12 @@ from tools import run_2048_campaign
 def _make_source(directory: Path, game_state: dict, candidates: list | None = None):
     frame = ScreenFrame(1, 1, bytes((10, 20, 30, 0)), captured_at=12.5, frame_id=7)
     observation = SimpleNamespace(features={"signature": "frame-seven"})
-    adapted = SimpleNamespace(features={"game_2048": game_state})
+    adapted = ScreenObservation("fixture", 1, 1, features={"game_2048": game_state})
     source = run_2048_campaign.Cached2048ObservationSource.__new__(run_2048_campaign.Cached2048ObservationSource)
     source.window_handle = 123
+    source.source_id = "fixture_capture"
+    source.capture_sequence = 0
+    source.not_before = 0.0
     source.capture = SimpleNamespace(capture=Mock(return_value=frame), last_backend_error=None)
     source.analyzer = SimpleNamespace(analyze=Mock(return_value=observation))
     source.adapter = SimpleNamespace(

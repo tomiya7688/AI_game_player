@@ -11,6 +11,7 @@ from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalApp
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.knowledge_projection import KnowledgeProjection
+from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.execution_receipt import ExecutionReceipt
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
@@ -516,6 +517,7 @@ class DecisionTraceStore:
         *,
         reliability: dict[str, Any] | None = None,
         action_generation: int | None = None,
+        planning_audit: dict[str, Any] | None = None,
     ) -> DeferredTraceAppend | StagedJournalAppend:
         entry: dict[str, Any] = {
             "snapshot_id": context.snapshot_id,
@@ -536,6 +538,8 @@ class DecisionTraceStore:
         }
         if reliability is not None:
             entry["reliability"] = reliability
+        if planning_audit is not None:
+            entry["planning_prediction"] = planning_audit
         if self.event_adapter is not None:
             return self.event_adapter.prepare_append(entry)
         return DeferredTraceAppend(entry, self._append_entry)
@@ -589,6 +593,29 @@ class DecisionTraceStore:
             "context": context.to_dict(include_knowledge=True),
         }
         self._append_entry(rejection)
+
+    # {
+    #   責務: [append_disposition: 入力を提案しなかった判断をAction履歴から分けて監査する]
+    #   処理: [操作ID/実行receipt無しで非SELECT語彙と元contextを追記する]
+    #   引数: [context: 判断元材料, disposition: typed非操作結果] 戻り値: [なし]
+    # }
+    def append_disposition(
+        self,
+        context: DecisionContext,
+        disposition: DecisionDisposition,
+        planning_audit: dict[str, Any] | None = None,
+    ) -> None:
+        entry = {
+            "snapshot_id": context.snapshot_id,
+            "screen_id": context.state.get("screen_id", ""),
+            "state_signature": context.state.get("signature", ""),
+            "decision": None,
+            "decision_disposition": disposition.to_dict(),
+            "context": context.to_dict(include_knowledge=True),
+        }
+        if planning_audit is not None:
+            entry["planning_prediction"] = planning_audit
+        self._append_entry(entry)
 
     # {
     #   責務: [_append_entry: 新しいtrace recordをJournalまたは旧JSONへ確定する]

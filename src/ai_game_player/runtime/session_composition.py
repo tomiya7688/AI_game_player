@@ -21,6 +21,8 @@ from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObserva
 from ai_game_player.outcome import OutcomeAssessment, OutcomeEvaluator
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.decision_orchestrator import DecisionOrchestrator
+from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
 from ai_game_player.runtime_log import RuntimeLog
@@ -287,6 +289,7 @@ class ManagedSessionRuntime:
         self._pipeline_closed = False
         self._provider_closed = False
         self.adaptation = adaptation
+        self.orchestrator = DecisionOrchestrator(pipeline)
         self._adaptation_closed = adaptation is None
 
     # {
@@ -295,10 +298,13 @@ class ManagedSessionRuntime:
     #   引数: [arguments: DecisionPipeline.runが受け取る実行設定]
     #   戻り値: [ActionDecision: session providerが選んだ操作]
     # }
-    def run(self, **arguments: Any) -> ActionDecision:
+    def run(self, **arguments: Any) -> ActionDecision | DecisionDisposition:
         token = self.adaptation.begin_step() if self.adaptation is not None else None
         try:
-            return self.pipeline.run(**arguments)
+            result = self.orchestrator.run(**arguments)
+            if isinstance(result, ExecutionResult):
+                raise RuntimeError("decision-only orchestration returned an execution")
+            return result
         finally:
             if token is not None and self.adaptation is not None:
                 self.adaptation.finish_step(token)
@@ -307,12 +313,19 @@ class ManagedSessionRuntime:
     #   責務: [run_and_execute: session pipelineで判断と安全検証付き実行を行う]
     #   処理: [引数を同じsession pipelineへ渡し、pipelineが管理する結果を返す]
     #   引数: [arguments: DecisionPipeline.run_and_executeが受け取る実行設定]
-    #   戻り値: [ExecutionResult: 実行された候補と実行結果]
+    #   戻り値: [ExecutionResultまたはDecisionDisposition: 実操作結果または無入力停止]
     # }
-    def run_and_execute(self, **arguments: Any) -> ExecutionResult:
+    def run_and_execute(
+        self, **arguments: Any
+    ) -> ExecutionResult | DecisionDisposition:
         token = self.adaptation.begin_step() if self.adaptation is not None else None
         try:
-            return self.pipeline.run_and_execute(**arguments)
+            result = self.orchestrator.run(execute=True, **arguments)
+            if isinstance(result, ActionDecision):
+                raise RuntimeError(
+                    "execution orchestration returned an unexecuted selection"
+                )
+            return result
         finally:
             if token is not None and self.adaptation is not None:
                 self.adaptation.finish_step(token)

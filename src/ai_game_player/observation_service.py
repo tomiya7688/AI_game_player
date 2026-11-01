@@ -164,6 +164,7 @@ class LiveObservationService:
         observation = analyzer.analyze(packet.frame, "live")
         features = dict(observation.features)
         features["capture_metadata"] = {
+            "source_id": stream_id,
             "frame_id": f"{stream_id}:{packet.source_generation}:{packet.frame_id}",
             "source_generation": packet.source_generation,
             "monotonic_ns": round(packet.frame.captured_at * NANOSECONDS_PER_SECOND),

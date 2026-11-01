@@ -1,3 +1,9 @@
+## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
+
+- SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
+- 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
+- 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
+
 ## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
 
 - Play画面の「一覧更新」へ共通ToolTipを接続し、ゲームのウィンドウを起動・再起動した後に一覧を取得し直す操作を案内します。マウスのホバーとキーボードのフォーカスで表示します。

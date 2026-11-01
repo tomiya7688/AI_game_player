@@ -9,6 +9,7 @@ from ai_game_player.loop_guard import LoopGuard
 from ai_game_player.models import ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.run_control import RunController
+from ai_game_player.decision_withheld import DecisionDisposition
 
 
 # {
@@ -20,14 +21,16 @@ class SessionRuntime(Protocol):
     #   引数: [arguments: Pipelineの判断用入力]
     #   戻り値: [ActionDecision: Providerが選んだ許可候補]
     # }
-    def run(self, **arguments: Any) -> ActionDecision: ...
+    def run(self, **arguments: Any) -> ActionDecision | DecisionDisposition: ...
 
     # {
     #   責務: [run_and_execute: session内の判断と候補実行を行う]
     #   引数: [arguments: Pipelineの実行用入力]
     #   戻り値: [ExecutionResult: 選択候補の実行結果]
     # }
-    def run_and_execute(self, **arguments: Any) -> ExecutionResult: ...
+    def run_and_execute(
+        self, **arguments: Any
+    ) -> ExecutionResult | DecisionDisposition: ...
 
     # {
     #   責務: [load_execution_history: 現Session runtimeが管理する互換履歴を読み込む]
@@ -73,6 +76,7 @@ class SessionStatus(str, Enum):
 class SessionStep:
     terminal_reason: str | None = None
     deferred: bool = False
+    withheld_reason: str | None = None
 
 
 @dataclass(frozen=True)
@@ -196,7 +200,9 @@ class GameSessionController:
             self._notify()
             return result
         self._steps += 1
-        if result.terminal_reason is not None:
+        if result.withheld_reason is not None:
+            self.stop(result.withheld_reason)
+        elif result.terminal_reason is not None:
             self._finish(SessionStatus.COMPLETED, result.terminal_reason)
         else:
             self._notify()
@@ -227,7 +233,9 @@ class GameSessionController:
 
         completed = result or SessionStep()
         self._steps += 1
-        if completed.terminal_reason is not None:
+        if completed.withheld_reason is not None:
+            self.stop(completed.withheld_reason)
+        elif completed.terminal_reason is not None:
             self._finish(SessionStatus.COMPLETED, completed.terminal_reason)
         else:
             self._notify()
