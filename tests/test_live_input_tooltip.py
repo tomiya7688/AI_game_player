@@ -36,14 +36,21 @@ class LiveInputToolTipTests(unittest.TestCase):
             application = Application(root, observation_service=SimpleNamespace())
             root.geometry("1120x760+30000+30000")
             root.update()
-            self.assertEqual(len(tooltips), 2)
+            self.assertEqual(len(tooltips), 3)
             refresh_tooltip = tooltips[0]
             tooltip = tooltips[1]
+            resume_tooltip = tooltips[2]
             self.assertIs(refresh_tooltip.widget, application.refresh_windows_button)
             self.assertEqual(refresh_tooltip.delay_ms, 400)
             self.assertEqual(
                 refresh_tooltip.text,
                 "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。",
+            )
+            self.assertIs(resume_tooltip.widget, application.resume_button)
+            self.assertEqual(resume_tooltip.delay_ms, 400)
+            self.assertEqual(
+                resume_tooltip.text,
+                "停止状態を解除して実行世代を更新（re-arm）し、新しい判断や連続実行を受け付け可能な状態に戻します。",
             )
             checkbox = application.live_execution_toggle
             self.assertIs(tooltip.widget, checkbox)
@@ -110,6 +117,47 @@ class LiveInputToolTipTests(unittest.TestCase):
             root.update()
             button = application.refresh_windows_button
             expected = "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。"
+
+            for event, end_event in (
+                ("<Enter>", "<Leave>"),
+                ("<FocusIn>", "<FocusOut>"),
+            ):
+                button.event_generate(event)
+                root.after(450, root.quit)
+                root.mainloop()
+                popup = next(
+                    (
+                        child
+                        for child in button.winfo_children()
+                        if isinstance(child, tk.Toplevel)
+                    ),
+                    None,
+                )
+                self.assertIsNotNone(popup)
+                self.assertTrue(popup.winfo_viewable())
+                self.assertEqual(popup.winfo_children()[0].cget("text"), expected)
+                button.event_generate(end_event)
+                self.assertFalse(popup.winfo_exists())
+
+    def test_resume_button_tooltip_shows_on_hover_and_focus(self):
+        try:
+            root = tk.Tk()
+        except tk.TclError as error:
+            self.skipTest(f"Tk desktop is unavailable: {error}")
+        self.addCleanup(root.destroy)
+        with (
+            patch("ai_game_player.app.ConfigStore.load", return_value=AppConfig()),
+            patch("ai_game_player.app.ShellStateStore.load", return_value=ShellState()),
+            patch("ai_game_player.app.RuntimeLog"),
+            patch.object(Application, "refresh_windows"),
+            patch.object(Application, "_poll_global_stop"),
+            patch.object(Application, "_poll_background_results"),
+        ):
+            application = Application(root, observation_service=SimpleNamespace())
+            root.geometry("1120x960+30000+30000")
+            root.update()
+            button = application.resume_button
+            expected = "停止状態を解除して実行世代を更新（re-arm）し、新しい判断や連続実行を受け付け可能な状態に戻します。"
 
             for event, end_event in (
                 ("<Enter>", "<Leave>"),
