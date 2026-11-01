@@ -1,13 +1,16 @@
 import ctypes
+import errno
 import hashlib
 import io
 import json
 import os
 import tempfile
+import threading
 import time
 import unittest
 import zipfile
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -62,7 +65,9 @@ def git_blob_sha(content: bytes) -> str:
     return hashlib.sha1(header + content, usedforsecurity=False).hexdigest()
 
 
-def make_lock(path: Path, license_bytes: bytes = MIT_LICENSE, index_bytes: bytes = INDEX_HTML) -> Path:
+def make_lock(
+    path: Path, license_bytes: bytes = MIT_LICENSE, index_bytes: bytes = INDEX_HTML
+) -> Path:
     path.write_text(
         json.dumps(
             {
@@ -90,7 +95,9 @@ def make_lock(path: Path, license_bytes: bytes = MIT_LICENSE, index_bytes: bytes
 
 def make_archive(entries: dict[str, bytes]) -> bytes:
     archive_bytes = io.BytesIO()
-    with zipfile.ZipFile(archive_bytes, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    with zipfile.ZipFile(
+        archive_bytes, "w", compression=zipfile.ZIP_DEFLATED
+    ) as archive:
         for name, content in entries.items():
             archive.writestr(name, content)
     return archive_bytes.getvalue()
@@ -119,7 +126,10 @@ def board_row_group_diagnostics(
                 frame.bgra[pixel_offset + 1],
                 frame.bgra[pixel_offset],
             )
-            if nearest_distance_by_rgb[rgb] > MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED:
+            if (
+                nearest_distance_by_rgb[rgb]
+                > MAXIMUM_BOARD_REGION_COLOR_DISTANCE_SQUARED
+            ):
                 continue
             matching_x_positions.append(x)
         if not matching_x_positions:
@@ -155,7 +165,9 @@ def board_row_group_diagnostics(
         height = bottom - top
         side = max(width, height)
         shape_confidence = 1.0 - abs(width - height) / side if side else 0.0
-        density = sum(row[3] for row in group) / (width * height) if width and height else 0.0
+        density = (
+            sum(row[3] for row in group) / (width * height) if width and height else 0.0
+        )
         group_summaries.append(
             {
                 "bounds": [left, top, right, bottom],
@@ -173,6 +185,130 @@ def board_row_group_diagnostics(
 
 
 class PinnedGameSourceTest(unittest.TestCase):
+    def test_concurrent_publication_reuses_only_the_verified_winner(self):
+        archive = make_archive(
+            {"2048-test/index.html": INDEX_HTML, "2048-test/LICENSE.txt": MIT_LICENSE}
+        )
+        ready_to_publish = threading.Barrier(2)
+
+        class RacingSource(PinnedGameSource):
+            def _verify_source(self, source_root):
+                super()._verify_source(source_root)
+                if source_root.name == "extracted":
+                    ready_to_publish.wait(timeout=5)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            lock_path = make_lock(root / "source.lock.json")
+            sources = [RacingSource(root / "cache", lock_path) for _ in range(2)]
+            with patch(
+                "urllib.request.urlopen",
+                side_effect=lambda *args, **kwargs: FakeArchiveResponse(archive),
+            ) as fetch:
+                with ThreadPoolExecutor(max_workers=2) as workers:
+                    futures = [workers.submit(source.materialize) for source in sources]
+                    results = [future.result(timeout=10) for future in futures]
+            self.assertEqual(results, [root / "cache" / TEST_COMMIT] * 2)
+            self.assertEqual(fetch.call_count, 2)
+            sources[0]._verify_source(results[0])
+            self.assertEqual(
+                sorted(path.name for path in (root / "cache").iterdir()), [TEST_COMMIT]
+            )
+
+    def test_existing_and_nonempty_rename_races_verify_the_published_cache(self):
+        archive = make_archive(
+            {"2048-test/index.html": INDEX_HTML, "2048-test/LICENSE.txt": MIT_LICENSE}
+        )
+        for error_number in (errno.EEXIST, errno.ENOTEMPTY):
+            with (
+                self.subTest(error_number=error_number),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                root = Path(temporary)
+                source = PinnedGameSource(
+                    root / "cache", make_lock(root / "source.lock.json")
+                )
+
+                def publish_competitor_then_fail(staging, destination):
+                    destination.mkdir()
+                    (destination / "index.html").write_bytes(INDEX_HTML)
+                    (destination / "LICENSE.txt").write_bytes(MIT_LICENSE)
+                    raise OSError(error_number, "concurrent cache publication")
+
+                with patch(
+                    "urllib.request.urlopen", return_value=FakeArchiveResponse(archive)
+                ):
+                    with patch.object(
+                        Path,
+                        "rename",
+                        autospec=True,
+                        side_effect=publish_competitor_then_fail,
+                    ):
+                        destination = source.materialize()
+                source._verify_source(destination)
+                self.assertEqual(
+                    sorted(path.name for path in (root / "cache").iterdir()),
+                    [TEST_COMMIT],
+                )
+
+    def test_nonempty_race_rejects_and_preserves_a_corrupt_winning_cache(self):
+        archive = make_archive(
+            {"2048-test/index.html": INDEX_HTML, "2048-test/LICENSE.txt": MIT_LICENSE}
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = PinnedGameSource(
+                root / "cache", make_lock(root / "source.lock.json")
+            )
+
+            def publish_corrupt_competitor(staging, destination):
+                destination.mkdir()
+                (destination / "index.html").write_bytes(INDEX_HTML)
+                (destination / "LICENSE.txt").write_bytes(b"corrupt license")
+                raise OSError(errno.ENOTEMPTY, "concurrent cache publication")
+
+            with patch(
+                "urllib.request.urlopen", return_value=FakeArchiveResponse(archive)
+            ):
+                with patch.object(
+                    Path,
+                    "rename",
+                    autospec=True,
+                    side_effect=publish_corrupt_competitor,
+                ):
+                    with self.assertRaisesRegex(
+                        PinnedGameSourceError, "does not match the lock"
+                    ):
+                        source.materialize()
+            self.assertEqual(
+                (root / "cache" / TEST_COMMIT / "LICENSE.txt").read_bytes(),
+                b"corrupt license",
+            )
+            self.assertEqual(
+                sorted(path.name for path in (root / "cache").iterdir()), [TEST_COMMIT]
+            )
+
+    def test_unrelated_rename_failure_is_not_treated_as_a_cache_race(self):
+        archive = make_archive(
+            {"2048-test/index.html": INDEX_HTML, "2048-test/LICENSE.txt": MIT_LICENSE}
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = PinnedGameSource(
+                root / "cache", make_lock(root / "source.lock.json")
+            )
+            with patch(
+                "urllib.request.urlopen", return_value=FakeArchiveResponse(archive)
+            ):
+                with patch.object(
+                    Path,
+                    "rename",
+                    side_effect=PermissionError(errno.EACCES, "permission denied"),
+                ):
+                    with self.assertRaises(PermissionError):
+                        source.materialize()
+            self.assertEqual(list((root / "cache").iterdir()), [])
+
     def test_downloads_exact_locked_archive_once_and_reuses_verified_cache(self):
         archive = make_archive(
             {
@@ -184,18 +320,26 @@ class PinnedGameSourceTest(unittest.TestCase):
             root = Path(temporary)
             lock_path = make_lock(root / "source.lock.json")
             source = PinnedGameSource(root / "cache", lock_path)
-            with patch("urllib.request.urlopen", return_value=FakeArchiveResponse(archive)) as fetch:
+            with patch(
+                "urllib.request.urlopen", return_value=FakeArchiveResponse(archive)
+            ) as fetch:
                 materialized = source.materialize()
                 cached = source.materialize()
                 self.assertEqual(materialized, cached)
-                self.assertEqual((materialized / "index.html").read_bytes(), b"<title>2048</title>")
+                self.assertEqual(
+                    (materialized / "index.html").read_bytes(), b"<title>2048</title>"
+                )
                 self.assertEqual(fetch.call_count, 1)
                 request = fetch.call_args.args[0]
-                self.assertEqual(request.full_url, f"https://codeload.github.com/example/2048/zip/{TEST_COMMIT}")
+                self.assertEqual(
+                    request.full_url,
+                    f"https://codeload.github.com/example/2048/zip/{TEST_COMMIT}",
+                )
                 (materialized / "index.html").write_bytes(b"changed game source")
-                with self.assertRaisesRegex(PinnedGameSourceError, "does not match the lock"):
+                with self.assertRaisesRegex(
+                    PinnedGameSourceError, "does not match the lock"
+                ):
                     source.materialize()
-
 
     def test_rejects_parent_path_before_writing_outside_the_cache(self):
         archive = make_archive(
@@ -207,8 +351,12 @@ class PinnedGameSourceTest(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            source = PinnedGameSource(root / "cache", make_lock(root / "source.lock.json"))
-            with patch("urllib.request.urlopen", return_value=FakeArchiveResponse(archive)):
+            source = PinnedGameSource(
+                root / "cache", make_lock(root / "source.lock.json")
+            )
+            with patch(
+                "urllib.request.urlopen", return_value=FakeArchiveResponse(archive)
+            ):
                 with self.assertRaisesRegex(PinnedGameSourceError, "unsafe path"):
                     source.materialize()
             self.assertFalse((root / "escape.txt").exists())
@@ -222,9 +370,15 @@ class PinnedGameSourceTest(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            source = PinnedGameSource(root / "cache", make_lock(root / "source.lock.json"))
-            with patch("urllib.request.urlopen", return_value=FakeArchiveResponse(archive)):
-                with self.assertRaisesRegex(PinnedGameSourceError, "does not match the lock"):
+            source = PinnedGameSource(
+                root / "cache", make_lock(root / "source.lock.json")
+            )
+            with patch(
+                "urllib.request.urlopen", return_value=FakeArchiveResponse(archive)
+            ):
+                with self.assertRaisesRegex(
+                    PinnedGameSourceError, "does not match the lock"
+                ):
                     source.materialize()
 
     def test_invalid_existing_cache_is_preserved_without_network_access(self):
@@ -236,12 +390,18 @@ class PinnedGameSourceTest(unittest.TestCase):
             (cache / "LICENSE.txt").write_bytes(b"not the locked license")
             marker = root / "keep.txt"
             marker.write_text("preserve existing cache", encoding="utf-8")
-            source = PinnedGameSource(root / "cache", make_lock(root / "source.lock.json"))
+            source = PinnedGameSource(
+                root / "cache", make_lock(root / "source.lock.json")
+            )
             with patch("urllib.request.urlopen") as fetch:
-                with self.assertRaisesRegex(PinnedGameSourceError, "does not match the lock"):
+                with self.assertRaisesRegex(
+                    PinnedGameSourceError, "does not match the lock"
+                ):
                     source.materialize()
                 fetch.assert_not_called()
-                self.assertEqual(marker.read_text(encoding="utf-8"), "preserve existing cache")
+                self.assertEqual(
+                    marker.read_text(encoding="utf-8"), "preserve existing cache"
+                )
 
 
 class LoopbackStaticServerTest(unittest.TestCase):
@@ -277,7 +437,12 @@ class BrowserDiscoveryTest(unittest.TestCase):
                         "LOCALAPPDATA": str(root / "local"),
                     },
                 ),
-                patch("shutil.which", side_effect=lambda command: "C:/tools/chrome.exe" if command == "chrome" else None),
+                patch(
+                    "shutil.which",
+                    side_effect=lambda command: (
+                        "C:/tools/chrome.exe" if command == "chrome" else None
+                    ),
+                ),
             ):
                 self.assertEqual(find_browser_executable(), edge_path)
 
@@ -289,12 +454,13 @@ class BrowserDiscoveryTest(unittest.TestCase):
         process_id = 5678
         user32 = Mock()
         user32.IsWindow.return_value = True
-        user32.GetWindowThreadProcessId.side_effect = (
-            lambda _handle, output: setattr(
+        user32.GetWindowThreadProcessId.side_effect = lambda _handle, output: (
+            setattr(
                 ctypes.cast(output, ctypes.POINTER(wintypes.DWORD)).contents,
                 "value",
                 process_id,
-            ) or 1
+            )
+            or 1
         )
         user32.GetSystemMetrics.side_effect = [1920, 1080]
         user32.ShowWindow.return_value = 1
@@ -303,11 +469,14 @@ class BrowserDiscoveryTest(unittest.TestCase):
         user32.SetForegroundWindow.return_value = 0
         user32.GetForegroundWindow.return_value = 9876
 
-        with patch("tools.reference_game_2048_launcher.os.name", "nt"), patch.object(
-            ctypes,
-            "WinDLL",
-            return_value=user32,
-            create=True,
+        with (
+            patch("tools.reference_game_2048_launcher.os.name", "nt"),
+            patch.object(
+                ctypes,
+                "WinDLL",
+                return_value=user32,
+                create=True,
+            ),
         ):
             self.assertFalse(focus_resize_browser_window(window_handle, process_id))
 
@@ -317,7 +486,9 @@ class BrowserDiscoveryTest(unittest.TestCase):
         insert_after = user32.SetWindowPos.call_args.args[1]
         flags = user32.SetWindowPos.call_args.args[6]
         self.assertEqual(insert_after.value or 0, HWND_TOP)
-        self.assertEqual(flags, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW)
+        self.assertEqual(
+            flags, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW
+        )
 
     def test_browser_window_uses_the_configured_game_device_scale_factor(self):
         session = BrowserWindowSession(Path("browser.exe"), Path("source"))
@@ -328,10 +499,19 @@ class BrowserDiscoveryTest(unittest.TestCase):
         with (
             patch("tools.reference_game_2048_launcher.os.name", "nt"),
             patch.object(Path, "is_file", return_value=True),
-            patch("tools.reference_game_2048_launcher.tempfile.TemporaryDirectory", return_value=profile),
-            patch("tools.reference_game_2048_launcher.subprocess.Popen", return_value=process) as start_browser,
+            patch(
+                "tools.reference_game_2048_launcher.tempfile.TemporaryDirectory",
+                return_value=profile,
+            ),
+            patch(
+                "tools.reference_game_2048_launcher.subprocess.Popen",
+                return_value=process,
+            ) as start_browser,
             patch.object(session, "_wait_for_window", return_value=Mock()),
-            patch("tools.reference_game_2048_launcher.focus_resize_browser_window", return_value=True),
+            patch(
+                "tools.reference_game_2048_launcher.focus_resize_browser_window",
+                return_value=True,
+            ),
         ):
             session.start("http://127.0.0.1:8000/")
 
@@ -353,9 +533,15 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             print("2048 integration: temporary workspace created", flush=True)
             launcher = ReferenceGame2048Launcher(Path(temporary) / "source-cache")
-            print("2048 integration: starting pinned source and browser launcher", flush=True)
+            print(
+                "2048 integration: starting pinned source and browser launcher",
+                flush=True,
+            )
             launcher.start()
-            print("2048 integration: pinned source and browser launcher started", flush=True)
+            print(
+                "2048 integration: pinned source and browser launcher started",
+                flush=True,
+            )
             process = launcher.browser_process
             window = launcher.window_info
             game_url = launcher.url
@@ -368,7 +554,10 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                 with urlopen(game_url, timeout=5) as response:
                     html = response.read().decode("utf-8")
                 self.assertIn("2048", html)
-                print("2048 integration: loopback server returned the pinned game page", flush=True)
+                print(
+                    "2048 integration: loopback server returned the pinned game page",
+                    flush=True,
+                )
                 capture = WindowsScreenCapture()
                 try:
                     adapter = ReferenceGame2048Adapter()
@@ -378,7 +567,10 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                     while True:
                         capture_attempt += 1
                         if capture_attempt == 1:
-                            print("2048 integration: starting HWND frame capture", flush=True)
+                            print(
+                                "2048 integration: starting HWND frame capture",
+                                flush=True,
+                            )
                         frame = capture.capture(window.handle)
                         if capture_attempt == 1:
                             print(
@@ -389,7 +581,10 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                         observation = frame_analyzer.analyze(frame, "live-2048")
                         adapted, candidates = adapter.adapt(frame, observation)
                         game_state = adapted.features["game_2048"]
-                        if game_state["board"] is not None or time.monotonic() >= deadline:
+                        if (
+                            game_state["board"] is not None
+                            or time.monotonic() >= deadline
+                        ):
                             break
                         time.sleep(LIVE_BOARD_POLL_INTERVAL_SECONDS)
                 finally:
@@ -402,17 +597,21 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                     user32 = ctypes.windll.user32
                     configure_user32_prototypes(user32)
                     window_rect = (ctypes.c_long * 4)()
-                    rect_available = bool(user32.GetWindowRect(window.handle, ctypes.byref(window_rect)))
+                    rect_available = bool(
+                        user32.GetWindowRect(window.handle, ctypes.byref(window_rect))
+                    )
                     visible_unoccluded = None
                     if rect_available:
                         left, top, right, bottom = window_rect
-                        visible_unoccluded = WindowsScreenCapture._is_visible_and_unoccluded(
-                            user32,
-                            window.handle,
-                            left,
-                            top,
-                            right,
-                            bottom,
+                        visible_unoccluded = (
+                            WindowsScreenCapture._is_visible_and_unoccluded(
+                                user32,
+                                window.handle,
+                                left,
+                                top,
+                                right,
+                                bottom,
+                            )
                         )
                     frame_color_counts = Counter(
                         (
@@ -434,12 +633,19 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                     nearest_distance_by_rgb = {}
                     for rgb, count in frame_color_counts.items():
                         nearest_distance = min(
-                            sum((actual - expected) ** 2 for actual, expected in zip(rgb, palette_rgb))
+                            sum(
+                                (actual - expected) ** 2
+                                for actual, expected in zip(rgb, palette_rgb)
+                            )
                             for palette_rgb in BOARD_REGION_COLORS
                         )
                         nearest_distance_by_rgb[rgb] = nearest_distance
                         bucket = next(
-                            (str(threshold) for threshold in distance_thresholds if nearest_distance <= threshold),
+                            (
+                                str(threshold)
+                                for threshold in distance_thresholds
+                                if nearest_distance <= threshold
+                            ),
                             "over_900",
                         )
                         distance_bucket_counts[bucket] += count
@@ -455,12 +661,20 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                             ",".join(str(channel) for channel in rgb): count
                             for rgb, count in sorted(palette_counts.items())
                         },
-                        "nearest_palette_distance_pixel_counts": dict(sorted(distance_bucket_counts.items())),
-                        "board_region": repr(adapter.board_recognizer._find_board_region(frame)),
-                        "board_row_groups": board_row_group_diagnostics(frame, nearest_distance_by_rgb),
+                        "nearest_palette_distance_pixel_counts": dict(
+                            sorted(distance_bucket_counts.items())
+                        ),
+                        "board_region": repr(
+                            adapter.board_recognizer._find_board_region(frame)
+                        ),
+                        "board_row_groups": board_row_group_diagnostics(
+                            frame, nearest_distance_by_rgb
+                        ),
                         "capture_backend_error": capture.last_backend_error,
                     }
-                    failure_diagnostic = json.dumps(diagnostic, ensure_ascii=False, sort_keys=True)
+                    failure_diagnostic = json.dumps(
+                        diagnostic, ensure_ascii=False, sort_keys=True
+                    )
                     (diagnostic_directory / "2048-live-capture.json").write_text(
                         json.dumps(diagnostic, ensure_ascii=False, indent=2),
                         encoding="utf-8",
@@ -471,7 +685,10 @@ class WindowsReferenceGameIntegrationTest(unittest.TestCase):
                     f"confidence={game_state['confidence']}, foreground={launcher.window_is_foreground}, "
                     f"diagnostics={failure_diagnostic}",
                 )
-                self.assertEqual([candidate.label for candidate in candidates], ["UP", "DOWN", "LEFT", "RIGHT"])
+                self.assertEqual(
+                    [candidate.label for candidate in candidates],
+                    ["UP", "DOWN", "LEFT", "RIGHT"],
+                )
             finally:
                 launcher.close()
             process.wait(timeout=10)
