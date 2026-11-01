@@ -23,6 +23,16 @@ def render_value():
         "ready_state": "complete",
         "visibility": "visible",
         "tile_count": 2,
+        "resource_timing": {
+            "state": "unavailable",
+            "script_count_capped": 0,
+            "script_overflow": False,
+            "resource_count_capped": None,
+            "resources": {
+                name: dict.fromkeys(diag.TIMING_FIELDS)
+                for name in diag.TIMING_RESOURCE_NAMES
+            },
+        },
     }
 
 
@@ -40,7 +50,7 @@ class DiagnosticBoundaryTests(unittest.TestCase):
             "Array.from(",
         ):
             self.assertNotIn(forbidden, diag.RENDER_EXPRESSION)
-        self.assertEqual(13, len(render_value()))
+        self.assertEqual(16, len(render_value()))
 
     def test_owner_url_target_field_and_byte_rejection(self):
         for url in (
@@ -162,7 +172,7 @@ class DiagnosticBoundaryTests(unittest.TestCase):
                     return_value=(b"seeded page", {}),
                 ),
                 patch(
-                    "tools.reference_game_2048_launcher.ThreadingHTTPServer",
+                    "tools.reference_game_2048_launcher.ReferenceGameHTTPServer",
                     return_value=fake_http,
                 ) as http,
                 patch("tools.reference_game_2048_launcher.threading.Thread"),

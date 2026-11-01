@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "source_base_sha": "37bbafb1975e79fca7307dd621b61680403a91de",
+  "probe_script_sha256": "19d9ac7a1140e5ee716d85207d2abdd34dcbe70b04c3b25239084da8f09eeae4",
+  "source_file_sha256": {
+    "reference_game_http_server.py": "77a5efc80ebf4acf27a38d5360d801e1db8fdf3caeab5a5c7e9a82bcc9d5dc01",
+    "reference_game_2048_launcher.py": "92e16fa42bed5b1069f9bb6b1de9d814574bbbd08cfa186f9df0858a1b8d6216",
+    "reference_browser_diagnostics.py": "b06d69ba7d81fa3aa9c589c9c6e826cd00ea11465222089f9e1b33a27354088e"
+  },
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "scope": "HTTP-client and TCP queue probes only; no completed Chromium playback, Windows causality or permanent resource-loss claim",
+  "timeouts": "Probe-local bounds only; no production startup/observation/planner budget changes",
+  "capacity": [
+    {
+      "backlog": 5,
+      "attempted_connections": 12,
+      "accept_pause_ms": 150,
+      "completed_before_accept": 6,
+      "pending_before_accept": 6,
+      "socket_error_count": 0
+    },
+    {
+      "backlog": 32,
+      "attempted_connections": 12,
+      "accept_pause_ms": 150,
+      "completed_before_accept": 12,
+      "pending_before_accept": 0,
+      "socket_error_count": 0
+    },
+    {
+      "backlog": 5,
+      "attempted_connections": 12,
+      "accept_pause_ms": 150,
+      "completed_before_accept": 6,
+      "pending_before_accept": 6,
+      "socket_error_count": 0
+    },
+    {
+      "backlog": 32,
+      "attempted_connections": 12,
+      "accept_pause_ms": 150,
+      "completed_before_accept": 12,
+      "pending_before_accept": 0,
+      "socket_error_count": 0
+    },
+    {
+      "backlog": 5,
+      "attempted_connections": 12,
+      "accept_pause_ms": 150,
+      "completed_before_accept": 6,
+      "pending_before_accept": 6,
+      "socket_error_count": 0
+    },
+    {
+      "backlog": 32,
+      "attempted_connections": 12,
+      "accept_pause_ms": 150,
+      "completed_before_accept": 12,
+      "pending_before_accept": 0,
+      "socket_error_count": 0
+    }
+  ],
+  "http": [
+    {
+      "backlog": 5,
+      "client": "Python urllib HTTP clients; not Chromium",
+      "batches": [
+        {
+          "index": 0,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 28.98925
+        },
+        {
+          "index": 1,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 1019.246775
+        },
+        {
+          "index": 2,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 1024.701884
+        },
+        {
+          "index": 3,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 1023.783528
+        }
+      ],
+      "server_counts": {
+        "resources": {
+          "local_storage_manager_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 6352,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "8e12c6a9aa34097c0b634b1f6690da091b1b4ac158ff914097a8ac83c86b5bc6",
+            "last_write_count_known": true
+          },
+          "game_manager_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 30508,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "b02baa6b75f8c8cad8606e680b6f73b7c843c61e3a643ee48410022499a649f0",
+            "last_write_count_known": true
+          },
+          "keyboard_input_manager_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 16020,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "7d579ab5b67dddf339cf28a7d06e4e24eca08b0187204ce352d67c49ae1e48de",
+            "last_write_count_known": true
+          },
+          "grid_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 10104,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "169428f5ff7f726c38112fcf1c918028cbca3a1d9f9239838fbc7eb4396b9f9a",
+            "last_write_count_known": true
+          },
+          "classlist_polyfill_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 7176,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "6abb09a37567fb3735e95d7096d30a01190a8eee016c781d51ae6b8b037261cd",
+            "last_write_count_known": true
+          },
+          "application_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 788,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "5fc43863225b371c458615ef431fac73003546f437aa32026641de48817bd27a",
+            "last_write_count_known": true
+          },
+          "tile_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 2376,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "13699e51d62179a6d36874108831a29901a98d6e11329918e64cfb5ee82d58e3",
+            "last_write_count_known": true
+          },
+          "html_actuator_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 16160,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "67b796d4f640b927e517b2281f8230c4f65c08b07558001e2c0dc9ea2e2145cf",
+            "last_write_count_known": true
+          },
+          "bind_polyfill_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 880,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "90e671a58a24122ffac4fc28b9a967a3769398c906c348568bf731118d7fdf52",
+            "last_write_count_known": true
+          },
+          "animframe_polyfill_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 3560,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "b97db8f8973c6c883d415e376f15ba657971e5704c8ecfd62e62a9adfec2792e",
+            "last_write_count_known": true
+          }
+        },
+        "server_write_only": true,
+        "recording_incomplete": false,
+        "summary_sha256": "a05fbacc574d87d37af6522241197f66ccd0e78d50016963d4631a05b1a019be"
+      }
+    },
+    {
+      "backlog": 32,
+      "client": "Python urllib HTTP clients; not Chromium",
+      "batches": [
+        {
+          "index": 0,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 8.408137
+        },
+        {
+          "index": 1,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 7.68239
+        },
+        {
+          "index": 2,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 8.060832
+        },
+        {
+          "index": 3,
+          "request_count": 10,
+          "all_bytes_match": true,
+          "all_status_200": true,
+          "max_elapsed_ms": 7.879748
+        }
+      ],
+      "server_counts": {
+        "resources": {
+          "game_manager_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 30508,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "b02baa6b75f8c8cad8606e680b6f73b7c843c61e3a643ee48410022499a649f0",
+            "last_write_count_known": true
+          },
+          "tile_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 2376,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "13699e51d62179a6d36874108831a29901a98d6e11329918e64cfb5ee82d58e3",
+            "last_write_count_known": true
+          },
+          "local_storage_manager_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 6352,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "8e12c6a9aa34097c0b634b1f6690da091b1b4ac158ff914097a8ac83c86b5bc6",
+            "last_write_count_known": true
+          },
+          "classlist_polyfill_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 7176,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "6abb09a37567fb3735e95d7096d30a01190a8eee016c781d51ae6b8b037261cd",
+            "last_write_count_known": true
+          },
+          "application_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 788,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "5fc43863225b371c458615ef431fac73003546f437aa32026641de48817bd27a",
+            "last_write_count_known": true
+          },
+          "bind_polyfill_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 880,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "90e671a58a24122ffac4fc28b9a967a3769398c906c348568bf731118d7fdf52",
+            "last_write_count_known": true
+          },
+          "animframe_polyfill_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 3560,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "b97db8f8973c6c883d415e376f15ba657971e5704c8ecfd62e62a9adfec2792e",
+            "last_write_count_known": true
+          },
+          "html_actuator_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 16160,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "67b796d4f640b927e517b2281f8230c4f65c08b07558001e2c0dc9ea2e2145cf",
+            "last_write_count_known": true
+          },
+          "grid_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 10104,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "169428f5ff7f726c38112fcf1c918028cbca3a1d9f9239838fbc7eb4396b9f9a",
+            "last_write_count_known": true
+          },
+          "keyboard_input_manager_js": {
+            "responses": 4,
+            "completed": 4,
+            "bytes_written": 16020,
+            "unknown_write_counts": 0,
+            "requests_started": 4,
+            "headers_completed": 4,
+            "failed_requests": 0,
+            "last_failed_phase": null,
+            "last_status": 200,
+            "last_body_sha256": "7d579ab5b67dddf339cf28a7d06e4e24eca08b0187204ce352d67c49ae1e48de",
+            "last_write_count_known": true
+          }
+        },
+        "server_write_only": true,
+        "recording_incomplete": false,
+        "summary_sha256": "a05fbacc574d87d37af6522241197f66ccd0e78d50016963d4631a05b1a019be"
+      }
+    }
+  ]
+}

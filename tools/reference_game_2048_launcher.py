@@ -13,6 +13,7 @@ import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from tools.reference_game_seed import seeded_index
+from tools.reference_game_http_server import ReferenceGameHTTPServer
 from pathlib import Path
 from .reference_game_2048_source import PinnedGameSource
 from .startup_failure_evidence import StartupFailureEvidence
@@ -146,34 +147,56 @@ class LoopbackStaticServer:
             def do_GET(self) -> None:
                 self._response_status = 0
                 self._resource_name = resource_names.get(self.path.partition("?")[0])
-                if seeded_response is not None and self.path.partition("?")[0] in (
-                    "/",
-                    "/index.html",
-                ):
-                    completed = False
-                    try:
-                        self.send_response(200)
-                        self.send_header("Content-Type", "text/html; charset=utf-8")
-                        self.send_header("Content-Length", str(len(seeded_response)))
-                        self.end_headers()
-                        self.wfile.write(seeded_response)
-                        completed = True
-                    finally:
-                        if resource_responses is not None:
-                            # A failed sendall may already have written a prefix.
-                            # Its byte count is unknown: 0 is a lower bound only.
-                            resource_responses.record(
-                                "page",
-                                200,
-                                len(seeded_response) if completed else 0,
-                                hashlib.sha256(seeded_response).hexdigest()
-                                if completed
-                                else None,
-                                completed,
-                                written_known=completed,
+                self._resource_phase = "request"
+                if resource_responses is not None and self._resource_name is not None:
+                    resource_responses.started(self._resource_name)
+                try:
+                    if seeded_response is not None and self.path.partition("?")[0] in (
+                        "/",
+                        "/index.html",
+                    ):
+                        completed = False
+                        try:
+                            self.send_response(200)
+                            self.send_header("Content-Type", "text/html; charset=utf-8")
+                            self.send_header(
+                                "Content-Length", str(len(seeded_response))
                             )
-                else:
-                    super().do_GET()
+                            self.end_headers()
+                            self.wfile.write(seeded_response)
+                            completed = True
+                        finally:
+                            if resource_responses is not None:
+                                # A failed sendall may already have written a prefix.
+                                # Its byte count is unknown: 0 is a lower bound only.
+                                resource_responses.record(
+                                    "page",
+                                    200,
+                                    len(seeded_response) if completed else 0,
+                                    hashlib.sha256(seeded_response).hexdigest()
+                                    if completed
+                                    else None,
+                                    completed,
+                                    written_known=completed,
+                                )
+                    else:
+                        super().do_GET()
+                except BaseException:
+                    if (
+                        resource_responses is not None
+                        and self._resource_name is not None
+                    ):
+                        resource_responses.failed(
+                            self._resource_name, self._resource_phase
+                        )
+                    raise
+
+            def end_headers(self) -> None:
+                super().end_headers()
+                self._resource_phase = "body"
+                resource_name = getattr(self, "_resource_name", None)
+                if resource_responses is not None and resource_name is not None:
+                    resource_responses.headers_completed(resource_name)
 
             def copyfile(self, source, outputfile) -> None:
                 if resource_responses is None or self._resource_name is None:
@@ -202,6 +225,7 @@ class LoopbackStaticServer:
                 return
 
             def send_response(self, code: int, message: str | None = None) -> None:
+                self._resource_phase = "headers"
                 super().send_response(code, message)
                 self._response_status = code
                 if (
@@ -226,7 +250,7 @@ class LoopbackStaticServer:
                     page_responses.record(code)
 
         handler = partial(QuietRequestHandler, directory=str(source_path))
-        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        server = ReferenceGameHTTPServer(("127.0.0.1", 0), handler)
         thread = threading.Thread(
             target=server.serve_forever, name="2048-static-server", daemon=True
         )
