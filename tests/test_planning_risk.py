@@ -47,6 +47,16 @@ class PlanningRiskTests(unittest.TestCase):
         self.assertEqual(risk.worst_value, -1)
         self.assertEqual(risk.lower_quantile, 1)
 
+    def test_small_tail_alpha_does_not_underflow_or_stop_before_tail_mass_is_filled(
+        self,
+    ):
+        self.assertAlmostEqual(
+            lower_tail_risk(((-0.1, 1.0),), 0, alpha=5e-324).lower_cvar, -0.1
+        )
+        result = lower_tail_risk(((-0.8, 1e-320), (-0.6, 1.0)), 0, alpha=1e-300)
+        self.assertAlmostEqual(result.lower_cvar, -0.6)
+        self.assertAlmostEqual(result.lower_quantile, -0.6)
+
     def test_cvar_of_mixture_can_be_worse_than_each_conditional_cvar(self):
         first = lower_tail_risk(((-1, 0.01), (1, 0.99)), 0)
         second = lower_tail_risk(((0.6, 1),), 0)

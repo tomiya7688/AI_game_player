@@ -5,6 +5,7 @@ from unittest.mock import patch
 from ai_game_player.decision_context import DecisionContextBuilder
 from ai_game_player.decision_verifier import DecisionVerifier, ReliabilityStatus
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
+from ai_game_player.planning_information import PlanningObservationModel
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.planning_policy_contract import (
     PlanningComputationEstimate,
@@ -53,6 +54,67 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         self.assertEqual(result.information.evpi_upper_bound, 0)
         self.assertIn("observation_upper_bound_below_cost", result.reason_codes)
         self.assertTrue(result.global_risk_known)
+
+    def test_deep_result_without_explicit_executable_continuation_is_rejected(self):
+        plan = make_plan(self.belief)
+        shallow = self.decide(plan)
+        self.assertEqual(shallow.continuation_semantics, "one_step")
+        # Bypass a future Result constructor check to exercise this independent boundary too.
+        object.__setattr__(plan, "completed_depth", 2)
+        decision = self.decide(plan)
+        self.assertEqual(decision.outcome, PlanningOutcome.ABSTAIN)
+        self.assertIsNone(decision.selected_action_id)
+
+    def test_zero_probability_world_does_not_create_action_disagreement(self):
+        belief = make_belief((1.0, 0.0))
+        result = self.decide(self.disagreement_plan(belief), belief)
+        self.assertEqual(result.disagreement, "agreement")
+        self.assertEqual(result.selected_action_id, "a")
+        self.assertEqual(result.information.evpi_upper_bound, 0)
+
+    def test_search_may_drop_zero_probability_worlds_without_source_mismatch(self):
+        belief = make_belief((0.0, 0.5, 0.5))
+        plan = make_plan(
+            belief,
+            {
+                "a": (
+                    (WeightedValue(0, 1),),
+                    (WeightedValue(1, 1),),
+                    (WeightedValue(0, 1),),
+                ),
+                "b": (
+                    (WeightedValue(0, 1),),
+                    (WeightedValue(0, 1),),
+                    (WeightedValue(1, 1),),
+                ),
+            },
+        )
+        actions = tuple(
+            replace(
+                action,
+                hypothesis_values=tuple(
+                    item for item in action.hypothesis_values if item.belief_weight > 0
+                ),
+            )
+            for action in plan.action_values
+        )
+        plan = replace(plan, action_values=actions)
+        model = PlanningObservationModel(
+            belief.context,
+            1,
+            ("h1", "h2"),
+            ((1.0, 0.0), (0.0, 1.0)),
+            "sensor",
+            "v1",
+            "calibration",
+            0.1,
+            "evaluator",
+            "v1",
+            quality_profile_version="quality.profile.v1",
+        )
+        result = self.decide(plan, belief, observation_model=model)
+        self.assertEqual(result.outcome, PlanningOutcome.OBSERVE_MORE)
+        self.assertAlmostEqual(result.observation_policy_gain_lower, 0.5)
 
     def test_disagreement_observes_only_with_positive_net_real_channel_evsi(self):
         plan = self.disagreement_plan()
@@ -191,7 +253,14 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         belief = make_belief((0.9,), score=True)
         plan = make_plan(belief)
         computation = PlanningComputationEstimate(
-            belief.context, 1, 0.01, 0.1, "marginal.v1", "evaluator", "v1"
+            belief.context,
+            1,
+            0.01,
+            0.1,
+            "marginal.v1",
+            "evaluator",
+            "v1",
+            quality_profile_version="quality.profile.v1",
         )
         result = self.decide(plan, belief, can_escalate=True, computation=computation)
         self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
@@ -272,6 +341,7 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         for bad in (
             replace(model, belief_version=2),
             replace(model, evaluator_version="v2"),
+            replace(model, quality_profile_version="other.profile"),
             replace(model, value_unit="seconds"),
             replace(model, hypothesis_ids=("h1", "h0")),
         ):
@@ -280,7 +350,14 @@ class PlanningRiskPolicyTests(unittest.TestCase):
                 PlanningOutcome.ABSTAIN,
             )
         gain = PlanningComputationEstimate(
-            self.belief.context, 1, 0.01, 0.1, "marginal.v1", "evaluator", "v1"
+            self.belief.context,
+            1,
+            0.01,
+            0.1,
+            "marginal.v1",
+            "evaluator",
+            "v1",
+            quality_profile_version="quality.profile.v1",
         )
         result = self.decide(computation=gain)
         self.assertFalse(result.continue_computation)

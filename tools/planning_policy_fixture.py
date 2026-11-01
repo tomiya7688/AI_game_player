@@ -204,4 +204,5 @@ def observation_model(belief, *, informative=True, cost=0.1):
         cost,
         "evaluator",
         "v1",
+        quality_profile_version="quality.profile.v1",
     )
