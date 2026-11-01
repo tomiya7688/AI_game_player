@@ -137,7 +137,7 @@ class PlanningFilePublisherTests(unittest.TestCase):
             publish_planning_json(path, {"version": 1}, 100)
             with (
                 patch(
-                    "ai_game_player.planning_wire.replace_planning_file",
+                    "ai_game_player.planning_file_publisher.replace_planning_file",
                     side_effect=OSError("unsupported"),
                 ),
                 self.assertRaises(OSError),

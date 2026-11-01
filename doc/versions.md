@@ -1,5 +1,6 @@
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- 294は63/64必須CIと両600秒Campaignが成功、PR480 Plannerの12保留/実入力0は失敗として保持。一時planning IPCだけ単一encode/flush-close/atomic publishと有界raw再利用へ分離し、一般Store/lease/Stopの永続化・400ms等の元条件は維持。取得済み固定artifact3step/actions:readを除去し、旧empty/lease原因未確定と新Windows未確認を明記します。
 - 8dcの空盤面45秒失敗とcontrol lease失効を保った一時診断を追加。同一最後frameの保全後だけ事後CDPを一度実行し、明示heartbeat memory snapshotをclose前に保存。通常OFF/元エラー/入力・lease・TTL・合否を維持。標準artifact download→bounded exportは元検査後の一時stepとし、次の原因修正で除去します。原因修正・新Windows成功は未確認です。
 - 短比較の初期parityをSAFE_IDLEで検証し、元Run token・同一絶対45秒期限・新物理frame・既存5秒age/Stopを初回activationまで保持。通常600秒経路を維持し、固定d4e15a1の新phase実Windowsは全18試行成功/213実入力=盤面変化/3保留/全Stop・旧世代拒否を確認。機能コードhashを保った資料のみの後継headの必須CIと600秒受入は別に確認します。175の旧phase全18成功/212入力/4保留は別cohortへ保存し、起動前testは元15秒/4候補で未準備を待ちます。
 - 参照2048のnonterminal全空盤は画素confidenceを保持して未準備とし、汎用Coreの共通合法手無しをcontrolled cutoffへ分離。評価OCRはbinary空時だけ同じ2ROIのgray/無whitelistへ進み、literal numeric/.65/端切れ/矛盾拒否を維持。親processの予算内工程時刻は診断だけに保持し、400ms/TTL/child wire/入力は変更しません。

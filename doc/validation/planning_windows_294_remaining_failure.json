@@ -1,0 +1,589 @@
+{
+  "schema_version": 1,
+  "measured_head": "294cab92d6970aa1cd3485f21d180786d76c848b",
+  "raw_job_report": "windows-294-pr480-episodes.json",
+  "raw_job_report_sha256": "8c7837a9a4a4441da2dfb159cbb37de65125aabc12b3efbb1093ac9f1b55a4a1",
+  "job_id": 124987422590,
+  "ci_event": "pull_request",
+  "ci_collection_summary": {
+    "provenance": "root CI collection after all 294 workflows completed",
+    "required_success": 63,
+    "required_total": 64,
+    "ordinary_600_second_campaigns_success": 2,
+    "remaining_failure": "PR seed480 comparison Planner12holds0actual; both other providers12actual success"
+  },
+  "episodes": [
+    {
+      "provider": "cycling",
+      "seed": 480,
+      "success": true,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "confirmed_actual_actions": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "core_reason": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "attempts": [
+        {
+          "index": 0,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 55.9294,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 1,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 52.2487,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 2,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 51.064,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 3,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 48.6653,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 4,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 45.4639,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 5,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 55.1865,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 6,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 88.3839,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 7,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 70.1389,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 8,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 64.4827,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 9,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 91.3064,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 10,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 78.5141,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 11,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 76.905,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        }
+      ],
+      "observed_board_changes": 12
+    },
+    {
+      "provider": "baseline",
+      "seed": 480,
+      "success": true,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "confirmed_actual_actions": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "core_reason": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "attempts": [
+        {
+          "index": 0,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 35.4366,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 1,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 37.0023,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 2,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 46.8589,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 3,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 47.8817,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 4,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 57.2268,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 5,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 81.3629,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 6,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 66.0454,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 7,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 68.8305,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 8,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 102.307,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 9,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 73.9328,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 10,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 90.8138,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 11,
+          "outcome": "select",
+          "core_reason": null,
+          "completed_depth": null,
+          "elapsed_ms": 109.4116,
+          "parent_stage_ms_from_plan_start": {},
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        }
+      ],
+      "observed_board_changes": 12
+    },
+    {
+      "provider": "planner",
+      "seed": 480,
+      "success": false,
+      "failure_stage": "stale_generation_probe",
+      "failure_type": "AssertionError",
+      "failure_message": "comparison minimum actual input, observed board change or Stop/stale guard failed",
+      "confirmed_actual_actions": 0,
+      "decision_attempt_count": 12,
+      "holds": 12,
+      "core_reason": "compute_budget",
+      "score_status": "verified_ocr",
+      "score": 0,
+      "score_confidence": 0.68,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "attempts": [
+        {
+          "index": 0,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 593.7073,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 567.6709,
+            "directory_create_started_at_ns": 0.0462,
+            "directory_created_at_ns": 0.5553,
+            "spawn_started_at_ns": 95.9022,
+            "spawn_returned_at_ns": 97.7551,
+            "ready_read_started_at_ns": 289.5505,
+            "ready_received_at_ns": 290.0156,
+            "process_cleanup_started_at_ns": 557.0812,
+            "process_cleanup_finished_at_ns": 561.4049,
+            "directory_cleanup_started_at_ns": 566.7132,
+            "directory_cleanup_finished_at_ns": 567.6709
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": 0
+        },
+        {
+          "index": 1,
+          "outcome": "abstain",
+          "core_reason": "worker_io_or_cleanup_failed",
+          "completed_depth": 0,
+          "elapsed_ms": 599.1534,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 571.6701,
+            "directory_create_started_at_ns": 0.0396,
+            "directory_created_at_ns": 0.5746,
+            "spawn_started_at_ns": 154.4557,
+            "spawn_returned_at_ns": 156.6274,
+            "process_cleanup_started_at_ns": 400.2783,
+            "process_cleanup_finished_at_ns": 514.3384,
+            "directory_cleanup_started_at_ns": 514.7296,
+            "directory_cleanup_finished_at_ns": 571.6701
+          },
+          "parent_io_errors": [
+            {
+              "phase": "directory_cleanup",
+              "exception_category": "os",
+              "errno": 13,
+              "winerror": 32
+            }
+          ],
+          "highest_received_depth": 0
+        },
+        {
+          "index": 2,
+          "outcome": "abstain",
+          "core_reason": "worker_io_or_cleanup_failed",
+          "completed_depth": 0,
+          "elapsed_ms": 1065.0541,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 1030.6935,
+            "directory_create_started_at_ns": 0.023,
+            "directory_created_at_ns": 0.4635,
+            "spawn_started_at_ns": 197.6592,
+            "spawn_returned_at_ns": 200.866,
+            "process_cleanup_started_at_ns": 400.2108,
+            "process_cleanup_finished_at_ns": 501.9255,
+            "directory_cleanup_started_at_ns": 502.4808,
+            "directory_cleanup_finished_at_ns": 1030.6935
+          },
+          "parent_io_errors": [
+            {
+              "phase": "directory_cleanup",
+              "exception_category": "os",
+              "errno": 13,
+              "winerror": 32
+            }
+          ],
+          "highest_received_depth": 0
+        },
+        {
+          "index": 3,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 480.4875,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 445.0376,
+            "directory_create_started_at_ns": 0.0349,
+            "directory_created_at_ns": 0.6383,
+            "directory_cleanup_started_at_ns": 444.6123,
+            "directory_cleanup_finished_at_ns": 445.0376
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 4,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 443.013,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 406.1517,
+            "directory_create_started_at_ns": 0.0331,
+            "directory_created_at_ns": 0.6588,
+            "spawn_started_at_ns": 234.1591,
+            "spawn_returned_at_ns": 236.4644,
+            "process_cleanup_started_at_ns": 400.8014,
+            "process_cleanup_finished_at_ns": 404.9537,
+            "directory_cleanup_started_at_ns": 405.5238,
+            "directory_cleanup_finished_at_ns": 406.1517
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": 0
+        },
+        {
+          "index": 5,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 436.606,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 405.6684,
+            "directory_create_started_at_ns": 0.0261,
+            "directory_created_at_ns": 0.5007,
+            "spawn_started_at_ns": 283.033,
+            "spawn_returned_at_ns": 285.1583,
+            "process_cleanup_started_at_ns": 400.7054,
+            "process_cleanup_finished_at_ns": 404.3643,
+            "directory_cleanup_started_at_ns": 404.9363,
+            "directory_cleanup_finished_at_ns": 405.6684
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": 0
+        },
+        {
+          "index": 6,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 579.7194,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 545.7625,
+            "directory_create_started_at_ns": 0.0248,
+            "directory_created_at_ns": 0.6316,
+            "directory_cleanup_started_at_ns": 545.2732,
+            "directory_cleanup_finished_at_ns": 545.7625
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 7,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 433.1454,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 403.4461,
+            "directory_create_started_at_ns": 0.0238,
+            "directory_created_at_ns": 0.6191,
+            "spawn_started_at_ns": 369.5951,
+            "spawn_returned_at_ns": 371.6291,
+            "process_cleanup_started_at_ns": 400.6068,
+            "process_cleanup_finished_at_ns": 402.3754,
+            "directory_cleanup_started_at_ns": 402.8906,
+            "directory_cleanup_finished_at_ns": 403.4461
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": 0
+        },
+        {
+          "index": 8,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 836.0364,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 788.7816,
+            "directory_create_started_at_ns": 0.0326,
+            "directory_created_at_ns": 0.5906,
+            "directory_cleanup_started_at_ns": 788.269,
+            "directory_cleanup_finished_at_ns": 788.7816
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 9,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 502.3052,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 469.9302,
+            "directory_create_started_at_ns": 0.032,
+            "directory_created_at_ns": 0.6522,
+            "directory_cleanup_started_at_ns": 469.4736,
+            "directory_cleanup_finished_at_ns": 469.9302
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 10,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 582.269,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 547.4669,
+            "directory_create_started_at_ns": 0.0213,
+            "directory_created_at_ns": 0.4867,
+            "directory_cleanup_started_at_ns": 547.0252,
+            "directory_cleanup_finished_at_ns": 547.4669
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        },
+        {
+          "index": 11,
+          "outcome": "abstain",
+          "core_reason": "compute_budget",
+          "completed_depth": 0,
+          "elapsed_ms": 807.3532,
+          "parent_stage_ms_from_plan_start": {
+            "plan_started_at_ns": 0.0,
+            "compute_cutoff_at_ns": 400.0,
+            "last_observed_at_ns": 762.2554,
+            "directory_create_started_at_ns": 0.0293,
+            "directory_created_at_ns": 0.5993,
+            "directory_cleanup_started_at_ns": 761.4654,
+            "directory_cleanup_finished_at_ns": 762.2554
+          },
+          "parent_io_errors": [],
+          "highest_received_depth": null
+        }
+      ],
+      "observed_board_changes": 0
+    }
+  ],
+  "historical_artifact_retrieval": {
+    "fixed_export_report": "windows-294-fixed-export.json",
+    "fixed_export_report_sha256": "a60a8e8fff51cbcb8ac702159dcaa8c5627b6064384a7e1a594f8d32d4f7d7d8",
+    "original_8dc_crop_sha256": "0ed9b5cf142a5ffa583176d78a0bfb41ca0e2e31d58497bb7c838c899f511fd5",
+    "original_8dc_crop_size_bytes": 9753,
+    "visual_observation": "all16cells visually empty; header and NewGame painted; cannot distinguish JavaScript/RAF/compositor/capture cause",
+    "old_lease_cleanup_limitation": "exported final files are runtime_closed/safe_idle/expiry0 after cleanup; cannot recover pre-close cause"
+  },
+  "interpretation": [
+    "allthreeprovidersretained for the failedjob; no success-only subset",
+    "Planner0actual/12holds preserves unknown noinput and minimuminput gate fails despite verified score0 and Stop/stale rejection",
+    "parent timings show request preparation and scheduling beforePopen consumed budget in multipleattempts; they do not isolate fsync causality",
+    "transient IPC optimization must not extend400ms/TTL/lease/readiness or accept unknown state",
+    "historical pinned artifact download/exportCI steps removed after successful retrieval; offline bounded exporter/tooltests retained",
+    "old empty frame and earlier lease causes remain unproven; this comparison does not prove a full gameplay fix"
+  ]
+}

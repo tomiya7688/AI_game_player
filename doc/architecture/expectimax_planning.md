@@ -39,6 +39,20 @@ leaf traceは同値を合算し、bin上限に達すると近い値を質量加�
 
 process起動・OS scheduling・終了回収は無限精度のwall-time上限ではありません。TERM/KILL後の回収待ちは各100ms、回収不能ならそのplannerをpoisonして新workerを起動しません。予算はcallbackを含む探索の受領期限とworker資源境界であり、アプリ全体のRSSや厳密な関数return時刻の保証とは区別します。Stopが任意callbackの終了まで待つ設計にはしません。
 
+## 使い捨てPlanning IPCの公開と計測
+
+Windows head `294cab92` / job `124987422590` の比較診断では、400msの受領予算をworker起動前に使い切るattemptがありました。directory作成は1ms未満でも、その後のrequest準備から起動・断念まで95–788msでした。これはmodel計算以前の遅延を示しますが、個別のfsyncが原因だとは未確定です。directory cleanupの共有違反（errno13 / winerror32）も別の失敗として保持し、隠したり延期したりしません。
+
+`publish_planning_json` のproduction利用先を監査し、親の `request.json` とworkerの `ready.json` / `checkpoint.json` / `finished.json` だけであることを確認しました。これらは一要求ごとの所有一時directoryとnonceに束縛され、再起動後に復元しません。JSONを一度だけ既存と同じUTF-8 / indent2でencodeし、実byte数・NaN・深さ32を検査した後、同directoryの一時fileへwrite / flush / closeして既存のatomic renameへ渡します。この経路だけはfsyncを要求しません。一般 `atomic_json`、Journal、Knowledge、Stop、control leaseの永続化・世代fenceは変更しません。benchmarkの永続reportも従来の耐久writerを使います。
+
+生存中のOSに対するatomic visibilityと、電源断後の永続性は別です。公開前の失敗・process停止では最終pathに不完全なmessageを出さず、既存の完全messageか未公開状態を残します。rename後は既存のWindows InfoEx / share-delete readerで旧open handleを旧内容へ保ち、新openは新内容を読みます。OS crash後のIPC回復は保証せず、残った一時fileや旧directoryを次の要求として採用しません。破損・byte超過・nonce違い等は従来どおり拒否します。publish / cleanupのIO失敗は伝播し、先行write / rename失敗があるときはtemp cleanupの二次例外でそのerrnoを上書きしません。cleanupだけが失敗した場合も通知し、非atomic fallbackやretryは追加しません。
+
+親の通常checkpoint読取と子のrequest読取は、一度取得した有界bytesから同じstrict JSON検査を行い、二度目のfile open / readを除きます。finished markerの後に最新checkpointを再読取する処理は残します。固定clockとscripted workerの回帰は、旧depth1 bytes → finished → 最新depth3を同じdeadline内に置き、最終再読・nonce・完成counterを検査します。workerのOS制限適用順、fresh process、400msの標準予算、元観測TTL、期限後受領の棄却は変更しません。
+
+追加の親metadataはrequest build / encode / write開始〜close / publish開始〜完了の固定monotonic時刻だけです。既存の同じcutoffを保持し、追加file writeやauthority clock呼出しはありません。optional診断のOOM・時計異常でも公開結果を変えません。次のWindows計測で遅延区間を分離するための情報であり、計測自体の小さいCPU費用は残ります。
+
+`PYTHONPATH=src:. python tools/benchmark_planning_disposable_ipc.py --iterations 30` は旧pipeline相当と新pipelineを交互に計測します。保存した `doc/validation/planning_disposable_ipc_cost.json` はPython3.12 / Linux tmpfs、warmup3、各30回の純粋IO比較です。合成messageは1,130 / 16,490 / 65,642 bytesで、公開p50は旧0.095 / 0.489 / 1.604ms、新0.077 / 0.436 / 1.445ms、p95は旧0.187 / 0.650 / 1.830ms、新0.157 / 0.538 / 1.705msでした。CPUと別計測tracemalloc peakもreportへ残します。tmpfs上のため永続deviceの同期費用は測っていません。この小さいLinux差分はWindowsでの400ms失敗の解消・原因・実攻略精度を証明しません。実Windowsのheld-reader / native probeと期限付き実worker / 実画面比較を引き続き要求します。
+
 ## 任意参照Adapterと接続範囲
 
 `planning_2048.py` だけが既存exact 2048 modelを使います。明示的な参照heuristicは空セル0.4、単調性0.2、滑らかさ0.1、最大tile進捗0.15、最大tile角配置0.15です。これはゲーム専用の任意profileで、汎用Coreのルールでも勝率校正式でもありません。8/16の曖昧fixtureと、盤面を持たないint/card相当finite-domain oracleを同じCoreで検査します。

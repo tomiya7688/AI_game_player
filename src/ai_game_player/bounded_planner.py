@@ -31,6 +31,7 @@ from ai_game_player.planning_worker_diagnostic import (
 )
 from ai_game_player.planning_wire import (
     publish_planning_json,
+    decode_planning_json,
     read_planning_json,
     result_from_dict,
 )
@@ -151,6 +152,7 @@ class BoundedExpectimaxPlanner:
         parent_timing = new_parent_timing(started, cutoff)
         try:
             with _planning_directory(parent_timing) as directory_name:
+                mark_parent_timing(parent_timing, "request_build_started_at_ns")
                 directory = Path(directory_name)
                 nonce = uuid4().hex
                 request = {
@@ -179,9 +181,13 @@ class BoundedExpectimaxPlanner:
                         if item.weight.value > 0
                     ],
                 }
+                mark_parent_timing(parent_timing, "request_build_finished_at_ns")
                 try:
                     publish_planning_json(
-                        directory / "request.json", request, budget.max_request_bytes
+                        directory / "request.json",
+                        request,
+                        budget.max_request_bytes,
+                        parent_timing=parent_timing,
                     )
                 except (ValueError, OSError) as error:
                     record_parent_io_error(parent_timing, "request_publish", error)
@@ -320,9 +326,7 @@ class BoundedExpectimaxPlanner:
                         mark_parent_timing(
                             parent_timing, "checkpoint_json_read_started_at_ns"
                         )
-                        message = read_planning_json(
-                            checkpoint_path, budget.max_result_bytes
-                        )
+                        message = decode_planning_json(raw, budget.max_result_bytes)
                         mark_parent_timing(
                             parent_timing, "checkpoint_json_read_finished_at_ns"
                         )

@@ -330,9 +330,6 @@ jobs:
     name: Windows planning comparison (seed ${{ matrix.seed }})
     runs-on: windows-latest
     timeout-minutes: 20
-    permissions:
-      contents: read
-      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -436,36 +433,6 @@ jobs:
           name: windows-planning-comparison-${{ matrix.seed }}
           path: build/planning-comparison/windows
           if-no-files-found: error
-      - name: Read pinned historical recognition failure artifact (seed 479 only)
-        id: known_failure_8dc
-        if: ${{ always() && !cancelled() && matrix.seed == '479' && steps.comparison_dependencies.outcome == 'success' }}
-        uses: actions/download-artifact@v4
-        with:
-          repository: ${{ github.repository }}
-          github-token: ${{ github.token }}
-          run-id: '41349184700'
-          artifact-ids: '13100932060'
-          merge-multiple: true
-          path: ${{ runner.temp }}/fixed-failure-artifacts/known-8dc
-      - name: Read pinned historical control lease failure artifact (seed 479 only)
-        id: known_failure_d954
-        if: ${{ always() && !cancelled() && matrix.seed == '479' && steps.comparison_dependencies.outcome == 'success' }}
-        uses: actions/download-artifact@v4
-        with:
-          repository: ${{ github.repository }}
-          github-token: ${{ github.token }}
-          run-id: '41349710044'
-          artifact-ids: '13100474424'
-          merge-multiple: true
-          path: ${{ runner.temp }}/fixed-failure-artifacts/known-d954
-      - name: Export bounded pinned historical game pixels and typed control evidence
-        if: ${{ always() && !cancelled() && matrix.seed == '479' && (steps.known_failure_8dc.outcome == 'success' || steps.known_failure_d954.outcome == 'success') }}
-        shell: pwsh
-        env:
-          FIXED_FAILURE_DOWNLOAD_ROOT: ${{ runner.temp }}/fixed-failure-artifacts
-        run: |
-          python -u tools/export_fixed_failure_artifacts.py --download-root "$env:FIXED_FAILURE_DOWNLOAD_ROOT"
-          if ($LASTEXITCODE -ne 0) { throw "Pinned failure evidence export rejected" }
 
   detect-optional-languages:
     name: Detect optional language sources
