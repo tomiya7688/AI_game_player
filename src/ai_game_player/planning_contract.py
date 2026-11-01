@@ -32,7 +32,8 @@ class StateQualityEvaluator(Protocol[StateInT]):
 #   責務: [PlanningDomain: trusted登録factoryが作るゲーム非依存の純粋な計画Adapter]
 #   フィールド: [state_type: 不変state型, decode_state: canonical typed JSONを当該型へ戻す関数,
 #     model: 確定/chance遷移, legal_actions: 各stateの合法な抽象IDを有限tupleで返す関数,
-#     evaluator: 仮想stateの数値品質。すべて制限worker内だけで呼ぶ]
+#     evaluator: 仮想stateの数値品質。すべて制限worker内だけで呼ぶ,
+#     future_state_observable: 将来state全体を意思決定前に観測できる明示保証]
 # }
 @dataclass(frozen=True, slots=True)
 class PlanningDomain(Generic[StateT]):
@@ -41,6 +42,7 @@ class PlanningDomain(Generic[StateT]):
     model: TransitionModel[StateT]
     legal_actions: Callable[[StateT], tuple[str, ...]]
     evaluator: StateQualityEvaluator[StateT]
+    future_state_observable: bool = False
 
     # {
     #   責務: [__post_init__: 純粋なmodel/codec/合法性/qualityの実在callableを照合する]
@@ -49,6 +51,8 @@ class PlanningDomain(Generic[StateT]):
     #   エラー: [ValueError/TypeError: 数値・field・版・出所の契約違反]
     # }
     def __post_init__(self) -> None:
+        if type(self.future_state_observable) is not bool:
+            raise ValueError("future state observability must be explicit boolean")
         if (
             not isinstance(self.state_type, type)
             or not callable(self.decode_state)
@@ -82,6 +86,7 @@ class PlanningRegistration:
     quality_projection_version: int = 1
     quality_profile_version: str = "default.1"
     value_unit: str = "normalized_quality.v1"
+    future_state_observable: bool = False
 
     # {
     #   責務: [__post_init__: 出所IDとtrusted factoryのPython名を検証する]
@@ -103,6 +108,8 @@ class PlanningRegistration:
         ):
             belief_id(value)
         belief_integer(self.quality_projection_version, 1, 1)
+        if type(self.future_state_observable) is not bool:
+            raise ValueError("registered future observability must be explicit boolean")
         for name in (self.module_name, self.factory_name):
             if (
                 not isinstance(name, str)
@@ -126,7 +133,7 @@ class PlanningRegistration:
 # }
 @dataclass(frozen=True, slots=True)
 class SearchBudget:
-    max_depth: int = 3
+    max_depth: int = 1
     max_nodes: int = 10000
     max_actions: int = 16
     max_chance_outcomes: int = 256

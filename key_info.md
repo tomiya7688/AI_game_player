@@ -43,7 +43,7 @@
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
-- 仮想遷移は探索・本番Decisionへ未接続です（#478、#565-#567）。共通OCR/Rule経路の実ブラウザ試験では、テトリス開始後のキー候補生成と、ブロック崩しの追跡・パドル制御が未達でした。汎用ゲーム対応や攻略強化の完成として扱いません。
+- 仮想遷移は複数Belief対応のbounded探索Coreへ接続しました（#565）。部分観測では共通open-loop MPC、明示保証時だけ状態別Expectimaxです。制限worker・CPU oracleまでを検証し、本番Decisionと実プレイ比較は#567で対応します。共通OCR/Rule経路の実ブラウザ試験では、テトリス開始後のキー候補生成と、ブロック崩しの追跡・パドル制御が未達でした。汎用ゲーム対応や攻略強化の完成として扱いません。
 - OCRは`Pillow`と`pytesseract`の任意依存です。未導入時も画像候補と任意のAutomation候補をGUIで評価できます。明るさだけから作るconfidence `0.0` の画像候補は候補評価器が拒否します。ゲーム固有の成功条件は追加調整が必要です。
 - `UnknownnessMonitor`は検出器の根拠を受け取るコアAPIです。画面認識器・prototype検索器・知識検索器からの自動入力とゲーム実行pipelineへの接続は未実装です。unknown時の行動選択も行わず、その方針はIssue #206の対象です。
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。

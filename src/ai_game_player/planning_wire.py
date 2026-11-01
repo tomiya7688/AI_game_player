@@ -3,6 +3,7 @@
 from dataclasses import asdict
 import json
 from pathlib import Path
+from typing import Any
 
 from ai_game_player.atomic_json import stage_json_write
 from ai_game_player.belief_contract import BeliefContext
@@ -22,7 +23,7 @@ from ai_game_player.planning_result import (
 #   引数: [path: worker所有通信先, value: 検証済みmessage, maximum: 実file byte上限]
 #   戻り値: [なし] エラー: [ValueError/OSError: サイズ/JSON/IO失敗]
 # }
-def publish_planning_json(path: Path, value: dict, maximum: int) -> None:
+def publish_planning_json(path: Path, value: dict[str, Any], maximum: int) -> None:
     encoded = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False).encode(
         "utf-8"
     )
@@ -41,7 +42,7 @@ def publish_planning_json(path: Path, value: dict, maximum: int) -> None:
 #   引数: [path: message先, maximum: byte上限] 戻り値: [dict: 独立JSON object]
 #   エラー: [OSError/ValueError: 未公開/破損/サイズ超過]
 # }
-def read_planning_json(path: Path, maximum: int) -> dict:
+def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
     with path.open("rb") as stream:
         raw = stream.read(maximum + 1)
     if len(raw) > maximum:
@@ -60,7 +61,7 @@ def read_planning_json(path: Path, maximum: int) -> dict:
 #   引数: [対象の型付き値またはJSON投影] 戻り値: [検証済み値。constructor検証はなし]
 #   エラー: [ValueError/TypeError: 数値・field・版・出所の契約違反]
 # }
-def _unique(pairs: list[tuple[str, object]]) -> dict:
+def _unique(pairs: list[tuple[str, object]]) -> dict[str, Any]:
     result = {}
     for key, value in pairs:
         if key in result:
@@ -115,7 +116,7 @@ def context_from_dict(value: object) -> BeliefContext:
 #   引数: [対象の型付き値またはJSON投影] 戻り値: [検証済み値。constructor検証はなし]
 #   エラー: [ValueError/TypeError: 数値・field・版・出所の契約違反]
 # }
-def result_to_dict(result: PlanningResult) -> dict:
+def result_to_dict(result: PlanningResult) -> dict[str, Any]:
     return asdict(result)
 
 
