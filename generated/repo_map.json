@@ -10824,6 +10824,7 @@
         "ai_game_player.belief_snapshot",
         "ai_game_player.belief_validation",
         "ai_game_player.planning_contract",
+        "ai_game_player.planning_file_reader",
         "ai_game_player.planning_outcome",
         "ai_game_player.planning_result",
         "ai_game_player.planning_wire",
@@ -11095,6 +11096,22 @@
           "line": 22,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.planning_file_reader"
+          ],
+          "module": "ai_game_player.planning_file_reader",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_planning_bytes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.planning_result"
           ],
           "module": "ai_game_player.planning_result",
@@ -11112,7 +11129,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 23,
+          "line": 24,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_worker_diagnostic"
@@ -11128,7 +11145,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 25,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_wire"
@@ -11152,7 +11169,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 29,
+          "line": 30,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -11172,7 +11189,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 30,
+          "line": 31,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.world_state_hypothesis"
@@ -11210,7 +11227,7 @@
           "source_location": {
             "column": 0,
             "end_line": 578,
-            "start_line": 39
+            "start_line": 40
           }
         },
         {
@@ -11250,8 +11267,8 @@
           "signature": "(self, registrations: tuple[PlanningRegistration, ...], *, clock_id: str, controller: RunController | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 66,
-            "start_line": 44
+            "end_line": 67,
+            "start_line": 45
           }
         },
         {
@@ -11303,8 +11320,8 @@
           "signature": "(self, belief: BeliefSnapshot[Any], allowed_action_ids: tuple[str, ...], *, registration_id: str, budget: SearchBudget | None = …, current_belief: Callable[[], BeliefSnapshot[Any] | None] | None = …) -> PlanningResult",
           "source_location": {
             "column": 4,
-            "end_line": 195,
-            "start_line": 72
+            "end_line": 196,
+            "start_line": 73
           }
         },
         {
@@ -11326,8 +11343,8 @@
           "signature": "(reason: str) -> PlanningResult",
           "source_location": {
             "column": 8,
-            "end_line": 107,
-            "start_line": 104
+            "end_line": 108,
+            "start_line": 105
           }
         },
         {
@@ -11404,7 +11421,7 @@
           "source_location": {
             "column": 4,
             "end_line": 412,
-            "start_line": 201
+            "start_line": 202
           }
         },
         {
@@ -11426,8 +11443,8 @@
           "signature": "(reason: str) -> PlanningResult",
           "source_location": {
             "column": 8,
-            "end_line": 223,
-            "start_line": 219
+            "end_line": 224,
+            "start_line": 220
           }
         },
         {
@@ -53093,6 +53110,267 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Iterator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "functools",
+          "names": [
+            {
+              "alias": null,
+              "name": "lru_cache"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "BinaryIO"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 56,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 57,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 58,
+          "local_dependencies": [],
+          "module": "msvcrt",
+          "names": [
+            {
+              "alias": null,
+              "name": "msvcrt"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 104,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 105,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_file_reader",
+      "path": "src/ai_game_player/planning_file_reader.py",
+      "source_location": {
+        "end_line": 122,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_planning_bytes",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "read_planning_bytes",
+          "return_annotation": "bytes",
+          "signature": "(path: Path, maximum: int) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "_open_planning_reader",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_open_planning_reader",
+          "return_annotation": "Iterator[BinaryIO]",
+          "signature": "(path: Path) -> Iterator[BinaryIO]",
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "_open_windows_reader",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_open_windows_reader",
+          "return_annotation": "Iterator[BinaryIO]",
+          "signature": "(path: Path) -> Iterator[BinaryIO]",
+          "source_location": {
+            "column": 0,
+            "end_line": 93,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "lru_cache(maxsize=REDACTED)"
+          ],
+          "kind": "function",
+          "name": "_windows_file_api",
+          "parameters": [],
+          "qualified_name": "_windows_file_api",
+          "return_annotation": "Any",
+          "signature": "() -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 122,
+            "start_line": 103
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.belief_contract",
@@ -56175,6 +56453,7 @@
         "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.belief_contract",
+        "ai_game_player.planning_file_reader",
         "ai_game_player.planning_outcome",
         "ai_game_player.planning_result"
       ],
@@ -56285,6 +56564,22 @@
           "line": 11,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.planning_file_reader"
+          ],
+          "module": "ai_game_player.planning_file_reader",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_planning_bytes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.planning_result"
           ],
           "module": "ai_game_player.planning_result",
@@ -56315,7 +56610,7 @@
       "module": "ai_game_player.planning_wire",
       "path": "src/ai_game_player/planning_wire.py",
       "source_location": {
-        "end_line": 245,
+        "end_line": 243,
         "start_line": 1
       },
       "symbols": [
@@ -56350,8 +56645,8 @@
           "signature": "(path: Path, value: dict[str, Any], maximum: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 40,
-            "start_line": 26
+            "end_line": 41,
+            "start_line": 27
           }
         },
         {
@@ -56379,8 +56674,8 @@
           "signature": "(path: Path, maximum: int) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 65,
-            "start_line": 49
+            "end_line": 63,
+            "start_line": 50
           }
         },
         {
@@ -56402,8 +56697,8 @@
           "signature": "(raw: bytes) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 92,
-            "start_line": 74
+            "end_line": 90,
+            "start_line": 72
           }
         },
         {
@@ -56425,8 +56720,8 @@
           "signature": "(pairs: list[tuple[str, object]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 107,
-            "start_line": 101
+            "end_line": 105,
+            "start_line": 99
           }
         },
         {
@@ -56448,8 +56743,8 @@
           "signature": "(_value: str) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 116
+            "end_line": 115,
+            "start_line": 114
           }
         },
         {
@@ -56471,8 +56766,8 @@
           "signature": "(value: object) -> BeliefContext",
           "source_location": {
             "column": 0,
-            "end_line": 147,
-            "start_line": 126
+            "end_line": 145,
+            "start_line": 124
           }
         },
         {
@@ -56494,8 +56789,8 @@
           "signature": "(result: PlanningResult) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 157,
-            "start_line": 156
+            "end_line": 155,
+            "start_line": 154
           }
         },
         {
@@ -56517,8 +56812,8 @@
           "signature": "(value: object) -> PlanningResult",
           "source_location": {
             "column": 0,
-            "end_line": 225,
-            "start_line": 166
+            "end_line": 223,
+            "start_line": 164
           }
         },
         {
@@ -56540,8 +56835,8 @@
           "signature": "(value: object) -> tuple[WeightedValue, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 245,
-            "start_line": 234
+            "end_line": 243,
+            "start_line": 232
           }
         }
       ]
@@ -130209,6 +130504,461 @@
             "column": 4,
             "end_line": 217,
             "start_line": 197
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.planning_file_reader",
+        "ai_game_player.planning_wire"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExitStack"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_file_reader"
+          ],
+          "module": "ai_game_player.planning_file_reader",
+          "names": [
+            {
+              "alias": null,
+              "name": "_open_planning_reader"
+            },
+            {
+              "alias": null,
+              "name": "_open_windows_reader"
+            },
+            {
+              "alias": null,
+              "name": "_windows_file_api"
+            },
+            {
+              "alias": null,
+              "name": "read_planning_bytes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_wire"
+          ],
+          "module": "ai_game_player.planning_wire",
+          "names": [
+            {
+              "alias": null,
+              "name": "publish_planning_json"
+            },
+            {
+              "alias": null,
+              "name": "read_planning_json"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_file_reader",
+      "path": "tests/test_planning_file_reader.py",
+      "source_location": {
+        "end_line": 155,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningFileReaderTests",
+          "parameters": [],
+          "qualified_name": "PlanningFileReaderTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 155,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_byte_limit_and_json_guards_are_preserved",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_byte_limit_and_json_guards_are_preserved",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_open_reader_keeps_old_snapshot_while_replacement_becomes_visible",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_open_reader_keeps_old_snapshot_while_replacement_becomes_visible",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 49,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipUnless(os.name == REDACTED, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_windows_atomic_replace_with_reader_held_open_20_times",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_windows_atomic_replace_with_reader_held_open_20_times",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 66,
+            "start_line": 52
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "windows_mocks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "handle"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "fd"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.windows_mocks",
+          "return_annotation": null,
+          "signature": "(self, *, handle = …, fd = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_windows_abi_flags_and_exact_descriptor_ownership",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_windows_abi_flags_and_exact_descriptor_ownership",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_native_handle_is_not_closed_or_converted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_invalid_native_handle_is_not_closed_or_converted",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_crt_conversion_failure_closes_only_native_handle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_crt_conversion_failure_closes_only_native_handle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 125,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stream_construction_failure_closes_only_descriptor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_stream_construction_failure_closes_only_descriptor",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 138,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_read_exception_still_closes_exactly_one_descriptor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFileReaderTests.test_read_exception_still_closes_exactly_one_descriptor",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 140
           }
         }
       ]

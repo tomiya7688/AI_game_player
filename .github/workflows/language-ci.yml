@@ -363,7 +363,11 @@ jobs:
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
+        run: |
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_reader.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Bounded shared-reader regressions failed" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Bounded planner regressions failed" }
       - name: Repeat bounded worker checkpoint diagnostics (seed 479 only)
         if: matrix.seed == '479'
         shell: pwsh

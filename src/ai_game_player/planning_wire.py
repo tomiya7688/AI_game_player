@@ -8,6 +8,7 @@ from typing import Any
 from ai_game_player.atomic_json import stage_json_write
 from ai_game_player.belief_contract import BeliefContext
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_file_reader import read_planning_bytes
 from ai_game_player.planning_result import (
     HypothesisActionValue,
     PlanningActionValue,
@@ -47,10 +48,7 @@ def publish_planning_json(path: Path, value: dict[str, Any], maximum: int) -> No
 #   エラー: [OSError/ValueError: 未公開/破損/サイズ超過]
 # }
 def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
-    with path.open("rb") as stream:
-        raw = stream.read(maximum + 1)
-    if len(raw) > maximum:
-        raise ValueError("planning message byte budget exceeded")
+    raw = read_planning_bytes(path, maximum)
     _check_json_nesting(raw)
     try:
         result = json.loads(

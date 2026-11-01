@@ -19,6 +19,7 @@ from ai_game_player.belief_snapshot import BeliefSnapshot
 from ai_game_player.belief_validation import belief_id
 from ai_game_player.planning_contract import PlanningRegistration, SearchBudget
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_file_reader import read_planning_bytes
 from ai_game_player.planning_result import PlanningCounters, PlanningResult
 from ai_game_player.planning_worker_diagnostic import collect_worker_diagnostic
 from ai_game_player.planning_wire import (
@@ -284,8 +285,7 @@ class BoundedExpectimaxPlanner:
                     enforcement = ready["limit_enforcement"]
                 checkpoint_path = directory / "checkpoint.json"
                 if checkpoint_path.exists():
-                    with checkpoint_path.open("rb") as stream:
-                        raw = stream.read(budget.max_result_bytes + 1)
+                    raw = read_planning_bytes(checkpoint_path, budget.max_result_bytes)
                     if raw != last_bytes:
                         if len(raw) > budget.max_result_bytes:
                             raise ValueError("oversized planning checkpoint")
