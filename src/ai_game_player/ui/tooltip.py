@@ -7,12 +7,12 @@ from ai_game_player.ui.theme import PALETTE
 
 # {
 #   責務: [ToolTip: 一つのTkウィジェットに、ホバーまたはキーボードフォーカスで補足説明を表示する]
-#   フィールド: [widget: 説明対象, text: 表示文, delay_ms: 表示までの待機時間, _after_id: 未実行の予約IDまたはNone, _tip_window: 表示中の説明窓またはNone]
+#   フィールド: [widget: 説明対象, text: 表示文, delay_ms: 表示までの待機時間, _after_id: 未実行の予約IDまたはNone, _tip_window: 表示中の説明窓またはNone, _hover_active: マウス進入中, _focus_active: キーボードフォーカス取得中]
 # }
 class ToolTip:
     # {
     #   責務: [__init__: 対象への説明表示と終了イベントを既存のバインドへ追加する]
-    #   処理: [進入とフォーカス取得で表示を予約し、退出・フォーカス喪失・クリック・Esc・非表示・破棄で終了する。フォーカスや入力の所有権は変更しない]
+    #   処理: [進入とフォーカス取得で表示を予約し、マウスとフォーカスの両方が離れた時に終了する。クリック・Esc・非表示・破棄は直ちに閉じ、入力の所有権は変更しない]
     #   引数: [widget: 表示先のTkウィジェット, text: 利用者へ表示する説明, delay_ms: 0以上の待機ミリ秒（既定400）]
     #   戻り値: [None: ウィジェットが持つバインド経由でToolTipを保持する。負の待機時間はValueError]
     # }
@@ -24,17 +24,48 @@ class ToolTip:
         self.delay_ms = delay_ms
         self._after_id: str | None = None
         self._tip_window: tk.Toplevel | None = None
-        for event_name in ("<Enter>", "<FocusIn>"):
-            widget.bind(event_name, self._schedule, add="+")
-        for event_name in (
-            "<Leave>",
-            "<FocusOut>",
-            "<ButtonPress>",
-            "<Escape>",
-            "<Unmap>",
-        ):
+        self._hover_active = False
+        self._focus_active = False
+        for event_name in ("<Enter>", "<FocusIn>", "<Leave>", "<FocusOut>"):
+            widget.bind(event_name, self._on_trigger, add="+")
+        for event_name in ("<ButtonPress>", "<Escape>"):
             widget.bind(event_name, self.hide, add="+")
+        widget.bind("<Unmap>", self._on_unmap, add="+")
         widget.bind("<Destroy>", self._on_destroy, add="+")
+
+    # {
+    #   責務: [_on_trigger: マウス進入とキーボードフォーカスを別々に記録して説明の表示を制御する]
+    #   処理: [取得イベントで未表示なら予約する。片方が離れても他方が有効なら窓と予約を維持し、両方が離れた時だけ閉じる。退出イベントでEsc等による非表示を取り消さない]
+    #   引数: [event: Enter・Leave・FocusIn・FocusOutのTkイベント。実際のフォーカス移動や入力は生成しない]
+    #   戻り値: [None: 有効なトリガーが重なっても同じ説明窓を保持する]
+    # }
+    def _on_trigger(self, event: tk.Event) -> None:
+        if event.type == tk.EventType.Enter:
+            self._hover_active = True
+        elif event.type == tk.EventType.Leave:
+            self._hover_active = False
+        elif event.type == tk.EventType.FocusIn:
+            self._focus_active = True
+        elif event.type == tk.EventType.FocusOut:
+            self._focus_active = False
+        else:
+            return
+        if event.type in (tk.EventType.Enter, tk.EventType.FocusIn):
+            if self._after_id is None and self._tip_window is None:
+                self._schedule(event)
+        elif not self._hover_active and not self._focus_active:
+            self.hide(event)
+
+    # {
+    #   責務: [_on_unmap: 対象の非表示時にトリガー状態と説明を終了する]
+    #   処理: [マウスとフォーカスの保持状態を消去してから表示予約と窓を閉じ、再表示時へ古い状態を持ち越さない]
+    #   引数: [event: 対象ウィジェットが非表示になったTkイベント]
+    #   戻り値: [None: 対象を再表示しても新しい取得イベントまで説明を表示しない]
+    # }
+    def _on_unmap(self, event: tk.Event) -> None:
+        self._hover_active = False
+        self._focus_active = False
+        self.hide(event)
 
     # {
     #   責務: [_schedule: 未実行の表示予約を置き換えて説明を遅延表示する]

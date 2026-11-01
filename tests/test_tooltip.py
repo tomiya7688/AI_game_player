@@ -42,6 +42,55 @@ class ToolTipTests(unittest.TestCase):
         self.assertIsNone(tooltip._tip_window)
         self.assertFalse(popup.winfo_exists())
 
+    def test_popup_persists_until_both_hover_and_focus_end(self):
+        tooltip = ToolTip(self.button, "両方のトリガー", delay_ms=1)
+        for first_exit, last_exit in (
+            ("<Leave>", "<FocusOut>"),
+            ("<FocusOut>", "<Leave>"),
+        ):
+            with self.subTest(first_exit=first_exit):
+                self.button.event_generate("<Enter>")
+                self.button.event_generate("<FocusIn>")
+                self.pump_timers()
+                popup = tooltip._tip_window
+                self.assertIsNotNone(popup)
+                self.button.event_generate(first_exit)
+                self.assertIs(tooltip._tip_window, popup)
+                self.assertTrue(popup.winfo_viewable())
+                self.button.event_generate(last_exit)
+                self.assertIsNone(tooltip._tip_window)
+                self.assertFalse(popup.winfo_exists())
+
+    def test_leaving_hover_does_not_reopen_an_explicitly_hidden_focused_tooltip(self):
+        tooltip = ToolTip(self.button, "明示的に閉じる", delay_ms=1)
+        self.button.event_generate("<Enter>")
+        self.button.event_generate("<FocusIn>")
+        self.pump_timers()
+        self.assertIsNotNone(tooltip._tip_window)
+        # hide is the shared explicit-dismissal handler; this fixture has no OS keyboard focus.
+        tooltip.hide()
+        self.assertIsNone(tooltip._tip_window)
+        self.button.event_generate("<Leave>")
+        self.pump_timers()
+        self.assertIsNone(tooltip._tip_window)
+        self.assertIsNone(tooltip._after_id)
+        self.button.event_generate("<FocusOut>")
+
+    def test_unmap_clears_old_focus_before_a_later_hover(self):
+        tooltip = ToolTip(self.button, "再表示", delay_ms=1)
+        self.button.event_generate("<FocusIn>")
+        self.pump_timers()
+        self.button.pack_forget()
+        self.root.update()
+        self.assertIsNone(tooltip._tip_window)
+        self.button.pack()
+        self.root.update()
+        self.button.event_generate("<Enter>")
+        self.pump_timers()
+        self.assertIsNotNone(tooltip._tip_window)
+        self.button.event_generate("<Leave>")
+        self.assertIsNone(tooltip._tip_window)
+
     def test_leave_and_click_cancel_real_pending_timers(self):
         for exit_event in ("<Leave>", "<ButtonPress-1>"):
             with self.subTest(event=exit_event):
