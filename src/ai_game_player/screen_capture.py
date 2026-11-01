@@ -84,6 +84,7 @@ class WindowsScreenCapture:
         self._closed = False
         self.last_backend_error: str | None = None
         self.last_capture_backend: str | None = None
+        self.last_backend_failure_reason: str | None = None
         self._capture_region: CaptureRegion | None = None
 
     # {
@@ -325,6 +326,7 @@ class WindowsScreenCapture:
             self._wgc_disabled = False
         if self._wgc_disabled:
             return None
+        self.last_backend_failure_reason = None
         try:
             if self._wgc_session is None:
                 if self._wgc_capture_factory is not None:
@@ -372,6 +374,20 @@ class WindowsScreenCapture:
                 raise RuntimeError(
                     "WGC returned a frame that violates the packed BGRA contract"
                 )
+            if (
+                os.name == "nt"
+                and "queryperformancecounter"
+                not in time.get_clock_info("monotonic").implementation.casefold()
+            ):
+                self.last_backend_failure_reason = "wgc_clock_unverified"
+                raise RuntimeError(
+                    "WGC timestamp clock is incompatible with host monotonic QPC"
+                )
+            if frame.captured_at > time.monotonic():
+                self.last_backend_failure_reason = "wgc_future_timestamp"
+                raise RuntimeError(
+                    "WGC timestamp is ahead of the host acquisition clock"
+                )
             self.last_backend_error = None
             return frame
         except Exception as error:
@@ -382,7 +398,10 @@ class WindowsScreenCapture:
                 isinstance(error, NativeRuntimeError)
                 and error.status_code == NativeStatus.TIMEOUT
             ):
+                self.last_backend_failure_reason = "wgc_timeout"
                 return None
+            if self.last_backend_failure_reason is None:
+                self.last_backend_failure_reason = "wgc_runtime_or_contract_error"
             self._close_wgc_session()
             self._wgc_disabled = True
             return None

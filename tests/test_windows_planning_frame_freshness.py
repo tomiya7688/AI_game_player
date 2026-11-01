@@ -6,11 +6,58 @@ from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
 from ai_game_player.runtime.contracts import RuntimeCapability
 from ai_game_player.runtime.native import NativeLoadStatus
+from ai_game_player.campaign_runner import CampaignFailure
 from tools.run_2048_campaign import Cached2048ObservationSource
 from tools.compare_2048_windows_planning import evaluate_visible_score
 
 
 class WindowsPlanningFrameFreshnessTests(unittest.TestCase):
+    def test_frame_expiring_during_analysis_cannot_publish_candidates_or_cache(self):
+        source = self.source([35.1])
+        source.source_id = "source"
+        source.failure_evidence = None
+        now = [40.0]
+
+        def slow_analysis(*args):
+            now[0] = 41.0
+            return ScreenObservation("frame", 1, 1, features={"signature": "pixels"})
+
+        source.analyzer = SimpleNamespace(analyze=slow_analysis)
+        observation = ScreenObservation(
+            "frame",
+            1,
+            1,
+            features={
+                "game_2048": {
+                    "board": [[2]],
+                    "state_signature": "board",
+                    "game_over": False,
+                }
+            },
+        )
+        source.adapter = SimpleNamespace(adapt=lambda *args: (observation, [object()]))
+        callback = Mock()
+        with (
+            patch("tools.run_2048_campaign.time.monotonic", side_effect=lambda: now[0]),
+            patch(
+                "tools.run_2048_campaign.time.monotonic_ns",
+                side_effect=lambda: int(now[0] * 1e9),
+            ),
+            patch(
+                "tools.run_2048_campaign.time.get_clock_info",
+                return_value=SimpleNamespace(
+                    implementation="QueryPerformanceCounter()"
+                ),
+            ),
+        ):
+            with self.assertRaises(CampaignFailure):
+                source.capture_playable_state(on_fresh_frame=callback)
+        callback.assert_called_once()
+        self.assertEqual(source.capture_sequence, 9)
+        self.assertIsNone(source._cached_read)
+        self.assertIsNone(source.latest_observation)
+        self.assertEqual(source._last_accepted_frame_ns, 21_000_000_000)
+
     def source(self, times):
         frames = iter(
             ScreenFrame(1, 1, bytes(4), captured_at=t, frame_id=i + 1)

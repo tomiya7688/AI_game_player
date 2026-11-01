@@ -137,6 +137,9 @@ class Cached2048ObservationSource:
             "backend": backend,
             "fallback_error_type": str(error).split(":", 1)[0] if error else None,
             "fallback_timeout": bool(error and "TIMEOUT" in str(error)),
+            "fallback_reason": getattr(
+                self.capture, "last_backend_failure_reason", None
+            ),
             "timestamp_semantics": "native_SystemRelativeTime"
             if backend == "wgc"
             else "host_GDI_acquisition"
@@ -217,7 +220,9 @@ class Cached2048ObservationSource:
             if not measured["clock_epoch_verified"]:
                 raise CampaignFailure(
                     "capture_failure",
-                    "frame timestamp has an unverified host clock epoch",
+                    "frame timestamp has an unverified host clock epoch; "
+                    f"backend={measured['backend']}; produced_ns={measured['produced_at_ns']}; "
+                    f"received_ns={measured['host_received_ns']}; clock={str(measured['host_clock_implementation'])[:96]}",
                 )
             age_ns = time.monotonic_ns() - int(frame.captured_at * 1_000_000_000)
             self.latest_capture_diagnostics["frame_age_ns"] = age_ns
@@ -235,6 +240,15 @@ class Cached2048ObservationSource:
                     observation = self.analyzer.analyze(frame, "live-2048-campaign")
                 with self.observation_timing.measure("board_adaptation"):
                     adapted, candidates = self.adapter.adapt(frame, observation)
+                age_ns = time.monotonic_ns() - int(frame.captured_at * 1_000_000_000)
+                self.latest_capture_diagnostics["age_after_analysis_ns"] = age_ns
+                if (
+                    not 0
+                    <= age_ns
+                    < CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS * 1_000_000_000
+                ):
+                    self.latest_capture_diagnostics["discarded_analysis_timeout"] = True
+                    continue
                 self.capture_sequence += 1
                 adapted = replace(
                     adapted,
