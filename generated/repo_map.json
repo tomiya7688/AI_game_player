@@ -97851,25 +97851,41 @@
       ]
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "tools",
+        "tools.documentation_check"
+      ],
       "imports": [
         {
-          "kind": "import",
+          "kind": "from",
           "level": 0,
-          "line": 3,
+          "line": 7,
           "local_dependencies": [],
-          "module": "re",
+          "module": "__future__",
           "names": [
             {
               "alias": null,
-              "name": "re"
+              "name": "annotations"
             }
           ]
         },
         {
           "kind": "import",
           "level": 0,
-          "line": 4,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -97882,7 +97898,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 11,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -97895,17 +97911,28 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
-          "local_dependencies": [],
-          "module": "urllib.parse",
+          "line": 13,
+          "local_dependencies": [
+            "tools",
+            "tools.documentation_check"
+          ],
+          "module": "tools.documentation_check",
           "names": [
             {
               "alias": null,
-              "name": "unquote"
+              "name": "FENCE"
             },
             {
-              "alias": null,
-              "name": "urlsplit"
+              "alias": "_mermaid_errors",
+              "name": "mermaid_errors"
+            },
+            {
+              "alias": "_pages_to_check",
+              "name": "pages_to_check"
+            },
+            {
+              "alias": "_relative_link_errors",
+              "name": "relative_link_errors"
             }
           ]
         }
@@ -97913,7 +97940,7 @@
       "module": "tests.test_source_navigation",
       "path": "tests/test_source_navigation.py",
       "source_location": {
-        "end_line": 25,
+        "end_line": 186,
         "start_line": 1
       },
       "symbols": [
@@ -97935,8 +97962,192 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 25,
-            "start_line": 9
+            "end_line": 182,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_valid_markdown_link_destinations_and_code_examples",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_valid_markdown_link_destinations_and_code_examples",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reference_links_and_escaped_destinations_are_checked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_reference_links_and_escaped_destinations_are_checked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 64,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_footnote_text_is_not_a_link_destination",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_footnote_text_is_not_a_link_destination",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 76,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_valid_fence_lengths_and_mermaid_diagram_types",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_valid_fence_lengths_and_mermaid_diagram_types",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mermaid_comments_quotes_and_shapes_do_not_create_fake_nodes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_mermaid_comments_quotes_and_shapes_do_not_create_fake_nodes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unclosed_tilde_fence_is_the_reported_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_unclosed_tilde_fence_is_the_reported_error",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tilde_mermaid_and_parenthesis_duplicates_are_checked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_tilde_mermaid_and_parenthesis_duplicates_are_checked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 125,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_runtime_guide_is_required",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_existing_runtime_guide_is_required",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 131,
+            "start_line": 127
           }
         },
         {
@@ -97958,8 +98169,77 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 25,
-            "start_line": 10
+            "end_line": 144,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_public_guide_diagram_fences",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_public_guide_diagram_fences",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 158,
+            "start_line": 146
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_local_links_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_invalid_local_links_fail_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_mermaid_fences_and_nodes_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceNavigationTests.test_invalid_mermaid_fences_and_nodes_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 172
           }
         }
       ]
@@ -106024,6 +106304,388 @@
             "column": 0,
             "end_line": 27,
             "start_line": 10
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "Counter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "string",
+          "names": [
+            {
+              "alias": null,
+              "name": "string"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "urllib.parse",
+          "names": [
+            {
+              "alias": null,
+              "name": "unquote"
+            },
+            {
+              "alias": null,
+              "name": "urlsplit"
+            }
+          ]
+        }
+      ],
+      "module": "tools.documentation_check",
+      "path": "tools/documentation_check.py",
+      "source_location": {
+        "end_line": 354,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "pages_to_check",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "pages_to_check",
+          "return_annotation": "list[Path]",
+          "signature": "(root: Path) -> list[Path]",
+          "source_location": {
+            "column": 0,
+            "end_line": 75,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_mask",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_mask",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 79,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_fenced_blocks",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_fenced_blocks",
+          "return_annotation": "tuple[str, list[tuple[str, str, int]], list[str]]",
+          "signature": "(text: str) -> tuple[str, list[tuple[str, str, int]], list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 122,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_without_code_spans",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_without_code_spans",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 149,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unescape",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "destination"
+            }
+          ],
+          "qualified_name": "_unescape",
+          "return_annotation": "str",
+          "signature": "(destination: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_destination",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "index"
+            }
+          ],
+          "qualified_name": "_destination",
+          "return_annotation": "tuple[str, int] | None",
+          "signature": "(text: str, index: int) -> tuple[str, int] | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 187,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_inline_destination",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "index"
+            }
+          ],
+          "qualified_name": "_inline_destination",
+          "return_annotation": "tuple[str, int] | None",
+          "signature": "(text: str, index: int) -> tuple[str, int] | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 220,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_link_destinations",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_link_destinations",
+          "return_annotation": "list[str]",
+          "signature": "(text: str) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 260,
+            "start_line": 223
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "relative_link_errors",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "page"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "relative_link_errors",
+          "return_annotation": "list[str]",
+          "signature": "(page: Path, root: Path, text: str) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 279,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_mermaid_code",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_mermaid_code",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 311,
+            "start_line": 282
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_node_definitions",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            }
+          ],
+          "qualified_name": "_node_definitions",
+          "return_annotation": "list[str]",
+          "signature": "(code: str) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 329,
+            "start_line": 314
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "mermaid_errors",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "mermaid_errors",
+          "return_annotation": "list[str]",
+          "signature": "(text: str) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 354,
+            "start_line": 332
           }
         }
       ]
