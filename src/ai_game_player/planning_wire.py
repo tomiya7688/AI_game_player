@@ -24,11 +24,15 @@ from ai_game_player.planning_result import (
 #   戻り値: [なし] エラー: [ValueError/OSError: サイズ/JSON/IO失敗]
 # }
 def publish_planning_json(path: Path, value: dict[str, Any], maximum: int) -> None:
-    encoded = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False).encode(
-        "utf-8"
-    )
+    try:
+        encoded = json.dumps(
+            value, ensure_ascii=False, indent=2, allow_nan=False
+        ).encode("utf-8")
+    except RecursionError as error:
+        raise ValueError("planning message nesting budget exceeded") from error
     if len(encoded) > maximum:
         raise ValueError("planning message byte budget exceeded")
+    _check_json_nesting(encoded)
     staged = stage_json_write(path, value)
     try:
         staged.publish()
@@ -47,12 +51,45 @@ def read_planning_json(path: Path, maximum: int) -> dict[str, Any]:
         raw = stream.read(maximum + 1)
     if len(raw) > maximum:
         raise ValueError("planning message byte budget exceeded")
-    result = json.loads(
-        raw, object_pairs_hook=_unique, parse_constant=_invalid_constant
-    )
+    _check_json_nesting(raw)
+    try:
+        result = json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=_unique,
+            parse_constant=_invalid_constant,
+        )
+    except RecursionError as error:
+        raise ValueError("planning message nesting budget exceeded") from error
     if not isinstance(result, dict):
         raise ValueError("planning message must be an object")
     return result
+
+
+# {
+#   責務: [_check_json_nesting: JSON parserへ渡す前にcontainer深さを定数memoryで制限する]
+#   処理: [文字列とescape内の括弧を除外し、message共通の深さ32を超えたら拒否する]
+#   引数: [raw: byte上限を検査済みJSON] 戻り値: [なし]
+#   エラー: [ValueError: 過剰nesting。不正syntaxの詳細はJSON parserが検証する]
+# }
+def _check_json_nesting(raw: bytes) -> None:
+    depth = 0
+    quoted = escaped = False
+    for character in raw:
+        if quoted:
+            if escaped:
+                escaped = False
+            elif character == 92:
+                escaped = True
+            elif character == 34:
+                quoted = False
+        elif character == 34:
+            quoted = True
+        elif character in (91, 123):
+            depth += 1
+            if depth > 32:
+                raise ValueError("planning message nesting budget exceeded")
+        elif character in (93, 125):
+            depth -= 1
 
 
 # {

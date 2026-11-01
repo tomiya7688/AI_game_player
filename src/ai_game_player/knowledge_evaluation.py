@@ -73,7 +73,10 @@ class KnowledgeEvaluationCase:
             raise ValueError(
                 "knowledge evaluation lacks allowed-action outcome evidence"
             )
-        if len(reward_map) > 256 or len(_canonical(self.context.to_dict())) > 65536:
+        if (
+            len(reward_map) > 256
+            or len(_canonical(self.context.to_dict(include_evaluation=True))) > 65536
+        ):
             raise ValueError("knowledge evaluation case exceeds its input budget")
         if not _digest(self.evidence_sha256):
             raise ValueError("knowledge evaluation requires an evidence digest")
@@ -202,7 +205,7 @@ class KnowledgeEvaluationRunner:
             {
                 "id": case.case_id,
                 "group": case.group,
-                "context": case.context.to_dict(),
+                "context": case.context.to_dict(include_evaluation=True),
                 "rewards": case.reward_by_action,
                 "evidence_sha256": case.evidence_sha256,
             }

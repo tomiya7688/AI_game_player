@@ -49,6 +49,7 @@ class RuleProvider:
     #     2: 目的寄与、寄与予測の確信度、画面認識の確信度、候補IDの順に比較する
     #     2a: 同stepの有効Knowledgeがある時だけ既存Baselineのsoft scoreを比較値に使う。
     #         RuleProvider自身に新しいabstain/thresholdを追加せず、許可候補を維持する
+    #     2b: 同stepの6軸候補仮説がある時も同じBaseline scoreを使い、previous actualを流用しない
     #     3: 選択理由と画面観測ID・画面ID・状態照合値を返し、後段の検証に使えるようにする
     #   ]
     #   引数: [
@@ -73,6 +74,13 @@ class RuleProvider:
             raise NoAllowedCandidatesError("許可された操作候補がありません")
         scores = None
         knowledge_version = None
+        evaluation_version = None
+        has_evaluation = context.evaluation_projection is not None and any(
+            quality.available
+            for quality in context.evaluation_projection.candidate_qualities(
+                context.snapshot_id
+            ).values()
+        )
         if context.knowledge_projection is not None:
             projection = context.knowledge_projection.to_dict()
             if projection.get("status") == "applied" and projection.get("priors"):
@@ -84,6 +92,18 @@ class RuleProvider:
                     candidate for candidate in allowed if candidate.action_id in scores
                 ]
                 knowledge_version = scored.knowledge_snapshot_version
+        if has_evaluation and context.evaluation_projection is not None:
+            from ai_game_player.baseline_provider import BaselineDecisionProvider
+
+            scored = BaselineDecisionProvider().decide(context)
+            scores = scored.score_by_action
+            allowed = [
+                candidate for candidate in allowed if candidate.action_id in scores
+            ]
+            knowledge_version = scored.knowledge_snapshot_version
+            evaluation_version = context.evaluation_projection.to_dict()["profile"][
+                "version"
+            ]
         candidate = max(
             allowed,
             key=lambda value: (
@@ -96,6 +116,8 @@ class RuleProvider:
         reason = f"utility={candidate.utility_score:.3f}, confidence={candidate.utility_confidence:.3f}"
         if knowledge_version is not None:
             reason += f"; soft-knowledge={knowledge_version}"
+        if evaluation_version is not None:
+            reason += f"; evaluation={evaluation_version}"
         if "repetition" in {entry.evaluator for entry in candidate.evaluations}:
             reason += "; repetition-aware"
         return ActionDecision(

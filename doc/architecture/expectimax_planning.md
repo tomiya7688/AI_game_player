@@ -28,7 +28,7 @@ leaf traceは同値を合算し、bin上限に達すると近い値を質量加�
 |---|---|
 | 深さ・node | 深さ上限と全反復累積node訪問数。node上限前に未完了深さを打切り |
 | state・分岐・trace・cache | typed stateのcanonical byte、chance件数、bin件数、LRU件数/serialization byteを検証。Python heap全体の量と混同しない |
-| IPC | 所有一時directoryのatomic JSON。読取max+1、出力byte上限、重複key・NaN・不正field・質量・巨大整数を拒否。pickleを使わない |
+| IPC | 所有一時directoryのatomic JSON。読取max+1、出力byte上限と文字列/escape対応の深さ32事前検査、重複key・NaN・不正field・質量・巨大整数を拒否。pickleを使わない |
 | worker memory | LinuxはRLIMIT_AS、WindowsはJobのprocess/job private commit上限。registered factory / codec / callbackをimport・呼出す前に適用。失敗・未対応platformは探索しない |
 | 計算時間 | 親のmonotonic deadlineで受領を打切り、所有workerをTERM→KILL。子にも相対時計の協調deadlineとLinux CPU backstop。遅いcallbackも親は待ち続けない |
 | Stop・stale | 既存RunController世代、current Belief context/version、元観測TTLを監視し、Stop/rearm・別世代・古い結果を棄却。短い最終CAS内ではIOやmodelを呼ばない |
@@ -62,11 +62,11 @@ Pythonを選んだのは既存typed Belief / Transition / injected evaluatorを�
 - [Who Needs POMDPs?](https://www.pomdp.org/talks/who-needs-pomdps/index.html): 部分観測でstateとbeliefを区別する背景。今回のCoreは完全なPOMDP solverではありません。
 - Expectimaxのmax/chance再帰、反復深化、transposition memoizationは古典的探索手法です。今回の置換・近似は、部分観測時の共通tail制限と保守的interval-bin traceとして上表・反例へ明示しています。
 
-Linux x86_64 / Python 3.12.14、seed565、warmup2＋各20回、depth3 / nodes5000 / 250ms / worker256MiBでの測定例です（2026-11-01、親Git SHA `1448dac` の変更中source SHA256をreportへ記録）。測定中のsource変更はありません。
+Linux x86_64 / Python 3.12.14、seed565、warmup2＋各20回、depth3 / nodes5000 / 250ms / worker256MiBでの測定例です（2026-11-01、親Git SHA `23eb205`（#491最終親の通常merge中） の変更中source SHA256をreportへ記録）。測定中のsource変更はありません。
 
 | CPU fixture | cold spawn込みp50 / p95 | 採用checkpoint子経過p50 / p95 | 完成深さ | child累積RSS high-water | 親tracemalloc peak |
 |---|---|---|---|---|---|
-| int | 76.64 / 80.79ms | 5.92 / 6.79ms | 3が20/20 | 17.0MiB | 1.18MiB |
-| 曖昧8/16 2048 | 251.86 / 252.07ms | 169.34 / 182.24ms | 2が20/20 | 17.59MiB | 0.94MiB |
+| int | 82.92 / 93.83ms | 6.88 / 7.98ms | 3が20/20 | 17.0MiB | 1.18MiB |
+| 曖昧8/16 2048 | 251.86 / 252.03ms | 171.24 / 179.49ms | 2が19/20、1が1/20 | 17.70MiB | 0.94MiB |
 
-採用checkpointの最大node / chance branchはint208 / 120、2048は3706 / 3543、trace上限32、最大resultは43983bytesです。両fixtureとも元unknown0.1を保持します。2048は計算deadlineで未完了depth3を捨て、期限前受領のdepth2を採用しました。250msは関数returnの厳密上限ではなく、回収込み最大253.94msでした。cold spawnが支配的で、FPSに必要な低遅延や実ゲームの攻略成績をこのCPU測定で証明していません。完全な設定・source hash・固有run IDはローカルの `build/expectimax/report.json` と固有archiveへ出力されます（生成物はcommit対象外）。
+採用checkpointの最大node / chance branchはint208 / 120、2048は3706 / 3543、trace上限32、最大resultは43983bytesです。両fixtureとも元unknown0.1を保持します。2048は計算deadlineで未完了depth3を捨て、期限前受領のdepth2（1回はdepth1）を採用しました。250msは関数returnの厳密上限ではなく、回収込み最大255.71msでした。cold spawnが支配的で、FPSに必要な低遅延や実ゲームの攻略成績をこのCPU測定で証明していません。完全な設定・source hash・固有run IDはローカルの `build/expectimax/report.json` と固有archiveへ出力されます（生成物はcommit対象外）。

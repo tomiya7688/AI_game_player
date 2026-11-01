@@ -98,8 +98,8 @@ sampleが10.846/11.347µsでした。環境依存の観測値で、回帰閾値�
 | 段階 | 状態と証拠 |
 |---|---|
 | Core | 単体試験、20,050ケースのpinned JS parity、CPU/heap測定 |
-| Runtime | 未接続。#478、#565、#566、#567で仮説・探索・情報価値・Decision接続を扱う |
-| Real-play | Chromiumで3ゲーム404操作の遷移を照合。Windows CIで下記の600秒campaignを確認 |
+| Runtime | #564のCPU Coreから任意の遷移APIを呼出可能。本番Decision/OS入力の自動接続は未達で、#565/#566/#567へ追跡 |
+| Real-play | Chromiumで2048の3プレイ・404操作の遷移を照合。Windows CIで下記の600秒campaignを確認 |
 
 未達のRuntimeと実プレイをCoreの成功で代用しません。多ゲーム対応の成立、FPSのリアルタイム
 性能、未知規則の学習をこのモデル一つで達成したとは扱いません。

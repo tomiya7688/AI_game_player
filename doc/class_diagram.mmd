@@ -12,6 +12,8 @@ classDiagram
         +record_observation()
         +heartbeat()
         +trigger_emergency_stop()
+        +ensure_initialization_not_stopped()
+        +initialize_safety()
         +rearm_safety()
         +close()
         +fail_safe_state()
@@ -472,6 +474,15 @@ classDiagram
         +record_execution_receipt()
         +complete_execution_observation()
     }
+    class AxisPrediction {
+        +__post_init__()
+    }
+    class CandidatePrediction {
+        +__post_init__()
+    }
+    class EvaluationPredictionBatch {
+        +__post_init__()
+    }
     class EvaluationAxis {
         +__post_init__()
         +to_dict()
@@ -497,6 +508,12 @@ classDiagram
     class EvaluationLog {
         +__init__()
         +append()
+    }
+    class EvaluationProfile {
+        +__post_init__()
+        +matches()
+        +to_dict()
+        +from_dict()
     }
     class NumericQuality {
         +__post_init__()
@@ -693,7 +710,10 @@ classDiagram
         +reason()
         +epoch()
         +session_id()
+        +initialize()
         +rearm()
+        +_require_initial_idle_locked()
+        +_arm_locked()
         +heartbeat()
         +record_observation()
         +make_command()
@@ -1235,6 +1255,7 @@ classDiagram
         +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
+        +initialize_safety()
         +rearm_safety()
         +close()
         +close_execution_resources()
@@ -1505,6 +1526,21 @@ classDiagram
         +assess_locally()
         +explain_actions()
         +list_models()
+    }
+    class RuntimeEvaluationAdapter {
+        +__init__()
+        +select_profile()
+        +set_predictions()
+        +select_context()
+        +apply()
+        +actual_evaluation()
+    }
+    class RuntimeEvaluationProjection {
+        +from_dict()
+        +to_dict()
+        +quality_for()
+        +candidate_qualities()
+        +to_model_dict()
     }
     class RuntimeLog {
         +__init__()

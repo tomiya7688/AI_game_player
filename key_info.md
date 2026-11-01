@@ -1,8 +1,10 @@
 # AI Game Player 現在の機能
 
+確認基準：2026-11-01、統合feature `77a8995e`。部品・本番接続・実ゲーム検証を区別します。[場所別の状態と根拠](doc/guide/implementation_status.md)も参照してください。
+
 ## できること
 
-- #491共有値: `NumericQuality` は利用可否・品質・支持率・版・opaque出所を区別する不変数値契約です。6軸の本番Adapter接続は同Issueで進行中です。
+- #491: 6軸評価を既定Session/Context/Traceへ接続。actualと候補hypothetical、未知と中立、coverage/支持率を区別し、typed profile/同frame仮説でBaselineのsoft順位を変えます。Safety/allowedは維持し、pixel/Model自己申告をactual進捗へ転記しません。[契約と費用](doc/architecture/runtime_evaluation.md)。
 
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
 
@@ -37,10 +39,10 @@
 
 ## 制約
 
-- Beliefは候補保持のCore APIとCPU fixtureまでです。Bayesian更新はCore APIを提供し、本番Recognition / Journal / Decisionへの配線は #405/#407/#567 で対応します。予測を観測事実へ変換しません。
+- Beliefは不変候補Storeに加え、#564の有限仮説に対するBayesian予測・観測更新Coreを備えます。本番Recognition / Journal / Decisionへの自動配線は#405/#407/#567の残件です。particle resamplingは未実装です。探索Coreは#565、実Decisionへの接続は#567の境界とし、予測を観測事実へ変換しません。[更新の契約とCPU検証](doc/architecture/belief_update.md)を参照してください。
 - 固定版2048 campaignの`--save-failure-evidence`は既定OFFです。明示ON時、起動失敗の所有PID窓metadataと取得可能なWGC画素をcleanup前に有界保存します。診断を追加しただけで、自然なbrowser起動失敗の原因を解消したとは扱いません（#459/#637）。
 
-- Mode 契約は Issue #422 の本番 Light Adaptation Runnerへ接続しています。重学習・交互 orchestration・包括的な資源制御・UI は後続 Issue で対応します。Mode 契約だけでは学習を起動しません。通常の Outcome / Verifier / Safety 評価を無効化しません。
+- #421のMode契約と#422の本番Light workerは接続済みですが、既定の学習識別方針は無効です。信頼済みprofileの安定識別と検証済み効果がなければ因果学習を保留します。重学習・交互実行・自動資源分類・UIは#183/#423–#426/#188の残件です。通常のOutcome / Verifier / Safety評価を無効化しません。
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
@@ -49,6 +51,6 @@
 - `UnknownnessMonitor`は検出器の根拠を受け取るコアAPIです。画面認識器・prototype検索器・知識検索器からの自動入力とゲーム実行pipelineへの接続は未実装です。unknown時の行動選択も行わず、その方針はIssue #206の対象です。
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。
 - GameSessionControllerの各SessionはSession Event Journalへ判断・実行・Safety・RuntimeLog eventを記録し、初回Sessionで旧JSON/JSONL履歴を移行します。Session Journalをまたぐ検索APIとTimeline/Video/Learningからの横断参照はIssue #263で対応します。
-- Knowledgeのoffline対照評価・昇格API（#532）と、通常Sessionの軽量更新用Gate policy（#422）は別です。任意callbackの隔離評価（#173/#183）と、軽量学習を含むWindows実プレイの検証は未実施です。
+- Knowledge Promotion Gateにはofflineの対照評価・公開APIと、#422が利用する限定的なlight検証があります。通常Sessionのworkerは検証済み候補をStep境界で公開し、永続化確認を行います。これは全回帰評価やモデル重学習の完了ではありません。任意callbackの隔離評価（#173/#183）とWindows実ゲームでの学習効果は未確認です。
 - 長期目的、知識埋め込み、複数人格比較は未実装です。
 - Native Runtimeの汎用batch処理はメタデータ契約のみで`NOT_IMPLEMENTED`を返します。専用Frame Preprocess API以外のcapture/input画素処理は未実装で、GUI実行経路もNativeへ自動切替しません。

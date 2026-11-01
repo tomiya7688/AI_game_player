@@ -115,7 +115,7 @@ pipeline = DecisionPipeline(source, game_directory, BaselineDecisionProvider(),
 | Step固定 | 不変投影とcontext snapshot参照 | 取得元の版更新、投影辞書変更、別step再利用の負例 |
 | #418 Baselineへ接続 | 既存Provider、Engine、Pipelineの任意注入 | Verifierとdry-runを通る統合試験、旧API回帰 |
 | モデルの任意入力 | 既定OFF、4KiB圧縮context、既存Provider API | context Providerの実Pipeline呼出しでopt-in/opt-outを確認 |
-| #408 Refinement、#491評価へのhint | ROI/threshold/transition/評価weightをsoft projectionへ保持 | 各機能の本番consumerは#408/#491。ここで代替のrefinement/evaluatorを作っていない |
+| #408 Refinement、6軸評価へのhint | ROI/threshold/transition/評価weightをsoft projectionへ保持 | #491のRuntime6軸は明示profileで接続。Knowledge hintからの6軸weight最適化は#409/#419、Refinementは#408に残り、このAdapterで代替していない |
 | 学習と昇格の分離 | 選択済み版の読取りだけ | Builderは#530、Promote/Reject/Rollbackは#532、通常Gameplay中の更新は#422 |
 
 Pythonに配置しました。処理対象はboundedな構造化Knowledgeで、OS入力・native APIを
@@ -131,5 +131,12 @@ Pipelineで判断が変わる経路も検証します。no-effectを学習して
 行動効果を正しく認識・帰属できたという証明とは区別します。
 
 Coreと任意のRuntime経路への接続を試験しました。新しいAdapterを使ったWindows実入力、
-自律的な実ゲーム学習で攻略性能が改善すること、#408/#491のconsumer、既定UIからの
+自律的な実ゲーム学習で攻略性能が改善すること、#408のconsumerとKnowledge由来6軸weight最適化、既定UIからの
 設定は未確認・未実装であり、この統合試験をその達成証拠にしません。
+
+
+## 統合後の接続状態（2026-11-01）
+
+#531の任意注入APIに加え、統合版#422では実SessionのEngineへAdapterを構成します。既定の安定識別方針は無効で、profile保証・scope・版・期限が揃わない場合は静的fallbackです。識別が未確定でも一般ゲームの学習が有効だとは表現しません。
+
+信頼済みの安定識別とreceiptへ一致するverified効果が必要で、unknownだけの観測は因果学習しません。得点欄clickを禁止する方式ではありません。CPU結合fixtureと通常Sessionの接続は、Windows実ゲームでの学習効果や全ゲームへの汎化とは区別します。[現在の接続条件・残件](light_adaptation.md)を参照してください。
