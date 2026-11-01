@@ -26077,6 +26077,1553 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.baseline_provider",
+        "ai_game_player.decision_context",
+        "ai_game_player.decision_reliability",
+        "ai_game_player.decision_verifier",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_snapshot",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "deepcopy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "statistics"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "tracemalloc",
+          "names": [
+            {
+              "alias": null,
+              "name": "tracemalloc"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.baseline_provider"
+          ],
+          "module": "ai_game_player.baseline_provider",
+          "names": [
+            {
+              "alias": null,
+              "name": "BaselineWithheld"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_reliability"
+          ],
+          "module": "ai_game_player.decision_reliability",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionVerifier"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            },
+            {
+              "alias": null,
+              "name": "validate_identifier"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot"
+          ],
+          "module": "ai_game_player.knowledge_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 331,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "ceil"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_evaluation",
+      "path": "src/ai_game_player/knowledge_evaluation.py",
+      "source_location": {
+        "end_line": 333,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgeEvaluationCase",
+          "parameters": [],
+          "qualified_name": "KnowledgeEvaluationCase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 81,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeEvaluationCase.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 81,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgeEvaluationReport",
+          "parameters": [],
+          "qualified_name": "KnowledgeEvaluationReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 140,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeEvaluationReport.to_dict",
+          "return_annotation": "dict",
+          "signature": "(self) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 113
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "sha256",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeEvaluationReport.sha256",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 140,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "KnowledgeEvaluationRunner",
+          "parameters": [],
+          "qualified_name": "KnowledgeEvaluationRunner",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 252,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champion"
+            },
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "challenger"
+            },
+            {
+              "annotation": "tuple[KnowledgeEvaluationCase, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "Callable",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider_factory"
+            }
+          ],
+          "qualified_name": "KnowledgeEvaluationRunner.run",
+          "return_annotation": "KnowledgeEvaluationReport",
+          "signature": "(self, champion: KnowledgeSnapshot, challenger: KnowledgeSnapshot, cases: tuple[KnowledgeEvaluationCase, ...], provider_factory: Callable) -> KnowledgeEvaluationReport",
+          "source_location": {
+            "column": 4,
+            "end_line": 169,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_run_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champion"
+            },
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "challenger"
+            },
+            {
+              "annotation": "tuple[KnowledgeEvaluationCase, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "Callable",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider_factory"
+            }
+          ],
+          "qualified_name": "KnowledgeEvaluationRunner._run_locked",
+          "return_annotation": "KnowledgeEvaluationReport",
+          "signature": "(self, champion: KnowledgeSnapshot, challenger: KnowledgeSnapshot, cases: tuple[KnowledgeEvaluationCase, ...], provider_factory: Callable) -> KnowledgeEvaluationReport",
+          "source_location": {
+            "column": 4,
+            "end_line": 252,
+            "start_line": 179
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_run_trial",
+          "parameters": [
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot"
+            },
+            {
+              "annotation": "KnowledgeEvaluationCase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            },
+            {
+              "annotation": "Callable",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "factory"
+            }
+          ],
+          "qualified_name": "_run_trial",
+          "return_annotation": "tuple",
+          "signature": "(snapshot: KnowledgeSnapshot, case: KnowledgeEvaluationCase, factory: Callable) -> tuple",
+          "source_location": {
+            "column": 0,
+            "end_line": 294,
+            "start_line": 261
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_canonical",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_canonical",
+          "return_annotation": "bytes",
+          "signature": "(value: object) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 307,
+            "start_line": 304
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_digest",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_digest",
+          "return_annotation": "bool",
+          "signature": "(value: object) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 321,
+            "start_line": 316
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_p95",
+          "parameters": [
+            {
+              "annotation": "list[float]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "values"
+            }
+          ],
+          "qualified_name": "_p95",
+          "return_annotation": "float",
+          "signature": "(values: list[float]) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 333,
+            "start_line": 330
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.artifact_store",
+        "ai_game_player.atomic_json",
+        "ai_game_player.cross_process_lock",
+        "ai_game_player.knowledge_evaluation",
+        "ai_game_player.knowledge_promotion_policy",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_snapshot_store"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            },
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            },
+            {
+              "alias": null,
+              "name": "timezone"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "stage_json_write"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.cross_process_lock"
+          ],
+          "module": "ai_game_player.cross_process_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "cross_process_file_lock"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_evaluation"
+          ],
+          "module": "ai_game_player.knowledge_evaluation",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeEvaluationCase"
+            },
+            {
+              "alias": null,
+              "name": "KnowledgeEvaluationRunner"
+            },
+            {
+              "alias": null,
+              "name": "_canonical"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_promotion_policy"
+          ],
+          "module": "ai_game_player.knowledge_promotion_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgePromotionPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            },
+            {
+              "alias": null,
+              "name": "validate_identifier"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot_store"
+          ],
+          "module": "ai_game_player.knowledge_snapshot_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeReadResult"
+            },
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshotStore"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_promotion",
+      "path": "src/ai_game_player/knowledge_promotion.py",
+      "source_location": {
+        "end_line": 465,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgePromotionResult",
+          "parameters": [],
+          "qualified_name": "KnowledgePromotionResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 37
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "KnowledgePromotionGate",
+          "parameters": [],
+          "qualified_name": "KnowledgePromotionGate",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 341,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeSnapshotStore",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "store"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate.__init__",
+          "return_annotation": "None",
+          "signature": "(self, store: KnowledgeSnapshotStore, root: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "initialize_champion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "version"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate.initialize_champion",
+          "return_annotation": "KnowledgePromotionResult",
+          "signature": "(self, scope: KnowledgeScope, version: str) -> KnowledgePromotionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 83,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate.capture",
+          "return_annotation": "KnowledgeReadResult",
+          "signature": "(self, scope: KnowledgeScope) -> KnowledgeReadResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "evaluate_and_promote",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "challenger_version"
+            },
+            {
+              "annotation": "tuple[KnowledgeEvaluationCase, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "Callable",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider_factory"
+            },
+            {
+              "annotation": "KnowledgePromotionPolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate.evaluate_and_promote",
+          "return_annotation": "KnowledgePromotionResult",
+          "signature": "(self, scope: KnowledgeScope, challenger_version: str, cases: tuple[KnowledgeEvaluationCase, ...], provider_factory: Callable, policy: KnowledgePromotionPolicy | None = …) -> KnowledgePromotionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 191,
+            "start_line": 113
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "rollback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "version"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate.rollback",
+          "return_annotation": "KnowledgePromotionResult",
+          "signature": "(self, scope: KnowledgeScope, version: str | None = …) -> KnowledgePromotionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 230,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "audit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate.audit",
+          "return_annotation": "tuple[dict, ...]",
+          "signature": "(self, scope: KnowledgeScope) -> tuple[dict, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 240,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_record_rejection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate._record_rejection",
+          "return_annotation": "KnowledgePromotionResult",
+          "signature": "(self, scope: KnowledgeScope, reason: str) -> KnowledgePromotionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 254,
+            "start_line": 248
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_read_state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate._read_state",
+          "return_annotation": "dict",
+          "signature": "(self, scope: KnowledgeScope) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 282,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_commit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate._commit",
+          "return_annotation": "KnowledgePromotionResult",
+          "signature": "(self, scope: KnowledgeScope, state: dict, status: str, reason: str, report) -> KnowledgePromotionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 313,
+            "start_line": 291
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_lock_path",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate._lock_path",
+          "return_annotation": "Path",
+          "signature": "(self, scope: KnowledgeScope) -> Path",
+          "source_location": {
+            "column": 4,
+            "end_line": 322,
+            "start_line": 321
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_result",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "report_digest"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionGate._result",
+          "return_annotation": "KnowledgePromotionResult",
+          "signature": "(state: dict, status: str, reason: str, report_digest: str | None = …) -> KnowledgePromotionResult",
+          "source_location": {
+            "column": 4,
+            "end_line": 341,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reference",
+          "parameters": [
+            {
+              "annotation": "KnowledgeReadResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "loaded"
+            }
+          ],
+          "qualified_name": "_reference",
+          "return_annotation": "dict[str, str]",
+          "signature": "(loaded: KnowledgeReadResult) -> dict[str, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 351,
+            "start_line": 350
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_state",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "_validate_state",
+          "return_annotation": "None",
+          "signature": "(state: object, scope: KnowledgeScope) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 433,
+            "start_line": 361
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_digest",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_digest",
+          "return_annotation": "None",
+          "signature": "(value: object) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 449,
+            "start_line": 443
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unique_object",
+          "parameters": [
+            {
+              "annotation": "list[tuple]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_unique_object",
+          "return_annotation": "dict",
+          "signature": "(pairs: list[tuple]) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 465,
+            "start_line": 459
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.knowledge_evaluation",
+        "ai_game_player.knowledge_snapshot"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_evaluation"
+          ],
+          "module": "ai_game_player.knowledge_evaluation",
+          "names": [
+            {
+              "alias": null,
+              "name": "EVALUATION_GROUPS"
+            },
+            {
+              "alias": null,
+              "name": "KnowledgeEvaluationReport"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot"
+          ],
+          "module": "ai_game_player.knowledge_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshot"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.knowledge_promotion_policy",
+      "path": "src/ai_game_player/knowledge_promotion_policy.py",
+      "source_location": {
+        "end_line": 117,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "KnowledgePromotionPolicy",
+          "parameters": [],
+          "qualified_name": "KnowledgePromotionPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 117,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "assess",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champion"
+            },
+            {
+              "annotation": "KnowledgeSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "challenger"
+            },
+            {
+              "annotation": "KnowledgeEvaluationReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionPolicy.assess",
+          "return_annotation": "str",
+          "signature": "(self, champion: KnowledgeSnapshot, challenger: KnowledgeSnapshot, report: KnowledgeEvaluationReport) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 117,
+            "start_line": 69
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -75099,6 +76646,1090 @@
             "column": 4,
             "end_line": 10,
             "start_line": 6
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.baseline_provider",
+        "ai_game_player.decision_context",
+        "ai_game_player.knowledge_evaluation",
+        "ai_game_player.knowledge_promotion",
+        "ai_game_player.knowledge_promotion_policy",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_snapshot",
+        "ai_game_player.knowledge_snapshot_store",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "deepcopy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "tracemalloc",
+          "names": [
+            {
+              "alias": null,
+              "name": "tracemalloc"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.baseline_provider"
+          ],
+          "module": "ai_game_player.baseline_provider",
+          "names": [
+            {
+              "alias": null,
+              "name": "BaselineDecisionProvider"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_evaluation"
+          ],
+          "module": "ai_game_player.knowledge_evaluation",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeEvaluationCase"
+            },
+            {
+              "alias": null,
+              "name": "KnowledgeEvaluationRunner"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_promotion"
+          ],
+          "module": "ai_game_player.knowledge_promotion",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgePromotionGate"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_promotion_policy"
+          ],
+          "module": "ai_game_player.knowledge_promotion_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgePromotionPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot"
+          ],
+          "module": "ai_game_player.knowledge_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_snapshot_store"
+          ],
+          "module": "ai_game_player.knowledge_snapshot_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeSnapshotStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 372,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_evaluation"
+          ],
+          "module": "ai_game_player.knowledge_evaluation",
+          "names": [
+            {
+              "alias": null,
+              "name": "_EVALUATION_TRACE_LOCK"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_knowledge_promotion",
+      "path": "tests/test_knowledge_promotion.py",
+      "source_location": {
+        "end_line": 411,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "version"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "good"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "updates"
+            }
+          ],
+          "qualified_name": "snapshot",
+          "return_annotation": null,
+          "signature": "(version, good = …, **updates)",
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "provider_factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "knowledge"
+            }
+          ],
+          "qualified_name": "provider_factory",
+          "return_annotation": null,
+          "signature": "(knowledge)",
+          "source_location": {
+            "column": 0,
+            "end_line": 47,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "cases",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "count"
+            }
+          ],
+          "qualified_name": "cases",
+          "return_annotation": null,
+          "signature": "(scope, count = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "KnowledgePromotionTests",
+          "parameters": [],
+          "qualified_name": "KnowledgePromotionTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 407,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.tearDown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "evaluate_for_test",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.evaluate_for_test",
+          "return_annotation": null,
+          "signature": "(self, *args, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "initialize",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.initialize",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_actual_paired_decisions_promote_then_rollback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_actual_paired_decisions_promote_then_rollback",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bad_knowledge_is_rejected_without_changing_champion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_bad_knowledge_is_rejected_without_changing_champion",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_new_held_out_regression_can_restore_last_valid_snapshot",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_new_held_out_regression_can_restore_last_valid_snapshot",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 168,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_low_sample_uncertainty_missing_groups_duplicate_cases_and_resource_budget",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_low_sample_uncertainty_missing_groups_duplicate_cases_and_resource_budget",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 209,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unsafe_provider_or_exception_cannot_be_promoted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_unsafe_provider_or_exception_cannot_be_promoted",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 242,
+            "start_line": 211
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "UnsafeProvider",
+          "parameters": [],
+          "qualified_name": "KnowledgePromotionTests.test_unsafe_provider_or_exception_cannot_be_promoted.UnsafeProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 223,
+            "start_line": 214
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_unsafe_provider_or_exception_cannot_be_promoted.UnsafeProvider.choose_context",
+          "return_annotation": null,
+          "signature": "(self, context)",
+          "source_location": {
+            "column": 12,
+            "end_line": 223,
+            "start_line": 215
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "knowledge"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_unsafe_provider_or_exception_cannot_be_promoted.factory",
+          "return_annotation": null,
+          "signature": "(knowledge)",
+          "source_location": {
+            "column": 8,
+            "end_line": 230,
+            "start_line": 225
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "broken_factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "knowledge"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_unsafe_provider_or_exception_cannot_be_promoted.broken_factory",
+          "return_annotation": null,
+          "signature": "(knowledge)",
+          "source_location": {
+            "column": 8,
+            "end_line": 238,
+            "start_line": 235
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_broken_baseline_does_not_manufacture_target_improvement",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_broken_baseline_does_not_manufacture_target_improvement",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 254,
+            "start_line": 244
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "broken_baseline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "knowledge"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_broken_baseline_does_not_manufacture_target_improvement.broken_baseline",
+          "return_annotation": null,
+          "signature": "(knowledge)",
+          "source_location": {
+            "column": 8,
+            "end_line": 250,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_other_scope_expired_version_and_unknown_rollback_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_other_scope_expired_version_and_unknown_rollback_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 280,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_failure_during_atomic_publish_preserves_previous_pointer_and_audit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_failure_during_atomic_publish_preserves_previous_pointer_and_audit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 295,
+            "start_line": 282
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_generation_change_during_evaluation_rejects_stale_result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_generation_change_during_evaluation_rejects_stale_result",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 311,
+            "start_line": 297
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "knowledge"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_generation_change_during_evaluation_rejects_stale_result.factory",
+          "return_annotation": null,
+          "signature": "(knowledge)",
+          "source_location": {
+            "column": 8,
+            "end_line": 307,
+            "start_line": 301
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_corrupt_or_oversized_state_falls_back_without_overwriting_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_corrupt_or_oversized_state_falls_back_without_overwriting_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 324,
+            "start_line": 313
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tampered_previous_snapshot_cannot_be_rollback_target",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_tampered_previous_snapshot_cannot_be_rollback_target",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 339,
+            "start_line": 326
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_replay_cannot_modify_source_context_or_supply_a_pass_boolean",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_replay_cannot_modify_source_context_or_supply_a_pass_boolean",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 358,
+            "start_line": 341
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "mutation_factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "knowledge"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_replay_cannot_modify_source_context_or_supply_a_pass_boolean.mutation_factory",
+          "return_annotation": null,
+          "signature": "(knowledge)",
+          "source_location": {
+            "column": 8,
+            "end_line": 350,
+            "start_line": 344
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MutatingProvider",
+          "parameters": [],
+          "qualified_name": "KnowledgePromotionTests.test_replay_cannot_modify_source_context_or_supply_a_pass_boolean.mutation_factory.MutatingProvider",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 12,
+            "end_line": 348,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "choose_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_replay_cannot_modify_source_context_or_supply_a_pass_boolean.mutation_factory.MutatingProvider.choose_context",
+          "return_annotation": null,
+          "signature": "(self, context)",
+          "source_location": {
+            "column": 16,
+            "end_line": 348,
+            "start_line": 346
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_policy_cannot_relax_safety_or_accept_nonfinite_budgets",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_policy_cannot_relax_safety_or_accept_nonfinite_budgets",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 369,
+            "start_line": 360
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_memory_measurements_do_not_overlap_or_stop_an_external_trace",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_memory_measurements_do_not_overlap_or_stop_an_external_trace",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 384,
+            "start_line": 371
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_control_audit_and_rollback_history_are_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgePromotionTests.test_control_audit_and_rollback_history_are_bounded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 407,
+            "start_line": 386
           }
         }
       ]
