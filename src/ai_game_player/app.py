@@ -309,7 +309,8 @@ class Application:
         self.resume_button.pack(side=tk.LEFT, padx=(6, 0))
         ToolTip(
             self.resume_button,
-            "停止状態を解除し、新しい判断や連続実行を受け付ける状態に戻します。処理の終了待ち中は再開できません。ゲーム操作は自動では始まりません。",
+            "停止状態を解除して実行世代を更新（re-arm）し、新しい判断や連続実行を受け付け可能な状態に戻します。"
+            "処理の終了待ち中は再開できません。ゲーム操作は自動では始まりません。",
         )
         self.live_status = ttk.Label(frame)
         self.live_status.pack(anchor=tk.W)
