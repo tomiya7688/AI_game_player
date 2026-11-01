@@ -181,6 +181,7 @@ classDiagram
         +decide()
         +choose_context()
         +_read_snapshot()
+        +_step_weights()
     }
     class BrightRegionDetector {
         +__init__()
@@ -616,6 +617,19 @@ classDiagram
         +_find_board_region()
         +_read_cell()
     }
+    class Game2048State {
+        +__post_init__()
+        +terminated()
+    }
+    class ReferenceGame2048TransitionModel {
+        +apply_action()
+        +chance_outcomes()
+        +apply_slide()
+        +spawn_outcomes()
+        +sample_spawn()
+        +continue_game()
+        +restart()
+    }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
         +run()
@@ -691,6 +705,16 @@ classDiagram
         +_read()
         +_write()
     }
+    class KnowledgeBuildResult {
+    }
+    class KnowledgeBuilder {
+        +__init__()
+        +build()
+    }
+    class KnowledgeBuilderPolicy {
+        +__post_init__()
+        +fingerprint()
+    }
     class KnowledgeEvaluationCase {
         +__post_init__()
     }
@@ -701,6 +725,19 @@ classDiagram
     class KnowledgeEvaluationRunner {
         +run()
         +_run_locked()
+    }
+    class KnowledgeFeatureAdapter {
+        +__init__()
+        +apply()
+        +project()
+        +_make_projection()
+        +_fallback()
+    }
+    class KnowledgeProjection {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_model_dict()
     }
     class KnowledgePromotionResult {
     }
@@ -742,6 +779,9 @@ classDiagram
         +save()
         +read()
         +_index_path()
+    }
+    class KnowledgeUpdateSample {
+        +from_event()
     }
     class LearningCapabilityManifest {
         +__post_init__()
@@ -1298,6 +1338,25 @@ classDiagram
         +_notify_finished_subscribers()
         +_finish_locked()
         +_capture_loop()
+    }
+    Generic <|-- SimulationKey
+    class SimulationKey {
+    }
+    class SimulationProvider {
+        +__init__()
+        +register()
+        +get_model()
+    }
+    Generic <|-- ActionTransition
+    class ActionTransition {
+    }
+    Generic <|-- ChanceOutcome
+    class ChanceOutcome {
+    }
+    Protocol <|-- TransitionModel
+    class TransitionModel {
+        +apply_action()
+        +chance_outcomes()
     }
     class PlayerSeat {
         +__init__()

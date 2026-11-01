@@ -3,14 +3,23 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from pathlib import Path
 
-from ai_game_player.decision_context import DecisionContext, DecisionContextBuilder, DecisionTraceStore
-from ai_game_player.decision_verifier import DecisionVerifier, ReliabilityResult, ReliabilityStatus
+from ai_game_player.decision_context import (
+    DecisionContext,
+    DecisionContextBuilder,
+    DecisionTraceStore,
+)
+from ai_game_player.decision_verifier import (
+    DecisionVerifier,
+    ReliabilityResult,
+    ReliabilityStatus,
+)
 from ai_game_player.atomic_json import StagedJsonWrite
 from ai_game_player.event_journal import EventJournal
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.history import HistoryStore
 from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.knowledge import KnowledgeStore
+from ai_game_player.knowledge_feature_adapter import KnowledgeFeatureAdapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 from ai_game_player.outcome_fusion import OutcomeDetector
@@ -18,21 +27,27 @@ from ai_game_player.outcome_models import OutcomeEvent
 from ai_game_player.provider import RuleProvider
 
 
-_BEFORE_PROVIDER_CONTEXT: ContextVar[Callable[[], None] | None] = ContextVar("before_provider", default=None)
-_COMMIT_GUARD_CONTEXT: ContextVar[Callable[[Callable[[], None]], None] | None] = ContextVar("commit_guard", default=None)
-_ALLOWED_CANDIDATES_CONTEXT: ContextVar[tuple[ActionCandidate, ...] | None] = ContextVar("allowed_candidates", default=None)
+_BEFORE_PROVIDER_CONTEXT: ContextVar[Callable[[], None] | None] = ContextVar(
+    "before_provider", default=None
+)
+_COMMIT_GUARD_CONTEXT: ContextVar[Callable[[Callable[[], None]], None] | None] = (
+    ContextVar("commit_guard", default=None)
+)
+_ALLOWED_CANDIDATES_CONTEXT: ContextVar[tuple[ActionCandidate, ...] | None] = (
+    ContextVar("allowed_candidates", default=None)
+)
 
 
 # {
 #   責務: [GamePlayerEngine: 許可候補の判断・信頼性検査・Outcome追跡とJournal保存を管理する]
-#   フィールド: [decision_verifier: provider回答を画面と候補へ照合する検査器, trace: snapshotに判断根拠と実行結果を結ぶ追記履歴, event_journal: 指定時に履歴を保存するSession Journal]
+#   フィールド: [decision_verifier: provider回答を画面と候補へ照合する検査器, trace: snapshotに判断根拠と実行結果を結ぶ追記履歴, event_journal: 指定時に履歴を保存するSession Journal, knowledge_adapter: 任意のscope照合済みsoft evidence投影器]
 #   処理: [停止世代guard内で履歴を公開し、実行前に止めた判断を次の行動履歴から除外する]
 # }
 class GamePlayerEngine:
     # {
     #   責務: [__init__: ゲーム保存先・判断部品・任意Session Journalを接続する]
     #   処理: [旧history/traceを必要時だけJournalへ移行し、検証器とprevious action状態を初期化する]
-    #   引数: [game_directory: ゲーム別保存先, provider: 判断provider, context_builder: 判断材料作成器, outcome_detector: 操作結果検出器, event_journal: 現Sessionのevent保存先, migrate_legacy: 旧recordを初回Sessionへ移行するか]
+    #   引数: [game_directory: ゲーム別保存先, provider: 判断provider, context_builder: 判断材料作成器, outcome_detector: 操作結果検出器, event_journal: 現Sessionのevent保存先, migrate_legacy: 旧recordを初回Sessionへ移行するか, knowledge_adapter: 選択済みKnowledgeを一stepへ固定する任意の投影器。省略時は静的判断]
     #   戻り値: [なし。構成部品を以後のstepで利用できる状態にする]
     # }
     def __init__(
@@ -43,9 +58,11 @@ class GamePlayerEngine:
         outcome_detector: OutcomeDetector | None = None,
         event_journal: EventJournal | None = None,
         migrate_legacy: bool = True,
+        knowledge_adapter: KnowledgeFeatureAdapter | None = None,
     ) -> None:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
+        self.knowledge_adapter = knowledge_adapter
         history_path = game_directory / "history.json"
         trace_path = game_directory / "decision_trace.json"
         self.history = HistoryStore(
@@ -56,7 +73,8 @@ class GamePlayerEngine:
                 "decision.history",
                 migrate_legacy=migrate_legacy,
             )
-            if event_journal is not None else None,
+            if event_journal is not None
+            else None,
         )
         self.trace = DecisionTraceStore(
             trace_path,
@@ -66,10 +84,15 @@ class GamePlayerEngine:
                 "decision.trace",
                 migrate_legacy=migrate_legacy,
             )
-            if event_journal is not None else None,
+            if event_journal is not None
+            else None,
         )
-        self.context_builder = context_builder or DecisionContextBuilder(KnowledgeStore(game_directory / "knowledge.json"))
-        self.outcome_detector = outcome_detector or OutcomeDetector(self._semantic_outcome_provider())
+        self.context_builder = context_builder or DecisionContextBuilder(
+            KnowledgeStore(game_directory / "knowledge.json")
+        )
+        self.outcome_detector = outcome_detector or OutcomeDetector(
+            self._semantic_outcome_provider()
+        )
         self.decision_verifier = DecisionVerifier()
         self.last_reliability_result: ReliabilityResult | None = None
         self.last_outcome_event: OutcomeEvent | None = None
@@ -77,11 +100,14 @@ class GamePlayerEngine:
         self._previous_action_id: str | None = None
         self._last_decision_trace_reference: tuple[str, str] | None = None
         self._previous_action_trace_reference: tuple[str, str] | None = None
-        self._previous_action_state_before_last_decision: tuple[
-            ScreenObservation | None,
-            str | None,
-            tuple[str, str] | None,
-        ] | None = None
+        self._previous_action_state_before_last_decision: (
+            tuple[
+                ScreenObservation | None,
+                str | None,
+                tuple[str, str] | None,
+            ]
+            | None
+        ) = None
 
     # {
     #   責務: [step: 許可候補から判断し、検査結果と停止世代を考慮した履歴を公開する]
@@ -109,7 +135,11 @@ class GamePlayerEngine:
         )
         self._previous_action_state_before_last_decision = None
         candidate_snapshot = _ALLOWED_CANDIDATES_CONTEXT.get()
-        allowed_snapshot = tuple(candidate_snapshot) if candidate_snapshot is not None else tuple(self.evaluator.evaluate(observation, candidates))
+        allowed_snapshot = (
+            tuple(candidate_snapshot)
+            if candidate_snapshot is not None
+            else tuple(self.evaluator.evaluate(observation, candidates))
+        )
         allowed = list(allowed_snapshot)
         previous_outcome = self._assess_previous_outcome(observation)
         context = self.context_builder.build(
@@ -120,12 +150,16 @@ class GamePlayerEngine:
             previous_outcome=previous_outcome,
             current_goal=purpose,
         )
+        if self.knowledge_adapter is not None:
+            context = self.knowledge_adapter.apply(context, observation)
         if before_provider is not None:
             before_provider()
         if self._uses_context_api():
             raw_decision = self.provider.choose_context(context, personality)
         else:
-            raw_decision = self.provider.choose(allowed, observation, purpose, personality)
+            raw_decision = self.provider.choose(
+                allowed, observation, purpose, personality
+            )
             raw_decision = self._bind_legacy_context_references(raw_decision, context)
         reliability = self.decision_verifier.verify(
             raw_decision,
@@ -138,24 +172,36 @@ class GamePlayerEngine:
             if commit_guard is None:
                 self.trace.append_rejection(context, reliability.to_dict())
             else:
-                commit_guard(lambda: self.trace.append_rejection(context, reliability.to_dict()))
+                commit_guard(
+                    lambda: self.trace.append_rejection(context, reliability.to_dict())
+                )
             failed_checks = ", ".join(
-                entry.check for entry in reliability.evidence if entry.severity == "reject"
+                entry.check
+                for entry in reliability.evidence
+                if entry.severity == "reject"
             )
-            raise ValueError(f"Decision rejected by reliability verifier: {failed_checks}")
+            raise ValueError(
+                f"Decision rejected by reliability verifier: {failed_checks}"
+            )
         decision = self.decision_verifier.normalize_decision(raw_decision)
         if decision is None:
             if commit_guard is None:
                 self.trace.append_rejection(context, reliability.to_dict())
             else:
-                commit_guard(lambda: self.trace.append_rejection(context, reliability.to_dict()))
-            raise ValueError("Decision output could not be normalized after verification")
+                commit_guard(
+                    lambda: self.trace.append_rejection(context, reliability.to_dict())
+                )
+            raise ValueError(
+                "Decision output could not be normalized after verification"
+            )
         trace_reference = (context.snapshot_id, decision.action_id)
         staged_writes: list[StagedJsonWrite | StagedJournalAppend] = []
         try:
             staged_writes.append(self.history.prepare_append(observation, decision))
             staged_writes.append(
-                self.trace.prepare_append(context, decision, reliability=reliability.to_dict())
+                self.trace.prepare_append(
+                    context, decision, reliability=reliability.to_dict()
+                )
             )
 
             # {
@@ -235,7 +281,9 @@ class GamePlayerEngine:
     #   ]
     # }
     @staticmethod
-    def _bind_legacy_context_references(decision_output: object, context: DecisionContext) -> object:
+    def _bind_legacy_context_references(
+        decision_output: object, context: DecisionContext
+    ) -> object:
         if not isinstance(decision_output, ActionDecision):
             return decision_output
         missing_references = {
@@ -248,7 +296,11 @@ class GamePlayerEngine:
             for field_name, reference in missing_references.items()
             if getattr(decision_output, field_name) is None
         }
-        return replace(decision_output, **values_to_bind) if values_to_bind else decision_output
+        return (
+            replace(decision_output, **values_to_bind)
+            if values_to_bind
+            else decision_output
+        )
 
     # {
     #   責務: [step_with_candidate: 従来のstep拡張点を呼び、判断IDに対応する評価済み候補を返す]
@@ -278,11 +330,17 @@ class GamePlayerEngine:
             if before_provider is not None:
                 before_provider()
             selected_candidate = next(
-                (candidate for candidate in allowed_snapshot if candidate.action_id == decision.action_id),
+                (
+                    candidate
+                    for candidate in allowed_snapshot
+                    if candidate.action_id == decision.action_id
+                ),
                 None,
             )
             if selected_candidate is None:
-                raise ValueError("Decision provider selected an action outside the allowed snapshot")
+                raise ValueError(
+                    "Decision provider selected an action outside the allowed snapshot"
+                )
             return decision, selected_candidate
         finally:
             _COMMIT_GUARD_CONTEXT.reset(commit_token)
@@ -299,9 +357,15 @@ class GamePlayerEngine:
         if not hasattr(self.provider, "choose_context"):
             return False
         provider_type = type(self.provider)
-        if isinstance(self.provider, RuleProvider) and provider_type is not RuleProvider:
+        if (
+            isinstance(self.provider, RuleProvider)
+            and provider_type is not RuleProvider
+        ):
             legacy_choose = getattr(provider_type, "choose", None)
-            inherited_context = getattr(provider_type, "choose_context", None) is RuleProvider.choose_context
+            inherited_context = (
+                getattr(provider_type, "choose_context", None)
+                is RuleProvider.choose_context
+            )
             if legacy_choose is not RuleProvider.choose and inherited_context:
                 return False
         return True
@@ -319,7 +383,9 @@ class GamePlayerEngine:
             return self.provider
         provider_type = type(self.provider)
         custom_assess = getattr(provider_type, "assess_outcome", None)
-        return self.provider if custom_assess is not RuleProvider.assess_outcome else None
+        return (
+            self.provider if custom_assess is not RuleProvider.assess_outcome else None
+        )
 
     # {
     #   責務: [_assess_previous_outcome: 前回実行判断と現在画面を比較してOutcomeを評価する]
@@ -327,7 +393,9 @@ class GamePlayerEngine:
     #   引数: [observation: 直前判断の後で取得した現在画面]
     #   戻り値: [OutcomeAssessment: 前回操作の進行・成功・失敗・不確実性]
     # }
-    def _assess_previous_outcome(self, observation: ScreenObservation) -> OutcomeAssessment:
+    def _assess_previous_outcome(
+        self, observation: ScreenObservation
+    ) -> OutcomeAssessment:
         if self._previous_observation is None or self._previous_action_id is None:
             self.last_outcome_event = None
             return OutcomeAssessment("unknown", 0.0, "no previous action")
@@ -339,5 +407,7 @@ class GamePlayerEngine:
         self.last_outcome_event = event
         if self._previous_action_trace_reference is not None:
             outcome = event.to_dict()
-            self.trace.record_action_outcome(*self._previous_action_trace_reference, outcome)
+            self.trace.record_action_outcome(
+                *self._previous_action_trace_reference, outcome
+            )
         return event.to_assessment()

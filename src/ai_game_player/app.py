@@ -91,6 +91,7 @@ class TkAfterScheduler:
 #     window_selection_status_var: 対象windowの候補と選択状態を説明する表示
 #     live_execution: 実入力の許可状態
 #     live_execution_toggle: Sessionの実行中に実入力設定を変更できないことを示すcheckbox
+#     resume_button: 停止状態を解除して実行世代を更新する再開ボタン
 #     _session_dry_run: 現在のSessionが開始時に固定した入力モード
 #     capture_mode/capture_region_x/y/width/height: capture方式とfixed/normalized ROIの入力値
 #     _active_capture_region: capture serviceへ最後に適用したROI設定
@@ -122,6 +123,7 @@ class Application:
     #     8: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
     #     9: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
     #     10: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
+#     11: 再開ボタンへ共通ToolTipを接続し、停止解除と実行世代更新（re-arm）の役割を案内する
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -303,7 +305,13 @@ class Application:
         self.execute_button.pack(side=tk.LEFT, padx=6)
         self.loop_button = ttk.Button(controls, command=self.start_loop)
         self.loop_button.pack(side=tk.LEFT)
-        ttk.Button(controls, text="再開", command=self.start).pack(side=tk.LEFT)
+        self.resume_button = ttk.Button(controls, text="再開", command=self.start)
+        self.resume_button.pack(side=tk.LEFT, padx=(6, 0))
+        ToolTip(
+            self.resume_button,
+            "停止状態を解除して実行世代を更新（re-arm）し、新しい判断や連続実行を受け付け可能な状態に戻します。"
+            "処理の終了待ち中は再開できません。ゲーム操作は自動では始まりません。",
+        )
         self.live_status = ttk.Label(frame)
         self.live_status.pack(anchor=tk.W)
         self._refresh_execution_controls()
