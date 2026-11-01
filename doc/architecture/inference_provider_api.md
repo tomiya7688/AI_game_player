@@ -15,6 +15,31 @@ Kadoka Core
 
 The public contract is intentionally explicit. Adapter code may be thin, while the Core keeps one stable request/response model.
 
+## Implementation status and version boundary
+
+This document and the v1 schemas specify a contract; they do not register a
+Provider, start a bundled service, or replace the current Rule/Ollama runtime
+path. The contract-assets CI checks schemas, examples, and pinned game sources.
+It does not exercise HTTP inference or prove adapter compliance.
+
+- Transport authentication, token lifetime/redaction, and remote TLS enforcement:
+  Issue #238.
+- The v1 HTTP client/reference server and timeout/cancel integration: Issue #239.
+- Reusable local/remote adapter conformance tests: Issue #240.
+- Bundled inference lifecycle, artifacts, builds, backend adapter, and functional
+  inference CI: Issues #241-#244 and #280.
+
+In particular, the bundled example's `credentials_required=false` is not proof
+that unauthenticated local requests are acceptable. Per-session authentication
+must be specified and enforced under #238 before the transport is frozen.
+
+Issue #174 maintains v1 as the candidate Decision compatibility boundary.
+Issue #447 is the source of truth for the generic multimodal Task API v2,
+including OCR, detection, segmentation, embeddings, and VQA. Existing v1 fields
+and operations remain compatible; adding them here does not implement those v2
+tasks. A v1 Decision request can be bridged to v2 `CANDIDATE_DECISION`, while
+large image/blob transport is tracked separately by #448.
+
 ## Protocol
 
 Initial HTTP endpoints:

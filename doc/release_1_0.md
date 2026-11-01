@@ -10,6 +10,10 @@ bundled inference service and its real-inference CI gates remain future work.
 
 The current development Player Seat defaults to **Wise Misk (賢者ミスク)**, whose bundled image is declared under Tomiya Character License v1.0.1. The release-specific asset replacement is not implemented yet.
 
+That manifest declaration does not complete rights or redistribution review.
+Issue #19 retains unresolved development asset-license acceptance, tracked by
+#124/#228; the planned 1.0.0 exclusion remains unchanged.
+
 For the planned 1.0.0 release artifact, the bundled/default player asset will be replaced with the MIT-licensed **すーぱーあいこん** asset set. The Player Seat/Profile implementation must not depend on one particular character asset.
 
 1.0.0 targets Windows x64 and local-first game playing.

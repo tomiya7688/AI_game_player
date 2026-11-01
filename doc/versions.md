@@ -1,3 +1,10 @@
+## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
+
+- Play画面の「一覧更新」へ共通ToolTipを接続し、ゲームのウィンドウを起動・再起動した後に一覧を取得し直す操作を案内します。マウスのホバーとキーボードのフォーカスで表示します。
+- mainのPlayer Seat・配色・実入力の許可欄を保持し、一覧更新ボタンの既存のクリック処理を共通ToolTipの追加後も利用します。説明の表示自体はゲームへの入力を開始しません。
+- 共通ToolTipはマウス進入とキーボードフォーカスを別々に保持し、両方が離れた時に閉じます。クリック・Esc・対象の非表示・破棄では従来どおり直ちに閉じます。
+
+
 ## 2026-10-31 emSignインシデント対象の特定とpipの信頼源（Issue #513）
 
 - 公開アドバイザリGHSA-6q48-6c7w-9gw2と、certifiの公開版（2026.7.22・10.18・10.19・10.23）の比較から、インシデントの対象ルートは`emSign ECC Root CA - G3`だけと特定しました。前回の棚卸しで残っていたemSign Root CA - G1・C1・ECC C3は対象外です。
@@ -88,6 +95,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #475 / PR #177（#174・#96・#124の部分成果）: Provider API v1のJSON契約・例、モデル候補と4参照ゲームの固定ソース宣言、ソース取得とVRAM計測の補助ツール、契約CI、1.0配布・ライセンス方針を追加します。取得済みのゲームとlockを置く`build/ci-games/`はGit管理から除外します。v1 HTTP接続・認証・Adapter適合は#238-#240、bundled実推論は#241-#244/#280、全ゲーム・実GPU・配布受入れは#96/#248-#251、release用Player Asset差替えは#155へ残します。v2汎用Task契約の正本#447と区別し、現在のNoisy Provider・2048・Player Seat実装を保持します。
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
@@ -296,5 +304,6 @@ Key acceptance:
 
 - 1.0.0 first-party shipped scope is MIT-only.
 - Wise Misk artwork is excluded from 1.0.0 while its license is undecided; the planned bundled player asset is MIT-licensed Super Icon.
+- The current development manifest records Tomiya Character License v1.0.1, but that declaration does not resolve the asset-rights acceptance still open under Issue #19/#124/#228. The earlier unresolved status and 1.0.0 exclusion are retained; release-specific replacement remains tracked by #155.
 - Obake License assets are deferred to 1.1+.
 - Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.

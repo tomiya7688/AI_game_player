@@ -81,9 +81,11 @@ The planned 1.0.0 MIT-focused release excludes Wise Misk and replaces it with
 Super Icon. That release-specific replacement remains unimplemented. The current
 development package therefore does not establish the planned 1.0.0 asset boundary.
 
-Any future character-license design is separate from the license declared for
-the image currently included in the repository; future discussions do not make
-that current declaration undecided.
+The manifest records a license declaration; it does not establish that rights
+and redistribution conditions have been independently verified. Issue #19
+retains the unresolved development asset-license acceptance, tracked under
+#124/#228. Any future character-license design is a separate decision, and the
+1.0.0 exclusion remains in force.
 
 ## Super Icon / すーぱーあいこん
 

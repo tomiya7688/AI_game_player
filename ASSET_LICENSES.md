@@ -12,6 +12,11 @@ and identifies upstream asset `tomiya.wise-misk.original` at commit
 `2b036d9fc8d175e2bef17916d59385db6b548ad7`. The manifest's license-detail
 URL follows upstream `main`; that URL is not pinned to the image source commit.
 
+This is the development manifest's declaration, not independent confirmation of
+the image's rights or redistribution conditions. Issue #19 continues to treat
+development asset-license acceptance as unresolved. The rights/inventory check
+remains tracked by #124/#228; this document does not complete it.
+
 Canonical license/status repository:
 
 https://github.com/tomiya7688/Tomiya_character_license
@@ -68,7 +73,7 @@ See `THIRD_PARTY_NOTICES.md` and `doc/release_1_0.md`.
 
 The MIT-focused asset payload is a 1.0.0-only release choice.
 
-Later releases may bundle Wise Misk (under its declared character license), Kadoka,
+Later releases may bundle Wise Misk (after its applicable rights are verified), Kadoka,
 Maru, other characters, and official pre-trained/fine-tuned artifacts under a
 multi-license distribution. There is no requirement to maintain a parallel
 MIT-only asset set after 1.0.0.

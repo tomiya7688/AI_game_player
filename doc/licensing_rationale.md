@@ -44,6 +44,8 @@ Third-party Model/Runtime -> upstream Licenseのまま自動取得
 
 現在の開発版はPlayer Seat用画像を同梱し、Asset Packの`pack.json`に画像のSHA-256、上流commit、Tomiya Character License v1.0.1を記録しています。開発用wheel/sdistとWindows bundleにも画像を含めます。
 
+これはmanifestの宣言であり、権利や再配布条件の確認が完了した証拠ではありません。Issue #19の開発素材ライセンス受入れ未確定という状態は保持し、権利・同梱一覧の確認を#124/#228で追跡します。
+
 1.0.0用にすーぱーあいこんへ差し替える処理は未実装です。開発版の同梱内容を、将来の1.0.0 MIT中心の配布条件を満たした成果物とは扱いません。
 
 一方、すーぱーあいこんは既にMITで公開されており、1.0.0の「MIT中心の配布物」にそのまま使えます。
