@@ -1,4 +1,4 @@
-from dataclasses import replace
+from dataclasses import asdict, replace
 from fractions import Fraction
 import json
 import math
@@ -205,6 +205,31 @@ def partial_quality_domain():
     return domain("partial_quality")
 
 
+def planning_result_diagnostic(result):
+    """Bounded metadata only: never include state, forecasts, frames or free errors."""
+    now = time.monotonic_ns()
+    return json.dumps(
+        {
+            "outcome": result.outcome,
+            "reason": result.reason,
+            "reason_codes": getattr(result, "reason_codes", ()),
+            "completed_depth": result.completed_depth,
+            "limit_enforcement": result.limit_enforcement,
+            "counters": asdict(result.counters),
+            "received_before_cutoff": result.created_at_ns
+            < result.compute_cutoff_at_ns,
+            "fresh_at_assert": result.created_at_ns <= now < result.expires_at_ns,
+            "receipt_to_compute_cutoff_ns": result.compute_cutoff_at_ns
+            - result.created_at_ns,
+            "receipt_to_expiry_ns": result.expires_at_ns - result.created_at_ns,
+            "receipt_age_ns": now - result.created_at_ns,
+            "run_generation": result.run_generation,
+        },
+        sort_keys=True,
+        ensure_ascii=True,
+    )[:2048]
+
+
 class ExpectimaxPlannerTests(unittest.TestCase):
     def belief(
         self,
@@ -307,7 +332,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
 
     def test_multiple_worlds_and_chance_match_independent_fraction_oracle(self):
         result = self.run_plan()
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertEqual(result.selected_action_id, "right")
         expected_left = Fraction(1, 4) * (
             Fraction(3, 4) * Fraction(4, 5) + Fraction(1, 4) * Fraction(-4, 5)
@@ -358,7 +385,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 wall_time_ms=1000,
             ),
         )
-        self.assertEqual(result.completed_depth, 3)
+        self.assertEqual(result.completed_depth, 3, planning_result_diagnostic(result))
         self.assertGreater(result.counters.cache_hits, 0)
         self.assertLessEqual(result.counters.peak_cache_entries, 2)
         self.assertLessEqual(result.counters.cache_bytes, 1000)
@@ -389,15 +416,19 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             read_with_old_checkpoint,
         ):
             result = self.run_plan(budget=SearchBudget(max_depth=3, wall_time_ms=1000))
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
-        self.assertEqual(result.completed_depth, 3)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
+        self.assertEqual(result.completed_depth, 3, planning_result_diagnostic(result))
 
     def test_infeasible_common_future_sequence_keeps_completed_shallow_depth(self):
         result = self.run_plan(
             factory="split_legal_domain",
             budget=SearchBudget(max_depth=3, wall_time_ms=1000),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertEqual(result.completed_depth, 1)
         self.assertEqual(result.continuation_semantics, "one_step")
         self.assertEqual(result.reason, "no_common_future_sequence")
@@ -537,8 +568,10 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 allow_conditional_selection=True,
             ),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
-        self.assertEqual(result.completed_depth, 2)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
+        self.assertEqual(result.completed_depth, 2, planning_result_diagnostic(result))
         self.assertEqual(result.probability_semantics, "conditional_score")
         self.assertEqual(result.residual_unknown_mass, 1)
         for action in result.action_values:
@@ -653,7 +686,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             allowed=("left",),
             budget=SearchBudget(max_depth=3, wall_time_ms=300),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertEqual(result.completed_depth, 1)
         self.assertEqual(result.reason, "compute_budget")
         self.assertLess(result.created_at_ns, result.compute_cutoff_at_ns)
@@ -807,7 +842,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             budget=SearchBudget(max_depth=1, wall_time_ms=1000),
             current_belief=lambda: store.read(belief.context),
         )
-        self.assertEqual(result.outcome, PlanningOutcome.SELECT)
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
         self.assertNotIn(
             "2048-move-left", {item.action_id for item in result.action_values}
         )

@@ -60,6 +60,10 @@ Windows比較は既存language CIに独立jobとしてseed479/480/481を並列�
 
 Windows比較CLIは各providerの終了直後、成果物保存前に有界JSON要約をflushしてjobログへ残します。初期化・実行・観測・score評価・Stop/旧世代検証の失敗段階、固定理由と元Core理由、返却済み実行結果に基づく入力件数、score OCRの可否、経過時間、Stop/旧世代検証の実施結果を区別します。未実施はunverifiedで、成功へ置き換えません。raw frame・profile・環境設定は要約に含めません。旧Windows比較失敗は成果物の取得制限により詳細原因が未確定で、親Coreの凸平均修正だけで解消したとは扱いません。最新headのWindows実測で再確認します。
 
+診断追加後のWindowsではCycling/Baselineが12入力した後、全文OCRが得点を読めずscore評価で失敗しました。別にPlannerのcompute budget後の保留と、Store照合失敗も記録されました。ログには元/最後に照合したSnapshotの版・期限・clock、capture age、plan/fresh capture/verification/Safety/dispatchの到達時間を有界に追加し、TTL失効・登録差替・clock不一致・Snapshot更新を分けます。診断はStoreを更新せず、期限や照合基準を緩めません。
+
+得点評価は同じ画面の確信度0.65以上のSCOREラベルから数字行を切り出し、3倍拡大・PSM7の数字語彙で読み直せます。2種類の幅で同じ数字を読み、文字矩形がcrop端に接しない場合だけ元frame座標へ戻し、既存strict parserでラベルとの位置と確信度を照合します。BESTや盤面数字を得点の代わりにしません。全文PSMで欠落していた[保存実画像の1824/1808を約0.96の確信度で回復](../validation/planning_score_line_ocr.json)しました。これはLinux OCR再読の証拠で、Windows実入力の合格証拠ではありません。評価専用の値はSource/Planner/学習へ戻さず、判読不可はunknownのままです。短Windows比較も少なくとも1回の認識盤面の変化を必須にし、入力メッセージ送信だけで全noopの試行を合格させません。この比較指標は行動成功の因果ラベルではありません。
+
 ## 固定seed headless比較
 
 [eb59ba5 / Journal・125ms共通周期の9episode記録](../validation/planning_headless_journal_eb59.json)。source/hash/dirtyは開始・終了で一致しました。Python Randomのcommon streamを合法移動ごとに使用し、ChromiumのLCG familyとは別実験です。各providerの探索/選択条件を固定し、最適化前の重複予測traceを含む条件で測りました。
@@ -91,6 +95,14 @@ trace参照はstable event ID・内容SHA256・status/`actual_outcome:false`・�
 [bb864886 / Journal・1000ms settle・3provider×3seed上限180手の全結果](../validation/planning_browser_journal_bb864.json)はsource/hash/dirtyが両端一致しました。Cycling score1332/1140/1256（全終局、無効7）、Baseline664/1344/1448（全終局、無効15）。Plannerは479で135手/134遷移照合、480で131手/130照合の後に256tile glowによるunknown cellで停止し、481だけ180手上限/score2312/max256/180照合/無効0/Stop後送信0でした。**Planner失敗2/3を落とした平均を作りません。** 修正は#659へ追跡し、修正版は別SHA/別cohortで測定します。
 
 この旧helperの失敗trialではcapture例外後の前boardがlast_stateへ残り、terminal未検証flagと途中scoreが不十分でした。旧値を成功の根拠に使わず、元primaryerror・入力数・完了数・最終画像を保持します。新helperの前state消去/未完action保存/evaluation-only score/null/Journal参照化による記録改善を、旧cohortへ遡って実測したとは扱いません。
+
+## 修正後の既定depth2実画面cohort
+
+[e6c7b66の固定sourceで3provider×3seedを実行した全結果](../validation/planning_browser_depth2_e6c7.json)は、初期/終了source hash・clean状態が全試行で一致しました。各seedを独立processで並列実行し、4CPUのcloud quotaを共有しました。同じ1000ms settle・LCG seed479/480/481・180手上限で、Cycling score1332/1140/1256（平均1242.67）、Baseline664/1344/1448（平均1152）、Planner2268/2244/2268（平均2260）でした。最大tileはPlannerの3試行すべて256です。
+
+全1337入力はunique receipt・明示完了観測・盤面遷移照合の件数と一致し、全9試行で画面からのmerge reward合計と判断後の独立visible scoreが一致しました。Stop後送信・mismatch・unverified・cleanup errorは0。noopはCycling7/Baseline15/Planner0です。Planner540手は519手でdepth2、残り21手で予算内に完成したdepth1を使いました。要求depth2/400msを固定し、既定を下げて失敗を隠していません。
+
+Planner全試行が180手上限で生存したためsurvivalは打切りで、勝利ではありません。3seedの記述的な結果であり、統計的有意性、他ゲーム、未校正world riskの解決、Windowsでの優位性を主張しません。decision p50はPlanner1475～1525ms、p95は1595～1618msで、1000ms settleと共有CPU負荷を含み、探索単体やisolated性能ではありません。CPU/RSSもhost processだけでbrowser/workerを除く測定です。旧depth1の失敗cohortを保存したまま、#659 ROI修正とCore数値修正を含む別headの結果として扱います。以後のWindows専用score再読・診断追補はこの固定source実測へ遡って適用したとは扱いません。
 
 ## 参照化の限定cost検証
 

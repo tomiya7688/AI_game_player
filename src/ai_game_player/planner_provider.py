@@ -76,6 +76,10 @@ class PlannerDecisionProvider:
         self.last_planning_result: PlanningResult | None = None
         self.last_policy_decision: PlanningPolicyDecision | None = None
         self.last_planning_audit: dict[str, Any] = {}
+        self._runtime_started_ns = 0
+        self._runtime_marks: dict[str, int] = {}
+        self._latest_belief: Any = None
+        self._belief_failure: str | None = None
 
     # {
     #   責務: [prepare_planning_context: Engineが固定した実観測をこの判断へ結び付ける]
@@ -92,6 +96,10 @@ class PlannerDecisionProvider:
         candidates: tuple[ActionCandidate, ...],
     ) -> None:
         self._guard = None
+        self._runtime_started_ns = self.clock_ns()
+        self._runtime_marks = {}
+        self._latest_belief = None
+        self._belief_failure = None
         self._authorized_capture = None
         self._prepared = None
         self.last_planning_result = None
@@ -143,6 +151,7 @@ class PlannerDecisionProvider:
             prepared.registration_id
         )
         self._assert_current_belief()
+        self.note_runtime_stage("prepared")
 
     # {
     #   責務: [validate_execution_observation: 操作後Outcomeへcached入力前Frameを渡さない]
@@ -190,6 +199,7 @@ class PlannerDecisionProvider:
         ):
             self._episode.reset_scope(source, prepared.goal_id, now)
         allowed = tuple(context.allowed_action_ids)
+        self.note_runtime_stage("plan_start")
         result = self.planner.plan(
             prepared.belief,
             allowed,
@@ -197,8 +207,9 @@ class PlannerDecisionProvider:
             budget=self.search_budget,
             current_belief=self._current_belief,
         )
-        self._assert_current_belief()
+        self.note_runtime_stage("plan_end")
         self.last_planning_result = result
+        self._assert_current_belief()
         assert self._policy is not None
         decision = self._policy.decide(
             result,
@@ -211,6 +222,7 @@ class PlannerDecisionProvider:
             observation_model=prepared.observation_model,
         )
         self.last_policy_decision = decision
+        self.note_runtime_stage("policy_end")
         self.last_planning_audit = {
             "schema": "planning.runtime/v1",
             "status": decision.outcome.value,
@@ -281,6 +293,7 @@ class PlannerDecisionProvider:
         self._authorized_capture = self._guard.validate_fresh(
             observation, candidates, self.adapter, generation, self.clock_ns()
         )
+        self.note_runtime_stage("fresh_validated")
 
     # {
     #   責務: [check_planned_dispatch: backend直前にも選択失効/Run世代を再検査する]
@@ -293,6 +306,7 @@ class PlannerDecisionProvider:
             if self._authorized_capture is None:
                 self._withhold("planning_fresh_check_missing")
             self._guard.check_authority(generation, self.clock_ns())
+            self.note_runtime_stage("dispatch_checked")
 
     # {
     #   責務: [_current_belief: 現Storeと登録版を探索中にも再照会する]
@@ -300,6 +314,7 @@ class PlannerDecisionProvider:
     #   引数: [なし] 戻り値: [現行SnapshotまたはNone]
     # }
     def _current_belief(self) -> Any:
+        self._latest_belief = None
         if self.adapter is None or self._prepared is None:
             return None
         if (
@@ -315,7 +330,10 @@ class PlannerDecisionProvider:
         ):
             return None
         try:
-            return self.adapter.current_belief(self._prepared.belief.context)
+            self._latest_belief = self.adapter.current_belief(
+                self._prepared.belief.context
+            )
+            return self._latest_belief
         except (ValueError, TypeError):
             return None
 
@@ -326,7 +344,92 @@ class PlannerDecisionProvider:
     # }
     def _assert_current_belief(self) -> None:
         if self._prepared is None or self._current_belief() != self._prepared.belief:
+            self._belief_failure = (
+                "snapshot_unavailable"
+                if self._latest_belief is None
+                else "snapshot_changed"
+            )
+            if self._prepared is not None:
+                if self.clock_ns() >= self._prepared.belief.expires_at_ns:
+                    self._belief_failure = "observation_expired"
+                elif (
+                    getattr(self.planner, "registrations", {}).get(
+                        self._prepared.registration_id
+                    )
+                    != self._registration
+                ):
+                    self._belief_failure = "registration_changed"
+                elif (
+                    getattr(
+                        self.planner, "clock_id", self._prepared.belief.context.clock_id
+                    )
+                    != self._prepared.belief.context.clock_id
+                ):
+                    self._belief_failure = "clock_mismatch"
             self._withhold("planning_belief_or_registration_changed")
+
+    # {
+    #   責務: [note_runtime_stage: 固定stageの経過時刻だけを有界に記録する]
+    #   処理: [I/Oや判断変更を行わず、最終到達時刻を同じ時計で保持する]
+    #   引数: [stage: 許可済み工程名] 戻り値: [なし] エラー: [ValueError: 未定義工程]
+    # }
+    def note_runtime_stage(self, stage: str) -> None:
+        if stage not in {
+            "prepared",
+            "plan_start",
+            "plan_end",
+            "policy_end",
+            "fresh_read_start",
+            "fresh_read_end",
+            "fresh_validated",
+            "verification_end",
+            "safety_end",
+            "dispatch_checked",
+        }:
+            raise ValueError("unknown planning diagnostic stage")
+        self._runtime_marks[stage] = max(0, self.clock_ns() - self._runtime_started_ns)
+
+    # {
+    #   責務: [runtime_diagnostics: 元/最後に照会した仮説版と期限・工程時間だけを返す]
+    #   処理: [Store再読や更新、観測fact生成をせず、推論内容やraw画素を出さない]
+    #   引数: [なし] 戻り値: [dict: 有界numeric/reference診断]
+    # }
+    def runtime_diagnostics(self) -> dict[str, Any]:
+        expected = self._prepared.belief if self._prepared is not None else None
+        latest = self._latest_belief
+
+        # {
+        #   責務: [reference: 仮説内容を含めず版・時計・期限へ投影する]
+        #   引数: [snapshot: 最後に照合した不変仮説] 戻り値: [dictまたはNone]
+        # }
+        def reference(snapshot: Any) -> dict[str, Any] | None:
+            if snapshot is None:
+                return None
+            return {
+                "snapshot_id": snapshot.context.snapshot_id,
+                "version": snapshot.hypothesis_set_version,
+                "expires_at_ns": snapshot.expires_at_ns,
+                "clock_id": snapshot.context.clock_id,
+            }
+
+        return {
+            "expected": reference(expected),
+            "latest": reference(latest),
+            "capture_age_at_prepare_ns": (
+                self._runtime_started_ns
+                - ObservationFreshness.from_observation(
+                    self._observation
+                ).captured_at_ns
+                if self._observation is not None and expected is not None
+                else None
+            ),
+            "now_ns": self.clock_ns(),
+            "stage_elapsed_ns": dict(self._runtime_marks),
+            "belief_failure": self._belief_failure,
+            "core_reason": self.last_planning_result.reason
+            if self.last_planning_result is not None
+            else None,
+        }
 
     # {
     #   責務: [acknowledge_planned_execution: 実送信receiptだけで次の実観測を要求する]

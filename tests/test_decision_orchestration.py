@@ -128,11 +128,20 @@ class DecisionOrchestrationTests(unittest.TestCase):
                 source, Path(directory), Provider([PlanningOutcome.OBSERVE_MORE] * 3)
             )
             try:
-                result = DecisionOrchestrator(pipeline, max_reobservations=2).run()
+                orchestrator = DecisionOrchestrator(pipeline, max_reobservations=2)
+                result = orchestrator.run()
                 self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
                 self.assertEqual(result.reobservations, 2)
                 self.assertEqual(source.fresh_reads, 2)
                 self.assertEqual(pipeline.execution_history.load(), [])
+                self.assertEqual(len(orchestrator.last_diagnostics), 3)
+                self.assertEqual(
+                    [item["reobservations"] for item in orchestrator.last_diagnostics],
+                    [0, 1, 2],
+                )
+                self.assertTrue(
+                    all(item["reason_codes"] for item in orchestrator.last_diagnostics)
+                )
             finally:
                 pipeline.close()
 

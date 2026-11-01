@@ -354,6 +354,28 @@ class PlannerProviderTests(unittest.TestCase):
         result = DecisionOrchestrator(pipeline).run(execute=True)
         self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
         self.assertEqual(backend.actions, [])
+        diagnostic = self.provider.runtime_diagnostics()
+        self.assertEqual(diagnostic["belief_failure"], "registration_changed")
+        self.assertIsNone(diagnostic["latest"])
+        self.assertIn("plan_end", diagnostic["stage_elapsed_ns"])
+
+    def test_expired_store_lookup_is_diagnosed_separately_from_new_snapshot(self):
+        def expire(result):
+            self.provider.clock_ns = lambda: 10**12
+            self.adapter.current_belief = lambda context: None
+            return result
+
+        self.planner.after = expire
+        pipeline, _, backend = self.pipeline()
+        result = DecisionOrchestrator(pipeline).run(execute=True)
+        self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
+        self.assertEqual(backend.actions, [])
+        diagnostic = self.provider.runtime_diagnostics()
+        self.assertEqual(diagnostic["belief_failure"], "observation_expired")
+        self.assertIsNone(diagnostic["latest"])
+        self.assertGreaterEqual(
+            diagnostic["now_ns"], diagnostic["expected"]["expires_at_ns"]
+        )
 
     def test_stale_sensor_store_rejection_is_a_nonaction_not_baseline_fallback(self):
         pipeline, source, backend = self.pipeline()
