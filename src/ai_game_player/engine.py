@@ -45,7 +45,7 @@ _ALLOWED_CANDIDATES_CONTEXT: ContextVar[tuple[ActionCandidate, ...] | None] = (
 
 # {
 #   責務: [GamePlayerEngine: 許可候補の判断・信頼性検査・実操作Outcome追跡とJournal保存を管理する]
-#   フィールド: [decision_verifier: provider回答を画面と候補へ照合する検査器, trace: snapshotに判断根拠と実行結果を結ぶ追記履歴, event_journal: 指定時に履歴を保存するSession Journal]
+#   フィールド: [decision_verifier: provider回答を画面と候補へ照合する検査器, trace: snapshotに判断根拠と実行結果を結ぶ追記履歴, event_journal: 指定時に履歴を保存するSession Journal, knowledge_adapter: 一stepへ固定する任意soft evidence投影器]
 #   処理: [停止世代guard内で履歴を公開し、planned判断と実行受領記録を分離し、実操作後の明示観測だけを同世代へ帰属する]
 # }
 class GamePlayerEngine:

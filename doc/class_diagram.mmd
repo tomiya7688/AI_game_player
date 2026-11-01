@@ -141,6 +141,11 @@ classDiagram
         +find_orphans()
         +check_integrity()
     }
+    ArtifactStore <|-- BoundedArtifactStore
+    Protocol <|-- BoundedArtifactStore
+    class BoundedArtifactStore {
+        +read_bounded()
+    }
     class FileSystemArtifactStore {
         +__init__()
         +put()
@@ -627,6 +632,19 @@ classDiagram
         +recognize()
         +_find_board_region()
         +_read_cell()
+    }
+    class Game2048State {
+        +__post_init__()
+        +terminated()
+    }
+    class ReferenceGame2048TransitionModel {
+        +apply_action()
+        +chance_outcomes()
+        +apply_slide()
+        +spawn_outcomes()
+        +sample_spawn()
+        +continue_game()
+        +restart()
     }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
@@ -1477,6 +1495,25 @@ classDiagram
         +_notify_finished_subscribers()
         +_finish_locked()
         +_capture_loop()
+    }
+    Generic <|-- SimulationKey
+    class SimulationKey {
+    }
+    class SimulationProvider {
+        +__init__()
+        +register()
+        +get_model()
+    }
+    Generic <|-- ActionTransition
+    class ActionTransition {
+    }
+    Generic <|-- ChanceOutcome
+    class ChanceOutcome {
+    }
+    Protocol <|-- TransitionModel
+    class TransitionModel {
+        +apply_action()
+        +chance_outcomes()
     }
     class PlayerSeat {
         +__init__()

@@ -2,9 +2,7 @@
 
 from hashlib import sha256
 import json
-import os
 from pathlib import Path
-import stat
 from typing import Any
 
 from ai_game_player.atomic_json import stage_json_write
@@ -14,6 +12,7 @@ from ai_game_player.knowledge_snapshot import _unique_object
 from ai_game_player.knowledge_light_validation import light_canonical_events
 from ai_game_player.knowledge_update_sample import KnowledgeUpdateSample
 from ai_game_player.cross_process_lock import cross_process_file_lock
+from ai_game_player.bounded_file import read_regular_file
 
 
 MAX_PENDING_EVENTS = 128
@@ -29,27 +28,10 @@ MAX_PENDING_BYTES = 1024 * 1024
 def read_pending_deltas(
     path: Path, scope: KnowledgeScope
 ) -> tuple[ExperienceEvent, ...]:
-    if not path.exists():
-        return ()
-    if not stat.S_ISREG(path.lstat().st_mode):
-        raise ValueError("pending checkpoint requires a regular file")
-    flags = (
-        os.O_RDONLY
-        | getattr(os, "O_BINARY", 0)
-        | getattr(os, "O_NOFOLLOW", 0)
-        | getattr(os, "O_NONBLOCK", 0)
-    )
-    descriptor = os.open(path, flags)
     try:
-        info = os.fstat(descriptor)
-        if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_PENDING_BYTES:
-            raise ValueError("pending checkpoint exceeds its contract")
-        with os.fdopen(descriptor, "rb", closefd=False) as stream:
-            payload = stream.read(MAX_PENDING_BYTES + 1)
-    finally:
-        os.close(descriptor)
-    if len(payload) > MAX_PENDING_BYTES:
-        raise ValueError("pending checkpoint exceeds its contract")
+        payload = read_regular_file(path, max_bytes=MAX_PENDING_BYTES)
+    except FileNotFoundError:
+        return ()
     value = json.loads(payload, object_pairs_hook=_unique_object)
     if (
         not isinstance(value, dict)

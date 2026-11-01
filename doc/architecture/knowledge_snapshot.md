@@ -48,6 +48,15 @@ artifact type `knowledge.snapshot`を使います。内容はデータだけで�
 | `created_at` / `expires_at` | timezone付きUTC。任意のexpires_atは作成時刻より後にし、期限ちょうどから利用を拒否します。 |
 
 全体は1MiB、候補・遷移表は各4096、source範囲・watermarkは各1024を上限とします。
+JSON Schemaは構造・文字列長・UTC表記・credential prefix・ROI各成分を検査します。
+ROIの成分和、時刻の前後関係、暦日の妥当性、件数とwatermarkの関係は
+`KnowledgeSnapshot.from_dict`の意味検査を必須とします。標準JSON Schemaだけでは
+これらの任意成分間の演算を表現できないため、schemaにも実行時制約を注記しています。
+
+source範囲は採用済み標本、`processed_sources`は入力を検査済みのcursorです。
+採用sourceにはcursorが必要で、最後の採用sequence以上でなければなりません。
+相関重複を棄却してもcursorは進むため、cursorが採用範囲より先にある場合や、
+採用標本がないsourceのcursorを保持する場合は有効です。
 NaN、Infinity、不正整数、JSON重複キー、余分なフィールド、パスや自由文の識別子、
 既知のcredential prefixを拒否します。不透明IDへ任意の秘密を入れてよいという意味ではありません。
 呼出側はPlayer名やOCR原文等をIDへ流用せず、登録済みIDや不透明なhash参照を渡してください。
@@ -56,6 +65,7 @@ NaN、Infinity、不正整数、JSON重複キー、余分なフィールド、�
 
 `KnowledgeSnapshot.from_dict(value)`は検証済みcanonical UTF-8 bytesを保持します。
 入力辞書と`to_dict()`の戻り値を後から変更してもSnapshotは変わりません。
+固定schemaのshapeと文字列長を先に確認してから、全体上限付きでcanonical JSONへ変換します。
 `to_bytes()`と`sha256`はArtifactや評価対象の内容を固定するために使います。
 
 `KnowledgeSnapshotStore(root).save(snapshot)`は既存`FileSystemArtifactStore`を利用し、
@@ -63,6 +73,11 @@ SHA付きの`ArtifactReference`を返します。同一内容の保存は同じ�
 scopeとversionはhashにしてindex pathへ使い、他ゲームや他Playerのデータを探索しません。
 版ごとの既存cross-process lockと`stage_json_write`を使ってindexを原子的に公開します。
 既存の版を上書きせず、同じ版で異なる内容や破損indexを見つけた場合は保存を拒否します。
+lock取得は0.5秒を上限に`TimeoutError`となります。待機を自動的に延長せず、
+呼出側が上限付き再試行または今回の保存の見送りを選びます。
+index公開後は既存Artifact Storeのdirectory同期を再利用します。POSIXでは親directoryを
+fsyncしますが、Windowsの既存同期実装はno-opであり、同等の電源断耐性は未検証です。
+原子的な読取可視性と、電源断後の永続性を同一の保証として扱いません。
 
 Artifact保存後にindex公開が失敗する場合、未参照objectが残ることがあります。
 既存Artifact Storeのorphan検出とretention/GC（#18/#164）の対象にし、読込成功扱いにしません。
@@ -85,8 +100,11 @@ scope不一致は`scope_mismatch`を返します。失敗時のSnapshotと参照
 失敗したpayloadや内部ファイルパスは理由文へ含めません。
 
 indexは最大4KiB、Artifact metadataは16KiB、Snapshot payloadは1MiBまで読みます。
-このため既存Artifact Storeに`read_bounded`を追加し、上限+1byteを超えた時点で
-JSON復元前に拒否します。通常のArtifact `read`の契約は変更していません。
+このためFileSystemArtifactStoreの`read_bounded`と任意capabilityの
+`BoundedArtifactStore` protocolを追加し、上限+1byteを超えた時点でJSON復元前に拒否します。
+既存の`ArtifactStore` protocolと通常のArtifact `read`の契約は変更していません。
+通常ファイルであることを開く前と開いたFDで検査し、POSIXではnonblocking/no-followを
+使うため、FIFOなどの非通常ファイルを待ちません。metadataのartifact typeも照合します。
 既存の参照・metadata・サイズ・SHA照合は上限付き読込でも維持します。
 
 ## Privacy・retention・安全境界
