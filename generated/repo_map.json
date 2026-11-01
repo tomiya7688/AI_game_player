@@ -46419,6 +46419,55 @@
       "dependencies": [],
       "imports": [
         {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_outcome",
+      "path": "src/ai_game_player/planning_outcome.py",
+      "source_location": {
+        "end_line": 15,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningOutcome",
+          "parameters": [],
+          "qualified_name": "PlanningOutcome",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 15,
+            "start_line": 11
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
           "kind": "import",
           "level": 0,
           "line": 3,

@@ -1192,6 +1192,10 @@ classDiagram
         +_bind_execution_stop_checker()
         +_safety_context()
     }
+    str <|-- PlanningOutcome
+    Enum <|-- PlanningOutcome
+    class PlanningOutcome {
+    }
     str <|-- PlayerState
     Enum <|-- PlayerState
     class PlayerState {
