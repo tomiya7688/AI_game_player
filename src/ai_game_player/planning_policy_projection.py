@@ -107,18 +107,30 @@ def project_world_values(
 ) -> tuple[
     tuple[str, ...], tuple[float, ...], tuple[tuple[tuple[float, float], ...], ...], str
 ]:
-    ids = tuple(item.hypothesis_id for item in belief.candidates)
+    calibrated = belief.weight_kind == BeliefWeightKind.CALIBRATED_PROBABILITY
+    candidates = tuple(
+        item for item in belief.candidates if not calibrated or item.weight.value > 0
+    )
+    ids = tuple(item.hypothesis_id for item in candidates)
+    zero_ids = {
+        item.hypothesis_id
+        for item in belief.candidates
+        if calibrated and item.weight.value == 0
+    }
     if not ids or not actions:
         raise ValueError("planning policy requires represented worlds and actions")
     maps = [
         {item.hypothesis_id: item for item in action.hypothesis_values}
         for action in actions
     ]
-    if any(set(mapped) != set(ids) for mapped in maps):
+    if any(
+        not set(ids).issubset(mapped) or set(mapped) - set(ids) - zero_ids
+        for mapped in maps
+    ):
         raise ValueError("planning policy hypothesis coverage differs from belief")
     rows = []
     possible_actions = []
-    for candidate in belief.candidates:
+    for candidate in candidates:
         row = []
         for mapped in maps:
             value = mapped[candidate.hypothesis_id]
@@ -160,9 +172,5 @@ def project_world_values(
         disagreement = "disagreement"
     else:
         disagreement = "unknown"
-    weights = (
-        (1.0,)
-        if conditional
-        else tuple(item.weight.value for item in belief.candidates)
-    )
+    weights = (1.0,) if conditional else tuple(item.weight.value for item in candidates)
     return ids, weights, tuple(rows), disagreement

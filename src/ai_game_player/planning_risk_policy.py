@@ -67,7 +67,8 @@ class PlanningRiskPolicy:
     #   引数: [result/belief: 565探索と元集合, context/goal_id/run_generation: 現在の実行authority,
     #     allowed_action_ids/hard_veto_action_ids: 現在のhard候補境界, deadline_ns: このpolicy処理期限,
     #     observation_model/observation_cost: 校正channelまたは未導入時の同価値単位費用,
-    #     computation: 同尺度の追加計算利益上界/費用, can_escalate: 追加判断要求を許可。Remote同意ではない]
+    #     computation: 同尺度の追加計算利益上界/費用, can_escalate: 追加判断要求を許可。Remote同意ではない,
+    #     preserve_continuation_menu: 観測後にも同じ固定tail menuを使うconsumerの明示保証。deep観測要求に必須]
     #   戻り値: [PlanningPolicyDecision: SELECTでも最終Verifier/Safetyが必要。保留を入力fallbackで無視しない]
     #   エラー: [ValueError: 現在authority自体が不正。探索の失敗/不正/timeoutはABSTAIN]
     # }
@@ -86,13 +87,17 @@ class PlanningRiskPolicy:
         observation_cost: float = 0.1,
         computation: PlanningComputationEstimate | None = None,
         can_escalate: bool = False,
+        preserve_continuation_menu: bool = False,
     ) -> PlanningPolicyDecision:
         if type(context) is not BeliefContext or not isinstance(belief, BeliefSnapshot):
             raise ValueError("planning policy requires typed current authority")
         belief_id(goal_id)
         belief_integer(run_generation)
         belief_integer(deadline_ns)
-        if type(can_escalate) is not bool:
+        if (
+            type(can_escalate) is not bool
+            or type(preserve_continuation_menu) is not bool
+        ):
             raise ValueError("escalation permission must be explicit")
         used_requests, used_cost = self.episode.usage
         decision = PlanningPolicyDecision(
@@ -152,6 +157,9 @@ class PlanningRiskPolicy:
                 continuation_semantics=getattr(
                     result, "continuation_semantics", "one_step"
                 ),
+                information_scope="root_action_menu"
+                if result.completed_depth == 1
+                else "fixed_continuation_policy_menu",
             )
             calibrated = result.probability_semantics == "calibrated"
             conditional = (
@@ -252,7 +260,9 @@ class PlanningRiskPolicy:
                 provenance=provenance,
             )
             self._check_deadline(started, cutoff)
-            if policy_information_upper <= cost:
+            if result.completed_depth > 1 and not preserve_continuation_menu:
+                reasons.append("reoptimized_continuation_voi_unknown")
+            elif policy_information_upper <= cost:
                 reasons.append("observation_upper_bound_below_cost")
             elif observation_model is not None:
                 gain = (

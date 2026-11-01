@@ -13,7 +13,7 @@ from ai_game_player.planning_risk import planning_value
 #   フィールド: [context/belief_version: 評価対象, hypothesis_ids: likelihood列の順番,
 #     signal_likelihoods: signal行×hypothesis列のq(signal|world)。各列の和は1,
 #     model_id/model_version/calibration_id: trusted producerと校正の参照,
-#     evaluator_id/evaluator_version: costとQの同じ価値尺度を照合する参照,
+#     evaluator_id/evaluator_version/quality_profile_version: costとQの同じ価値尺度を照合する参照,
 #     cost: normalized planning valueと同じ単位の観測費用。自己申告confidenceではない,
 #     withhold_value: 保留した場合の同単位価値。未計測ならNone、便宜的に0としない]
 # }
@@ -31,6 +31,7 @@ class PlanningObservationModel:
     evaluator_version: str
     value_unit: str = "normalized_quality.v1"
     withhold_value: float | None = None
+    quality_profile_version: str = "default.1"
 
     # {
     #   責務: [__post_init__: 有限観測channelの出所・shape・各条件付き分布を検証する]
@@ -50,6 +51,7 @@ class PlanningObservationModel:
             self.evaluator_id,
             self.evaluator_version,
             self.value_unit,
+            self.quality_profile_version,
         ):
             belief_id(identifier)
         planning_value(self.cost, 0.0, 2.0)

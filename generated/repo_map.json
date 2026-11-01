@@ -47045,7 +47045,7 @@
       "module": "ai_game_player.planning_information",
       "path": "src/ai_game_player/planning_information.py",
       "source_location": {
-        "end_line": 175,
+        "end_line": 177,
         "start_line": 1
       },
       "symbols": [
@@ -47067,7 +47067,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 75,
+            "end_line": 77,
             "start_line": 21
           }
         },
@@ -47090,8 +47090,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 42
+            "end_line": 77,
+            "start_line": 43
           }
         },
         {
@@ -47112,8 +47112,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 89,
-            "start_line": 85
+            "end_line": 91,
+            "start_line": 87
           }
         },
         {
@@ -47153,8 +47153,8 @@
           "signature": "(weights: tuple[float, ...], action_bounds: tuple[tuple[tuple[float, float], ...], ...], unknown_mass: float, channel: tuple[tuple[float, ...], ...] | None = …) -> PlanningInformationValue",
           "source_location": {
             "column": 0,
-            "end_line": 175,
-            "start_line": 100
+            "end_line": 177,
+            "start_line": 102
           }
         }
       ]
@@ -47313,7 +47313,7 @@
       "module": "ai_game_player.planning_observation_policy",
       "path": "src/ai_game_player/planning_observation_policy.py",
       "source_location": {
-        "end_line": 173,
+        "end_line": 175,
         "start_line": 1
       },
       "symbols": [
@@ -47388,7 +47388,7 @@
           "signature": "(belief: BeliefSnapshot[Any], actions: tuple[PlanningActionValue, ...], model: PlanningObservationModel, current_risks: tuple[PlanningActionRisk, ...], config: PlanningRiskPolicyConfig, check_deadline: Callable[[], int]) -> PlanningObservationPolicyGain | None",
           "source_location": {
             "column": 0,
-            "end_line": 173,
+            "end_line": 175,
             "start_line": 38
           }
         }
@@ -47584,7 +47584,7 @@
       "module": "ai_game_player.planning_policy_authority",
       "path": "src/ai_game_player/planning_policy_authority.py",
       "source_location": {
-        "end_line": 102,
+        "end_line": 103,
         "start_line": 1
       },
       "symbols": [
@@ -47689,7 +47689,7 @@
           "signature": "(estimate: PlanningObservationModel | PlanningComputationEstimate, result: PlanningResult) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 102,
+            "end_line": 103,
             "start_line": 90
           }
         }
@@ -47806,7 +47806,7 @@
       "module": "ai_game_player.planning_policy_contract",
       "path": "src/ai_game_player/planning_policy_contract.py",
       "source_location": {
-        "end_line": 144,
+        "end_line": 148,
         "start_line": 1
       },
       "symbols": [
@@ -47873,7 +47873,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 84,
+            "end_line": 86,
             "start_line": 55
           }
         },
@@ -47896,8 +47896,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 84,
-            "start_line": 72
+            "end_line": 86,
+            "start_line": 73
           }
         },
         {
@@ -47918,8 +47918,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 106,
-            "start_line": 95
+            "end_line": 108,
+            "start_line": 97
           }
         },
         {
@@ -47940,8 +47940,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 144,
-            "start_line": 124
+            "end_line": 148,
+            "start_line": 127
           }
         }
       ]
@@ -48078,7 +48078,7 @@
       "module": "ai_game_player.planning_policy_projection",
       "path": "src/ai_game_player/planning_policy_projection.py",
       "source_location": {
-        "end_line": 168,
+        "end_line": 176,
         "start_line": 1
       },
       "symbols": [
@@ -48148,7 +48148,7 @@
           "signature": "(belief: BeliefSnapshot[Any], actions: tuple[PlanningActionValue, ...], *, conditional: bool = …) -> tuple[tuple[str, ...], tuple[float, ...], tuple[tuple[tuple[float, float], ...], ...], str]",
           "source_location": {
             "column": 0,
-            "end_line": 168,
+            "end_line": 176,
             "start_line": 102
           }
         }
@@ -49015,7 +49015,7 @@
       "module": "ai_game_player.planning_risk",
       "path": "src/ai_game_player/planning_risk.py",
       "source_location": {
-        "end_line": 103,
+        "end_line": 104,
         "start_line": 1
       },
       "symbols": [
@@ -49113,7 +49113,7 @@
           "signature": "(outcomes: tuple[tuple[float, float], ...], unknown_mass: float, *, alpha: float = …, catastrophic_value: float = …) -> PlanningTailRisk",
           "source_location": {
             "column": 0,
-            "end_line": 103,
+            "end_line": 104,
             "start_line": 52
           }
         }
@@ -49425,7 +49425,7 @@
       "module": "ai_game_player.planning_risk_policy",
       "path": "src/ai_game_player/planning_risk_policy.py",
       "source_location": {
-        "end_line": 408,
+        "end_line": 418,
         "start_line": 1
       },
       "symbols": [
@@ -49445,7 +49445,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 408,
+            "end_line": 418,
             "start_line": 42
           }
         },
@@ -49574,15 +49574,21 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "can_escalate"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "preserve_continuation_menu"
             }
           ],
           "qualified_name": "PlanningRiskPolicy.decide",
           "return_annotation": "PlanningPolicyDecision",
-          "signature": "(self, result: PlanningResult, belief: BeliefSnapshot[Any], *, context: BeliefContext, goal_id: str, allowed_action_ids: tuple[str, ...], run_generation: int, deadline_ns: int, hard_veto_action_ids: tuple[str, ...] = …, observation_model: PlanningObservationModel | None = …, observation_cost: float = …, computation: PlanningComputationEstimate | None = …, can_escalate: bool = …) -> PlanningPolicyDecision",
+          "signature": "(self, result: PlanningResult, belief: BeliefSnapshot[Any], *, context: BeliefContext, goal_id: str, allowed_action_ids: tuple[str, ...], run_generation: int, deadline_ns: int, hard_veto_action_ids: tuple[str, ...] = …, observation_model: PlanningObservationModel | None = …, observation_cost: float = …, computation: PlanningComputationEstimate | None = …, can_escalate: bool = …, preserve_continuation_menu: bool = …) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 353,
-            "start_line": 74
+            "end_line": 363,
+            "start_line": 75
           }
         },
         {
@@ -49604,8 +49610,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 362
+            "end_line": 376,
+            "start_line": 372
           }
         },
         {
@@ -49639,8 +49645,8 @@
           "signature": "(self, started: int, cutoff: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 379,
-            "start_line": 375
+            "end_line": 389,
+            "start_line": 385
           }
         },
         {
@@ -49692,8 +49698,8 @@
           "signature": "(self, decision: PlanningPolicyDecision, outcome: PlanningOutcome, reasons: list[str], started: int, cutoff: int) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 408,
-            "start_line": 388
+            "end_line": 418,
+            "start_line": 398
           }
         }
       ]
@@ -115670,7 +115676,7 @@
       "module": "tests.test_planning_risk",
       "path": "tests/test_planning_risk.py",
       "source_location": {
-        "end_line": 214,
+        "end_line": 224,
         "start_line": 1
       },
       "symbols": [
@@ -115721,7 +115727,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 214,
+            "end_line": 224,
             "start_line": 41
           }
         },
@@ -115753,6 +115759,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_small_tail_alpha_does_not_underflow_or_stop_before_tail_mass_is_filled",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_small_tail_alpha_does_not_underflow_or_stop_before_tail_mass_is_filled",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 58,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_cvar_of_mixture_can_be_worse_than_each_conditional_cvar",
           "parameters": [
             {
@@ -115767,8 +115796,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 56,
-            "start_line": 50
+            "end_line": 66,
+            "start_line": 60
           }
         },
         {
@@ -115790,8 +115819,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 64,
-            "start_line": 58
+            "end_line": 74,
+            "start_line": 68
           }
         },
         {
@@ -115813,8 +115842,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 84,
-            "start_line": 66
+            "end_line": 94,
+            "start_line": 76
           }
         },
         {
@@ -115836,8 +115865,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 100,
-            "start_line": 86
+            "end_line": 110,
+            "start_line": 96
           }
         },
         {
@@ -115859,8 +115888,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 102
+            "end_line": 125,
+            "start_line": 112
           }
         },
         {
@@ -115882,8 +115911,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 130,
-            "start_line": 117
+            "end_line": 140,
+            "start_line": 127
           }
         },
         {
@@ -115905,8 +115934,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 132
+            "end_line": 163,
+            "start_line": 142
           }
         },
         {
@@ -115928,8 +115957,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 174,
-            "start_line": 155
+            "end_line": 184,
+            "start_line": 165
           }
         },
         {
@@ -115951,8 +115980,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 196,
-            "start_line": 176
+            "end_line": 206,
+            "start_line": 186
           }
         },
         {
@@ -115974,8 +116003,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 214,
-            "start_line": 198
+            "end_line": 224,
+            "start_line": 208
           }
         }
       ]
@@ -115986,6 +116015,7 @@
         "ai_game_player.decision_context",
         "ai_game_player.decision_verifier",
         "ai_game_player.models",
+        "ai_game_player.planning_information",
         "ai_game_player.planning_outcome",
         "ai_game_player.planning_policy_contract",
         "ai_game_player.planning_reobservation",
@@ -116100,6 +116130,22 @@
           "line": 8,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.planning_outcome"
           ],
           "module": "ai_game_player.planning_outcome",
@@ -116113,7 +116159,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_policy_contract"
@@ -116133,7 +116179,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_reobservation"
@@ -116149,7 +116195,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_risk_policy"
@@ -116165,7 +116211,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_result"
@@ -116181,7 +116227,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "tools",
             "tools.planning_policy_fixture"
@@ -116206,7 +116252,7 @@
       "module": "tests.test_planning_risk_policy",
       "path": "tests/test_planning_risk_policy.py",
       "source_location": {
-        "end_line": 349,
+        "end_line": 409,
         "start_line": 1
       },
       "symbols": [
@@ -116228,8 +116274,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 349,
-            "start_line": 19
+            "end_line": 409,
+            "start_line": 20
           }
         },
         {
@@ -116251,8 +116297,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 20
+            "end_line": 25,
+            "start_line": 21
           }
         },
         {
@@ -116292,8 +116338,8 @@
           "signature": "(self, plan = …, belief = …, **kwargs)",
           "source_location": {
             "column": 4,
-            "end_line": 37,
-            "start_line": 26
+            "end_line": 38,
+            "start_line": 27
           }
         },
         {
@@ -116321,8 +116367,8 @@
           "signature": "(self, belief = …)",
           "source_location": {
             "column": 4,
-            "end_line": 46,
-            "start_line": 39
+            "end_line": 47,
+            "start_line": 40
           }
         },
         {
@@ -116344,8 +116390,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 48
+            "end_line": 56,
+            "start_line": 49
           }
         },
         {
@@ -116367,8 +116413,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 57
+            "end_line": 66,
+            "start_line": 58
           }
         },
         {
@@ -116390,8 +116436,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 67
+            "end_line": 73,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_search_may_drop_zero_probability_worlds_without_source_mismatch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_search_may_drop_zero_probability_worlds_without_source_mismatch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 117,
+            "start_line": 75
           }
         },
         {
@@ -116413,8 +116482,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 74
+            "end_line": 132,
+            "start_line": 119
           }
         },
         {
@@ -116436,8 +116505,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 105,
-            "start_line": 89
+            "end_line": 150,
+            "start_line": 134
           }
         },
         {
@@ -116459,8 +116528,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 130,
-            "start_line": 107
+            "end_line": 175,
+            "start_line": 152
           }
         },
         {
@@ -116482,8 +116551,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 132
+            "end_line": 191,
+            "start_line": 177
           }
         },
         {
@@ -116505,8 +116574,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 164,
-            "start_line": 148
+            "end_line": 209,
+            "start_line": 193
           }
         },
         {
@@ -116528,8 +116597,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 166
+            "end_line": 225,
+            "start_line": 211
           }
         },
         {
@@ -116551,8 +116620,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 188,
-            "start_line": 182
+            "end_line": 233,
+            "start_line": 227
           }
         },
         {
@@ -116574,8 +116643,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 190
+            "end_line": 250,
+            "start_line": 235
           }
         },
         {
@@ -116597,8 +116666,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 224,
-            "start_line": 207
+            "end_line": 276,
+            "start_line": 252
           }
         },
         {
@@ -116620,8 +116689,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 226
+            "end_line": 285,
+            "start_line": 278
           }
         },
         {
@@ -116643,8 +116712,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 235
+            "end_line": 313,
+            "start_line": 287
           }
         },
         {
@@ -116666,8 +116735,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 284,
-            "start_line": 263
+            "end_line": 336,
+            "start_line": 315
           }
         },
         {
@@ -116689,8 +116758,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 310,
-            "start_line": 286
+            "end_line": 370,
+            "start_line": 338
           }
         },
         {
@@ -116712,8 +116781,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 319,
-            "start_line": 312
+            "end_line": 379,
+            "start_line": 372
           }
         },
         {
@@ -116735,8 +116804,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 338,
-            "start_line": 321
+            "end_line": 398,
+            "start_line": 381
           }
         },
         {
@@ -116758,8 +116827,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 349,
-            "start_line": 340
+            "end_line": 409,
+            "start_line": 400
           }
         }
       ]
@@ -143549,7 +143618,7 @@
       "module": "tools.benchmark_planning_policy",
       "path": "tools/benchmark_planning_policy.py",
       "source_location": {
-        "end_line": 187,
+        "end_line": 188,
         "start_line": 1
       },
       "symbols": [
@@ -143584,7 +143653,7 @@
           "signature": "(world_count, action_count, seed)",
           "source_location": {
             "column": 0,
-            "end_line": 69,
+            "end_line": 70,
             "start_line": 32
           }
         },
@@ -143607,8 +143676,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 183,
-            "start_line": 72
+            "end_line": 184,
+            "start_line": 73
           }
         },
         {
@@ -143623,8 +143692,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 105,
-            "start_line": 87
+            "end_line": 106,
+            "start_line": 88
           }
         }
       ]
@@ -148121,7 +148190,7 @@
       "module": "tools.planning_policy_fixture",
       "path": "tools/planning_policy_fixture.py",
       "source_location": {
-        "end_line": 207,
+        "end_line": 208,
         "start_line": 1
       },
       "symbols": [
@@ -148242,7 +148311,7 @@
           "signature": "(belief, *, informative = …, cost = …)",
           "source_location": {
             "column": 0,
-            "end_line": 207,
+            "end_line": 208,
             "start_line": 195
           }
         }

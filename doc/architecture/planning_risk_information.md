@@ -28,7 +28,10 @@ Issue #566は、探索が返す予測分布から、操作提案・追加観測�
 
 Belief residual、未評価の分岐、traceの容量切詰めは、確率を既知leafへ再配分しません。
 未知質量を利益下限-1へ置き、期待値上限だけは+1を使います。
-このためtraceを切ると保守性が増す場合があります。未知を無害と判定するために閾値を緩めません。
+容量のために捨てたtraceは保守性を増します。#565のinterval-bin圧縮は近いleafを
+質量加重の点平均とmin/max envelopeへまとめ、全chance質量を保持します。
+この場合も点平均だけをriskへ使わず、広がった下限/上限で保守評価します。
+未知を無害と判定するために閾値を緩めません。
 catastrophic rateは指定した利益閾値以下の質量の上界であり、実世界の事故率やSafety証明ではありません。
 
 画像confidence・NumericQuality confidence・相対scoreは、worldの校正確率にしません。
@@ -41,6 +44,14 @@ depth2以降のleafは、同じ実行可能な将来policyに由来する必要�
 Domain/登録側が将来stateの完全観測を明示保証するときだけstate-conditioned Expectimaxを認めます。
 隠れたworldを知っている前提でworld別に将来maxを取った分布は、実現可能なrisk分布ではありません。
 depth>1でこの契約が不明ならABSTAINし、採用したsemanticsをPolicy Traceにも保持します。
+
+depth1の情報価値scopeは`root_action_menu`です。深い探索では、各root操作に結び付いた
+固定tail policyのメニューに対する情報価値であり、scopeは`fixed_continuation_policy_menu`です。
+情報を得た後にtailまで最適化し直す任意Planner全体のVOI上界とは呼びません。
+実OBSERVE_MOREはdepth1か、consumerが`preserve_continuation_menu=True`として
+観測後も同じ固定menuを継続することを明示した場合だけです。
+既定の深い再計画では診断だけを返し、再最適化による観測利益は未確定として扱います。
+一般的な再最適化VOI/consumer接続は#567/#409へ追跡します。
 
 ## EVPIとEVSI
 

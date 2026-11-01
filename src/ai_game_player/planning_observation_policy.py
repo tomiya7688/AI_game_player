@@ -61,6 +61,9 @@ def observation_policy_gain(
         before_lower = before_upper = model.withhold_value
     else:
         return None
+    represented = tuple(
+        candidate for candidate in belief.candidates if candidate.weight.value > 0
+    )
     conditional_maps = [
         {item.hypothesis_id: item for item in action.hypothesis_values}
         for action in actions
@@ -72,8 +75,7 @@ def observation_policy_gain(
     for signal in model.signal_likelihoods:
         check_deadline()
         masses = tuple(
-            candidate.weight.value * q
-            for candidate, q in zip(belief.candidates, signal)
+            candidate.weight.value * q for candidate, q in zip(represented, signal)
         )
         signal_probability = fsum(masses)
         if signal_probability == 0:
@@ -83,7 +85,7 @@ def observation_policy_gain(
         for action, values in zip(actions, conditional_maps):
             check_deadline()
             by_world = tuple(
-                values[candidate.hypothesis_id] for candidate in belief.candidates
+                values[candidate.hypothesis_id] for candidate in represented
             )
             coalesced: dict[tuple[float, float | None, float | None], float] = {}
             for weight, world in zip(posterior, by_world):

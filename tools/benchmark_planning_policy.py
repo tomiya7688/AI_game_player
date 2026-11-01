@@ -65,6 +65,7 @@ def scenario(world_count, action_count, seed):
         0.01,
         "evaluator",
         "v1",
+        quality_profile_version="quality.profile.v1",
     )
     return belief, result, model
 

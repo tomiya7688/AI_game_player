@@ -98,5 +98,6 @@ def validate_planning_estimate(
         or estimate.evaluator_id != result.evaluator_id
         or estimate.evaluator_version != result.evaluator_version
         or estimate.value_unit != result.value_unit
+        or estimate.quality_profile_version != result.quality_profile_version
     ):
         raise ValueError("planning information estimate source mismatch")

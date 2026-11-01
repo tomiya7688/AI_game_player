@@ -61,6 +61,7 @@ class PlanningComputationEstimate:
     evaluator_id: str
     evaluator_version: str
     value_unit: str = "normalized_quality.v1"
+    quality_profile_version: str = "default.1"
 
     # {
     #   責務: [__post_init__: 外部見積を有限の出所付き入力へ限定する]
@@ -80,6 +81,7 @@ class PlanningComputationEstimate:
             self.evaluator_id,
             self.evaluator_version,
             self.value_unit,
+            self.quality_profile_version,
         ):
             belief_id(value)
 
@@ -118,7 +120,8 @@ class PlanningActionRisk:
 #     global_risk_known: 未校正worldならFalse, continue_computation: 有益な追加計算の提案,
 #     observation_requests/observation_cost/spent_ns: episode消費と今回policy所要,
 #     provenance: 評価器/モデル/観測channel/外部gain参照。実観測記録ではない,
-#     continuation_semantics: one_step/open_loop_mpc/state_observed_expectimax。無効sourceではunknown]
+#     continuation_semantics: one_step/open_loop_mpc/state_observed_expectimax。無効sourceではunknown,
+#     information_scope: root_action_menuまたはfixed_continuation_policy_menu。任意再最適化のVOIではない]
 # }
 @dataclass(frozen=True, slots=True)
 class PlanningPolicyDecision:
@@ -142,3 +145,4 @@ class PlanningPolicyDecision:
     spent_ns: int = 0
     provenance: tuple[str, ...] = ()
     continuation_semantics: str = "unknown"
+    information_scope: str = "unknown"

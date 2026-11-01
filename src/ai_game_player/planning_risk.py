@@ -83,19 +83,20 @@ def lower_tail_risk(
         catastrophe += unknown_mass
     checked.sort()
     remaining = alpha
-    integral = 0.0
+    average = 0.0
     quantile = checked[-1][0]
     for value, mass in checked:
         take = min(remaining, mass)
-        integral += value * take
+        # Divide the probability first so a subnormal alpha cannot erase the loss.
+        average += value * (take / alpha)
         remaining -= take
-        if remaining <= 1e-15:
+        if remaining <= 0:
             quantile = value
             break
     return PlanningTailRisk(
         max(-1.0, expected_known - unknown_mass),
         min(1.0, expected_known + unknown_mass),
-        max(-1.0, min(1.0, integral / alpha)),
+        max(-1.0, min(1.0, average)),
         quantile,
         checked[0][0],
         min(1.0, catastrophe),
