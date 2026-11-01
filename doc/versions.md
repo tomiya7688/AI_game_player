@@ -12,6 +12,12 @@
 - pipの設定ファイル（場所・有無・証明書関連の設定。`global`節とコマンド別の節を区別し、環境変数を優先）を読み取り専用で記録し、pipのversion・同梱truststore・`legacy-certs`の指定から、pipが使う信頼源を表示します。ローカルのpip 26.2.2は、Windowsの信頼ストアとpip同梱certifiを使います。pip同梱certifiに対象ルートは無く、Windowsストアでは確認時点で未検出です。設定を読めない場合と`cert`指定時は`unknown`と表示します。
 - `tests.yml`の棚卸し結果をjobのログにも出力し（ランダムなトークンの`::stop-commands::`でworkflow commandの解釈を止めて出力し、レポートが無い場合は警告）、CIの実際の値を文書へ記録できるようにしました。PyInstaller配布物の確認は#515に残ります。
 
+## 2026-10-29 Provider・参照ゲーム宣言のmain追従（Issue #475 / Draft PR #177）
+
+- 最新mainの安全CI、コンテキスト削減、ソース案内を保持し、旧Draftの競合を解消します。完了済み#178のNoisy ProviderはPR #458の現行実装を使用し、旧Draftの別実装を重複として除外します。
+- Provider・設定スキーマと固定ソース宣言のcheckを追加し、リポジトリ内の必須check定義を29件へ合わせます。GitHubの実rulesetは自動変更しません。実推論・全ゲームの実プレイ・1.0配布受入れは未完了です。
+- 参照ゲーム取得では固定SHAと保存先を検証し、既存ディレクトリの取得元や未保存・無視対象ファイルを確認してから再取得します。GPU計測では不正な間隔を子の起動前に拒否し、中断時に起動した子だけを回収します。
+
 ## 2026-10-31 賢者ミスクのPlayer Seatとアプリ全体のテーマ（Issue #156 / #155の一部）
 
 - Navigatorの下部にPlayer Seatを置き、Development既定のoccupantとして賢者ミスクを表示します。64pxの原画を整数倍のnearest-neighborで128pxへ拡大し、ぼかしを入れません。表示名、状態、短い吹き出し、License名を表示し、停止・要確認以外の状態ではゆっくり上下に浮遊します。
@@ -53,10 +59,43 @@
 
 # Versions
 
+## Versioning policy
+
+Application versionとSchema/API/ABI versionは独立して管理する。
+
+### Application
+
+正式リリース前は先頭を必ず `0` とする。
+
+- `0.0.0`: 開発開始点
+- `0.0.1`: 軽微な修正・小変更
+- `0.1.0`: 大きめの機能追加・開発マイルストーン
+- `1.0.0`: 最初の正式リリース
+- `1.0.1`: 正式版のbugfix / 軽微変更
+- `1.1.0`: 通常の機能追加
+- `2.0.0`: 大規模breaking change
+
+現在の `0.1.0` は既に到達した開発マイルストーンとして維持し、巻き戻さない。
+
+### Schema / API / ABI
+
+対象contract自体が更新された時だけversionを上げる。Application version変更だけでは連動して上げない。
+
+```text
+app_version                     0.1.0
+native_runtime_abi_version      1
+inference_provider_api_version  1
+decision_context_schema         1
+experience_schema               1
+stage_envelope_schema           1
+plugin_manifest_schema          1
+```
+
+各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
+
 ## Unreleased
 
 - Issue #608: 動作順と実行場所の日本語図を追加しました。単独操作の登録済み観測と連続取得、前回判断と実入力、確認運転と実入力時の追加確認を区別し、停止競合と記録の未保証範囲を明示します。
-
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
@@ -178,6 +217,8 @@
 
 - Issue #219: Optional feature capability manifestのJSON Schema、runtime検証、required/optional dependency・lifecycle・config namespace・fallback/degraded mode宣言と検証を追加。
 
+- Issue #475 / PR #177（#174・#96・#124の部分成果）: Provider API v1のJSON契約・例、モデル候補と4参照ゲームの固定ソース宣言、ソース取得とVRAM計測の補助ツール、契約CI、1.0配布・ライセンス方針を追加します。取得済みのゲームとlockを置く`build/ci-games/`はGit管理から除外します。v1 HTTP接続・認証・Adapter適合は#238-#240、bundled実推論は#241-#244/#280、全ゲーム・実GPU・配布受入れは#96/#248-#251、release用Player Asset差替えは#155へ残します。v2汎用Task契約の正本#447と区別し、現在のNoisy Provider・2048・Player Seat実装を保持します。
+
 - Issue #94: HWNDごとの選択・隠し内容取得を追加。可視で覆われていない対象だけ画面領域から取得し、隠れた／覆われた対象はタイムアウト付きWM_PRINTへ切り替える。WM_PRINT失敗時は明示的に失敗し、別ウィンドウ画素へ誤フォールバックしないことを検証。
 
 - Windows Capture integrationで最小化・非表示のテスト用HWNDでもフレーム寸法とBGRA契約が維持されることを確認し、内容取得は保証しない制約を明記する。
@@ -245,3 +286,28 @@
 - window_message方式の実入力前に対象ウィンドウ選択を検証する。
 - 対象ウィンドウのキャプチャに失敗した場合、連続実行を停止する。
 - RuleProviderの状態評価をローカルのOutcomeEvaluatorへ統一し、Rule経路でネットワークアクセスしないようにする。
+
+
+## 1.0.0 scope
+
+1.0.0 release boundary is defined in `doc/release_1_0.md` and Issue #19.
+
+Key acceptance:
+- Windows x64 / local-first
+- distribution-root executable as the normal user entrypoint
+- bundled/automatic Local Inference setup
+- Basic Game/Window Select -> Start/Stop path
+- default privacy: telemetry/remote/raw-frame persistence/replay persistence OFF
+- routine CI: smoke-tiny endurance, standard-small functional inference, Noisy Provider robustness
+- pre-release: #179 30-minute-class automated/reference and GTX 1080 real-game acceptance
+- first-party project code/docs use MIT; Kadoka/Maru character assets use Obake License
+- final Product/Engine name must be recorded in #154 before 1.0.0
+
+
+### 1.0.0 licensing boundary
+
+- 1.0.0 first-party shipped scope is MIT-only.
+- Wise Misk artwork is excluded from 1.0.0 while its license is undecided; the planned bundled player asset is MIT-licensed Super Icon.
+- The current development manifest records Tomiya Character License v1.0.1, but that declaration does not resolve the asset-rights acceptance still open under Issue #19/#124/#228. The earlier unresolved status and 1.0.0 exclusion are retained; release-specific replacement remains tracked by #155.
+- Obake License assets are deferred to 1.1+.
+- Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.
