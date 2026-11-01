@@ -35,6 +35,13 @@ catastrophic rateは指定した利益閾値以下の質量の上界であり、
 未校正のBeliefに対するglobal確率riskは未確定です。
 仮説を条件としたchance分布と、未知worldも含めた全体のriskは別の意味を持ちます。
 
+depth2以降のleafは、同じ実行可能な将来policyに由来する必要があります。
+`continuation_semantics`は`one_step` / `open_loop_mpc` / `state_observed_expectimax`を区別します。
+既定の部分観測では全world/chanceに共通するopen-loop tailのMPCを使用し、
+Domain/登録側が将来stateの完全観測を明示保証するときだけstate-conditioned Expectimaxを認めます。
+隠れたworldを知っている前提でworld別に将来maxを取った分布は、実現可能なrisk分布ではありません。
+depth>1でこの契約が不明ならABSTAINし、採用したsemanticsをPolicy Traceにも保持します。
+
 ## EVPIとEVSI
 
 仮説hの絶対質量をw、操作aのQ区間を[L,U]、未知world質量をrとします。

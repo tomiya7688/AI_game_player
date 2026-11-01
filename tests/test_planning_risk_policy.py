@@ -54,6 +54,16 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         self.assertIn("observation_upper_bound_below_cost", result.reason_codes)
         self.assertTrue(result.global_risk_known)
 
+    def test_deep_result_without_explicit_executable_continuation_is_rejected(self):
+        plan = make_plan(self.belief)
+        shallow = self.decide(plan)
+        self.assertEqual(shallow.continuation_semantics, "one_step")
+        # Bypass a future Result constructor check to exercise this independent boundary too.
+        object.__setattr__(plan, "completed_depth", 2)
+        decision = self.decide(plan)
+        self.assertEqual(decision.outcome, PlanningOutcome.ABSTAIN)
+        self.assertIsNone(decision.selected_action_id)
+
     def test_zero_probability_world_does_not_create_action_disagreement(self):
         belief = make_belief((1.0, 0.0))
         result = self.decide(self.disagreement_plan(belief), belief)

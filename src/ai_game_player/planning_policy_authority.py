@@ -66,6 +66,15 @@ def validate_planning_source(
         )
     ):
         raise ValueError("planning source context or time mismatch")
+    continuation = getattr(result, "continuation_semantics", "one_step")
+    if continuation not in (
+        "one_step",
+        "open_loop_mpc",
+        "state_observed_expectimax",
+    ) or (result.completed_depth > 1 and continuation == "one_step"):
+        raise ValueError(
+            "deep planning requires an explicit feasible continuation policy"
+        )
     calibrated = belief.weight_kind == BeliefWeightKind.CALIBRATED_PROBABILITY
     if (result.probability_semantics == "calibrated") != calibrated:
         raise ValueError("planning probability semantics mismatch")

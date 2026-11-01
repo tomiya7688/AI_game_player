@@ -117,7 +117,8 @@ class PlanningActionRisk:
 #     probability_semantics: global_calibrated/conditional_hypothesis/unknown,
 #     global_risk_known: 未校正worldならFalse, continue_computation: 有益な追加計算の提案,
 #     observation_requests/observation_cost/spent_ns: episode消費と今回policy所要,
-#     provenance: 評価器/モデル/観測channel/外部gain参照。実観測記録ではない]
+#     provenance: 評価器/モデル/観測channel/外部gain参照。実観測記録ではない,
+#     continuation_semantics: one_step/open_loop_mpc/state_observed_expectimax。無効sourceではunknown]
 # }
 @dataclass(frozen=True, slots=True)
 class PlanningPolicyDecision:
@@ -140,3 +141,4 @@ class PlanningPolicyDecision:
     observation_cost: float = 0.0
     spent_ns: int = 0
     provenance: tuple[str, ...] = ()
+    continuation_semantics: str = "unknown"

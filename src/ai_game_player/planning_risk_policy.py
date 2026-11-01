@@ -146,7 +146,13 @@ class PlanningRiskPolicy:
             )
             if computation is not None:
                 provenance += (computation.source_ref,)
-            decision = replace(decision, provenance=provenance)
+            decision = replace(
+                decision,
+                provenance=provenance,
+                continuation_semantics=getattr(
+                    result, "continuation_semantics", "one_step"
+                ),
+            )
             calibrated = result.probability_semantics == "calibrated"
             conditional = (
                 not calibrated
