@@ -8,7 +8,7 @@
 
 これは採用方針の確定です。**Qt Shell、Rust常駐プロセス、両者の接続、安全制御の移行は未実装**です。現在の画面はTkinter、主制御・認識・判断・評価はPython、任意のWGC取得・前処理・決定論的検証はC++です。既存C ABI v1、Python実装、Tkinter、Windows E2Eを移行中も維持します。現在の配布入口はPyInstallerと既存Native DLLであり、Qt DLLを配布済みとは扱いません。確認基準は `main@c634588` のソースと #661 コメント2件です。Qt/Rustの実機性能・配布適合は未確認です。
 
-統合資料は親 `deec3e5c`（#662、#660 `175af6b`とmain `507d`を含む）へ同期しました。既存の数値Core・任意Planner・認識・Safety修正は維持し、アルゴリズムやGUIを変更するPRではありません。Windows比較の最終受入は検証中で、過去headの合格、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[現在の実行・測定・未確認事項](planner_runtime.md)を参照してください。
+統合資料は親 `f5714813`（#662、#660 `d4e15a1`とmain `507d`を含む）へ同期しました。既存の数値Core・任意Planner・認識・Safety修正は維持し、アルゴリズムやGUIを変更するPRではありません。Windows比較の最終受入は検証中で、過去headの合格、Linux数値fixture、Chromium実画面、Windows OS入力を相互の合格証拠へ転用しません。[現在の実行・測定・未確認事項](planner_runtime.md)を参照してください。
 
 Windowsのplanning通信には、旧readerを開いたままの公開20回とnative HANDLE経路30ケースの実OS証拠があります。この部分の解決を、残るscore/worker/gameplay全体の合格にはしません。親の評価専用Otsu panel、短比較だけのWGC待ちprofile、既存期限内の有界fresh再取得、決定的な最終checkpoint再読fixtureを保持し、新Windows結果で受入れを確認します。既存の実3秒再観測制約や通常600秒gateを広げた意味にも、Qt/Rustの実装証拠にも扱いません。
 
@@ -16,7 +16,7 @@ Windowsのplanning通信には、旧readerを開いたままの公開20回とnat
 
 新しい親では、Sourceの取得要求より新しい物理Frameを要求するbarrier、厳密な空ABSTAIN通知、比較だけの有界保留継続、全foreground支持の数値ROIとraw engine/model診断を追加しています。既存の予算・guard・GUIは維持します。Windowsの0画像fixture失敗や各cohortの失敗は保持し、診断やLinux再生だけで解決済みにしません。
 
-現在の評価OCRは、binaryの有効な読取を保持し、少なくとも一方が空でpairを完成できないときだけ同support/同2ROIのgrayscaleへ限定して再読する実装を含みます。値補完・O→0変換・confidence昇格は行いません。汎用Coreの共通合法手なしはNoInput、参照2048の未知cell/非終端の全空盤はstate_available=falseとして候補を公開しません。新Windowsの0回帰・実比較・startup readinessは未確定で、boardが存在するだけの旧test準備条件からsource不具合を断定しません。未完のSAFE_IDLE事前校正APIも今回の実装に含めません。
+現在の評価OCRは、binaryの有効な読取を保持し、少なくとも一方が空でpairを完成できないときだけ同support/同2ROIのgrayscaleへ限定して再読する実装を含みます。値補完・O→0変換・confidence昇格は行いません。汎用Coreの共通合法手なしはNoInput、参照2048の未知cell/非終端の全空盤はstate_available=falseとして候補を公開しません。旧activation phaseのWindows0回帰・18比較成功は保存し、新しいpreflight phaseの0回帰・実比較・startup受入は別の新CIで確認します。boardが存在するだけの旧test準備条件からsource不具合を断定しません。
 
 ## 完成時の実行場所（全てtarget/planned）
 
@@ -53,6 +53,14 @@ Pythonの既存Planner/Evaluator等は移行中の参照実装として残りま
 Command/Event/Status/Stopのwire schemaとcodecは #665、bridgeとframe所有権は #666 で確定し、今は実在APIとしません。queueの件数・byte・時間の上限は初回実装のversioned設定に含め、起動時に検証します。Stop路の優先性はqueueを別にする宣言だけで証明せず、飽和・切断・worker crashを故障注入して確認します。大画像はFrameRefで識別し、共有メモリとコピーの速度・寿命・配布負荷を比較して選びます。
 
 例えば得点欄をクリックした場合、入力受理Eventは「送信された」という事実です。ゲームが進んだという意味にはしません。操作後の新しい観測とreceiptを対応させ、結果が不明なら不明のまま表示・保存します。Qtへの表示イベントが遅れても、旧画面の入力権を復活させません。
+
+## 比較専用Python preflightと、将来のRust起動を分ける
+
+親の短Windows比較は、重い初期parityと未準備状態の有界再取得を、入力無効のSAFE_IDLEで行うPython Runtime APIを含みます。`capture_preflight(expected_rearm_token, deadline_monotonic)`はEpisode構築時の元Run tokenと同じ45秒の絶対期限を保持し、最大2回の追加fresh取得も期限を延長しません。Source cache/sequenceの更新は観測事実として扱い、Safety観測・初期化・実操作Outcomeを更新しません。処理が期限後に戻った場合も受理しません。
+
+`activate_preflight`は新物理Frameのbarrier、異なるIDと増加時刻、元5秒age、typed boardを確認し、元token、default/localの2Stop Event、所有launcher PID/HWNDとTargetState、SAFE_IDLE/未実行を照合してから既存の初期化を一度だけ呼びます。遅着、Stop、公開待ちの取消、二重activation、ACTIVE/Recovery/閉鎖は拒否します。OS呼出しそのものを強制中断できるとは主張しません。既定600秒Campaignと通常observeの初回arm/後続receipt完了、GUI停止挙動は変更しません。
+
+これは現在の比較専用Python実装であり、次節のRust boot SAFE_IDLEやIPCを完成させた意味ではありません。旧18episodeの成功をこの新activation phaseへ転用せず、新headのWindows結果を待ちます。起動前テストは元15秒/0.25秒poll/4Arrow期待のままstate_availableも待つ修正で、4候補を未準備の空盤へ強制公開する変更ではありません。
 
 ## IPCの権限と再起動の境界（いずれも予定）
 

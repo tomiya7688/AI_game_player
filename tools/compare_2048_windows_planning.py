@@ -175,16 +175,21 @@ def run_episode(
             planning_settle_ms=1000,
             native_preprocessing=True,
             wgc_timeout_ms=250,
+            comparison_preflight=True,
             test_seed=seed,
             event_journal=journal,
         )
+        preflight_token = episode.pipeline.controller.rearm_token
         result["frame_preprocessing_profile"] = getattr(
             episode.source, "frame_preprocessing_profile", "unknown"
         )
         result["seed_fixture"] = episode.launcher.server.test_seed_metadata
         phase = "initial_observation"
         ready_deadline = time.monotonic() + SCREEN_READY_TIMEOUT_SECONDS
-        state = episode.observe(timeout_seconds=SCREEN_READY_TIMEOUT_SECONDS)
+        state = episode.capture_preflight(
+            expected_rearm_token=preflight_token,
+            deadline_monotonic=ready_deadline,
+        )
         result["initial_max_tile"] = state.max_tile
         phase = "preprocessing_validation"
         result["preprocessing_attempts"] = []
@@ -205,7 +210,9 @@ def run_episode(
                 break
             # A new physical observation is required; do not relabel the cached unknown frame.
             episode.source.not_before = max(episode.source.not_before, time.monotonic())
-            state = episode.observe(timeout_seconds=remaining)
+            state = episode.capture_preflight(
+                expected_rearm_token=preflight_token, deadline_monotonic=ready_deadline
+            )
         if (
             not result["preprocessing_validation"]["match"]
             or time.monotonic() >= ready_deadline
@@ -216,10 +223,13 @@ def run_episode(
         # Validation consumed time; plan from a newly accepted real frame without extending TTL.
         phase = "post_validation_observation"
         episode.source.not_before = max(episode.source.not_before, time.monotonic())
-        state = episode.observe(timeout_seconds=ready_deadline - time.monotonic())
+        state = episode.activate_preflight(
+            expected_rearm_token=preflight_token,
+            deadline_monotonic=ready_deadline,
+        )
         if time.monotonic() >= ready_deadline:
             raise RuntimeError("comparison initial observation ready deadline expired")
-        initial_token = episode.pipeline.controller.rearm_token
+        initial_token = preflight_token
         for attempt_index in range(max_steps):
             episode.pipeline.controller.ensure_running(initial_token)
             if state.terminal:
