@@ -1,0 +1,1061 @@
+{
+  "schema_version": 1,
+  "head": "8dc0c03b56d4f9d2feb255d9b0b25d1fbf3635d5",
+  "job_id": 124975460495,
+  "ci_event": "push",
+  "raw_report_name": "windows-8dc0-score479-failure.json",
+  "raw_report_sha256": "727530cafdd692750a85967b206930ae07c77ab0e0990e9acf1e39728af9ffcc",
+  "scope": "all three providers from the failed push seed479 comparison job; failure retained alongside both successful providers",
+  "episodes": [
+    {
+      "provider": "cycling",
+      "seed": 479,
+      "success": true,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "confirmed_actual_actions": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "score_status": "verified_ocr",
+      "score": 36,
+      "score_confidence": 0.96,
+      "last_capture": {
+        "request_started_ns": 290945732400,
+        "produced_at_ns": 290980550800,
+        "host_received_ns": 290980694200,
+        "native_frame_id": null,
+        "backend": "gdi",
+        "frame_size": [
+          904,
+          648
+        ],
+        "gdi_method": "bitblt",
+        "fallback_error_type": "RuntimeError",
+        "fallback_timeout": false,
+        "fallback_reason": "wgc_future_timestamp",
+        "timestamp_semantics": "host_GDI_acquisition",
+        "host_clock_implementation": "QueryPerformanceCounter()",
+        "clock_epoch_verified": true,
+        "window_snapshot": {
+          "status": "available",
+          "diagnostic_only": true,
+          "scope": "selected_owned_window_geometry_only",
+          "snapshot_started_ns": 290980721500,
+          "snapshot_finished_ns": 290980900800,
+          "selected_hwnd": 131430,
+          "selected_pid": 7920,
+          "frame_size": [
+            904,
+            648
+          ],
+          "window_rect_ltrb": [
+            60,
+            60,
+            964,
+            708
+          ],
+          "client_rect_ltrb": [
+            0,
+            0,
+            890,
+            641
+          ],
+          "client_screen_origin": [
+            67,
+            60
+          ],
+          "dpi": 96,
+          "visible": true,
+          "iconic": false,
+          "foreground_hwnd": 131430,
+          "foreground_pid": 7920,
+          "foreground_is_selected": true,
+          "foreground_pid_is_selected": true
+        },
+        "frame_age_ns": 370600,
+        "raw_frame_sha256": "173f1eb2d4aad44b93a7c676fb2d5f7f5a1111cbad1e68bb34ef881b68bc28bf",
+        "board_bbox": [
+          260,
+          232,
+          375,
+          375
+        ],
+        "board_semantic_signature": "7dd67211526b8beeb73819d636c0949a02bc9ed3201da34c87c2fb66ba65b675",
+        "age_after_analysis_ns": 297120600
+      },
+      "recent_captures": [
+        {
+          "request_started_ns": 286736150300,
+          "produced_at_ns": 286759244100,
+          "host_received_ns": 286759380600,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 286759404400,
+            "snapshot_finished_ns": 286759567000,
+            "selected_hwnd": 131430,
+            "selected_pid": 7920,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131430,
+            "foreground_pid": 7920,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 342400,
+          "raw_frame_sha256": "4f31da443928d157abb1e39a7d195383d38d4cea86a507d5a280dd5db7fd20bf",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "544ef9289a37045971d2844bdfd5a166471e60e9765205ed3b6532ed98c20294",
+          "age_after_analysis_ns": 285186900
+        },
+        {
+          "request_started_ns": 288126637500,
+          "produced_at_ns": 288152819400,
+          "host_received_ns": 288152955500,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 288152978700,
+            "snapshot_finished_ns": 288153144400,
+            "selected_hwnd": 131430,
+            "selected_pid": 7920,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131430,
+            "foreground_pid": 7920,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 344100,
+          "raw_frame_sha256": "c072a9511a0674d72d3baa199b7425a1319d340a60a9eb3c9aa08cabdd39a54c",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "1ad36aafbd44bbc1aef27f3e2e8d9e4a8a166f0368b797b902b217f0354eb498",
+          "age_after_analysis_ns": 286433800
+        },
+        {
+          "request_started_ns": 289523418200,
+          "produced_at_ns": 289556404800,
+          "host_received_ns": 289556541800,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 289556565700,
+            "snapshot_finished_ns": 289556731900,
+            "selected_hwnd": 131430,
+            "selected_pid": 7920,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131430,
+            "foreground_pid": 7920,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 347700,
+          "raw_frame_sha256": "97b842817008cd6629b276e4f410f1f0d126d7a71507f041c544aa156983f14b",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "bab92ecdf3a8cce91c2b22082b8dde8da296a4289a9f53c6925ca335472aeeff",
+          "age_after_analysis_ns": 289865900
+        },
+        {
+          "request_started_ns": 290945732400,
+          "produced_at_ns": 290980550800,
+          "host_received_ns": 290980694200,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 290980721500,
+            "snapshot_finished_ns": 290980900800,
+            "selected_hwnd": 131430,
+            "selected_pid": 7920,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131430,
+            "foreground_pid": 7920,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 370600,
+          "raw_frame_sha256": "173f1eb2d4aad44b93a7c676fb2d5f7f5a1111cbad1e68bb34ef881b68bc28bf",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "7dd67211526b8beeb73819d636c0949a02bc9ed3201da34c87c2fb66ba65b675",
+          "age_after_analysis_ns": 297120600
+        }
+      ],
+      "failure_header": null,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected"
+    },
+    {
+      "provider": "baseline",
+      "seed": 479,
+      "success": false,
+      "failure_stage": "initial_observation",
+      "failure_type": "RuntimeError",
+      "failure_message": "comparison preflight ready deadline expired",
+      "confirmed_actual_actions": 0,
+      "decision_attempt_count": 0,
+      "holds": 0,
+      "score_status": "unavailable",
+      "score": null,
+      "score_confidence": null,
+      "last_capture": {
+        "request_started_ns": 340813613900,
+        "produced_at_ns": 341095095200,
+        "host_received_ns": 341095229300,
+        "native_frame_id": null,
+        "backend": "gdi",
+        "frame_size": [
+          904,
+          648
+        ],
+        "gdi_method": "bitblt",
+        "fallback_error_type": "NativeRuntimeError",
+        "fallback_timeout": true,
+        "fallback_reason": "wgc_timeout",
+        "timestamp_semantics": "host_GDI_acquisition",
+        "host_clock_implementation": "QueryPerformanceCounter()",
+        "clock_epoch_verified": true,
+        "window_snapshot": {
+          "status": "available",
+          "diagnostic_only": true,
+          "scope": "selected_owned_window_geometry_only",
+          "snapshot_started_ns": 341095252800,
+          "snapshot_finished_ns": 341095417500,
+          "selected_hwnd": 131606,
+          "selected_pid": 1476,
+          "frame_size": [
+            904,
+            648
+          ],
+          "window_rect_ltrb": [
+            60,
+            60,
+            964,
+            708
+          ],
+          "client_rect_ltrb": [
+            0,
+            0,
+            890,
+            641
+          ],
+          "client_screen_origin": [
+            67,
+            60
+          ],
+          "dpi": 96,
+          "visible": true,
+          "iconic": false,
+          "foreground_hwnd": 131606,
+          "foreground_pid": 1476,
+          "foreground_is_selected": true,
+          "foreground_pid_is_selected": true
+        },
+        "frame_age_ns": 473800,
+        "raw_frame_sha256": "6ce4aa6039a01508893e4826ec02bca64ea373c07940248128aef9865a052476",
+        "board_bbox": [
+          260,
+          232,
+          375,
+          375
+        ],
+        "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+        "age_after_analysis_ns": 212653900
+      },
+      "recent_captures": [
+        {
+          "request_started_ns": 337819274100,
+          "produced_at_ns": 338102673800,
+          "host_received_ns": 338102808100,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 338102833300,
+            "snapshot_finished_ns": 338103000900,
+            "selected_hwnd": 131606,
+            "selected_pid": 1476,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131606,
+            "foreground_pid": 1476,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 473800,
+          "raw_frame_sha256": "6ce4aa6039a01508893e4826ec02bca64ea373c07940248128aef9865a052476",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 212883100
+        },
+        {
+          "request_started_ns": 338816244800,
+          "produced_at_ns": 339100334000,
+          "host_received_ns": 339100460400,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 339100484200,
+            "snapshot_finished_ns": 339100648600,
+            "selected_hwnd": 131606,
+            "selected_pid": 1476,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131606,
+            "foreground_pid": 1476,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 461700,
+          "raw_frame_sha256": "6ce4aa6039a01508893e4826ec02bca64ea373c07940248128aef9865a052476",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 212655100
+        },
+        {
+          "request_started_ns": 339813326200,
+          "produced_at_ns": 340097226100,
+          "host_received_ns": 340097362200,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 340097385900,
+            "snapshot_finished_ns": 340097555800,
+            "selected_hwnd": 131606,
+            "selected_pid": 1476,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131606,
+            "foreground_pid": 1476,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 476500,
+          "raw_frame_sha256": "6ce4aa6039a01508893e4826ec02bca64ea373c07940248128aef9865a052476",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 213094200
+        },
+        {
+          "request_started_ns": 340813613900,
+          "produced_at_ns": 341095095200,
+          "host_received_ns": 341095229300,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 341095252800,
+            "snapshot_finished_ns": 341095417500,
+            "selected_hwnd": 131606,
+            "selected_pid": 1476,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131606,
+            "foreground_pid": 1476,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 473800,
+          "raw_frame_sha256": "6ce4aa6039a01508893e4826ec02bca64ea373c07940248128aef9865a052476",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 212653900
+        }
+      ],
+      "failure_header": {
+        "event": "windows_planning_failure_header",
+        "schema_version": 1,
+        "status": "unavailable",
+        "provider": "baseline",
+        "seed": 479,
+        "reason": "invalid_frame"
+      },
+      "stop_probe": "unverified",
+      "stale_generation_probe": "unverified"
+    },
+    {
+      "provider": "planner",
+      "seed": 479,
+      "success": true,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "confirmed_actual_actions": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "score_status": "verified_ocr",
+      "score": 52,
+      "score_confidence": 0.96,
+      "last_capture": {
+        "request_started_ns": 374796733100,
+        "produced_at_ns": 374825470900,
+        "host_received_ns": 374825599600,
+        "native_frame_id": null,
+        "backend": "gdi",
+        "frame_size": [
+          904,
+          648
+        ],
+        "gdi_method": "bitblt",
+        "fallback_error_type": "RuntimeError",
+        "fallback_timeout": false,
+        "fallback_reason": "wgc_future_timestamp",
+        "timestamp_semantics": "host_GDI_acquisition",
+        "host_clock_implementation": "QueryPerformanceCounter()",
+        "clock_epoch_verified": true,
+        "window_snapshot": {
+          "status": "available",
+          "diagnostic_only": true,
+          "scope": "selected_owned_window_geometry_only",
+          "snapshot_started_ns": 374825623100,
+          "snapshot_finished_ns": 374825789800,
+          "selected_hwnd": 459220,
+          "selected_pid": 4180,
+          "frame_size": [
+            904,
+            648
+          ],
+          "window_rect_ltrb": [
+            60,
+            60,
+            964,
+            708
+          ],
+          "client_rect_ltrb": [
+            0,
+            0,
+            890,
+            641
+          ],
+          "client_screen_origin": [
+            67,
+            60
+          ],
+          "dpi": 96,
+          "visible": true,
+          "iconic": false,
+          "foreground_hwnd": 459220,
+          "foreground_pid": 4180,
+          "foreground_is_selected": true,
+          "foreground_pid_is_selected": true
+        },
+        "frame_age_ns": 337400,
+        "raw_frame_sha256": "d37f14d8730a38ad35bbe3d3001d4f535674cf778ff30df1699e5065c595035d",
+        "board_bbox": [
+          260,
+          232,
+          375,
+          375
+        ],
+        "board_semantic_signature": "664e46f6ded3e3da40d858f01351bb18ff00b4164fa2d20ed6854ed3fdabfec9",
+        "age_after_analysis_ns": 285234800
+      },
+      "recent_captures": [
+        {
+          "request_started_ns": 371248072200,
+          "produced_at_ns": 371270497000,
+          "host_received_ns": 371270628400,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 371270652500,
+            "snapshot_finished_ns": 371270816000,
+            "selected_hwnd": 459220,
+            "selected_pid": 4180,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 459220,
+            "foreground_pid": 4180,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 337500,
+          "raw_frame_sha256": "8b8914828eb74b43cba1a5ddb25a1efce76051288e730a557638ecddd0427bf3",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "f094ce254d030d9c956d9db6dae50a6b0fd11ff5ecb78308c96d27cc0cf72810",
+          "age_after_analysis_ns": 287386200
+        },
+        {
+          "request_started_ns": 372617999400,
+          "produced_at_ns": 372650743400,
+          "host_received_ns": 372650877600,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 372650905000,
+            "snapshot_finished_ns": 372651079500,
+            "selected_hwnd": 459220,
+            "selected_pid": 4180,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 459220,
+            "foreground_pid": 4180,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 354900,
+          "raw_frame_sha256": "ce5da04d36372d4effabb85fe35b8d10b39fe6881c245606549de6ac2336de10",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "7a56453a7f6c73e41e140ec94b2ad7c4a7acb1b74648918b685622552ef06089",
+          "age_after_analysis_ns": 291837300
+        },
+        {
+          "request_started_ns": 373426032400,
+          "produced_at_ns": 373452710500,
+          "host_received_ns": 373452837300,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 373452862400,
+            "snapshot_finished_ns": 373453027000,
+            "selected_hwnd": 459220,
+            "selected_pid": 4180,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 459220,
+            "foreground_pid": 4180,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 335300,
+          "raw_frame_sha256": "ce5da04d36372d4effabb85fe35b8d10b39fe6881c245606549de6ac2336de10",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "7a56453a7f6c73e41e140ec94b2ad7c4a7acb1b74648918b685622552ef06089",
+          "age_after_analysis_ns": 294150400
+        },
+        {
+          "request_started_ns": 374796733100,
+          "produced_at_ns": 374825470900,
+          "host_received_ns": 374825599600,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "RuntimeError",
+          "fallback_timeout": false,
+          "fallback_reason": "wgc_future_timestamp",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 374825623100,
+            "snapshot_finished_ns": 374825789800,
+            "selected_hwnd": 459220,
+            "selected_pid": 4180,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 459220,
+            "foreground_pid": 4180,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 337400,
+          "raw_frame_sha256": "d37f14d8730a38ad35bbe3d3001d4f535674cf778ff30df1699e5065c595035d",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "664e46f6ded3e3da40d858f01351bb18ff00b4164fa2d20ed6854ed3fdabfec9",
+          "age_after_analysis_ns": 285234800
+        }
+      ],
+      "failure_header": null,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected"
+    }
+  ],
+  "interpretation": [
+    "Baseline initial_observation timed out at the unchanged 45-second readiness deadline with zero actual inputs",
+    "latest four physical GDI/BitBlt frames over about 2.99 seconds share BGRA hash6ce4 and semantic all-zero signaturea41f; this does not prove identical pixels throughout all45seconds",
+    "owned target/focus/clock/young acquisition age do not prove the browser rendered new tile pixels",
+    "last-frame retention and post-failure CDP are diagnostic instrumentation; renderer, JavaScript startup, compositing/capture and scheduling causes remain unconfirmed",
+    "new capture method, retry-green, TTL/lease/readiness extensions or accepting an unavailable zero board are not applied"
+  ],
+  "fixed_historical_exports": [
+    {
+      "kind": "recognition_failure",
+      "run_id": 41349184700,
+      "artifact_id": 13100932060,
+      "file": "runtime/episode-0002/recognition-failure-800px04c/manifest.json"
+    },
+    {
+      "kind": "control_lease_failure",
+      "run_id": 41349710044,
+      "artifact_id": 13100474424,
+      "file_scope": "fixed trace/report only"
+    }
+  ],
+  "export_limitations": [
+    "download via read-only actions/download-artifact; pinned historical diagnostics are temporary and must be removed in the next actual-cause fix",
+    "archive top-level paths have not been observed locally; unknown/missing paths fail closed and retain exit1",
+    "valid independent image/lease sections survive rejection of the other section; failure remains recorded"
+  ]
+}

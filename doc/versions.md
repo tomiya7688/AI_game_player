@@ -3,9 +3,12 @@
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
 - 修正版5ed5の画像だけを用いるdepth1実プレイではseed479/480各180手・360遷移/観測完了を照合し、元の135/131手の認識停止を越えました。測定headと限界は[認識資料](architecture/reference_2048_recognition.md)へ記録します。
 - 比較probeのOCR bboxを保持し、SCOREの位置対応・明示文字列以外の曖昧な得点をunknownへ。元失敗2画像と複数glow/scale/位置/overlay、未知色・得点負例を回帰化しました。[設計と検証範囲](architecture/reference_2048_recognition.md)。
+- 機能親37bbの一時planning IPC改善・通常OFFの失敗後診断を通常mergeし、659の認識codeとfixtureを保持。元8dcの数字tileが描画されない初期空画面、294の12保留失敗は元glow回帰と区別し、新headのWindows CIを別に要求します。
 
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- 294は63/64必須CIと両600秒Campaignが成功、PR480 Plannerの12保留/実入力0は失敗として保持。一時planning IPCだけ単一encode/flush-close/atomic publishと有界raw再利用へ分離し、一般Store/lease/Stopの永続化・400ms等の元条件は維持。取得済み固定artifact3step/actions:readを除去し、旧empty/lease原因未確定と新Windows未確認を明記します。
+- 8dcの空盤面45秒失敗とcontrol lease失効を保った一時診断を追加。同一最後frameの保全後だけ事後CDPを一度実行し、明示heartbeat memory snapshotをclose前に保存。通常OFF/元エラー/入力・lease・TTL・合否を維持。標準artifact download→bounded exportは元検査後の一時stepとし、次の原因修正で除去します。原因修正・新Windows成功は未確認です。
 - 短比較の初期parityをSAFE_IDLEで検証し、元Run token・同一絶対45秒期限・新物理frame・既存5秒age/Stopを初回activationまで保持。通常600秒経路を維持し、固定d4e15a1の新phase実Windowsは全18試行成功/213実入力=盤面変化/3保留/全Stop・旧世代拒否を確認。機能コードhashを保った資料のみの後継headの必須CIと600秒受入は別に確認します。175の旧phase全18成功/212入力/4保留は別cohortへ保存し、起動前testは元15秒/4候補で未準備を待ちます。
 - 参照2048のnonterminal全空盤は画素confidenceを保持して未準備とし、汎用Coreの共通合法手無しをcontrolled cutoffへ分離。評価OCRはbinary空時だけ同じ2ROIのgray/無whitelistへ進み、literal numeric/.65/端切れ/矛盾拒否を維持。親processの予算内工程時刻は診断だけに保持し、400ms/TTL/child wire/入力は変更しません。
 - 評価Scoreのengine差を固定128条件で診断。同RGB/modelのWin0空を保全し、whitelist/出力形式/白余白整列/階調を同じ変換で比較。選択mode/.65/入力/学習/0期待値は変更しません。

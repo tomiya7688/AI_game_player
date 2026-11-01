@@ -224,3 +224,8 @@ Issue #56 Hybrid / Native Runtimeでは、このcontractのうち高頻度・OS�
 電源断そのものの最中にkey-up callbackを実行できることは保証しない。OSが停止している間のcleanupは不可能である。
 
 保証対象は、OSが稼働している限りAI/controller processがcrash/OOM/deadlock/通信断してもleaseを更新できないため入力権限が失効し、独立watchdogがrelease処理を行うことである。
+
+
+検証用heartbeat診断は`runtime.configure_heartbeat_diagnostics(enabled=True)`を初期化前に明示指定した場合だけ有効です。通常は無効で、診断用clock取得・file書込・snapshot生成を行いません。`runtime.heartbeat_diagnostic_snapshot()`はRuntime lockを取らず、直近8件の完了heartbeatと進行中1件を32KiB未満の固定numeric/enum metadataとして返します。entry/Runtime-lock取得/persisted-read/lease-writeのmonotonic時刻と固定結果を記録します。wall Unix値は既存renew処理が既に一度取得した値と元のlease期限だけを複製し、追加でauthority用`self.clock()`を呼びません。失敗処理ではcloseが単一lease/journalを書き換える前にsnapshotを取得します。
+
+この診断は0.75秒の制御lease、5秒の観測期限、Stop/epoch/fence、fsync/atomic publication、heartbeat周期を変更しません。保存はmemoryだけで、進行中のlock/read/write待ちを調べるためのものです。OOM・不正metadata・診断時計後退は診断なし/clock_invalidへ落とし、元の返り値や例外を置き換えません。記録処理自体は少量のCPU時間を加えるため、Windowsの期限失効原因やI/O遅延の解決をこのコードだけで証明したとは扱いません。

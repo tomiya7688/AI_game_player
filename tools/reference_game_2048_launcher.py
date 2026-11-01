@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import hashlib
 from functools import partial
 import os
 import shutil
@@ -89,6 +90,14 @@ class LoopbackStaticServer:
         self._page_responses = PageResponseCounts()
         self.test_seed: int | None = None
         self.test_seed_metadata: dict | None = None
+        self.post_failure_render_diagnostics = False
+        self._resource_responses = None
+
+    def resource_response_summary(self) -> dict[str, object]:
+        """Return optional allowlist write counts; never claim browser receipt."""
+        with self._lifecycle_lock:
+            counts = self._resource_responses
+        return counts.snapshot() if counts is not None else {"status": "not_enabled"}
 
     def page_response_summary(self) -> str:
         """Return GET-page HTTP response counts, not proof of browser receipt or rendering.
@@ -122,26 +131,93 @@ class LoopbackStaticServer:
         seeded_response, self.test_seed_metadata = seeded_index(
             source_path, self.test_seed
         )
+        resource_responses = None
+        resource_names = {}
+        if self.post_failure_render_diagnostics:
+            from tools.reference_browser_diagnostics import (
+                ResourceResponseCounts,
+                RESOURCE_NAMES,
+            )
+
+            resource_responses = ResourceResponseCounts()
+            resource_names = RESOURCE_NAMES
 
         class QuietRequestHandler(SimpleHTTPRequestHandler):
             def do_GET(self) -> None:
+                self._response_status = 0
+                self._resource_name = resource_names.get(self.path.partition("?")[0])
                 if seeded_response is not None and self.path.partition("?")[0] in (
                     "/",
                     "/index.html",
                 ):
-                    self.send_response(200)
-                    self.send_header("Content-Type", "text/html; charset=utf-8")
-                    self.send_header("Content-Length", str(len(seeded_response)))
-                    self.end_headers()
-                    self.wfile.write(seeded_response)
+                    completed = False
+                    try:
+                        self.send_response(200)
+                        self.send_header("Content-Type", "text/html; charset=utf-8")
+                        self.send_header("Content-Length", str(len(seeded_response)))
+                        self.end_headers()
+                        self.wfile.write(seeded_response)
+                        completed = True
+                    finally:
+                        if resource_responses is not None:
+                            # A failed sendall may already have written a prefix.
+                            # Its byte count is unknown: 0 is a lower bound only.
+                            resource_responses.record(
+                                "page",
+                                200,
+                                len(seeded_response) if completed else 0,
+                                hashlib.sha256(seeded_response).hexdigest()
+                                if completed
+                                else None,
+                                completed,
+                                written_known=completed,
+                            )
                 else:
                     super().do_GET()
+
+            def copyfile(self, source, outputfile) -> None:
+                if resource_responses is None or self._resource_name is None:
+                    super().copyfile(source, outputfile)
+                    return
+                written = 0
+                digest = hashlib.sha256()
+                complete = False
+                try:
+                    while chunk := source.read(65536):
+                        outputfile.write(chunk)
+                        written += len(chunk)
+                        digest.update(chunk)
+                    complete = True
+                finally:
+                    resource_responses.record(
+                        self._resource_name,
+                        self._response_status,
+                        written,
+                        digest.hexdigest(),
+                        complete,
+                        written_known=complete,
+                    )
 
             def log_message(self, format: str, *args: object) -> None:
                 return
 
             def send_response(self, code: int, message: str | None = None) -> None:
                 super().send_response(code, message)
+                self._response_status = code
+                if (
+                    resource_responses is not None
+                    and code != 200
+                    and getattr(self, "_resource_name", None) is not None
+                ):
+                    # Error-body text is deliberately excluded; retain only its status.
+                    resource_responses.record(
+                        self._resource_name,
+                        code,
+                        0,
+                        hashlib.sha256(b"").hexdigest(),
+                        False,
+                        written_known=False,
+                    )
                 # A response header is not evidence that the browser received or rendered it.
                 if self.command == "GET" and self.path.partition("?")[0] in (
                     "/",
@@ -160,6 +236,7 @@ class LoopbackStaticServer:
             server.server_close()
             raise
         self._page_responses = page_responses
+        self._resource_responses = resource_responses
         self._server = server
         self._thread = thread
         self._url = f"http://127.0.0.1:{server.server_address[1]}/"
@@ -195,6 +272,7 @@ class BrowserWindowSession:
         source_path: Path,
         *,
         failure_evidence: StartupFailureEvidence | None = None,
+        post_failure_render_diagnostics: bool = False,
     ) -> None:
         self.browser_path = browser_path.resolve()
         self.source_path = source_path
@@ -205,6 +283,10 @@ class BrowserWindowSession:
         self.failure_evidence = failure_evidence
         self.failure_evidence_manifest: Path | None = None
         self.failure_evidence_error: str | None = None
+        self.post_failure_render_diagnostics = post_failure_render_diagnostics
+        self._diagnostic_url: str | None = None
+        self._render_diagnostic_claimed = False
+        self._render_diagnostic_lock = threading.Lock()
 
     def start(self, url: str, timeout_seconds: float = WINDOW_WAIT_SECONDS) -> None:
         if os.name != "nt":
@@ -235,6 +317,15 @@ class BrowserWindowSession:
                 "--disable-extensions",
                 "--disable-background-mode",
             ]
+            if self.post_failure_render_diagnostics:
+                # Validation-only opt-in; do not expose DevTools on a non-loopback interface.
+                arguments.extend(
+                    (
+                        "--remote-debugging-address=127.0.0.1",
+                        "--remote-debugging-port=0",
+                    )
+                )
+            self._diagnostic_url = url
             self.process = subprocess.Popen(
                 arguments,
                 cwd=self.source_path,
@@ -273,6 +364,34 @@ class BrowserWindowSession:
                 except Exception:
                     raise startup_error
             raise
+
+    def collect_failure_render_diagnostics(
+        self, *, failure_confirmed: bool, frame_preserved: bool
+    ) -> dict[str, object]:
+        """Inspect once after the caller preserved the failed screenshot; never retry it."""
+        if not self.post_failure_render_diagnostics:
+            return {"status": "unavailable", "reason": "not_enabled"}
+        if failure_confirmed is not True or frame_preserved is not True:
+            return {"status": "unavailable", "reason": "failure_frame_not_preserved"}
+        with self._render_diagnostic_lock:
+            if self._render_diagnostic_claimed:
+                return {"status": "unavailable", "reason": "already_attempted"}
+            self._render_diagnostic_claimed = True
+        if (
+            self._profile is None
+            or self.process is None
+            or self.window_info is None
+            or self._diagnostic_url is None
+        ):
+            return {"status": "unavailable", "reason": "owner_unavailable"}
+        from tools.reference_browser_diagnostics import inspect_failed_browser
+
+        return inspect_failed_browser(
+            Path(self._profile.name),
+            self._diagnostic_url,
+            self.process,
+            self.window_info.handle,
+        )
 
     def wait_until_closed(self, poll_seconds: float = 0.25) -> int:
         if self.process is None:
@@ -375,13 +494,16 @@ class ReferenceGame2048Launcher:
         browser_path: Path | None = None,
         *,
         failure_evidence: StartupFailureEvidence | None = None,
+        post_failure_render_diagnostics: bool = False,
     ) -> None:
         self.cache_root = cache_root
         self.browser_path = browser_path
         self.source_path: Path | None = None
         self.server = LoopbackStaticServer()
+        self.server.post_failure_render_diagnostics = post_failure_render_diagnostics
         self.browser: BrowserWindowSession | None = None
         self.failure_evidence = failure_evidence
+        self.post_failure_render_diagnostics = post_failure_render_diagnostics
 
     @property
     def url(self) -> str:
@@ -408,6 +530,9 @@ class ReferenceGame2048Launcher:
             self.server.start(self.source_path)
             self.browser = BrowserWindowSession(browser_path, self.source_path)
             self.browser.failure_evidence = self.failure_evidence
+            self.browser.post_failure_render_diagnostics = (
+                self.post_failure_render_diagnostics
+            )
             self.browser.start(self.server.url, window_wait_seconds)
         except Exception as startup_error:
             if (
@@ -434,6 +559,23 @@ class ReferenceGame2048Launcher:
             except Exception:
                 raise startup_error
             raise
+
+    def collect_failure_render_diagnostics(
+        self, *, failure_confirmed: bool, frame_preserved: bool
+    ) -> dict[str, object]:
+        """Forward the post-failure-only diagnostic without changing episode status."""
+        if self.browser is None:
+            return {"status": "unavailable", "reason": "owner_unavailable"}
+        result = self.browser.collect_failure_render_diagnostics(
+            failure_confirmed=failure_confirmed, frame_preserved=frame_preserved
+        )
+        if (
+            failure_confirmed is True
+            and frame_preserved is True
+            and self.post_failure_render_diagnostics
+        ):
+            result["server_responses"] = self.server.resource_response_summary()
+        return result
 
     def wait_until_closed(self) -> int:
         if self.browser is None:

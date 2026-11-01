@@ -82,3 +82,9 @@ Windows5.5.3で0画像のOCR回帰が残ったため、次候補は先にSCORE p
 
 
 次の機能親`d4e15a1ba5fb28f8c7b81a4ba8239056fac61c2c`は、旧launcherの元15秒deadline/4候補期待を保ったready判定修正と、短比較専用SAFE_IDLE preflightを追加する。元の絶対45秒、5秒age、元token/Stop・所有照合を緩めず、通常600秒Campaignのobserve経路は維持する。deec3の成功や旧失敗を新phaseの実証へ置換せず、新Win CIの全gatesを確認する。
+
+## 一時IPC改善との統合と初期空画面の区別
+
+機能親`37bbafb1975e79fca7307dd621b61680403a91de`を通常mergeし、発光Recognizer・得点対応関数・元fixtureを保った。一時planning request/ready/checkpoint/finishedだけの単一encode・flush-close・atomic publishと有界raw再利用は、[親の費用・条件](../validation/planning_disposable_ipc_cost.json)で追跡する。一般Store・lease・Stop・Journalの永続化、400ms等の元予算、TTL、認識閾値は維持する。この親を取り込んだheadのWindows成功は、過去cohortから引き継がず新しい両event CIで確認する。
+
+8dcの[初期空画面・lease失効の記録](../validation/planning_windows_8dc_failure_diagnostics.json)は元失敗として残す。復元された通常600秒episode2の画像は16セル背景だけで数字tileがなく、この画素はセル分類誤読を支持しない。GameManagerの初期RAF、actuatorのRAF、描画・取得面のどこで止まったかは未確定であり、659の元256発光によるROI拡大とは同一視しない。後の294は両600秒Campaignに成功したが、[PR480 Plannerの12保留/実入力0](../validation/planning_windows_294_remaining_failure.json)を失敗として保持する。失敗frame保全後だけのCDP/heartbeat診断は通常OFFで、観測への影響を明記し、Source・AI・cache・候補生成へ流入させない。ブラウザーのbackground/occlusion引数を変更した事実はない。

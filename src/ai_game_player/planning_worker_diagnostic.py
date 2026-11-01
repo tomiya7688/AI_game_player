@@ -199,6 +199,14 @@ def _present(path: Path) -> bool | None:
 
 _PARENT_MARKS = frozenset(
     (
+        "request_build_started_at_ns",
+        "request_build_finished_at_ns",
+        "request_encode_started_at_ns",
+        "request_encode_finished_at_ns",
+        "request_write_started_at_ns",
+        "request_write_closed_at_ns",
+        "request_publish_started_at_ns",
+        "request_publish_finished_at_ns",
         "directory_create_started_at_ns",
         "directory_created_at_ns",
         "spawn_started_at_ns",
