@@ -36,15 +36,36 @@ class LiveInputToolTipTests(unittest.TestCase):
             application = Application(root, observation_service=SimpleNamespace())
             root.geometry("1120x760+30000+30000")
             root.update()
-            self.assertEqual(len(tooltips), 3)
+            self.assertEqual(len(tooltips), 6)
             refresh_tooltip = tooltips[0]
             tooltip = tooltips[1]
-            resume_tooltip = tooltips[2]
+            step_tooltip = tooltips[2]
+            execute_tooltip = tooltips[3]
+            loop_tooltip = tooltips[4]
+            resume_tooltip = tooltips[5]
             self.assertIs(refresh_tooltip.widget, application.refresh_windows_button)
             self.assertEqual(refresh_tooltip.delay_ms, 400)
             self.assertEqual(
                 refresh_tooltip.text,
                 "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。",
+            )
+            self.assertIs(step_tooltip.widget, application.step_button)
+            self.assertEqual(step_tooltip.delay_ms, 400)
+            self.assertEqual(
+                step_tooltip.text,
+                "画面と候補から次の操作を1回だけ判断します。ゲームウィンドウへの実入力は行いません。",
+            )
+            self.assertIs(execute_tooltip.widget, application.execute_button)
+            self.assertEqual(execute_tooltip.delay_ms, 400)
+            self.assertEqual(
+                execute_tooltip.text,
+                "次の操作を1回判断して実行します。「実入力を許可」のチェック状態に応じて、dry-runまたは実際の操作入力を送信します。",
+            )
+            self.assertIs(loop_tooltip.widget, application.loop_button)
+            self.assertEqual(loop_tooltip.delay_ms, 400)
+            self.assertEqual(
+                loop_tooltip.text,
+                "画面観測・判断・実行のループを連続して行います。停止ボタン、Escキー、またはF12キーでいつでも停止できます。",
             )
             self.assertIs(resume_tooltip.widget, application.resume_button)
             self.assertEqual(resume_tooltip.delay_ms, 400)
@@ -139,6 +160,60 @@ class LiveInputToolTipTests(unittest.TestCase):
                 self.assertEqual(popup.winfo_children()[0].cget("text"), expected)
                 button.event_generate(end_event)
                 self.assertFalse(popup.winfo_exists())
+
+    def test_action_control_tooltips_show_on_hover_and_focus(self):
+        try:
+            root = tk.Tk()
+        except tk.TclError as error:
+            self.skipTest(f"Tk desktop is unavailable: {error}")
+        self.addCleanup(root.destroy)
+        with (
+            patch("ai_game_player.app.ConfigStore.load", return_value=AppConfig()),
+            patch("ai_game_player.app.ShellStateStore.load", return_value=ShellState()),
+            patch("ai_game_player.app.RuntimeLog"),
+            patch.object(Application, "refresh_windows"),
+            patch.object(Application, "_poll_global_stop"),
+            patch.object(Application, "_poll_background_results"),
+        ):
+            application = Application(root, observation_service=SimpleNamespace())
+            root.geometry("1120x960+30000+30000")
+            root.update()
+            controls_and_texts = (
+                (
+                    application.step_button,
+                    "画面と候補から次の操作を1回だけ判断します。ゲームウィンドウへの実入力は行いません。",
+                ),
+                (
+                    application.execute_button,
+                    "次の操作を1回判断して実行します。「実入力を許可」のチェック状態に応じて、dry-runまたは実際の操作入力を送信します。",
+                ),
+                (
+                    application.loop_button,
+                    "画面観測・判断・実行のループを連続して行います。停止ボタン、Escキー、またはF12キーでいつでも停止できます。",
+                ),
+            )
+
+            for button, expected in controls_and_texts:
+                for event, end_event in (
+                    ("<Enter>", "<Leave>"),
+                    ("<FocusIn>", "<FocusOut>"),
+                ):
+                    button.event_generate(event)
+                    root.after(450, root.quit)
+                    root.mainloop()
+                    popup = next(
+                        (
+                            child
+                            for child in button.winfo_children()
+                            if isinstance(child, tk.Toplevel)
+                        ),
+                        None,
+                    )
+                    self.assertIsNotNone(popup)
+                    self.assertTrue(popup.winfo_viewable())
+                    self.assertEqual(popup.winfo_children()[0].cget("text"), expected)
+                    button.event_generate(end_event)
+                    self.assertFalse(popup.winfo_exists())
 
     def test_resume_button_tooltip_shows_on_hover_and_focus(self):
         try:
