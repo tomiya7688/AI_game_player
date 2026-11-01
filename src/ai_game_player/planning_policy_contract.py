@@ -91,7 +91,9 @@ class PlanningComputationEstimate:
 #   フィールド: [action_id: 許可集合内の操作, expected_lower/upper: 利益区間,
 #     cvar_lower/upper: 下側CVaR区間, lower_quantile/worst_value: 悲観tail,
 #     catastrophic_upper/unknown_mass: 閾値以下質量上界とtrace不保持質量,
-#     score: risk混合順位, acceptable: soft risk条件適合。Safety許可ではない]
+#     score: risk混合順位, acceptable: soft risk条件適合。Safety許可ではない,
+#     numeric_roundoff_guard: 内部float集約のpadding最大値。統計CIではない,
+#     numerical_threshold_indeterminate: 丸め幅内の閾値を有利に確定せず保留した場合True]
 # }
 @dataclass(frozen=True, slots=True)
 class PlanningActionRisk:
@@ -106,6 +108,8 @@ class PlanningActionRisk:
     unknown_mass: float
     score: float
     acceptable: bool
+    numeric_roundoff_guard: float = 0.0
+    numerical_threshold_indeterminate: bool = False
 
 
 # {

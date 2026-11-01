@@ -53577,7 +53577,7 @@
       "module": "ai_game_player.planning_policy_contract",
       "path": "src/ai_game_player/planning_policy_contract.py",
       "source_location": {
-        "end_line": 148,
+        "end_line": 152,
         "start_line": 1
       },
       "symbols": [
@@ -53689,8 +53689,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 108,
-            "start_line": 97
+            "end_line": 112,
+            "start_line": 99
           }
         },
         {
@@ -53711,8 +53711,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 148,
-            "start_line": 127
+            "end_line": 152,
+            "start_line": 131
           }
         }
       ]
@@ -53736,7 +53736,19 @@
           "names": [
             {
               "alias": null,
+              "name": "inf"
+            },
+            {
+              "alias": null,
               "name": "isclose"
+            },
+            {
+              "alias": null,
+              "name": "nextafter"
+            },
+            {
+              "alias": null,
+              "name": "ulp"
             }
           ]
         },
@@ -53849,7 +53861,7 @@
       "module": "ai_game_player.planning_policy_projection",
       "path": "src/ai_game_player/planning_policy_projection.py",
       "source_location": {
-        "end_line": 176,
+        "end_line": 246,
         "start_line": 1
       },
       "symbols": [
@@ -53884,7 +53896,7 @@
           "signature": "(action: PlanningActionValue, config: PlanningRiskPolicyConfig, *, conditional: bool = …) -> PlanningActionRisk",
           "source_location": {
             "column": 0,
-            "end_line": 92,
+            "end_line": 162,
             "start_line": 23
           }
         },
@@ -53919,8 +53931,8 @@
           "signature": "(belief: BeliefSnapshot[Any], actions: tuple[PlanningActionValue, ...], *, conditional: bool = …) -> tuple[tuple[str, ...], tuple[float, ...], tuple[tuple[tuple[float, float], ...], ...], str]",
           "source_location": {
             "column": 0,
-            "end_line": 176,
-            "start_line": 102
+            "end_line": 246,
+            "start_line": 172
           }
         }
       ]
@@ -54792,6 +54804,10 @@
             {
               "alias": null,
               "name": "isfinite"
+            },
+            {
+              "alias": null,
+              "name": "ulp"
             }
           ]
         }
@@ -54799,7 +54815,7 @@
       "module": "ai_game_player.planning_risk",
       "path": "src/ai_game_player/planning_risk.py",
       "source_location": {
-        "end_line": 104,
+        "end_line": 120,
         "start_line": 1
       },
       "symbols": [
@@ -54821,8 +54837,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 15
+            "end_line": 25,
+            "start_line": 16
           }
         },
         {
@@ -54856,8 +54872,8 @@
           "signature": "(value: object, lower: float = …, upper: float = …) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 41,
-            "start_line": 32
+            "end_line": 44,
+            "start_line": 35
           }
         },
         {
@@ -54897,8 +54913,8 @@
           "signature": "(outcomes: tuple[tuple[float, float], ...], unknown_mass: float, *, alpha: float = …, catastrophic_value: float = …) -> PlanningTailRisk",
           "source_location": {
             "column": 0,
-            "end_line": 104,
-            "start_line": 52
+            "end_line": 120,
+            "start_line": 55
           }
         }
       ]
@@ -55209,7 +55225,7 @@
       "module": "ai_game_player.planning_risk_policy",
       "path": "src/ai_game_player/planning_risk_policy.py",
       "source_location": {
-        "end_line": 418,
+        "end_line": 420,
         "start_line": 1
       },
       "symbols": [
@@ -55229,7 +55245,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 418,
+            "end_line": 420,
             "start_line": 42
           }
         },
@@ -55371,7 +55387,7 @@
           "signature": "(self, result: PlanningResult, belief: BeliefSnapshot[Any], *, context: BeliefContext, goal_id: str, allowed_action_ids: tuple[str, ...], run_generation: int, deadline_ns: int, hard_veto_action_ids: tuple[str, ...] = …, observation_model: PlanningObservationModel | None = …, observation_cost: float = …, computation: PlanningComputationEstimate | None = …, can_escalate: bool = …, preserve_continuation_menu: bool = …) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 363,
+            "end_line": 365,
             "start_line": 75
           }
         },
@@ -55394,8 +55410,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 376,
-            "start_line": 372
+            "end_line": 378,
+            "start_line": 374
           }
         },
         {
@@ -55429,8 +55445,8 @@
           "signature": "(self, started: int, cutoff: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 389,
-            "start_line": 385
+            "end_line": 391,
+            "start_line": 387
           }
         },
         {
@@ -55482,8 +55498,8 @@
           "signature": "(self, decision: PlanningPolicyDecision, outcome: PlanningOutcome, reasons: list[str], started: int, cutoff: int) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 418,
-            "start_line": 398
+            "end_line": 420,
+            "start_line": 400
           }
         }
       ]
@@ -128344,6 +128360,856 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_policy_projection",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "fractions",
+          "names": [
+            {
+              "alias": null,
+              "name": "Fraction"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "nextafter"
+            },
+            {
+              "alias": null,
+              "name": "inf"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_projection"
+          ],
+          "module": "ai_game_player.planning_policy_projection",
+          "names": [
+            {
+              "alias": null,
+              "name": "project_action_risk"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "lower_tail_risk"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_numeric_envelopes",
+      "path": "tests/test_planning_numeric_envelopes.py",
+      "source_location": {
+        "end_line": 111,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "point"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "atoms"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "lower"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "upper"
+            }
+          ],
+          "qualified_name": "action",
+          "return_annotation": null,
+          "signature": "(point, atoms, *, lower = …, upper = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 21,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningNumericEnvelopeTests",
+          "parameters": [],
+          "qualified_name": "PlanningNumericEnvelopeTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 107,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_actual_browser_single_point_roundoff_keeps_order_and_point",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_actual_browser_single_point_roundoff_keeps_order_and_point",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_point_just_outside_intersection_does_not_restore_entire_source_range",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_point_just_outside_intersection_does_not_restore_entire_source_range",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_substantive_trace_inconsistency_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_substantive_trace_inconsistency_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 60,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mixed_cvar_threshold_has_conservative_arithmetic_padding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_mixed_cvar_threshold_has_conservative_arithmetic_padding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 79,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mixed_catastrophe_sum_at_threshold_is_not_optimistic",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_mixed_catastrophe_sum_at_threshold_is_not_optimistic",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exact_constant_tail_and_zero_catastrophe_remain_inclusive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningNumericEnvelopeTests.test_exact_constant_tail_and_zero_catastrophe_remain_inclusive",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 99
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.evaluation_quality",
+        "ai_game_player.expectimax_search",
+        "ai_game_player.planning_contract",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_reobservation",
+        "ai_game_player.planning_risk_policy",
+        "ai_game_player.transition_model",
+        "tools",
+        "tools.planning_policy_fixture"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.evaluation_quality"
+          ],
+          "module": "ai_game_player.evaluation_quality",
+          "names": [
+            {
+              "alias": null,
+              "name": "NumericQuality"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.expectimax_search"
+          ],
+          "module": "ai_game_player.expectimax_search",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExpectimaxSearch"
+            },
+            {
+              "alias": null,
+              "name": "SearchHypothesis"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_contract"
+          ],
+          "module": "ai_game_player.planning_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningDomain"
+            },
+            {
+              "alias": null,
+              "name": "PlanningRegistration"
+            },
+            {
+              "alias": null,
+              "name": "SearchBudget"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_reobservation"
+          ],
+          "module": "ai_game_player.planning_reobservation",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningDecisionEpisode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk_policy"
+          ],
+          "module": "ai_game_player.planning_risk_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.transition_model"
+          ],
+          "module": "ai_game_player.transition_model",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionTransition"
+            },
+            {
+              "alias": null,
+              "name": "ChanceOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_policy_fixture"
+          ],
+          "module": "tools.planning_policy_fixture",
+          "names": [
+            {
+              "alias": null,
+              "name": "CardWorld"
+            },
+            {
+              "alias": null,
+              "name": "make_belief"
+            },
+            {
+              "alias": null,
+              "name": "make_plan"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_policy_search_integration",
+      "path": "tests/test_planning_policy_search_integration.py",
+      "source_location": {
+        "end_line": 159,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PureChanceModel",
+          "parameters": [],
+          "qualified_name": "PureChanceModel",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 31,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "apply_action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            }
+          ],
+          "qualified_name": "PureChanceModel.apply_action",
+          "return_annotation": null,
+          "signature": "(self, state, action_id)",
+          "source_location": {
+            "column": 4,
+            "end_line": 23,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "chance_outcomes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "after"
+            }
+          ],
+          "qualified_name": "PureChanceModel.chance_outcomes",
+          "return_annotation": null,
+          "signature": "(self, after)",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FixedQuality",
+          "parameters": [],
+          "qualified_name": "FixedQuality",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 38,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "evaluate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "FixedQuality.evaluate",
+          "return_annotation": null,
+          "signature": "(self, state)",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningPolicySearchIntegrationTests",
+          "parameters": [],
+          "qualified_name": "PlanningPolicySearchIntegrationTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 159,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "trace_values"
+            }
+          ],
+          "qualified_name": "PlanningPolicySearchIntegrationTests.plan",
+          "return_annotation": null,
+          "signature": "(self, belief, *, trace_values = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "decide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "conditional"
+            }
+          ],
+          "qualified_name": "PlanningPolicySearchIntegrationTests.decide",
+          "return_annotation": null,
+          "signature": "(self, plan, belief, *, conditional = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expectimax_chance_distribution_reaches_policy_without_mean_collapse",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningPolicySearchIntegrationTests.test_expectimax_chance_distribution_reaches_policy_without_mean_collapse",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trace_compression_preserves_chance_tail_uncertainty_conservatively",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningPolicySearchIntegrationTests.test_trace_compression_preserves_chance_tail_uncertainty_conservatively",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_relative_world_ranking_never_becomes_global_probability",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningPolicySearchIntegrationTests.test_relative_world_ranking_never_becomes_global_probability",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 144
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.belief_contract",
         "ai_game_player.belief_likelihood",
         "ai_game_player.planning_information",
@@ -129071,7 +129937,7 @@
       "module": "tests.test_planning_risk_policy",
       "path": "tests/test_planning_risk_policy.py",
       "source_location": {
-        "end_line": 409,
+        "end_line": 428,
         "start_line": 1
       },
       "symbols": [
@@ -129093,7 +129959,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 409,
+            "end_line": 428,
             "start_line": 20
           }
         },
@@ -129241,6 +130107,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_deep_voi_is_fixed_menu_diagnostic_unless_consumer_preserves_menu",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_deep_voi_is_fixed_menu_diagnostic_unless_consumer_preserves_menu",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_zero_probability_world_does_not_create_action_disagreement",
           "parameters": [
             {
@@ -129255,8 +130144,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 73,
-            "start_line": 68
+            "end_line": 92,
+            "start_line": 87
           }
         },
         {
@@ -129278,8 +130167,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 75
+            "end_line": 136,
+            "start_line": 94
           }
         },
         {
@@ -129301,8 +130190,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 132,
-            "start_line": 119
+            "end_line": 151,
+            "start_line": 138
           }
         },
         {
@@ -129324,8 +130213,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 134
+            "end_line": 169,
+            "start_line": 153
           }
         },
         {
@@ -129347,8 +130236,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 152
+            "end_line": 194,
+            "start_line": 171
           }
         },
         {
@@ -129370,8 +130259,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 191,
-            "start_line": 177
+            "end_line": 210,
+            "start_line": 196
           }
         },
         {
@@ -129393,8 +130282,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 209,
-            "start_line": 193
+            "end_line": 228,
+            "start_line": 212
           }
         },
         {
@@ -129416,8 +130305,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 225,
-            "start_line": 211
+            "end_line": 244,
+            "start_line": 230
           }
         },
         {
@@ -129439,8 +130328,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 227
+            "end_line": 252,
+            "start_line": 246
           }
         },
         {
@@ -129462,8 +130351,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 250,
-            "start_line": 235
+            "end_line": 269,
+            "start_line": 254
           }
         },
         {
@@ -129485,8 +130374,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 276,
-            "start_line": 252
+            "end_line": 295,
+            "start_line": 271
           }
         },
         {
@@ -129508,8 +130397,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 285,
-            "start_line": 278
+            "end_line": 304,
+            "start_line": 297
           }
         },
         {
@@ -129531,8 +130420,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 287
+            "end_line": 332,
+            "start_line": 306
           }
         },
         {
@@ -129554,8 +130443,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 336,
-            "start_line": 315
+            "end_line": 355,
+            "start_line": 334
           }
         },
         {
@@ -129577,8 +130466,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 370,
-            "start_line": 338
+            "end_line": 389,
+            "start_line": 357
           }
         },
         {
@@ -129600,8 +130489,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 379,
-            "start_line": 372
+            "end_line": 398,
+            "start_line": 391
           }
         },
         {
@@ -129623,8 +130512,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 381
+            "end_line": 417,
+            "start_line": 400
           }
         },
         {
@@ -129646,8 +130535,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 409,
-            "start_line": 400
+            "end_line": 428,
+            "start_line": 419
           }
         }
       ]
