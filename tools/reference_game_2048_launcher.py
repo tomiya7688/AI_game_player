@@ -13,6 +13,7 @@ import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from .reference_game_2048_source import PinnedGameSource
+from .startup_failure_evidence import StartupFailureEvidence
 
 
 WINDOW_WIDTH = 1180
@@ -169,13 +170,16 @@ class LoopbackStaticServer:
 class BrowserWindowSession:
     """Own the isolated browser process, profile, and Windows target window."""
 
-    def __init__(self, browser_path: Path, source_path: Path) -> None:
+    def __init__(self, browser_path: Path, source_path: Path, *, failure_evidence: StartupFailureEvidence | None = None) -> None:
         self.browser_path = browser_path.resolve()
         self.source_path = source_path
         self.process: subprocess.Popen[bytes] | None = None
         self.window_info = None
         self.window_is_foreground: bool | None = None
         self._profile: tempfile.TemporaryDirectory[str] | None = None
+        self.failure_evidence = failure_evidence
+        self.failure_evidence_manifest: Path | None = None
+        self.failure_evidence_error: str | None = None
 
     def start(self, url: str, timeout_seconds: float = WINDOW_WAIT_SECONDS) -> None:
         if os.name != "nt":
@@ -186,6 +190,11 @@ class BrowserWindowSession:
             raise FileNotFoundError(
                 f"browser executable was not found: {self.browser_path}"
             )
+        started = time.monotonic()
+        phase_durations_ms: dict[str, float] = {}
+        wait_started: float | None = None
+        self.failure_evidence_manifest = None
+        self.failure_evidence_error = None
         try:
             self._profile = tempfile.TemporaryDirectory(prefix="kadoka-2048-browser-")
             arguments = [
@@ -209,16 +218,29 @@ class BrowserWindowSession:
                 stderr=subprocess.DEVNULL,
                 creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
             )
+            phase_durations_ms["browser_spawn"] = (time.monotonic() - started) * 1000
+            wait_started = time.monotonic()
             self.window_info = self._wait_for_window(timeout_seconds)
             self.window_is_foreground = focus_resize_browser_window(
                 self.window_info.handle, self.process.pid
             )
         except Exception as startup_error:
-            # 後処理の失敗は起動失敗の原因ではないため、暗黙の例外文脈として残す。
             try:
-                self.close()
-            except Exception:
-                raise startup_error
+                if self.failure_evidence is not None and self.process is not None:
+                    try:
+                        phase_durations_ms["startup_total"] = (time.monotonic() - started) * 1000
+                        if wait_started is not None:
+                            phase_durations_ms["window_wait"] = (time.monotonic() - wait_started) * 1000
+                        self.failure_evidence_manifest = self.failure_evidence.save(self.process.pid, phase_durations_ms)
+                    except Exception as evidence_error:
+                        # Diagnostics must never replace the original startup failure.
+                        self.failure_evidence_error = type(evidence_error).__name__
+            finally:
+                # Capture interruption must not bypass owned browser/profile cleanup either.
+                try:
+                    self.close()
+                except Exception:
+                    raise startup_error
             raise
 
     def wait_until_closed(self, poll_seconds: float = 0.25) -> int:
@@ -316,12 +338,13 @@ class BrowserWindowSession:
 class ReferenceGame2048Launcher:
     """Compose source verification, local serving, and browser-window lifecycle for 2048."""
 
-    def __init__(self, cache_root: Path, browser_path: Path | None = None) -> None:
+    def __init__(self, cache_root: Path, browser_path: Path | None = None, *, failure_evidence: StartupFailureEvidence | None = None) -> None:
         self.cache_root = cache_root
         self.browser_path = browser_path
         self.source_path: Path | None = None
         self.server = LoopbackStaticServer()
         self.browser: BrowserWindowSession | None = None
+        self.failure_evidence = failure_evidence
 
     @property
     def url(self) -> str:
@@ -347,6 +370,7 @@ class ReferenceGame2048Launcher:
             browser_path = self.browser_path or find_browser_executable()
             self.server.start(self.source_path)
             self.browser = BrowserWindowSession(browser_path, self.source_path)
+            self.browser.failure_evidence = self.failure_evidence
             self.browser.start(self.server.url, window_wait_seconds)
         except Exception as startup_error:
             if (
@@ -360,6 +384,10 @@ class ReferenceGame2048Launcher:
                 startup_error.args = (
                     f"{startup_error}; {self.server.page_response_summary()}",
                 )
+                if self.browser.failure_evidence_manifest is not None:
+                    startup_error.args = (f"{startup_error}; startup_evidence={self.browser.failure_evidence_manifest}",)
+                elif self.browser.failure_evidence_error is not None:
+                    startup_error.args = (f"{startup_error}; startup_evidence_error={self.browser.failure_evidence_error}",)
             try:
                 self.close()
             except Exception:

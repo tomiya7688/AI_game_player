@@ -12,6 +12,8 @@ classDiagram
         +record_observation()
         +heartbeat()
         +trigger_emergency_stop()
+        +ensure_initialization_not_stopped()
+        +initialize_safety()
         +rearm_safety()
         +close()
         +fail_safe_state()
@@ -141,10 +143,16 @@ classDiagram
         +find_orphans()
         +check_integrity()
     }
+    ArtifactStore <|-- BoundedArtifactStore
+    Protocol <|-- BoundedArtifactStore
+    class BoundedArtifactStore {
+        +read_bounded()
+    }
     class FileSystemArtifactStore {
         +__init__()
         +put()
         +read()
+        +read_bounded()
         +verify()
         +find_orphans()
         +check_integrity()
@@ -175,6 +183,97 @@ classDiagram
         +decide()
         +choose_context()
         +_read_snapshot()
+        +_step_weights()
+    }
+    ValueError <|-- BeliefStoreError
+    class BeliefStoreError {
+    }
+    class BeliefStorePolicy {
+        +__post_init__()
+    }
+    Generic <|-- BeliefCandidateStore
+    class BeliefCandidateStore {
+        +__init__()
+        +read()
+        +reset()
+        +publish()
+        +_collect()
+        +_make_snapshot()
+        +_is_fresh()
+        +_check_context()
+        +_check_advance()
+        +_check_deadline()
+    }
+    str <|-- BeliefWeightKind
+    Enum <|-- BeliefWeightKind
+    class BeliefWeightKind {
+    }
+    str <|-- BeliefEvidenceKind
+    Enum <|-- BeliefEvidenceKind
+    class BeliefEvidenceKind {
+    }
+    class BeliefContext {
+        +__post_init__()
+        +run_scope()
+        +to_dict()
+    }
+    class BeliefFreshness {
+        +__post_init__()
+    }
+    class BeliefWeight {
+        +__post_init__()
+    }
+    class BeliefEvidenceRef {
+        +__post_init__()
+    }
+    Generic <|-- BeliefEstimateResult
+    class BeliefEstimateResult {
+        +reobserve_requested()
+    }
+    Generic <|-- BayesianBeliefEstimator
+    class BayesianBeliefEstimator {
+        +__init__()
+        +initialize()
+        +reset()
+        +predict()
+        +observe()
+        +_check_prior()
+        +_check_observation()
+        +_posterior()
+        +_remember()
+        +_now()
+        +_check_deadline()
+        +_failure()
+        +_success()
+    }
+    class BeliefActionRef {
+        +__post_init__()
+    }
+    class BeliefLikelihoodBatch {
+        +__post_init__()
+    }
+    class BeliefEstimatorPolicy {
+        +__post_init__()
+    }
+    class BeliefDiagnostics {
+        +__post_init__()
+    }
+    Generic <|-- BeliefSnapshot
+    class BeliefSnapshot {
+        +__post_init__()
+        +reobserve_requested()
+        +entropy_lower_bound_bits()
+        +ranking_weights()
+        +to_dict()
+        +to_bytes()
+    }
+    class BoundedExpectimaxPlanner {
+        +__init__()
+        +plan()
+        +_run()
+        +_validate_checkpoint()
+        +_current_error()
+        +_fallback()
     }
     class BrightRegionDetector {
         +__init__()
@@ -333,6 +432,7 @@ classDiagram
         +_append_entry()
         +_update_entry()
         +record_action_outcome()
+        +record_execution_receipt()
         +recent()
         +recent_actions()
         +_read()
@@ -357,6 +457,11 @@ classDiagram
         +_index_candidates()
         +_build_result()
     }
+    class DeferredTraceAppend {
+        +__init__()
+        +publish()
+        +discard()
+    }
     class GamePlayerEngine {
         +__init__()
         +step()
@@ -366,6 +471,17 @@ classDiagram
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
+        +record_execution_receipt()
+        +complete_execution_observation()
+    }
+    class AxisPrediction {
+        +__post_init__()
+    }
+    class CandidatePrediction {
+        +__post_init__()
+    }
+    class EvaluationPredictionBatch {
+        +__post_init__()
     }
     class EvaluationAxis {
         +__post_init__()
@@ -392,6 +508,19 @@ classDiagram
     class EvaluationLog {
         +__init__()
         +append()
+    }
+    class EvaluationProfile {
+        +__post_init__()
+        +matches()
+        +to_dict()
+        +from_dict()
+    }
+    class NumericQuality {
+        +__post_init__()
+        +effective_value()
+        +bounds()
+        +to_dict()
+        +from_dict()
     }
     class ActionEvaluator {
         +explain()
@@ -436,6 +565,51 @@ classDiagram
         +load()
         +append()
         +_read_entries()
+    }
+    class ExecutionReceipt {
+        +__post_init__()
+        +to_dict()
+    }
+    class ExecutionObservation {
+        +__post_init__()
+        +to_dict()
+    }
+    ValueError <|-- SearchFailure
+    class SearchFailure {
+    }
+    RuntimeError <|-- SearchCutoff
+    class SearchCutoff {
+    }
+    RuntimeError <|-- SequenceInfeasible
+    class SequenceInfeasible {
+    }
+    Generic <|-- SearchHypothesis
+    class SearchHypothesis {
+        +__post_init__()
+    }
+    class NodeValue {
+    }
+    class TraceAccumulator {
+        +__init__()
+        +add()
+        +finish()
+    }
+    Generic <|-- ExpectimaxSearch
+    class ExpectimaxSearch {
+        +__init__()
+        +counters()
+        +deepen()
+        +_open_loop_root()
+        +_sequence()
+        +_root_action()
+        +_max()
+        +_action()
+        +_leaf()
+        +_legal()
+        +_freeze()
+        +_cache_put()
+        +_visit()
+        +_check()
     }
     class ArtifactReference {
         +__post_init__()
@@ -536,7 +710,10 @@ classDiagram
         +reason()
         +epoch()
         +session_id()
+        +initialize()
         +rearm()
+        +_require_initial_idle_locked()
+        +_arm_locked()
         +heartbeat()
         +record_observation()
         +make_command()
@@ -609,6 +786,19 @@ classDiagram
         +recognize()
         +_find_board_region()
         +_read_cell()
+    }
+    class Game2048State {
+        +__post_init__()
+        +terminated()
+    }
+    class ReferenceGame2048TransitionModel {
+        +apply_action()
+        +chance_outcomes()
+        +apply_slide()
+        +spawn_outcomes()
+        +sample_spawn()
+        +continue_game()
+        +restart()
     }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
@@ -685,6 +875,97 @@ classDiagram
         +_read()
         +_write()
     }
+    class KnowledgeBuildResult {
+    }
+    class KnowledgeBuilder {
+        +empty_snapshot()
+        +__init__()
+        +build()
+    }
+    class KnowledgeBuilderPolicy {
+        +__post_init__()
+        +fingerprint()
+    }
+    class KnowledgeEvaluationCase {
+        +__post_init__()
+    }
+    class KnowledgeEvaluationReport {
+        +to_dict()
+        +sha256()
+    }
+    class KnowledgeEvaluationRunner {
+        +run()
+        +_run_locked()
+    }
+    class KnowledgeFeatureAdapter {
+        +__init__()
+        +apply()
+        +project()
+        +_make_projection()
+        +_fallback()
+    }
+    class KnowledgeLightValidationPolicy {
+        +__post_init__()
+        +assess()
+        +bound_candidate()
+    }
+    class PreparedKnowledgePublication {
+        +authorize()
+    }
+    class KnowledgeProjection {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_model_dict()
+    }
+    class KnowledgePromotionResult {
+    }
+    class KnowledgePromotionGate {
+        +__init__()
+        +prepare_light_update()
+        +_prepare_light_update_reserved()
+        +acknowledge_publication()
+        +discard_prepared()
+        +initialize_champion()
+        +capture()
+        +evaluate_and_promote()
+        +rollback()
+        +audit()
+        +_record_rejection()
+        +_read_state()
+        +_commit()
+        +_lock_path()
+        +_result()
+    }
+    class KnowledgePromotionPolicy {
+        +__post_init__()
+        +assess()
+    }
+    class KnowledgeScope {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +key()
+    }
+    class KnowledgeSnapshot {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_bytes()
+        +sha256()
+        +is_expired()
+    }
+    class KnowledgeReadResult {
+    }
+    class KnowledgeSnapshotStore {
+        +__init__()
+        +save()
+        +read()
+        +_index_path()
+    }
+    class KnowledgeUpdateSample {
+        +from_event()
+    }
     class LearningCapabilityManifest {
         +__post_init__()
         +from_dict()
@@ -724,6 +1005,68 @@ classDiagram
         +__init__()
         +build()
         +_sample_record()
+    }
+    str <|-- LearningIdentityKind
+    Enum <|-- LearningIdentityKind
+    class LearningIdentityKind {
+    }
+    class LearningIdentityPolicy {
+        +__post_init__()
+        +keys()
+    }
+    class LightAdaptationMetrics {
+    }
+    class LightAdaptationRunner {
+        +__init__()
+        +capture()
+        +start()
+        +set_resources()
+        +enqueue()
+        +record_utility()
+        +metrics()
+        +utility_estimates()
+        +close()
+        +_admitted()
+        +publish_at_boundary()
+        +retry_checkpoint()
+        +_put()
+        +_drop()
+        +_run()
+        +_checkpoint_pending()
+        +_run_loop()
+        +_update_batch()
+    }
+    class LightAdaptationBudget {
+        +__post_init__()
+    }
+    class LightResourceSample {
+        +__post_init__()
+        +reason()
+    }
+    str <|-- VerifiedEffectSource
+    Enum <|-- VerifiedEffectSource
+    class VerifiedEffectSource {
+    }
+    class VerifiedActionEffect {
+        +__post_init__()
+    }
+    class LightExecutionProjector {
+        +__init__()
+        +bind()
+        +project()
+    }
+    class SessionLightAdaptation {
+        +__init__()
+        +_held_inputs()
+        +begin_step()
+        +finish_step()
+        +observe_execution()
+        +close()
+    }
+    class UtilityMeasurement {
+        +__post_init__()
+    }
+    class UtilityEstimate {
     }
     class LoopGuard {
         +__init__()
@@ -907,9 +1250,12 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +_record_execution_receipt()
+        +complete_execution_observation()
         +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
+        +initialize_safety()
         +rearm_safety()
         +close()
         +close_execution_resources()
@@ -918,6 +1264,80 @@ classDiagram
         +_sync_runtime_rearm()
         +_bind_execution_stop_checker()
         +_safety_context()
+    }
+    class Reference2048Quality {
+        +evaluate()
+    }
+    Protocol <|-- StateQualityEvaluator
+    class StateQualityEvaluator {
+        +evaluate()
+    }
+    Generic <|-- PlanningDomain
+    class PlanningDomain {
+        +__post_init__()
+    }
+    class PlanningRegistration {
+        +__post_init__()
+    }
+    class SearchBudget {
+        +__post_init__()
+    }
+    class PlanningObservationModel {
+        +__post_init__()
+    }
+    class PlanningInformationValue {
+    }
+    class PlanningObservationPolicyGain {
+    }
+    str <|-- PlanningOutcome
+    Enum <|-- PlanningOutcome
+    class PlanningOutcome {
+    }
+    class PlanningRiskPolicyConfig {
+        +__post_init__()
+    }
+    class PlanningComputationEstimate {
+        +__post_init__()
+    }
+    class PlanningActionRisk {
+    }
+    class PlanningPolicyDecision {
+    }
+    class PlanningObservationBudget {
+        +__post_init__()
+    }
+    class PlanningDecisionEpisode {
+        +__init__()
+        +check_context()
+        +request_observation()
+        +record_selection()
+        +acknowledge_execution()
+        +reset_scope()
+        +usage()
+    }
+    class WeightedValue {
+        +__post_init__()
+    }
+    class HypothesisActionValue {
+        +__post_init__()
+    }
+    class PlanningActionValue {
+        +__post_init__()
+    }
+    class PlanningCounters {
+        +__post_init__()
+    }
+    class PlanningResult {
+        +__post_init__()
+    }
+    class PlanningTailRisk {
+    }
+    class PlanningRiskPolicy {
+        +__init__()
+        +decide()
+        +_now()
+        +_check_deadline()
+        +_finish()
     }
     str <|-- PlayerState
     Enum <|-- PlayerState
@@ -958,6 +1378,7 @@ classDiagram
         +stop()
         +_validate_running_locked()
         +run_if_current()
+        +record_execution_audit()
         +ensure_running()
     }
     class ResolutionFailure {
@@ -1094,6 +1515,7 @@ classDiagram
         +run()
         +run_and_execute()
         +load_execution_history()
+        +complete_execution_observation()
         +assess_outcome()
         +close()
     }
@@ -1105,11 +1527,88 @@ classDiagram
         +explain_actions()
         +list_models()
     }
+    class RuntimeEvaluationAdapter {
+        +__init__()
+        +select_profile()
+        +set_predictions()
+        +select_context()
+        +apply()
+        +actual_evaluation()
+    }
+    class RuntimeEvaluationProjection {
+        +from_dict()
+        +to_dict()
+        +quality_for()
+        +candidate_qualities()
+        +to_model_dict()
+    }
     class RuntimeLog {
         +__init__()
         +attach_event_journal()
         +detach_event_journal()
         +write()
+    }
+    str <|-- RuntimeMode
+    Enum <|-- RuntimeMode
+    class RuntimeMode {
+    }
+    str <|-- RuntimePhase
+    Enum <|-- RuntimePhase
+    class RuntimePhase {
+    }
+    str <|-- RuntimeOperation
+    Enum <|-- RuntimeOperation
+    class RuntimeOperation {
+    }
+    class RuntimeModeConfig {
+        +__post_init__()
+        +flags()
+        +to_dict()
+        +from_dict()
+        +operations()
+    }
+    ValueError <|-- RuntimeModeTransitionError
+    class RuntimeModeTransitionError {
+    }
+    RuntimeError <|-- RuntimeModePersistenceError
+    class RuntimeModePersistenceError {
+    }
+    class RuntimeModeController {
+        +__init__()
+        +snapshot()
+        +request_mode()
+        +apply_pending_mode()
+        +transition()
+        +begin_step()
+        +finish_step()
+        +permits()
+        +run_if_allowed()
+        +record_evaluation()
+        +degrade()
+        +request_stop()
+        +fail()
+        +recover_to_idle()
+        +resume_at_boundary()
+        +_signal_stop()
+        +_complete_stop_signal()
+        +flush()
+        +restore()
+        +_held_is_clear()
+        +_admit()
+        +_metadata_change()
+        +_change_locked()
+    }
+    class RuntimeModeRecorder {
+        +__init__()
+        +full()
+        +enqueue()
+        +flush()
+    }
+    class RuntimeModeSnapshot {
+        +mode()
+        +to_dict()
+    }
+    class RuntimeStepToken {
     }
     str <|-- SafetyState
     Enum <|-- SafetyState
@@ -1240,6 +1739,25 @@ classDiagram
         +_notify_finished_subscribers()
         +_finish_locked()
         +_capture_loop()
+    }
+    Generic <|-- SimulationKey
+    class SimulationKey {
+    }
+    class SimulationProvider {
+        +__init__()
+        +register()
+        +get_model()
+    }
+    Generic <|-- ActionTransition
+    class ActionTransition {
+    }
+    Generic <|-- ChanceOutcome
+    class ChanceOutcome {
+    }
+    Protocol <|-- TransitionModel
+    class TransitionModel {
+        +apply_action()
+        +chance_outcomes()
     }
     class PlayerSeat {
         +__init__()
@@ -1485,6 +2003,7 @@ classDiagram
     }
     class WindowsInputExecutor {
         +__init__()
+        +has_held_inputs()
         +execute()
         +_verify_target_identity()
         +release_all()
@@ -1500,4 +2019,18 @@ classDiagram
         +_ledger_hold_mouse()
         +_ledger_release_mouse()
         +_interruptible_sleep()
+    }
+    str <|-- HypothesisOrigin
+    Enum <|-- HypothesisOrigin
+    class HypothesisOrigin {
+    }
+    Generic <|-- TypedStateRef
+    class TypedStateRef {
+        +__post_init__()
+        +to_dict()
+    }
+    Generic <|-- WorldStateHypothesis
+    class WorldStateHypothesis {
+        +__post_init__()
+        +to_dict()
     }

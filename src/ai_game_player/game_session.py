@@ -134,7 +134,9 @@ class GameSessionController:
 
     @property
     def snapshot(self) -> SessionSnapshot:
-        return SessionSnapshot(self._status, self._steps, self._stop_reason, self._error, self._looping)
+        return SessionSnapshot(
+            self._status, self._steps, self._stop_reason, self._error, self._looping
+        )
 
     @property
     def is_running(self) -> bool:
@@ -206,7 +208,9 @@ class GameSessionController:
     #   引数: [result: workerが返したterminal情報, error: workerで発生した例外]
     #   戻り値: [bool: 対応するpending stepを完了できた場合はTrue]
     # }
-    def complete_step(self, result: SessionStep | None = None, error: Exception | None = None) -> bool:
+    def complete_step(
+        self, result: SessionStep | None = None, error: Exception | None = None
+    ) -> bool:
         if not self._step_pending:
             return False
         self._step_pending = False
@@ -235,7 +239,9 @@ class GameSessionController:
         if interval_ms <= 0:
             raise ValueError("Loop interval must be positive")
         if self._scheduler is None or self._loop_observer is None:
-            raise RuntimeError("Continuous sessions require a scheduler and observation source")
+            raise RuntimeError(
+                "Continuous sessions require a scheduler and observation source"
+            )
         if self.is_looping:
             return
         self.start()
@@ -355,9 +361,15 @@ class GameSessionController:
     #   引数: [observation: 画面と評価済み状態, generation: 観測開始時のloop世代]
     #   戻り値: [bool: 現在のloopへ観測を適用した場合はTrue]
     # }
-    def _apply_loop_observation(self, observation: LoopObservation, generation: int) -> bool:
+    def _apply_loop_observation(
+        self, observation: LoopObservation, generation: int
+    ) -> bool:
         if generation != self._loop_generation or not self.is_looping:
             return False
+        if observation.screen is not None and self._loop_command == "execute":
+            complete = getattr(self._runtime, "complete_execution_observation", None)
+            if callable(complete):
+                complete(observation.screen, expected_rearm_token=self.rearm_token)
         if observation.terminal_reason is not None:
             self._finish(SessionStatus.COMPLETED, observation.terminal_reason)
             return True
@@ -368,10 +380,16 @@ class GameSessionController:
             self._finish(SessionStatus.COMPLETED, "repeated observation")
             return True
         if observation.outcome_status in {"success", "failure"}:
-            self._finish(SessionStatus.COMPLETED, f"outcome: {observation.outcome_status}")
+            self._finish(
+                SessionStatus.COMPLETED, f"outcome: {observation.outcome_status}"
+            )
             return True
         result = self.step(self._loop_command, from_loop=True)
-        if not result.deferred and generation == self._loop_generation and self.is_looping:
+        if (
+            not result.deferred
+            and generation == self._loop_generation
+            and self.is_looping
+        ):
             self._schedule_next(generation)
         return True
 

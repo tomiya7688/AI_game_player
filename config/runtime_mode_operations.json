@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "default_mode": "INFERENCE_WITH_LIGHT_ADAPTATION",
+  "evaluation_scope": "learning_artifact_only",
+  "modes": {
+    "INFERENCE_ONLY": {
+      "config": {
+        "schema_version": 1,
+        "mode": "INFERENCE_ONLY",
+        "resource_policy_id": "default",
+        "inference_enabled": true,
+        "action_enabled": true,
+        "experience_write_enabled": true,
+        "knowledge_read_enabled": true,
+        "light_update_enabled": false,
+        "knowledge_build_enabled": false,
+        "heavy_training_enabled": false,
+        "evaluation_enabled": false,
+        "promotion_enabled": false,
+        "safety_core_enabled": true,
+        "auto_promotion_policy": "disabled",
+        "degrade_policy": "learning_first"
+      },
+      "phases": {
+        "IDLE": [
+          "safety_core"
+        ],
+        "INFER": [
+          "action",
+          "experience_write",
+          "inference",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "LEARN": [
+          "experience_write",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "EVALUATE": [
+          "experience_write",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "PROMOTE": [
+          "experience_write",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "PAUSED": [
+          "safety_core"
+        ],
+        "STOPPING": [
+          "safety_core"
+        ],
+        "ERROR": [
+          "safety_core"
+        ]
+      }
+    },
+    "LEARNING_ONLY": {
+      "config": {
+        "schema_version": 1,
+        "mode": "LEARNING_ONLY",
+        "resource_policy_id": "default",
+        "inference_enabled": false,
+        "action_enabled": false,
+        "experience_write_enabled": false,
+        "knowledge_read_enabled": true,
+        "light_update_enabled": true,
+        "knowledge_build_enabled": true,
+        "heavy_training_enabled": true,
+        "evaluation_enabled": true,
+        "promotion_enabled": true,
+        "safety_core_enabled": true,
+        "auto_promotion_policy": "evaluated_safe_boundary",
+        "degrade_policy": "pause_learning"
+      },
+      "phases": {
+        "IDLE": [
+          "safety_core"
+        ],
+        "INFER": [
+          "knowledge_read",
+          "safety_core"
+        ],
+        "LEARN": [
+          "evaluation",
+          "heavy_training",
+          "knowledge_build",
+          "knowledge_read",
+          "light_update",
+          "safety_core"
+        ],
+        "EVALUATE": [
+          "evaluation",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "PROMOTE": [
+          "knowledge_read",
+          "promotion",
+          "safety_core"
+        ],
+        "PAUSED": [
+          "safety_core"
+        ],
+        "STOPPING": [
+          "safety_core"
+        ],
+        "ERROR": [
+          "safety_core"
+        ]
+      }
+    },
+    "INFERENCE_WITH_LEARNING": {
+      "config": {
+        "schema_version": 1,
+        "mode": "INFERENCE_WITH_LEARNING",
+        "resource_policy_id": "default",
+        "inference_enabled": true,
+        "action_enabled": true,
+        "experience_write_enabled": true,
+        "knowledge_read_enabled": true,
+        "light_update_enabled": true,
+        "knowledge_build_enabled": true,
+        "heavy_training_enabled": true,
+        "evaluation_enabled": true,
+        "promotion_enabled": true,
+        "safety_core_enabled": true,
+        "auto_promotion_policy": "evaluated_safe_boundary",
+        "degrade_policy": "learning_first"
+      },
+      "phases": {
+        "IDLE": [
+          "safety_core"
+        ],
+        "INFER": [
+          "action",
+          "evaluation",
+          "experience_write",
+          "heavy_training",
+          "inference",
+          "knowledge_build",
+          "knowledge_read",
+          "light_update",
+          "safety_core"
+        ],
+        "LEARN": [
+          "evaluation",
+          "experience_write",
+          "heavy_training",
+          "knowledge_build",
+          "knowledge_read",
+          "light_update",
+          "safety_core"
+        ],
+        "EVALUATE": [
+          "evaluation",
+          "experience_write",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "PROMOTE": [
+          "experience_write",
+          "knowledge_read",
+          "promotion",
+          "safety_core"
+        ],
+        "PAUSED": [
+          "safety_core"
+        ],
+        "STOPPING": [
+          "safety_core"
+        ],
+        "ERROR": [
+          "safety_core"
+        ]
+      }
+    },
+    "ALTERNATING_INFER_LEARN": {
+      "config": {
+        "schema_version": 1,
+        "mode": "ALTERNATING_INFER_LEARN",
+        "resource_policy_id": "default",
+        "inference_enabled": true,
+        "action_enabled": true,
+        "experience_write_enabled": true,
+        "knowledge_read_enabled": true,
+        "light_update_enabled": true,
+        "knowledge_build_enabled": true,
+        "heavy_training_enabled": true,
+        "evaluation_enabled": true,
+        "promotion_enabled": true,
+        "safety_core_enabled": true,
+        "auto_promotion_policy": "evaluated_safe_boundary",
+        "degrade_policy": "learning_first"
+      },
+      "phases": {
+        "IDLE": [
+          "safety_core"
+        ],
+        "INFER": [
+          "action",
+          "experience_write",
+          "inference",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "LEARN": [
+          "evaluation",
+          "experience_write",
+          "heavy_training",
+          "knowledge_build",
+          "knowledge_read",
+          "light_update",
+          "safety_core"
+        ],
+        "EVALUATE": [
+          "evaluation",
+          "experience_write",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "PROMOTE": [
+          "experience_write",
+          "knowledge_read",
+          "promotion",
+          "safety_core"
+        ],
+        "PAUSED": [
+          "safety_core"
+        ],
+        "STOPPING": [
+          "safety_core"
+        ],
+        "ERROR": [
+          "safety_core"
+        ]
+      }
+    },
+    "INFERENCE_WITH_LIGHT_ADAPTATION": {
+      "config": {
+        "schema_version": 1,
+        "mode": "INFERENCE_WITH_LIGHT_ADAPTATION",
+        "resource_policy_id": "default",
+        "inference_enabled": true,
+        "action_enabled": true,
+        "experience_write_enabled": true,
+        "knowledge_read_enabled": true,
+        "light_update_enabled": true,
+        "knowledge_build_enabled": true,
+        "heavy_training_enabled": false,
+        "evaluation_enabled": true,
+        "promotion_enabled": true,
+        "safety_core_enabled": true,
+        "auto_promotion_policy": "evaluated_safe_boundary",
+        "degrade_policy": "learning_first"
+      },
+      "phases": {
+        "IDLE": [
+          "safety_core"
+        ],
+        "INFER": [
+          "action",
+          "evaluation",
+          "experience_write",
+          "inference",
+          "knowledge_build",
+          "knowledge_read",
+          "light_update",
+          "safety_core"
+        ],
+        "LEARN": [
+          "evaluation",
+          "experience_write",
+          "knowledge_build",
+          "knowledge_read",
+          "light_update",
+          "safety_core"
+        ],
+        "EVALUATE": [
+          "evaluation",
+          "experience_write",
+          "knowledge_read",
+          "safety_core"
+        ],
+        "PROMOTE": [
+          "experience_write",
+          "knowledge_read",
+          "promotion",
+          "safety_core"
+        ],
+        "PAUSED": [
+          "safety_core"
+        ],
+        "STOPPING": [
+          "safety_core"
+        ],
+        "ERROR": [
+          "safety_core"
+        ]
+      }
+    }
+  }
+}

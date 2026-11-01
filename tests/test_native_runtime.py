@@ -281,6 +281,16 @@ class NativeRuntimeTest(unittest.TestCase):
         capture.close()
         runtime.close()
 
+    def test_wgc_byte_budget_rejects_before_copy_and_releases_lease(self):
+        library = FakeLibrary()
+        with abi.NativeRuntime(library) as runtime:
+            with runtime.open_wgc_window(0x123) as capture:
+                with self.assertRaisesRegex(ValueError, "byte budget"):
+                    capture.capture(max_frame_bytes=15)
+                self.assertEqual(library.kadoka_wgc_frame_copy_bgra.calls, 0)
+                self.assertEqual(library.wgc_released_frames, 1)
+                self.assertTrue(runtime.is_healthy())
+
     def test_wgc_capture_reports_unsupported_runtime_without_opening_session(self):
         library = FakeLibrary()
         library.wgc_supported = 0

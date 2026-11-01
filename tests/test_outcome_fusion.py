@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from ai_game_player.engine import GamePlayerEngine
+from ai_game_player.execution_receipt import ExecutionReceipt
 from ai_game_player.evaluation_primitives import PrimitiveEvaluator
 from ai_game_player.models import ActionCandidate, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
@@ -40,8 +41,12 @@ class SemanticStub:
 class OutcomeFusionTests(unittest.TestCase):
     def test_state_and_screen_evidence_remain_separate(self):
         detector = OutcomeDetector()
-        before = observation(state={"progress": 1, "resources": 5}, perceptual_hash="0000")
-        after = observation(state={"progress": 2, "resources": 4}, perceptual_hash="0000")
+        before = observation(
+            state={"progress": 1, "resources": 5}, perceptual_hash="0000"
+        )
+        after = observation(
+            state={"progress": 2, "resources": 4}, perceptual_hash="0000"
+        )
 
         event = detector.detect(before, "advance", after)
 
@@ -78,9 +83,13 @@ class OutcomeFusionTests(unittest.TestCase):
     # }
     def test_terminal_result_preserves_fused_stability_state(self):
         evidence = (
-            OutcomeEvidence("terminal", "terminal", "success", 0.9, 0.95, "test/terminal"),
+            OutcomeEvidence(
+                "terminal", "terminal", "success", 0.9, 0.95, "test/terminal"
+            ),
             OutcomeEvidence("state", "state_delta", "stable", 0.85, 0.9, "test/state"),
-            OutcomeEvidence("screen", "screen_diff", "changed", 1.0, 0.7, "test/screen"),
+            OutcomeEvidence(
+                "screen", "screen_diff", "changed", 1.0, 0.7, "test/screen"
+            ),
         )
 
         event = DeterministicOutcomeFusion().fuse("wait", evidence)
@@ -101,7 +110,9 @@ class OutcomeFusionTests(unittest.TestCase):
     # }
     def test_terminal_result_preserves_fused_change_state(self):
         evidence = (
-            OutcomeEvidence("terminal", "terminal", "success", 0.9, 0.95, "test/terminal"),
+            OutcomeEvidence(
+                "terminal", "terminal", "success", 0.9, 0.95, "test/terminal"
+            ),
             OutcomeEvidence("state", "state_delta", "changed", 0.9, 0.95, "test/state"),
         )
 
@@ -121,8 +132,12 @@ class OutcomeFusionTests(unittest.TestCase):
 
         event = detector.detect(before, "navigate", after, followups)
 
-        state_delta = next(item for item in event.evidence if item.signal == "state_delta")
-        temporal = next(item for item in event.evidence if item.signal == "temporal_change")
+        state_delta = next(
+            item for item in event.evidence if item.signal == "state_delta"
+        )
+        temporal = next(
+            item for item in event.evidence if item.signal == "temporal_change"
+        )
         self.assertEqual(state_delta.value, "unknown")
         self.assertFalse(state_delta.details["state_evidence_available"])
         self.assertEqual(temporal.value, "persistent")
@@ -139,7 +154,9 @@ class OutcomeFusionTests(unittest.TestCase):
 
         event = detector.detect(before, "wait", after, followups)
 
-        temporal = next(item for item in event.evidence if item.signal == "temporal_change")
+        temporal = next(
+            item for item in event.evidence if item.signal == "temporal_change"
+        )
         self.assertEqual(temporal.value, "transient")
         self.assertEqual(event.status, "unchanged")
 
@@ -153,7 +170,9 @@ class OutcomeFusionTests(unittest.TestCase):
         self.assertEqual(event.status, "unknown")
         self.assertTrue(event.conflict)
         self.assertTrue(event.abstained)
-        terminal_values = {item.value for item in event.evidence if item.signal == "terminal"}
+        terminal_values = {
+            item.value for item in event.evidence if item.signal == "terminal"
+        }
         self.assertEqual(terminal_values, {"success", "failure"})
 
     def test_semantic_provider_is_used_only_for_low_confidence_transition(self):
@@ -182,10 +201,16 @@ class OutcomeFusionTests(unittest.TestCase):
 
     def test_outcome_event_feeds_evaluation_primitives(self):
         detector = OutcomeDetector()
-        before = observation(state={"progress": 2, "resources": 5}, perceptual_hash="0000")
-        after = observation(state={"progress": 3, "resources": 4}, perceptual_hash="0000")
+        before = observation(
+            state={"progress": 2, "resources": 5}, perceptual_hash="0000"
+        )
+        after = observation(
+            state={"progress": 3, "resources": 4}, perceptual_hash="0000"
+        )
 
-        result = PrimitiveEvaluator().evaluate_event(detector.detect(before, "advance", after))
+        result = PrimitiveEvaluator().evaluate_event(
+            detector.detect(before, "advance", after)
+        )
 
         self.assertEqual(result.axes["progress"].value, 1.0)
         self.assertEqual(result.axes["resources"].value, -1.0)
@@ -199,6 +224,19 @@ class OutcomeFusionTests(unittest.TestCase):
             second = observation(state={"progress": 2}, perceptual_hash="0000")
 
             decision = engine.step(first, [candidate])
+            engine.record_execution_receipt(
+                first,
+                ExecutionReceipt(
+                    decision.snapshot_id,
+                    decision.action_id,
+                    0,
+                    first.screen_id,
+                    str(first.features.get("signature", "")),
+                    "executed",
+                    True,
+                ),
+            )
+            engine.complete_execution_observation(second, 0)
             engine.step(second, [candidate])
 
             self.assertIsNotNone(engine.last_outcome_event)

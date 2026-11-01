@@ -1,11 +1,18 @@
 import os
 import tempfile
 import unittest
+import threading
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ai_game_player.campaign_runner import CampaignFailure, CampaignState
+from ai_game_player.models import ScreenObservation
+from ai_game_player.pipeline import DecisionPipeline
+from ai_game_player.provider import RuleProvider
+from ai_game_player.run_control import ExecutionCancelled, RunController
+from ai_game_player.safety_guard import EmergencyStop, default_emergency_stop
 from tools import run_2048_campaign
 
 
@@ -19,7 +26,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             def capture_playable_state(self, on_fresh_frame=None):
                 events.append("capture")
                 if on_fresh_frame is None:
-                    current_time[0] += run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS + 1.0
+                    current_time[0] += (
+                        run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS + 1.0
+                    )
                 else:
                     events.append("fresh_frame")
                     on_fresh_frame()
@@ -29,18 +38,24 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
                 events.append("source_closed")
 
         class FakePipeline:
+            controller = RunController()
             last_safety_result = None
             observation_deadline = None
 
-            def rearm_safety(self):
+            def initialize_safety(self, *, expected_rearm_token):
+                self.controller.ensure_running(expected_rearm_token)
                 events.append("rearmed")
                 self.observation_deadline = (
-                    current_time[0] + run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
+                    current_time[0]
+                    + run_2048_campaign.CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS
                 )
+                self.record_observation()
 
             def record_observation(self):
                 if current_time[0] > self.observation_deadline:
-                    raise RuntimeError("first observation expired before it could be recorded")
+                    raise RuntimeError(
+                        "first observation expired before it could be recorded"
+                    )
                 events.append("observation_recorded")
 
             def close(self):
@@ -56,9 +71,19 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
 
         test_directory = Path("build") / "issue-459-observation-test"
         with (
-            patch.object(run_2048_campaign, "ReferenceGame2048Launcher", return_value=fake_launcher),
-            patch.object(run_2048_campaign, "Cached2048ObservationSource", return_value=fake_source),
-            patch.object(run_2048_campaign, "DecisionPipeline", return_value=fake_pipeline) as pipeline_factory,
+            patch.object(
+                run_2048_campaign,
+                "ReferenceGame2048Launcher",
+                return_value=fake_launcher,
+            ),
+            patch.object(
+                run_2048_campaign,
+                "Cached2048ObservationSource",
+                return_value=fake_source,
+            ),
+            patch.object(
+                run_2048_campaign, "DecisionPipeline", return_value=fake_pipeline
+            ) as pipeline_factory,
         ):
             episode = run_2048_campaign.ReferenceGame2048Episode(
                 1,
@@ -69,7 +94,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
             )
             result = episode.observe()
             second_result = episode.observe()
-            observation_timeout = pipeline_factory.call_args.kwargs["fail_safe_config"].observation_timeout_seconds
+            observation_timeout = pipeline_factory.call_args.kwargs[
+                "fail_safe_config"
+            ].observation_timeout_seconds
             episode.close()
 
         self.assertIs(result, observed_state)
@@ -158,7 +185,13 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         )
         self.assertEqual(len(source.read()[1]), 1)
         self.assertEqual(
-            {"capture", "observation_refresh", "frame_analysis", "board_adaptation", "retry_wait"},
+            {
+                "capture",
+                "observation_refresh",
+                "frame_analysis",
+                "board_adaptation",
+                "retry_wait",
+            },
             set(source.observation_timing.snapshot()["stage_ms"]),
         )
         self.assertIsNone(source.observation_timing.snapshot()["active_stage"])
@@ -183,6 +216,266 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         self.assertIn("first_observation=False", raised.exception.detail)
         self.assertIn("capture_elapsed_seconds=", raised.exception.detail)
         self.assertIn("reason=observation_stale", raised.exception.detail)
+
+    def test_post_action_completion_keeps_generation_from_capture_start(self):
+        controller = SimpleNamespace(rearm_token=7)
+        completed = []
+        screen = object()
+        state = CampaignState("board", False, 0, 2)
+
+        def capture(on_fresh_frame):
+            controller.rearm_token = 8
+            return state
+
+        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(
+            run_2048_campaign.ReferenceGame2048Episode
+        )
+        episode.source = SimpleNamespace(
+            capture_playable_state=capture, latest_observation=screen
+        )
+        episode.pipeline = SimpleNamespace(
+            controller=controller,
+            complete_execution_observation=lambda observed, expected_rearm_token: (
+                completed.append((observed, expected_rearm_token))
+            ),
+        )
+        episode._safety_rearmed = True
+        self.assertIs(episode.observe(), state)
+        self.assertEqual(completed, [(screen, 7)])
+
+    @contextmanager
+    def real_controller_episode(self, root):
+        with patch(
+            "ai_game_player.safety_guard._DEFAULT_EMERGENCY_STOP", EmergencyStop()
+        ):
+            screen = ScreenObservation("board", 640, 480)
+            state = CampaignState("board", False, 0, 2)
+            controller = RunController()
+            source = SimpleNamespace(
+                latest_observation=screen, on_capture=lambda: None, close=Mock()
+            )
+
+            def capture(on_fresh_frame=None):
+                if on_fresh_frame is not None:
+                    on_fresh_frame()
+                source.on_capture()
+                return state
+
+            source.capture_playable_state = capture
+            pipeline = DecisionPipeline(
+                SimpleNamespace(read=lambda: (screen, [])),
+                root,
+                RuleProvider(),
+                controller=controller,
+                dry_run=True,
+            )
+            complete = Mock(wraps=pipeline.complete_execution_observation)
+            pipeline.complete_execution_observation = complete
+            episode = run_2048_campaign.ReferenceGame2048Episode.__new__(
+                run_2048_campaign.ReferenceGame2048Episode
+            )
+            episode.source = source
+            episode.pipeline = pipeline
+            episode.launcher = SimpleNamespace(close=Mock())
+            episode._safety_rearmed = False
+            episode._closed = False
+            try:
+                yield episode, controller, state, screen, complete
+            finally:
+                episode.close()
+
+    def test_first_observation_arms_each_new_episode_without_completion(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for episode_number in (1, 2):
+                with self.subTest(episode_number=episode_number):
+                    with self.real_controller_episode(
+                        Path(temporary) / str(episode_number)
+                    ) as (episode, controller, state, _screen, complete):
+                        self.assertEqual(controller.rearm_token, 0)
+                        self.assertIs(episode.observe(), state)
+                        self.assertEqual(controller.rearm_token, 0)
+                        self.assertTrue(episode._safety_rearmed)
+                        complete.assert_not_called()
+                    self.assertTrue(episode._closed)
+                    self.assertIsNone(episode.pipeline)
+                    self.assertIsNone(episode.source)
+
+    def test_later_observation_completes_in_the_same_generation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with self.real_controller_episode(Path(temporary)) as (
+                episode,
+                controller,
+                state,
+                screen,
+                complete,
+            ):
+                episode.observe()
+                token = controller.rearm_token
+                self.assertIs(episode.observe(), state)
+                complete.assert_called_once_with(screen, expected_rearm_token=token)
+
+    def test_stop_and_rearm_during_later_capture_still_reject_completion(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for rearm in (False, True):
+                with self.subTest(rearm=rearm):
+                    with self.real_controller_episode(Path(temporary) / str(rearm)) as (
+                        episode,
+                        controller,
+                        _state,
+                        screen,
+                        complete,
+                    ):
+                        episode.observe()
+                        token = controller.rearm_token
+
+                        def interrupt():
+                            controller.stop("stopped during capture")
+                            if rearm:
+                                controller.start()
+
+                        episode.source.on_capture = interrupt
+                        with self.assertRaises(ExecutionCancelled):
+                            episode.observe()
+                        complete.assert_called_once_with(
+                            screen, expected_rearm_token=token
+                        )
+
+    def test_initial_capture_never_clears_stop_or_rearm(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for rearm in (False, True):
+                with self.subTest(rearm=rearm):
+                    with self.real_controller_episode(Path(temporary) / str(rearm)) as (
+                        episode,
+                        controller,
+                        _state,
+                        _screen,
+                        complete,
+                    ):
+
+                        def interrupt():
+                            controller.stop("during initial capture")
+                            if rearm:
+                                controller.start()
+
+                        episode.source.on_capture = interrupt
+                        with self.assertRaises(CampaignFailure):
+                            episode.observe()
+                        self.assertEqual(controller.is_running, rearm)
+                        self.assertEqual(controller.rearm_token, int(rearm))
+                        self.assertFalse(episode._safety_rearmed)
+                        complete.assert_not_called()
+
+    def test_initial_capture_never_clears_default_or_local_emergency_event(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for kind in ("default", "local"):
+                with self.subTest(kind=kind):
+                    with self.real_controller_episode(Path(temporary) / kind) as (
+                        episode,
+                        controller,
+                        _state,
+                        _screen,
+                        _complete,
+                    ):
+                        stop = (
+                            default_emergency_stop()
+                            if kind == "default"
+                            else episode.pipeline.executor.emergency_stop
+                        )
+                        episode.source.on_capture = lambda: stop.trigger(
+                            "during initial capture"
+                        )
+                        try:
+                            with self.assertRaises(CampaignFailure):
+                                episode.observe()
+                            self.assertTrue(stop.is_triggered())
+                            self.assertEqual(controller.rearm_token, 0)
+                            self.assertFalse(episode._safety_rearmed)
+                        finally:
+                            stop.rearm()
+
+    def test_stop_or_event_during_arm_io_is_not_lost_and_run_lock_is_free(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for boundary in ("initialize_safety", "record_observation"):
+                for kind in ("stop", "rearm", "default", "local"):
+                    with self.subTest(boundary=boundary, kind=kind):
+                        with self.real_controller_episode(
+                            Path(temporary) / boundary / kind
+                        ) as (
+                            episode,
+                            controller,
+                            _state,
+                            _screen,
+                            _complete,
+                        ):
+                            pipeline = episode.pipeline
+                            stop = (
+                                default_emergency_stop()
+                                if kind == "default"
+                                else pipeline.executor.emergency_stop
+                            )
+                            entered, release, interrupted = (
+                                threading.Event(),
+                                threading.Event(),
+                                threading.Event(),
+                            )
+                            failures = []
+                            owner = (
+                                pipeline.executor
+                                if boundary == "initialize_safety"
+                                else pipeline
+                            )
+                            original = getattr(owner, boundary)
+
+                            def blocked(*args, **kwargs):
+                                result = original(*args, **kwargs)
+                                entered.set()
+                                if not release.wait(5):
+                                    raise TimeoutError("arm boundary was not released")
+                                return result
+
+                            def observe():
+                                try:
+                                    episode.observe()
+                                except Exception as error:
+                                    failures.append(error)
+
+                            def interrupt():
+                                if kind in ("stop", "rearm"):
+                                    controller.stop("during arm IO")
+                                    if kind == "rearm":
+                                        controller.start()
+                                else:
+                                    stop.trigger("during arm IO")
+                                interrupted.set()
+
+                            with patch.object(owner, boundary, side_effect=blocked):
+                                worker = threading.Thread(target=observe, daemon=True)
+                                interrupter = threading.Thread(
+                                    target=interrupt, daemon=True
+                                )
+                                worker.start()
+                                try:
+                                    self.assertTrue(entered.wait(2))
+                                    interrupter.start()
+                                    # Stop must acquire the Run lock before blocked I/O is released.
+                                    self.assertTrue(interrupted.wait(2))
+                                finally:
+                                    release.set()
+                                    worker.join(2)
+                                    if interrupter.ident is not None:
+                                        interrupter.join(2)
+                                    if kind in ("default", "local"):
+                                        self.assertTrue(stop.is_triggered())
+                                        stop.rearm()
+                                self.assertFalse(worker.is_alive())
+                                self.assertFalse(interrupter.is_alive())
+                                self.assertEqual(len(failures), 1)
+                                self.assertIsInstance(failures[0], CampaignFailure)
+                                self.assertFalse(episode._safety_rearmed)
+                                if kind in ("stop", "rearm"):
+                                    self.assertEqual(
+                                        controller.is_running, kind == "rearm"
+                                    )
 
     def test_recognition_timeout_reports_capture_diagnostics(self):
         class FakeCapture:
@@ -231,7 +524,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         with (
             patch.object(run_2048_campaign, "SCREEN_READY_TIMEOUT_SECONDS", 1.0),
             patch.object(run_2048_campaign, "SCREEN_READY_POLL_SECONDS", 0.5),
-            patch.object(run_2048_campaign.time, "monotonic", side_effect=advance_monotonic_clock),
+            patch.object(
+                run_2048_campaign.time, "monotonic", side_effect=advance_monotonic_clock
+            ),
             patch.object(run_2048_campaign.time, "sleep"),
         ):
             with self.assertRaises(CampaignFailure) as raised:
@@ -251,7 +546,9 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
         def fail_action(**_arguments):
             raise RuntimeError("FailSafeRuntime blocked action [runtime_not_active]")
 
-        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(run_2048_campaign.ReferenceGame2048Episode)
+        episode = run_2048_campaign.ReferenceGame2048Episode.__new__(
+            run_2048_campaign.ReferenceGame2048Episode
+        )
         episode.pipeline = SimpleNamespace(
             run_and_execute=fail_action,
             last_safety_result=None,
@@ -282,7 +579,10 @@ class WindowsReferenceGameCampaignRestartTests(unittest.TestCase):
             runtime_root = temporary_root / "runtime"
 
             for episode_number in (1, 2):
-                print(f"2048 campaign restart integration: starting episode {episode_number}", flush=True)
+                print(
+                    f"2048 campaign restart integration: starting episode {episode_number}",
+                    flush=True,
+                )
                 episode = run_2048_campaign.ReferenceGame2048Episode(
                     episode_number,
                     cache_root,
@@ -294,10 +594,16 @@ class WindowsReferenceGameCampaignRestartTests(unittest.TestCase):
                     state = episode.observe()
                     self.assertTrue(state.signature)
                     self.assertFalse(state.terminal)
-                    print(f"2048 campaign restart integration: episode {episode_number} observed a playable board", flush=True)
+                    print(
+                        f"2048 campaign restart integration: episode {episode_number} observed a playable board",
+                        flush=True,
+                    )
                 finally:
                     episode.close()
-                    print(f"2048 campaign restart integration: episode {episode_number} closed", flush=True)
+                    print(
+                        f"2048 campaign restart integration: episode {episode_number} closed",
+                        flush=True,
+                    )
 
 
 if __name__ == "__main__":

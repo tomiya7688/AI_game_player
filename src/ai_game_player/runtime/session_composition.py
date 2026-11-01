@@ -8,7 +8,7 @@ import os
 import time
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import ExitStack, contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, BinaryIO
 from uuid import uuid4
@@ -24,6 +24,16 @@ from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
 from ai_game_player.runtime_log import RuntimeLog
+from ai_game_player.knowledge_scope import KnowledgeScope
+from ai_game_player.learning_identity import LearningIdentityPolicy
+from ai_game_player.light_adaptation_budget import LightAdaptationBudget
+from ai_game_player.light_session import SessionLightAdaptation
+from ai_game_player.runtime_mode_config import RuntimeModeConfig
+from ai_game_player.runtime_evaluation_adapter import RuntimeEvaluationAdapter
+from ai_game_player.evaluation_profile import EvaluationProfile
+from ai_game_player.evaluation_prediction import EvaluationPredictionBatch
+from ai_game_player.execution_receipt import ExecutionObservation
+from ai_game_player.light_execution_projection import VerifiedActionEffect
 
 MIGRATION_LOCK_RETRY_INTERVAL_SECONDS = 0.05
 MIGRATION_LOCK_TIMEOUT_SECONDS = 30.0
@@ -117,9 +127,12 @@ def _supports_session_journal(pipeline_factory: Callable[..., Any]) -> bool:
     keyword_parameters = {
         parameter.name
         for parameter in parameters
-        if parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+        if parameter.kind
+        in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
     }
-    return accepts_arbitrary_keywords or required_migration_arguments.issubset(keyword_parameters)
+    return accepts_arbitrary_keywords or required_migration_arguments.issubset(
+        keyword_parameters
+    )
 
 
 # {
@@ -183,7 +196,9 @@ def _recover_interrupted_migration(
         or Path(journal_name).name != journal_name
         or not journal_name.endswith(".sqlite3")
     ):
-        raise ValueError(f"Invalid interrupted migration journal name in {pending_path}")
+        raise ValueError(
+            f"Invalid interrupted migration journal name in {pending_path}"
+        )
     game_history_marker = session_events_directory / "legacy_migration_v1.complete"
     runtime_source = pending.get("runtime_log_source")
     runtime_marker: Path | None = None
@@ -236,7 +251,10 @@ def _remove_partial_journal_files(database_path: Path) -> None:
 @dataclass(frozen=True)
 # {
 #   責務: [SessionRuntimeConfiguration: セッション開始時に確定するProvider・保存先・入力対象設定を保持する]
-#   フィールド: [provider_name/model/endpoint: 判断Provider設定, game_directory: sessionデータ保存先, dry_run: 実入力を禁止する設定, window_handle/window_process_id/input_mode: 入力対象と入力方式]
+#   フィールド: [provider_name/model/endpoint: 判断Provider設定, game_directory: sessionデータ保存先, dry_run: 実入力を禁止する設定, window_handle/window_process_id/input_mode: 入力対象と入力方式,
+#     runtime_mode/knowledge_scope/learning_identity/adaptation_budget: bounded学習の構成,
+#     evaluation_profile/evaluation_goal_id/evaluation_predictions: 信頼済みhostが注入する6軸の方針と同frame数値仮説,
+#     evaluation_expose_to_models: scope/receiptを省く評価要約の明示送信許可]
 # }
 class SessionRuntimeConfiguration:
     provider_name: str
@@ -247,6 +265,14 @@ class SessionRuntimeConfiguration:
     window_handle: int | None
     input_mode: str
     window_process_id: int | None
+    runtime_mode: RuntimeModeConfig = field(default_factory=RuntimeModeConfig)
+    knowledge_scope: KnowledgeScope | None = None
+    learning_identity: LearningIdentityPolicy | None = None
+    adaptation_budget: LightAdaptationBudget | None = None
+    evaluation_profile: EvaluationProfile | None = None
+    evaluation_goal_id: str = "unresolved"
+    evaluation_predictions: EvaluationPredictionBatch | None = None
+    evaluation_expose_to_models: bool = False
 
 
 # {
@@ -260,11 +286,18 @@ class ManagedSessionRuntime:
     #   引数: [pipeline: session中に再利用する判断・実行pipeline, provider: pipelineへ注入したsession scoped provider]
     #   戻り値: []
     # }
-    def __init__(self, pipeline: DecisionPipeline, provider: Any) -> None:
+    def __init__(
+        self,
+        pipeline: DecisionPipeline,
+        provider: Any,
+        adaptation: SessionLightAdaptation | None = None,
+    ) -> None:
         self.pipeline = pipeline
         self._provider = provider
         self._pipeline_closed = False
         self._provider_closed = False
+        self.adaptation = adaptation
+        self._adaptation_closed = adaptation is None
 
     # {
     #   責務: [run: session pipelineの判断処理を実行する]
@@ -273,7 +306,12 @@ class ManagedSessionRuntime:
     #   戻り値: [ActionDecision: session providerが選んだ操作]
     # }
     def run(self, **arguments: Any) -> ActionDecision:
-        return self.pipeline.run(**arguments)
+        token = self.adaptation.begin_step() if self.adaptation is not None else None
+        try:
+            return self.pipeline.run(**arguments)
+        finally:
+            if token is not None and self.adaptation is not None:
+                self.adaptation.finish_step(token)
 
     # {
     #   責務: [run_and_execute: session pipelineで判断と安全検証付き実行を行う]
@@ -282,7 +320,12 @@ class ManagedSessionRuntime:
     #   戻り値: [ExecutionResult: 実行された候補と実行結果]
     # }
     def run_and_execute(self, **arguments: Any) -> ExecutionResult:
-        return self.pipeline.run_and_execute(**arguments)
+        token = self.adaptation.begin_step() if self.adaptation is not None else None
+        try:
+            return self.pipeline.run_and_execute(**arguments)
+        finally:
+            if token is not None and self.adaptation is not None:
+                self.adaptation.finish_step(token)
 
     # {
     #   責務: [load_execution_history: Pipelineが提供するSession実行履歴を返し、旧factoryにmetrics APIがなければ空履歴を返す]
@@ -294,6 +337,29 @@ class ManagedSessionRuntime:
         if not callable(load_history):
             return []
         return load_history()
+
+    # {
+    #   責務: [complete_execution_observation: Sessionのpost-action観測をPipelineの実行受領記録へ結び付ける]
+    #   処理: [対応するPipelineにだけ転送し、legacy runtimeでは操作しない]
+    #   引数: [observation: 取得済みpost-action画面, expected_rearm_token: 観測対象の実行世代]
+    #   戻り値: [object: Pipelineが公開したOutcome、または非対応時None]
+    # }
+    def complete_execution_observation(
+        self,
+        observation: ScreenObservation,
+        *,
+        expected_rearm_token: int,
+        verified_effect: VerifiedActionEffect | None = None,
+    ) -> object:
+        complete = getattr(self.pipeline, "complete_execution_observation", None)
+        result = (
+            complete(observation, expected_rearm_token=expected_rearm_token)
+            if callable(complete)
+            else None
+        )
+        if self.adaptation is not None and isinstance(result, ExecutionObservation):
+            self.adaptation.observe_execution(result, verified_effect)
+        return result
 
     # {
     #   責務: [assess_outcome: session Providerを再利用して現在画面のterminal状態を評価する]
@@ -320,9 +386,19 @@ class ManagedSessionRuntime:
     # }
     def close(self) -> None:
         errors: list[Exception] = []
-        close_execution_resources = getattr(self.pipeline, "close_execution_resources", None)
+        if not self._adaptation_closed and self.adaptation is not None:
+            try:
+                self.adaptation.close()
+                self._adaptation_closed = True
+            except Exception as exc:
+                errors.append(exc)
+        close_execution_resources = getattr(
+            self.pipeline, "close_execution_resources", None
+        )
         close_event_journal = getattr(self.pipeline, "close_event_journal", None)
-        staged_pipeline_cleanup = callable(close_execution_resources) and callable(close_event_journal)
+        staged_pipeline_cleanup = callable(close_execution_resources) and callable(
+            close_event_journal
+        )
         execution_resources_closed = True
         if not self._pipeline_closed and staged_pipeline_cleanup:
             try:
@@ -355,7 +431,9 @@ class ManagedSessionRuntime:
             except Exception as exc:
                 errors.append(exc)
         if errors:
-            raise RuntimeError("Session runtime cleanup failed: " + "; ".join(map(str, errors))) from errors[0]
+            raise RuntimeError(
+                "Session runtime cleanup failed: " + "; ".join(map(str, errors))
+            ) from errors[0]
 
 
 # {
@@ -402,16 +480,28 @@ class RuntimeComposition:
         *,
         source: ObservationSource,
         controller: RunController,
-        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        automated_cursor_position_callback: Callable[
+            [tuple[int, int] | None, bool], None
+        ]
+        | None = None,
         runtime_log: RuntimeLog | None = None,
     ) -> ManagedSessionRuntime:
         provider_factory = self._provider_factories.get(configuration.provider_name)
         if provider_factory is None:
-            raise ValueError(f"Unsupported decision provider: {configuration.provider_name}")
+            raise ValueError(
+                f"Unsupported decision provider: {configuration.provider_name}"
+            )
 
         provider = provider_factory(configuration.model, configuration.endpoint)
         session_id = uuid4().hex
         pipeline_arguments = {
+            "evaluation_adapter": RuntimeEvaluationAdapter(
+                configuration.evaluation_profile,
+                scope=configuration.knowledge_scope,
+                goal_id=configuration.evaluation_goal_id,
+                predictions=configuration.evaluation_predictions,
+                expose_to_models=configuration.evaluation_expose_to_models,
+            ),
             "dry_run": configuration.dry_run,
             "window_handle": configuration.window_handle,
             "input_mode": configuration.input_mode,
@@ -441,7 +531,7 @@ class RuntimeComposition:
                         f"provider cleanup also failed ({cleanup_error})"
                     ) from initialization_error
                 raise
-            return ManagedSessionRuntime(pipeline, provider)
+            return _managed_session(pipeline, provider, configuration, controller)
 
         session_events_directory = configuration.game_directory / "session_events"
         migration_marker = session_events_directory / "legacy_migration_v1.complete"
@@ -452,7 +542,9 @@ class RuntimeComposition:
             self._pipeline_factory, {"runtime_log": None}
         )
         if runtime_log is not None and accepts_runtime_log:
-            runtime_log_marker, runtime_log_lock = _runtime_log_migration_paths(runtime_log)
+            runtime_log_marker, runtime_log_lock = _runtime_log_migration_paths(
+                runtime_log
+            )
         pending_path = session_events_directory / "legacy_migration_v1.pending"
         event_journal: EventJournal | None = None
         journal_pipeline: Any | None = None
@@ -461,7 +553,9 @@ class RuntimeComposition:
             with ExitStack() as migration_locks:
                 migration_locks.enter_context(_legacy_migration_lock(migration_lock))
                 if runtime_log_lock is not None:
-                    migration_locks.enter_context(_legacy_migration_lock(runtime_log_lock))
+                    migration_locks.enter_context(
+                        _legacy_migration_lock(runtime_log_lock)
+                    )
                 _recover_interrupted_migration(pending_path, session_events_directory)
                 migrate_legacy = not migration_marker.exists()
                 migrate_runtime_log = (
@@ -469,7 +563,9 @@ class RuntimeComposition:
                     and runtime_log_marker is not None
                     and not runtime_log_marker.exists()
                 )
-                session_journal_path = session_events_directory / f"{session_id}.sqlite3"
+                session_journal_path = (
+                    session_events_directory / f"{session_id}.sqlite3"
+                )
                 newly_created_markers: list[Path] = []
                 pending_write_created = migrate_legacy or migrate_runtime_log
                 pending_record = {
@@ -493,7 +589,9 @@ class RuntimeComposition:
                             staged_pending.publish()
                         finally:
                             staged_pending.discard()
-                    event_journal = EventJournal(session_journal_path, session_id=session_id)
+                    event_journal = EventJournal(
+                        session_journal_path, session_id=session_id
+                    )
                     journal_pipeline_arguments = {
                         **pipeline_arguments,
                         "event_journal": event_journal,
@@ -511,7 +609,9 @@ class RuntimeComposition:
                         ),
                     )
                     if journal_pipeline is None:
-                        raise RuntimeError("Journal-aware pipeline factory returned no Session runtime")
+                        raise RuntimeError(
+                            "Journal-aware pipeline factory returned no Session runtime"
+                        )
                     if pending_write_created:
                         pending_record["factory_completed"] = True
                         staged_pending = stage_json_write(pending_path, pending_record)
@@ -554,7 +654,9 @@ class RuntimeComposition:
                     if cleanup_errors:
                         raise RuntimeError(
                             f"Session pipeline initialization failed ({initialization_error}); "
-                            "cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
+                            "cleanup also failed ("
+                            + "; ".join(map(str, cleanup_errors))
+                            + ")"
                         ) from initialization_error
                     pending_path.unlink(missing_ok=True)
                     raise
@@ -578,10 +680,12 @@ class RuntimeComposition:
             if cleanup_errors:
                 raise RuntimeError(
                     f"Session setup failed ({initialization_error}); "
-                    "resource cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
+                    "resource cleanup also failed ("
+                    + "; ".join(map(str, cleanup_errors))
+                    + ")"
                 ) from initialization_error
             raise
-        return ManagedSessionRuntime(journal_pipeline, provider)
+        return _managed_session(journal_pipeline, provider, configuration, controller)
 
     # {
     #   責務: [assess_outcome: 指定Providerまたはローカルfallbackで画面状態を評価する]
@@ -642,6 +746,7 @@ class RuntimeComposition:
     def list_models(endpoint: str) -> list[str]:
         return OllamaProvider.list_models(endpoint)
 
+
 # {
 #   責務: [_close_provider: Providerが公開するshutdown処理を実行する]
 #   処理: [closeを優先し、未定義の場合だけshutdownを呼び出す]
@@ -654,3 +759,37 @@ def _close_provider(provider: Any) -> None:
         close = getattr(provider, "shutdown", None)
     if close is not None:
         close()
+
+
+# {
+#   責務: [_managed_session: 本番Pipelineにだけ既定light Mode/workerの寿命を接続する]
+#   処理: [custom legacy factory互換を維持し、初期化失敗時はPipeline/Providerを解放する]
+#   引数: [pipeline/provider: 構築済みSession部品, configuration: 確定設定, controller: Session停止世代]
+#   戻り値: [ManagedSessionRuntime: 一つのModeとworkerを所有するruntime]
+#   エラー: [Exception: 初期化失敗。解放を試みて元エラーを伝播する]
+# }
+def _managed_session(
+    pipeline: DecisionPipeline,
+    provider: Any,
+    configuration: SessionRuntimeConfiguration,
+    controller: RunController,
+) -> ManagedSessionRuntime:
+    adaptation = None
+    try:
+        if isinstance(pipeline, DecisionPipeline):
+            adaptation = SessionLightAdaptation(
+                pipeline,
+                configuration.game_directory / "light_adaptation",
+                controller,
+                config=configuration.runtime_mode,
+                scope=configuration.knowledge_scope,
+                identity=configuration.learning_identity,
+                budget=configuration.adaptation_budget,
+            )
+        return ManagedSessionRuntime(pipeline, provider, adaptation)
+    except Exception:
+        try:
+            pipeline.close()
+        finally:
+            _close_provider(provider)
+        raise
