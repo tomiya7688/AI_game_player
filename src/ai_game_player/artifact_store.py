@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 from ai_game_player.experience import ArtifactReference
+from ai_game_player.bounded_file import read_regular_file
 
 
 ARTIFACT_METADATA_SCHEMA_VERSION = 1
@@ -143,6 +144,28 @@ class ArtifactStore(Protocol):
     ) -> tuple[IntegrityIssue, ...]: ...
 
 
+# {
+#   責務: [BoundedArtifactStore: 既存Store契約を壊さず容量上限・型照合の読込能力を追加する]
+#   フィールド: [なし: 通常readだけの既存実装に新能力を強制しない任意capability契約]
+# }
+@runtime_checkable
+class BoundedArtifactStore(ArtifactStore, Protocol):
+    # {
+    #   責務: [read_bounded: 小さい契約Artifactの容量と任意のartifact_typeを検証して読む]
+    #   処理: [metadata/payloadを上限付きで検査し、内容・参照と要求された型を照合する]
+    #   引数: [reference: 保存参照, max_bytes: payload上限byte, expected_artifact_type: 任意の期待型]
+    #   戻り値: [bytes: 検証したpayload]
+    #   エラー: [ValueError/OSError: 容量・型・整合性違反またはIO失敗]
+    # }
+    def read_bounded(
+        self,
+        reference: ArtifactReference,
+        *,
+        max_bytes: int,
+        expected_artifact_type: str | None = None,
+    ) -> bytes: ...
+
+
 class FileSystemArtifactStore:
     """Immutable SHA-256 object store with atomically published object directories."""
 
@@ -217,14 +240,30 @@ class FileSystemArtifactStore:
     # {
     #   責務: [read_bounded: 小さい契約データを容量上限付きで整合性検証して読む]
     #   処理: [metadataとpayloadの読込量を制限し、既存の参照・サイズ・SHA検証も維持する]
-    #   引数: [reference: 読取るArtifact参照, max_bytes: 許可payload容量の正整数byte]
+    #   引数: [reference: 読取るArtifact参照, max_bytes: 許可payload容量の正整数byte,
+    #     expected_artifact_type: 指定時はmetadataの型と完全一致を要求する]
     #   戻り値: [bytes: 容量と内容整合性を満たすpayload]
     #   エラー: [ValueError: 上限が不正, ArtifactIntegrityError: 容量または整合性違反, OSError: 読込失敗]
     # }
-    def read_bounded(self, reference: ArtifactReference, *, max_bytes: int) -> bytes:
+    def read_bounded(
+        self,
+        reference: ArtifactReference,
+        *,
+        max_bytes: int,
+        expected_artifact_type: str | None = None,
+    ) -> bytes:
         if type(max_bytes) is not int or max_bytes <= 0:
             raise ValueError("artifact read limit must be a positive integer")
-        payload, _ = self._load(reference, max_bytes=max_bytes)
+        if expected_artifact_type is not None and (
+            not isinstance(expected_artifact_type, str)
+            or _ID.fullmatch(expected_artifact_type) is None
+        ):
+            raise ValueError("expected artifact type must be an identifier")
+        payload, _ = self._load(
+            reference,
+            max_bytes=max_bytes,
+            expected_artifact_type=expected_artifact_type,
+        )
         return payload
 
     def verify(self, reference: ArtifactReference) -> ArtifactMetadata:
@@ -278,12 +317,17 @@ class FileSystemArtifactStore:
     # {
     #   責務: [_load: 参照と格納metadata・内容hashが一致するArtifactだけを復元する]
     #   処理: [通常読込または上限付き読込を行い、型・参照・サイズ・SHAを検証する]
-    #   引数: [reference: 読取る参照, max_bytes: 任意のpayload byte上限。指定時はmetadataも16KiBに制限]
+    #   引数: [reference: 読取る参照, max_bytes: 任意のpayload byte上限。指定時はmetadataも16KiBに制限,
+    #     expected_artifact_type: 任意のmetadata型照合]
     #   戻り値: [tuple: 検証済みpayloadとmetadata]
     #   エラー: [ArtifactIntegrityError: 欠落・容量超過・不整合, TypeError: 参照型が不正, OSError: IO失敗]
     # }
     def _load(
-        self, reference: ArtifactReference, *, max_bytes: int | None = None
+        self,
+        reference: ArtifactReference,
+        *,
+        max_bytes: int | None = None,
+        expected_artifact_type: str | None = None,
     ) -> tuple[bytes, ArtifactMetadata]:
         if not isinstance(reference, ArtifactReference):
             raise TypeError("reference must be an ArtifactReference")
@@ -294,6 +338,13 @@ class FileSystemArtifactStore:
             reference.sha256,
             max_bytes=MAX_BOUNDED_METADATA_BYTES if max_bytes is not None else None,
         )
+        if (
+            expected_artifact_type is not None
+            and metadata.artifact_type != expected_artifact_type
+        ):
+            raise ArtifactIntegrityError(
+                "artifact type does not match expected metadata"
+            )
         if metadata.sha256 != reference.sha256:
             raise ArtifactIntegrityError("metadata digest does not match reference")
         if (
@@ -313,10 +364,12 @@ class FileSystemArtifactStore:
         if max_bytes is None:
             payload = payload_path.read_bytes()
         else:
-            with payload_path.open("rb") as stream:
-                payload = stream.read(max_bytes + 1)
-            if len(payload) > max_bytes:
-                raise ArtifactIntegrityError("artifact payload exceeds read limit")
+            try:
+                payload = read_regular_file(payload_path, max_bytes=max_bytes)
+            except ValueError as error:
+                raise ArtifactIntegrityError(
+                    "artifact payload violates bounded regular-file contract"
+                ) from error
         if len(payload) != metadata.size_bytes:
             raise ArtifactIntegrityError("artifact size does not match stored metadata")
         if hashlib.sha256(payload).hexdigest() != reference.sha256:
@@ -342,10 +395,7 @@ class FileSystemArtifactStore:
             if max_bytes is None:
                 raw = json.loads(path.read_text(encoding="utf-8"))
             else:
-                with path.open("rb") as stream:
-                    payload = stream.read(max_bytes + 1)
-                if len(payload) > max_bytes:
-                    raise ArtifactIntegrityError("artifact metadata exceeds read limit")
+                payload = read_regular_file(path, max_bytes=max_bytes)
                 raw = json.loads(payload)
             return ArtifactMetadata.from_dict(raw)
         except FileNotFoundError as exc:

@@ -5642,6 +5642,7 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.bounded_file",
         "ai_game_player.experience"
       ],
       "imports": [
@@ -5836,12 +5837,28 @@
               "name": "ArtifactReference"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.bounded_file"
+          ],
+          "module": "ai_game_player.bounded_file",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_regular_file"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.artifact_store",
       "path": "src/ai_game_player/artifact_store.py",
       "source_location": {
-        "end_line": 428,
+        "end_line": 478,
         "start_line": 1
       },
       "symbols": [
@@ -5863,8 +5880,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 25,
-            "start_line": 24
+            "end_line": 26,
+            "start_line": 25
           }
         },
         {
@@ -5885,8 +5902,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 113,
-            "start_line": 29
+            "end_line": 114,
+            "start_line": 30
           }
         },
         {
@@ -5908,8 +5925,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 63,
-            "start_line": 38
+            "end_line": 64,
+            "start_line": 39
           }
         },
         {
@@ -5931,8 +5948,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 74,
-            "start_line": 65
+            "end_line": 75,
+            "start_line": 66
           }
         },
         {
@@ -5962,8 +5979,8 @@
           "signature": "(cls, value: Mapping[str, Any]) -> ArtifactMetadata",
           "source_location": {
             "column": 4,
-            "end_line": 108,
-            "start_line": 77
+            "end_line": 109,
+            "start_line": 78
           }
         },
         {
@@ -5985,8 +6002,8 @@
           "signature": "(self) -> ArtifactReference",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 110
+            "end_line": 114,
+            "start_line": 111
           }
         },
         {
@@ -6007,8 +6024,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 119,
-            "start_line": 117
+            "end_line": 120,
+            "start_line": 118
           }
         },
         {
@@ -6031,8 +6048,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 143,
-            "start_line": 123
+            "end_line": 144,
+            "start_line": 124
           }
         },
         {
@@ -6078,8 +6095,8 @@
           "signature": "(self, payload: bytes, *, media_type: str, artifact_type: str = …, sensitive: bool = …) -> ArtifactReference",
           "source_location": {
             "column": 4,
-            "end_line": 131,
-            "start_line": 124
+            "end_line": 132,
+            "start_line": 125
           }
         },
         {
@@ -6107,8 +6124,8 @@
           "signature": "(self, reference: ArtifactReference) -> bytes",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 133
+            "end_line": 134,
+            "start_line": 134
           }
         },
         {
@@ -6136,8 +6153,8 @@
           "signature": "(self, reference: ArtifactReference) -> ArtifactMetadata",
           "source_location": {
             "column": 4,
-            "end_line": 135,
-            "start_line": 135
+            "end_line": 136,
+            "start_line": 136
           }
         },
         {
@@ -6165,8 +6182,8 @@
           "signature": "(self, references: Iterable[ArtifactReference]) -> tuple[str, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 137
+            "end_line": 140,
+            "start_line": 138
           }
         },
         {
@@ -6194,8 +6211,74 @@
           "signature": "(self, references: Iterable[ArtifactReference] | None = …) -> tuple[IntegrityIssue, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 141
+            "end_line": 144,
+            "start_line": 142
+          }
+        },
+        {
+          "bases": [
+            "ArtifactStore",
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [
+            "runtime_checkable"
+          ],
+          "kind": "class",
+          "name": "BoundedArtifactStore",
+          "parameters": [],
+          "qualified_name": "BoundedArtifactStore",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 166,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ArtifactReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reference"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "max_bytes"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_artifact_type"
+            }
+          ],
+          "qualified_name": "BoundedArtifactStore.read_bounded",
+          "return_annotation": "bytes",
+          "signature": "(self, reference: ArtifactReference, *, max_bytes: int, expected_artifact_type: str | None = …) -> bytes",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 160
           }
         },
         {
@@ -6214,8 +6297,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 399,
-            "start_line": 146
+            "end_line": 449,
+            "start_line": 169
           }
         },
         {
@@ -6243,8 +6326,8 @@
           "signature": "(self, root: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 149
+            "end_line": 173,
+            "start_line": 172
           }
         },
         {
@@ -6290,8 +6373,8 @@
           "signature": "(self, payload: bytes, *, media_type: str, artifact_type: str = …, sensitive: bool = …) -> ArtifactReference",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 152
+            "end_line": 234,
+            "start_line": 175
           }
         },
         {
@@ -6319,8 +6402,8 @@
           "signature": "(self, reference: ArtifactReference) -> bytes",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 213
+            "end_line": 238,
+            "start_line": 236
           }
         },
         {
@@ -6347,15 +6430,21 @@
               "has_default": false,
               "kind": "keyword_only",
               "name": "max_bytes"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_artifact_type"
             }
           ],
           "qualified_name": "FileSystemArtifactStore.read_bounded",
           "return_annotation": "bytes",
-          "signature": "(self, reference: ArtifactReference, *, max_bytes: int) -> bytes",
+          "signature": "(self, reference: ArtifactReference, *, max_bytes: int, expected_artifact_type: str | None = …) -> bytes",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 224
+            "end_line": 267,
+            "start_line": 248
           }
         },
         {
@@ -6383,8 +6472,8 @@
           "signature": "(self, reference: ArtifactReference) -> ArtifactMetadata",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 230
+            "end_line": 271,
+            "start_line": 269
           }
         },
         {
@@ -6412,8 +6501,8 @@
           "signature": "(self, references: Iterable[ArtifactReference]) -> tuple[str, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 234
+            "end_line": 279,
+            "start_line": 273
           }
         },
         {
@@ -6441,8 +6530,8 @@
           "signature": "(self, references: Iterable[ArtifactReference] | None = …) -> tuple[IntegrityIssue, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 276,
-            "start_line": 242
+            "end_line": 315,
+            "start_line": 281
           }
         },
         {
@@ -6469,15 +6558,21 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "max_bytes"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected_artifact_type"
             }
           ],
           "qualified_name": "FileSystemArtifactStore._load",
           "return_annotation": "tuple[bytes, ArtifactMetadata]",
-          "signature": "(self, reference: ArtifactReference, *, max_bytes: int | None = …) -> tuple[bytes, ArtifactMetadata]",
+          "signature": "(self, reference: ArtifactReference, *, max_bytes: int | None = …, expected_artifact_type: str | None = …) -> tuple[bytes, ArtifactMetadata]",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 285
+            "end_line": 377,
+            "start_line": 325
           }
         },
         {
@@ -6511,8 +6606,8 @@
           "signature": "(self, digest: str, *, max_bytes: int | None = …) -> ArtifactMetadata",
           "source_location": {
             "column": 4,
-            "end_line": 358,
-            "start_line": 333
+            "end_line": 408,
+            "start_line": 386
           }
         },
         {
@@ -6540,8 +6635,8 @@
           "signature": "(self, digest: str) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 363,
-            "start_line": 360
+            "end_line": 413,
+            "start_line": 410
           }
         },
         {
@@ -6563,8 +6658,8 @@
           "signature": "(self) -> Iterator[str]",
           "source_location": {
             "column": 4,
-            "end_line": 382,
-            "start_line": 365
+            "end_line": 432,
+            "start_line": 415
           }
         },
         {
@@ -6594,8 +6689,8 @@
           "signature": "(path: Path, content: bytes) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 389,
-            "start_line": 385
+            "end_line": 439,
+            "start_line": 435
           }
         },
         {
@@ -6619,8 +6714,8 @@
           "signature": "(path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 399,
-            "start_line": 392
+            "end_line": 449,
+            "start_line": 442
           }
         },
         {
@@ -6648,8 +6743,8 @@
           "signature": "(value: Any, name: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 405,
-            "start_line": 402
+            "end_line": 455,
+            "start_line": 452
           }
         },
         {
@@ -6677,8 +6772,8 @@
           "signature": "(value: Any, name: str) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 411,
-            "start_line": 408
+            "end_line": 461,
+            "start_line": 458
           }
         },
         {
@@ -6706,8 +6801,8 @@
           "signature": "(value: Any, name: str) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 417,
-            "start_line": 414
+            "end_line": 467,
+            "start_line": 464
           }
         },
         {
@@ -6729,8 +6824,8 @@
           "signature": "(value: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 428,
-            "start_line": 420
+            "end_line": 478,
+            "start_line": 470
           }
         }
       ]
@@ -7432,6 +7527,87 @@
             "column": 0,
             "end_line": 427,
             "start_line": 412
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "stat",
+          "names": [
+            {
+              "alias": null,
+              "name": "stat"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.bounded_file",
+      "path": "src/ai_game_player/bounded_file.py",
+      "source_location": {
+        "end_line": 40,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_regular_file",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "max_bytes"
+            }
+          ],
+          "qualified_name": "read_regular_file",
+          "return_annotation": "bytes",
+          "signature": "(path: Path, *, max_bytes: int) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 40,
+            "start_line": 16
           }
         }
       ]
@@ -27646,9 +27822,22 @@
           ]
         },
         {
-          "kind": "from",
+          "kind": "import",
           "level": 0,
           "line": 8,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -27665,7 +27854,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge_scope"
@@ -27686,7 +27875,7 @@
       "module": "ai_game_player.knowledge_snapshot",
       "path": "src/ai_game_player/knowledge_snapshot.py",
       "source_location": {
-        "end_line": 417,
+        "end_line": 439,
         "start_line": 1
       },
       "symbols": [
@@ -27708,8 +27897,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 178,
-            "start_line": 77
+            "end_line": 187,
+            "start_line": 79
           }
         },
         {
@@ -27731,8 +27920,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 94
+            "end_line": 120,
+            "start_line": 96
           }
         },
         {
@@ -27762,8 +27951,8 @@
           "signature": "(cls, value: dict[str, Any]) -> REDACTED",
           "source_location": {
             "column": 4,
-            "end_line": 135,
-            "start_line": 128
+            "end_line": 144,
+            "start_line": 130
           }
         },
         {
@@ -27785,8 +27974,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 143
+            "end_line": 153,
+            "start_line": 152
           }
         },
         {
@@ -27808,8 +27997,8 @@
           "signature": "(self) -> bytes",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 152
+            "end_line": 162,
+            "start_line": 161
           }
         },
         {
@@ -27833,8 +28022,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 162
+            "end_line": 172,
+            "start_line": 171
           }
         },
         {
@@ -27862,8 +28051,8 @@
           "signature": "(self, now: datetime | None = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 178,
-            "start_line": 172
+            "end_line": 187,
+            "start_line": 181
           }
         },
         {
@@ -27885,8 +28074,8 @@
           "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 194,
-            "start_line": 188
+            "end_line": 203,
+            "start_line": 197
           }
         },
         {
@@ -27914,8 +28103,8 @@
           "signature": "(value: Any, expected: set[str] | frozenset[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 206,
-            "start_line": 204
+            "end_line": 215,
+            "start_line": 213
           }
         },
         {
@@ -27943,8 +28132,8 @@
           "signature": "(value: Any, maximum: int = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 219,
-            "start_line": 216
+            "end_line": 228,
+            "start_line": 225
           }
         },
         {
@@ -27978,8 +28167,8 @@
           "signature": "(value: Any, lower: float = …, upper: float = …) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 236,
-            "start_line": 229
+            "end_line": 245,
+            "start_line": 238
           }
         },
         {
@@ -28001,8 +28190,8 @@
           "signature": "(value: Any) -> datetime",
           "source_location": {
             "column": 0,
-            "end_line": 255,
-            "start_line": 246
+            "end_line": 268,
+            "start_line": 255
           }
         },
         {
@@ -28030,8 +28219,8 @@
           "signature": "(value: Any, maximum: int = …) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 270,
-            "start_line": 265
+            "end_line": 283,
+            "start_line": 278
           }
         },
         {
@@ -28053,8 +28242,8 @@
           "signature": "(value: Any) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 320,
-            "start_line": 280
+            "end_line": 339,
+            "start_line": 293
           }
         },
         {
@@ -28082,8 +28271,8 @@
           "signature": "(table: Any, sample_count: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 350,
-            "start_line": 330
+            "end_line": 369,
+            "start_line": 349
           }
         },
         {
@@ -28111,8 +28300,8 @@
           "signature": "(rows: Any, sample_count: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 376,
-            "start_line": 360
+            "end_line": 395,
+            "start_line": 379
           }
         },
         {
@@ -28136,12 +28325,12 @@
             }
           ],
           "qualified_name": "_validate_sources",
-          "return_annotation": "None",
-          "signature": "(rows: Any, sample_count: int) -> None",
+          "return_annotation": "dict[str, int]",
+          "signature": "(rows: Any, sample_count: int) -> dict[str, int]",
           "source_location": {
             "column": 0,
-            "end_line": 417,
-            "start_line": 386
+            "end_line": 439,
+            "start_line": 405
           }
         }
       ]
@@ -28151,6 +28340,7 @@
         "ai_game_player",
         "ai_game_player.artifact_store",
         "ai_game_player.atomic_json",
+        "ai_game_player.bounded_file",
         "ai_game_player.cross_process_lock",
         "ai_game_player.experience",
         "ai_game_player.knowledge_scope",
@@ -28264,6 +28454,22 @@
           "line": 14,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.bounded_file"
+          ],
+          "module": "ai_game_player.bounded_file",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_regular_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.cross_process_lock"
           ],
           "module": "ai_game_player.cross_process_lock",
@@ -28277,7 +28483,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.experience"
@@ -28293,7 +28499,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge_scope"
@@ -28313,7 +28519,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge_snapshot"
@@ -28342,7 +28548,7 @@
       "module": "ai_game_player.knowledge_snapshot_store",
       "path": "src/ai_game_player/knowledge_snapshot_store.py",
       "source_location": {
-        "end_line": 190,
+        "end_line": 192,
         "start_line": 1
       },
       "symbols": [
@@ -28364,8 +28570,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 39,
-            "start_line": 36
+            "end_line": 40,
+            "start_line": 37
           }
         },
         {
@@ -28384,8 +28590,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 190,
-            "start_line": 46
+            "end_line": 192,
+            "start_line": 47
           }
         },
         {
@@ -28413,8 +28619,8 @@
           "signature": "(self, root: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 53
+            "end_line": 56,
+            "start_line": 54
           }
         },
         {
@@ -28442,8 +28648,8 @@
           "signature": "(self, snapshot: KnowledgeSnapshot) -> ArtifactReference",
           "source_location": {
             "column": 4,
-            "end_line": 104,
-            "start_line": 64
+            "end_line": 107,
+            "start_line": 65
           }
         },
         {
@@ -28483,8 +28689,8 @@
           "signature": "(self, scope: KnowledgeScope, version: str, *, now: datetime | None = …) -> KnowledgeReadResult",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 114
+            "end_line": 178,
+            "start_line": 117
           }
         },
         {
@@ -28518,8 +28724,8 @@
           "signature": "(self, scope: KnowledgeScope, version: str) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 185
+            "end_line": 192,
+            "start_line": 187
           }
         }
       ]
@@ -77927,7 +78133,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 138,
+          "line": 142,
           "local_dependencies": [],
           "module": "test_knowledge_builder",
           "names": [
@@ -77941,7 +78147,7 @@
       "module": "tests.test_knowledge_feature_adapter",
       "path": "tests/test_knowledge_feature_adapter.py",
       "source_location": {
-        "end_line": 449,
+        "end_line": 453,
         "start_line": 1
       },
       "symbols": [
@@ -77988,7 +78194,7 @@
           "signature": "(priors = …, *, version = …, uncertainty = …, unknown = …, **overrides)",
           "source_location": {
             "column": 0,
-            "end_line": 59,
+            "end_line": 63,
             "start_line": 22
           }
         },
@@ -78023,8 +78229,8 @@
           "signature": "(snapshot, *, scope = …, **kwargs)",
           "source_location": {
             "column": 0,
-            "end_line": 69,
-            "start_line": 62
+            "end_line": 73,
+            "start_line": 66
           }
         },
         {
@@ -78046,8 +78252,8 @@
           "signature": "(candidates = …)",
           "source_location": {
             "column": 0,
-            "end_line": 80,
-            "start_line": 72
+            "end_line": 84,
+            "start_line": 76
           }
         },
         {
@@ -78068,8 +78274,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 445,
-            "start_line": 83
+            "end_line": 449,
+            "start_line": 87
           }
         },
         {
@@ -78091,8 +78297,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 132,
-            "start_line": 84
+            "end_line": 136,
+            "start_line": 88
           }
         },
         {
@@ -78111,8 +78317,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 105,
-            "start_line": 93
+            "end_line": 109,
+            "start_line": 97
           }
         },
         {
@@ -78134,8 +78340,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 105,
-            "start_line": 94
+            "end_line": 109,
+            "start_line": 98
           }
         },
         {
@@ -78157,8 +78363,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 192,
-            "start_line": 134
+            "end_line": 196,
+            "start_line": 138
           }
         },
         {
@@ -78177,8 +78383,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 164,
-            "start_line": 153
+            "end_line": 168,
+            "start_line": 157
           }
         },
         {
@@ -78200,8 +78406,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 164,
-            "start_line": 154
+            "end_line": 168,
+            "start_line": 158
           }
         },
         {
@@ -78223,8 +78429,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 194
+            "end_line": 232,
+            "start_line": 198
           }
         },
         {
@@ -78246,8 +78452,8 @@
           "signature": "(scope)",
           "source_location": {
             "column": 8,
-            "end_line": 207,
-            "start_line": 205
+            "end_line": 211,
+            "start_line": 209
           }
         },
         {
@@ -78269,8 +78475,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 260,
-            "start_line": 230
+            "end_line": 264,
+            "start_line": 234
           }
         },
         {
@@ -78292,8 +78498,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 280,
-            "start_line": 262
+            "end_line": 284,
+            "start_line": 266
           }
         },
         {
@@ -78315,8 +78521,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 302,
-            "start_line": 282
+            "end_line": 306,
+            "start_line": 286
           }
         },
         {
@@ -78338,8 +78544,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 326,
-            "start_line": 304
+            "end_line": 330,
+            "start_line": 308
           }
         },
         {
@@ -78361,8 +78567,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 347,
-            "start_line": 328
+            "end_line": 351,
+            "start_line": 332
           }
         },
         {
@@ -78384,8 +78590,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 349
+            "end_line": 402,
+            "start_line": 353
           }
         },
         {
@@ -78404,8 +78610,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 359,
-            "start_line": 355
+            "end_line": 363,
+            "start_line": 359
           }
         },
         {
@@ -78427,8 +78633,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 359,
-            "start_line": 356
+            "end_line": 363,
+            "start_line": 360
           }
         },
         {
@@ -78447,8 +78653,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 367,
-            "start_line": 361
+            "end_line": 371,
+            "start_line": 365
           }
         },
         {
@@ -78470,8 +78676,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 363,
-            "start_line": 362
+            "end_line": 367,
+            "start_line": 366
           }
         },
         {
@@ -78505,8 +78711,8 @@
           "signature": "(self, context, personality = …)",
           "source_location": {
             "column": 12,
-            "end_line": 367,
-            "start_line": 365
+            "end_line": 371,
+            "start_line": 369
           }
         },
         {
@@ -78528,8 +78734,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 429,
-            "start_line": 400
+            "end_line": 433,
+            "start_line": 404
           }
         },
         {
@@ -78551,8 +78757,8 @@
           "signature": "(_scope)",
           "source_location": {
             "column": 8,
-            "end_line": 407,
-            "start_line": 406
+            "end_line": 411,
+            "start_line": 410
           }
         },
         {
@@ -78574,8 +78780,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 445,
-            "start_line": 431
+            "end_line": 449,
+            "start_line": 435
           }
         }
       ]
@@ -78583,8 +78789,13 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.artifact_store",
+        "ai_game_player.baseline_provider",
+        "ai_game_player.bounded_file",
+        "ai_game_player.decision_context",
         "ai_game_player.knowledge_snapshot",
-        "ai_game_player.knowledge_snapshot_store"
+        "ai_game_player.knowledge_snapshot_store",
+        "ai_game_player.models"
       ],
       "imports": [
         {
@@ -78661,9 +78872,22 @@
           ]
         },
         {
-          "kind": "from",
+          "kind": "import",
           "level": 0,
           "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -78676,7 +78900,33 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -78689,7 +78939,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 11,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -78702,7 +78952,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 12,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -78715,7 +78965,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge_snapshot"
@@ -78739,7 +78989,103 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactStore"
+            },
+            {
+              "alias": null,
+              "name": "BoundedArtifactStore"
+            },
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            },
+            {
+              "alias": null,
+              "name": "MAX_BOUNDED_METADATA_BYTES"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.baseline_provider"
+          ],
+          "module": "ai_game_player.baseline_provider",
+          "names": [
+            {
+              "alias": null,
+              "name": "BaselineDecisionProvider"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 27,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.bounded_file"
+          ],
+          "module": "ai_game_player.bounded_file",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_regular_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 29,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.knowledge_snapshot_store"
@@ -78760,7 +79106,7 @@
       "module": "tests.test_knowledge_snapshot",
       "path": "tests/test_knowledge_snapshot.py",
       "source_location": {
-        "end_line": 306,
+        "end_line": 563,
         "start_line": 1
       },
       "symbols": [
@@ -78776,8 +79122,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 26,
-            "start_line": 25
+            "end_line": 39,
+            "start_line": 38
           }
         },
         {
@@ -78798,8 +79144,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 302,
-            "start_line": 29
+            "end_line": 559,
+            "start_line": 42
           }
         },
         {
@@ -78821,8 +79167,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 44,
-            "start_line": 30
+            "end_line": 57,
+            "start_line": 43
           }
         },
         {
@@ -78844,8 +79190,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 46
+            "end_line": 68,
+            "start_line": 59
           }
         },
         {
@@ -78867,8 +79213,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 85,
-            "start_line": 57
+            "end_line": 98,
+            "start_line": 70
           }
         },
         {
@@ -78890,8 +79236,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 119,
-            "start_line": 87
+            "end_line": 132,
+            "start_line": 100
           }
         },
         {
@@ -78913,8 +79259,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 121
+            "end_line": 152,
+            "start_line": 134
           }
         },
         {
@@ -78936,8 +79282,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 168,
-            "start_line": 140
+            "end_line": 182,
+            "start_line": 154
           }
         },
         {
@@ -78959,8 +79305,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 170
+            "end_line": 200,
+            "start_line": 184
           }
         },
         {
@@ -78982,8 +79328,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 188
+            "end_line": 225,
+            "start_line": 202
           }
         },
         {
@@ -79005,8 +79351,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 213
+            "end_line": 275,
+            "start_line": 227
           }
         },
         {
@@ -79028,8 +79374,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 263
+            "end_line": 301,
+            "start_line": 277
           }
         },
         {
@@ -79051,8 +79397,376 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 302,
-            "start_line": 289
+            "end_line": 316,
+            "start_line": 303
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_processed_cursors_cover_accepted_evidence_without_rejecting_correlated_drops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_processed_cursors_cover_accepted_evidence_without_rejecting_correlated_drops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 336,
+            "start_line": 318
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_wrong_artifact_metadata_type_is_not_usable_knowledge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_wrong_artifact_metadata_type_is_not_usable_knowledge",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 353,
+            "start_line": 338
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_shape_and_string_limits_are_checked_before_any_json_encoding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_shape_and_string_limits_are_checked_before_any_json_encoding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 376,
+            "start_line": 355
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipUnless(hasattr(os, REDACTED), REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_fifo_index_and_opened_non_regular_descriptor_fail_without_stream_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_fifo_index_and_opened_non_regular_descriptor_fail_without_stream_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 416,
+            "start_line": 379
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 473,
+            "start_line": 418
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ObservedStream",
+          "parameters": [],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result.ObservedStream",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 12,
+            "end_line": 450,
+            "start_line": 435
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stream"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result.ObservedStream.__init__",
+          "return_annotation": null,
+          "signature": "(self, stream)",
+          "source_location": {
+            "column": 16,
+            "end_line": 437,
+            "start_line": 436
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__enter__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result.ObservedStream.__enter__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 16,
+            "end_line": 441,
+            "start_line": 439
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__exit__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result.ObservedStream.__exit__",
+          "return_annotation": null,
+          "signature": "(self, *args)",
+          "source_location": {
+            "column": 16,
+            "end_line": 444,
+            "start_line": 443
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "size"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result.ObservedStream.read",
+          "return_annotation": null,
+          "signature": "(self, size = …)",
+          "source_location": {
+            "column": 16,
+            "end_line": 450,
+            "start_line": 446
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "observed_fdopen",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_metadata_stream_reads_are_observed_not_only_invalid_json_result.observed_fdopen",
+          "return_annotation": null,
+          "signature": "(*args, **kwargs)",
+          "source_location": {
+            "column": 12,
+            "end_line": 453,
+            "start_line": 452
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_patterns_match_utc_identifiers_and_document_cross_field_rules",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_schema_patterns_match_utc_identifiers_and_document_cross_field_rules",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 504,
+            "start_line": 475
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bounded_capability_does_not_break_legacy_artifact_protocol",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_bounded_capability_does_not_break_legacy_artifact_protocol",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 518,
+            "start_line": 506
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_knowledge_uses_actual_static_baseline_decision",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_missing_knowledge_uses_actual_static_baseline_decision",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 545,
+            "start_line": 520
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_snapshot_index_directory_is_synced_after_new_and_idempotent_save",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "KnowledgeSnapshotTests.test_snapshot_index_directory_is_synced_after_new_and_idempotent_save",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 559,
+            "start_line": 547
           }
         }
       ]

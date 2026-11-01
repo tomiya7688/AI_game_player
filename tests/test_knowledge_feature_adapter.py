@@ -55,6 +55,10 @@ def make_snapshot(
             "sha256": "2" * 64,
         }
     ]
+    payload["builder_state"] = {
+        "source_watermarks": {"session.learning": payload["sample_count"]},
+        "correlation_watermarks": {},
+    }
     payload.update(overrides)
     return KnowledgeSnapshot.from_dict(payload)
 
