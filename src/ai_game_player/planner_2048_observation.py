@@ -195,10 +195,13 @@ class Reference2048PlanningObservation:
         ):
             return None
         try:
-            return Game2048State(
+            state = Game2048State(
                 tuple(tuple(row) for row in board),
                 score=raw.get("score"),
                 over=raw["game_over"],
             )
+            if not state.over and not any(tile for row in state.cells for tile in row):
+                return None
+            return state
         except (TypeError, ValueError):
             return None

@@ -1,0 +1,238 @@
+{
+  "source": "9194782f13b7bf5b6622ff8ada8c00840c50986f",
+  "run": 41345206059,
+  "job": 124963444206,
+  "engine": {
+    "scope": "explicit owned fixture diagnostic only; shared transforms for all selected cases; no input, score replacement, PSM selection or learning",
+    "version": "tesseract v5.5.3.20260724",
+    "diagnostic_script_sha256": "0367125347edc1e3e417488c53f836701b94713f50776855f12d0708c86455cd",
+    "executable": {
+      "status": "available",
+      "bytes": 1867784,
+      "sha256": "c66f0f12ed76f6aa455dac97684bbc86756d6a732380bee09122454cfda3f420"
+    },
+    "eng_traineddata": {
+      "status": "available",
+      "bytes": 4113088,
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+    },
+    "case_ids": [
+      "124944163043-planner-481",
+      "124944163043-baseline-481"
+    ],
+    "psm": 7
+  },
+  "scope": "Bounded real Windows numeric OCR records, lookup by actual generated RGB. No inferred text or AI input.",
+  "records": [
+    {
+      "image_id": "124944163043-baseline-481",
+      "original_roi": [
+        527,
+        108,
+        557,
+        129
+      ],
+      "variant": "binary_reference",
+      "alias_of_identical_pixels": null,
+      "width": 114,
+      "height": 87,
+      "rgb_sha256": "ddc8b3ee45217f25c3e98372e8a606b9aff1b9799491b8dc881373cbc03f57f2",
+      "png_sha256": "53507c436e6c89bcb2573a382c48084e1ae659bec81eaf171a2687012c02bf9c",
+      "whitelist": true,
+      "output": "tsv",
+      "words": [
+        {
+          "text": "52",
+          "confidence": 96.184647,
+          "bbox": [
+            24,
+            24,
+            65,
+            39
+          ]
+        }
+      ]
+    },
+    {
+      "image_id": "124944163043-baseline-481",
+      "original_roi": [
+        527,
+        108,
+        557,
+        129
+      ],
+      "variant": "grayscale_same_bilinear",
+      "alias_of_identical_pixels": null,
+      "width": 114,
+      "height": 87,
+      "rgb_sha256": "f150c287db4d4e04fcfd8974447cfd964cbaf28f1d2542085040bd5f8db42b73",
+      "png_sha256": "6d9da06fa7d6a5a602e51a247a97e1918d98d5113900d84fe4b775d7c07b5096",
+      "whitelist": false,
+      "output": "tsv",
+      "words": [
+        {
+          "text": "52",
+          "confidence": 96.059639,
+          "bbox": [
+            24,
+            24,
+            65,
+            39
+          ]
+        }
+      ]
+    },
+    {
+      "image_id": "124944163043-baseline-481",
+      "original_roi": [
+        523,
+        108,
+        561,
+        129
+      ],
+      "variant": "binary_reference",
+      "alias_of_identical_pixels": null,
+      "width": 138,
+      "height": 87,
+      "rgb_sha256": "4c0dc61526126154fddf3ace075dd777a191b2db0f12a0b0583a6ae4418507a2",
+      "png_sha256": "1ef89babbd01b11a67d467afb879272c5ba5e06abc747a164011cb48fa30eef2",
+      "whitelist": true,
+      "output": "tsv",
+      "words": [
+        {
+          "text": "52",
+          "confidence": 96.184647,
+          "bbox": [
+            36,
+            24,
+            65,
+            39
+          ]
+        }
+      ]
+    },
+    {
+      "image_id": "124944163043-baseline-481",
+      "original_roi": [
+        523,
+        108,
+        561,
+        129
+      ],
+      "variant": "grayscale_same_bilinear",
+      "alias_of_identical_pixels": null,
+      "width": 138,
+      "height": 87,
+      "rgb_sha256": "6ccf5ec9e6afcf8158e101e7c32f28508fe7a3a2dc8fcf2413edb74938cd6116",
+      "png_sha256": "72240d35374d53751c003c2f10fa6050579700500a60dd1a9590a3cc0bedb9b3",
+      "whitelist": false,
+      "output": "tsv",
+      "words": [
+        {
+          "text": "52",
+          "confidence": 96.059639,
+          "bbox": [
+            36,
+            24,
+            65,
+            39
+          ]
+        }
+      ]
+    },
+    {
+      "image_id": "124944163043-planner-481",
+      "original_roi": [
+        548,
+        108,
+        567,
+        129
+      ],
+      "variant": "binary_reference",
+      "alias_of_identical_pixels": null,
+      "width": 81,
+      "height": 87,
+      "rgb_sha256": "735a18ec7bf2aaec7fc382993eb291842f377d1d69dca4be044ae71f7e023274",
+      "png_sha256": "0f431a7a67f8cfb9f599723afa703b99bf126d49cf343bc38d58f6d1c2b6d6cf",
+      "whitelist": true,
+      "output": "tsv",
+      "words": []
+    },
+    {
+      "image_id": "124944163043-planner-481",
+      "original_roi": [
+        548,
+        108,
+        567,
+        129
+      ],
+      "variant": "grayscale_same_bilinear",
+      "alias_of_identical_pixels": null,
+      "width": 81,
+      "height": 87,
+      "rgb_sha256": "4d34c94f0da686059b6a088dc981ec92ce25c611ff1d83ad75840bd4d37a5d67",
+      "png_sha256": "c4c0ea09d477e5be85dc60b13221e0d9f2c536fd9e24eb6344b270aa95d892e7",
+      "whitelist": false,
+      "output": "tsv",
+      "words": [
+        {
+          "text": "0",
+          "confidence": 68.712212,
+          "bbox": [
+            24,
+            24,
+            32,
+            39
+          ]
+        }
+      ]
+    },
+    {
+      "image_id": "124944163043-planner-481",
+      "original_roi": [
+        544,
+        108,
+        571,
+        129
+      ],
+      "variant": "binary_reference",
+      "alias_of_identical_pixels": null,
+      "width": 105,
+      "height": 87,
+      "rgb_sha256": "adaf9f534f550a1cd245698be1d1558d335d44ce5d8273a8388bcc906a057c3a",
+      "png_sha256": "c5ba58a80cbd3b2af2e48736b8f7b8e2ce561ff64622456a0063abafdf036206",
+      "whitelist": true,
+      "output": "tsv",
+      "words": []
+    },
+    {
+      "image_id": "124944163043-planner-481",
+      "original_roi": [
+        544,
+        108,
+        571,
+        129
+      ],
+      "variant": "grayscale_same_bilinear",
+      "alias_of_identical_pixels": null,
+      "width": 105,
+      "height": 87,
+      "rgb_sha256": "9f2d3b5a78ace06244b8897e9806af524c9d7a48ff88193e87205d03cee5987b",
+      "png_sha256": "aa85d75cd86e3fccd394fe894196ebd6ba60f7289e319915b369ddedb331b23f",
+      "whitelist": false,
+      "output": "tsv",
+      "words": [
+        {
+          "text": "0",
+          "confidence": 68.712212,
+          "bbox": [
+            36,
+            24,
+            32,
+            39
+          ]
+        }
+      ]
+    }
+  ]
+}

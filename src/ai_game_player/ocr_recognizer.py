@@ -20,14 +20,20 @@ class TesseractOcrRecognizer:
 
     # {
     #   責務: [recognize: 同じ画素からOCR文字と矩形・確信度を返す]
-    #   処理: [既定は文書解析。明示的な局所文字blockはPSM6、数字行はPSM7と数字語彙を使う]
-    #   引数: [frame: 解析画素, mode: document/text_block/single_numeric_line]
+    #   処理: [既定は文書解析。明示的な局所文字blockはPSM6、数字行はPSM7と数字語彙を使う。
+    #     評価専用unrestricted_numeric_lineだけはPSM7で語彙を制限しない]
+    #   引数: [frame: 解析画素, mode: document/text_block/single_numeric_line/unrestricted_numeric_line]
     #   戻り値: [list: 元frame内のOCR候補] エラー: [ValueError: 未定義mode]
     # }
     def recognize(
         self, frame: ScreenFrame, *, mode: str = "document"
     ) -> list[dict[str, Any]]:
-        if mode not in {"document", "text_block", "single_numeric_line"}:
+        if mode not in {
+            "document",
+            "text_block",
+            "single_numeric_line",
+            "unrestricted_numeric_line",
+        }:
             raise ValueError("unsupported OCR segmentation mode")
         if self._tesseract is None:
             raise RuntimeError("OCR requires pytesseract and Pillow")
@@ -38,6 +44,8 @@ class TesseractOcrRecognizer:
         options = (
             {"config": "--psm 7 -c tessedit_char_whitelist=0123456789,"}
             if mode == "single_numeric_line"
+            else {"config": "--psm 7"}
+            if mode == "unrestricted_numeric_line"
             else {"config": "--psm 6"}
             if mode == "text_block"
             else {}
