@@ -27,6 +27,7 @@ from ai_game_player.planner_factory import reference_2048_planner_provider
 from ai_game_player.planning_contract import SearchBudget
 from ai_game_player.run_control import RunController
 from tools.planning_comparison_source import source_fingerprint
+from tools.planning_comparison_pacer import ComparisonPacer
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.run_2048_campaign import CyclingDirectionProvider
 
@@ -160,10 +161,12 @@ def run_episode(provider_name, seed, max_steps, *, depth=1, wall_time_ms=400):
         pipeline.executor.live_executor = HeadlessExecutor(source)
         pipeline.executor.dry_run = False
         orchestrator = DecisionOrchestrator(pipeline)
+        pacer = ComparisonPacer()
         try:
             for _ in range(max_steps):
                 if source.state.terminated:
                     break
+                pacer.wait()
                 began = time.monotonic_ns()
                 result = orchestrator.run(
                     execute=True, purpose="headless planning comparison"
@@ -280,6 +283,8 @@ def main(argv=None):
         "schema_version": 1,
         "mode": "headless_fixture",
         "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+        "fixture_minimum_step_period_ms": 125,
+        "timing_scope": "decision latency excludes common pacing; episode wall includes pacing; Safety limits unchanged",
         "git_commit": subprocess.check_output(
             ["git", "rev-parse", "HEAD"], text=True
         ).strip(),
