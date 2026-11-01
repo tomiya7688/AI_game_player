@@ -50,7 +50,9 @@ class FakeUser32:
     #   戻り値: [int: 有効なスレッドID]
     # }
     def GetWindowThreadProcessId(self, _handle, process_id_pointer):
-        ctypes.cast(process_id_pointer, ctypes.POINTER(ctypes.c_ulong)).contents.value = 999
+        ctypes.cast(
+            process_id_pointer, ctypes.POINTER(ctypes.c_ulong)
+        ).contents.value = 999
         return 1
 
     def ScreenToClient(self, _handle, point_pointer):
@@ -94,6 +96,75 @@ class MemoryLedgerStore:
 #   フィールド: [各testがfake user32とActionCandidateを使う]
 # }
 class WindowsInputTest(unittest.TestCase):
+    def test_dispatch_flag_resets_before_target_validation(self):
+        executor = WindowsInputExecutor(window_handle=123, window_process_id=456)
+        executor.input_dispatch_started = True
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(
+                executor,
+                "_verify_target_identity",
+                side_effect=RuntimeError("target lost"),
+            ),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "target lost"):
+                executor.execute(ActionCandidate("key", "key", "LEFT"))
+        self.assertFalse(executor.input_dispatch_started)
+
+    def test_coordinate_conversion_failure_is_not_dispatch(self):
+        user32 = FakeUser32()
+        user32.ScreenToClient = lambda *args: 0
+        executor = WindowsInputExecutor(
+            window_handle=123, input_mode="window_message", window_process_id=456
+        )
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+            patch.object(executor, "_verify_target_identity"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "ScreenToClient"):
+                executor.execute(ActionCandidate("click", "click", "click", 10, 20))
+        self.assertFalse(executor.input_dispatch_started)
+        self.assertEqual(user32.messages, [])
+
+    def test_ledger_failure_is_not_dispatch_and_api_error_is_dispatch_unknown(self):
+        user32 = FakeUser32()
+        executor = WindowsInputExecutor(window_handle=123, window_process_id=456)
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+            patch.object(executor, "_verify_target_identity"),
+        ):
+            with patch.object(
+                executor, "_ledger_hold_key", side_effect=RuntimeError("ledger failed")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "ledger failed"):
+                    executor.execute(ActionCandidate("key", "key", "LEFT"))
+            self.assertFalse(executor.input_dispatch_started)
+            with patch.object(
+                user32, "keybd_event", side_effect=RuntimeError("API result unknown")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "API result unknown"):
+                    executor.execute(ActionCandidate("key", "key", "LEFT"))
+            self.assertTrue(executor.input_dispatch_started)
+
+    def test_successful_key_dispatch_and_wait_are_distinct(self):
+        user32 = FakeUser32()
+        executor = WindowsInputExecutor(window_handle=123, window_process_id=456)
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
+            patch.object(executor, "_verify_target_identity"),
+        ):
+            self.assertTrue(
+                executor.execute(ActionCandidate("key", "key", "LEFT")).executed
+            )
+            self.assertTrue(executor.input_dispatch_started)
+            self.assertTrue(
+                executor.execute(ActionCandidate("wait", "wait", "0")).executed
+            )
+            self.assertFalse(executor.input_dispatch_started)
+
     def test_key_label_is_passed_to_vk_key_scan_as_wchar(self):
         class RecordingUser32(FakeUser32):
             def VkKeyScanW(self, character):
@@ -104,8 +175,9 @@ class WindowsInputTest(unittest.TestCase):
         executor = WindowsInputExecutor()
         candidate = ActionCandidate("press-a", "key", "A")
 
-        with patch.object(windows_input.os, "name", "nt"), patch.object(
-            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
         ):
             executor._execute_key(candidate)
 
@@ -118,7 +190,9 @@ class WindowsInputTest(unittest.TestCase):
 
         class TargetUser32(FakeUser32):
             def GetWindowThreadProcessId(self, _handle, process_id_pointer):
-                ctypes.cast(process_id_pointer, ctypes.POINTER(ctypes.c_ulong)).contents.value = 456
+                ctypes.cast(
+                    process_id_pointer, ctypes.POINTER(ctypes.c_ulong)
+                ).contents.value = 456
                 return 1
 
             def VkKeyScanW(self, character):
@@ -144,8 +218,9 @@ class WindowsInputTest(unittest.TestCase):
             except RuntimeError as exc:
                 execution_errors.append(exc)
 
-        with patch.object(windows_input.os, "name", "nt"), patch.object(
-            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
         ):
             worker = threading.Thread(target=execute_key_hold)
             worker.start()
@@ -155,7 +230,9 @@ class WindowsInputTest(unittest.TestCase):
 
         self.assertFalse(worker.is_alive())
         self.assertEqual(len(execution_errors), 1)
-        self.assertIn("emergency stop interrupted Windows input", str(execution_errors[0]))
+        self.assertIn(
+            "emergency stop interrupted Windows input", str(execution_errors[0])
+        )
         self.assertIn((0x41, 2), user32.key_events)
 
     def test_unsupported_input_mode_is_rejected(self):
@@ -167,8 +244,9 @@ class WindowsInputTest(unittest.TestCase):
         executor = WindowsInputExecutor(input_mode="window_message")
         candidate = ActionCandidate("click", "click", "Play", 30, 45)
 
-        with patch.object(windows_input.os, "name", "nt"), patch.object(
-            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
         ):
             with self.assertRaisesRegex(RuntimeError, "requires a selected window"):
                 executor.execute(candidate)
@@ -185,11 +263,14 @@ class WindowsInputTest(unittest.TestCase):
         #   戻り値: []
         # }
         user32 = FakeUser32()
-        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", window_process_id=456)
+        executor = WindowsInputExecutor(
+            window_handle=123, input_mode="window_message", window_process_id=456
+        )
         candidate = ActionCandidate("click", "click", "Play", 30, 45)
 
-        with patch.object(windows_input.os, "name", "nt"), patch.object(
-            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        with (
+            patch.object(windows_input.os, "name", "nt"),
+            patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True),
         ):
             with self.assertRaisesRegex(RuntimeError, "different process"):
                 executor.execute(candidate)
@@ -204,17 +285,33 @@ class WindowsInputTest(unittest.TestCase):
     def test_custom_live_executor_can_be_verified_without_os_input(self):
         class Fake:
             def execute(self, candidate):
-                return type("Result", (), {"action_id": candidate.action_id, "executed": True, "mode": "fake", "detail": "ok"})()
-        result = ActionExecutor(False, Fake()).execute(ActionCandidate("a", "click", "A", 1, 1))
+                return type(
+                    "Result",
+                    (),
+                    {
+                        "action_id": candidate.action_id,
+                        "executed": True,
+                        "mode": "fake",
+                        "detail": "ok",
+                    },
+                )()
+
+        result = ActionExecutor(False, Fake()).execute(
+            ActionCandidate("a", "click", "A", 1, 1)
+        )
         self.assertTrue(result.executed)
         self.assertEqual(result.mode, "fake")
 
-    def test_mouse_input_translates_window_coordinates_to_screen_without_live_input(self):
+    def test_mouse_input_translates_window_coordinates_to_screen_without_live_input(
+        self,
+    ):
         user32 = FakeUser32()
         executor = WindowsInputExecutor(window_handle=123, input_mode="mouse")
         candidate = ActionCandidate("click", "click", "Play", 30, 45)
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._execute_click(candidate)
 
         self.assertEqual(user32.cursor_positions, [(130, 245)])
@@ -233,7 +330,9 @@ class WindowsInputTest(unittest.TestCase):
             automated_cursor_position_callback=record_notification,
         )
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
 
         self.assertEqual(notifications, [((130, 245), True), ((130, 245), False)])
@@ -253,9 +352,15 @@ class WindowsInputTest(unittest.TestCase):
             automated_cursor_position_callback=record_notification,
         )
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
-            with self.assertRaisesRegex(RuntimeError, "クリックを送信しませんでした.*ウィンドウを再選択"):
-                executor._execute_click(ActionCandidate("click", "click", "Play", 30, 45))
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
+            with self.assertRaisesRegex(
+                RuntimeError, "クリックを送信しませんでした.*ウィンドウを再選択"
+            ):
+                executor._execute_click(
+                    ActionCandidate("click", "click", "Play", 30, 45)
+                )
 
         self.assertEqual(notifications, [((130, 245), True), (None, False)])
         self.assertEqual(user32.mouse_events, [])
@@ -267,9 +372,13 @@ class WindowsInputTest(unittest.TestCase):
         candidate = ActionCandidate("click", "click", "Play", 30, 45)
 
         with patch.object(windows_input.os, "name", "nt"):
-            with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            with patch.object(
+                ctypes, "windll", SimpleNamespace(user32=user32), create=True
+            ):
                 with patch.object(executor, "_verify_target_identity"):
-                    with self.assertRaisesRegex(RuntimeError, "クリックを送信しませんでした"):
+                    with self.assertRaisesRegex(
+                        RuntimeError, "クリックを送信しませんでした"
+                    ):
                         executor.execute(candidate)
 
         self.assertEqual(user32.cursor_positions, [(130, 245)])
@@ -279,13 +388,19 @@ class WindowsInputTest(unittest.TestCase):
     def test_execute_does_not_report_success_when_window_message_fails(self):
         user32 = FakeUser32()
         user32.failed_messages = {0x0201}
-        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", window_process_id=456)
+        executor = WindowsInputExecutor(
+            window_handle=123, input_mode="window_message", window_process_id=456
+        )
         candidate = ActionCandidate("click", "click", "Play", 30, 45)
 
         with patch.object(windows_input.os, "name", "nt"):
-            with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+            with patch.object(
+                ctypes, "windll", SimpleNamespace(user32=user32), create=True
+            ):
                 with patch.object(executor, "_verify_target_identity"):
-                    with self.assertRaisesRegex(RuntimeError, "マウス押下送信に失敗しました"):
+                    with self.assertRaisesRegex(
+                        RuntimeError, "マウス押下送信に失敗しました"
+                    ):
                         executor.execute(candidate)
 
         self.assertEqual([message[1] for message in user32.messages], [0x0201])
@@ -297,29 +412,42 @@ class WindowsInputTest(unittest.TestCase):
         executor = WindowsInputExecutor(window_handle=123, input_mode="window_message")
         candidate = ActionCandidate("click", "click", "Play", 30, 45)
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._execute_click(candidate)
 
         expected_lparam = (15 << 16) | 22
-        expected_messages = [(123, 0x0201, 0x0001, expected_lparam), (123, 0x0202, 0, expected_lparam)]
+        expected_messages = [
+            (123, 0x0201, 0x0001, expected_lparam),
+            (123, 0x0202, 0, expected_lparam),
+        ]
         self.assertEqual(user32.messages, expected_messages)
         self.assertEqual(user32.cursor_positions, [])
 
     def test_release_all_releases_fake_held_inputs_and_clears_ledger(self):
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        ledger = InputLedger(
+            Path("unused-input-ledger.json"),
+            store=MemoryLedgerStore(),
+            clock=lambda: 100.0,
+        )
         executor = WindowsInputExecutor(input_ledger=ledger)
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._key_down(0x41)
             executor._mouse_down("left")
 
+            self.assertTrue(executor.has_held_inputs)
             self.assertEqual(ledger.snapshot()["held_keys"], {"65": 101.0})
             self.assertEqual(ledger.snapshot()["held_mouse"], {"left": 101.0})
 
             with patch.object(windows_input.os, "name", "nt"):
                 executor.release_all()
 
+        self.assertFalse(executor.has_held_inputs)
         self.assertEqual(user32.key_events, [(0x41, 0), (0x41, 2)])
         self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0)])
         self.assertEqual(ledger.snapshot()["held_keys"], {})
@@ -327,35 +455,59 @@ class WindowsInputTest(unittest.TestCase):
 
     def test_failed_window_messages_leave_no_held_state_or_ledger_entry(self):
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
-        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", input_ledger=ledger)
+        ledger = InputLedger(
+            Path("unused-input-ledger.json"),
+            store=MemoryLedgerStore(),
+            clock=lambda: 100.0,
+        )
+        executor = WindowsInputExecutor(
+            window_handle=123, input_mode="window_message", input_ledger=ledger
+        )
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             user32.failed_messages = {0x0100}
-            with self.assertRaisesRegex(RuntimeError, "キー押下送信に失敗.*応答しているか"):
+            with self.assertRaisesRegex(
+                RuntimeError, "キー押下送信に失敗.*応答しているか"
+            ):
                 executor._key_down(0x41)
 
             self.assertEqual(ledger.snapshot()["held_keys"], {})
             self.assertEqual(executor._held_keys, set())
 
             user32.failed_messages = {0x0201}
-            with self.assertRaisesRegex(RuntimeError, "マウス押下送信に失敗.*応答しているか"):
+            with self.assertRaisesRegex(
+                RuntimeError, "マウス押下送信に失敗.*応答しているか"
+            ):
                 executor._post_click(0)
 
         self.assertEqual(ledger.snapshot()["held_mouse"], {})
         self.assertEqual(executor._held_mouse, set())
-        self.assertEqual(user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0201, 0x0001, 0)])
+        self.assertEqual(
+            user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0201, 0x0001, 0)]
+        )
         self.assertEqual(user32.key_events, [])
         self.assertEqual(user32.mouse_events, [])
 
     def test_release_all_retries_failed_window_message_mouse_up_without_os_input(self):
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
-        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", input_ledger=ledger)
+        ledger = InputLedger(
+            Path("unused-input-ledger.json"),
+            store=MemoryLedgerStore(),
+            clock=lambda: 100.0,
+        )
+        executor = WindowsInputExecutor(
+            window_handle=123, input_mode="window_message", input_ledger=ledger
+        )
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             user32.failed_messages = {0x0202}
-            with self.assertRaisesRegex(RuntimeError, "マウス解放送信に失敗.*Sessionを停止"):
+            with self.assertRaisesRegex(
+                RuntimeError, "マウス解放送信に失敗.*Sessionを停止"
+            ):
                 executor._post_click(0x1234)
 
             self.assertEqual(executor._held_mouse, {"left"})
@@ -365,20 +517,37 @@ class WindowsInputTest(unittest.TestCase):
             with patch.object(windows_input.os, "name", "nt"):
                 executor.release_all()
 
-        self.assertEqual(user32.messages, [(123, 0x0201, 0x0001, 0x1234), (123, 0x0202, 0, 0x1234), (123, 0x0202, 0, 0x1234)])
+        self.assertEqual(
+            user32.messages,
+            [
+                (123, 0x0201, 0x0001, 0x1234),
+                (123, 0x0202, 0, 0x1234),
+                (123, 0x0202, 0, 0x1234),
+            ],
+        )
         self.assertEqual(user32.mouse_events, [])
         self.assertEqual(ledger.snapshot()["held_mouse"], {})
 
     def test_release_all_retries_failed_window_message_key_up(self):
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
-        executor = WindowsInputExecutor(window_handle=123, input_mode="window_message", input_ledger=ledger)
+        ledger = InputLedger(
+            Path("unused-input-ledger.json"),
+            store=MemoryLedgerStore(),
+            clock=lambda: 100.0,
+        )
+        executor = WindowsInputExecutor(
+            window_handle=123, input_mode="window_message", input_ledger=ledger
+        )
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._key_down(0x41)
             user32.failed_messages = {0x0101}
             with patch.object(windows_input.os, "name", "nt"):
-                with self.assertRaisesRegex(RuntimeError, "キー解放送信に失敗.*Sessionを停止"):
+                with self.assertRaisesRegex(
+                    RuntimeError, "キー解放送信に失敗.*Sessionを停止"
+                ):
                     executor.release_all()
 
             self.assertEqual(executor._held_keys, {0x41})
@@ -388,16 +557,25 @@ class WindowsInputTest(unittest.TestCase):
             with patch.object(windows_input.os, "name", "nt"):
                 executor.release_all()
 
-        self.assertEqual(user32.messages, [(123, 0x0100, 0x41, 0), (123, 0x0101, 0x41, 0), (123, 0x0101, 0x41, 0)])
+        self.assertEqual(
+            user32.messages,
+            [(123, 0x0100, 0x41, 0), (123, 0x0101, 0x41, 0), (123, 0x0101, 0x41, 0)],
+        )
         self.assertEqual(user32.key_events, [])
         self.assertEqual(ledger.snapshot()["held_keys"], {})
 
     def test_release_all_keeps_global_key_ledger_after_release_api_failure(self):
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        ledger = InputLedger(
+            Path("unused-input-ledger.json"),
+            store=MemoryLedgerStore(),
+            clock=lambda: 100.0,
+        )
         executor = WindowsInputExecutor(input_ledger=ledger)
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._key_down(0x41)
             user32.failed_key_flags = {2}
             with patch.object(windows_input.os, "name", "nt"):
@@ -415,10 +593,16 @@ class WindowsInputTest(unittest.TestCase):
 
     def test_release_all_keeps_global_mouse_ledger_after_release_api_failure(self):
         user32 = FakeUser32()
-        ledger = InputLedger(Path("unused-input-ledger.json"), store=MemoryLedgerStore(), clock=lambda: 100.0)
+        ledger = InputLedger(
+            Path("unused-input-ledger.json"),
+            store=MemoryLedgerStore(),
+            clock=lambda: 100.0,
+        )
         executor = WindowsInputExecutor(input_ledger=ledger)
 
-        with patch.object(ctypes, "windll", SimpleNamespace(user32=user32), create=True):
+        with patch.object(
+            ctypes, "windll", SimpleNamespace(user32=user32), create=True
+        ):
             executor._mouse_down("left")
             user32.failed_mouse_flags = {0x0004}
             with patch.object(windows_input.os, "name", "nt"):
@@ -431,7 +615,9 @@ class WindowsInputTest(unittest.TestCase):
                 user32.failed_mouse_flags.clear()
                 executor.release_all()
 
-        self.assertEqual(user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0), (0x0004, 0, 0)])
+        self.assertEqual(
+            user32.mouse_events, [(0x0002, 0, 0), (0x0004, 0, 0), (0x0004, 0, 0)]
+        )
         self.assertEqual(ledger.snapshot()["held_mouse"], {})
 
     def test_special_key_names_are_defined(self):

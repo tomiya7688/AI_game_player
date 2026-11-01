@@ -13,6 +13,7 @@
 - dry-run、連続実行、停止（ボタン/Esc/F12/手動マウス移動）
 - ルールまたはOllamaによるsuccess/failure/ongoing評価
 - 判断・実行・状態評価の履歴とログ
+- 判断計画と世代付き実行受領記録を分離し、実操作後の明示観測を元の操作へ関連付けます。dry-run・入力前失敗を実操作Outcomeへ混ぜず、最後の操作も終端終了前に保存します。送信不明はunknownとして保持します。
 - Session Event Envelope v1とSQLite WAL Journal（UTC/monotonic、連番、correlation、未コミットtransactionの復旧）
 - ExperienceからDecision/OCR/UI/Embedding/Evaluator向けのTraining Datasetを生成・重複排除・固定seed分割・JSON export
 - Native Runtime C ABI v1の任意ロード、version検証、instance初期化／終了とstatus変換

@@ -117,9 +117,12 @@ def _supports_session_journal(pipeline_factory: Callable[..., Any]) -> bool:
     keyword_parameters = {
         parameter.name
         for parameter in parameters
-        if parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+        if parameter.kind
+        in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
     }
-    return accepts_arbitrary_keywords or required_migration_arguments.issubset(keyword_parameters)
+    return accepts_arbitrary_keywords or required_migration_arguments.issubset(
+        keyword_parameters
+    )
 
 
 # {
@@ -183,7 +186,9 @@ def _recover_interrupted_migration(
         or Path(journal_name).name != journal_name
         or not journal_name.endswith(".sqlite3")
     ):
-        raise ValueError(f"Invalid interrupted migration journal name in {pending_path}")
+        raise ValueError(
+            f"Invalid interrupted migration journal name in {pending_path}"
+        )
     game_history_marker = session_events_directory / "legacy_migration_v1.complete"
     runtime_source = pending.get("runtime_log_source")
     runtime_marker: Path | None = None
@@ -296,6 +301,22 @@ class ManagedSessionRuntime:
         return load_history()
 
     # {
+    #   責務: [complete_execution_observation: Sessionのpost-action観測をPipelineの実行受領記録へ結び付ける]
+    #   処理: [対応するPipelineにだけ転送し、legacy runtimeでは操作しない]
+    #   引数: [observation: 取得済みpost-action画面, expected_rearm_token: 観測対象の実行世代]
+    #   戻り値: [object: Pipelineが公開したOutcome、または非対応時None]
+    # }
+    def complete_execution_observation(
+        self, observation: ScreenObservation, *, expected_rearm_token: int
+    ) -> object:
+        complete = getattr(self.pipeline, "complete_execution_observation", None)
+        return (
+            complete(observation, expected_rearm_token=expected_rearm_token)
+            if callable(complete)
+            else None
+        )
+
+    # {
     #   責務: [assess_outcome: session Providerを再利用して現在画面のterminal状態を評価する]
     #   処理: [Pipeline判断に使うProviderへ現在と直前のObservationを渡す]
     #   引数: [observation: 現在画面, previous: session内の直前画面]
@@ -320,9 +341,13 @@ class ManagedSessionRuntime:
     # }
     def close(self) -> None:
         errors: list[Exception] = []
-        close_execution_resources = getattr(self.pipeline, "close_execution_resources", None)
+        close_execution_resources = getattr(
+            self.pipeline, "close_execution_resources", None
+        )
         close_event_journal = getattr(self.pipeline, "close_event_journal", None)
-        staged_pipeline_cleanup = callable(close_execution_resources) and callable(close_event_journal)
+        staged_pipeline_cleanup = callable(close_execution_resources) and callable(
+            close_event_journal
+        )
         execution_resources_closed = True
         if not self._pipeline_closed and staged_pipeline_cleanup:
             try:
@@ -355,7 +380,9 @@ class ManagedSessionRuntime:
             except Exception as exc:
                 errors.append(exc)
         if errors:
-            raise RuntimeError("Session runtime cleanup failed: " + "; ".join(map(str, errors))) from errors[0]
+            raise RuntimeError(
+                "Session runtime cleanup failed: " + "; ".join(map(str, errors))
+            ) from errors[0]
 
 
 # {
@@ -402,12 +429,17 @@ class RuntimeComposition:
         *,
         source: ObservationSource,
         controller: RunController,
-        automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = None,
+        automated_cursor_position_callback: Callable[
+            [tuple[int, int] | None, bool], None
+        ]
+        | None = None,
         runtime_log: RuntimeLog | None = None,
     ) -> ManagedSessionRuntime:
         provider_factory = self._provider_factories.get(configuration.provider_name)
         if provider_factory is None:
-            raise ValueError(f"Unsupported decision provider: {configuration.provider_name}")
+            raise ValueError(
+                f"Unsupported decision provider: {configuration.provider_name}"
+            )
 
         provider = provider_factory(configuration.model, configuration.endpoint)
         session_id = uuid4().hex
@@ -452,7 +484,9 @@ class RuntimeComposition:
             self._pipeline_factory, {"runtime_log": None}
         )
         if runtime_log is not None and accepts_runtime_log:
-            runtime_log_marker, runtime_log_lock = _runtime_log_migration_paths(runtime_log)
+            runtime_log_marker, runtime_log_lock = _runtime_log_migration_paths(
+                runtime_log
+            )
         pending_path = session_events_directory / "legacy_migration_v1.pending"
         event_journal: EventJournal | None = None
         journal_pipeline: Any | None = None
@@ -461,7 +495,9 @@ class RuntimeComposition:
             with ExitStack() as migration_locks:
                 migration_locks.enter_context(_legacy_migration_lock(migration_lock))
                 if runtime_log_lock is not None:
-                    migration_locks.enter_context(_legacy_migration_lock(runtime_log_lock))
+                    migration_locks.enter_context(
+                        _legacy_migration_lock(runtime_log_lock)
+                    )
                 _recover_interrupted_migration(pending_path, session_events_directory)
                 migrate_legacy = not migration_marker.exists()
                 migrate_runtime_log = (
@@ -469,7 +505,9 @@ class RuntimeComposition:
                     and runtime_log_marker is not None
                     and not runtime_log_marker.exists()
                 )
-                session_journal_path = session_events_directory / f"{session_id}.sqlite3"
+                session_journal_path = (
+                    session_events_directory / f"{session_id}.sqlite3"
+                )
                 newly_created_markers: list[Path] = []
                 pending_write_created = migrate_legacy or migrate_runtime_log
                 pending_record = {
@@ -493,7 +531,9 @@ class RuntimeComposition:
                             staged_pending.publish()
                         finally:
                             staged_pending.discard()
-                    event_journal = EventJournal(session_journal_path, session_id=session_id)
+                    event_journal = EventJournal(
+                        session_journal_path, session_id=session_id
+                    )
                     journal_pipeline_arguments = {
                         **pipeline_arguments,
                         "event_journal": event_journal,
@@ -511,7 +551,9 @@ class RuntimeComposition:
                         ),
                     )
                     if journal_pipeline is None:
-                        raise RuntimeError("Journal-aware pipeline factory returned no Session runtime")
+                        raise RuntimeError(
+                            "Journal-aware pipeline factory returned no Session runtime"
+                        )
                     if pending_write_created:
                         pending_record["factory_completed"] = True
                         staged_pending = stage_json_write(pending_path, pending_record)
@@ -554,7 +596,9 @@ class RuntimeComposition:
                     if cleanup_errors:
                         raise RuntimeError(
                             f"Session pipeline initialization failed ({initialization_error}); "
-                            "cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
+                            "cleanup also failed ("
+                            + "; ".join(map(str, cleanup_errors))
+                            + ")"
                         ) from initialization_error
                     pending_path.unlink(missing_ok=True)
                     raise
@@ -578,7 +622,9 @@ class RuntimeComposition:
             if cleanup_errors:
                 raise RuntimeError(
                     f"Session setup failed ({initialization_error}); "
-                    "resource cleanup also failed (" + "; ".join(map(str, cleanup_errors)) + ")"
+                    "resource cleanup also failed ("
+                    + "; ".join(map(str, cleanup_errors))
+                    + ")"
                 ) from initialization_error
             raise
         return ManagedSessionRuntime(journal_pipeline, provider)
@@ -641,6 +687,7 @@ class RuntimeComposition:
     @staticmethod
     def list_models(endpoint: str) -> list[str]:
         return OllamaProvider.list_models(endpoint)
+
 
 # {
 #   責務: [_close_provider: Providerが公開するshutdown処理を実行する]

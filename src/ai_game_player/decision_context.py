@@ -5,10 +5,12 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
-from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
+from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.deferred_trace_append import DeferredTraceAppend
 from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
+from ai_game_player.execution_receipt import ExecutionReceipt
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 
@@ -53,7 +55,11 @@ class KnowledgeEvidence:
     category: str = ""
 
     def __post_init__(self) -> None:
-        if not self.evidence_id.strip() or not self.source.strip() or not self.provenance.strip():
+        if (
+            not self.evidence_id.strip()
+            or not self.source.strip()
+            or not self.provenance.strip()
+        ):
             raise ValueError("knowledge evidence metadata must not be empty")
         if not isfinite(self.confidence) or not 0.0 <= self.confidence <= 1.0:
             raise ValueError("knowledge confidence must be between 0 and 1")
@@ -137,8 +143,7 @@ class CandidateContextEvaluator(Protocol):
         candidate: ActionCandidate,
         recent_history: list[dict[str, Any]],
         previous_outcome: OutcomeAssessment,
-    ) -> EvaluatorEvidence:
-        ...
+    ) -> EvaluatorEvidence: ...
 
 
 class SafetyContextEvaluator:
@@ -216,14 +221,35 @@ class RepetitionContextEvaluator:
         previous_outcome: OutcomeAssessment,
     ) -> EvaluatorEvidence:
         history = recent_history[-self.window :]
-        repeats = sum(1 for entry in history if str(entry.get("action_id", "")) == candidate.action_id)
+        repeats = sum(
+            1
+            for entry in history
+            if str(entry.get("action_id", "")) == candidate.action_id
+        )
         if repeats == 0:
-            return EvaluatorEvidence(self.name, 0.0, 0.8, self.reliability, "action not present in recent history")
-        state_changed = _state_changed_from_history(observation, history[-1] if history else None)
-        stalled = previous_outcome.status in {"failure", "ongoing", "unknown"} and not state_changed
+            return EvaluatorEvidence(
+                self.name,
+                0.0,
+                0.8,
+                self.reliability,
+                "action not present in recent history",
+            )
+        state_changed = _state_changed_from_history(
+            observation, history[-1] if history else None
+        )
+        stalled = (
+            previous_outcome.status in {"failure", "ongoing", "unknown"}
+            and not state_changed
+        )
         penalty = min(1.0, 0.25 * repeats + (0.5 if stalled else 0.0))
         reason = f"recent repeats={repeats}; state_changed={state_changed}; previous_outcome={previous_outcome.status}"
-        return EvaluatorEvidence(self.name, -penalty, max(0.5, previous_outcome.confidence), self.reliability, reason)
+        return EvaluatorEvidence(
+            self.name,
+            -penalty,
+            max(0.5, previous_outcome.confidence),
+            self.reliability,
+            reason,
+        )
 
 
 class EvaluationFusion:
@@ -233,16 +259,28 @@ class EvaluationFusion:
         self.conflict_threshold = conflict_threshold
 
     def fuse(self, evaluations: list[EvaluatorEvidence]) -> tuple[float, float, bool]:
-        weighted = [(entry, entry.confidence * entry.reliability) for entry in evaluations]
+        weighted = [
+            (entry, entry.confidence * entry.reliability) for entry in evaluations
+        ]
         denominator = sum(weight for _, weight in weighted)
         if denominator == 0:
             score = 0.0
             confidence = 0.0
         else:
-            score = sum(entry.score * weight for entry, weight in weighted) / denominator
-            confidence = denominator / max(1.0, sum(entry.reliability for entry in evaluations))
-        positive = any(entry.score >= self.conflict_threshold and entry.confidence > 0 for entry in evaluations)
-        negative = any(entry.score <= -self.conflict_threshold and entry.confidence > 0 for entry in evaluations)
+            score = (
+                sum(entry.score * weight for entry, weight in weighted) / denominator
+            )
+            confidence = denominator / max(
+                1.0, sum(entry.reliability for entry in evaluations)
+            )
+        positive = any(
+            entry.score >= self.conflict_threshold and entry.confidence > 0
+            for entry in evaluations
+        )
+        negative = any(
+            entry.score <= -self.conflict_threshold and entry.confidence > 0
+            for entry in evaluations
+        )
         return round(score, 6), round(min(1.0, confidence), 6), positive and negative
 
 
@@ -292,7 +330,6 @@ class CandidateKnowledgeRetriever:
 #   処理: [候補ID・許可状態・評価根拠を同じ画面観測IDに結び、結果と不確実性をJSON形式へ変換できる状態で返す]
 # }
 class DecisionContextBuilder:
-
     # {
     #   責務: [__init__: 使用する評価器、評価統合規則、履歴件数、参考知識件数を設定する]
     #   引数: [knowledge_store: 候補に関連する説明を検索する保存先, evaluators: 点数と理由を出す評価器一覧, fusion: 評価点・確信度・意見不一致を統合する処理, history_limit: 参照する履歴の最大件数, knowledge_limit: 候補ごとに返す知識の最大件数]
@@ -310,7 +347,11 @@ class DecisionContextBuilder:
     ) -> None:
         if history_limit < 0:
             raise ValueError("history limit must not be negative")
-        self.evaluators = list(evaluators) if evaluators is not None else [SafetyContextEvaluator(), RepetitionContextEvaluator()]
+        self.evaluators = (
+            list(evaluators)
+            if evaluators is not None
+            else [SafetyContextEvaluator(), RepetitionContextEvaluator()]
+        )
         self.fusion = fusion or EvaluationFusion()
         self.history_limit = history_limit
         self.knowledge = CandidateKnowledgeRetriever(knowledge_store, knowledge_limit)
@@ -332,9 +373,13 @@ class DecisionContextBuilder:
         current_goal: str = "",
         short_term_goal: str = "",
     ) -> DecisionContext:
-        history = [entry for entry in recent_history or [] if _is_action_history_entry(entry)]
+        history = [
+            entry for entry in recent_history or [] if _is_action_history_entry(entry)
+        ]
         history = history[-self.history_limit :] if self.history_limit else []
-        outcome = previous_outcome or OutcomeAssessment("unknown", 0.0, "no previous action")
+        outcome = previous_outcome or OutcomeAssessment(
+            "unknown", 0.0, "no previous action"
+        )
         allowed_ids = {candidate.action_id for candidate in allowed_candidates}
         batch_safety_evidence = {
             id(evaluator): evaluator.evaluate_batch(observation, candidates)
@@ -390,7 +435,14 @@ class DecisionContextBuilder:
             _state_summary(observation),
             tuple(candidate_contexts),
             tuple(candidate.action_id for candidate in allowed_candidates),
-            {"status": outcome.status, "confidence": outcome.confidence, "reason": outcome.reason, "state_changed": _state_changed_from_history(observation, history[-1] if history else None)},
+            {
+                "status": outcome.status,
+                "confidence": outcome.confidence,
+                "reason": outcome.reason,
+                "state_changed": _state_changed_from_history(
+                    observation, history[-1] if history else None
+                ),
+            },
             tuple(_history_summary(entry) for entry in history),
             {"current_goal": current_goal, "short_term_goal": short_term_goal},
             tuple(global_uncertainty),
@@ -403,13 +455,14 @@ class DecisionContextBuilder:
 #   処理: [拒否や実行前停止も監査履歴には残し、次の選択へ渡す履歴からは拒否・実行前停止を除く]
 # }
 class DecisionTraceStore:
-
     # {
     #   責務: [__init__: 旧trace JSONの保存先と任意のSession Journal adapterを保持する]
     #   引数: [path: 旧trace JSONの場所, event_adapter: 指定時に新しいtrace eventを追記するJournal adapter]
     #   戻り値: [なし。保存先をインスタンスへ保持する]
     # }
-    def __init__(self, path: Path, event_adapter: LegacyEventAdapter | None = None) -> None:
+    def __init__(
+        self, path: Path, event_adapter: LegacyEventAdapter | None = None
+    ) -> None:
         self.path = path
         self.event_adapter = event_adapter
 
@@ -434,10 +487,10 @@ class DecisionTraceStore:
 
     # {
     #   責務: [prepare_append: 判断と検査根拠を含むtraceを実行世代の確定前に準備する]
-    #   処理: [snapshot・判断・根拠を一件にし、Journal用遅延appendまたは旧JSON一時書込みを作る]
-    #   引数: [context: providerへ渡した判断context, decision: 選ばれた候補と理由, reliability: 任意の信頼性検査結果]
-    #   戻り値: [StagedJsonWrite | StagedJournalAppend: 呼出側が確定または破棄するtrace]
-    #   エラー: [OSError: trace JSONの準備に失敗した場合, ValueError: 既存trace JSONが配列ではない場合]
+    #   処理: [snapshot・判断・根拠を一件に固定し、Journal/旧JSON用の遅延appendを作る]
+    #   引数: [context: providerへ渡した判断context, decision: 選ばれた候補と理由, reliability: 任意の信頼性検査結果, action_generation: 任意の判断開始世代]
+    #   戻り値: [DeferredTraceAppend | StagedJournalAppend: guard内で最新履歴へ追記する操作]
+    #   エラー: [ValueError/TypeError: traceをJSON化できない場合]
     # }
     def prepare_append(
         self,
@@ -445,13 +498,16 @@ class DecisionTraceStore:
         decision: ActionDecision,
         *,
         reliability: dict[str, Any] | None = None,
-    ) -> StagedJsonWrite | StagedJournalAppend:
+        action_generation: int | None = None,
+    ) -> DeferredTraceAppend | StagedJournalAppend:
         entry: dict[str, Any] = {
             "snapshot_id": context.snapshot_id,
             "screen_id": context.state.get("screen_id", ""),
             "state_signature": context.state.get("signature", ""),
             "action_id": decision.action_id,
             "decision": decision.to_dict(),
+            "execution_status": "planned",
+            "action_generation": action_generation,
             "previous_outcome": context.previous_outcome,
             "used_evidence_ids": [
                 evidence.evidence_id
@@ -465,9 +521,7 @@ class DecisionTraceStore:
             entry["reliability"] = reliability
         if self.event_adapter is not None:
             return self.event_adapter.prepare_append(entry)
-        entries = self._read()
-        entries.append(entry)
-        return stage_json_write(self.path, entries)
+        return DeferredTraceAppend(entry, self._append_entry)
 
     # {
     #   責務: [mark_action_not_executed: 実行前に停止した判断へ監査状態を追記する]
@@ -475,7 +529,9 @@ class DecisionTraceStore:
     #   引数: [snapshot_id: 判断時点の画面snapshot ID, action_id: 停止した候補ID, reason: 実行へ進まなかった理由]
     #   戻り値: [bool: 対象traceを更新した場合True。対象判断がなければFalse]
     # }
-    def mark_action_not_executed(self, snapshot_id: str, action_id: str, reason: str) -> bool:
+    def mark_action_not_executed(
+        self, snapshot_id: str, action_id: str, reason: str
+    ) -> bool:
         entries = self._read()
         for entry in reversed(entries):
             if (
@@ -483,6 +539,12 @@ class DecisionTraceStore:
                 and entry.get("action_id") == action_id
                 and isinstance(entry.get("decision"), dict)
             ):
+                receipt = entry.get("execution_receipt")
+                if isinstance(receipt, dict) and receipt.get("execution_status") in {
+                    "executed",
+                    "dispatch_unknown",
+                }:
+                    return False
                 self._update_entry(
                     entries,
                     entry,
@@ -497,7 +559,9 @@ class DecisionTraceStore:
     #   引数: [context: 拒否判定に使った画面・候補・目標, reliability: 拒否状態と検査根拠]
     #   戻り値: [なし。保存に失敗した場合は保存例外を呼び出し元へ伝える]
     # }
-    def append_rejection(self, context: DecisionContext, reliability: dict[str, Any]) -> None:
+    def append_rejection(
+        self, context: DecisionContext, reliability: dict[str, Any]
+    ) -> None:
         rejection = {
             "snapshot_id": context.snapshot_id,
             "screen_id": context.state.get("screen_id", ""),
@@ -552,33 +616,82 @@ class DecisionTraceStore:
         self._write(entries)
 
     # {
-    #   責務: [
-    #     record_action_outcome: 実行後の観測結果を、元の画面で選んだ操作の判断記録へ結び付ける
-    #   ]
-    #   処理: [
-    #     1: 新しい履歴から順に、画面ID・操作IDが一致し実行対象となる判断を探す
-    #     2: 該当する判断に、進行・失敗・状態変化などの観測結果を記録する
-    #     3: 履歴を更新して保存し、該当記録がなければFalseを返す
-    #   ]
-    #   引数: [
-    #     snapshot_id: 操作を選択した画面のID。後続の同じ操作と取り違えないために使う
-    #     action_id: 結果を記録する操作候補のID
-    #     outcome: 操作後の画面比較から得た結果の辞書
-    #   ]
-    #   戻り値: [
-    #     bool: 一致する実行判断を更新できた場合True。該当履歴がない場合False
-    #   ]
+    #   責務: [record_action_outcome: receiptで実行事実を確認した元の判断へだけ観測結果を関連付ける]
+    #   処理: [snapshot・操作・世代を照合し、dispatch_unknownはunknown以外へ変更しない]
+    #   引数: [snapshot_id/action_id: 元判断と実操作, outcome: 実操作後の結果,
+    #     action_generation: 期待する実行世代。Noneは明示receiptに保存済みの世代を使う]
+    #   戻り値: [bool: 条件を満たす実行traceを更新した場合True]
     # }
-    def record_action_outcome(self, snapshot_id: str, action_id: str, outcome: dict[str, Any]) -> bool:
+    def record_action_outcome(
+        self,
+        snapshot_id: str,
+        action_id: str,
+        outcome: dict[str, Any],
+        *,
+        action_generation: int | None = None,
+    ) -> bool:
         entries = self._read()
         for entry in reversed(entries):
+            receipt = _execution_receipt_for_entry(entry)
+            if receipt is None:
+                continue
+            status = receipt.execution_status
             if (
                 entry.get("snapshot_id") == snapshot_id
                 and entry.get("action_id") == action_id
-                and _is_action_history_entry(entry)
+                and status in {"executed", "dispatch_unknown"}
+                and (
+                    action_generation is None
+                    or receipt.action_generation == action_generation
+                )
+                and (
+                    status == "dispatch_unknown"
+                    or receipt.eligible_for_learning
+                )
+                and (status != "dispatch_unknown" or outcome.get("status") == "unknown")
             ):
                 self._update_entry(entries, entry, {"action_outcome": outcome})
                 return True
+        return False
+
+    # {
+    #   責務: [record_execution_receipt: planned traceへ同じsnapshot・操作・世代の実行事実を関連付ける]
+    #   処理: [画面参照と世代を照合し、別操作や矛盾するreceiptで既存事実を上書きしない]
+    #   引数: [receipt: Executorの送信証拠に由来する不変の受領記録]
+    #   戻り値: [bool: 対象traceへ一度または同内容で記録した場合True]
+    # }
+    def record_execution_receipt(self, receipt: ExecutionReceipt) -> bool:
+        entries = self._read()
+        for entry in reversed(entries):
+            if (
+                not isinstance(entry.get("decision"), dict)
+                or entry.get("snapshot_id") != receipt.snapshot_id
+                or entry.get("action_id") != receipt.action_id
+            ):
+                continue
+            generation = entry.get("action_generation")
+            if generation is not None and (
+                type(generation) is not int or generation != receipt.action_generation
+            ):
+                return False
+            if (
+                entry.get("screen_id") != receipt.screen_id
+                or str(entry.get("state_signature", "")) != receipt.state_signature
+            ):
+                return False
+            existing = entry.get("execution_receipt")
+            if isinstance(existing, dict):
+                return existing == receipt.to_dict()
+            self._update_entry(
+                entries,
+                entry,
+                {
+                    "execution_receipt": receipt.to_dict(),
+                    "execution_status": receipt.execution_status,
+                    "action_generation": receipt.action_generation,
+                },
+            )
+            return True
         return False
 
     # {
@@ -597,29 +710,28 @@ class DecisionTraceStore:
         return self._read()[-limit:] if limit else []
 
     # {
-    #   責務: [
-#     recent_actions: 判断として確定し、拒否または実行前停止で取り消されていない直近の操作履歴だけを返す
-    #   ]
-    #   処理: [
-#     1: 信頼性検査で拒否された記録と、入力送信前に停止した記録を履歴全件から除く
-    #     2: 残った記録の末尾から指定件数を返す
-    #   ]
-    #   引数: [
-    #     limit: 返す操作履歴の最大件数。0なら空の一覧を返す
-    #   ]
-    #   戻り値: [
-#     list[dict[str, Any]]: 古い順に並んだ、次の候補選択で実際の過去操作として参照する記録
-    #   ]
-    #   エラー: [
-    #     ValueError: limitが負数の場合。履歴件数として負数を指定できない
-    #   ]
+    #   責務: [recent_actions: 完全な実行receiptで送信を確認し、学習対象となる直近実操作だけを返す]
+    #   処理: [planned/legacy/blocked/dry-run/不明送信を除外し、指定時は世代も照合してから件数を制限する]
+    #   引数: [limit: 最大件数。0は空, action_generation: 任意の対象実行世代]
+    #   戻り値: [list: 確認済み実操作traceを古い順に並べた一覧]
+    #   エラー: [ValueError: limitが負]
     # }
-    def recent_actions(self, limit: int = 5) -> list[dict[str, Any]]:
+    def recent_actions(
+        self, limit: int = 5, *, action_generation: int | None = None
+    ) -> list[dict[str, Any]]:
         if limit < 0:
             raise ValueError("history limit must not be negative")
         if limit == 0:
             return []
-        action_entries = [entry for entry in self._read() if _is_action_history_entry(entry)]
+        action_entries = [
+            entry
+            for entry in self._read()
+            if _is_action_history_entry(entry)
+            and (
+                action_generation is None
+                or entry.get("action_generation") == action_generation
+            )
+        ]
         return action_entries[-limit:]
 
     # {
@@ -648,7 +760,10 @@ class DecisionTraceStore:
         for record in records:
             patch = record.get("trace_update")
             if isinstance(patch, dict):
-                key = (str(record.get("snapshot_id", "")), str(record.get("action_id", "")))
+                key = (
+                    str(record.get("snapshot_id", "")),
+                    str(record.get("action_id", "")),
+                )
                 target = indexed_entries.get(key)
                 if target is not None:
                     target.update(patch)
@@ -671,6 +786,8 @@ class DecisionTraceStore:
             staged_write.publish()
         finally:
             staged_write.discard()
+
+
 def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     features = observation.features
     visible_text: list[str] = []
@@ -694,45 +811,49 @@ def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     }
 
 
+# {
+#   責務: [_history_summary: 確認済み実操作traceを判断用の短い履歴へ投影する]
+#   処理: [当該操作自身のOutcomeだけを使用し、未観測時はunknownとする]
+#   引数: [entry: receipt検証済みのtrace record]
+#   戻り値: [dict: 実行参照・世代・結果・状態変化の要約]
+# }
 def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
-    previous = entry.get("previous_outcome", {})
     action_outcome = entry.get("action_outcome")
     if isinstance(action_outcome, dict):
         outcome_status = str(action_outcome.get("status", "unknown"))
-        state_changed = bool(action_outcome.get("state_changed", outcome_status == "changed"))
+        state_changed = bool(
+            action_outcome.get("state_changed", outcome_status == "changed")
+        )
     else:
-        outcome_status = str(previous.get("status", "unknown")) if isinstance(previous, dict) else "unknown"
-        state_changed = bool(previous.get("state_changed", False)) if isinstance(previous, dict) else False
+        outcome_status = "unknown"
+        state_changed = False
     return {
         "snapshot_id": str(entry.get("snapshot_id", "")),
         "screen_id": str(entry.get("screen_id", "")),
         "state_signature": str(entry.get("state_signature", "")),
         "action_id": str(entry.get("action_id", "")),
+        "execution_status": entry.get("execution_status", "legacy_unknown"),
+        "action_generation": entry.get("action_generation"),
         "outcome": outcome_status,
         "state_changed": state_changed,
     }
 
 
 # {
-#   責務: [
-#     _is_action_history_entry: 実行判断として確定し、拒否または入力送信前停止で無効になっていない記録を選ぶ
-#   ]
-#   処理: [
-#     1: 実行判断の内容がない項目を除外する
-#     2: 信頼性検査が候補選択を無効とした項目を除外する
-#     3: 操作入力を送る前に停止した項目を除外する
-#   ]
-#   引数: [
-#     entry: 画面状態・判断・実行結果などを含む履歴の1件
-#   ]
-#   戻り値: [
-#     bool: 次の判断で過去の操作として参照する記録ならTrue
-#   ]
+#   責務: [_is_action_history_entry: 保存済み判断が同一参照の実送信事実を持つか確認する]
+#   処理: [完全なreceiptと学習可否を照合し、拒否・計画だけ・旧形式不明を実操作扱いにしない]
+#   引数: [entry: 判断trace record]
+#   戻り値: [bool: 確認済み実操作ならTrue]
 # }
 def _is_action_history_entry(entry: dict[str, Any]) -> bool:
     if not isinstance(entry.get("decision"), dict):
         return False
-    if entry.get("execution_status") == "blocked":
+    receipt = _execution_receipt_for_entry(entry)
+    if (
+        receipt is None
+        or receipt.execution_status != "executed"
+        or not receipt.eligible_for_learning
+    ):
         return False
     reliability = entry.get("reliability")
     if not isinstance(reliability, dict):
@@ -740,7 +861,38 @@ def _is_action_history_entry(entry: dict[str, Any]) -> bool:
     return str(reliability.get("status", "")).upper() != "REJECT"
 
 
-def _state_changed_from_history(observation: ScreenObservation, previous: dict[str, Any] | None) -> bool:
+# {
+#   責務: [_execution_receipt_for_entry: 保存された実行受領記録の型と元traceへのbindを検証する]
+#   処理: [完全なreceipt契約を復元し、snapshot・操作・世代・画面参照が一致する場合だけ採用する]
+#   引数: [entry: 判断trace record]
+#   戻り値: [ExecutionReceiptまたはNone: legacy/破損/不一致は送信事実として扱わない]
+# }
+def _execution_receipt_for_entry(entry: dict[str, Any]) -> ExecutionReceipt | None:
+    raw = entry.get("execution_receipt")
+    if not isinstance(raw, dict):
+        return None
+    try:
+        receipt = ExecutionReceipt(**raw)
+    except (TypeError, ValueError):
+        return None
+    if receipt.snapshot_id != entry.get(
+        "snapshot_id"
+    ) or receipt.action_id != entry.get("action_id"):
+        return None
+    if type(
+        entry.get("action_generation")
+    ) is not int or receipt.action_generation != entry.get("action_generation"):
+        return None
+    if receipt.screen_id != entry.get("screen_id") or receipt.state_signature != str(
+        entry.get("state_signature", "")
+    ):
+        return None
+    return receipt
+
+
+def _state_changed_from_history(
+    observation: ScreenObservation, previous: dict[str, Any] | None
+) -> bool:
     if previous is None:
         return False
     current_signature = str(observation.features.get("signature", ""))
@@ -749,8 +901,14 @@ def _state_changed_from_history(observation: ScreenObservation, previous: dict[s
         return current_signature != previous_signature
     current_hash = str(observation.features.get("perceptual_hash", ""))
     previous_context = previous.get("context", {})
-    previous_state = previous_context.get("state", {}) if isinstance(previous_context, dict) else {}
-    previous_hash = str(previous_state.get("perceptual_hash", "")) if isinstance(previous_state, dict) else ""
+    previous_state = (
+        previous_context.get("state", {}) if isinstance(previous_context, dict) else {}
+    )
+    previous_hash = (
+        str(previous_state.get("perceptual_hash", ""))
+        if isinstance(previous_state, dict)
+        else ""
+    )
     if current_hash and previous_hash:
         return current_hash != previous_hash
     return str(previous.get("screen_id", "")) != observation.screen_id
