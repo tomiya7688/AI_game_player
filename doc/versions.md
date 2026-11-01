@@ -166,6 +166,8 @@ plugin_manifest_schema          1
 - Issue #479: 汎用の任意登録`TransitionModel`契約と、実入力を発行しない2048参照遷移を追加しました。移動・一手一合成と確率spawnを分離し、不変盤面、未認識score、勝利後継続、終了、seed付き仮想restartを扱います。未知ゲームのモデルは利用不可として返します。
 - Issue #479: hash検証済み固定版JavaScriptとslide/move/continue/restartを比較するOracle、CPU/heap測定、単体試験とCIの比較を追加しました。仮説更新・探索・本番Decisionへの接続は#478/#565-#567に残り、この追加だけでは実プレイの強化済みとは扱いません。[設計と検証手順](architecture/transition_simulation.md)を追加しました。
 - Issue #563（親 #478）: typed immutable WorldStateHypothesis / BeliefSnapshot と bounded Candidate Store を追加。校正確率と比較score、予測と観測仮説を区別し、同ID再送・相関証拠を再加算せず、Top-K / byte / TTLで除外した質量をunknownへ残します。Frame / turn / session / action epoch / source generation / clock originの混在、可変state・循環・NaN・timeoutを検査し、CPU測定と8/16曖昧2048・カード・位置fixtureを追加。本番Bayesian更新・Recognition接続は #564/#405/#407、実プレイは後続です。詳細は `doc/architecture/belief_snapshot.md`。
+
+- Issue #564（親 #478）: 型付きBeliefへPredict→Observe→Bayesian posterior更新を追加。排他的な遷移経路の確率合算、joint観測尤度、log空間、unknown尤度不明時の比較score、receipt/frame/相関の二重適用防止、旧prior版CAS、候補/byte/履歴/deadline上限を検証します。実Recognition校正と本番Planner接続は#405/#407/#565-#567に残します。詳細は `doc/architecture/belief_update.md`。
 - Issue #138: Play Workspaceの先頭へ「ゲーム / ウィンドウ」選択欄を配置する。ウィンドウ一覧の更新後も存在する選択対象は維持し、消えた選択対象は自動で別ウィンドウへ切り替えず再選択を求める。候補がない場合と一覧取得が失敗した場合は、利用者へ次の操作を表示する。
 - Issue #337: GUIの画面取得後、Observation内のOCR・画像候補と任意のAutomation候補をCandidateMergerで統合し、安全評価欄へ入力元と評価結果を表示する。Automation候補JSONは空配列のまま使える。画面previewは実行中Sessionの候補sourceを書き換えず、step開始時に評価した同じObservationと候補だけをSession sourceへ登録する。confidence `0.0` の画像候補は拒否する。
 - Issue #333: PythonとNative Runtimeのbright-region検出が明るさ・画素密度から実行信頼度を作らないようにする。両経路の明領域をUI要素として未確認のconfidence `0.0` で返し、画像候補だけの判断を候補評価器が拒否する。閉ループE2Eはsample gameのactive control情報と画面検出矩形を照合して実入力を検証する。

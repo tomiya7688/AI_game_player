@@ -2,6 +2,8 @@
 
 ## できること
 
+- Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
+
 - 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。
 - #422: 実Sessionの既定Modeにbounded Light workerを接続。receiptとverified効果、profile保証hash識別、unknown保留、Gate light検証→Mode CAS→durable ack、Stop事実退避。一般ゲームの因果検証/#433識別/#409完全Utility/#425自動資源分類は未完。[契約とp50/p95](doc/architecture/light_adaptation.md)。
 
@@ -32,10 +34,10 @@
 
 ## 制約
 
-- Beliefは候補保持のCore APIとCPU fixtureまでです。本番Recognition / Journal / Decisionへの配線、Bayesian更新は #405/#407/#564 で対応し、予測を観測事実へ変換しません。
+- Beliefは候補保持のCore APIとCPU fixtureまでです。Bayesian更新はCore APIを提供し、本番Recognition / Journal / Decisionへの配線は #405/#407/#567 で対応します。予測を観測事実へ変換しません。
 - 固定版2048 campaignの`--save-failure-evidence`は既定OFFです。明示ON時、起動失敗の所有PID窓metadataと取得可能なWGC画素をcleanup前に有界保存します。診断を追加しただけで、自然なbrowser起動失敗の原因を解消したとは扱いません（#459/#637）。
 
-- Mode 契約の本番 Light Adaptation Runner 接続は Issue #422、重学習・交互 orchestration・資源制御・UI は後続 Issue で対応します。Mode 契約だけでは学習を起動しません。通常の Outcome / Verifier / Safety 評価を無効化しません。
+- Mode 契約は Issue #422 の本番 Light Adaptation Runnerへ接続しています。重学習・交互 orchestration・包括的な資源制御・UI は後続 Issue で対応します。Mode 契約だけでは学習を起動しません。通常の Outcome / Verifier / Safety 評価を無効化しません。
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
 - 実入力は既定で無効です。
@@ -44,6 +46,6 @@
 - `UnknownnessMonitor`は検出器の根拠を受け取るコアAPIです。画面認識器・prototype検索器・知識検索器からの自動入力とゲーム実行pipelineへの接続は未実装です。unknown時の行動選択も行わず、その方針はIssue #206の対象です。
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。
 - GameSessionControllerの各SessionはSession Event Journalへ判断・実行・Safety・RuntimeLog eventを記録し、初回Sessionで旧JSON/JSONL履歴を移行します。Session Journalをまたぐ検索APIとTimeline/Video/Learningからの横断参照はIssue #263で対応します。
-- Knowledge Promotion Gateはoffline評価・公開APIです。通常Sessionへの自動学習・昇格配線（#422）、任意callbackの隔離評価（#173/#183）、Windows実プレイの検証は未実施です。
+- Knowledgeのoffline対照評価・昇格API（#532）と、通常Sessionの軽量更新用Gate policy（#422）は別です。任意callbackの隔離評価（#173/#183）と、軽量学習を含むWindows実プレイの検証は未実施です。
 - 長期目的、知識埋め込み、複数人格比較は未実装です。
 - Native Runtimeの汎用batch処理はメタデータ契約のみで`NOT_IMPLEMENTED`を返します。専用Frame Preprocess API以外のcapture/input画素処理は未実装で、GUI実行経路もNativeへ自動切替しません。
