@@ -26,6 +26,9 @@ flowchart LR
 - このCoreはActionを選ばず、画面取得、DOM、実入力、Safety/Verifier、
   許可候補集合へアクセスしません。本番の接続と最終世代確認は #567 の責務です。
 
+予測時のContextは入力元のFrame/turn/source世代への参照です。仮想的に進んだ
+手番を「観測済み」として付け替えません。新しい実観測のContextだけが次のFrame/turnを与えます。
+
 `BeliefActionRef` は実行元が既存ExecutionReceiptから作る薄い投影契約です。
 receiptの参照、元snapshot、実行世代に加えて元Session/Scene/Frame/source contextを
 完全照合します。`dispatch_unknown` を「実行したはず」と予測せず、同じreceiptの
