@@ -55,6 +55,8 @@
 
 ## Unreleased
 
+- Issue #531: scope・期限を照合したKnowledgeをstep固定のsoft evidenceとしてBaseline/Engine/Pipelineへ接続します。候補許可・Safety・認識最低値を変えず、priorと重みhintで判断が変化します。unknownはno-effectに変換しません。モデル公開は明示opt-inの4KiB圧縮文脈、ローカルTraceは版・hash・出所を保持します。[設計・残件・検証](architecture/knowledge_feature_adapter.md)を追加しました。
+
 - Issue #530: 検証済みExperienceからcount・Beta推定・EWMA・遷移頻度と数値hintを増分集計し、昇格前Knowledge候補を生成するBuilderを追加しました。unknownとno-effect、実入力とdry-runを分け、source/操作世代のwatermarkで再投入・相関frameを排除します。元Snapshotを変更せず、scope・保持期限・資源上限・privacyの条件を保持します。[設計と計測](architecture/knowledge_builder.md)を追加しました。Runtime更新・判断反映・昇格は#422/#531/#532で扱います。
 
 - Issue #529: game/scene/profile/Player lineageで隔離した不変KnowledgeSnapshot v1と、既存Artifact Storeを使う保存・読取APIを追加しました。行動結果4分類、prior、数値hint、出所、uncertainty、期限、重複投入追跡用watermarkを検証し、欠落・破損・scope/版不整合でstatic defaultへ戻す結果を返します。Artifactの有界読込も追加し、metadata/payloadの過大入力をSHA検証付きで拒否します。[契約と検証範囲](architecture/knowledge_snapshot.md)を参照してください。Builder/判断反映/昇格は#530-#532に残ります。
