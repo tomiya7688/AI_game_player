@@ -1,8 +1,10 @@
 # AI Game Player 現在の機能
 
-確認基準：2026-11-01、統合feature `e06859f`。部品・本番接続・実ゲーム検証を区別します。[場所別の状態と根拠](doc/guide/implementation_status.md)も参照してください。
+確認基準：2026-11-01、統合feature `f145c946`。部品・本番接続・実ゲーム検証を区別します。[場所別の状態と根拠](doc/guide/implementation_status.md)も参照してください。
 
 ## できること
+
+- Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
 
 - 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。
 - #422: 実Sessionの既定Modeにbounded Light workerを接続。receiptとverified効果、profile保証hash識別、unknown保留、Gate light検証→Mode CAS→durable ack、Stop事実退避。一般ゲームの因果検証/#433識別/#409完全Utility/#425自動資源分類は未完。[契約とp50/p95](doc/architecture/light_adaptation.md)。
@@ -34,7 +36,7 @@
 
 ## 制約
 
-- Beliefは候補保持のCore APIとCPU fixtureまでです。本番Recognition / Journal / Decisionへの配線、Bayesian更新は #405/#407/#564 で対応し、予測を観測事実へ変換しません。
+- Beliefは不変候補Storeに加え、#564の有限仮説に対するBayesian予測・観測更新Coreを備えます。本番Recognition / Journal / Decisionへの自動配線は#405/#407/#567の残件です。particle resamplingや探索器は実装済みと扱わず、予測を観測事実へ変換しません。[更新の契約とCPU検証](doc/architecture/belief_update.md)を参照してください。
 - 固定版2048 campaignの`--save-failure-evidence`は既定OFFです。明示ON時、起動失敗の所有PID窓metadataと取得可能なWGC画素をcleanup前に有界保存します。診断を追加しただけで、自然なbrowser起動失敗の原因を解消したとは扱いません（#459/#637）。
 
 - #421のMode契約と#422の本番Light workerは接続済みですが、既定の学習識別方針は無効です。信頼済みprofileの安定識別と検証済み効果がなければ因果学習を保留します。重学習・交互実行・自動資源分類・UIは#183/#423–#426/#188の残件です。通常のOutcome / Verifier / Safety評価を無効化しません。

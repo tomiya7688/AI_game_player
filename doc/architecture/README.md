@@ -11,10 +11,10 @@
 | PythonとC++の分け方を開発者として考える | [既存Runtime Architecture](runtime_layers.md)・[Native境界](native_runtime_boundary.md) |
 | 機械的な呼出し一覧 | [既存のシーケンス図](../sequence_diagram.mmd)・[クラス図](../class_diagram.mmd) |
 | ゲーム固有の操作の検証 | [判断パイプライン機能説明書](../判断パイプライン機能説明書.md)・[操作実行機能説明書](../操作実行機能説明書.md) |
-| 状態仮説と未知質量・仮想遷移の境界 | [BeliefSnapshot](belief_snapshot.md)・[仮想遷移](transition_simulation.md) |
+| 状態仮説と未知質量・仮想遷移の境界 | [BeliefSnapshot](belief_snapshot.md)・[予測とBayes更新](belief_update.md)・[仮想遷移](transition_simulation.md) |
 | 操作中の軽量知識更新・Mode・証拠の条件 | [Light Adaptationの本番接続と限界](light_adaptation.md)・[Mode/Phase契約](runtime_modes.md) |
 
-**統合確認：** 2026-11-01、feature `e06859f11cdf22b0be25caec993ff908edc19ff5` とmainの資料7件を照合しました。初版の確認基準と現在の接続状態を区別し、実ゲームの効果は証拠がある範囲だけ記します。 初版は2026-10-31のmain `4d8ae6f`を基準にしました。モデル稼働・Windows操作・プレイ改善は資料作成や図の存在だけでは確認できません。
+**統合確認：** 2026-11-01、feature `f145c946685ae7361f8d3e6416b85c6fdf07e988` とmainの資料7件を照合しました。初版の確認基準と現在の接続状態を区別し、実ゲームの効果は証拠がある範囲だけ記します。 初版は2026-10-31のmain `4d8ae6f`を基準にしました。モデル稼働・Windows操作・プレイ改善は資料作成や図の存在だけでは確認できません。
 
 ## これらの図に共通する約束
 

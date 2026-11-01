@@ -224,6 +224,35 @@ classDiagram
     class BeliefEvidenceRef {
         +__post_init__()
     }
+    Generic <|-- BeliefEstimateResult
+    class BeliefEstimateResult {
+        +reobserve_requested()
+    }
+    Generic <|-- BayesianBeliefEstimator
+    class BayesianBeliefEstimator {
+        +__init__()
+        +initialize()
+        +reset()
+        +predict()
+        +observe()
+        +_check_prior()
+        +_check_observation()
+        +_posterior()
+        +_remember()
+        +_now()
+        +_check_deadline()
+        +_failure()
+        +_success()
+    }
+    class BeliefActionRef {
+        +__post_init__()
+    }
+    class BeliefLikelihoodBatch {
+        +__post_init__()
+    }
+    class BeliefEstimatorPolicy {
+        +__post_init__()
+    }
     class BeliefDiagnostics {
         +__post_init__()
     }
