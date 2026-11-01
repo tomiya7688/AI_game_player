@@ -6,6 +6,15 @@
 
 <!-- List the relevant commands and results. -->
 
+## Documentation consistency
+
+<!-- For code or documentation changes, follow doc/contributor/documentation_update_guide.md. Mark not applicable with a reason. -->
+
+- [ ] Updated affected reader diagrams, feature documents, model/method references, and generated indexes, or explained why no update is needed.
+- [ ] Distinguished supported / selected / executed and Core / Runtime / Real-play; recorded the evidence commit and unverified conditions.
+- [ ] Checked local links and generated-document freshness. Separately recorded rendered diagram and Japanese readability checks.
+- [ ] Linked deferred required deliverables to Open Issues; did not treat closed Issues or passing static checks as runtime evidence.
+
 ## Self-review
 
 <!-- Read the change (`git add -N .` then `git diff origin/main`, see the workflow doc "差分の取得") and record each of the 7 points in doc/コーディングルール.md ("自己レビューの観点"): "OK" or "finding and fix". Write "unverified" for anything not checked. -->

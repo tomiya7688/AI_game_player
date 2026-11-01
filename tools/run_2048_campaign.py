@@ -62,6 +62,7 @@ class Cached2048ObservationSource:
         self.adapter = ReferenceGame2048Adapter()
         self.failure_evidence = failure_evidence
         self._cached_read: tuple[ScreenObservation, list[ActionCandidate]] | None = None
+        self.latest_observation: ScreenObservation | None = None
 
     def capture_playable_state(
         self,
@@ -144,6 +145,7 @@ class Cached2048ObservationSource:
                     default=0,
                 )
                 self._cached_read = (adapted, candidates)
+                self.latest_observation = adapted
                 if self.failure_evidence is not None:
                     with self.observation_timing.measure("evidence_retention"):
                         self.failure_evidence.record_playable(frame, raw_state)
@@ -196,7 +198,9 @@ class Cached2048ObservationSource:
                         **diagnostics,
                         "failure_detail": detail,
                         "window_handle": self.window_handle,
-                        "capture_backend_error": getattr(self.capture, "last_backend_error", None),
+                        "capture_backend_error": getattr(
+                            self.capture, "last_backend_error", None
+                        ),
                     },
                 )
                 detail += f"; failure_evidence={manifest}"
@@ -207,7 +211,9 @@ class Cached2048ObservationSource:
     def read(self) -> tuple[ScreenObservation, list[ActionCandidate]]:
         cached_read = self._cached_read
         if cached_read is None:
-            raise RuntimeError("campaign action requested without a fresh screen observation")
+            raise RuntimeError(
+                "campaign action requested without a fresh screen observation"
+            )
         self._cached_read = None
         return cached_read
 
@@ -219,14 +225,22 @@ class CyclingDirectionProvider:
     def __init__(self) -> None:
         self._next_direction_index = 0
 
-    def choose_context(self, context: DecisionContext, personality: str = "") -> ActionDecision:
+    def choose_context(
+        self, context: DecisionContext, personality: str = ""
+    ) -> ActionDecision:
         del personality
-        allowed_ids = {candidate.action_id for candidate in context.candidates if candidate.allowed}
+        allowed_ids = {
+            candidate.action_id for candidate in context.candidates if candidate.allowed
+        }
         selected_action_id = next(
             (
-                DIRECTION_ACTION_IDS[(self._next_direction_index + offset) % len(DIRECTION_ACTION_IDS)]
+                DIRECTION_ACTION_IDS[
+                    (self._next_direction_index + offset) % len(DIRECTION_ACTION_IDS)
+                ]
                 for offset in range(len(DIRECTION_ACTION_IDS))
-                if DIRECTION_ACTION_IDS[(self._next_direction_index + offset) % len(DIRECTION_ACTION_IDS)]
+                if DIRECTION_ACTION_IDS[
+                    (self._next_direction_index + offset) % len(DIRECTION_ACTION_IDS)
+                ]
                 in allowed_ids
             ),
             None,
@@ -273,11 +287,15 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     "2048 launcher did not provide a browser HWND and owning process ID",
                 )
             evidence = (
-                RecognitionFailureEvidence(runtime_root / f"episode-{episode_number:04d}")
+                RecognitionFailureEvidence(
+                    runtime_root / f"episode-{episode_number:04d}"
+                )
                 if save_failure_evidence
                 else None
             )
-            self.source = Cached2048ObservationSource(window.handle, ocr_recognizer, evidence)
+            self.source = Cached2048ObservationSource(
+                window.handle, ocr_recognizer, evidence
+            )
             self.pipeline = DecisionPipeline(
                 self.source,
                 runtime_root / f"episode-{episode_number:04d}",
@@ -299,8 +317,14 @@ class ReferenceGame2048Episode(CampaignEpisode):
 
     def observe(self) -> CampaignState:
         if self.source is None:
-            raise CampaignFailure("capture_failure", "2048 episode has no window observation source")
+            raise CampaignFailure(
+                "capture_failure", "2048 episode has no window observation source"
+            )
         pipeline = self.pipeline
+        complete = getattr(pipeline, "complete_execution_observation", None)
+        observation_token = (
+            pipeline.controller.rearm_token if callable(complete) else None
+        )
         first_observation = not self._safety_rearmed
         capture_started_at = time.monotonic()
 
@@ -342,11 +366,16 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     f"first_observation={first_observation}; "
                     f"error={type(error).__name__}: {error}",
                 ) from error
+        latest = getattr(self.source, "latest_observation", None)
+        if latest is not None and callable(complete):
+            complete(latest, expected_rearm_token=observation_token)
         return state
 
     def act(self) -> CampaignActionResult:
         if self.pipeline is None:
-            raise CampaignFailure("execution_failure", "2048 episode has no live decision pipeline")
+            raise CampaignFailure(
+                "execution_failure", "2048 episode has no live decision pipeline"
+            )
         try:
             result = self.pipeline.run_and_execute(purpose=CAMPAIGN_PURPOSE)
         except Exception as error:
@@ -359,9 +388,14 @@ class ReferenceGame2048Episode(CampaignEpisode):
             )
             if safety_result is not None and safety_result.status.value == "block":
                 category = "safety_block"
-            elif "safety" in str(error).casefold() or "blocked" in str(error).casefold():
+            elif (
+                "safety" in str(error).casefold() or "blocked" in str(error).casefold()
+            ):
                 category = "safety_block"
-            elif "recognition" in str(error).casefold() or "candidate" in str(error).casefold():
+            elif (
+                "recognition" in str(error).casefold()
+                or "candidate" in str(error).casefold()
+            ):
                 category = "recognition_failure"
             else:
                 category = "decision_failure"
@@ -370,7 +404,9 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 f"2048 pipeline action failed: {type(error).__name__}: {error}{fail_safe_detail}"
                 f"; observation_timing={json.dumps(self._observation_timing_snapshot(), sort_keys=True)}",
             ) from error
-        return CampaignActionResult(result.action_id, result.executed, result.mode, result.detail)
+        return CampaignActionResult(
+            result.action_id, result.executed, result.mode, result.detail
+        )
 
     def _observation_timing_snapshot(self) -> dict[str, object] | None:
         """最後の観測区間の計測を返す。観測前なら未計測を示すNoneを返す。"""
@@ -379,7 +415,9 @@ class ReferenceGame2048Episode(CampaignEpisode):
 
     def record_outcome(self, status: str, confidence: float, evidence: str) -> None:
         if self.pipeline is None:
-            raise RuntimeError("2048 pipeline is unavailable for recording the action outcome")
+            raise RuntimeError(
+                "2048 pipeline is unavailable for recording the action outcome"
+            )
         try:
             self.pipeline.record_safety_outcome(status, confidence, evidence)
         except Exception as error:
@@ -412,7 +450,9 @@ class ReferenceGame2048Episode(CampaignEpisode):
         if close_errors:
             raise RuntimeError(
                 "2048 episode cleanup failed: "
-                + "; ".join(f"{type(error).__name__}: {error}" for error in close_errors)
+                + "; ".join(
+                    f"{type(error).__name__}: {error}" for error in close_errors
+                )
             ) from close_errors[0]
 
 
@@ -436,10 +476,20 @@ def _parse_arguments() -> argparse.Namespace:
         description="Run the pinned 2048 game through the shared live-input campaign runner"
     )
     parser.add_argument("--profile", choices=("pr", "release"), default="pr")
-    parser.add_argument("--duration-seconds", type=float, help="override the selected 600s or 1800s profile")
-    parser.add_argument("--cache-dir", type=Path, default=Path("build/reference_games/2048"))
+    parser.add_argument(
+        "--duration-seconds",
+        type=float,
+        help="override the selected 600s or 1800s profile",
+    )
+    parser.add_argument(
+        "--cache-dir", type=Path, default=Path("build/reference_games/2048")
+    )
     parser.add_argument("--artifact-dir", type=Path, default=Path("build/e2e"))
-    parser.add_argument("--browser", type=Path, help="Edge or Chrome executable; omitted to search installed browsers")
+    parser.add_argument(
+        "--browser",
+        type=Path,
+        help="Edge or Chrome executable; omitted to search installed browsers",
+    )
     parser.add_argument(
         "--save-failure-evidence",
         action="store_true",
@@ -451,7 +501,9 @@ def _parse_arguments() -> argparse.Namespace:
 def main() -> int:
     arguments = _parse_arguments()
     if os.name != "nt":
-        print("2048 campaign requires Windows window capture and input", file=sys.stderr)
+        print(
+            "2048 campaign requires Windows window capture and input", file=sys.stderr
+        )
         return 2
     duration_seconds = arguments.duration_seconds
     if duration_seconds is None:
@@ -493,13 +545,18 @@ def main() -> int:
                 "input_mode": "window_message",
                 "score_ocr_enabled": ocr_recognizer is not None,
                 "failure_evidence_enabled": arguments.save_failure_evidence,
-                "screenshot_policy": "recognition_failure_only" if arguments.save_failure_evidence else "off",
+                "screenshot_policy": "recognition_failure_only"
+                if arguments.save_failure_evidence
+                else "off",
             },
         )
         print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
         return 0 if report["success"] else 1
     except (OSError, RuntimeError, ValueError, json.JSONDecodeError) as error:
-        print(f"2048 campaign could not start: {type(error).__name__}: {error}", file=sys.stderr)
+        print(
+            f"2048 campaign could not start: {type(error).__name__}: {error}",
+            file=sys.stderr,
+        )
         return 1
 
 

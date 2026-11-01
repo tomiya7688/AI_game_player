@@ -107,9 +107,14 @@ class RunController:
     def _validate_running_locked(self, expected_rearm_token: int | None) -> None:
         if not self._running:
             raise ExecutionCancelled(self._stop_reason or "実行は停止されています")
-        if expected_rearm_token is not None and expected_rearm_token != self._rearm_token:
+        if (
+            expected_rearm_token is not None
+            and expected_rearm_token != self._rearm_token
+        ):
             reason = self._stop_reason or "停止理由は記録されていません"
-            raise ExecutionCancelled(f"再開前に開始した推論結果を破棄しました。停止理由: {reason}")
+            raise ExecutionCancelled(
+                f"再開前に開始した推論結果を破棄しました。停止理由: {reason}"
+            )
 
     # {
     #   責務: [run_if_current: 現在有効な実行世代の短いcommit処理を停止と直列化する]
@@ -126,6 +131,17 @@ class RunController:
         with self._lock:
             self._validate_running_locked(expected_rearm_token)
             commit()
+
+    # {
+    #   責務: [record_execution_audit: 停止後に判明した入力事実だけをcommitと直列化して記録する]
+    #   処理: [実行許可を与えず同じlockを保持し、旧世代の非学習audit callbackだけを実行する]
+    #   引数: [record: 実入力やpending更新を行わない監査記録操作]
+    #   戻り値: [なし]
+    #   エラー: [Exception: 監査記録で発生した保存例外]
+    # }
+    def record_execution_audit(self, record: Callable[[], None]) -> None:
+        with self._lock:
+            record()
 
     # {
     #   責務: [ensure_running: 現在の実行状態と推論開始時の世代を検証する]

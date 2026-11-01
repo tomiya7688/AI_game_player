@@ -10,8 +10,17 @@ def render_class_diagram(source_root: Path) -> str:
         for node in tree.body:
             if not isinstance(node, ast.ClassDef):
                 continue
-            bases = [ast.unparse(base) for base in node.bases]
-            methods = [item.name for item in node.body if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))]
+            # Mermaid relations use class identities; Python's type arguments
+            # are neither part of that identity nor valid square-bracket syntax.
+            bases = [
+                ast.unparse(base.value if isinstance(base, ast.Subscript) else base)
+                for base in node.bases
+            ]
+            methods = [
+                item.name
+                for item in node.body
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            ]
             classes.append((node.name, bases, methods))
     lines = ["classDiagram"]
     for name, bases, methods in classes:
@@ -25,7 +34,9 @@ def render_class_diagram(source_root: Path) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate a Mermaid class diagram from Python sources")
+    parser = argparse.ArgumentParser(
+        description="Generate a Mermaid class diagram from Python sources"
+    )
     parser.add_argument("source_root", type=Path)
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
