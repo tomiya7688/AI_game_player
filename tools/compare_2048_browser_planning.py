@@ -178,7 +178,7 @@ def episode(
             journal = EventJournal(Path(directory) / "events.db")
 
             def preserve_failed_journal(exc_type, _error, _traceback):
-                if exc_type is None and not cleanup_errors:
+                if exc_type is None and not cleanup_errors and not dispositions:
                     return False
                 try:
                     payload = read_regular_file(
@@ -190,7 +190,15 @@ def episode(
                         artifact_type="session.journal",
                         sensitive=True,
                     )
-                    record["failure_journal"] = {
+                    retention_key = (
+                        "diagnostic_journal"
+                        if exc_type is None and dispositions
+                        else "failure_journal"
+                    )
+                    record[retention_key] = {
+                        "retention_reason": "nonselect"
+                        if retention_key == "diagnostic_journal"
+                        else "failure",
                         "artifact_store": "failed-journals",
                         "reference": asdict(reference),
                         "size_bytes": len(payload),
@@ -250,6 +258,18 @@ def episode(
                 )
                 decision_execution_ms = (time.monotonic_ns() - step_started_ns) / 1e6
                 if isinstance(result, DecisionDisposition):
+                    current_audit = getattr(provider, "last_planning_audit", {})
+                    encoded_audit = json.dumps(
+                        current_audit, ensure_ascii=True, allow_nan=False
+                    )
+                    if len(encoded_audit.encode("utf-8")) > 2 * 1024 * 1024:
+                        raise ValueError(
+                            "last planning diagnostic exceeds bounded report size"
+                        )
+                    record["last_planning_audit"] = json.loads(encoded_audit)
+                    record["last_core_reason"] = current_audit.get(
+                        "prediction", {}
+                    ).get("reason")
                     dispositions.append(
                         {
                             "outcome": result.outcome.value,

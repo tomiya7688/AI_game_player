@@ -51992,7 +51992,7 @@
       "module": "ai_game_player.planner_provider",
       "path": "src/ai_game_player/planner_provider.py",
       "source_location": {
-        "end_line": 383,
+        "end_line": 388,
         "start_line": 1
       },
       "symbols": [
@@ -52012,7 +52012,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 383,
+            "end_line": 388,
             "start_line": 38
           }
         },
@@ -52124,7 +52124,7 @@
           "signature": "(self, context: DecisionContext, observation: ScreenObservation, run_generation: int | None, candidates: tuple[ActionCandidate, ...]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 143,
+            "end_line": 145,
             "start_line": 87
           }
         },
@@ -52153,8 +52153,8 @@
           "signature": "(self, observation: ScreenObservation) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 151
+            "end_line": 163,
+            "start_line": 153
           }
         },
         {
@@ -52188,8 +52188,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 255,
-            "start_line": 169
+            "end_line": 260,
+            "start_line": 171
           }
         },
         {
@@ -52235,8 +52235,8 @@
           "signature": "(self, observation: ScreenObservation, candidates: list[ActionCandidate], selected: ActionCandidate, generation: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 263
+            "end_line": 283,
+            "start_line": 268
           }
         },
         {
@@ -52264,8 +52264,8 @@
           "signature": "(self, generation: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 290,
-            "start_line": 285
+            "end_line": 295,
+            "start_line": 290
           }
         },
         {
@@ -52287,8 +52287,8 @@
           "signature": "(self) -> Any",
           "source_location": {
             "column": 4,
-            "end_line": 315,
-            "start_line": 297
+            "end_line": 320,
+            "start_line": 302
           }
         },
         {
@@ -52310,8 +52310,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 322
+            "end_line": 329,
+            "start_line": 327
           }
         },
         {
@@ -52339,8 +52339,8 @@
           "signature": "(self, receipt: ExecutionReceipt) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 358,
-            "start_line": 331
+            "end_line": 363,
+            "start_line": 336
           }
         },
         {
@@ -52364,8 +52364,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 365
+            "end_line": 371,
+            "start_line": 370
           }
         },
         {
@@ -52399,8 +52399,8 @@
           "signature": "(self, reason: str, outcome: PlanningOutcome = …) -> NoReturn",
           "source_location": {
             "column": 4,
-            "end_line": 383,
-            "start_line": 373
+            "end_line": 388,
+            "start_line": 378
           }
         }
       ]
@@ -127668,7 +127668,7 @@
       "module": "tests.test_planner_provider",
       "path": "tests/test_planner_provider.py",
       "source_location": {
-        "end_line": 511,
+        "end_line": 540,
         "start_line": 1
       },
       "symbols": [
@@ -128014,7 +128014,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 511,
+            "end_line": 540,
             "start_line": 117
           }
         },
@@ -128657,6 +128657,52 @@
             "column": 8,
             "end_line": 501,
             "start_line": 462
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nonselect_retains_the_original_core_reason",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlannerProviderTests.test_nonselect_retains_the_original_core_reason",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 530,
+            "start_line": 513
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_a_step_without_planning_does_not_reuse_the_previous_core_audit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlannerProviderTests.test_a_step_without_planning_does_not_reuse_the_previous_core_audit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 540,
+            "start_line": 532
           }
         }
       ]
@@ -164212,7 +164258,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 472,
+          "line": 492,
           "local_dependencies": [],
           "module": "resource",
           "names": [
@@ -164225,7 +164271,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 530,
+          "line": 550,
           "local_dependencies": [],
           "module": "playwright.sync_api",
           "names": [
@@ -164239,7 +164285,7 @@
       "module": "tools.compare_2048_browser_planning",
       "path": "tools/compare_2048_browser_planning.py",
       "source_location": {
-        "end_line": 645,
+        "end_line": 665,
         "start_line": 1
       },
       "symbols": [
@@ -164474,7 +164520,7 @@
           "signature": "(browser, target, seed, provider_name, max_steps, output, *, planner_depth = …, planner_wall_ms = …)",
           "source_location": {
             "column": 0,
-            "end_line": 492,
+            "end_line": 512,
             "start_line": 99
           }
         },
@@ -164538,7 +164584,7 @@
           "signature": "(exc_type, _error, _traceback)",
           "source_location": {
             "column": 12,
-            "end_line": 203,
+            "end_line": 211,
             "start_line": 180
           }
         },
@@ -164554,8 +164600,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 231,
-            "start_line": 220
+            "end_line": 239,
+            "start_line": 228
           }
         },
         {
@@ -164570,8 +164616,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 641,
-            "start_line": 495
+            "end_line": 661,
+            "start_line": 515
           }
         }
       ]
