@@ -16,6 +16,7 @@ from ai_game_player.experience import ArtifactReference
 
 
 ARTIFACT_METADATA_SCHEMA_VERSION = 1
+MAX_BOUNDED_METADATA_BYTES = 16 * 1024
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _ID = re.compile(r"^[a-z][a-z0-9_.-]*$")
 
@@ -37,17 +38,28 @@ class ArtifactMetadata:
     def __post_init__(self) -> None:
         if not isinstance(self.sha256, str) or _SHA256.fullmatch(self.sha256) is None:
             raise ValueError("metadata sha256 must be a lowercase SHA-256 digest")
-        if isinstance(self.size_bytes, bool) or not isinstance(self.size_bytes, int) or self.size_bytes < 0:
+        if (
+            isinstance(self.size_bytes, bool)
+            or not isinstance(self.size_bytes, int)
+            or self.size_bytes < 0
+        ):
             raise ValueError("size_bytes must be a non-negative integer")
         if (
             isinstance(self.schema_version, bool)
             or not isinstance(self.schema_version, int)
             or self.schema_version != ARTIFACT_METADATA_SCHEMA_VERSION
         ):
-            raise ValueError(f"unsupported artifact metadata schema version: {self.schema_version}")
-        if not isinstance(self.artifact_type, str) or _ID.fullmatch(self.artifact_type) is None:
+            raise ValueError(
+                f"unsupported artifact metadata schema version: {self.schema_version}"
+            )
+        if (
+            not isinstance(self.artifact_type, str)
+            or _ID.fullmatch(self.artifact_type) is None
+        ):
             raise ValueError("artifact_type must be a lowercase identifier")
-        ArtifactReference(f"sha256.{self.sha256}", self.sha256, self.media_type, self.sensitive)
+        ArtifactReference(
+            f"sha256.{self.sha256}", self.sha256, self.media_type, self.sensitive
+        )
         _timestamp(self.created_at)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,7 +75,15 @@ class ArtifactMetadata:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> ArtifactMetadata:
-        expected = {"schema_version", "sha256", "size_bytes", "media_type", "artifact_type", "sensitive", "created_at"}
+        expected = {
+            "schema_version",
+            "sha256",
+            "size_bytes",
+            "media_type",
+            "artifact_type",
+            "sensitive",
+            "created_at",
+        }
         if not isinstance(value, Mapping):
             raise ValueError("artifact metadata must be an object")
         missing = expected - set(value)
@@ -74,7 +94,9 @@ class ArtifactMetadata:
                 details.append(f"missing: {', '.join(sorted(missing))}")
             if unknown:
                 details.append(f"unknown: {', '.join(sorted(unknown))}")
-            raise ValueError("invalid artifact metadata fields (" + "; ".join(details) + ")")
+            raise ValueError(
+                "invalid artifact metadata fields (" + "; ".join(details) + ")"
+            )
         return cls(
             sha256=_string(value["sha256"], "sha256"),
             size_bytes=_integer(value["size_bytes"], "size_bytes"),
@@ -86,7 +108,9 @@ class ArtifactMetadata:
         )
 
     def to_reference(self) -> ArtifactReference:
-        return ArtifactReference(f"sha256.{self.sha256}", self.sha256, self.media_type, self.sensitive)
+        return ArtifactReference(
+            f"sha256.{self.sha256}", self.sha256, self.media_type, self.sensitive
+        )
 
 
 @dataclass(frozen=True)
@@ -110,9 +134,13 @@ class ArtifactStore(Protocol):
 
     def verify(self, reference: ArtifactReference) -> ArtifactMetadata: ...
 
-    def find_orphans(self, references: Iterable[ArtifactReference]) -> tuple[str, ...]: ...
+    def find_orphans(
+        self, references: Iterable[ArtifactReference]
+    ) -> tuple[str, ...]: ...
 
-    def check_integrity(self, references: Iterable[ArtifactReference] | None = None) -> tuple[IntegrityIssue, ...]: ...
+    def check_integrity(
+        self, references: Iterable[ArtifactReference] | None = None
+    ) -> tuple[IntegrityIssue, ...]: ...
 
 
 class FileSystemArtifactStore:
@@ -137,7 +165,9 @@ class FileSystemArtifactStore:
         if destination.exists():
             _, metadata = self._load(reference)
             if metadata.artifact_type != artifact_type:
-                raise ArtifactIntegrityError("reference artifact_type does not match stored metadata")
+                raise ArtifactIntegrityError(
+                    "reference artifact_type does not match stored metadata"
+                )
             return reference
 
         shard = destination.parent
@@ -155,7 +185,12 @@ class FileSystemArtifactStore:
             self._write_staged_file(staging / "payload", payload)
             self._write_staged_file(
                 staging / "metadata.json",
-                json.dumps(metadata.to_dict(), ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"),
+                json.dumps(
+                    metadata.to_dict(),
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8"),
             )
             self._fsync_directory(staging)
             try:
@@ -165,7 +200,9 @@ class FileSystemArtifactStore:
                     raise
                 _, existing = self._load(reference)
                 if existing.artifact_type != artifact_type:
-                    raise ArtifactIntegrityError("reference artifact_type does not match stored metadata")
+                    raise ArtifactIntegrityError(
+                        "reference artifact_type does not match stored metadata"
+                    )
             else:
                 self._fsync_directory(shard)
             return reference
@@ -177,21 +214,45 @@ class FileSystemArtifactStore:
         payload, _ = self._load(reference)
         return payload
 
+    # {
+    #   責務: [read_bounded: 小さい契約データを容量上限付きで整合性検証して読む]
+    #   処理: [metadataとpayloadの読込量を制限し、既存の参照・サイズ・SHA検証も維持する]
+    #   引数: [reference: 読取るArtifact参照, max_bytes: 許可payload容量の正整数byte]
+    #   戻り値: [bytes: 容量と内容整合性を満たすpayload]
+    #   エラー: [ValueError: 上限が不正, ArtifactIntegrityError: 容量または整合性違反, OSError: 読込失敗]
+    # }
+    def read_bounded(self, reference: ArtifactReference, *, max_bytes: int) -> bytes:
+        if type(max_bytes) is not int or max_bytes <= 0:
+            raise ValueError("artifact read limit must be a positive integer")
+        payload, _ = self._load(reference, max_bytes=max_bytes)
+        return payload
+
     def verify(self, reference: ArtifactReference) -> ArtifactMetadata:
         _, metadata = self._load(reference)
         return metadata
 
     def find_orphans(self, references: Iterable[ArtifactReference]) -> tuple[str, ...]:
         referenced = {item.sha256 for item in references}
-        return tuple(sorted(digest for digest in self._iter_digests() if digest not in referenced))
+        return tuple(
+            sorted(
+                digest for digest in self._iter_digests() if digest not in referenced
+            )
+        )
 
-    def check_integrity(self, references: Iterable[ArtifactReference] | None = None) -> tuple[IntegrityIssue, ...]:
+    def check_integrity(
+        self, references: Iterable[ArtifactReference] | None = None
+    ) -> tuple[IntegrityIssue, ...]:
         if references is not None:
             issues = []
             for reference in references:
                 try:
                     self._load(reference)
-                except (ArtifactIntegrityError, OSError, ValueError, json.JSONDecodeError) as exc:
+                except (
+                    ArtifactIntegrityError,
+                    OSError,
+                    ValueError,
+                    json.JSONDecodeError,
+                ) as exc:
                     issues.append(IntegrityIssue(reference.sha256, str(exc)))
             return tuple(issues)
 
@@ -200,45 +261,101 @@ class FileSystemArtifactStore:
             try:
                 metadata = self._read_metadata(digest)
                 if metadata.sha256 != digest:
-                    raise ArtifactIntegrityError("metadata digest does not match object path")
+                    raise ArtifactIntegrityError(
+                        "metadata digest does not match object path"
+                    )
                 reference = metadata.to_reference()
                 self._load(reference)
-            except (ArtifactIntegrityError, OSError, ValueError, json.JSONDecodeError) as exc:
+            except (
+                ArtifactIntegrityError,
+                OSError,
+                ValueError,
+                json.JSONDecodeError,
+            ) as exc:
                 issues.append(IntegrityIssue(digest, str(exc)))
         return tuple(issues)
 
-    def _load(self, reference: ArtifactReference) -> tuple[bytes, ArtifactMetadata]:
+    # {
+    #   責務: [_load: 参照と格納metadata・内容hashが一致するArtifactだけを復元する]
+    #   処理: [通常読込または上限付き読込を行い、型・参照・サイズ・SHAを検証する]
+    #   引数: [reference: 読取る参照, max_bytes: 任意のpayload byte上限。指定時はmetadataも16KiBに制限]
+    #   戻り値: [tuple: 検証済みpayloadとmetadata]
+    #   エラー: [ArtifactIntegrityError: 欠落・容量超過・不整合, TypeError: 参照型が不正, OSError: IO失敗]
+    # }
+    def _load(
+        self, reference: ArtifactReference, *, max_bytes: int | None = None
+    ) -> tuple[bytes, ArtifactMetadata]:
         if not isinstance(reference, ArtifactReference):
             raise TypeError("reference must be an ArtifactReference")
         object_path = self._object_path(reference.sha256)
         if not object_path.is_dir() or object_path.is_symlink():
             raise ArtifactIntegrityError(f"artifact not found: {reference.sha256}")
-        metadata = self._read_metadata(reference.sha256)
+        metadata = self._read_metadata(
+            reference.sha256,
+            max_bytes=MAX_BOUNDED_METADATA_BYTES if max_bytes is not None else None,
+        )
         if metadata.sha256 != reference.sha256:
             raise ArtifactIntegrityError("metadata digest does not match reference")
-        if metadata.media_type != reference.media_type or metadata.sensitive != reference.sensitive:
-            raise ArtifactIntegrityError("reference metadata does not match stored metadata")
+        if (
+            metadata.media_type != reference.media_type
+            or metadata.sensitive != reference.sensitive
+        ):
+            raise ArtifactIntegrityError(
+                "reference metadata does not match stored metadata"
+            )
         payload_path = object_path / "payload"
         if not payload_path.is_file() or payload_path.is_symlink():
-            raise ArtifactIntegrityError("artifact payload is missing or not a regular file")
-        payload = payload_path.read_bytes()
+            raise ArtifactIntegrityError(
+                "artifact payload is missing or not a regular file"
+            )
+        if max_bytes is not None and metadata.size_bytes > max_bytes:
+            raise ArtifactIntegrityError("artifact payload exceeds read limit")
+        if max_bytes is None:
+            payload = payload_path.read_bytes()
+        else:
+            with payload_path.open("rb") as stream:
+                payload = stream.read(max_bytes + 1)
+            if len(payload) > max_bytes:
+                raise ArtifactIntegrityError("artifact payload exceeds read limit")
         if len(payload) != metadata.size_bytes:
             raise ArtifactIntegrityError("artifact size does not match stored metadata")
         if hashlib.sha256(payload).hexdigest() != reference.sha256:
             raise ArtifactIntegrityError("artifact content hash mismatch")
         return payload, metadata
 
-    def _read_metadata(self, digest: str) -> ArtifactMetadata:
+    # {
+    #   責務: [_read_metadata: Artifact metadataを通常または上限付きで検証する]
+    #   処理: [symlinkを拒否し、指定時はbyte上限を超える前にJSON復元を止める]
+    #   引数: [digest: objectのSHA-256, max_bytes: 任意のmetadata byte上限]
+    #   戻り値: [ArtifactMetadata: 検証済みのmetadata]
+    #   エラー: [ArtifactIntegrityError: 欠落・破損・容量違反, OSError: 読込失敗]
+    # }
+    def _read_metadata(
+        self, digest: str, *, max_bytes: int | None = None
+    ) -> ArtifactMetadata:
         path = self._object_path(digest) / "metadata.json"
         if path.is_symlink() or not path.is_file():
-            raise ArtifactIntegrityError(f"artifact metadata is missing or not a regular file: {digest}")
+            raise ArtifactIntegrityError(
+                f"artifact metadata is missing or not a regular file: {digest}"
+            )
         try:
-            raw = json.loads(path.read_text(encoding="utf-8"))
+            if max_bytes is None:
+                raw = json.loads(path.read_text(encoding="utf-8"))
+            else:
+                with path.open("rb") as stream:
+                    payload = stream.read(max_bytes + 1)
+                if len(payload) > max_bytes:
+                    raise ArtifactIntegrityError("artifact metadata exceeds read limit")
+                raw = json.loads(payload)
             return ArtifactMetadata.from_dict(raw)
         except FileNotFoundError as exc:
-            raise ArtifactIntegrityError(f"artifact metadata is missing: {digest}") from exc
+            raise ArtifactIntegrityError(
+                f"artifact metadata is missing: {digest}"
+            ) from exc
         except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
-            raise ArtifactIntegrityError(f"artifact metadata is invalid: {digest}: {exc}") from exc
+            raise ArtifactIntegrityError(
+                f"artifact metadata is invalid: {digest}: {exc}"
+            ) from exc
 
     def _object_path(self, digest: str) -> Path:
         if not isinstance(digest, str) or _SHA256.fullmatch(digest) is None:
@@ -249,7 +366,11 @@ class FileSystemArtifactStore:
         if not self.root.exists():
             return
         for shard in self.root.iterdir():
-            if shard.is_symlink() or not shard.is_dir() or re.fullmatch(r"[0-9a-f]{2}", shard.name) is None:
+            if (
+                shard.is_symlink()
+                or not shard.is_dir()
+                or re.fullmatch(r"[0-9a-f]{2}", shard.name) is None
+            ):
                 continue
             for entry in shard.iterdir():
                 if (
@@ -300,6 +421,8 @@ def _timestamp(value: str) -> None:
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except (AttributeError, ValueError) as exc:
-        raise ValueError("created_at must be a timezone-qualified ISO-8601 timestamp") from exc
+        raise ValueError(
+            "created_at must be a timezone-qualified ISO-8601 timestamp"
+        ) from exc
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError("created_at must include a timezone")

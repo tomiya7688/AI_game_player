@@ -145,6 +145,7 @@ classDiagram
         +__init__()
         +put()
         +read()
+        +read_bounded()
         +verify()
         +find_orphans()
         +check_integrity()
@@ -684,6 +685,28 @@ classDiagram
         +search()
         +_read()
         +_write()
+    }
+    class KnowledgeScope {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +key()
+    }
+    class KnowledgeSnapshot {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_bytes()
+        +sha256()
+        +is_expired()
+    }
+    class KnowledgeReadResult {
+    }
+    class KnowledgeSnapshotStore {
+        +__init__()
+        +save()
+        +read()
+        +_index_path()
     }
     class LearningCapabilityManifest {
         +__post_init__()
