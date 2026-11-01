@@ -30,6 +30,7 @@ class FakeEpisode:
         return {"match": True, "binary": {"sha256": "fixture"}}
 
     def __init__(self, *args, **kwargs):
+        self.wgc_timeout_ms = kwargs.get("wgc_timeout_ms")
         self.records = []
         self.closed = False
         self.launcher = SimpleNamespace(
@@ -49,7 +50,7 @@ class FakeEpisode:
         self.records.append(result)
         return result
 
-    def observe(self):
+    def observe(self, **kwargs):
         self.source.latest_observation = ScreenObservation(
             "fixture",
             100,
@@ -72,6 +73,133 @@ class FakeEpisode:
 
 
 class WindowsPlanningComparisonTests(unittest.TestCase):
+    def test_initial_unknown_requires_fresh_available_parity_before_any_input(self):
+        unknown = {
+            "match": False,
+            "semantic_available": [False, False],
+            "semantic_values_equal": True,
+            "primitive_fields_equal": {"signature": True},
+            "candidate_equal": True,
+            "baseline_values_equal": True,
+        }
+        for recover in (True, False):
+            with self.subTest(recover=recover):
+                instances = []
+                observations = []
+
+                class InitialEpisode(FakeEpisode):
+                    def __init__(self, *args, **kwargs):
+                        super().__init__(*args, **kwargs)
+                        self.parity_calls = 0
+                        instances.append(self)
+
+                    def observe(self, **kwargs):
+                        observations.append((len(self.records), kwargs))
+                        return super().observe(**kwargs)
+
+                    def validate_preprocessing(self):
+                        self.parity_calls += 1
+                        return (
+                            {"match": True}
+                            if recover and self.parity_calls == 2
+                            else unknown
+                        )
+
+                with (
+                    tempfile.TemporaryDirectory() as directory,
+                    patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+                    patch.object(
+                        comparison, "ReferenceGame2048Episode", InitialEpisode
+                    ),
+                    patch.object(
+                        comparison.TesseractOcrRecognizer,
+                        "optional",
+                        return_value=object(),
+                    ),
+                    patch.object(
+                        comparison,
+                        "evaluate_visible_score",
+                        return_value={"value": 0, "confidence": 0.9},
+                    ),
+                ):
+                    result = comparison.run_episode(
+                        "planner", 479, 3, Path(directory), Path(directory)
+                    )
+                self.assertEqual(result["actions"], 3 if recover else 0)
+                self.assertEqual(instances[0].parity_calls, 2 if recover else 3)
+                self.assertEqual(
+                    len(result["preprocessing_attempts"]), 2 if recover else 3
+                )
+                self.assertTrue(
+                    all(count == 0 for count, _ in observations[: 2 if recover else 3])
+                )
+                self.assertLessEqual(
+                    observations[1][1]["timeout_seconds"],
+                    comparison.SCREEN_READY_TIMEOUT_SECONDS,
+                )
+                self.assertGreater(instances[0].source.not_before, 0)
+                self.assertEqual(result["success"], recover)
+
+    def test_initial_available_mismatch_is_not_retried(self):
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", FakeEpisode),
+            patch.object(
+                FakeEpisode,
+                "validate_preprocessing",
+                return_value={"match": False, "semantic_available": [True, True]},
+            ) as parity,
+        ):
+            result = comparison.run_episode(
+                "planner", 479, 3, Path(directory), Path(directory)
+            )
+        self.assertEqual(parity.call_count, 1)
+        self.assertEqual(result["actions"], 0)
+        self.assertFalse(result["success"])
+
+    def test_initial_capture_cannot_extend_the_original_ready_deadline(self):
+        now = [100.0]
+
+        class SlowInitialEpisode(FakeEpisode):
+            def observe(self, **kwargs):
+                now[0] += comparison.SCREEN_READY_TIMEOUT_SECONDS + 1
+                return super().observe(**kwargs)
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", SlowInitialEpisode),
+            patch.object(comparison.time, "monotonic", side_effect=lambda: now[0]),
+        ):
+            result = comparison.run_episode(
+                "planner", 479, 3, Path(directory), Path(directory)
+            )
+        self.assertEqual(result["actions"], 0)
+        self.assertFalse(result["success"])
+        self.assertIn("ready deadline", result["failure"]["message"])
+
+    def test_fresh_after_parity_cannot_turn_unknown_board_into_an_input(self):
+        class UnknownFreshEpisode(FakeEpisode):
+            def observe(self, **kwargs):
+                state = super().observe(**kwargs)
+                self.source.latest_observation.features["game_2048"]["board"][0][0] = (
+                    None
+                )
+                return state
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", UnknownFreshEpisode),
+        ):
+            result = comparison.run_episode(
+                "cycling", 479, 3, Path(directory), Path(directory)
+            )
+        self.assertEqual(result["actions"], 0)
+        self.assertFalse(result["success"])
+        self.assertIn("typed board unavailable", result["failure"]["message"])
+
     def test_failure_header_is_diagnostic_top_strip_without_changing_ocr_region(self):
         frame = ScreenFrame(1000, 800, bytes(1000 * 800 * 4))
         original = [410, 63, 225, 94]
@@ -131,7 +259,9 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         with (
             tempfile.TemporaryDirectory() as directory,
             patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
-            patch.object(comparison, "ReferenceGame2048Episode", FakeEpisode),
+            patch.object(
+                comparison, "ReferenceGame2048Episode", side_effect=FakeEpisode
+            ) as factory,
             (
                 patch.object(
                     comparison.TesseractOcrRecognizer, "optional", return_value=object()
@@ -149,6 +279,7 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
                 "planner", 479, 3, Path(directory), Path(directory)
             )
         self.assertTrue(result["success"])
+        self.assertEqual(factory.call_args.kwargs["wgc_timeout_ms"], 250)
         self.assertEqual(result["actions"], 3)
         self.assertEqual(result["execution_history_count"], 3)
         self.assertTrue(result["stopped_input_rejected"])
@@ -160,8 +291,8 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
     def test_sent_messages_without_observed_board_changes_cannot_pass(self):
         observe = FakeEpisode.observe
 
-        def unchanged(episode):
-            state = observe(episode)
+        def unchanged(episode, **kwargs):
+            state = observe(episode, **kwargs)
             episode.source.latest_observation.features["game_2048"]["board"] = [
                 [2, 0, 0, 0],
                 [0] * 4,

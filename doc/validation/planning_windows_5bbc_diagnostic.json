@@ -1,0 +1,1048 @@
+{
+  "schema_version": 1,
+  "scope": "Windows failure diagnosis; independent of required 600 second acceptance; not successful gameplay evidence",
+  "source_commit": "5bbc2778dfb43ee63bebfa032cba530fc4c92883",
+  "workflow_run_id": 41338659005,
+  "observation_limits": {
+    "capture_age_seconds": 5,
+    "belief_ttl_seconds": 4,
+    "reobservation_budget_seconds": 3,
+    "wgc_wait_ms": 2000
+  },
+  "jobs": [
+    {
+      "job_id": 124943766874,
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 479,
+          "success": false,
+          "failure_stage": "preprocessing_validation",
+          "failure_type": "RuntimeError",
+          "disposition": null,
+          "reason_codes": [],
+          "core_reason": null,
+          "confirmed_actual_actions": 0,
+          "observed_board_changes": 0,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": null,
+          "score_attempts": [],
+          "decision_attempts": [],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": false,
+          "last_capture_backend": "wgc",
+          "last_capture_gdi_method": null,
+          "last_capture_frame_size": [
+            892,
+            642
+          ],
+          "fallback_reason": null,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 736468506600,
+            "snapshot_finished_ns": 736468727600,
+            "selected_hwnd": 131420,
+            "selected_pid": 8124,
+            "frame_size": [
+              892,
+              642
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131420,
+            "foreground_pid": 8124,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        },
+        {
+          "provider": "baseline",
+          "seed": 479,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": null,
+          "reason_codes": [],
+          "core_reason": null,
+          "confirmed_actual_actions": 12,
+          "observed_board_changes": 12,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": 2048,
+              "confidence": 0.96
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_line_touches_crop_edge",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 1,
+                "label_confidences": [
+                  0.95
+                ]
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_future_timestamp",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 760359164800,
+            "snapshot_finished_ns": 760359356100,
+            "selected_hwnd": 131598,
+            "selected_pid": 5584,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131598,
+            "foreground_pid": 5584,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        },
+        {
+          "provider": "planner",
+          "seed": 479,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": "abstain",
+          "reason_codes": [
+            "reobservation_budget_exhausted"
+          ],
+          "core_reason": "compute_budget",
+          "confirmed_actual_actions": 0,
+          "observed_board_changes": 0,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": null,
+              "confidence": 0
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_label_unavailable_or_ambiguous",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 0,
+                "label_confidences": []
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [
+            {
+              "outcome": "observe_more",
+              "reason_codes": [
+                "planning_screen_signature_changed"
+              ],
+              "reobservations": 0,
+              "elapsed_ns": 2704706200
+            },
+            {
+              "outcome": "abstain",
+              "reason_codes": [
+                "reobservation_budget_exhausted"
+              ],
+              "reobservations": 1,
+              "elapsed_ns": 7651363100
+            }
+          ],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_timeout",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 776034115600,
+            "snapshot_finished_ns": 776034313900,
+            "selected_hwnd": 590124,
+            "selected_pid": 5996,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 590124,
+            "foreground_pid": 5996,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        }
+      ],
+      "images": [
+        {
+          "provider": "cycling",
+          "seed": 479,
+          "status": "unavailable"
+        },
+        {
+          "provider": "baseline",
+          "seed": 479,
+          "status": "ready",
+          "png_sha256": "41dc4ac3a7cee43914da13389a9910f8692f55b6580ed6038fecf959f588e5e1",
+          "png_bytes": 11473,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "e4d41caa2d1ace1bb49b13e687aa25956f032ca949bed08f204256d5e65ea253"
+        },
+        {
+          "provider": "planner",
+          "seed": 479,
+          "status": "ready",
+          "png_sha256": "eaaabdd2976280e3012a9bc56462bdbd6be76462dd0d1c35d4f0a11e0ba2ade8",
+          "png_bytes": 10782,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "3e63d680230c35dc4ff9b81fb8f50b9999493e30e10589cce6d0d27c0688444f"
+        }
+      ]
+    },
+    {
+      "job_id": 124943766894,
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 480,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": null,
+          "reason_codes": [],
+          "core_reason": null,
+          "confirmed_actual_actions": 12,
+          "observed_board_changes": 12,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": 2048,
+              "confidence": 0.96
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_line_touches_crop_edge",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 1,
+                "label_confidences": [
+                  0.95
+                ]
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_future_timestamp",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 266148469500,
+            "snapshot_finished_ns": 266148710100,
+            "selected_hwnd": 131598,
+            "selected_pid": 2932,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131598,
+            "foreground_pid": 2932,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        },
+        {
+          "provider": "baseline",
+          "seed": 480,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": null,
+          "reason_codes": [],
+          "core_reason": null,
+          "confirmed_actual_actions": 12,
+          "observed_board_changes": 12,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": 2048,
+              "confidence": 0.96
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_line_touches_crop_edge",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 1,
+                "label_confidences": [
+                  0.95
+                ]
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_future_timestamp",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 287994684100,
+            "snapshot_finished_ns": 287994868600,
+            "selected_hwnd": 131620,
+            "selected_pid": 800,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131620,
+            "foreground_pid": 800,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        },
+        {
+          "provider": "planner",
+          "seed": 480,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": "abstain",
+          "reason_codes": [
+            "reobservation_budget_exhausted"
+          ],
+          "core_reason": "compute_budget",
+          "confirmed_actual_actions": 0,
+          "observed_board_changes": 0,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": null,
+              "confidence": 0
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_label_unavailable_or_ambiguous",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 0,
+                "label_confidences": []
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [
+            {
+              "outcome": "observe_more",
+              "reason_codes": [
+                "planning_screen_signature_changed"
+              ],
+              "reobservations": 0,
+              "elapsed_ns": 2568808600
+            },
+            {
+              "outcome": "abstain",
+              "reason_codes": [
+                "reobservation_budget_exhausted"
+              ],
+              "reobservations": 1,
+              "elapsed_ns": 7295091300
+            }
+          ],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_timeout",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 302888312700,
+            "snapshot_finished_ns": 302888508900,
+            "selected_hwnd": 197150,
+            "selected_pid": 5580,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 197150,
+            "foreground_pid": 5580,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        }
+      ],
+      "images": [
+        {
+          "provider": "cycling",
+          "seed": 480,
+          "status": "ready",
+          "png_sha256": "fded9c78f78b1764f9e2af089bd3843ed0022205c1939c69f51f0de6563c0c15",
+          "png_bytes": 11450,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "0fb8b353f11454e08ef155060d88af3ac1683fdbe4d297cae18d43bf84cc89db"
+        },
+        {
+          "provider": "baseline",
+          "seed": 480,
+          "status": "ready",
+          "png_sha256": "fded9c78f78b1764f9e2af089bd3843ed0022205c1939c69f51f0de6563c0c15",
+          "png_bytes": 11450,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "775bdc93e235b66216f419e018d2514cbea0a1781e86dcd50cfa2e8780a1e3f2"
+        },
+        {
+          "provider": "planner",
+          "seed": 480,
+          "status": "ready",
+          "png_sha256": "28cad769ad1ce2fc4a244a3d4a6462f835fc432d1342193ed89bff35fdb72853",
+          "png_bytes": 10757,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "b4dd479c4ebe3141ee808c57104ef347cdb89e58905b7aa87f30c0ce3a763a3a"
+        }
+      ]
+    },
+    {
+      "job_id": 124943766762,
+      "episodes": [
+        {
+          "provider": "cycling",
+          "seed": 481,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": null,
+          "reason_codes": [],
+          "core_reason": null,
+          "confirmed_actual_actions": 12,
+          "observed_board_changes": 12,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": 2048,
+              "confidence": 0.96
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_line_not_unique_numeric",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 1,
+                "label_confidences": [
+                  0.91
+                ]
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_future_timestamp",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 282073517800,
+            "snapshot_finished_ns": 282073703500,
+            "selected_hwnd": 328134,
+            "selected_pid": 6036,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 328134,
+            "foreground_pid": 6036,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        },
+        {
+          "provider": "baseline",
+          "seed": 481,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": null,
+          "reason_codes": [],
+          "core_reason": null,
+          "confirmed_actual_actions": 12,
+          "observed_board_changes": 12,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": 2048,
+              "confidence": 0.96
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_line_not_unique_numeric",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 1,
+                "label_confidences": [
+                  0.95
+                ]
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_future_timestamp",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 307104568100,
+            "snapshot_finished_ns": 307104770100,
+            "selected_hwnd": 131608,
+            "selected_pid": 8404,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 131608,
+            "foreground_pid": 8404,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        },
+        {
+          "provider": "planner",
+          "seed": 481,
+          "success": false,
+          "failure_stage": "score_evaluation",
+          "failure_type": "RuntimeError",
+          "disposition": "abstain",
+          "reason_codes": [
+            "reobservation_budget_exhausted"
+          ],
+          "core_reason": "compute_budget",
+          "confirmed_actual_actions": 0,
+          "observed_board_changes": 0,
+          "score_status": "unavailable",
+          "score": null,
+          "score_confidence": 0,
+          "score_attempts": [
+            {
+              "profile": "document",
+              "value": null,
+              "confidence": 0
+            },
+            {
+              "profile": "single_numeric_line",
+              "status": "score_label_unavailable_or_ambiguous",
+              "label_search": {
+                "status": "scaled_header_label",
+                "crop_bbox": [
+                  410,
+                  63,
+                  225,
+                  94
+                ],
+                "scale": 3,
+                "label_count": 0,
+                "label_confidences": []
+              },
+              "value": null,
+              "confidence": 0
+            }
+          ],
+          "decision_attempts": [
+            {
+              "outcome": "observe_more",
+              "reason_codes": [
+                "planning_screen_signature_changed"
+              ],
+              "reobservations": 0,
+              "elapsed_ns": 2752100700
+            },
+            {
+              "outcome": "abstain",
+              "reason_codes": [
+                "reobservation_budget_exhausted"
+              ],
+              "reobservations": 1,
+              "elapsed_ns": 7695556300
+            }
+          ],
+          "stop_probe": "unverified",
+          "stale_generation_probe": "unverified",
+          "preprocessing_match": true,
+          "last_capture_backend": "gdi",
+          "last_capture_gdi_method": "bitblt",
+          "last_capture_frame_size": [
+            904,
+            648
+          ],
+          "fallback_reason": "wgc_timeout",
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 323409762200,
+            "snapshot_finished_ns": 323409928100,
+            "selected_hwnd": 524406,
+            "selected_pid": 6440,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 524406,
+            "foreground_pid": 6440,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          }
+        }
+      ],
+      "images": [
+        {
+          "provider": "cycling",
+          "seed": 481,
+          "status": "ready",
+          "png_sha256": "e4b159e7c95e2e14c4ffbc7b5a8388206360c1413f66c09518373b73fe8d14a2",
+          "png_bytes": 10874,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "a52935cc863b8277e06fb4afe5b1ee6cad4fccb46463d6734ed45875db8a3790"
+        },
+        {
+          "provider": "baseline",
+          "seed": 481,
+          "status": "ready",
+          "png_sha256": "539a8c0d287af21baa9cdec165a3fbfad7eb05ee17604172486c88bdbc26ed4e",
+          "png_bytes": 11315,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "2ae6b1137c5d3b54ab4c25f4decc9287de4fe42ca95a6f11c8c5c1ae7c519cea"
+        },
+        {
+          "provider": "planner",
+          "seed": 481,
+          "status": "ready",
+          "png_sha256": "eaaabdd2976280e3012a9bc56462bdbd6be76462dd0d1c35d4f0a11e0ba2ade8",
+          "png_bytes": 10782,
+          "png_size": [
+            640,
+            240
+          ],
+          "original_frame_size": [
+            904,
+            648
+          ],
+          "crop_bbox": [
+            202,
+            0,
+            640,
+            240
+          ],
+          "frame_sha256": "bf28a89ea13c7b93b1443602118d74bc0e4fc4baa3d63924e21e79160db4112b"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "All three jobs failed comparison; no successful cohort mean is computed.",
+    "Score unknown is retained; observed board change is a test metric, not verified causal learning evidence.",
+    "Subsequent c974 PR479 stress attempt9 did not adopt depth3 before cutoff; finished-marker timing was not separately logged.",
+    "The proposed 250ms comparison-only wait and revised score preprocessing were not measured in this source."
+  ]
+}

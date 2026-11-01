@@ -23,7 +23,12 @@ from tools.planning_resource_monitor import PlanningResourceMonitor
 from tools.planning_failure_header import OwnedGameFailureHeader
 from tools.planning_score_evaluation import reread_score_header_label, reread_score_line
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
-from tools.run_2048_campaign import ReferenceGame2048Episode, CAMPAIGN_PURPOSE
+from tools.run_2048_campaign import (
+    ReferenceGame2048Episode,
+    CAMPAIGN_PURPOSE,
+    CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS,
+    SCREEN_READY_TIMEOUT_SECONDS,
+)
 
 
 def failure_header_bbox(frame, label_bbox=None):
@@ -162,6 +167,7 @@ def run_episode(
             planner_conditional=provider == "planner",
             planning_settle_ms=1000,
             native_preprocessing=True,
+            wgc_timeout_ms=250,
             test_seed=seed,
             event_journal=journal,
         )
@@ -170,17 +176,41 @@ def run_episode(
         )
         result["seed_fixture"] = episode.launcher.server.test_seed_metadata
         phase = "initial_observation"
-        state = episode.observe()
+        ready_deadline = time.monotonic() + SCREEN_READY_TIMEOUT_SECONDS
+        state = episode.observe(timeout_seconds=SCREEN_READY_TIMEOUT_SECONDS)
         result["initial_max_tile"] = state.max_tile
         phase = "preprocessing_validation"
-        result["preprocessing_validation"] = episode.validate_preprocessing()
-        if not result["preprocessing_validation"]["match"]:
+        result["preprocessing_attempts"] = []
+        for attempt in range(3):
+            parity = episode.validate_preprocessing()
+            result["preprocessing_validation"] = parity
+            result["preprocessing_attempts"].append(parity)
+            if parity["match"] or not (
+                parity.get("semantic_available") == [False, False]
+                and parity.get("semantic_values_equal") is True
+                and all(parity.get("primitive_fields_equal", {}).values())
+                and parity.get("candidate_equal") is True
+                and parity.get("baseline_values_equal") is True
+            ):
+                break
+            remaining = ready_deadline - time.monotonic()
+            if attempt == 2 or remaining <= 0:
+                break
+            # A new physical observation is required; do not relabel the cached unknown frame.
+            episode.source.not_before = max(episode.source.not_before, time.monotonic())
+            state = episode.observe(timeout_seconds=remaining)
+        if (
+            not result["preprocessing_validation"]["match"]
+            or time.monotonic() >= ready_deadline
+        ):
             raise RuntimeError(
-                "explicit native preprocessing differs from the Python comparison inputs"
+                "explicit native preprocessing inputs differ or remain unavailable within the ready deadline"
             )
         # Validation consumed time; plan from a newly accepted real frame without extending TTL.
         phase = "post_validation_observation"
-        state = episode.observe()
+        state = episode.observe(timeout_seconds=ready_deadline - time.monotonic())
+        if time.monotonic() >= ready_deadline:
+            raise RuntimeError("comparison initial observation ready deadline expired")
         initial_token = episode.pipeline.controller.rearm_token
         for _ in range(max_steps):
             if state.terminal:
@@ -188,6 +218,8 @@ def run_episode(
             before = state
             began = time.monotonic_ns()
             phase = "decision_execution"
+            if observed_board(episode) is None:
+                raise RuntimeError("comparison typed board unavailable before decision")
             result["last_core_reason"] = None
             result["last_policy_reason_codes"] = []
             orchestrator = DecisionOrchestrator(episode.pipeline)
@@ -447,6 +479,7 @@ def comparison_summary(result):
         "observed_board_changes": result.get("board_changes", 0),
         "frame_preprocessing_profile": result.get("frame_preprocessing_profile"),
         "preprocessing_validation": result.get("preprocessing_validation"),
+        "preprocessing_attempts": result.get("preprocessing_attempts", [])[:3],
         "last_capture": result.get("last_capture"),
         "recent_captures": result.get("recent_captures", [])[-4:],
         "input_timings": result.get("input_timings", [])[-3:],
@@ -503,6 +536,12 @@ def main(argv=None):
         "failure_evidence_enabled": args.save_failure_evidence,
         "max_steps": args.max_steps,
         "profile": "short Windows comparison; independent of required 600s gate",
+        "capture_profile": {
+            "wgc_timeout_ms": 250,
+            "timeout_behavior": "existing same-target GDI fallback; WGC session remains reusable",
+            "default_campaign_wgc_timeout_ms": 2000,
+            "observation_age_limit_seconds": CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS,
+        },
         "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
         "frame_preprocessing_profile": "explicit native FAST_CV for all three providers; unavailable capability fails comparison; campaign default remains Python",
         "decision_state": "existing screenshot board recognizer only; post-decision score OCR never enters Source/Planner",
