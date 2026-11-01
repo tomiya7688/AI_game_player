@@ -1,0 +1,577 @@
+{
+  "schema_version": 1,
+  "method": "same fixed post-failure read-only Runtime.evaluate; no observer/network-enable/input/reload/retry",
+  "source_reference_commit": "37bbafb1975e79fca7307dd621b61680403a91de",
+  "candidate_helper_sha256": "f32d39f957eb0977b51137dba0a795f45255744e7a283e01a42aaca986a4fc11",
+  "expression_sha256": "ee3009caac0be0d941819de5375ccb2c12e1fe905cd3d39b61979861dc78e76f",
+  "browser_version": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+  "backend": "Linux headless Chromium; controlled failure fixtures, not Windows validation",
+  "source_game_commit": "478b6ec346e3787f589e4af751378d06ded4cbbc",
+  "source_assets_modified": false,
+  "fixture_http_responses_modified_only_for_declared_fault_cases": true,
+  "full_report_sha256": "b2c78dc6400e1e1dfa2cb332d5bd849adacfcaa519736c6896b409ab75bea497",
+  "full_report_workspace_path": "/tmp/script-resource-timing-proof/report.json",
+  "resource_timing_clock": "renderer-relative timing converted only to nullable presence booleans; no parent clock arithmetic",
+  "source_or_ai_or_authority_flow": false,
+  "cause_limitation": "Can reproduce the observed constructor/empty pixels via loader faults; does not identify the actual Windows network error or prove backlog causation",
+  "cases": [
+    {
+      "case": "normal",
+      "response_field_count": 120,
+      "response_bytes": 2890,
+      "elapsed_ms": 9.213418001309037,
+      "empty_board_pixels": false,
+      "image_sha256": "06a48908fc46f9c9a81e9d19a0e255c8ae3659abf7ab6616e6e89a27ab0ee56b",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 4340,
+          "encoded_body_size": 4040,
+          "decoded_body_size": 4040,
+          "response_start": true,
+          "response_end": true
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 2826,
+          "encoded_body_size": 2526,
+          "decoded_body_size": 2526,
+          "response_start": true,
+          "response_end": true
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 894,
+          "encoded_body_size": 594,
+          "decoded_body_size": 594,
+          "response_start": true,
+          "response_end": true
+        }
+      }
+    },
+    {
+      "case": "network_abort",
+      "response_field_count": 120,
+      "response_bytes": 2868,
+      "elapsed_ms": 8.562132003135048,
+      "empty_board_pixels": true,
+      "image_sha256": "d56830ad11b74f85b7d03d028056bf21bf815fd8721c43e8e7c7bfe6ddd30bb1",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": false,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": false,
+        "tile_constructor": false
+      },
+      "tile_count": 0,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 0,
+          "transfer_size": 0,
+          "encoded_body_size": 0,
+          "decoded_body_size": 0,
+          "response_start": false,
+          "response_end": true
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 0,
+          "transfer_size": 0,
+          "encoded_body_size": 0,
+          "decoded_body_size": 0,
+          "response_start": false,
+          "response_end": true
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 0,
+          "transfer_size": 0,
+          "encoded_body_size": 0,
+          "decoded_body_size": 0,
+          "response_start": false,
+          "response_end": true
+        }
+      }
+    },
+    {
+      "case": "http404",
+      "response_field_count": 120,
+      "response_bytes": 2877,
+      "elapsed_ms": 6.8176469940226525,
+      "empty_board_pixels": true,
+      "image_sha256": "d56830ad11b74f85b7d03d028056bf21bf815fd8721c43e8e7c7bfe6ddd30bb1",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": false,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": false,
+        "tile_constructor": false
+      },
+      "tile_count": 0,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 404,
+          "transfer_size": 300,
+          "encoded_body_size": 0,
+          "decoded_body_size": 0,
+          "response_start": true,
+          "response_end": true
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 404,
+          "transfer_size": 300,
+          "encoded_body_size": 0,
+          "decoded_body_size": 0,
+          "response_start": true,
+          "response_end": true
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 404,
+          "transfer_size": 300,
+          "encoded_body_size": 0,
+          "decoded_body_size": 0,
+          "response_start": true,
+          "response_end": true
+        }
+      }
+    },
+    {
+      "case": "wrong_bytes_200",
+      "response_field_count": 120,
+      "response_bytes": 2883,
+      "elapsed_ms": 6.60351099941181,
+      "empty_board_pixels": true,
+      "image_sha256": "d56830ad11b74f85b7d03d028056bf21bf815fd8721c43e8e7c7bfe6ddd30bb1",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": false,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": false,
+        "tile_constructor": false
+      },
+      "tile_count": 0,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 354,
+          "encoded_body_size": 54,
+          "decoded_body_size": 54,
+          "response_start": true,
+          "response_end": true
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 354,
+          "encoded_body_size": 54,
+          "decoded_body_size": 54,
+          "response_start": true,
+          "response_end": true
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 354,
+          "encoded_body_size": 54,
+          "decoded_body_size": 54,
+          "response_start": true,
+          "response_end": true
+        }
+      }
+    },
+    {
+      "case": "unknown_timing",
+      "response_field_count": 120,
+      "response_bytes": 2946,
+      "elapsed_ms": 6.6965680016437545,
+      "empty_board_pixels": false,
+      "image_sha256": "af054fa07a504f2b85297925b50e1631e572024f4581993abf8dea0a35c15b66",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "unavailable",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        }
+      }
+    },
+    {
+      "case": "overflow_timing",
+      "response_field_count": 120,
+      "response_bytes": 2942,
+      "elapsed_ms": 9.27301699994132,
+      "empty_board_pixels": false,
+      "image_sha256": "735386862635cda99e019588f52f567fcaaed01d58eb99a50518dfd86334847a",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "overflow",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        }
+      }
+    },
+    {
+      "case": "timing_read_error",
+      "response_field_count": 120,
+      "response_bytes": 2946,
+      "elapsed_ms": 7.217942002171185,
+      "empty_board_pixels": false,
+      "image_sha256": "ffcf4669fbdb7fb0b4a3751fb721b40e74b2c3b355347bc3887f08379d8b81a9",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "unavailable",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": null,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        }
+      }
+    },
+    {
+      "case": "missing_entry",
+      "response_field_count": 120,
+      "response_bytes": 2891,
+      "elapsed_ms": 10.507508995942771,
+      "empty_board_pixels": false,
+      "image_sha256": "53d0a2c10db75d5ee26a2a61c42a8bf54485b1849695d3dbd056812e7b4236a2",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 0,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 2826,
+          "encoded_body_size": 2526,
+          "decoded_body_size": 2526,
+          "response_start": true,
+          "response_end": true
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 894,
+          "encoded_body_size": 594,
+          "decoded_body_size": 594,
+          "response_start": true,
+          "response_end": true
+        }
+      }
+    },
+    {
+      "case": "duplicate_entry",
+      "response_field_count": 120,
+      "response_bytes": 2891,
+      "elapsed_ms": 14.678029001515824,
+      "empty_board_pixels": false,
+      "image_sha256": "6c866090fd661f6f4ad2e6d22e47dfdb4b7d3b51b96f81ee44b555bfb6ea9a9c",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 2,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 2826,
+          "encoded_body_size": 2526,
+          "decoded_body_size": 2526,
+          "response_start": true,
+          "response_end": true
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": 200,
+          "transfer_size": 894,
+          "encoded_body_size": 594,
+          "decoded_body_size": 594,
+          "response_start": true,
+          "response_end": true
+        }
+      }
+    },
+    {
+      "case": "unknown_timing_fields",
+      "response_field_count": 120,
+      "response_bytes": 2908,
+      "elapsed_ms": 7.739505002973601,
+      "empty_board_pixels": false,
+      "image_sha256": "edb0d528797c0b90a0459837177510592a55e49d27e8fe975796209bf4419e50",
+      "image_size": [
+        650,
+        900
+      ],
+      "constructors": {
+        "game_manager_constructor": true,
+        "actuator_constructor": true,
+        "input_constructor": true,
+        "storage_constructor": true,
+        "grid_constructor": true,
+        "tile_constructor": true
+      },
+      "tile_count": 2,
+      "timing_state": "available",
+      "three_missing_resources": {
+        "html_actuator_js": {
+          "dom_script_present": true,
+          "entry_count": 1,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "grid_js": {
+          "dom_script_present": true,
+          "entry_count": 0,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        },
+        "tile_js": {
+          "dom_script_present": true,
+          "entry_count": 0,
+          "response_status": null,
+          "transfer_size": null,
+          "encoded_body_size": null,
+          "decoded_body_size": null,
+          "response_start": null,
+          "response_end": null
+        }
+      }
+    }
+  ],
+  "original_temporary_reproduction_command": "PYTHONPATH=/workspace/game-validation-deps:src:. python /tmp/probe-fixed-resource-timing.py",
+  "original_temporary_reproduction_script_sha256": "f592858a98b04ba3212560e67968dabdcd979049904462636f1ed0d0b3e5607b",
+  "reproduction_tool": "tools/probe_reference_browser_resources.py",
+  "reproduction_tool_sha256": "cea8c611eeb321ae58749dde615aada9f96c68bf4a41af26af08a09fafe3adeb",
+  "reproduction_command": "PYTHONPATH=src:. python -m tools.probe_reference_browser_resources --source-dir build/reference-game/478b6ec346e3787f589e4af751378d06ded4cbbc --browser /usr/bin/chromium --output build/resource-diagnostic-fixtures",
+  "portable_cli_validation": {
+    "all_10_cases_success": true,
+    "exit_code": 0,
+    "full_report_sha256": "6420d06514e247f4f7789c9db3b5c683d99988970c09c8671f90d5f319846aad",
+    "full_report_workspace_path": "/tmp/script-resource-timing-portable-final-clock/run-f66213dca108416c8ee8002b5f6addd8/report.json",
+    "probe_sha256_matches": true,
+    "scope": "same fixed expression/10cases; fixed fault fixture server queue64 and loopback-only page routing; not Windows backlog evidence",
+    "boundary_tests": [
+      "output_source_equal_or_descendant_rejected_before_writes",
+      "thread_start_failure_closes_without_shutdown_or_join"
+    ],
+    "invalid_diagnostic_saved_before_validation": false
+  }
+}

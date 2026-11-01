@@ -56,6 +56,49 @@ class ResourceResponseCounts:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._resources: dict[str, dict[str, object]] = {}
+        self._recording_incomplete = False
+
+    def _entry(self, name: str) -> dict[str, object]:
+        # Caller holds _lock. Only fixed allowlist names reach this helper.
+        return self._resources.setdefault(
+            name,
+            {
+                "responses": 0,
+                "completed": 0,
+                "bytes_written": 0,
+                "unknown_write_counts": 0,
+                "requests_started": 0,
+                "headers_completed": 0,
+                "failed_requests": 0,
+                "last_failed_phase": None,
+            },
+        )
+
+    def _mark(self, name: str, field: str, phase: str | None = None) -> None:
+        # Diagnostic counters must not replace a handler's original exception.
+        try:
+            if name not in RESOURCE_NAMES.values():
+                return
+            with self._lock:
+                value = self._entry(name)
+                current = value[field]
+                value[field] = min(
+                    2**31 - 1, (current if isinstance(current, int) else 0) + 1
+                )
+                if phase is not None:
+                    value["last_failed_phase"] = phase
+        except Exception:
+            self._recording_incomplete = True
+
+    def started(self, name: str) -> None:
+        self._mark(name, "requests_started")
+
+    def headers_completed(self, name: str) -> None:
+        self._mark(name, "headers_completed")
+
+    def failed(self, name: str, phase: str) -> None:
+        if phase in {"request", "headers", "body"}:
+            self._mark(name, "failed_requests", phase)
 
     def record(
         self,
@@ -67,31 +110,28 @@ class ResourceResponseCounts:
         *,
         written_known: bool = True,
     ) -> None:
-        if name not in RESOURCE_NAMES.values():
-            return
-        with self._lock:
-            value = self._resources.setdefault(
-                name,
-                {
-                    "responses": 0,
-                    "completed": 0,
-                    "bytes_written": 0,
-                    "unknown_write_counts": 0,
-                },
-            )
-            for field, increment in (
-                ("responses", 1),
-                ("completed", int(complete)),
-                ("bytes_written", written),
-                ("unknown_write_counts", int(not written_known)),
-            ):
-                current = value[field]
-                value[field] = min(
-                    2**31 - 1, (current if isinstance(current, int) else 0) + increment
-                )
-            value["last_status"] = status
-            value["last_body_sha256"] = digest if complete else None
-            value["last_write_count_known"] = written_known
+        try:
+            if name not in RESOURCE_NAMES.values():
+                return
+            with self._lock:
+                value = self._entry(name)
+                for field, increment in (
+                    ("responses", 1),
+                    ("completed", int(complete)),
+                    ("bytes_written", written),
+                    ("unknown_write_counts", int(not written_known)),
+                ):
+                    current = value[field]
+                    value[field] = min(
+                        2**31 - 1,
+                        (current if isinstance(current, int) else 0) + increment,
+                    )
+                value["last_status"] = status
+                value["last_body_sha256"] = digest if complete else None
+                value["last_write_count_known"] = written_known
+        except Exception:
+            # Preserve the original I/O exception, but never claim complete recording.
+            self._recording_incomplete = True
 
     def snapshot(self) -> dict[str, object]:
         with self._lock:
@@ -99,6 +139,7 @@ class ResourceResponseCounts:
         return {
             "resources": values,
             "server_write_only": True,
+            "recording_incomplete": self._recording_incomplete,
             "summary_sha256": hashlib.sha256(
                 json.dumps(values, sort_keys=True).encode()
             ).hexdigest(),
@@ -116,19 +157,74 @@ const limitedChildren = (node, limit) => {
 const tiles = root ? limitedChildren(root, 32) : [];
 const shown = e => { const r=e.getBoundingClientRect();
   return r.width>0 && r.height>0; };
+const resources = {
+  main_css: 'style/main.css', bind_polyfill_js: 'js/bind_polyfill.js',
+  classlist_polyfill_js: 'js/classlist_polyfill.js', animframe_polyfill_js: 'js/animframe_polyfill.js',
+  keyboard_input_manager_js: 'js/keyboard_input_manager.js', html_actuator_js: 'js/html_actuator.js',
+  grid_js: 'js/grid.js', tile_js: 'js/tile.js', local_storage_manager_js: 'js/local_storage_manager.js',
+  game_manager_js: 'js/game_manager.js', application_js: 'js/application.js'
+};
+const timing = {state: 'unavailable', script_count_capped: Math.min(document.scripts.length, 32),
+  script_overflow: document.scripts.length>32, resource_count_capped: null, resources: {}};
+const names = Object.keys(resources);
+for (const name of names) timing.resources[name] = {
+  dom_script_present: timing.script_overflow || name==='main_css' ? null : false,
+  entry_count: null, response_status: null, transfer_size: null,
+  encoded_body_size: null, decoded_body_size: null, response_start: null, response_end: null};
+for (let i=0; i<timing.script_count_capped; i++) {
+  const source = document.scripts[i].src;
+  for (const name of names) if (source===location.origin+'/'+resources[name])
+    timing.resources[name].dom_script_present = true;
+}
+const boundedInteger = (value, maximum) =>
+  Number.isInteger(value) && value>=0 && value<=maximum ? value : null;
+const timestampPresent = value => Number.isFinite(value) && value>=0 ? value>0 : null;
+try {
+  if (typeof performance.getEntriesByType==='function') {
+    const entries = performance.getEntriesByType('resource');
+    timing.resource_count_capped = Math.min(entries.length, 128);
+    timing.state = entries.length>128 ? 'overflow' : 'available';
+    if (timing.state==='available') {
+      for (const name of names) timing.resources[name].entry_count = 0;
+      for (let i=0; i<entries.length; i++) {
+        const entry = entries[i];
+        for (const name of names) if (entry.name===location.origin+'/'+resources[name]) {
+          const result = timing.resources[name];
+          result.entry_count++;
+          if (result.entry_count===1) {
+            result.response_status = boundedInteger(entry.responseStatus, 599);
+            result.transfer_size = boundedInteger(entry.transferSize, 16777216);
+            result.encoded_body_size = boundedInteger(entry.encodedBodySize, 16777216);
+            result.decoded_body_size = boundedInteger(entry.decodedBodySize, 16777216);
+            result.response_start = timestampPresent(entry.responseStart);
+            result.response_end = timestampPresent(entry.responseEnd);
+          } else {
+            for (const field of ['response_status','transfer_size','encoded_body_size',
+              'decoded_body_size','response_start','response_end']) result[field] = null;
+          }
+        }
+      }
+    }
+  }
+} catch (_) {
+  timing.state = 'unavailable'; timing.resource_count_capped = null;
+  for (const name of names) for (const field of ['entry_count','response_status','transfer_size',
+    'encoded_body_size','decoded_body_size','response_start','response_end']) timing.resources[name][field] = null;
+}
 return {ready_state: document.readyState,
  visibility: document.visibilityState, focused: document.hasFocus(),
  game_manager_constructor: typeof window.GameManager === 'function',
  actuator_constructor: typeof window.HTMLActuator === 'function',
  input_constructor: typeof window.KeyboardInputManager === 'function',
  storage_constructor: typeof window.LocalStorageManager === 'function',
+ grid_constructor: typeof window.Grid === 'function', tile_constructor: typeof window.Tile === 'function',
  grid_present: !!document.querySelector('.grid-container'),
  tile_root_present: !!root, tile_count: tiles.length,
  tile_count_overflow: !!root && root.children.length>32,
  tile_boxes_visible: tiles.length>0 && tiles.every(shown),
  tile_opacity_visible: tiles.length>0 && tiles.every(e =>
    Number(getComputedStyle(e).opacity)>0 &&
-   limitedChildren(e, 4).every(c => Number(getComputedStyle(c).opacity)>0))};
+   limitedChildren(e, 4).every(c => Number(getComputedStyle(c).opacity)>0)), resource_timing: timing};
 })()"""
 EXPRESSION_SHA256 = hashlib.sha256(RENDER_EXPRESSION.encode()).hexdigest()
 BOOLEAN_FIELDS = frozenset(
@@ -138,11 +234,26 @@ BOOLEAN_FIELDS = frozenset(
         "actuator_constructor",
         "input_constructor",
         "storage_constructor",
+        "grid_constructor",
+        "tile_constructor",
         "grid_present",
         "tile_root_present",
         "tile_count_overflow",
         "tile_boxes_visible",
         "tile_opacity_visible",
+    )
+)
+TIMING_RESOURCE_NAMES = frozenset(RESOURCE_NAMES.values()) - {"page"}
+TIMING_FIELDS = frozenset(
+    (
+        "dom_script_present",
+        "entry_count",
+        "response_status",
+        "transfer_size",
+        "encoded_body_size",
+        "decoded_body_size",
+        "response_start",
+        "response_end",
     )
 )
 
@@ -328,6 +439,7 @@ def _sanitize(value: object) -> dict[str, object]:
         "ready_state",
         "visibility",
         "tile_count",
+        "resource_timing",
     }:
         raise ValueError("result_fields")
     if any(type(value[k]) is not bool for k in BOOLEAN_FIELDS):
@@ -338,7 +450,78 @@ def _sanitize(value: object) -> dict[str, object]:
         raise ValueError("result_enum")
     if type(value["tile_count"]) is not int or not 0 <= value["tile_count"] <= 32:
         raise ValueError("result_count")
+    _sanitize_timing(value["resource_timing"])
     return dict(value)
+
+
+# {
+#   責務: [_sanitize_timing: 固定allowlistの数値/boolだけを受け入れ未知と欠落を分離する]
+#   処理: [field集合/enum/上限を検証し、非取得時のNoneをmissingやnetwork原因へ変換しない]
+#   引数: [value: 同一固定CDP式のResourceTiming出力] 戻り値: [なし]
+#   エラー: [ValueError: 余分なURL/自由文字/非有限値/型/状態整合違反を拒否]
+# }
+def _sanitize_timing(value: object) -> None:
+    if not isinstance(value, dict) or set(value) != {
+        "state",
+        "script_count_capped",
+        "script_overflow",
+        "resource_count_capped",
+        "resources",
+    }:
+        raise ValueError("timing_fields")
+    if value["state"] not in ("available", "unavailable", "overflow"):
+        raise ValueError("timing_state")
+    if (
+        type(value["script_overflow"]) is not bool
+        or type(value["script_count_capped"]) is not int
+        or not 0 <= value["script_count_capped"] <= 32
+    ):
+        raise ValueError("timing_scripts")
+    count = value["resource_count_capped"]
+    if count is not None and (type(count) is not int or not 0 <= count <= 128):
+        raise ValueError("timing_count")
+    if (
+        value["state"] == "unavailable"
+        and count is not None
+        or value["state"] == "available"
+        and count is None
+        or value["state"] == "overflow"
+        and count != 128
+    ):
+        raise ValueError("timing_count_state")
+    if value["script_overflow"] and value["script_count_capped"] != 32:
+        raise ValueError("timing_script_overflow")
+    resources = value["resources"]
+    if not isinstance(resources, dict) or set(resources) != TIMING_RESOURCE_NAMES:
+        raise ValueError("timing_allowlist")
+    for item in resources.values():
+        if not isinstance(item, dict) or set(item) != TIMING_FIELDS:
+            raise ValueError("timing_resource_fields")
+        for field in ("dom_script_present", "response_start", "response_end"):
+            if item[field] is not None and type(item[field]) is not bool:
+                raise ValueError("timing_boolean")
+        for field, maximum in (
+            ("entry_count", 128),
+            ("response_status", 599),
+            ("transfer_size", 16777216),
+            ("encoded_body_size", 16777216),
+            ("decoded_body_size", 16777216),
+        ):
+            if item[field] is not None and (
+                type(item[field]) is not int or not 0 <= item[field] <= maximum
+            ):
+                raise ValueError("timing_number")
+        if value["state"] != "available" and any(
+            item[field] is not None for field in TIMING_FIELDS - {"dom_script_present"}
+        ):
+            raise ValueError("timing_unknown")
+        if value["state"] == "available" and item["entry_count"] is None:
+            raise ValueError("timing_missing_count")
+        if item["entry_count"] != 1 and any(
+            item[field] is not None
+            for field in TIMING_FIELDS - {"dom_script_present", "entry_count"}
+        ):
+            raise ValueError("timing_ambiguous")
 
 
 async def _inspect(

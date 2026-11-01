@@ -1,0 +1,1930 @@
+{
+  "schema_version": 1,
+  "measured_head": "37bbafb1975e79fca7307dd621b61680403a91de",
+  "raw_report_name": "windows-37bb-all-episodes.json",
+  "raw_report_sha256": "bde66ec55c054a889cbc54cb1b278c961221ebd415b8c957602b21ce66e9b5ec",
+  "request_timing_report_name": "windows-37bb-request-timing-summary.json",
+  "request_timing_report_sha256": "e6005b4bb3138ac5292e50673cd41102315a1fa31a7e6cf0e05ecc96965b9d97",
+  "scope": "all six completed push/PR jobs and all eighteen episodes including failure; no success-only selection",
+  "functional_code_fingerprint": {
+    "file_count": 482,
+    "sha256": "c204b46a309b584b15f745a03c74f7e6457f863ddc7f7226e7fd2328e45f5de6",
+    "definition": "all tracked files under src/native/tools/tests; sorted relative paths; sha256 + two spaces + path + LF per file",
+    "git_tree_objects": {
+      "src": "1ae2512e28c9779431806423b392f58aa803077e",
+      "native": "49ffa9ebb04b921516cc5016b72f5df674841b61",
+      "tools": "e7cd9cef245d723018575217912dd8d0927e9123",
+      "tests": "a35ccb25c3352295a906668e2f0b8083c241696a"
+    }
+  },
+  "conditions": {
+    "providers": [
+      "cycling",
+      "baseline",
+      "planner"
+    ],
+    "seeds": [
+      479,
+      480,
+      481
+    ],
+    "ci_events": [
+      "push",
+      "pull_request"
+    ],
+    "max_outer_decision_attempts": 12,
+    "hold_consumes_attempt": true,
+    "planner_depth": 2,
+    "planner_wall_ms": 400,
+    "planner_node_limit": 10000,
+    "conditional_single_world_optin": true,
+    "uncalibrated_world_unknown_mass": 1,
+    "ready_deadline_seconds": 45,
+    "observation_age_seconds": 5,
+    "belief_ttl_seconds": 4,
+    "inner_reobserve_seconds": 3,
+    "control_lease_seconds": 0.75,
+    "score_confidence_minimum": 0.65,
+    "settle_ms": 1000,
+    "wgc_comparison_wait_ms": 250,
+    "default_campaign_wgc_wait_ms": 2000,
+    "failure_browser_and_heartbeat_diagnostics_explicitly_enabled": true
+  },
+  "totals": {
+    "jobs": 6,
+    "episodes": 18,
+    "successful_episodes": 17,
+    "failed_episodes": 1,
+    "actual_actions": 204,
+    "observed_board_changes": 204,
+    "planner_actual_actions": 72,
+    "holds": 0
+  },
+  "planner_request_timing": {
+    "before_spawn": {
+      "n": 72,
+      "p50_ms": 2.16085,
+      "p95_ms_nearest_rank": 6.0003,
+      "min_ms": 1.3779,
+      "max_ms": 6.7896
+    },
+    "request_build": {
+      "n": 72,
+      "p50_ms": 0.053,
+      "p95_ms_nearest_rank": 0.0844,
+      "min_ms": 0.0343,
+      "max_ms": 0.0946
+    },
+    "request_encode": {
+      "n": 72,
+      "p50_ms": 0.20485,
+      "p95_ms_nearest_rank": 0.2639,
+      "min_ms": 0.1158,
+      "max_ms": 0.3238
+    },
+    "request_write_close": {
+      "n": 72,
+      "p50_ms": 0.61665,
+      "p95_ms_nearest_rank": 0.9068,
+      "min_ms": 0.3885,
+      "max_ms": 4.6236
+    },
+    "request_publish": {
+      "n": 72,
+      "p50_ms": 0.36565000000000003,
+      "p95_ms_nearest_rank": 3.335,
+      "min_ms": 0.2343,
+      "max_ms": 4.3095
+    }
+  },
+  "planner_request_timing_by_job": [
+    {
+      "job_id": 124993386216,
+      "event": "push",
+      "seed": 479,
+      "actual_actions": 12,
+      "holds": 0,
+      "request_phases": {
+        "before_spawn": {
+          "n": 12,
+          "p50_ms": 2.3057499999999997,
+          "p95_ms_nearest_rank": 6.0003,
+          "min_ms": 2.1144,
+          "max_ms": 6.0003
+        },
+        "request_build": {
+          "n": 12,
+          "p50_ms": 0.058050000000000004,
+          "p95_ms_nearest_rank": 0.0768,
+          "min_ms": 0.053,
+          "max_ms": 0.0768
+        },
+        "request_encode": {
+          "n": 12,
+          "p50_ms": 0.21744999999999998,
+          "p95_ms_nearest_rank": 0.2605,
+          "min_ms": 0.2158,
+          "max_ms": 0.2605
+        },
+        "request_write_close": {
+          "n": 12,
+          "p50_ms": 0.68455,
+          "p95_ms_nearest_rank": 1.0021,
+          "min_ms": 0.6226,
+          "max_ms": 1.0021
+        },
+        "request_publish": {
+          "n": 12,
+          "p50_ms": 0.42015,
+          "p95_ms_nearest_rank": 3.8863,
+          "min_ms": 0.3625,
+          "max_ms": 3.8863
+        }
+      }
+    },
+    {
+      "job_id": 124993386241,
+      "event": "push",
+      "seed": 481,
+      "actual_actions": 12,
+      "holds": 0,
+      "request_phases": {
+        "before_spawn": {
+          "n": 12,
+          "p50_ms": 1.5859,
+          "p95_ms_nearest_rank": 4.733,
+          "min_ms": 1.4565,
+          "max_ms": 4.733
+        },
+        "request_build": {
+          "n": 12,
+          "p50_ms": 0.03975,
+          "p95_ms_nearest_rank": 0.0844,
+          "min_ms": 0.0348,
+          "max_ms": 0.0844
+        },
+        "request_encode": {
+          "n": 12,
+          "p50_ms": 0.12465000000000001,
+          "p95_ms_nearest_rank": 0.1881,
+          "min_ms": 0.1216,
+          "max_ms": 0.1881
+        },
+        "request_write_close": {
+          "n": 12,
+          "p50_ms": 0.43645,
+          "p95_ms_nearest_rank": 0.5676,
+          "min_ms": 0.4062,
+          "max_ms": 0.5676
+        },
+        "request_publish": {
+          "n": 12,
+          "p50_ms": 0.2658,
+          "p95_ms_nearest_rank": 0.811,
+          "min_ms": 0.2473,
+          "max_ms": 0.811
+        }
+      }
+    },
+    {
+      "job_id": 124993386332,
+      "event": "push",
+      "seed": 480,
+      "actual_actions": 12,
+      "holds": 0,
+      "request_phases": {
+        "before_spawn": {
+          "n": 12,
+          "p50_ms": 1.66025,
+          "p95_ms_nearest_rank": 4.6705,
+          "min_ms": 1.444,
+          "max_ms": 4.6705
+        },
+        "request_build": {
+          "n": 12,
+          "p50_ms": 0.0428,
+          "p95_ms_nearest_rank": 0.0627,
+          "min_ms": 0.0354,
+          "max_ms": 0.0627
+        },
+        "request_encode": {
+          "n": 12,
+          "p50_ms": 0.1318,
+          "p95_ms_nearest_rank": 0.1965,
+          "min_ms": 0.1251,
+          "max_ms": 0.1965
+        },
+        "request_write_close": {
+          "n": 12,
+          "p50_ms": 0.46995,
+          "p95_ms_nearest_rank": 0.6107,
+          "min_ms": 0.4084,
+          "max_ms": 0.6107
+        },
+        "request_publish": {
+          "n": 12,
+          "p50_ms": 0.28135,
+          "p95_ms_nearest_rank": 3.335,
+          "min_ms": 0.259,
+          "max_ms": 3.335
+        }
+      }
+    },
+    {
+      "job_id": 124993406230,
+      "event": "pull_request",
+      "seed": 481,
+      "actual_actions": 12,
+      "holds": 0,
+      "request_phases": {
+        "before_spawn": {
+          "n": 12,
+          "p50_ms": 2.2291,
+          "p95_ms_nearest_rank": 6.4341,
+          "min_ms": 2.114,
+          "max_ms": 6.4341
+        },
+        "request_build": {
+          "n": 12,
+          "p50_ms": 0.05495,
+          "p95_ms_nearest_rank": 0.0611,
+          "min_ms": 0.0512,
+          "max_ms": 0.0611
+        },
+        "request_encode": {
+          "n": 12,
+          "p50_ms": 0.21705,
+          "p95_ms_nearest_rank": 0.2788,
+          "min_ms": 0.2132,
+          "max_ms": 0.2788
+        },
+        "request_write_close": {
+          "n": 12,
+          "p50_ms": 0.71575,
+          "p95_ms_nearest_rank": 0.742,
+          "min_ms": 0.6673,
+          "max_ms": 0.742
+        },
+        "request_publish": {
+          "n": 12,
+          "p50_ms": 0.37375,
+          "p95_ms_nearest_rank": 4.3095,
+          "min_ms": 0.362,
+          "max_ms": 4.3095
+        }
+      }
+    },
+    {
+      "job_id": 124993406321,
+      "event": "pull_request",
+      "seed": 479,
+      "actual_actions": 12,
+      "holds": 0,
+      "request_phases": {
+        "before_spawn": {
+          "n": 12,
+          "p50_ms": 2.50815,
+          "p95_ms_nearest_rank": 6.7896,
+          "min_ms": 2.2413,
+          "max_ms": 6.7896
+        },
+        "request_build": {
+          "n": 12,
+          "p50_ms": 0.0649,
+          "p95_ms_nearest_rank": 0.0946,
+          "min_ms": 0.0541,
+          "max_ms": 0.0946
+        },
+        "request_encode": {
+          "n": 12,
+          "p50_ms": 0.23445,
+          "p95_ms_nearest_rank": 0.3238,
+          "min_ms": 0.2159,
+          "max_ms": 0.3238
+        },
+        "request_write_close": {
+          "n": 12,
+          "p50_ms": 0.76835,
+          "p95_ms_nearest_rank": 4.6236,
+          "min_ms": 0.6803,
+          "max_ms": 4.6236
+        },
+        "request_publish": {
+          "n": 12,
+          "p50_ms": 0.41915,
+          "p95_ms_nearest_rank": 3.9361,
+          "min_ms": 0.3713,
+          "max_ms": 3.9361
+        }
+      }
+    },
+    {
+      "job_id": 124993406336,
+      "event": "pull_request",
+      "seed": 480,
+      "actual_actions": 12,
+      "holds": 0,
+      "request_phases": {
+        "before_spawn": {
+          "n": 12,
+          "p50_ms": 1.4513500000000001,
+          "p95_ms_nearest_rank": 2.3391,
+          "min_ms": 1.3779,
+          "max_ms": 2.3391
+        },
+        "request_build": {
+          "n": 12,
+          "p50_ms": 0.03565,
+          "p95_ms_nearest_rank": 0.0516,
+          "min_ms": 0.0343,
+          "max_ms": 0.0516
+        },
+        "request_encode": {
+          "n": 12,
+          "p50_ms": 0.1177,
+          "p95_ms_nearest_rank": 0.1873,
+          "min_ms": 0.1158,
+          "max_ms": 0.1873
+        },
+        "request_write_close": {
+          "n": 12,
+          "p50_ms": 0.4085,
+          "p95_ms_nearest_rank": 0.5496,
+          "min_ms": 0.3885,
+          "max_ms": 0.5496
+        },
+        "request_publish": {
+          "n": 12,
+          "p50_ms": 0.25170000000000003,
+          "p95_ms_nearest_rank": 0.7723,
+          "min_ms": 0.2343,
+          "max_ms": 0.7723
+        }
+      }
+    }
+  ],
+  "ordinary600_second_job_metadata": [
+    {
+      "run_id": 41355108612,
+      "event": "push",
+      "job_id": 124993385977,
+      "status": "completed",
+      "conclusion": "success",
+      "name": "Windows sample loop and 2048 campaign E2E"
+    },
+    {
+      "run_id": 41355115740,
+      "event": "pull_request",
+      "job_id": 124993406237,
+      "status": "completed",
+      "conclusion": "success",
+      "name": "Windows sample loop and 2048 campaign E2E"
+    }
+  ],
+  "ordinary600_metadata_sha256": "5eda5d93551c9dee1131a50203c23f318fd20e3c4544bd12941988f5a0ba3513",
+  "episodes": [
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386216,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386216",
+      "provider": "cycling",
+      "seed": 479,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 36,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 26.716270399999985,
+      "latency_ms": {
+        "p50": 59.3628,
+        "p95": 75.1154,
+        "samples": [
+          54.0411,
+          45.9822,
+          48.7629,
+          53.3386,
+          51.3076,
+          58.49,
+          60.2356,
+          62.6394,
+          64.684,
+          67.761,
+          75.1154,
+          95.1701
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 10.03125,
+        "child_cpu_seconds_sampled_lower_bound": 5.890625,
+        "process_tree_peak_rss_bytes_sampled": 830402560,
+        "samples": 442,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386216,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386216",
+      "provider": "baseline",
+      "seed": 479,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 26.002128500000026,
+      "latency_ms": {
+        "p50": 64.02590000000001,
+        "p95": 77.5575,
+        "samples": [
+          39,
+          39.6093,
+          55.4858,
+          47.5927,
+          97.5665,
+          59.3329,
+          65.992,
+          77.5575,
+          62.0598,
+          76.8008,
+          72.3922,
+          74.8079
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 8.796875,
+        "child_cpu_seconds_sampled_lower_bound": 5.0625,
+        "process_tree_peak_rss_bytes_sampled": 852062208,
+        "samples": 447,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386216,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386216",
+      "provider": "planner",
+      "seed": 479,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 52,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 41.54891270000002,
+      "latency_ms": {
+        "p50": 812.8515,
+        "p95": 966.7304,
+        "samples": [
+          966.7304,
+          2423.6156,
+          804.3761,
+          787.1154,
+          791.7549,
+          801.117,
+          807.378,
+          813.4598,
+          812.2432,
+          817.0108,
+          846.4159,
+          852.0753
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 14.875,
+        "child_cpu_seconds_sampled_lower_bound": 10.53125,
+        "process_tree_peak_rss_bytes_sampled": 870653952,
+        "samples": 693,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 1230,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386241,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386241",
+      "provider": "cycling",
+      "seed": 481,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 48,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 21.9322693,
+      "latency_ms": {
+        "p50": 29.441650000000003,
+        "p95": 61.5307,
+        "samples": [
+          61.5307,
+          26.2679,
+          25.1371,
+          28.1072,
+          25.366,
+          29.3,
+          27.4754,
+          30.532,
+          29.5833,
+          77.2557,
+          55.5696,
+          41.7518
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 5.28125,
+        "child_cpu_seconds_sampled_lower_bound": 3.15625,
+        "process_tree_peak_rss_bytes_sampled": 831442944,
+        "samples": 388,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386241,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386241",
+      "provider": "baseline",
+      "seed": 481,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 52,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 19.913858800000014,
+      "latency_ms": {
+        "p50": 29.2524,
+        "p95": 42.9809,
+        "samples": [
+          21.4051,
+          22.3709,
+          20.9788,
+          28.6382,
+          29.2026,
+          25.1428,
+          32.9705,
+          29.3022,
+          35.0415,
+          39.1894,
+          43.1846,
+          42.9809
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 4.515625,
+        "child_cpu_seconds_sampled_lower_bound": 3.109375,
+        "process_tree_peak_rss_bytes_sampled": 846942208,
+        "samples": 343,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386241,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386241",
+      "provider": "planner",
+      "seed": 481,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 56,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 27.1842446,
+      "latency_ms": {
+        "p50": 622.3587500000001,
+        "p95": 630.0093,
+        "samples": [
+          820.554,
+          571.2083,
+          616.0263,
+          621.2163,
+          423.9732,
+          597.8969,
+          615.5467,
+          625.5669,
+          630.0093,
+          628.9513,
+          623.5012,
+          628.1447
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 7,
+        "child_cpu_seconds_sampled_lower_bound": 7.40625,
+        "process_tree_peak_rss_bytes_sampled": 890155008,
+        "samples": 463,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 8789,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386332,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386332",
+      "provider": "cycling",
+      "seed": 480,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 22.327205700000007,
+      "latency_ms": {
+        "p50": 36.5977,
+        "p95": 46.0687,
+        "samples": [
+          38.6438,
+          25.9629,
+          28.8372,
+          31.0332,
+          28.1531,
+          32.3934,
+          34.5516,
+          40.1792,
+          40.8271,
+          41.0301,
+          47.0442,
+          46.0687
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 5.46875,
+        "child_cpu_seconds_sampled_lower_bound": 3.3125,
+        "process_tree_peak_rss_bytes_sampled": 823963648,
+        "samples": 385,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386332,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386332",
+      "provider": "baseline",
+      "seed": 480,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 20.27855089999997,
+      "latency_ms": {
+        "p50": 34.1775,
+        "p95": 44.6377,
+        "samples": [
+          24.4727,
+          28.8079,
+          24.5958,
+          29.498,
+          28.5459,
+          31.8689,
+          36.4861,
+          41.5996,
+          41.9424,
+          44.6377,
+          41.8935,
+          52.5773
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 4.859375,
+        "child_cpu_seconds_sampled_lower_bound": 3.609375,
+        "process_tree_peak_rss_bytes_sampled": 858882048,
+        "samples": 345,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355108612,
+      "job_id": 124993386332,
+      "ci_event": "push",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355108612/job/124993386332",
+      "provider": "planner",
+      "seed": 480,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 56,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 27.8293223,
+      "latency_ms": {
+        "p50": 630.3955,
+        "p95": 655.6078,
+        "samples": [
+          805.899,
+          581.2347,
+          574.4212,
+          581.5795,
+          632.3237,
+          629.881,
+          629.4543,
+          581.8912,
+          631.894,
+          630.91,
+          631.0385,
+          655.6078
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 7.375,
+        "child_cpu_seconds_sampled_lower_bound": 8.046875,
+        "process_tree_peak_rss_bytes_sampled": 875945984,
+        "samples": 484,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 12332,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406230,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "failure",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406230",
+      "provider": "cycling",
+      "seed": 481,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 48,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 26.85732280000002,
+      "latency_ms": {
+        "p50": 57.7315,
+        "p95": 74.4529,
+        "samples": [
+          52.647,
+          46.1465,
+          49.4128,
+          52.9944,
+          53.9987,
+          55.1839,
+          60.2791,
+          64.7222,
+          67.7065,
+          72.883,
+          74.4529,
+          84.1186
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 9.125,
+        "child_cpu_seconds_sampled_lower_bound": 5.5625,
+        "process_tree_peak_rss_bytes_sampled": 872894464,
+        "samples": 447,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406230,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "failure",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406230",
+      "provider": "baseline",
+      "seed": 481,
+      "success": false,
+      "confirmed_actual_actions": 0,
+      "execution_history_count": null,
+      "observed_board_changes": 0,
+      "decision_attempt_count": 0,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": "initial_observation",
+      "failure_type": "RuntimeError",
+      "failure_message": "comparison preflight ready deadline expired",
+      "score_status": "unavailable",
+      "score": null,
+      "score_confidence": null,
+      "stop_probe": "unverified",
+      "stale_generation_probe": "unverified",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 47.67244830000004,
+      "latency_ms": {
+        "p50": null,
+        "p95": null,
+        "samples": []
+      },
+      "resources": {
+        "parent_cpu_seconds": 11.6875,
+        "child_cpu_seconds_sampled_lower_bound": 4.234375,
+        "process_tree_peak_rss_bytes_sampled": 865267712,
+        "samples": 789,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved",
+      "failure_observation": {
+        "analysis_status": "recognized_projection",
+        "diagnostic_only": true,
+        "estimated_observation_not_ground_truth": true,
+        "board": [
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "unknown_cells": 0,
+        "confidence": 1,
+        "state_available": false,
+        "game_over": false,
+        "unavailable_reason": "empty_nonterminal",
+        "board_bbox": [
+          260,
+          232,
+          375,
+          375
+        ]
+      },
+      "failure_header": {
+        "event": "windows_planning_failure_header",
+        "schema_version": 1,
+        "status": "ready",
+        "scope": "owned_reference_game_2048_preflight_failure_board_and_header",
+        "diagnostic_only": true,
+        "provider": "baseline",
+        "seed": 481,
+        "image_id": "baseline.481.b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+        "frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+        "png_sha256": "8053dda5a5528adbc95f2ab1e06e4f2cdd4d1e4ade1b2ab6348821fbc5597b88",
+        "png_bytes": 13607,
+        "chunk_count": 5,
+        "original_frame_size": [
+          904,
+          648
+        ],
+        "crop_bbox": [
+          132,
+          0,
+          640,
+          640
+        ],
+        "png_size": [
+          640,
+          640
+        ],
+        "selected_hwnd": 262660,
+        "owned_pid": 1556,
+        "capture": {
+          "backend": "gdi",
+          "request_started_ns": 345362329400,
+          "produced_at_ns": 345655515300,
+          "host_received_ns": 345655649400
+        }
+      },
+      "failure_diagnostics": {
+        "event": "reference_game_failure_diagnostics",
+        "schema_version": 1,
+        "diagnostic_only": true,
+        "failure_status_unchanged": true,
+        "frame_preserved_before_browser_probe": true,
+        "heartbeat": {
+          "schema_version": 1,
+          "clock_scope": "current_parent_process_only",
+          "capacity": 8,
+          "completed": [],
+          "in_progress": null
+        },
+        "browser": {
+          "status": "observed",
+          "render": {
+            "ready_state": "complete",
+            "visibility": "visible",
+            "focused": true,
+            "game_manager_constructor": true,
+            "actuator_constructor": false,
+            "input_constructor": true,
+            "storage_constructor": true,
+            "grid_present": true,
+            "tile_root_present": true,
+            "tile_count": 0,
+            "tile_count_overflow": false,
+            "tile_boxes_visible": false,
+            "tile_opacity_visible": false
+          },
+          "expression_sha256": "d025345edaf20255387a7a6d7b3c282ff1fa8ed3f4c7d9a8ee2ffb0f873adfa6",
+          "elapsed_ms": 33.328,
+          "post_failure_only": true,
+          "may_affect_renderer_scheduling": true,
+          "server_responses": {
+            "resources": {
+              "page": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 4135,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "aba53253f0d42866146d3c8d9a4ece502cd5c60b651340c25f7d87a480b77ff8",
+                "last_write_count_known": true
+              },
+              "main_css": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 20647,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "2e0fd51d6950afe1cb0af861f92b9d01111e56b825aa46de9475e8afa1a13f1b",
+                "last_write_count_known": true
+              },
+              "bind_polyfill_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 220,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "90e671a58a24122ffac4fc28b9a967a3769398c906c348568bf731118d7fdf52",
+                "last_write_count_known": true
+              },
+              "classlist_polyfill_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 1794,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "6abb09a37567fb3735e95d7096d30a01190a8eee016c781d51ae6b8b037261cd",
+                "last_write_count_known": true
+              },
+              "animframe_polyfill_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 890,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "b97db8f8973c6c883d415e376f15ba657971e5704c8ecfd62e62a9adfec2792e",
+                "last_write_count_known": true
+              },
+              "keyboard_input_manager_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 4005,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "7d579ab5b67dddf339cf28a7d06e4e24eca08b0187204ce352d67c49ae1e48de",
+                "last_write_count_known": true
+              },
+              "local_storage_manager_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 1588,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "8e12c6a9aa34097c0b634b1f6690da091b1b4ac158ff914097a8ac83c86b5bc6",
+                "last_write_count_known": true
+              },
+              "game_manager_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 7627,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "b02baa6b75f8c8cad8606e680b6f73b7c843c61e3a643ee48410022499a649f0",
+                "last_write_count_known": true
+              },
+              "application_js": {
+                "responses": 1,
+                "completed": 1,
+                "bytes_written": 197,
+                "unknown_write_counts": 0,
+                "last_status": 200,
+                "last_body_sha256": "5fc43863225b371c458615ef431fac73003546f437aa32026641de48817bd27a",
+                "last_write_count_known": true
+              }
+            },
+            "server_write_only": true,
+            "summary_sha256": "9f50d765b9b380558a3a29eed5a2d5dcc7bd8db4e16e4a170c9b32c5904565d4"
+          }
+        }
+      },
+      "last_capture": {
+        "request_started_ns": 345362329400,
+        "produced_at_ns": 345655515300,
+        "host_received_ns": 345655649400,
+        "native_frame_id": null,
+        "backend": "gdi",
+        "frame_size": [
+          904,
+          648
+        ],
+        "gdi_method": "bitblt",
+        "fallback_error_type": "NativeRuntimeError",
+        "fallback_timeout": true,
+        "fallback_reason": "wgc_timeout",
+        "timestamp_semantics": "host_GDI_acquisition",
+        "host_clock_implementation": "QueryPerformanceCounter()",
+        "clock_epoch_verified": true,
+        "window_snapshot": {
+          "status": "available",
+          "diagnostic_only": true,
+          "scope": "selected_owned_window_geometry_only",
+          "snapshot_started_ns": 345655682500,
+          "snapshot_finished_ns": 345655867300,
+          "selected_hwnd": 262660,
+          "selected_pid": 1556,
+          "frame_size": [
+            904,
+            648
+          ],
+          "window_rect_ltrb": [
+            60,
+            60,
+            964,
+            708
+          ],
+          "client_rect_ltrb": [
+            0,
+            0,
+            890,
+            641
+          ],
+          "client_screen_origin": [
+            67,
+            60
+          ],
+          "dpi": 96,
+          "visible": true,
+          "iconic": false,
+          "foreground_hwnd": 262660,
+          "foreground_pid": 1556,
+          "foreground_is_selected": true,
+          "foreground_pid_is_selected": true
+        },
+        "frame_age_ns": 510500,
+        "raw_frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+        "board_bbox": [
+          260,
+          232,
+          375,
+          375
+        ],
+        "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+        "age_after_analysis_ns": 205217200
+      },
+      "recent_captures": [
+        {
+          "request_started_ns": 342407283100,
+          "produced_at_ns": 342680740300,
+          "host_received_ns": 342680870700,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 342680903500,
+            "snapshot_finished_ns": 342681085100,
+            "selected_hwnd": 262660,
+            "selected_pid": 1556,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 262660,
+            "foreground_pid": 1556,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 498100,
+          "raw_frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 204641800
+        },
+        {
+          "request_started_ns": 343385888100,
+          "produced_at_ns": 343665938500,
+          "host_received_ns": 343666067900,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 343666099900,
+            "snapshot_finished_ns": 343666280000,
+            "selected_hwnd": 262660,
+            "selected_pid": 1556,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 262660,
+            "foreground_pid": 1556,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 497800,
+          "raw_frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 204775100
+        },
+        {
+          "request_started_ns": 344371477700,
+          "produced_at_ns": 344659844900,
+          "host_received_ns": 344659980200,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 344660008200,
+            "snapshot_finished_ns": 344660199600,
+            "selected_hwnd": 262660,
+            "selected_pid": 1556,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 262660,
+            "foreground_pid": 1556,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 508100,
+          "raw_frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 201686500
+        },
+        {
+          "request_started_ns": 345362329400,
+          "produced_at_ns": 345655515300,
+          "host_received_ns": 345655649400,
+          "native_frame_id": null,
+          "backend": "gdi",
+          "frame_size": [
+            904,
+            648
+          ],
+          "gdi_method": "bitblt",
+          "fallback_error_type": "NativeRuntimeError",
+          "fallback_timeout": true,
+          "fallback_reason": "wgc_timeout",
+          "timestamp_semantics": "host_GDI_acquisition",
+          "host_clock_implementation": "QueryPerformanceCounter()",
+          "clock_epoch_verified": true,
+          "window_snapshot": {
+            "status": "available",
+            "diagnostic_only": true,
+            "scope": "selected_owned_window_geometry_only",
+            "snapshot_started_ns": 345655682500,
+            "snapshot_finished_ns": 345655867300,
+            "selected_hwnd": 262660,
+            "selected_pid": 1556,
+            "frame_size": [
+              904,
+              648
+            ],
+            "window_rect_ltrb": [
+              60,
+              60,
+              964,
+              708
+            ],
+            "client_rect_ltrb": [
+              0,
+              0,
+              890,
+              641
+            ],
+            "client_screen_origin": [
+              67,
+              60
+            ],
+            "dpi": 96,
+            "visible": true,
+            "iconic": false,
+            "foreground_hwnd": 262660,
+            "foreground_pid": 1556,
+            "foreground_is_selected": true,
+            "foreground_pid_is_selected": true
+          },
+          "frame_age_ns": 510500,
+          "raw_frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+          "board_bbox": [
+            260,
+            232,
+            375,
+            375
+          ],
+          "board_semantic_signature": "a41f3dea22a7c8a9dd4c2d8d1f162b7fe3fd8371071da7b434f1e71e3f8905a6",
+          "age_after_analysis_ns": 205217200
+        }
+      ]
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406230,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "failure",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406230",
+      "provider": "planner",
+      "seed": 481,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 56,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 36.702676800000006,
+      "latency_ms": {
+        "p50": 834.2114,
+        "p95": 2374.1431,
+        "samples": [
+          929.9484,
+          2374.1431,
+          2395.0331,
+          808.2392,
+          825.8177,
+          806.4553,
+          799.4919,
+          811.6918,
+          830.4017,
+          838.0211,
+          855.6169,
+          841.0128
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 14.453125,
+        "child_cpu_seconds_sampled_lower_bound": 10.609375,
+        "process_tree_peak_rss_bytes_sampled": 919584768,
+        "samples": 621,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 3776,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406321,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406321",
+      "provider": "cycling",
+      "seed": 479,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 36,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 26.48065760000003,
+      "latency_ms": {
+        "p50": 62.2971,
+        "p95": 77.0786,
+        "samples": [
+          63.632,
+          47.096,
+          45.8315,
+          52.3986,
+          60.7766,
+          60.9622,
+          60.8557,
+          65.4057,
+          64.713,
+          75.4541,
+          77.0786,
+          84.3421
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 9.921875,
+        "child_cpu_seconds_sampled_lower_bound": 5.78125,
+        "process_tree_peak_rss_bytes_sampled": 834154496,
+        "samples": 438,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406321,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406321",
+      "provider": "baseline",
+      "seed": 479,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 24.075734499999953,
+      "latency_ms": {
+        "p50": 57.8973,
+        "p95": 82.5828,
+        "samples": [
+          43.6405,
+          43.1238,
+          47.9852,
+          49.7566,
+          52.2542,
+          54.5663,
+          61.2283,
+          64.8102,
+          83.7269,
+          67.6269,
+          73.0103,
+          82.5828
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 7.921875,
+        "child_cpu_seconds_sampled_lower_bound": 5.671875,
+        "process_tree_peak_rss_bytes_sampled": 867217408,
+        "samples": 396,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406321,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406321",
+      "provider": "planner",
+      "seed": 479,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 52,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 40.1921461,
+      "latency_ms": {
+        "p50": 884.4309499999999,
+        "p95": 2454.2963,
+        "samples": [
+          951.1537,
+          2452.2315,
+          2427.8972,
+          2454.2963,
+          2478.9774,
+          834.2181,
+          839.8726,
+          875.1991,
+          848.3895,
+          874.7995,
+          868.0934,
+          893.6628
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 16.109375,
+        "child_cpu_seconds_sampled_lower_bound": 11.3125,
+        "process_tree_peak_rss_bytes_sampled": 889192448,
+        "samples": 668,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 1230,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406336,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406336",
+      "provider": "cycling",
+      "seed": 480,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 22.27212000000003,
+      "latency_ms": {
+        "p50": 30.35765,
+        "p95": 38.7958,
+        "samples": [
+          86.7692,
+          21.6353,
+          26.2193,
+          27.9764,
+          23.7165,
+          29.7677,
+          28.2876,
+          30.9476,
+          37.0976,
+          36.2456,
+          38.7958,
+          37.7497
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 5.421875,
+        "child_cpu_seconds_sampled_lower_bound": 2.9375,
+        "process_tree_peak_rss_bytes_sampled": 834658304,
+        "samples": 384,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406336,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406336",
+      "provider": "baseline",
+      "seed": 480,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 28,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 20.45860680000004,
+      "latency_ms": {
+        "p50": 29.694850000000002,
+        "p95": 39.2125,
+        "samples": [
+          21.4667,
+          18.0348,
+          22.3721,
+          27.3702,
+          26.992,
+          30.1414,
+          29.2483,
+          46.1404,
+          35.6978,
+          33.9026,
+          37.7192,
+          39.2125
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 4.296875,
+        "child_cpu_seconds_sampled_lower_bound": 3.015625,
+        "process_tree_peak_rss_bytes_sampled": 856662016,
+        "samples": 353,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 0,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    },
+    {
+      "run_id": 41355115740,
+      "job_id": 124993406336,
+      "ci_event": "pull_request",
+      "episode_event": "windows_planning_comparison_episode",
+      "job_conclusion": "success",
+      "job_url": "https://github.com/tomiya7688/AI_game_player/actions/runs/41355115740/job/124993406336",
+      "provider": "planner",
+      "seed": 480,
+      "success": true,
+      "confirmed_actual_actions": 12,
+      "execution_history_count": 12,
+      "observed_board_changes": 12,
+      "decision_attempt_count": 12,
+      "holds": 0,
+      "hold_rate": 0,
+      "failure_stage": null,
+      "failure_type": null,
+      "failure_message": null,
+      "score_status": "verified_ocr",
+      "score": 52,
+      "score_confidence": 0.96,
+      "stop_probe": "rejected",
+      "stale_generation_probe": "rejected",
+      "frame_preprocessing_profile": "native_fast_cv_v1",
+      "elapsed_seconds": 29.072524500000043,
+      "latency_ms": {
+        "p50": 633.58485,
+        "p95": 818.2964,
+        "samples": [
+          818.2964,
+          2058.7167,
+          523.7943,
+          581.6121,
+          598.5392,
+          628.9979,
+          654.1234,
+          597.5601,
+          631.9562,
+          686.9791,
+          635.2135,
+          636.6506
+        ]
+      },
+      "resources": {
+        "parent_cpu_seconds": 6.953125,
+        "child_cpu_seconds_sampled_lower_bound": 7.953125,
+        "process_tree_peak_rss_bytes_sampled": 896581632,
+        "samples": 506,
+        "interval_seconds": 0.05,
+        "sampling_error": null,
+        "semantics": "50ms process-tree samples (browser+worker); short-lived/tail CPU may be missed, shared RSS may be counted twice; not OS hard-budget evidence"
+      },
+      "nodes": 39203,
+      "nodes_scope": "latest received completed-checkpoint counters per outer attempt; unfinished or unreceived work is unobserved"
+    }
+  ],
+  "preserved_failure_png": {
+    "repository_relative_target": "doc/validation/images/planning_37bb_pr481_baseline_empty.png",
+    "png_sha256": "8053dda5a5528adbc95f2ab1e06e4f2cdd4d1e4ade1b2ab6348821fbc5597b88",
+    "png_bytes": 13607,
+    "original_frame_sha256": "b54905c51c98d7daff5cca571a7e83cfb332c630414c8d9ab6b19ebfbfaeeda4",
+    "same_frame_capture": {
+      "backend": "gdi",
+      "request_started_ns": 345362329400,
+      "produced_at_ns": 345655515300,
+      "host_received_ns": 345655649400
+    },
+    "visual_observation": "sixteen empty cells, header/NewGame/score0 visible; exact preserved PNG bytes, no resize or editing"
+  },
+  "limits": [
+    "n=3 seeds repeated in push and PR are not six independent seeds",
+    "maximum12outerattempt shortplay is not terminalscore or longsurvival proof",
+    "parent prep distribution is descriptive across different Windowshosts, not isolated/paired causal fsync or OSproof",
+    "both ordinary600secondjobs succeeded, but that does not erase historical empty startup or lease failures",
+    "failure image precedes CDP; postfailurebrowser observation can affect renderer scheduling and is not the original frame state",
+    "HTMLActuatorfalse and absent html_actuator/grid/tile serverresponse rows narrow evidence; they do not establish whether missing requests, scriptload failure, JS/RAF or compositor was causal",
+    "Grid/Tileconstructor flags and ResourceTiming were not present in this measured37bb contract",
+    "empty heartbeat ring is consistent with unactivated SAFE_IDLE preflight and is not proof of a lost active heartbeat",
+    "offline artifact export and earlier failed cohorts remain historical; existingIssue459 tracks unresolved startup/lease cause",
+    "next finitequeue/ResourceTiming candidate is a new sourceprofile and is unmeasured here; no timeout/lease/unknown/input permissions changed"
+  ]
+}

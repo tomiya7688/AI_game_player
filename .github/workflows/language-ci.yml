@@ -375,6 +375,8 @@ jobs:
         env:
           PYTHONPATH: "src;."
         run: |
+          python -u -X faulthandler -m unittest discover -s tests -p "test_reference_game_http_server.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Owned private HTTP queue/phase regressions failed" }
           python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_publisher.py" -v
           if ($LASTEXITCODE -ne 0) { throw "Planning atomic-publisher regressions failed" }
           python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_reader.py" -v
