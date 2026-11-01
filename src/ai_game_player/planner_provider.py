@@ -434,6 +434,7 @@ class PlannerDecisionProvider:
             "core_reason": self.last_planning_result.reason
             if self.last_planning_result is not None
             else None,
+            "worker": getattr(self.planner, "last_worker_diagnostic", None),
         }
 
     # {

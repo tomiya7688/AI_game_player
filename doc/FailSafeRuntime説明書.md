@@ -67,6 +67,16 @@ Observationは既定2秒で失効する。Pipelineが実際にsourceからObserv
 
 したがってAI processとheartbeatだけが動き続けても、captureが停止した場合は入力できない。
 
+## 有限な時間値の境界（Issue #669）
+
+`FailSafeConfig` の5つの秒上限はPythonのint/floatによる有限正数、queue上限はboolを除く正整数に限定します。NaN・正負Infinity・bool・文字列は設定時に拒否し、poll間隔とleaseの既存大小条件を維持します。既定2秒の観測、0.75秒のcontrol lease、0.5秒のcommand age、Campaignの5秒観測期限を緩めません。
+
+外部command復号と `check_command()` の直接typed入力は、issued_at / observation_atを比較へ渡す前に有限な数値として検証します。不正commandは `invalid_command_timestamp` で拒否し、受理sequence・inflight・観測時刻を前進させません。有限だが古い時刻の既存拒否理由は保持します。command内の0は未観測の表現として復号できますが、入力許可には既存の新しい観測が必要です。
+
+`record_observation()` は有限正数と既存の未来許容条件を検査し、不正時は受理済み時刻を変更せずRecoveryへ移します。外部watchdogもlease fileの期限と観測時刻の非有限・非数値を拒否し、`invalid_lease_timestamp` として期限を0へ失効させます。これはPython互換Runtimeの防御で、Rustの安全停止（#667）やNative ABIの新たな実装証拠ではありません。
+
+時計は既存の `time.time()` と同じ秒基準で、有限の現在時刻を返すtrusted providerを前提とします。任意に壊れたclock callback全体、壁時計の大幅な逆行、他のID/sequence/ledger objectの包括的schema再設計は今回の成果物に含めません。入力なしの実Runtimeで、1000秒の観測→1003秒のheartbeat後も正常設定はstale拒否、NaN設定は構築時拒否、NaN commandは不受理のまま正常commandを受理できることを回帰確認します。実OS入力・Windows watchdog連携は対応CIで検証します。
+
 ## Command contract
 
 各OS入力直前に `FailSafeCommand` を生成し、次を検証する。

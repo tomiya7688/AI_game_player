@@ -9,6 +9,7 @@ import time
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum
+from math import isfinite
 from pathlib import Path
 from typing import Any, Callable, Protocol, cast
 
@@ -45,8 +46,11 @@ class SafetyGuardConfig:
             self.max_session_actions,
             self.no_progress_repeat_limit,
         )
-        if any(value < 1 for value in positive_ints):
-            raise ValueError("SafetyGuard integer limits must be positive")
+        if any(
+            isinstance(value, bool) or not isinstance(value, int) or value < 1
+            for value in positive_ints
+        ):
+            raise ValueError("SafetyGuard integer limits must be positive integers")
         positive_floats = (
             self.rate_window_seconds,
             self.burst_window_seconds,
@@ -54,8 +58,14 @@ class SafetyGuardConfig:
             self.max_hold_seconds,
             self.max_wait_seconds,
         )
-        if any(value <= 0 for value in positive_floats):
-            raise ValueError("SafetyGuard time limits must be positive")
+        if any(
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not isfinite(value)
+            or value <= 0
+            for value in positive_floats
+        ):
+            raise ValueError("SafetyGuard time limits must be finite and positive")
         if self.burst_window_seconds < self.rate_window_seconds:
             raise ValueError("burst window must not be shorter than rate window")
 
@@ -434,8 +444,8 @@ class SafetyGuard:
             return self._block("invalid_action", f"unsupported action kind: {candidate.kind}")
 
         hold = float(candidate.hold_seconds or 0.0)
-        if hold < 0 or hold > self.config.max_hold_seconds:
-            return self._block("hold_timeout", "key hold exceeds configured maximum")
+        if not isfinite(hold) or hold < 0 or hold > self.config.max_hold_seconds:
+            return self._block("hold_timeout", "key hold must be finite and within the configured maximum")
         if candidate.kind != "key" and hold:
             return self._block("invalid_action", "hold_seconds is only valid for key actions")
         if candidate.kind in {"click", "double_click"} and (candidate.x is None or candidate.y is None):
@@ -445,8 +455,8 @@ class SafetyGuard:
                 wait_seconds = float(candidate.label or "0.5")
             except ValueError:
                 wait_seconds = 0.5
-            if wait_seconds < 0 or wait_seconds > self.config.max_wait_seconds:
-                return self._block("wait_timeout", "wait duration exceeds configured maximum")
+            if not isfinite(wait_seconds) or wait_seconds < 0 or wait_seconds > self.config.max_wait_seconds:
+                return self._block("wait_timeout", "wait duration must be finite and within the configured maximum")
         if candidate.kind == "key" and self._normalize_key(candidate.label) in self.DENIED_KEY_LABELS:
             return self._block("denied_key", f"OS/reserved key is denied: {candidate.label}")
 

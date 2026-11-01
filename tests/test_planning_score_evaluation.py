@@ -5,7 +5,7 @@ from ai_game_player.capture_geometry import CaptureGeometry
 from ai_game_player.capture_region import CaptureRegionMode, PixelRect
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
-from tools.planning_score_evaluation import reread_score_line
+from tools.planning_score_evaluation import reread_score_header_label, reread_score_line
 
 
 class LineOcr:
@@ -30,6 +30,61 @@ class LineOcr:
 
 
 class PlanningScoreEvaluationTests(unittest.TestCase):
+    def test_missing_whole_page_label_can_be_recovered_from_same_frame_header(self):
+        class HeaderOcr(LineOcr):
+            def recognize(self, frame, *, mode):
+                if mode == "text_block":
+                    self.frames.append(frame)
+                    return [
+                        {
+                            "text": "SCORE",
+                            "x": 120,
+                            "y": 30,
+                            "width": 60,
+                            "height": 15,
+                            "confidence": 0.96,
+                        },
+                        {
+                            "text": "2048",
+                            "x": 10,
+                            "y": 10,
+                            "width": 30,
+                            "height": 20,
+                            "confidence": 0.99,
+                        },
+                    ]
+                return super().recognize(frame, mode=mode)
+
+        geometry = CaptureGeometry(
+            CaptureRegionMode.WINDOW,
+            PixelRect(0, 0, 400, 400),
+            400,
+            400,
+            PixelRect(40, 60, 800, 800),
+            PixelRect(40, 60, 800, 800),
+            1,
+            "fixture",
+        )
+        frame = ScreenFrame(
+            400, 400, bytes(400 * 400 * 4), captured_at=5, capture_geometry=geometry
+        )
+        original = ScreenObservation("score", 800, 800, features={"ocr_candidates": []})
+        ocr = HeaderOcr()
+        labelled, diagnostic = reread_score_header_label(
+            frame, original, (100, 400, 400, 400), ocr
+        )
+        self.assertEqual(diagnostic["label_count"], 1)
+        self.assertEqual(labelled.ocr_text, ["SCORE"])
+        self.assertEqual(
+            labelled.features["ocr_candidates"][0]["bbox"], (340, 240, 40, 10)
+        )
+        reread, _ = reread_score_line(frame, labelled, ocr)
+        self.assertEqual(
+            reread.features["ocr_candidates"][1]["bbox"], (350, 260, 20, 16)
+        )
+        self.assertEqual(original.features["ocr_candidates"], [])
+        self.assertEqual([item.captured_at for item in ocr.frames], [5, 5, 5])
+
     def test_scaled_offset_geometry_maps_both_corners_of_label_and_numeric_box(self):
         for selected_window in (False, True):
             with self.subTest(window=selected_window):

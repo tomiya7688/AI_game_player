@@ -19,7 +19,9 @@ from ai_game_player.belief_snapshot import BeliefSnapshot
 from ai_game_player.belief_validation import belief_id
 from ai_game_player.planning_contract import PlanningRegistration, SearchBudget
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_file_reader import read_planning_bytes
 from ai_game_player.planning_result import PlanningCounters, PlanningResult
+from ai_game_player.planning_worker_diagnostic import collect_worker_diagnostic
 from ai_game_player.planning_wire import (
     publish_planning_json,
     read_planning_json,
@@ -32,7 +34,8 @@ from ai_game_player.world_state_hypothesis import HypothesisOrigin
 # {
 #   責務: [BoundedExpectimaxPlanner: 純粋な探索callbackを親の停止/観測/メモリ境界から分離する]
 #   フィールド: [registrations: trustedコードだけが作るfactory登録, clock_id: 観測と共有する親monotonic origin,
-#     controller: 既存Run世代, _busy: 同時workerを一つへ制限, _poisoned: 回収不能worker後に新規起動しない]
+#     controller: 既存Run世代, _busy: 同時workerを一つへ制限, _poisoned: 回収不能worker後に新規起動しない,
+#     last_worker_diagnostic: 有界固定metadata。入力許可や学習factに使用しない]
 # }
 class BoundedExpectimaxPlanner:
     # {
@@ -61,6 +64,7 @@ class BoundedExpectimaxPlanner:
         self.controller = controller or RunController()
         self._busy = threading.Lock()
         self._poisoned = False
+        self.last_worker_diagnostic: dict[str, Any] | None = None
 
     # {
     #   責務: [plan: 観測・許可候補・予算を検査し隔離workerの完全深さ結果を返す]
@@ -75,6 +79,7 @@ class BoundedExpectimaxPlanner:
         budget: SearchBudget | None = None,
         current_belief: Callable[[], BeliefSnapshot[Any] | None] | None = None,
     ) -> PlanningResult:
+        self.last_worker_diagnostic = None
         if not isinstance(belief, BeliefSnapshot):
             raise ValueError("planner requires a typed belief snapshot")
         if (
@@ -280,8 +285,7 @@ class BoundedExpectimaxPlanner:
                     enforcement = ready["limit_enforcement"]
                 checkpoint_path = directory / "checkpoint.json"
                 if checkpoint_path.exists():
-                    with checkpoint_path.open("rb") as stream:
-                        raw = stream.read(budget.max_result_bytes + 1)
+                    raw = read_planning_bytes(checkpoint_path, budget.max_result_bytes)
                     if raw != last_bytes:
                         if len(raw) > budget.max_result_bytes:
                             raise ValueError("oversized planning checkpoint")
@@ -372,7 +376,23 @@ class BoundedExpectimaxPlanner:
         except (OSError, ValueError, TypeError, OverflowError):
             invalid = "worker_protocol_failure"
         finally:
+            try:
+                exit_seen = process.poll() is not None
+            except Exception:
+                exit_seen = False
             self._poisoned = not _stop_owned_process(process)
+            try:
+                self.last_worker_diagnostic = collect_worker_diagnostic(
+                    directory,
+                    process.poll(),
+                    cleanup_requested=not exit_seen,
+                    exit_seen_before_cleanup=exit_seen,
+                    highest_received_depth=latest.completed_depth
+                    if latest is not None
+                    else 0,
+                )
+            except Exception:
+                self.last_worker_diagnostic = None
         if self._poisoned:
             return fallback("worker_cleanup_incomplete")
         invalid = invalid or self._current_error(belief, token, current)

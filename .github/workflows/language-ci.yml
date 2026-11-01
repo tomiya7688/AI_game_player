@@ -339,6 +339,7 @@ jobs:
         with:
           python-version: "3.14"
       - name: Install optional comparison OCR and process sampler
+        id: comparison_dependencies
         shell: pwsh
         run: |
           python -m pip install -e ".[ocr]" psutil==7.1.0
@@ -350,6 +351,7 @@ jobs:
           "TESSERACT_CMD=$ocr" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           (Split-Path $ocr) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
       - name: Build Native Runtime with owned WGC capture
+        id: comparison_native
         shell: pwsh
         run: |
           cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
@@ -359,11 +361,23 @@ jobs:
           $runtime = Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
           if (-not $runtime) { throw "Native runtime missing" }
           "KADOKA_NATIVE_RUNTIME=$($runtime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Probe Windows held-reader native rename semantics
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python -u -X faulthandler tools/probe_windows_planning_io.py --output build/planning-comparison/windows/native-file-io-probe.json
       - name: Verify bounded planner slow-memory-Stop worker regressions on Windows
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
+        run: |
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_publisher.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Planning atomic-publisher regressions failed" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_planning_file_reader.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Bounded shared-reader regressions failed" }
+          python -u -X faulthandler -m unittest discover -s tests -p "test_expectimax_planner.py" -v
+          if ($LASTEXITCODE -ne 0) { throw "Bounded planner regressions failed" }
       - name: Repeat bounded worker checkpoint diagnostics (seed 479 only)
         if: matrix.seed == '479'
         shell: pwsh
@@ -376,6 +390,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Bounded worker diagnostic failed at attempt $attempt/20" }
           }
       - name: Compare short owned-window play with identical seed and step budget
+        if: ${{ always() && !cancelled() && steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
         shell: pwsh
         env:
           PYTHONPATH: "src;."

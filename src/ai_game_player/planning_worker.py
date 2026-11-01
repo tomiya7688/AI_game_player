@@ -6,6 +6,7 @@ import sys
 from typing import Any
 
 from ai_game_player.planning_worker_limits import apply_worker_limits
+from ai_game_player.planning_worker_diagnostic import WorkerDiagnostic, WorkerPhase
 
 
 # {
@@ -26,23 +27,28 @@ def main(argv: list[str] | None = None) -> int:
     ):
         return 2
     directory = arguments.directory
+    diagnostic = WorkerDiagnostic()
+    diagnostic.mark(WorkerPhase.RESOURCE_LIMITS)
     try:
         method, handle = apply_worker_limits(
             arguments.memory_bytes, arguments.wall_time_ms
         )
-    except (OSError, RuntimeError, ValueError):
+    except (OSError, RuntimeError, ValueError) as error:
+        diagnostic.record_exception(directory, error)
         _finish(directory, "unsupported_resource_limits")
         return 1
     # Keep the Job handle alive until process exit; all factory imports follow the guard.
     _ = handle
     reserve = bytearray(65536)
     try:
-        return _execute(directory, method)
-    except MemoryError:
+        return _execute(directory, method, diagnostic)
+    except MemoryError as error:
         del reserve
+        diagnostic.record_exception(directory, error)
         _finish(directory, "worker_memory_limit")
         return 1
-    except Exception:
+    except Exception as error:
+        diagnostic.record_exception(directory, error)
         _finish(directory, "worker_failed")
         return 1
 
@@ -50,10 +56,10 @@ def main(argv: list[str] | None = None) -> int:
 # {
 #   責務: [_execute: 型付きrequestを復号して完全深さcheckpointだけを保存する]
 #   処理: [動的import先は親のtrusted登録。state codecをworker内で照合し、任意pickleを使わない]
-#   引数: [directory: 親所有一時directory, method: 実適用したOS制限方式]
+#   引数: [directory: 親所有一時directory, method: 実適用したOS制限方式, diagnostic: 固定phaseだけの一時診断]
 #   戻り値: [int: worker終了code]
 # }
-def _execute(directory: Path, method: str) -> int:
+def _execute(directory: Path, method: str, diagnostic: WorkerDiagnostic) -> int:
     import importlib
     import math
 
@@ -84,6 +90,7 @@ def _execute(directory: Path, method: str) -> int:
     )
     from ai_game_player.world_state_hypothesis import TypedStateRef
 
+    diagnostic.mark(WorkerPhase.REQUEST_READ)
     request = read_planning_json(directory / "request.json", 16 * 1024 * 1024)
     expected = {
         "schema_version",
@@ -132,6 +139,7 @@ def _execute(directory: Path, method: str) -> int:
         or not 1 <= len(request["hypotheses"]) <= 256
     ):
         raise ValueError("planning hypothesis count invalid")
+    diagnostic.mark(WorkerPhase.READY_PUBLISH)
     publish_planning_json(
         directory / "ready.json",
         {
@@ -141,6 +149,7 @@ def _execute(directory: Path, method: str) -> int:
         },
         4096,
     )
+    diagnostic.mark(WorkerPhase.FACTORY_IMPORT)
     if registration.module_name == "ai_game_player.planning_2048":
         # Static edge includes the optional codec/model in a self-contained frozen bundle.
         from ai_game_player import planning_2048
@@ -151,6 +160,7 @@ def _execute(directory: Path, method: str) -> int:
     factory: Any = module
     for part in registration.factory_name.split("."):
         factory = getattr(factory, part)
+    diagnostic.mark(WorkerPhase.FACTORY_CREATE)
     domain = factory()
     if (
         not isinstance(domain, PlanningDomain)
@@ -159,6 +169,7 @@ def _execute(directory: Path, method: str) -> int:
         raise ValueError("planning factory must return a typed domain")
     hypotheses = []
     identities = set()
+    diagnostic.mark(WorkerPhase.STATE_DECODE)
     for item in request["hypotheses"]:
         if (
             not isinstance(item, dict)
@@ -196,8 +207,10 @@ def _execute(directory: Path, method: str) -> int:
     engine = ExpectimaxSearch(
         domain, registration, budget, tuple(hypotheses), allowed, kind, residual
     )
+    diagnostic.mark(WorkerPhase.SEARCH)
     try:
         for depth, values, counters in engine.deepen():
+            diagnostic.mark(WorkerPhase.RESULT_BUILD)
             best = max(
                 values,
                 key=lambda item: (item.ranking_score, -allowed.index(item.action_id)),
@@ -247,21 +260,26 @@ def _execute(directory: Path, method: str) -> int:
                 if domain.future_state_observable
                 else "open_loop_mpc",
             )
+            diagnostic.mark(WorkerPhase.CHECKPOINT_PUBLISH)
             publish_planning_json(
                 directory / "checkpoint.json",
                 {"nonce": nonce, "result": result_to_dict(result)},
                 budget.max_result_bytes,
             )
+            diagnostic.mark(WorkerPhase.SEARCH)
     except SearchCutoff as error:
+        diagnostic.mark(WorkerPhase.FINISHED_PUBLISH)
         publish_planning_json(
             directory / "finished.json",
             {"nonce": nonce, "reason": str(error), "budget_exit": True},
             4096,
         )
         return 0
-    except (SearchFailure, ValueError, TypeError, OverflowError):
+    except (SearchFailure, ValueError, TypeError, OverflowError) as error:
+        diagnostic.record_exception(directory, error)
         _finish(directory, "invalid_model_or_quality", nonce)
         return 1
+    diagnostic.mark(WorkerPhase.FINISHED_PUBLISH)
     publish_planning_json(
         directory / "finished.json",
         {"nonce": nonce, "reason": "depth_budget", "budget_exit": True},

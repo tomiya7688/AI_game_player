@@ -6,11 +6,14 @@
 
 ## 2026-11-01 任意Plannerと一手実行の接続（Issue #567）
 
+- Windows planning専用publicationをFileRenameInfoEx/REPLACE_IF_EXISTS|POSIX_SEMANTICS候補へ変更。一般atomic_jsonは維持し、未対応はfail-closed。shared-delete readerだけでは失敗した実OS20回を保持し、native30ケースprobe・held-open20回・worker20回で再検証します。実Windows成功は新CI確認まで未確認です。
 - SELECTだけを既存Verifier/Safetyへ渡し、非SELECTは操作履歴と分離。Sessionは有限なfresh再観測をProviderの外で処理します。
 - 入力前の新Frame/semantic state/候補実体/期限/Run世代を照合し、実receipt後に新しい実観測で再計画します。予測terminal/valueは実Outcomeへ渡しません。
 - 画面Recognizerだけを使う任意2048 profileとWindows Campaignの明示比較CLIを追加。未校正global riskはunknownを維持し、既存Windows600秒gateは変更しません。[設計・忠実性と限界](architecture/planner_runtime.md)。
 - Windows短比較の各provider終了時に、失敗段階・元探索理由・入力件数・score読取状態・Stop/旧世代検証結果の有界JSONをjobログへ出力。成果物が取得できない場合も未検証を成功へ置換せず診断できます。
 - 得点評価だけにSCOREラベル由来の数字行OCR（拡大・2幅一致・端切れ拒否）を追加。元Snapshotの版/期限と工程時間を診断し、短比較は実盤面変化も必須にします。既定depth2の固定3seed実画面比較を、旧失敗cohort・Windows未達と区別して保存します。
+- Windowsの追加診断はworker例外の固定分類、実frame生産/受領/OS送信時刻を分離。得点にもclockと2つの鮮度barrierを適用し、短比較の明示Native FAST_CV profileは同画素の候補・意味・判断の同値とDLL hashを検証します。既定の入力OCR/Campaign/TTL/Safety期限は維持します。
+- 実ログのcheckpoint_publishアクセス拒否に対し、Windows親readerへdelete共有を追加し読取中のatomic replaceを妨げません。未来時刻のWGC frameは既存の契約違反経路で破棄してGDIを新規取得し、解析中の5秒失効もcache公開前に拒否します。
 
 ## 2026-11-01 ウィンドウ一覧更新ボタンの補足説明（Issue #475 / PR #615）
 
@@ -108,6 +111,10 @@ plugin_manifest_schema          1
 各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
 
 ## Unreleased
+
+- Issue #649 / PR #651: Native Safety C ABIで押下時間と上限のNaN・正負Infinityを既存のHOLD_TIMEOUT理由で拒否し、有限値への回復を回帰確認しました。構造体ABI・バージョンは維持し、WGCの所有権・メモリ寿命の検証は#652へ残します。
+- Issue #653 / PR #655: SafetyGuardの時間設定は有限の正数、回数設定はboolを除く正の整数に限定し、wait文字列と押下時間の非有限値を拒否します。既定の許可・Stop・FailSafeを保全し、元authorの変更へ現mainと生成索引を統合しました。実OS入力での全保証とは区別します。
+- Issue #669: Python互換FailSafeConfigの5時間値を有限正数、queue上限を正整数へ限定。外部/直接commandの非有限・非数値時刻と、不正観測・watchdog lease時刻を拒否し、NaNによる期限迂回を入力なし回帰で修正しました。既存deadline・Stop/rearm・Native ABIを保ち、時計前提とRust安全停止#667との境界をFailSafeRuntime説明書へ記録しました。
 
 - Issue #491: 既存6軸PrimitiveEvaluatorを実Session/Context/Trace/Baselineへ接続しました。前実操作のreceipt/Outcomeと候補hypotheticalを分離し、未計測はavailable=False/confidence0、欠損coverageを保持したMCDAと共通NumericQualityでsoft順位付けします。Scope/goal/frameへ束縛したtyped profile/数値仮説だけを明示注入し、pixel/Model主張を意味的進捗へ転記しません。Safety/allowedは維持し、local監査とModel opt-in要約、suite digest・p50/p95を追加しました。[契約・根拠・未達](architecture/runtime_evaluation.md)。
 

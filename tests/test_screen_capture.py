@@ -3,7 +3,12 @@ import os
 import unittest
 from unittest.mock import patch
 
-from ai_game_player.capture_region import CaptureRegion, CaptureRegionMode, NormalizedRect, PixelRect
+from ai_game_player.capture_region import (
+    CaptureRegion,
+    CaptureRegionMode,
+    NormalizedRect,
+    PixelRect,
+)
 from ai_game_player.runtime.native import NativeRuntimeError, NativeStatus
 from ai_game_player.screen_capture import ScreenFrame, WindowsScreenCapture
 
@@ -39,8 +44,24 @@ class FakeUser32:
         values[:] = (10, 20, 12, 22)
         return 1
 
-    def SendMessageTimeoutW(self, window, message, device_context, flags, send_flags, timeout, result_pointer):
-        self.send_message_args = (window, message, device_context, flags, send_flags, timeout)
+    def SendMessageTimeoutW(
+        self,
+        window,
+        message,
+        device_context,
+        flags,
+        send_flags,
+        timeout,
+        result_pointer,
+    ):
+        self.send_message_args = (
+            window,
+            message,
+            device_context,
+            flags,
+            send_flags,
+            timeout,
+        )
         return self.send_message_result
 
     def GetDC(self, window):
@@ -72,7 +93,9 @@ class FakeGdi32:
         self.calls.append("BitBlt")
         return self.failure != "BitBlt"
 
-    def CreateDIBSection(self, device_context, bitmap_info, usage, pixel_pointer, section, offset):
+    def CreateDIBSection(
+        self, device_context, bitmap_info, usage, pixel_pointer, section, offset
+    ):
         self.calls.append("CreateDIBSection")
         if self.failure == "CreateDIBSection":
             return 0
@@ -161,7 +184,9 @@ class ScreenCaptureTest(unittest.TestCase):
         capture = WindowsScreenCapture(
             user32=user32,
             gdi32=gdi32,
-            wgc_capture_factory=lambda handle: factory_calls.append(handle) or wgc_capture,
+            wgc_capture_factory=lambda handle: (
+                factory_calls.append(handle) or wgc_capture
+            ),
         )
         frame = capture.capture(123)
 
@@ -171,7 +196,9 @@ class ScreenCaptureTest(unittest.TestCase):
         capture.close()
         self.assertTrue(wgc_capture.closed)
 
-    def test_window_capture_retries_the_same_wgc_session_after_a_transient_timeout(self):
+    def test_window_capture_retries_the_same_wgc_session_after_a_transient_timeout(
+        self,
+    ):
         user32 = FakeUser32()
         gdi32 = FakeGdi32()
         native_frame = ScreenFrame(2, 2, b"n" * 16, captured_at=14.0, frame_id=9)
@@ -180,7 +207,9 @@ class ScreenCaptureTest(unittest.TestCase):
         capture = WindowsScreenCapture(
             user32=user32,
             gdi32=gdi32,
-            wgc_capture_factory=lambda handle: factory_calls.append(handle) or wgc_capture,
+            wgc_capture_factory=lambda handle: (
+                factory_calls.append(handle) or wgc_capture
+            ),
         )
 
         fallback_frame = capture.capture(123)
@@ -198,7 +227,9 @@ class ScreenCaptureTest(unittest.TestCase):
         capture.close()
         self.assertTrue(wgc_capture.closed)
 
-    def test_window_relative_mode_crops_the_selected_window_and_keeps_screen_mapping(self):
+    def test_window_relative_mode_crops_the_selected_window_and_keeps_screen_mapping(
+        self,
+    ):
         user32 = FakeUser32()
         gdi32 = FakeGdi32()
         native_frame = ScreenFrame(4, 2, b"n" * 32, captured_at=14.0, frame_id=9)
@@ -223,7 +254,9 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertEqual(gdi32.calls, [])
         capture.close()
 
-    def test_fixed_region_captures_desktop_pixels_and_maps_back_to_selected_window(self):
+    def test_fixed_region_captures_desktop_pixels_and_maps_back_to_selected_window(
+        self,
+    ):
         user32 = FakeUser32()
         gdi32 = FakeGdi32()
         capture = WindowsScreenCapture(user32=user32, gdi32=gdi32)
@@ -239,18 +272,26 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertEqual(frame.capture_geometry.source, "configured:fixed_region")
         self.assertIn("BitBlt", gdi32.calls)
 
-    def test_window_change_replaces_the_wgc_session_after_reusing_the_current_window(self):
+    def test_window_change_replaces_the_wgc_session_after_reusing_the_current_window(
+        self,
+    ):
         user32 = FakeUser32()
         user32.IsWindow = lambda handle: handle in (123, 124)
         gdi32 = FakeGdi32()
-        first_session = FakeWgcCapture(ScreenFrame(2, 2, b"a" * 16, captured_at=14.0, frame_id=1))
-        second_session = FakeWgcCapture(ScreenFrame(2, 2, b"b" * 16, captured_at=15.0, frame_id=1))
+        first_session = FakeWgcCapture(
+            ScreenFrame(2, 2, b"a" * 16, captured_at=14.0, frame_id=1)
+        )
+        second_session = FakeWgcCapture(
+            ScreenFrame(2, 2, b"b" * 16, captured_at=15.0, frame_id=1)
+        )
         sessions = {123: first_session, 124: second_session}
         factory_calls = []
         capture = WindowsScreenCapture(
             user32=user32,
             gdi32=gdi32,
-            wgc_capture_factory=lambda handle: factory_calls.append(handle) or sessions[handle],
+            wgc_capture_factory=lambda handle: (
+                factory_calls.append(handle) or sessions[handle]
+            ),
         )
 
         self.assertIs(first_session.frame, capture.capture(123))
@@ -279,6 +320,26 @@ class ScreenCaptureTest(unittest.TestCase):
         self.assertEqual((2, 2), (frame.width, frame.height))
         self.assertIn("WGC device was lost", capture.last_backend_error)
         self.assertTrue(wgc_capture.closed)
+        self.assertIn("CreateDIBSection", gdi32.calls)
+
+    def test_future_wgc_timestamp_is_discarded_and_gdi_is_acquired_without_restamping(
+        self,
+    ):
+        user32, gdi32 = FakeUser32(), FakeGdi32()
+        future = ScreenFrame(2, 2, bytes(16), captured_at=101, frame_id=8)
+        session = FakeWgcCapture(future)
+        capture = WindowsScreenCapture(
+            user32=user32, gdi32=gdi32, wgc_capture_factory=lambda handle: session
+        )
+        with patch("ai_game_player.screen_capture.time.monotonic", return_value=100):
+            frame = capture.capture(123)
+        self.assertIsNot(frame, future)
+        self.assertEqual(future.captured_at, 101)
+        self.assertEqual(frame.captured_at, 100)
+        self.assertIsNone(frame.frame_id)
+        self.assertEqual(capture.last_capture_backend, "gdi")
+        self.assertEqual(capture.last_backend_failure_reason, "wgc_future_timestamp")
+        self.assertTrue(session.closed)
         self.assertIn("CreateDIBSection", gdi32.calls)
 
     def test_window_capture_fails_closed_when_window_does_not_render(self):
@@ -340,4 +401,5 @@ class ScreenCaptureTest(unittest.TestCase):
 
     def test_non_windows_is_explicit(self):
         if os.name != "nt":
-            with self.assertRaises(RuntimeError): WindowsScreenCapture().capture()
+            with self.assertRaises(RuntimeError):
+                WindowsScreenCapture().capture()
