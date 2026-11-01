@@ -139,3 +139,10 @@ roundtrip、不変性、scope全5次元の分離、JSON重複/破損/過大入�
 | Core | schema、検証、immutable data、Artifact Storeへの保存と読取 |
 | Runtime | Builder/Adapter/Promotionの明示API。通常Gameplayへの自動接続は本Issueに含めません。 |
 | Real-play | 本Issue単体では未実施。学習による実Action差は#530/#531、評価と復帰は#532に追跡します。 |
+
+
+## 統合後の接続状態（2026-11-01）
+
+#529は不変保存・検証のCoreを担当します。統合版では#422の実Session workerがこのStoreと#530/#531/#532を組み合わせます。保存API単体の境界は上表のとおりで、通常Sessionへ未接続という現在の説明ではありません。
+
+信頼済みの安定識別とreceiptへ一致するverified効果が必要で、unknownだけの観測は因果学習しません。得点欄clickを禁止する方式ではありません。CPU結合fixtureと通常Sessionの接続は、Windows実ゲームでの学習効果や全ゲームへの汎化とは区別します。[現在の接続条件・残件](light_adaptation.md)を参照してください。

@@ -24,7 +24,8 @@ from ai_game_player.runtime_evaluation_projection import RuntimeEvaluationProjec
 # {
 #   責務: [RuntimeEvaluationAdapter: 同stepの価値基準・actual・hypotheticalを限定量で固定する]
 #   フィールド: [_profile/_scope/_goal_id: 信頼済み構成の方針, _predictions: 明示注入の不変仮説,
-#     _lock: 短いmemory capture用, _bindings: 直近32判断のscope/goal, _expose_to_models: 明示送信許可]
+#     _lock: 短いmemory capture用, _bindings: 直近32判断のscope/goal/元profile,
+#     _expose_to_models: 明示送信許可]
 # }
 class RuntimeEvaluationAdapter:
     # {
@@ -256,7 +257,7 @@ class RuntimeEvaluationAdapter:
 #   責務: [_actual_vector: 同Session/scope/世代の正常実送信に対応した前回結果だけを評価する]
 #   処理: [既知core detectorの観測根拠を読み、semantic Model自己申告やpixel差を進捗へ変換しない]
 #   引数: [actual: 不変のreceipt/Outcome対, generation: 現世代, bound: 元判断scope一致,
-#     profile: 今stepで適用する価値基準]
+#     profile: 元判断に束縛された価値基準]
 #   戻り値: [dict: actual専用6軸。候補hypotheticalへは渡さない]
 # }
 def _actual_vector(
