@@ -1213,9 +1213,38 @@ classDiagram
     class SearchBudget {
         +__post_init__()
     }
+    class PlanningObservationModel {
+        +__post_init__()
+    }
+    class PlanningInformationValue {
+    }
+    class PlanningObservationPolicyGain {
+    }
     str <|-- PlanningOutcome
     Enum <|-- PlanningOutcome
     class PlanningOutcome {
+    }
+    class PlanningRiskPolicyConfig {
+        +__post_init__()
+    }
+    class PlanningComputationEstimate {
+        +__post_init__()
+    }
+    class PlanningActionRisk {
+    }
+    class PlanningPolicyDecision {
+    }
+    class PlanningObservationBudget {
+        +__post_init__()
+    }
+    class PlanningDecisionEpisode {
+        +__init__()
+        +check_context()
+        +request_observation()
+        +record_selection()
+        +acknowledge_execution()
+        +reset_scope()
+        +usage()
     }
     class WeightedValue {
         +__post_init__()
@@ -1231,6 +1260,15 @@ classDiagram
     }
     class PlanningResult {
         +__post_init__()
+    }
+    class PlanningTailRisk {
+    }
+    class PlanningRiskPolicy {
+        +__init__()
+        +decide()
+        +_now()
+        +_check_deadline()
+        +_finish()
     }
     str <|-- PlayerState
     Enum <|-- PlayerState

@@ -46952,6 +46952,449 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_validation",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "fsum"
+            },
+            {
+              "alias": null,
+              "name": "isclose"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "planning_value"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_information",
+      "path": "src/ai_game_player/planning_information.py",
+      "source_location": {
+        "end_line": 175,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningObservationModel",
+          "parameters": [],
+          "qualified_name": "PlanningObservationModel",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 75,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningObservationModel.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 75,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningInformationValue",
+          "parameters": [],
+          "qualified_name": "PlanningInformationValue",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 89,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "information_value",
+          "parameters": [
+            {
+              "annotation": "tuple[float, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "weights"
+            },
+            {
+              "annotation": "tuple[tuple[tuple[float, float], ...], ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_bounds"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "unknown_mass"
+            },
+            {
+              "annotation": "tuple[tuple[float, ...], ...] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "channel"
+            }
+          ],
+          "qualified_name": "information_value",
+          "return_annotation": "PlanningInformationValue",
+          "signature": "(weights: tuple[float, ...], action_bounds: tuple[tuple[tuple[float, float], ...], ...], unknown_mass: float, channel: tuple[tuple[float, ...], ...] | None = …) -> PlanningInformationValue",
+          "source_location": {
+            "column": 0,
+            "end_line": 175,
+            "start_line": 100
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_snapshot",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_policy_projection",
+        "ai_game_player.planning_result"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "fsum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_snapshot"
+          ],
+          "module": "ai_game_player.belief_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningActionRisk"
+            },
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_projection"
+          ],
+          "module": "ai_game_player.planning_policy_projection",
+          "names": [
+            {
+              "alias": null,
+              "name": "project_action_risk"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_observation_policy",
+      "path": "src/ai_game_player/planning_observation_policy.py",
+      "source_location": {
+        "end_line": 173,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningObservationPolicyGain",
+          "parameters": [],
+          "qualified_name": "PlanningObservationPolicyGain",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 26,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "observation_policy_gain",
+          "parameters": [
+            {
+              "annotation": "BeliefSnapshot[Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": "tuple[PlanningActionValue, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "actions"
+            },
+            {
+              "annotation": "PlanningObservationModel",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "model"
+            },
+            {
+              "annotation": "tuple[PlanningActionRisk, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current_risks"
+            },
+            {
+              "annotation": "PlanningRiskPolicyConfig",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            },
+            {
+              "annotation": "Callable[[], int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "check_deadline"
+            }
+          ],
+          "qualified_name": "observation_policy_gain",
+          "return_annotation": "PlanningObservationPolicyGain | None",
+          "signature": "(belief: BeliefSnapshot[Any], actions: tuple[PlanningActionValue, ...], model: PlanningObservationModel, current_risks: tuple[PlanningActionRisk, ...], config: PlanningRiskPolicyConfig, check_deadline: Callable[[], int]) -> PlanningObservationPolicyGain | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 173,
+            "start_line": 38
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -46996,6 +47439,1160 @@
             "column": 0,
             "end_line": 15,
             "start_line": 11
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_snapshot",
+        "ai_game_player.belief_validation",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_result"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isclose"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_snapshot"
+          ],
+          "module": "ai_game_player.belief_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningComputationEstimate"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningResult"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_policy_authority",
+      "path": "src/ai_game_player/planning_policy_authority.py",
+      "source_location": {
+        "end_line": 93,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "planning_allowed_actions",
+          "parameters": [
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "allowed"
+            },
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "veto"
+            }
+          ],
+          "qualified_name": "planning_allowed_actions",
+          "return_annotation": "frozenset[str]",
+          "signature": "(allowed: tuple[str, ...], veto: tuple[str, ...]) -> frozenset[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 33,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validate_planning_source",
+          "parameters": [
+            {
+              "annotation": "PlanningResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": "BeliefSnapshot[Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "run_generation"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now"
+            }
+          ],
+          "qualified_name": "validate_planning_source",
+          "return_annotation": "None",
+          "signature": "(result: PlanningResult, belief: BeliefSnapshot[Any], context: BeliefContext, run_generation: int, now: int) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validate_planning_estimate",
+          "parameters": [
+            {
+              "annotation": "PlanningObservationModel | PlanningComputationEstimate",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "estimate"
+            },
+            {
+              "annotation": "PlanningResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "validate_planning_estimate",
+          "return_annotation": "None",
+          "signature": "(estimate: PlanningObservationModel | PlanningComputationEstimate, result: PlanningResult) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 93,
+            "start_line": 81
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_validation",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningInformationValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "planning_value"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_policy_contract",
+      "path": "src/ai_game_player/planning_policy_contract.py",
+      "source_location": {
+        "end_line": 142,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningRiskPolicyConfig",
+          "parameters": [],
+          "qualified_name": "PlanningRiskPolicyConfig",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyConfig.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 46,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningComputationEstimate",
+          "parameters": [],
+          "qualified_name": "PlanningComputationEstimate",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 84,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningComputationEstimate.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningActionRisk",
+          "parameters": [],
+          "qualified_name": "PlanningActionRisk",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 106,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningPolicyDecision",
+          "parameters": [],
+          "qualified_name": "PlanningPolicyDecision",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 142,
+            "start_line": 123
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_snapshot",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isclose"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_snapshot"
+          ],
+          "module": "ai_game_player.belief_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningActionRisk"
+            },
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "lower_tail_risk"
+            },
+            {
+              "alias": null,
+              "name": "planning_value"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_policy_projection",
+      "path": "src/ai_game_player/planning_policy_projection.py",
+      "source_location": {
+        "end_line": 165,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "project_action_risk",
+          "parameters": [
+            {
+              "annotation": "PlanningActionValue",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "PlanningRiskPolicyConfig",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "config"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "conditional"
+            }
+          ],
+          "qualified_name": "project_action_risk",
+          "return_annotation": "PlanningActionRisk",
+          "signature": "(action: PlanningActionValue, config: PlanningRiskPolicyConfig, *, conditional: bool = …) -> PlanningActionRisk",
+          "source_location": {
+            "column": 0,
+            "end_line": 92,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "project_world_values",
+          "parameters": [
+            {
+              "annotation": "BeliefSnapshot[Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": "tuple[PlanningActionValue, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "actions"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "conditional"
+            }
+          ],
+          "qualified_name": "project_world_values",
+          "return_annotation": "tuple[tuple[str, ...], tuple[float, ...], tuple[tuple[tuple[float, float], ...], ...], str]",
+          "signature": "(belief: BeliefSnapshot[Any], actions: tuple[PlanningActionValue, ...], *, conditional: bool = …) -> tuple[tuple[str, ...], tuple[float, ...], tuple[tuple[tuple[float, float], ...], ...], str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 165,
+            "start_line": 102
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_likelihood",
+        "ai_game_player.belief_validation",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "Lock"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_likelihood"
+          ],
+          "module": "ai_game_player.belief_likelihood",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefActionRef"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "planning_value"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_reobservation",
+      "path": "src/ai_game_player/planning_reobservation.py",
+      "source_location": {
+        "end_line": 216,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningObservationBudget",
+          "parameters": [],
+          "qualified_name": "PlanningObservationBudget",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 33,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningObservationBudget.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 33,
+            "start_line": 30
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningDecisionEpisode",
+          "parameters": [],
+          "qualified_name": "PlanningDecisionEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 216,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "goal_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_ns"
+            },
+            {
+              "annotation": "PlanningObservationBudget | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "budget"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.__init__",
+          "return_annotation": "None",
+          "signature": "(self, context: BeliefContext, goal_id: str, now_ns: int, budget: PlanningObservationBudget | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "check_context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "goal_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_ns"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.check_context",
+          "return_annotation": "bool",
+          "signature": "(self, context: BeliefContext, goal_id: str, now_ns: int) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "request_observation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cost"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_ns"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.request_observation",
+          "return_annotation": "bool",
+          "signature": "(self, context: BeliefContext, cost: float, now_ns: int) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 105
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_selection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.record_selection",
+          "return_annotation": "bool",
+          "signature": "(self, context: BeliefContext, action_id: str) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 136,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "acknowledge_execution",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefActionRef",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_ns"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.acknowledge_execution",
+          "return_annotation": "bool",
+          "signature": "(self, action: BeliefActionRef, now_ns: int) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 160,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "reset_scope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "goal_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_ns"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.reset_scope",
+          "return_annotation": "None",
+          "signature": "(self, context: BeliefContext, goal_id: str, now_ns: int) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 205,
+            "start_line": 169
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "usage",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningDecisionEpisode.usage",
+          "return_annotation": "tuple[int, float]",
+          "signature": "(self) -> tuple[int, float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 214
           }
         }
       ]
@@ -47373,6 +48970,730 @@
             "column": 0,
             "end_line": 373,
             "start_line": 359
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "fsum"
+            },
+            {
+              "alias": null,
+              "name": "isclose"
+            },
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_risk",
+      "path": "src/ai_game_player/planning_risk.py",
+      "source_location": {
+        "end_line": 103,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PlanningTailRisk",
+          "parameters": [],
+          "qualified_name": "PlanningTailRisk",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 22,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "planning_value",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "lower"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "upper"
+            }
+          ],
+          "qualified_name": "planning_value",
+          "return_annotation": "float",
+          "signature": "(value: object, lower: float = …, upper: float = …) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 41,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "lower_tail_risk",
+          "parameters": [
+            {
+              "annotation": "tuple[tuple[float, float], ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "outcomes"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "unknown_mass"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "alpha"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "catastrophic_value"
+            }
+          ],
+          "qualified_name": "lower_tail_risk",
+          "return_annotation": "PlanningTailRisk",
+          "signature": "(outcomes: tuple[tuple[float, float], ...], unknown_mass: float, *, alpha: float = …, catastrophic_value: float = …) -> PlanningTailRisk",
+          "source_location": {
+            "column": 0,
+            "end_line": 103,
+            "start_line": 52
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_snapshot",
+        "ai_game_player.belief_validation",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_observation_policy",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_policy_authority",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_policy_projection",
+        "ai_game_player.planning_reobservation",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "fsum"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_snapshot"
+          ],
+          "module": "ai_game_player.belief_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_validation"
+          ],
+          "module": "ai_game_player.belief_validation",
+          "names": [
+            {
+              "alias": null,
+              "name": "belief_id"
+            },
+            {
+              "alias": null,
+              "name": "belief_integer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            },
+            {
+              "alias": null,
+              "name": "information_value"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_observation_policy"
+          ],
+          "module": "ai_game_player.planning_observation_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "observation_policy_gain"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningComputationEstimate"
+            },
+            {
+              "alias": null,
+              "name": "PlanningPolicyDecision"
+            },
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_authority"
+          ],
+          "module": "ai_game_player.planning_policy_authority",
+          "names": [
+            {
+              "alias": null,
+              "name": "planning_allowed_actions"
+            },
+            {
+              "alias": null,
+              "name": "validate_planning_source"
+            },
+            {
+              "alias": null,
+              "name": "validate_planning_estimate"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_projection"
+          ],
+          "module": "ai_game_player.planning_policy_projection",
+          "names": [
+            {
+              "alias": null,
+              "name": "project_action_risk"
+            },
+            {
+              "alias": null,
+              "name": "project_world_values"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 32,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_reobservation"
+          ],
+          "module": "ai_game_player.planning_reobservation",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningDecisionEpisode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 33,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningResult"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 34,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "planning_value"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_risk_policy",
+      "path": "src/ai_game_player/planning_risk_policy.py",
+      "source_location": {
+        "end_line": 391,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningRiskPolicy",
+          "parameters": [],
+          "qualified_name": "PlanningRiskPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 391,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PlanningDecisionEpisode",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episode"
+            },
+            {
+              "annotation": "PlanningRiskPolicyConfig | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "config"
+            },
+            {
+              "annotation": "Callable[[], int]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "clock_ns"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicy.__init__",
+          "return_annotation": "None",
+          "signature": "(self, episode: PlanningDecisionEpisode, *, config: PlanningRiskPolicyConfig | None = …, clock_ns: Callable[[], int] = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "decide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PlanningResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": "BeliefSnapshot[Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": "BeliefContext",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "context"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "goal_id"
+            },
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "allowed_action_ids"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "run_generation"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "deadline_ns"
+            },
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "hard_veto_action_ids"
+            },
+            {
+              "annotation": "PlanningObservationModel | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "observation_model"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "observation_cost"
+            },
+            {
+              "annotation": "PlanningComputationEstimate | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "computation"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "can_escalate"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicy.decide",
+          "return_annotation": "PlanningPolicyDecision",
+          "signature": "(self, result: PlanningResult, belief: BeliefSnapshot[Any], *, context: BeliefContext, goal_id: str, allowed_action_ids: tuple[str, ...], run_generation: int, deadline_ns: int, hard_veto_action_ids: tuple[str, ...] = …, observation_model: PlanningObservationModel | None = …, observation_cost: float = …, computation: PlanningComputationEstimate | None = …, can_escalate: bool = …) -> PlanningPolicyDecision",
+          "source_location": {
+            "column": 4,
+            "end_line": 336,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_now",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicy._now",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 349,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_check_deadline",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "started"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cutoff"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicy._check_deadline",
+          "return_annotation": "int",
+          "signature": "(self, started: int, cutoff: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 362,
+            "start_line": 358
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_finish",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PlanningPolicyDecision",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "decision"
+            },
+            {
+              "annotation": "PlanningOutcome",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "outcome"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reasons"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "started"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cutoff"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicy._finish",
+          "return_annotation": "PlanningPolicyDecision",
+          "signature": "(self, decision: PlanningPolicyDecision, outcome: PlanningOutcome, reasons: list[str], started: int, cutoff: int) -> PlanningPolicyDecision",
+          "source_location": {
+            "column": 4,
+            "end_line": 391,
+            "start_line": 371
           }
         }
       ]
@@ -113198,6 +115519,1185 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_likelihood",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_reobservation",
+        "ai_game_player.planning_risk"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "fractions",
+          "names": [
+            {
+              "alias": null,
+              "name": "Fraction"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_likelihood"
+          ],
+          "module": "ai_game_player.belief_likelihood",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefActionRef"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            },
+            {
+              "alias": null,
+              "name": "information_value"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_reobservation"
+          ],
+          "module": "ai_game_player.planning_reobservation",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningDecisionEpisode"
+            },
+            {
+              "alias": null,
+              "name": "PlanningObservationBudget"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk"
+          ],
+          "module": "ai_game_player.planning_risk",
+          "names": [
+            {
+              "alias": null,
+              "name": "lower_tail_risk"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_risk",
+      "path": "tests/test_planning_risk.py",
+      "source_location": {
+        "end_line": 214,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "context",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "sequence"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "context",
+          "return_annotation": null,
+          "signature": "(sequence = …, **kwargs)",
+          "source_location": {
+            "column": 0,
+            "end_line": 38,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningRiskTests",
+          "parameters": [],
+          "qualified_name": "PlanningRiskTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 214,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_chance_catastrophe_is_visible_even_with_positive_expected_value",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_chance_catastrophe_is_visible_even_with_positive_expected_value",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cvar_of_mixture_can_be_worse_than_each_conditional_cvar",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_cvar_of_mixture_can_be_worse_than_each_conditional_cvar",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 56,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_is_lower_tail_without_renormalizing_retained_atoms",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_unknown_is_lower_tail_without_renormalizing_retained_atoms",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 64,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fractional_boundary_cvar_matches_independent_fraction_oracle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_fractional_boundary_cvar_matches_independent_fraction_oracle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_distributions_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_invalid_distributions_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_evpi_is_upper_bound_not_expected_sample_information",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_evpi_is_upper_bound_not_expected_sample_information",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 102
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_agreement_zero_information_and_interval_unknown_bounds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_agreement_zero_information_and_interval_unknown_bounds",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 117
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_information_shape_probability_and_bounds_negative_cases",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_information_shape_probability_and_bounds_negative_cases",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_new_frames_do_not_reset_count_cost_or_episode_clock",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_new_frames_do_not_reset_count_cost_or_episode_clock",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 155
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_only_selected_executed_ack_can_reset_budget_and_replay_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_only_selected_executed_ack_can_reset_budget_and_replay_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 196,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_scope_generation_goal_stale_and_clock_are_checked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskTests.test_scope_generation_goal_stale_and_clock_are_checked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 214,
+            "start_line": 198
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.decision_context",
+        "ai_game_player.decision_verifier",
+        "ai_game_player.models",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_reobservation",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_risk_policy",
+        "tools",
+        "tools.planning_policy_fixture"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_verifier"
+          ],
+          "module": "ai_game_player.decision_verifier",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionVerifier"
+            },
+            {
+              "alias": null,
+              "name": "ReliabilityStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "ActionDecision"
+            },
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningComputationEstimate"
+            },
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_reobservation"
+          ],
+          "module": "ai_game_player.planning_reobservation",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningDecisionEpisode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk_policy"
+          ],
+          "module": "ai_game_player.planning_risk_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_policy_fixture"
+          ],
+          "module": "tools.planning_policy_fixture",
+          "names": [
+            {
+              "alias": null,
+              "name": "make_belief"
+            },
+            {
+              "alias": null,
+              "name": "make_plan"
+            },
+            {
+              "alias": null,
+              "name": "observation_model"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_risk_policy",
+      "path": "tests/test_planning_risk_policy.py",
+      "source_location": {
+        "end_line": 313,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningRiskPolicyTests",
+          "parameters": [],
+          "qualified_name": "PlanningRiskPolicyTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 313,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 24,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "decide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.decide",
+          "return_annotation": null,
+          "signature": "(self, plan = …, belief = …, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 37,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "disagreement_plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.disagreement_plan",
+          "return_annotation": null,
+          "signature": "(self, belief = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 46,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_agreement_selects_risk_acceptable_action_and_information_early_exit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_agreement_selects_risk_acceptable_action_and_information_early_exit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 55,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_disagreement_observes_only_with_positive_net_real_channel_evsi",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_disagreement_observes_only_with_positive_net_real_channel_evsi",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_positive_risk_neutral_evsi_does_not_bypass_posterior_risk_policy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_positive_risk_neutral_evsi_does_not_bypass_posterior_risk_policy",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_posterior_cvar_pass_does_not_prove_contingent_mixture_is_safe",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_posterior_cvar_pass_does_not_prove_contingent_mixture_is_safe",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_observation_budget_is_not_reset_by_new_frames_or_belief_versions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_observation_budget_is_not_reset_by_new_frames_or_belief_versions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 129,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rare_chance_loss_is_not_hidden_by_positive_average_or_world_agreement",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_rare_chance_loss_is_not_hidden_by_positive_average_or_world_agreement",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_interval_leaf_quality_is_not_a_probability_and_keeps_lower_tail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_interval_leaf_quality_is_not_a_probability_and_keeps_lower_tail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_world_or_trace_mass_is_pessimistic_and_can_escalate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_unknown_world_or_trace_mass_is_pessimistic_and_can_escalate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 171,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_uncalibrated_is_unknown_and_conditional_experiment_requires_opt_in",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_uncalibrated_is_unknown_and_conditional_experiment_requires_opt_in",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 173
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hard_allowed_and_veto_cannot_be_overridden_by_value",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_hard_allowed_and_veto_cannot_be_overridden_by_value",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 197,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_verifier_hard_allowed_survives_soft_planning_values",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_existing_verifier_hard_allowed_survives_soft_planning_values",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 225,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_scope_version_generation_and_failed_planning_do_not_act",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_stale_scope_version_generation_and_failed_planning_do_not_act",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 248,
+            "start_line": 227
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mismatched_observation_or_computation_source_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_mismatched_observation_or_computation_source_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 274,
+            "start_line": 250
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_timeout_before_final_publication_does_not_authorize_execution_ack",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_timeout_before_final_publication_does_not_authorize_execution_ack",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 283,
+            "start_line": 276
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_interval_disagreement_unknown_failure_clock_and_budget",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_interval_disagreement_unknown_failure_clock_and_budget",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 302,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_corrupt_distribution_and_wrong_hypothesis_weight_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_corrupt_distribution_and_wrong_hypothesis_weight_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 313,
+            "start_line": 304
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.player_character",
         "ai_game_player.ui",
         "ai_game_player.ui.player_seat",
@@ -139694,6 +143194,375 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_policy_contract",
+        "ai_game_player.planning_reobservation",
+        "ai_game_player.planning_result",
+        "ai_game_player.planning_risk_policy",
+        "tools",
+        "tools.browser_probe_support",
+        "tools.planning_policy_fixture"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "Counter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "platform",
+          "names": [
+            {
+              "alias": null,
+              "name": "platform"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "statistics",
+          "names": [
+            {
+              "alias": null,
+              "name": "statistics"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "tracemalloc",
+          "names": [
+            {
+              "alias": null,
+              "name": "tracemalloc"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_policy_contract"
+          ],
+          "module": "ai_game_player.planning_policy_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicyConfig"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_reobservation"
+          ],
+          "module": "ai_game_player.planning_reobservation",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningDecisionEpisode"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_risk_policy"
+          ],
+          "module": "ai_game_player.planning_risk_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningRiskPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "tools",
+            "tools.browser_probe_support"
+          ],
+          "module": "tools.browser_probe_support",
+          "names": [
+            {
+              "alias": null,
+              "name": "publish_validation_report"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_policy_fixture"
+          ],
+          "module": "tools.planning_policy_fixture",
+          "names": [
+            {
+              "alias": null,
+              "name": "make_belief"
+            },
+            {
+              "alias": null,
+              "name": "make_plan"
+            }
+          ]
+        }
+      ],
+      "module": "tools.benchmark_planning_policy",
+      "path": "tools/benchmark_planning_policy.py",
+      "source_location": {
+        "end_line": 187,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "scenario",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "world_count"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_count"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seed"
+            }
+          ],
+          "qualified_name": "scenario",
+          "return_annotation": null,
+          "signature": "(world_count, action_count, seed)",
+          "source_location": {
+            "column": 0,
+            "end_line": 69,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": null,
+          "signature": "(argv = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 183,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate",
+          "parameters": [],
+          "qualified_name": "main.evaluate",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 105,
+            "start_line": 87
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.atomic_json"
       ],
       "imports": [
@@ -143994,6 +147863,318 @@
             "column": 0,
             "end_line": 38,
             "start_line": 11
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.belief_contract",
+        "ai_game_player.belief_snapshot",
+        "ai_game_player.planning_information",
+        "ai_game_player.planning_outcome",
+        "ai_game_player.planning_result",
+        "ai_game_player.world_state_hypothesis"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "fsum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_contract"
+          ],
+          "module": "ai_game_player.belief_contract",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefContext"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceKind"
+            },
+            {
+              "alias": null,
+              "name": "BeliefEvidenceRef"
+            },
+            {
+              "alias": null,
+              "name": "BeliefFreshness"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeight"
+            },
+            {
+              "alias": null,
+              "name": "BeliefWeightKind"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.belief_snapshot"
+          ],
+          "module": "ai_game_player.belief_snapshot",
+          "names": [
+            {
+              "alias": null,
+              "name": "BeliefDiagnostics"
+            },
+            {
+              "alias": null,
+              "name": "BeliefSnapshot"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.world_state_hypothesis"
+          ],
+          "module": "ai_game_player.world_state_hypothesis",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisOrigin"
+            },
+            {
+              "alias": null,
+              "name": "TypedStateRef"
+            },
+            {
+              "alias": null,
+              "name": "WorldStateHypothesis"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_information"
+          ],
+          "module": "ai_game_player.planning_information",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningObservationModel"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_outcome"
+          ],
+          "module": "ai_game_player.planning_outcome",
+          "names": [
+            {
+              "alias": null,
+              "name": "PlanningOutcome"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_result"
+          ],
+          "module": "ai_game_player.planning_result",
+          "names": [
+            {
+              "alias": null,
+              "name": "HypothesisActionValue"
+            },
+            {
+              "alias": null,
+              "name": "PlanningActionValue"
+            },
+            {
+              "alias": null,
+              "name": "PlanningCounters"
+            },
+            {
+              "alias": null,
+              "name": "PlanningResult"
+            },
+            {
+              "alias": null,
+              "name": "WeightedValue"
+            }
+          ]
+        }
+      ],
+      "module": "tools.planning_policy_fixture",
+      "path": "tools/planning_policy_fixture.py",
+      "source_location": {
+        "end_line": 207,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CardWorld",
+          "parameters": [],
+          "qualified_name": "CardWorld",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 33,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_belief",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "weights"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "seq"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "score"
+            }
+          ],
+          "qualified_name": "make_belief",
+          "return_annotation": null,
+          "signature": "(weights = …, *, seq = …, score = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 88,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "distributions"
+            }
+          ],
+          "qualified_name": "make_plan",
+          "return_annotation": null,
+          "signature": "(belief, distributions = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 192,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "observation_model",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "belief"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "informative"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "cost"
+            }
+          ],
+          "qualified_name": "observation_model",
+          "return_annotation": null,
+          "signature": "(belief, *, informative = …, cost = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 207,
+            "start_line": 195
           }
         }
       ]

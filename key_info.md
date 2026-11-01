@@ -7,6 +7,7 @@
 - Beliefの確率遷移予測とjoint観測尤度によるBayesian更新（Issue #564）。未校正/尤度不足ではunknownを保持し、実入力を選びません。[設計と検証](doc/architecture/belief_update.md)。
 
 - 型付き不変WorldStateHypothesis / BeliefSnapshotと有界候補Store（校正確率・比較scoreの区別、unknown残余、K/byte/TTL/scope制約）。詳細は `doc/architecture/belief_snapshot.md`。
+- 汎用Planning Risk/情報価値Policyで、仮想chance分布の下側損失と未知、観測後mapping全体のrisk、Goal episode再観測予算を検査できます（#566）。実入力するProvider接続は#567、Unknownness Action Policy全体は#206です。[契約と限界](doc/architecture/planning_risk_information.md)。
 - #422: 実Sessionの既定Modeにbounded Light workerを接続。receiptとverified効果、profile保証hash識別、unknown保留、Gate light検証→Mode CAS→durable ack、Stop事実退避。一般ゲームの因果検証/#433識別/#409完全Utility/#425自動資源分類は未完。[契約とp50/p95](doc/architecture/light_adaptation.md)。
 
 - Runtime Mode / Phase のコア契約（5 Mode / 8 Phase、既定 Light、安全境界、Step 版固定、共有 RunController の Stop、Journal / checkpoint）。詳細は `doc/architecture/runtime_modes.md`。
