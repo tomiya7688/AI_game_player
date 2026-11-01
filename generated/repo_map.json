@@ -49425,7 +49425,7 @@
       "module": "ai_game_player.planning_risk_policy",
       "path": "src/ai_game_player/planning_risk_policy.py",
       "source_location": {
-        "end_line": 391,
+        "end_line": 402,
         "start_line": 1
       },
       "symbols": [
@@ -49445,7 +49445,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 391,
+            "end_line": 402,
             "start_line": 42
           }
         },
@@ -49581,7 +49581,7 @@
           "signature": "(self, result: PlanningResult, belief: BeliefSnapshot[Any], *, context: BeliefContext, goal_id: str, allowed_action_ids: tuple[str, ...], run_generation: int, deadline_ns: int, hard_veto_action_ids: tuple[str, ...] = …, observation_model: PlanningObservationModel | None = …, observation_cost: float = …, computation: PlanningComputationEstimate | None = …, can_escalate: bool = …) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 336,
+            "end_line": 347,
             "start_line": 74
           }
         },
@@ -49604,8 +49604,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 349,
-            "start_line": 345
+            "end_line": 360,
+            "start_line": 356
           }
         },
         {
@@ -49639,8 +49639,8 @@
           "signature": "(self, started: int, cutoff: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 362,
-            "start_line": 358
+            "end_line": 373,
+            "start_line": 369
           }
         },
         {
@@ -49692,8 +49692,8 @@
           "signature": "(self, decision: PlanningPolicyDecision, outcome: PlanningOutcome, reasons: list[str], started: int, cutoff: int) -> PlanningPolicyDecision",
           "source_location": {
             "column": 4,
-            "end_line": 391,
-            "start_line": 371
+            "end_line": 402,
+            "start_line": 382
           }
         }
       ]
@@ -116206,7 +116206,7 @@
       "module": "tests.test_planning_risk_policy",
       "path": "tests/test_planning_risk_policy.py",
       "source_location": {
-        "end_line": 313,
+        "end_line": 332,
         "start_line": 1
       },
       "symbols": [
@@ -116228,7 +116228,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 313,
+            "end_line": 332,
             "start_line": 19
           }
         },
@@ -116537,6 +116537,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_uncalibrated_escalation_still_honors_marginal_gain_early_exit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningRiskPolicyTests.test_uncalibrated_escalation_still_honors_marginal_gain_early_exit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 207,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_hard_allowed_and_veto_cannot_be_overridden_by_value",
           "parameters": [
             {
@@ -116551,8 +116574,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 197,
-            "start_line": 190
+            "end_line": 216,
+            "start_line": 209
           }
         },
         {
@@ -116574,8 +116597,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 225,
-            "start_line": 199
+            "end_line": 244,
+            "start_line": 218
           }
         },
         {
@@ -116597,8 +116620,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 248,
-            "start_line": 227
+            "end_line": 267,
+            "start_line": 246
           }
         },
         {
@@ -116620,8 +116643,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 274,
-            "start_line": 250
+            "end_line": 293,
+            "start_line": 269
           }
         },
         {
@@ -116643,8 +116666,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 283,
-            "start_line": 276
+            "end_line": 302,
+            "start_line": 295
           }
         },
         {
@@ -116666,8 +116689,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 302,
-            "start_line": 285
+            "end_line": 321,
+            "start_line": 304
           }
         },
         {
@@ -116689,8 +116712,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 304
+            "end_line": 332,
+            "start_line": 323
           }
         }
       ]

@@ -127,6 +127,26 @@ class PlanningRiskPolicy:
                 or result.outcome != PlanningOutcome.SELECT
             ):
                 return replace(decision, reason_codes=("planning_unavailable",))
+            continue_computation = False
+            computation_reason = None
+            if computation is not None:
+                validate_planning_estimate(computation, result)
+                continue_computation = computation.upper_gain > computation.cost
+                computation_reason = (
+                    "computation_gain_above_cost"
+                    if continue_computation
+                    else "computation_early_exit"
+                )
+            provenance: tuple[str, ...] = (
+                result.model_id,
+                result.model_version,
+                result.evaluator_id,
+                result.evaluator_version,
+                result.quality_profile_version,
+            )
+            if computation is not None:
+                provenance += (computation.source_ref,)
+            decision = replace(decision, provenance=provenance)
             calibrated = result.probability_semantics == "calibrated"
             conditional = (
                 not calibrated
@@ -135,12 +155,20 @@ class PlanningRiskPolicy:
                 and len(belief.candidates) == 1
             )
             if not calibrated and not conditional:
-                return replace(
-                    decision,
-                    outcome=PlanningOutcome.ESCALATE
-                    if can_escalate
-                    else PlanningOutcome.ABSTAIN,
-                    reason_codes=("uncalibrated_global_risk",),
+                reasons = ["uncalibrated_global_risk"]
+                if computation_reason is not None:
+                    reasons.append(computation_reason)
+                outcome = (
+                    PlanningOutcome.ESCALATE
+                    if can_escalate and (computation is None or continue_computation)
+                    else PlanningOutcome.ABSTAIN
+                )
+                return self._finish(
+                    replace(decision, continue_computation=continue_computation),
+                    outcome,
+                    reasons,
+                    started,
+                    cutoff,
                 )
             atoms = sum(
                 len(item.hypothesis_values[0].conditional_outcomes)
@@ -167,13 +195,6 @@ class PlanningRiskPolicy:
             residual = 0.0 if conditional else belief.residual_unknown_mass
             channel = None
             cost = planning_value(observation_cost, 0, 2)
-            provenance: tuple[str, ...] = (
-                result.model_id,
-                result.model_version,
-                result.evaluator_id,
-                result.evaluator_version,
-                result.quality_profile_version,
-            )
             if observation_model is not None:
                 if conditional:
                     raise ValueError("uncalibrated world does not support global EVSI")
@@ -210,17 +231,7 @@ class PlanningRiskPolicy:
             policy_information_upper = max(
                 0.0, min(2.0, perfect_upper - baseline_lower)
             )
-            continue_computation = False
-            reasons = []
-            if computation is not None:
-                validate_planning_estimate(computation, result)
-                continue_computation = computation.upper_gain > computation.cost
-                reasons.append(
-                    "computation_gain_above_cost"
-                    if continue_computation
-                    else "computation_early_exit"
-                )
-                provenance += (computation.source_ref,)
+            reasons = [computation_reason] if computation_reason is not None else []
             decision = replace(
                 decision,
                 risks=tuple(risks),

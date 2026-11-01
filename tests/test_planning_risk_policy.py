@@ -187,6 +187,25 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         self.assertFalse(result.global_risk_known)
         self.assertIn("conditional_assumption_explicit", result.reason_codes)
 
+    def test_uncalibrated_escalation_still_honors_marginal_gain_early_exit(self):
+        belief = make_belief((0.9,), score=True)
+        plan = make_plan(belief)
+        computation = PlanningComputationEstimate(
+            belief.context, 1, 0.01, 0.1, "marginal.v1", "evaluator", "v1"
+        )
+        result = self.decide(plan, belief, can_escalate=True, computation=computation)
+        self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
+        self.assertIn("computation_early_exit", result.reason_codes)
+        self.assertFalse(result.continue_computation)
+        result = self.decide(
+            plan,
+            belief,
+            can_escalate=True,
+            computation=replace(computation, upper_gain=0.2),
+        )
+        self.assertEqual(result.outcome, PlanningOutcome.ESCALATE)
+        self.assertTrue(result.continue_computation)
+
     def test_hard_allowed_and_veto_cannot_be_overridden_by_value(self):
         result = self.decide(hard_veto_action_ids=("a",))
         self.assertEqual(result.selected_action_id, "b")
