@@ -141,6 +141,11 @@ classDiagram
         +find_orphans()
         +check_integrity()
     }
+    ArtifactStore <|-- BoundedArtifactStore
+    Protocol <|-- BoundedArtifactStore
+    class BoundedArtifactStore {
+        +read_bounded()
+    }
     class FileSystemArtifactStore {
         +__init__()
         +put()

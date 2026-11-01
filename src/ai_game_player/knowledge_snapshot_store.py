@@ -11,6 +11,7 @@ from ai_game_player.artifact_store import (
     FileSystemArtifactStore,
 )
 from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.bounded_file import read_regular_file
 from ai_game_player.cross_process_lock import cross_process_file_lock
 from ai_game_player.experience import ArtifactReference
 from ai_game_player.knowledge_scope import KnowledgeScope, validate_identifier
@@ -76,6 +77,7 @@ class KnowledgeSnapshotStore:
                     now=_timestamp(snapshot.created_at),
                 )
                 if existing.reference == reference and existing.snapshot is not None:
+                    self.artifacts._fsync_directory(index_path.parent)
                     return reference
                 raise ValueError(
                     "knowledge version is immutable or its existing index is invalid"
@@ -99,6 +101,7 @@ class KnowledgeSnapshotStore:
             pending = stage_json_write(index_path, index)
             try:
                 pending.publish()
+                self.artifacts._fsync_directory(index_path.parent)
             finally:
                 pending.discard()
         return reference
@@ -116,12 +119,7 @@ class KnowledgeSnapshotStore:
     ) -> KnowledgeReadResult:
         path = self._index_path(scope, version)
         try:
-            if path.is_symlink():
-                return KnowledgeReadResult(None, None, "invalid")
-            with path.open("rb") as stream:
-                payload = stream.read(MAX_INDEX_BYTES + 1)
-            if len(payload) > MAX_INDEX_BYTES:
-                return KnowledgeReadResult(None, None, "invalid")
+            payload = read_regular_file(path, max_bytes=MAX_INDEX_BYTES)
             index = json.loads(payload, object_pairs_hook=_unique_object)
             if not isinstance(index, dict) or set(index) != {
                 "schema_version",
@@ -152,7 +150,11 @@ class KnowledgeSnapshotStore:
             ):
                 return KnowledgeReadResult(None, None, "invalid")
             snapshot = KnowledgeSnapshot(
-                self.artifacts.read_bounded(reference, max_bytes=MAX_KNOWLEDGE_BYTES)
+                self.artifacts.read_bounded(
+                    reference,
+                    max_bytes=MAX_KNOWLEDGE_BYTES,
+                    expected_artifact_type="knowledge.snapshot",
+                )
             )
             if snapshot.scope != scope:
                 return KnowledgeReadResult(None, None, "scope_mismatch")
