@@ -1254,9 +1254,12 @@ classDiagram
         +_finish_locked()
         +_capture_loop()
     }
-    Generic <|-- SimulationProvider
+    Generic <|-- SimulationKey
+    class SimulationKey {
+    }
     class SimulationProvider {
         +__init__()
+        +register()
         +get_model()
     }
     Generic <|-- ActionTransition

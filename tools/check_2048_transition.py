@@ -18,6 +18,7 @@ from ai_game_player.game_2048_transition import (
     ReferenceGame2048TransitionModel,
 )
 from tools.reference_game_2048_source import PinnedGameSource
+from tools.browser_probe_support import publish_validation_report
 
 
 ORACLE_PATH = (
@@ -199,8 +200,7 @@ def main(argv=None):
         "real_play": "not_run: pure transition oracle, no game input",
         "cost": measure_cost(),
     }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    publish_validation_report(args.output, report)
     print(json.dumps(report, indent=2))
     return 0
 

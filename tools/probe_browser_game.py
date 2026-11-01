@@ -22,6 +22,11 @@ from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import RuleProvider
 from ai_game_player.screen_capture import ScreenFrame
+from tools.browser_probe_support import (
+    export_game_assets,
+    new_probe_directory,
+    publish_validation_report,
+)
 
 
 class BrowserObservationSource:
@@ -50,10 +55,11 @@ class BrowserObservationSource:
 
 
 class BrowserClickExecutor:
-    def __init__(self, page, target_url):
+    def __init__(self, page, target_url, before_dispatch):
         self.page = page
         self.target_url = target_url
         self.actions = []
+        self.before_dispatch = before_dispatch
 
     def execute(self, candidate):
         if self.page.is_closed() or self.page.url != self.target_url:
@@ -66,6 +72,7 @@ class BrowserClickExecutor:
             and 0 <= candidate.y < viewport["height"]
         ):
             raise RuntimeError("candidate lies outside the browser viewport")
+        self.before_dispatch()
         self.page.mouse.click(candidate.x, candidate.y)
         self.actions.append(
             {
@@ -104,13 +111,16 @@ def probe(page, target_url, output, image_class, max_steps, allow_live_input):
     page.wait_for_timeout(500)
     page.screenshot(path=str(output / "start.png"))
     source = BrowserObservationSource(page, image_class)
-    executor = BrowserClickExecutor(page, target_url)
     started = time.monotonic()
     costs = []
     failure = None
     with tempfile.TemporaryDirectory(prefix="kadoka-generic-browser-") as directory:
         pipeline = DecisionPipeline(
             source, Path(directory), RuleProvider(), dry_run=True
+        )
+        generation = pipeline.controller.rearm_token
+        executor = BrowserClickExecutor(
+            page, target_url, lambda: pipeline.controller.ensure_running(generation)
         )
         pipeline.executor.close()
         pipeline.executor = ActionExecutor(
@@ -172,12 +182,19 @@ def main(argv=None):
         parser.error("steps must be 1..300 and viewport must be 100..1920 by 100..1080")
     root = args.source.resolve()
     verify_checkout(root, args.expected_commit)
-    args.output.mkdir(parents=True, exist_ok=True)
+    output = new_probe_directory(args.output)
     from PIL import Image
     from playwright.sync_api import sync_playwright
 
+    document_root = tempfile.TemporaryDirectory(prefix="kadoka-game-assets-")
+    try:
+        export_game_assets(root, args.expected_commit, Path(document_root.name))
+    except BaseException:
+        document_root.cleanup()
+        raise
     server = ThreadingHTTPServer(
-        ("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, directory=str(root))
+        ("127.0.0.1", 0),
+        partial(SimpleHTTPRequestHandler, directory=document_root.name),
     )
     worker = threading.Thread(target=server.serve_forever, daemon=True)
     worker.start()
@@ -194,7 +211,7 @@ def main(argv=None):
                 report = probe(
                     page,
                     target_url,
-                    args.output,
+                    output,
                     Image,
                     args.max_steps,
                     args.allow_live_input,
@@ -205,10 +222,11 @@ def main(argv=None):
         server.shutdown()
         server.server_close()
         worker.join(timeout=5)
+        document_root.cleanup()
     report.update({"schema_version": 1, "source_commit": args.expected_commit})
-    (args.output / "report.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
-    )
+    report["evidence_directory"] = str(output)
+    publish_validation_report(output / "report.json", report)
+    publish_validation_report(args.output / "report.json", report)
     print(
         json.dumps(
             {

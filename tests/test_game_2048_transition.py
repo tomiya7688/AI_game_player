@@ -10,8 +10,8 @@ from ai_game_player.game_2048_transition import (
     DIRECTIONS,
     ReferenceGame2048TransitionModel,
 )
-from ai_game_player.simulation_provider import SimulationProvider
-from ai_game_player.transition_model import ActionTransition
+from ai_game_player.simulation_provider import SimulationKey, SimulationProvider
+from ai_game_player.transition_model import ActionTransition, ChanceOutcome
 
 
 EMPTY = ((0, 0, 0, 0),) * 4
@@ -208,19 +208,29 @@ class Game2048TransitionTests(unittest.TestCase):
                 return ActionTransition(state + 1, True, 1)
 
             def chance_outcomes(self, after_action):
-                return ()
+                return (ChanceOutcome(after_action.state, 1.0),)
 
-        models = {"counter": CounterModel()}
-        provider = SimulationProvider(models)
-        models.clear()
+        counter_key = SimulationKey("counter", int)
+        board_key = SimulationKey("2048", Game2048State)
+        provider = SimulationProvider()
+        provider.register(counter_key, CounterModel())
+        provider.register(board_key, self.model)
         self.assertEqual(
-            provider.get_model("counter").apply_action(3, "advance").state, 4
+            provider.get_model(counter_key).apply_action(3, "advance").state, 4
         )
-        self.assertIsNone(provider.get_model("minecraft"))
-        self.assertIsNone(SimulationProvider().get_model("2048"))
+        self.assertEqual(
+            provider.get_model(counter_key).chance_outcomes(
+                ActionTransition(4, True, 1)
+            ),
+            (ChanceOutcome(4, 1.0),),
+        )
+        self.assertIsNone(provider.get_model(SimulationKey("minecraft", str)))
+        self.assertIsNone(provider.get_model(SimulationKey("2048", int)))
+        self.assertIsNone(SimulationProvider().get_model(board_key))
+        with self.assertRaises(ValueError):
+            provider.register(counter_key, CounterModel())
         state = Game2048State(((0, 2, 0, 0), *EMPTY[1:]))
-        game_provider = SimulationProvider({"2048": self.model})
-        model = game_provider.get_model("2048")
+        model = provider.get_model(board_key)
         result = model.apply_action(state, "2048-move-left")
         self.assertEqual(result, self.model.apply_slide(state, "LEFT"))
         self.assertEqual(

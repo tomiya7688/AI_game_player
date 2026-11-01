@@ -11,6 +11,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
 import json
 from pathlib import Path
+import re
 import tempfile
 import threading
 import time
@@ -20,19 +21,23 @@ from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.game_2048_state import Game2048State
 from ai_game_player.game_2048_transition import ReferenceGame2048TransitionModel
 from ai_game_player.models import ScreenObservation
+from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.screen_capture import ScreenFrame
 from tools.reference_game_2048_source import PinnedGameSource
 from tools.run_2048_campaign import CyclingDirectionProvider
+from tools.browser_probe_support import new_probe_directory, publish_validation_report
 
 
 class BrowserScreenSource:
-    def __init__(self, page, image_class):
+    def __init__(self, page, image_class, ocr=None):
         self.page = page
         self.image_class = image_class
         self.adapter = ReferenceGame2048Adapter()
         self.cached = None
         self.last_png = None
+        self.ocr = ocr if ocr is not None else TesseractOcrRecognizer.optional()
+        self.victory_observed = False
 
     def capture(self):
         self.last_png = self.page.screenshot()
@@ -46,10 +51,40 @@ class BrowserScreenSource:
         )
         self.cached = self.adapter.adapt(frame, observation)
         state = self.cached[0].features["game_2048"]
+        board = state["board"]
+        unresolved = not isinstance(board, list) or any(
+            cell is None for row in board for cell in row
+        )
+        # OCR is needed at possible overlays/high tiles, not to read hidden game state.
+        if self.ocr is not None and (
+            unresolved
+            or state["confidence"] < 0.65
+            or any(cell >= 1024 for row in board for cell in row)
+        ):
+            words = [str(item["text"]) for item in self.ocr.recognize(frame)]
+            observation = ScreenObservation(
+                observation.screen_id,
+                image.width,
+                image.height,
+                ocr_text=words,
+                features=observation.features,
+            )
+            self.victory_observed = bool(
+                re.search(r"\byou\s+win\b", " ".join(words), flags=re.IGNORECASE)
+            )
+            self.cached = self.adapter.adapt(frame, observation)
+            state = self.cached[0].features["game_2048"]
+            if self.victory_observed:
+                self.cached = (self.cached[0], [])
+                # An overlay can obscure the board. Do not manufacture its cells.
+                if unresolved or state["confidence"] < 0.65:
+                    return None
         if not isinstance(state["board"], list) or state["confidence"] < 0.65:
             raise RuntimeError(f"screen recognition failed: {state}")
         try:
-            return Game2048State(state["board"], over=state["game_over"])
+            return Game2048State(
+                state["board"], over=state["game_over"], won=self.victory_observed
+            )
         except ValueError as error:
             raise RuntimeError(f"screen contains unresolved cells: {state}") from error
 
@@ -62,9 +97,10 @@ class BrowserScreenSource:
 
 
 class BrowserKeyExecutor:
-    def __init__(self, page, target_url):
+    def __init__(self, page, target_url, before_dispatch):
         self.page = page
         self.target_url = target_url
+        self.before_dispatch = before_dispatch
 
     def execute(self, candidate):
         keys = {
@@ -82,6 +118,7 @@ class BrowserKeyExecutor:
             raise RuntimeError(
                 "browser test accepts only the current game's arrow-key candidates"
             )
+        self.before_dispatch()
         self.page.keyboard.press(keys[candidate.label])
         # Upstream's tile appearance animation lasts 200 ms. Observe after it,
         # without filling unknown cells or lowering recognition confidence.
@@ -116,15 +153,20 @@ def run_episode(browser, target_url, image_class, seed, max_steps, output):
             )
             # Use the existing executor seam. Safety evaluation, guard, verifier and run generation remain active.
             pipeline.executor.close()
+            generation = pipeline.controller.rearm_token
             pipeline.executor = ActionExecutor(
                 dry_run=False,
-                live_executor=BrowserKeyExecutor(page, target_url),
+                live_executor=BrowserKeyExecutor(
+                    page,
+                    target_url,
+                    lambda: pipeline.controller.ensure_running(generation),
+                ),
                 run_controller_stop_checker=lambda: not pipeline.controller.is_running,
             )
             try:
                 state = source.capture()
                 for _ in range(max_steps):
-                    if state.over:
+                    if state is None or state.over or state.won:
                         break
                     before = state
                     result = pipeline.run_and_execute(
@@ -140,17 +182,22 @@ def run_episode(browser, target_url, image_class, seed, max_steps, output):
                         outcome.state.cells for outcome in model.spawn_outcomes(slide)
                     }
                     state = source.capture()
-                    matched = state.cells in predicted
+                    matched = state.cells in predicted if state is not None else None
                     steps.append(
                         {
                             "action": result.action_id,
-                            "changed": state.cells != before.cells,
+                            "changed": state.cells != before.cells
+                            if state is not None
+                            else None,
                             "prediction_matched": matched,
                             "merge_score_delta": slide.reward_delta,
-                            "max_tile": max(map(max, state.cells)),
+                            "max_tile": max(map(max, state.cells))
+                            if state is not None
+                            else None,
+                            "victory_observed": source.victory_observed,
                         }
                     )
-                    if not matched:
+                    if matched is False:
                         output.mkdir(parents=True, exist_ok=True)
                         (output / f"mismatch-{seed}.png").write_bytes(source.last_png)
                         raise AssertionError(
@@ -176,11 +223,17 @@ def run_episode(browser, target_url, image_class, seed, max_steps, output):
             "seed": seed,
             "actions": len(steps),
             "duration_seconds": time.monotonic() - started,
-            "game_over": state.over,
+            "game_over": state.over if state is not None else None,
+            "game_won": source.victory_observed,
             "visible_score": visible_score,
-            "max_tile": max(map(max, state.cells)),
+            "max_tile": max(map(max, state.cells)) if state is not None else None,
             "stopped_input_rejected": stopped_input_rejected,
-            "predictions_matched": all(step["prediction_matched"] for step in steps),
+            "predictions_matched": all(
+                step["prediction_matched"]
+                for step in steps
+                if step["prediction_matched"] is not None
+            ),
+            "terminal_board_unverified": state is None,
             "steps": steps,
         }
     finally:
@@ -204,6 +257,7 @@ def main(argv=None):
     from PIL import Image
     from playwright.sync_api import sync_playwright
 
+    output = new_probe_directory(args.output)
     source = PinnedGameSource(Path("build/reference-game"))
     root = source.materialize()
     server = ThreadingHTTPServer(
@@ -220,7 +274,7 @@ def main(argv=None):
             episodes = []
             for index in range(args.episodes):
                 result = run_episode(
-                    browser, target_url, Image, 479 + index, args.max_steps, args.output
+                    browser, target_url, Image, 479 + index, args.max_steps, output
                 )
                 episodes.append(result)
                 print(
@@ -241,9 +295,9 @@ def main(argv=None):
         "windows_field_play": "Unverified: WGC/Win32 input/watchdog not exercised",
         "episodes": episodes,
     }
-    (args.output / "report.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
-    )
+    report["evidence_directory"] = str(output)
+    publish_validation_report(output / "report.json", report)
+    publish_validation_report(args.output / "report.json", report)
     return 0
 
 

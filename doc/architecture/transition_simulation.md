@@ -7,7 +7,9 @@
 
 Minecraft、カードゲーム、FPSなどでは、観測の不確実性とゲーム規則が異なります。
 汎用Coreへ2048の盤面や攻略法を埋め込まず、ゲームIDで明示登録する任意の
-`TransitionModel`を`SimulationProvider`から取得します。未知ゲーム・未登録では
+`TransitionModel`を状態型付きの`SimulationKey`で`SimulationProvider`から取得します。
+一つのRegistryに異なるゲームの状態型を登録でき、呼出側でAnyやcastを使う必要はありません。
+同じゲームIDでも状態型の違うキーは一致せず、同じキーの重複登録は拒否します。未知ゲーム・未登録では
 `None`を返します。呼出側は既存の判断経路を維持してください。
 
 汎用契約は`apply_action(state, action_id)`と`chance_outcomes(after_action)`です。
@@ -133,7 +135,9 @@ arrow keyを送ります。予測モデルは入力を選ばず、操作後の�
 | 481 | 138 | 79.75 | 1256 | 128 | game over |
 
 全404操作で次盤面が予測分布内にあり、3試行ともStop後の追加入力を拒否しました。
-結果は`build/transition-2048/screen/report.json`と同じフォルダーの最終画面です。
+最新の結果は`build/transition-2048/screen/report.json`です。レポート内の
+`evidence_directory`で指定する固有`run-*`フォルダーへ最終画面と個別レポートを残します。
+同時実行でも個別レポートを保持し、最新レポートの別名は原子的に更新します。
 このChromium試験だけではWindowsのWGC、Win32入力、独立watchdog、10分/30分campaignの達成証拠にはなりません。
 既存の方向巡回を使ったため、攻略の強さが改善したという比較結果でもありません。
 
@@ -154,8 +158,13 @@ recovery 0回、最大tile 256、終了理由`duration_reached`、`live_input_ve
 
 再試験には`tools/probe_browser_game.py`を使ってください。検証済みのローカルcloneと
 完全なcommit SHAを指定します。未commitの変更があるソースは拒否します。
+供給元checkoutそのものはHTTP公開しません。指定commitのtracked regular fileから、
+非hiddenのHTML/JS/CSS/画像/font/audioだけを一時配信先へexportします。`.git`、`.env`、
+ignored/untracked file、symlink、JSONや任意の秘密ファイルは配信しません。対象ゲームが
+追加形式のassetを必要とする場合は、内容を確認してallowlistを変更してください。
 既定はdry-runです。隔離した試験ページへの実入力には`--allow-live-input`が必要です。
-操作中にページURLが変わる場合、入力を拒否します。
+操作中にページURLが変わる場合、入力を拒否します。注入した試験Executorも送信直前に
+Stopと実行世代を再確認します。既に送信中のブラウザAPIの取り消しは保証しません。
 
 ```sh
 PYTHONPATH=src:. python tools/probe_browser_game.py --source /path/to/canvas-tetris --expected-commit 4e497d1c858914f0a1f0818698029d1c7dad090b --output build/transition-2048/tetris --width 400 --height 720 --allow-live-input
@@ -175,3 +184,14 @@ PYTHONPATH=src:. python tools/probe_browser_game.py --source /path/to/Breakout -
 ブロック崩しの無関係なクリックは、現在の汎用経路の未達として扱います。ゲームごとの
 巨大な規則分岐で埋めず、画面からの状態・操作可能性と、許可候補を選ぶ判断器の接続として
 改善する必要があります。後続の証拠管理と複数ゲームの受入条件は#96と#19を正本にします。
+
+## 試験ツールの終端・競合処理
+
+勝利表示は画面のOCR（You win）で検出し、続行操作を勝手に発行せず終了します。
+勝利overlayで盤面が読めない場合はセルを補完せず、`terminal_board_unverified=true`と
+その操作の`prediction_matched=null`を記録します。OCR依存が利用できず認識が不完全な場合も
+成功へ変換せず認識失敗として終了します。
+
+Oracleの出力も固有の`report-*.json`を保持し、固定名は最新結果への原子的な別名です。
+source cacheの同時構築では、先に公開されたdirectoryの全ファイルをlock hashで検証した
+場合だけ再利用します。破損した先行cacheや無関係なrenameエラーは成功へ変換しません。
