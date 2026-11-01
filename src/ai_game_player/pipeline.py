@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Callable
@@ -14,6 +15,7 @@ from ai_game_player.candidate_merger import CandidateMerger
 from ai_game_player.decision_verifier import ReliabilityStatus
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.execution_history import ExecutionHistory
+from ai_game_player.execution_receipt import ExecutionObservation, ExecutionReceipt
 from ai_game_player.event_journal import EventJournal
 from ai_game_player.fail_safe_runtime import (
     FailSafeConfig,
@@ -25,7 +27,7 @@ from ai_game_player.knowledge_feature_adapter import KnowledgeFeatureAdapter
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
-from ai_game_player.run_control import RunController
+from ai_game_player.run_control import ExecutionCancelled, RunController
 from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
 from ai_game_player.runtime_log import RuntimeLog
 
@@ -70,7 +72,7 @@ class DecisionPipeline:
     #     runtime_log: application log。Journal指定時はeventを同じSessionへ複製する
     #     migrate_legacy: trueなら旧history・trace・execution・safety記録をJournalへ移行する
     #     migrate_runtime_log: trueなら旧RuntimeLog JSONLをJournalへ移行する
-    #     knowledge_adapter: 任意の選択済みKnowledgeをstepへ固定する投影器。Safetyや実入力の許可は変更しない
+    #     knowledge_adapter: 選択済みKnowledgeをstep固定で投影する。Safetyや実入力許可は変更しない
     #   ]
     #   戻り値: []
     # }
@@ -240,6 +242,7 @@ class DecisionPipeline:
             commit_guard=lambda commit: self.controller.run_if_current(
                 expected_rearm_token, commit
             ),
+            action_generation=expected_rearm_token,
         )
         return decision, candidates, observation
 
@@ -290,6 +293,10 @@ class DecisionPipeline:
         self.controller.ensure_running(run_token)
         self._sync_runtime_rearm()
         observation, candidates = self._read_candidates(ocr_texts)
+        if not self.executor.dry_run:
+            self.complete_execution_observation(
+                observation, expected_rearm_token=run_token
+            )
         _, selected = self.engine.step_with_candidate(
             observation,
             candidates,
@@ -299,6 +306,7 @@ class DecisionPipeline:
             commit_guard=lambda commit: self.controller.run_if_current(
                 run_token, commit
             ),
+            action_generation=run_token,
         )
         self.controller.ensure_running(run_token)
         reliability_result = self.engine.last_reliability_result
@@ -352,14 +360,123 @@ class DecisionPipeline:
         try:
             result = self.executor.execute(selected)
         except Exception as error:
-            if not getattr(self.executor, "input_dispatch_started", True):
-                self.engine.mark_last_decision_not_executed(
-                    f"OS入力を開始する前に実行器が失敗しました: {type(error).__name__}"
-                )
+            dispatch = getattr(self.executor, "input_dispatch_started", None)
+            status = "not_executed" if dispatch is False else "dispatch_unknown"
+            self._record_execution_receipt(
+                observation,
+                selected.action_id,
+                snapshot_id,
+                run_token,
+                status,
+                dispatch,
+                type(error).__name__,
+            )
             raise
-        self.execution_history.append(result)
-        self.safety_audit.append_execution(assessment.assessment_id, result)
+        dispatch = getattr(self.executor, "input_dispatch_started", None)
+        if result.mode == "dry_run":
+            status, dispatch = "dry_run", False
+        elif dispatch is False:
+            status = "not_dispatched" if result.executed else "not_executed"
+        elif result.executed:
+            status, dispatch = "executed", True
+        else:
+            status = "dispatch_unknown"
+        try:
+            self._record_execution_receipt(
+                observation,
+                selected.action_id,
+                snapshot_id,
+                run_token,
+                status,
+                dispatch,
+                result.mode,
+            )
+        finally:
+            self.execution_history.append(result)
+            self.safety_audit.append_execution(assessment.assessment_id, result)
         return result
+
+    # {
+    #   責務: [_record_execution_receipt: Executor結果を同じ判断snapshot・実行世代へ結び付ける]
+    #   処理: [現在世代ならpending更新を許可し、停止済み世代は学習不可のauditだけへ保存する]
+    #   引数: [observation: 入力直前画面, action_id/snapshot_id: 検証済み判断参照,
+    #     generation: 実行開始世代, status/dispatch: Executorの送信証拠, reason: 固定監査理由]
+    #   戻り値: [なし]
+    #   エラー: [ExecutionCancelled: 停止・再開で実行世代が変わった, RuntimeError: traceの不整合]
+    # }
+    def _record_execution_receipt(
+        self,
+        observation: ScreenObservation,
+        action_id: str,
+        snapshot_id: str,
+        generation: int,
+        status: str,
+        dispatch: bool | None,
+        reason: str,
+    ) -> None:
+        if not snapshot_id:
+            if status in {"dry_run", "not_executed", "not_dispatched"}:
+                return
+            raise RuntimeError("actual execution requires a bound decision snapshot")
+        receipt = ExecutionReceipt(
+            snapshot_id,
+            action_id,
+            generation,
+            observation.screen_id,
+            str(observation.features.get("signature", "")),
+            status,
+            dispatch,
+            reason=reason,
+        )
+
+        # {
+        #   責務: [register_current: 現世代の受領事実と入力前停止の監査を一度に保存する]
+        #   処理: [同じguard内で元判断だけを更新し、停止/rearm後の別判断を停止扱いにしない]
+        #   引数: [なし]
+        #   戻り値: [なし]
+        #   エラー: [RuntimeError: 元traceの参照不整合]
+        # }
+        def register_current() -> None:
+            self.engine.record_execution_receipt(observation, receipt)
+            if status == "not_executed":
+                self.engine.mark_last_decision_not_executed(
+                    f"OS入力を開始する前に実行器が失敗しました: {reason}"
+                )
+
+        try:
+            self.controller.run_if_current(generation, register_current)
+        except ExecutionCancelled:
+            stale_receipt = replace(receipt, eligible_for_learning=False)
+            self.controller.record_execution_audit(
+                lambda: self.engine.record_execution_receipt(
+                    observation, stale_receipt, activate=False
+                )
+            )
+            raise
+
+    # {
+    #   責務: [complete_execution_observation: 明示された実操作後の画面を同世代のpending操作へ帰属する]
+    #   処理: [dry-runを除外し、検出後にも世代を検査してOutcomeを一度だけ公開する]
+    #   引数: [observation: post-actionの実画面, expected_rearm_token: 観測開始時の実行世代。Noneは現在世代]
+    #   戻り値: [ExecutionObservationまたはNone: receiptと元の実操作結果。pendingが無い場合None]
+    #   エラー: [ExecutionCancelled: 観測中に停止・再開した]
+    # }
+    def complete_execution_observation(
+        self, observation: ScreenObservation, *, expected_rearm_token: int | None = None
+    ) -> ExecutionObservation | None:
+        token = (
+            self.controller.rearm_token
+            if expected_rearm_token is None
+            else expected_rearm_token
+        )
+        self.controller.ensure_running(token)
+        if self.executor.dry_run:
+            return None
+        return self.engine.complete_execution_observation(
+            observation,
+            token,
+            commit_guard=lambda commit: self.controller.run_if_current(token, commit),
+        )
 
     # {
     #   責務: [load_execution_history: pipelineが現在のlegacy互換形で保持する実行履歴を返す]

@@ -5,11 +5,13 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
-from ai_game_player.atomic_json import StagedJsonWrite, stage_json_write
+from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.deferred_trace_append import DeferredTraceAppend
 from ai_game_player.journal_adapters import LegacyEventAdapter, StagedJournalAppend
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.knowledge import KnowledgeStore
 from ai_game_player.knowledge_projection import KnowledgeProjection
+from ai_game_player.execution_receipt import ExecutionReceipt
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
 from ai_game_player.outcome import OutcomeAssessment
 
@@ -502,10 +504,10 @@ class DecisionTraceStore:
 
     # {
     #   責務: [prepare_append: 判断と検査根拠を含むtraceを実行世代の確定前に準備する]
-    #   処理: [snapshot・判断・根拠を一件にし、Journal用遅延appendまたは旧JSON一時書込みを作る]
-    #   引数: [context: providerへ渡した判断context, decision: 選ばれた候補と理由, reliability: 任意の信頼性検査結果]
-    #   戻り値: [StagedJsonWrite | StagedJournalAppend: 呼出側が確定または破棄するtrace]
-    #   エラー: [OSError: trace JSONの準備に失敗した場合, ValueError: 既存trace JSONが配列ではない場合]
+    #   処理: [snapshot・判断・根拠を一件に固定し、Journal/旧JSON用の遅延appendを作る]
+    #   引数: [context: providerへ渡した判断context, decision: 選ばれた候補と理由, reliability: 任意の信頼性検査結果, action_generation: 任意の判断開始世代]
+    #   戻り値: [DeferredTraceAppend | StagedJournalAppend: guard内で最新履歴へ追記する操作]
+    #   エラー: [ValueError/TypeError: traceをJSON化できない場合]
     # }
     def prepare_append(
         self,
@@ -513,13 +515,16 @@ class DecisionTraceStore:
         decision: ActionDecision,
         *,
         reliability: dict[str, Any] | None = None,
-    ) -> StagedJsonWrite | StagedJournalAppend:
+        action_generation: int | None = None,
+    ) -> DeferredTraceAppend | StagedJournalAppend:
         entry: dict[str, Any] = {
             "snapshot_id": context.snapshot_id,
             "screen_id": context.state.get("screen_id", ""),
             "state_signature": context.state.get("signature", ""),
             "action_id": decision.action_id,
             "decision": decision.to_dict(),
+            "execution_status": "planned",
+            "action_generation": action_generation,
             "previous_outcome": context.previous_outcome,
             "used_evidence_ids": [
                 evidence.evidence_id
@@ -533,9 +538,7 @@ class DecisionTraceStore:
             entry["reliability"] = reliability
         if self.event_adapter is not None:
             return self.event_adapter.prepare_append(entry)
-        entries = self._read()
-        entries.append(entry)
-        return stage_json_write(self.path, entries)
+        return DeferredTraceAppend(entry, self._append_entry)
 
     # {
     #   責務: [mark_action_not_executed: 実行前に停止した判断へ監査状態を追記する]
@@ -553,6 +556,12 @@ class DecisionTraceStore:
                 and entry.get("action_id") == action_id
                 and isinstance(entry.get("decision"), dict)
             ):
+                receipt = entry.get("execution_receipt")
+                if isinstance(receipt, dict) and receipt.get("execution_status") in {
+                    "executed",
+                    "dispatch_unknown",
+                }:
+                    return False
                 self._update_entry(
                     entries,
                     entry,
@@ -624,35 +633,79 @@ class DecisionTraceStore:
         self._write(entries)
 
     # {
-    #   責務: [
-    #     record_action_outcome: 実行後の観測結果を、元の画面で選んだ操作の判断記録へ結び付ける
-    #   ]
-    #   処理: [
-    #     1: 新しい履歴から順に、画面ID・操作IDが一致し実行対象となる判断を探す
-    #     2: 該当する判断に、進行・失敗・状態変化などの観測結果を記録する
-    #     3: 履歴を更新して保存し、該当記録がなければFalseを返す
-    #   ]
-    #   引数: [
-    #     snapshot_id: 操作を選択した画面のID。後続の同じ操作と取り違えないために使う
-    #     action_id: 結果を記録する操作候補のID
-    #     outcome: 操作後の画面比較から得た結果の辞書
-    #   ]
-    #   戻り値: [
-    #     bool: 一致する実行判断を更新できた場合True。該当履歴がない場合False
-    #   ]
+    #   責務: [record_action_outcome: receiptで実行事実を確認した元の判断へだけ観測結果を関連付ける]
+    #   処理: [snapshot・操作・世代を照合し、dispatch_unknownはunknown以外へ変更しない]
+    #   引数: [snapshot_id/action_id: 元判断と実操作, outcome: 実操作後の結果,
+    #     action_generation: 期待する実行世代。Noneは明示receiptに保存済みの世代を使う]
+    #   戻り値: [bool: 条件を満たす実行traceを更新した場合True]
     # }
     def record_action_outcome(
-        self, snapshot_id: str, action_id: str, outcome: dict[str, Any]
+        self,
+        snapshot_id: str,
+        action_id: str,
+        outcome: dict[str, Any],
+        *,
+        action_generation: int | None = None,
     ) -> bool:
         entries = self._read()
         for entry in reversed(entries):
+            receipt = _execution_receipt_for_entry(entry)
+            if receipt is None:
+                continue
+            status = receipt.execution_status
             if (
                 entry.get("snapshot_id") == snapshot_id
                 and entry.get("action_id") == action_id
-                and _is_action_history_entry(entry)
+                and status in {"executed", "dispatch_unknown"}
+                and (
+                    action_generation is None
+                    or receipt.action_generation == action_generation
+                )
+                and (status == "dispatch_unknown" or receipt.eligible_for_learning)
+                and (status != "dispatch_unknown" or outcome.get("status") == "unknown")
             ):
                 self._update_entry(entries, entry, {"action_outcome": outcome})
                 return True
+        return False
+
+    # {
+    #   責務: [record_execution_receipt: planned traceへ同じsnapshot・操作・世代の実行事実を関連付ける]
+    #   処理: [画面参照と世代を照合し、別操作や矛盾するreceiptで既存事実を上書きしない]
+    #   引数: [receipt: Executorの送信証拠に由来する不変の受領記録]
+    #   戻り値: [True: 新規記録, None: 同内容で記録済み, False: 対象なし/不一致]
+    # }
+    def record_execution_receipt(self, receipt: ExecutionReceipt) -> bool | None:
+        entries = self._read()
+        for entry in reversed(entries):
+            if (
+                not isinstance(entry.get("decision"), dict)
+                or entry.get("snapshot_id") != receipt.snapshot_id
+                or entry.get("action_id") != receipt.action_id
+            ):
+                continue
+            generation = entry.get("action_generation")
+            if generation is not None and (
+                type(generation) is not int or generation != receipt.action_generation
+            ):
+                return False
+            if (
+                entry.get("screen_id") != receipt.screen_id
+                or str(entry.get("state_signature", "")) != receipt.state_signature
+            ):
+                return False
+            existing = entry.get("execution_receipt")
+            if isinstance(existing, dict):
+                return None if existing == receipt.to_dict() else False
+            self._update_entry(
+                entries,
+                entry,
+                {
+                    "execution_receipt": receipt.to_dict(),
+                    "execution_status": receipt.execution_status,
+                    "action_generation": receipt.action_generation,
+                },
+            )
+            return True
         return False
 
     # {
@@ -671,30 +724,27 @@ class DecisionTraceStore:
         return self._read()[-limit:] if limit else []
 
     # {
-    #   責務: [
-    #     recent_actions: 判断として確定し、拒否または実行前停止で取り消されていない直近の操作履歴だけを返す
-    #   ]
-    #   処理: [
-    #     1: 信頼性検査で拒否された記録と、入力送信前に停止した記録を履歴全件から除く
-    #     2: 残った記録の末尾から指定件数を返す
-    #   ]
-    #   引数: [
-    #     limit: 返す操作履歴の最大件数。0なら空の一覧を返す
-    #   ]
-    #   戻り値: [
-    #     list[dict[str, Any]]: 古い順に並んだ、次の候補選択で実際の過去操作として参照する記録
-    #   ]
-    #   エラー: [
-    #     ValueError: limitが負数の場合。履歴件数として負数を指定できない
-    #   ]
+    #   責務: [recent_actions: 完全な実行receiptで送信を確認し、学習対象となる直近実操作だけを返す]
+    #   処理: [planned/legacy/blocked/dry-run/不明送信を除外し、指定時は世代も照合してから件数を制限する]
+    #   引数: [limit: 最大件数。0は空, action_generation: 任意の対象実行世代]
+    #   戻り値: [list: 確認済み実操作traceを古い順に並べた一覧]
+    #   エラー: [ValueError: limitが負]
     # }
-    def recent_actions(self, limit: int = 5) -> list[dict[str, Any]]:
+    def recent_actions(
+        self, limit: int = 5, *, action_generation: int | None = None
+    ) -> list[dict[str, Any]]:
         if limit < 0:
             raise ValueError("history limit must not be negative")
         if limit == 0:
             return []
         action_entries = [
-            entry for entry in self._read() if _is_action_history_entry(entry)
+            entry
+            for entry in self._read()
+            if _is_action_history_entry(entry)
+            and (
+                action_generation is None
+                or entry.get("action_generation") == action_generation
+            )
         ]
         return action_entries[-limit:]
 
@@ -775,8 +825,13 @@ def _state_summary(observation: ScreenObservation) -> dict[str, Any]:
     }
 
 
+# {
+#   責務: [_history_summary: 確認済み実操作traceを判断用の短い履歴へ投影する]
+#   処理: [当該操作自身のOutcomeだけを使用し、未観測時はunknownとする]
+#   引数: [entry: receipt検証済みのtrace record]
+#   戻り値: [dict: 実行参照・世代・結果・状態変化の要約]
+# }
 def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
-    previous = entry.get("previous_outcome", {})
     action_outcome = entry.get("action_outcome")
     if isinstance(action_outcome, dict):
         outcome_status = str(action_outcome.get("status", "unknown"))
@@ -784,51 +839,69 @@ def _history_summary(entry: dict[str, Any]) -> dict[str, Any]:
             action_outcome.get("state_changed", outcome_status == "changed")
         )
     else:
-        outcome_status = (
-            str(previous.get("status", "unknown"))
-            if isinstance(previous, dict)
-            else "unknown"
-        )
-        state_changed = (
-            bool(previous.get("state_changed", False))
-            if isinstance(previous, dict)
-            else False
-        )
+        outcome_status = "unknown"
+        state_changed = False
     return {
         "snapshot_id": str(entry.get("snapshot_id", "")),
         "screen_id": str(entry.get("screen_id", "")),
         "state_signature": str(entry.get("state_signature", "")),
         "action_id": str(entry.get("action_id", "")),
+        "execution_status": entry.get("execution_status", "legacy_unknown"),
+        "action_generation": entry.get("action_generation"),
         "outcome": outcome_status,
         "state_changed": state_changed,
     }
 
 
 # {
-#   責務: [
-#     _is_action_history_entry: 実行判断として確定し、拒否または入力送信前停止で無効になっていない記録を選ぶ
-#   ]
-#   処理: [
-#     1: 実行判断の内容がない項目を除外する
-#     2: 信頼性検査が候補選択を無効とした項目を除外する
-#     3: 操作入力を送る前に停止した項目を除外する
-#   ]
-#   引数: [
-#     entry: 画面状態・判断・実行結果などを含む履歴の1件
-#   ]
-#   戻り値: [
-#     bool: 次の判断で過去の操作として参照する記録ならTrue
-#   ]
+#   責務: [_is_action_history_entry: 保存済み判断が同一参照の実送信事実を持つか確認する]
+#   処理: [完全なreceiptと学習可否を照合し、拒否・計画だけ・旧形式不明を実操作扱いにしない]
+#   引数: [entry: 判断trace record]
+#   戻り値: [bool: 確認済み実操作ならTrue]
 # }
 def _is_action_history_entry(entry: dict[str, Any]) -> bool:
     if not isinstance(entry.get("decision"), dict):
         return False
-    if entry.get("execution_status") == "blocked":
+    receipt = _execution_receipt_for_entry(entry)
+    if (
+        receipt is None
+        or receipt.execution_status != "executed"
+        or not receipt.eligible_for_learning
+    ):
         return False
     reliability = entry.get("reliability")
     if not isinstance(reliability, dict):
         return True
     return str(reliability.get("status", "")).upper() != "REJECT"
+
+
+# {
+#   責務: [_execution_receipt_for_entry: 保存された実行受領記録の型と元traceへのbindを検証する]
+#   処理: [完全なreceipt契約を復元し、snapshot・操作・世代・画面参照が一致する場合だけ採用する]
+#   引数: [entry: 判断trace record]
+#   戻り値: [ExecutionReceiptまたはNone: legacy/破損/不一致は送信事実として扱わない]
+# }
+def _execution_receipt_for_entry(entry: dict[str, Any]) -> ExecutionReceipt | None:
+    raw = entry.get("execution_receipt")
+    if not isinstance(raw, dict):
+        return None
+    try:
+        receipt = ExecutionReceipt(**raw)
+    except (TypeError, ValueError):
+        return None
+    if receipt.snapshot_id != entry.get(
+        "snapshot_id"
+    ) or receipt.action_id != entry.get("action_id"):
+        return None
+    if type(
+        entry.get("action_generation")
+    ) is not int or receipt.action_generation != entry.get("action_generation"):
+        return None
+    if receipt.screen_id != entry.get("screen_id") or receipt.state_signature != str(
+        entry.get("state_signature", "")
+    ):
+        return None
+    return receipt
 
 
 def _state_changed_from_history(

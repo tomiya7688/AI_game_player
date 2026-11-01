@@ -62,6 +62,10 @@
 
 - Issue #529: game/scene/profile/Player lineageで隔離した不変KnowledgeSnapshot v1と、既存Artifact Storeを使う保存・読取APIを追加しました。行動結果4分類、prior、数値hint、出所、uncertainty、期限、重複投入追跡用watermarkを検証し、欠落・破損・scope/版不整合でstatic defaultへ戻す結果を返します。Artifactの有界読込も追加し、metadata/payloadの過大入力をSHA検証付きで拒否します。[契約と検証範囲](architecture/knowledge_snapshot.md)を参照してください。Builder/判断反映/昇格は#530-#532に残ります。
 
+- Issue #628: `ExecutionReceipt` と `ExecutionObservation` を導入し、判断保存と実操作後結果を分離します。snapshot・action・実行世代・入力前画面を照合し、実送信だけでpending操作を更新します。明示観測完了を次の実判断前とSession/E2E/campaignの実行後へ接続し、終端や次判断失敗でも最後の結果を保存します。dry-run・入力前失敗は過去の実操作を上書きせず、送信開始後の例外はunknownで監査します。停止/rearmをまたぐ結果・履歴を新世代へ混ぜません。Windows backendのdispatch信号を前処理後の最初の入力API直前へ移し、legacy traceの遅延公開が途中の実行auditを消す競合も修正します。Windows OS上の実入力受入れは別途確認が必要です。
+
+- Issue #608: 動作順と実行場所の日本語図を追加しました。単独操作の登録済み観測と連続取得、前回判断と実入力、確認運転と実入力時の追加確認を区別し、停止競合と記録の未保証範囲を明示します。
+
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
