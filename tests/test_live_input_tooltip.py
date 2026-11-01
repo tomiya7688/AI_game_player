@@ -50,7 +50,7 @@ class LiveInputToolTipTests(unittest.TestCase):
             self.assertEqual(resume_tooltip.delay_ms, 400)
             self.assertEqual(
                 resume_tooltip.text,
-                "停止状態を解除して実行世代を更新（re-arm）し、新しい判断や連続実行を受け付け可能な状態に戻します。",
+                "停止状態を解除し、新しい判断や連続実行を受け付ける状態に戻します。処理の終了待ち中は再開できません。ゲーム操作は自動では始まりません。",
             )
             checkbox = application.live_execution_toggle
             self.assertIs(tooltip.widget, checkbox)
@@ -157,7 +157,7 @@ class LiveInputToolTipTests(unittest.TestCase):
             root.geometry("1120x960+30000+30000")
             root.update()
             button = application.resume_button
-            expected = "停止状態を解除して実行世代を更新（re-arm）し、新しい判断や連続実行を受け付け可能な状態に戻します。"
+            expected = "停止状態を解除し、新しい判断や連続実行を受け付ける状態に戻します。処理の終了待ち中は再開できません。ゲーム操作は自動では始まりません。"
 
             for event, end_event in (
                 ("<Enter>", "<Leave>"),
