@@ -300,6 +300,14 @@ class ExternalWatchdogProcess:
             process.wait(timeout=2.0)
 
 
+# {
+#   責務: [FailSafeRuntime: 期限付きの入力lease・対象・保持入力を管理し、停止と保存障害では実行を拒否する]
+#   フィールド: [state_directory/config: 保存先と秒単位予算, _lock: Runtime状態の同期,
+#     journal/lease_store/ledger: 状態と入力所有権の永続化, _state/_reason/_epoch/_session_id: 実行状態と世代,
+#     _initial_lease_available: constructor後の一度だけ初期待機を開始できる権利,
+#     _target_pid/_target_handle: 許可対象, _last_observation_at/_lease_expires_at/_observation_expires_at: 期限,
+#     _last_sequence/_next_sequence/_inflight: 操作連番と処理数, _watchdog/_heartbeat_thread: 有限leaseの監視]
+# }
 class FailSafeRuntime:
     """Short-lease fail-closed gate between SafetyGuard and OS input."""
 
@@ -324,6 +332,7 @@ class FailSafeRuntime:
         self.release_callback = release_callback
         self._lock = threading.RLock()
         self._state = FailSafeState.SAFE_IDLE
+        self._initial_lease_available = True
         self._reason = "startup_safe_idle"
         self._epoch = ""
         self._session_id = ""
@@ -371,33 +380,108 @@ class FailSafeRuntime:
         with self._lock:
             return self._session_id
 
-    def rearm(self, *, target_pid: int, target_handle: int, session_id: str | None = None) -> str:
+    # {
+    #   責務: [initialize: 停止を解除せず新しいSAFE_IDLE Runtimeの初期leaseだけを開始する]
+    #   処理: [Runtime lock内で初期待機と保存状態を照合し、停止・復旧・既存実行からは開始しない]
+    #   引数: [target_pid/target_handle: 所有確認済み対象, session_id: 任意のSession識別子]
+    #   戻り値: [str: 開始したleaseのepoch]
+    #   エラー: [RuntimeError/OSError: 初期待機でない、状態不明、保存・初期化に失敗した]
+    # }
+    def initialize(
+        self, *, target_pid: int, target_handle: int, session_id: str | None = None
+    ) -> str:
         with self._lock:
-            if target_pid <= 0 or target_handle <= 0:
-                self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_target_on_rearm")
-                raise RuntimeError("fail-safe re-arm requires a valid target PID/HWND")
-            if self._watchdog is not None:
-                self._watchdog.stop()
-            _release_ledger(self.ledger, release_all=True, now=self.clock())
-            self._release_inputs()
-            self._epoch = uuid4().hex
-            self._session_id = session_id or uuid4().hex
-            self._target_pid = int(target_pid)
-            self._target_handle = int(target_handle)
-            self._last_observation_at = 0.0
-            self._observation_expires_at = self.clock() + self.config.observation_timeout_seconds
-            self._last_sequence = 0
-            self._next_sequence = 0
-            self._inflight = 0
-            self._state = FailSafeState.ACTIVE
-            self._reason = "explicit_rearm"
-            self._renew_lease_locked()
-            if not self._persist_or_fail("explicit_rearm"):
-                raise RuntimeError("fail-safe re-arm could not persist critical state")
-            self._start_heartbeat_locked()
-            if self._watchdog is not None:
-                self._watchdog.start()
-            return self._epoch
+            self._require_initial_idle_locked()
+            return self._arm_locked(
+                target_pid, target_handle, session_id, initial_only=True
+            )
+
+    # {
+    #   責務: [rearm: 利用者が明示的に再開したRuntimeを新しいleaseへ切り替える]
+    #   処理: [既存の明示再開契約を保ち、保持入力を解放して対象と期限を再設定する]
+    #   引数: [target_pid/target_handle: 所有確認済み対象, session_id: 任意のSession識別子]
+    #   戻り値: [str: 再開したleaseのepoch]
+    #   エラー: [RuntimeError: 対象または保存に失敗した]
+    # }
+    def rearm(
+        self, *, target_pid: int, target_handle: int, session_id: str | None = None
+    ) -> str:
+        with self._lock:
+            return self._arm_locked(
+                target_pid, target_handle, session_id, initial_only=False
+            )
+
+    # {
+    #   責務: [_require_initial_idle_locked: 初期化が停止や保存済みの復旧状態を上書きしないことを確認する]
+    #   処理: [呼出側がRuntime lockを保持し、memoryと最新leaseのSAFE_IDLE/epochを照合する]
+    #   引数: [なし] 戻り値: [なし]
+    #   エラー: [RuntimeError/OSError: 初期待機以外、保存状態不一致、読込失敗]
+    # }
+    def _require_initial_idle_locked(self) -> None:
+        persisted = self.lease_store.read()
+        if (
+            not self._initial_lease_available
+            or self._state != FailSafeState.SAFE_IDLE
+            or persisted.get("state") != FailSafeState.SAFE_IDLE.value
+            or str(persisted.get("epoch", "")) != self._epoch
+            or str(persisted.get("reason", "")) != self._reason
+        ):
+            raise RuntimeError(
+                "initial safety lease requires unchanged SAFE_IDLE state"
+            )
+
+    # {
+    #   責務: [_arm_locked: Runtime lock内で対象・保持入力・永続lease・watchdogを準備する]
+    #   処理: [初期化はI/Oの後にもSAFE_IDLEを照合し、明示再開だけが既存の停止状態から再開できる]
+    #   引数: [target_pid/target_handle: 対象, session_id: 任意識別子, initial_only: 初期待機のみを許す場合True]
+    #   戻り値: [str: 新しいlease epoch]
+    #   エラー: [RuntimeError/OSError: 対象・状態・保存・起動の失敗]
+    # }
+    def _arm_locked(
+        self,
+        target_pid: int,
+        target_handle: int,
+        session_id: str | None,
+        *,
+        initial_only: bool,
+    ) -> str:
+        if target_pid <= 0 or target_handle <= 0:
+            self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_target_on_rearm")
+            raise RuntimeError("fail-safe re-arm requires a valid target PID/HWND")
+        if self._watchdog is not None:
+            self._watchdog.stop()
+        if initial_only:
+            self._require_initial_idle_locked()
+        _release_ledger(self.ledger, release_all=True, now=self.clock())
+        self._release_inputs()
+        if initial_only:
+            self._require_initial_idle_locked()
+        self._initial_lease_available = False
+        self._epoch = uuid4().hex
+        self._session_id = session_id or uuid4().hex
+        self._target_pid = int(target_pid)
+        self._target_handle = int(target_handle)
+        self._last_observation_at = 0.0
+        self._observation_expires_at = (
+            self.clock() + self.config.observation_timeout_seconds
+        )
+        self._last_sequence = 0
+        self._next_sequence = 0
+        self._inflight = 0
+        self._state = FailSafeState.ACTIVE
+        self._reason = "initial_lease" if initial_only else "explicit_rearm"
+        self._renew_lease_locked()
+        if not self._persist_or_fail(self._reason):
+            raise RuntimeError("fail-safe re-arm could not persist critical state")
+        self._start_heartbeat_locked()
+        if self._watchdog is not None:
+            self._watchdog.start()
+        if initial_only and (
+            self._state != FailSafeState.ACTIVE
+            or not self._honor_persisted_stop_locked()
+        ):
+            raise RuntimeError("initial safety lease was stopped while arming")
+        return self._epoch
 
     def heartbeat(self) -> bool:
         with self._lock:
@@ -554,7 +638,14 @@ class FailSafeRuntime:
         self._release_inputs()
         return False
 
+    # {
+    #   責務: [_transition: 停止・復旧・closeへの遷移を保存し保持入力を解放する]
+    #   処理: [初回lease権利を失効しheartbeatを止め、journalとleaseへ状態を反映する]
+    #   引数: [state: 遷移先, reason: 停止理由] 戻り値: [なし]
+    #   エラー: [保存失敗は既存fail-closed処理で監査する]
+    # }
     def _transition(self, state: FailSafeState, reason: str) -> None:
+        self._initial_lease_available = False
         self._state = state
         self._reason = reason
         self._heartbeat_shutdown.set()
