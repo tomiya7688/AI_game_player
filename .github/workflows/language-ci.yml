@@ -8,6 +8,163 @@ permissions:
   contents: read
 
 jobs:
+  contract-assets:
+    name: Provider schema / Reference game source pins
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install schema validator
+        run: python -m pip install --disable-pip-version-check 'jsonschema[format]==4.26.0'
+      - name: Validate versioned Provider and config schemas
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          format_checker = Draft202012Validator.FORMAT_CHECKER
+          assert "uri" in format_checker.checkers, "URI format checker dependency is required"
+
+          schema_paths = [
+              Path("schemas/inference_provider/v1/provider_manifest.schema.json"),
+              Path("schemas/inference_provider/v1/inference_request.schema.json"),
+              Path("schemas/inference_provider/v1/inference_response.schema.json"),
+              Path("schemas/inference_provider/v1/health_response.schema.json"),
+              Path("schemas/inference_provider/v1/capabilities_response.schema.json"),
+              Path("schemas/inference_provider/v1/models_response.schema.json"),
+              Path("schemas/inference_provider/v1/cancel_request.schema.json"),
+              Path("schemas/inference_provider/v1/cancel_response.schema.json"),
+              Path("schemas/config/default_models.schema.json"),
+              Path("schemas/config/e2e_reference_games.schema.json"),
+          ]
+          schemas = {}
+          for path in schema_paths:
+              schema = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator.check_schema(schema)
+              schemas[path.as_posix()] = schema
+              print(f"SCHEMA OK {path}")
+
+          instances = [
+              (
+                  Path("config/default_models.json"),
+                  schemas["schemas/config/default_models.schema.json"],
+              ),
+              (
+                  Path("config/e2e_reference_games.json"),
+                  schemas["schemas/config/e2e_reference_games.schema.json"],
+              ),
+          ]
+          for path, schema in instances:
+              instance = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator(schema, format_checker=format_checker).validate(instance)
+              print(f"INSTANCE OK {path}")
+
+          def validate_profile_ids(config):
+              ids = [profile["id"] for profile in config["profiles"]]
+              if len(ids) != len(set(ids)):
+                  raise ValueError("model profile IDs must be unique")
+
+          models = json.loads(Path("config/default_models.json").read_text(encoding="utf-8"))
+          validate_profile_ids(models)
+          duplicate = json.loads(json.dumps(models))
+          duplicate["profiles"].append(dict(duplicate["profiles"][0], sha256="0" * 64))
+          try:
+              validate_profile_ids(duplicate)
+          except ValueError:
+              pass
+          else:
+              raise SystemExit("duplicate profile IDs were accepted")
+
+          examples = [
+              (
+                  Path("schemas/inference_provider/v1/examples/bundled_local_provider.json"),
+                  schemas["schemas/inference_provider/v1/provider_manifest.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/local_remote_bridge_provider.json"),
+                  schemas["schemas/inference_provider/v1/provider_manifest.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/decision_request.json"),
+                  schemas["schemas/inference_provider/v1/inference_request.schema.json"],
+              ),
+              (
+                  Path("schemas/inference_provider/v1/examples/decision_response.json"),
+                  schemas["schemas/inference_provider/v1/inference_response.schema.json"],
+              ),
+          ]
+          for path, schema in examples:
+              instance = json.loads(path.read_text(encoding="utf-8"))
+              Draft202012Validator(schema, format_checker=format_checker).validate(instance)
+              print(f"EXAMPLE OK {path}")
+
+          request = json.loads(Path("schemas/inference_provider/v1/examples/decision_request.json").read_text(encoding="utf-8"))
+          request["operation"] = "text_generation"
+          request["input"] = {"messages": [{"role": "user", "content": [{"type": "text", "text": "test"}]}]}
+          request["constraints"]["response_format"] = {"type": "json_schema", "json_schema": None}
+          validator = Draft202012Validator(schemas["schemas/inference_provider/v1/inference_request.schema.json"], format_checker=format_checker)
+          if validator.is_valid(request):
+              raise SystemExit("json_schema response format must reject null")
+          request["constraints"]["response_format"]["json_schema"] = {"type": "object"}
+          validator.validate(request)
+          print("REQUEST FORMAT OK")
+
+          response = json.loads(Path("schemas/inference_provider/v1/examples/decision_response.json").read_text(encoding="utf-8"))
+          response_validator = Draft202012Validator(schemas["schemas/inference_provider/v1/inference_response.schema.json"], format_checker=format_checker)
+          response["provider"] = None
+          assert not response_validator.is_valid(response), "success must reject null provider"
+          response["status"] = "error"
+          response.pop("result", None)
+          response["error"] = None
+          assert not response_validator.is_valid(response), "failure must reject null error"
+          response["error"] = {"code": "provider_error", "message": "test", "retryable": False}
+          response_validator.validate(response)
+          manifest = json.loads(Path("schemas/inference_provider/v1/examples/local_remote_bridge_provider.json").read_text(encoding="utf-8"))
+          manifest_validator = Draft202012Validator(schemas["schemas/inference_provider/v1/provider_manifest.schema.json"], format_checker=format_checker)
+          manifest["privacy"].pop("declared_data_classes")
+          assert not manifest_validator.is_valid(manifest), "remote provider must declare data classes"
+          manifest["privacy"]["declared_data_classes"] = []
+          assert not manifest_validator.is_valid(manifest), "remote provider must declare at least one data class"
+          manifest["privacy"]["declared_data_classes"] = ["decision_context"]
+          manifest_validator.validate(manifest)
+          print("RESPONSE AND PRIVACY NEGATIVE CASES OK")
+          local_manifest = json.loads(Path("schemas/inference_provider/v1/examples/bundled_local_provider.json").read_text(encoding="utf-8"))
+          for host in ("127.0.0.1", "[::1]"):
+              for port in ("1", "80", "00080", "9999", "10000", "59999", "60000", "64999", "65000", "65499", "65500", "65529", "65530", "65535"):
+                  local_manifest["deployment"]["base_url"] = f"http://{host}:{port}"
+                  manifest_validator.validate(local_manifest)
+              for port in ("0", "00000", "65536", "99999", "100000"):
+                  local_manifest["deployment"]["base_url"] = f"http://{host}:{port}"
+                  assert not manifest_validator.is_valid(local_manifest), f"invalid endpoint port: {port}"
+          print("LOOPBACK PORT BOUNDARIES OK")
+          for kind, valid_urls, invalid_urls in (
+              ("local_external", ("http://localhost:9000", "http://[::1]:9000/api"), ("not a URI", "http://local host/api", "/relative")),
+              ("remote_direct", ("https://example.com", "https://example.com:443/api", "https://[2001:db8::1]/api"), ("https://", "https:///api", "https://:443/api", "https://?query", "https://#fragment", "http://example.com", "https://bad host")),
+          ):
+              manifest["deployment"]["kind"] = kind
+              for endpoint in valid_urls:
+                  manifest["deployment"]["base_url"] = endpoint
+                  manifest_validator.validate(manifest)
+              for endpoint in invalid_urls:
+                  manifest["deployment"]["base_url"] = endpoint
+                  assert not manifest_validator.is_valid(manifest), f"invalid {kind} endpoint: {endpoint}"
+          print("ENDPOINT URI VALIDATION OK")
+          PY
+      - name: Materialize pinned OSS Reference Game sources
+        run: python tools/fetch_ci_games.py --all --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kadoka-reference-game-lock
+          path: build/ci-games/manifest-lock.json
+          if-no-files-found: error
+
   runtime-boundary:
     name: Runtime contract / language boundary
     runs-on: ubuntu-latest
