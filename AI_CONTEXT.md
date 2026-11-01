@@ -87,3 +87,8 @@ Do not duplicate these mechanisms:
 This project follows the applicable principles from `tomiya7688/ai-context-reducer` without taking it as a runtime dependency. The reducer repository is guidance; this file and `AGENTS.md` define the local application of those principles.
 
 Reviewed upstream: `7d7fa11bca671c40768825f951102750e3d580b7` (2026-10-04). Adopted Core, metadata-first Task Routing, bounded packs, and Remote Delta First. Existing completion/policy checks are reused. The Source Structure Index is Issue #142; Task Context Pack / detailed Test Impact remain Issues #143/#144. No new toolchain or summary cache is required for this change.
+
+## Provider / release policy pointers
+- Provider schema and model declarations: `schemas/inference_provider/v1/`, `config/default_models.json`, `doc/architecture/inference_provider_api.md`. Declarations do not prove runtime integration.
+- Reference-game source declarations: `config/e2e_reference_games.json`; current runnable 2048 source lock remains `tools/reference_games/2048.source.lock.json`.
+- Proposed 1.0 acceptance and licensing rationale: `doc/release_1_0.md`, `doc/licensing_rationale.md`, `LICENSE_INTENT.md`.

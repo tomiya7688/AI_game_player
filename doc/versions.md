@@ -12,6 +12,12 @@
 - pipの設定ファイル（場所・有無・証明書関連の設定。`global`節とコマンド別の節を区別し、環境変数を優先）を読み取り専用で記録し、pipのversion・同梱truststore・`legacy-certs`の指定から、pipが使う信頼源を表示します。ローカルのpip 26.2.2は、Windowsの信頼ストアとpip同梱certifiを使います。pip同梱certifiに対象ルートは無く、Windowsストアでは確認時点で未検出です。設定を読めない場合と`cert`指定時は`unknown`と表示します。
 - `tests.yml`の棚卸し結果をjobのログにも出力し（ランダムなトークンの`::stop-commands::`でworkflow commandの解釈を止めて出力し、レポートが無い場合は警告）、CIの実際の値を文書へ記録できるようにしました。PyInstaller配布物の確認は#515に残ります。
 
+## 2026-10-29 Provider・参照ゲーム宣言のmain追従（Issue #475 / Draft PR #177）
+
+- 最新mainの安全CI、コンテキスト削減、ソース案内を保持し、旧Draftの競合を解消します。完了済み#178のNoisy ProviderはPR #458の現行実装を使用し、旧Draftの別実装を重複として除外します。
+- Provider・設定スキーマと固定ソース宣言のcheckを追加し、リポジトリ内の必須check定義を29件へ合わせます。GitHubの実rulesetは自動変更しません。実推論・全ゲームの実プレイ・1.0配布受入れは未完了です。
+- 参照ゲーム取得では固定SHAと保存先を検証し、既存ディレクトリの取得元や未保存・無視対象ファイルを確認してから再取得します。GPU計測では不正な間隔を子の起動前に拒否し、中断時に起動した子だけを回収します。
+
 ## 2026-10-31 賢者ミスクのPlayer Seatとアプリ全体のテーマ（Issue #156 / #155の一部）
 
 - Navigatorの下部にPlayer Seatを置き、Development既定のoccupantとして賢者ミスクを表示します。64pxの原画を整数倍のnearest-neighborで128pxへ拡大し、ぼかしを入れません。表示名、状態、短い吹き出し、License名を表示し、停止・要確認以外の状態ではゆっくり上下に浮遊します。
@@ -53,11 +59,46 @@
 
 # Versions
 
+## Versioning policy
+
+Application versionとSchema/API/ABI versionは独立して管理する。
+
+### Application
+
+正式リリース前は先頭を必ず `0` とする。
+
+- `0.0.0`: 開発開始点
+- `0.0.1`: 軽微な修正・小変更
+- `0.1.0`: 大きめの機能追加・開発マイルストーン
+- `1.0.0`: 最初の正式リリース
+- `1.0.1`: 正式版のbugfix / 軽微変更
+- `1.1.0`: 通常の機能追加
+- `2.0.0`: 大規模breaking change
+
+現在の `0.1.0` は既に到達した開発マイルストーンとして維持し、巻き戻さない。
+
+### Schema / API / ABI
+
+対象contract自体が更新された時だけversionを上げる。Application version変更だけでは連動して上げない。
+
+```text
+app_version                     0.1.0
+native_runtime_abi_version      1
+inference_provider_api_version  1
+decision_context_schema         1
+experience_schema               1
+stage_envelope_schema           1
+plugin_manifest_schema          1
+```
+
+各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
+
 ## Unreleased
 
 - Issue #608: 動作順と実行場所の日本語図を追加しました。単独操作の登録済み観測と連続取得、前回判断と実入力、確認運転と実入力時の追加確認を区別し、停止競合と記録の未保証範囲を明示します。
-
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
+
+- Issue #475 / PR #626: Play画面の「再開」ボタンへ共通ToolTipを接続し、停止状態の解除と実行世代の更新（re-arm）を案内します。マウスのホバーとキーボードのフォーカスで表示し、処理の終了待ち中は再開できないこと、ゲーム操作は自動では始まらないことを説明します。既存の停止処理・旧世代結果の破棄・再開処理は変更しません。
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
 
@@ -70,6 +111,8 @@
 
 - Issue #418: 学習Modelを読み込まないmodel-less CI profileとして`tests/test_model_less_core_path.py`を追加する。`JsonObservationSource`が読むObservation fixture（`tests/fixtures/model_less/`）から、OCRテキストによる候補生成、`BaselineDecisionProvider`の判断、`DecisionVerifier`の検証、dry-run実行までを通す。テスト中は`socket`の`connect`・`connect_ex`・`sendto`・`create_connection`・`getaddrinfo`と`urlopen`を遮断し、通信の試行を記録して0件であることを確認する（他のHTTPクライアントや非同期I/Oは対象外）。同点の候補では`abstain`、認識確信度が低い候補では`observe_more`で保留し、どちらも実行履歴が増えないことを確認する。既存のPython unit test CIで実行され、Model artifactは不要。GPU状態は検査しない。#161 Realtime Routerは未実装（P5）のため、Router経由のBaselineへのfallbackは未対応。
 - Issue #92: `main`ブランチ保護の正本として`.github/rulesets/main-protection.json`（Repository Ruleset `Mainguard`）と方針文書`doc/main保護方針.md`を追加する。必須7 workflowの全27 jobをGitHub Actions（integration_id 15368）からの必須status checkとし、PR必須・未解決threadの禁止・削除とforce pushの禁止・Copilot自動レビューを設定する。承認数0、最新化の要求なし、bypassなしとし、その理由と緊急時の手順、merge queueを導入しない評価を記載する。`tools/ruleset_check.py`は必須workflowのjob名（matrixのインラインリストと`include:`を展開）とrulesetの必須checkを比べ、差があれば`tests.yml`と`finish_task.bat`で失敗する。名前を予測できない形（`name:`のないmatrix job、`uses:`、job単位の`if:`、matrix以外の式、引用符のない数値・真偽値、`exclude:`など）と、workflow間で重複するjob名はエラーにする。rulesetファイルが有効・既定ブランチ対象・bypassなし・全checkのintegration_idが15368・削除/force push/PR規則ありであることも検査する。必須workflowの一覧は`tools/pr_workflow_evidence.py`の`REQUIRED_WORKFLOW_PATHS`を共有する。マージゲート`tools/finish_pr_merge.py`は、workflow欄が空文字のGitHub App check `CodeRabbit`・`Sourcery review`が`skipping`の場合に限り記録して停止しない（無料枠切れでPR #512のマージが止まったため）。失敗・保留・取消、workflow欄の欠落、同名のActions job、任意checkしか報告されない場合は従来どおり停止する。GitHub上のrulesetの有効化はリポジトリ所有者の許可後に行う。
+
+- Issue #614: 既存の資料リンク検査をRuntime境界・人向けガイドへ広げ、Markdownのタイトル付き・参照形式リンク、コード例の除外、バッククォート/チルダのフェンス、Mermaidの図形式・コメント・引用ラベル・括弧型ノードを扱う軽量検査を追加しました。生成物の鮮度検査と同じ既存CIへ接続し、偽陽性と見逃しの回帰テスト、資料更新・目視確認手順、PRの資料確認欄を追加しました。厳密な描画構文・呼出し順の意味・実機動作は保証しません。
 - Issue #318 / PR #346追加レビュー: クラスの状態キーを「フィールド」へ統一し、Issue #19の指定手法・本番接続・検証・延期成果物の対照表をレビュー基準へ反映します。Core / Runtime / Real-playの証拠と未確認・明示対象外を区別し、安全検査とプライバシー同意の迂回を差し戻します。自動ゲート実装はIssue #508で追跡します。
 
 - Issue #318: JSON-like Comment Outsを本体コードの宣言コメント規約として明確化し、レビュー基準・コーディング規約を追加。命名、責務分離、処理単位コメント、エラー・安全性・性能・CI/E2E、仕様書と日本語説明の差し戻し条件を定義。コメントは記法だけでなく対象・条件・理由・結果まで説明し、説明不足のレビュー指摘には欠けた意味と修正案を示す基準を追加。C/C++のstructと公開フィールドを対象に含め、C++公開契約のヘッダーをコメントの正本とする配置規則を定義。Python/C++例の宣言名・戻り値・例外を示した契約を一致させ、参照するDraft v0.9仕様とテンプレートのリンクを同一の不変コミットに固定。
@@ -111,6 +154,9 @@
 - Issue #247: `CampaignRunner`に600秒PR/1800秒Releaseのprofile、対象ゲームごとに差し替える`CampaignEpisode`契約、deadlineまでのlive-input閉ループ、任意の`CampaignState` milestone callback、game-over後のepisode再起動、回数制限付きstall recoveryとstep上限を追加。callbackはaction後の状態を判定し、到達・判定失敗をstop reasonへ分ける。状態遷移をJSONLへ追記し、stop reason/failure category、milestone有効・到達状態、episode/restart/recovery数、last/peak score・score観測数・max tile、action-to-observation latency、Gitとpinned-game metadataをJSON reportへ保存する。2048のUP/DOWN/LEFT/RIGHT候補は対応するWindows仮想キーコードでNative SafetyGuardへ渡す。2048 episodeは画面状態を取得した後にFailSafeRuntimeの観測完了時刻を更新する。Windows CIで記録したaction-to-observationの最大値2,666msを超える猶予を設けるため、episodeの観測期限は5秒とする。5秒間観測時刻が更新されなければwatchdogが追加の実入力を拒否する。2048 CLIは専用browser HWNDへのwindow-message inputを使い、CIでPR profileを実行する。偽episodeの単体テストでduration、milestone、live-input条件、game-over restart、bounded recovery、hard failure分類、既存artifact保護を検証し、矢印キー変換、観測時刻の更新、FailSafe停止理由のartifact記録も単体テストする。
 - Issue #245: MIT版2048のソースを固定commitから取得するsource lockへGit tree SHAと全34ファイルのGit blob SHAを記録し、cacheに欠落・追加・変更されたファイルがあれば再利用を拒否する。検証済みsourceはloopback限定HTTP serverと専用Edge/Chrome profileでWindows上に起動し、launcherは起動したPIDと2048のwindow titleで対象を識別してdesktop内に最大1180×850で配置する。Windowsのforeground制限で前面化できない場合も起動を失敗させず、その状態をJSON出力へ記録する。終了時は起動したbrowser process tree・一時profile・HTTP serverを閉じ、検証済みsource cacheは再利用のため保持する。
 - Issue #246: pinned 2048画面のCSS色と4x4配置からboardを復元し、同じcapture時点のOCR Observationから現在scoreとgame-over状態を得るScreen Adapterを追加する。状態にはboard矩形・cell/board confidence・再現可能なstate signatureを記録し、board confidenceが0.65以上かつgame-overでない場合だけUP/DOWN/LEFT/RIGHTのkeyboard候補を返す。CSS・grid・OCRデータから作る合成pixel fixtureでboard/score/terminal/action経路を検証し、Windows launcher integration testでは起動windowのcaptureからboardと4候補を検査する。launcherは小さいWindows desktopで盤面全体をcaptureするためChromium device scale factorを0.75にする。
+
+- Issue #479: 汎用の任意登録`TransitionModel`契約と、実入力を発行しない2048参照遷移を追加しました。移動・一手一合成と確率spawnを分離し、不変盤面、未認識score、勝利後継続、終了、seed付き仮想restartを扱います。未知ゲームのモデルは利用不可として返します。
+- Issue #479: hash検証済み固定版JavaScriptとslide/move/continue/restartを比較するOracle、CPU/heap測定、単体試験とCIの比較を追加しました。仮説更新・探索・本番Decisionへの接続は#478/#565-#567に残り、この追加だけでは実プレイの強化済みとは扱いません。[設計と検証手順](architecture/transition_simulation.md)を追加しました。
 - Issue #138: Play Workspaceの先頭へ「ゲーム / ウィンドウ」選択欄を配置する。ウィンドウ一覧の更新後も存在する選択対象は維持し、消えた選択対象は自動で別ウィンドウへ切り替えず再選択を求める。候補がない場合と一覧取得が失敗した場合は、利用者へ次の操作を表示する。
 - Issue #337: GUIの画面取得後、Observation内のOCR・画像候補と任意のAutomation候補をCandidateMergerで統合し、安全評価欄へ入力元と評価結果を表示する。Automation候補JSONは空配列のまま使える。画面previewは実行中Sessionの候補sourceを書き換えず、step開始時に評価した同じObservationと候補だけをSession sourceへ登録する。confidence `0.0` の画像候補は拒否する。
 - Issue #333: PythonとNative Runtimeのbright-region検出が明るさ・画素密度から実行信頼度を作らないようにする。両経路の明領域をUI要素として未確認のconfidence `0.0` で返し、画像候補だけの判断を候補評価器が拒否する。閉ループE2Eはsample gameのactive control情報と画面検出矩形を照合して実入力を検証する。
@@ -177,6 +223,8 @@
 - Issue #220: Capability Manifestを使うComposition Resolver、preferred/default選択、dependency/health検査、fallbackとdegraded reason、provider lifecycle cleanupを追加。
 
 - Issue #219: Optional feature capability manifestのJSON Schema、runtime検証、required/optional dependency・lifecycle・config namespace・fallback/degraded mode宣言と検証を追加。
+
+- Issue #475 / PR #177（#174・#96・#124の部分成果）: Provider API v1のJSON契約・例、モデル候補と4参照ゲームの固定ソース宣言、ソース取得とVRAM計測の補助ツール、契約CI、1.0配布・ライセンス方針を追加します。取得済みのゲームとlockを置く`build/ci-games/`はGit管理から除外します。v1 HTTP接続・認証・Adapter適合は#238-#240、bundled実推論は#241-#244/#280、全ゲーム・実GPU・配布受入れは#96/#248-#251、release用Player Asset差替えは#155へ残します。v2汎用Task契約の正本#447と区別し、現在のNoisy Provider・2048・Player Seat実装を保持します。
 
 - Issue #94: HWNDごとの選択・隠し内容取得を追加。可視で覆われていない対象だけ画面領域から取得し、隠れた／覆われた対象はタイムアウト付きWM_PRINTへ切り替える。WM_PRINT失敗時は明示的に失敗し、別ウィンドウ画素へ誤フォールバックしないことを検証。
 
@@ -245,3 +293,28 @@
 - window_message方式の実入力前に対象ウィンドウ選択を検証する。
 - 対象ウィンドウのキャプチャに失敗した場合、連続実行を停止する。
 - RuleProviderの状態評価をローカルのOutcomeEvaluatorへ統一し、Rule経路でネットワークアクセスしないようにする。
+
+
+## 1.0.0 scope
+
+1.0.0 release boundary is defined in `doc/release_1_0.md` and Issue #19.
+
+Key acceptance:
+- Windows x64 / local-first
+- distribution-root executable as the normal user entrypoint
+- bundled/automatic Local Inference setup
+- Basic Game/Window Select -> Start/Stop path
+- default privacy: telemetry/remote/raw-frame persistence/replay persistence OFF
+- routine CI: smoke-tiny endurance, standard-small functional inference, Noisy Provider robustness
+- pre-release: #179 30-minute-class automated/reference and GTX 1080 real-game acceptance
+- first-party project code/docs use MIT; Kadoka/Maru character assets use Obake License
+- final Product/Engine name must be recorded in #154 before 1.0.0
+
+
+### 1.0.0 licensing boundary
+
+- 1.0.0 first-party shipped scope is MIT-only.
+- Wise Misk artwork is excluded from 1.0.0 while its license is undecided; the planned bundled player asset is MIT-licensed Super Icon.
+- The current development manifest records Tomiya Character License v1.0.1, but that declaration does not resolve the asset-rights acceptance still open under Issue #19/#124/#228. The earlier unresolved status and 1.0.0 exclusion are retained; release-specific replacement remains tracked by #155.
+- Obake License assets are deferred to 1.1+.
+- Kadoka/Maru Character Mode and related Obake-license UI work are not 1.0.0 blockers.
