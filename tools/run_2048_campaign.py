@@ -321,6 +321,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 "capture_failure", "2048 episode has no window observation source"
             )
         pipeline = self.pipeline
+        complete = getattr(pipeline, "complete_execution_observation", None)
+        observation_token = (
+            pipeline.controller.rearm_token if callable(complete) else None
+        )
         first_observation = not self._safety_rearmed
         capture_started_at = time.monotonic()
 
@@ -363,9 +367,8 @@ class ReferenceGame2048Episode(CampaignEpisode):
                     f"error={type(error).__name__}: {error}",
                 ) from error
         latest = getattr(self.source, "latest_observation", None)
-        complete = getattr(pipeline, "complete_execution_observation", None)
         if latest is not None and callable(complete):
-            complete(latest, expected_rearm_token=pipeline.controller.rearm_token)
+            complete(latest, expected_rearm_token=observation_token)
         return state
 
     def act(self) -> CampaignActionResult:

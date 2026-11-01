@@ -408,9 +408,10 @@ class GamePlayerEngine:
             raise ValueError("execution receipt does not match its observation")
         if not activate and receipt.eligible_for_learning:
             receipt = replace(receipt, eligible_for_learning=False)
-        if not self.trace.record_execution_receipt(receipt):
+        registration = self.trace.record_execution_receipt(receipt)
+        if registration is False:
             raise RuntimeError("execution receipt has no matching planned trace")
-        if self._pending_execution_receipt == receipt:
+        if registration is None:
             return
         if activate and (
             receipt.execution_status == "dispatch_unknown"

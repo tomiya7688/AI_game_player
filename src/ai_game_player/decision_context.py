@@ -644,10 +644,7 @@ class DecisionTraceStore:
                     action_generation is None
                     or receipt.action_generation == action_generation
                 )
-                and (
-                    status == "dispatch_unknown"
-                    or receipt.eligible_for_learning
-                )
+                and (status == "dispatch_unknown" or receipt.eligible_for_learning)
                 and (status != "dispatch_unknown" or outcome.get("status") == "unknown")
             ):
                 self._update_entry(entries, entry, {"action_outcome": outcome})
@@ -658,9 +655,9 @@ class DecisionTraceStore:
     #   責務: [record_execution_receipt: planned traceへ同じsnapshot・操作・世代の実行事実を関連付ける]
     #   処理: [画面参照と世代を照合し、別操作や矛盾するreceiptで既存事実を上書きしない]
     #   引数: [receipt: Executorの送信証拠に由来する不変の受領記録]
-    #   戻り値: [bool: 対象traceへ一度または同内容で記録した場合True]
+    #   戻り値: [True: 新規記録, None: 同内容で記録済み, False: 対象なし/不一致]
     # }
-    def record_execution_receipt(self, receipt: ExecutionReceipt) -> bool:
+    def record_execution_receipt(self, receipt: ExecutionReceipt) -> bool | None:
         entries = self._read()
         for entry in reversed(entries):
             if (
@@ -681,7 +678,7 @@ class DecisionTraceStore:
                 return False
             existing = entry.get("execution_receipt")
             if isinstance(existing, dict):
-                return existing == receipt.to_dict()
+                return None if existing == receipt.to_dict() else False
             self._update_entry(
                 entries,
                 entry,

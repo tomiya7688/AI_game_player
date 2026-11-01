@@ -367,13 +367,7 @@ class DecisionPipeline:
                 dispatch,
                 type(error).__name__,
             )
-            if dispatch is False:
-                self.engine.mark_last_decision_not_executed(
-                    f"OS入力を開始する前に実行器が失敗しました: {type(error).__name__}"
-                )
             raise
-        self.execution_history.append(result)
-        self.safety_audit.append_execution(assessment.assessment_id, result)
         dispatch = getattr(self.executor, "input_dispatch_started", None)
         if result.mode == "dry_run":
             status, dispatch = "dry_run", False
@@ -383,15 +377,19 @@ class DecisionPipeline:
             status, dispatch = "executed", True
         else:
             status = "dispatch_unknown"
-        self._record_execution_receipt(
-            observation,
-            selected.action_id,
-            snapshot_id,
-            run_token,
-            status,
-            dispatch,
-            result.mode,
-        )
+        try:
+            self._record_execution_receipt(
+                observation,
+                selected.action_id,
+                snapshot_id,
+                run_token,
+                status,
+                dispatch,
+                result.mode,
+            )
+        finally:
+            self.execution_history.append(result)
+            self.safety_audit.append_execution(assessment.assessment_id, result)
         return result
 
     # {
@@ -426,11 +424,23 @@ class DecisionPipeline:
             dispatch,
             reason=reason,
         )
+
+        # {
+        #   責務: [register_current: 現世代の受領事実と入力前停止の監査を一度に保存する]
+        #   処理: [同じguard内で元判断だけを更新し、停止/rearm後の別判断を停止扱いにしない]
+        #   引数: [なし]
+        #   戻り値: [なし]
+        #   エラー: [RuntimeError: 元traceの参照不整合]
+        # }
+        def register_current() -> None:
+            self.engine.record_execution_receipt(observation, receipt)
+            if status == "not_executed":
+                self.engine.mark_last_decision_not_executed(
+                    f"OS入力を開始する前に実行器が失敗しました: {reason}"
+                )
+
         try:
-            self.controller.run_if_current(
-                generation,
-                lambda: self.engine.record_execution_receipt(observation, receipt),
-            )
+            self.controller.run_if_current(generation, register_current)
         except ExecutionCancelled:
             stale_receipt = replace(receipt, eligible_for_learning=False)
             self.controller.record_execution_audit(

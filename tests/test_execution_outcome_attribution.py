@@ -188,6 +188,28 @@ class ExecutionOutcomeAttributionTests(unittest.TestCase):
             finally:
                 pipeline.close()
 
+    def test_replayed_older_receipt_cannot_replace_new_actual_pending(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Source()
+            pipeline = DecisionPipeline(
+                source, Path(directory), SequenceProvider(["a", "b"])
+            )
+            pipeline.executor.dry_run = False
+            pipeline.executor.live_executor = SuccessBackend()
+            try:
+                pipeline.run_and_execute()
+                first = pipeline.engine._pending_execution_receipt
+                before_first = source.observation
+                source.observation = observation("after-a", 1)
+                pipeline.run_and_execute()
+                second = pipeline.engine._pending_execution_receipt
+                pipeline.engine.record_execution_receipt(before_first, first)
+                self.assertIs(pipeline.engine._pending_execution_receipt, second)
+                self.assertEqual(second.action_id, "b")
+                self.assertIsNone(pipeline.engine.last_execution_observation)
+            finally:
+                pipeline.close()
+
     def test_backend_exception_without_dispatch_evidence_stays_unknown(self):
         class UnknownBackend:
             def execute(self, candidate):
@@ -262,6 +284,29 @@ class ExecutionOutcomeAttributionTests(unittest.TestCase):
                 )
                 self.assertEqual(pipeline.engine.trace.recent_actions(), [])
                 self.assertTrue(pipeline.load_execution_history()[0].executed)
+            finally:
+                pipeline.close()
+
+    def test_execution_history_failure_does_not_lose_real_dispatch_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Source()
+            pipeline = DecisionPipeline(
+                source, Path(directory), SequenceProvider(["a"])
+            )
+            pipeline.executor.dry_run = False
+            pipeline.executor.live_executor = SuccessBackend()
+            try:
+                with patch.object(
+                    pipeline.execution_history,
+                    "append",
+                    side_effect=OSError("history unavailable"),
+                ):
+                    with self.assertRaisesRegex(OSError, "history unavailable"):
+                        pipeline.run_and_execute()
+                pair = pipeline.complete_execution_observation(observation("after", 1))
+                self.assertEqual(pair.receipt.action_id, "a")
+                self.assertEqual(pair.receipt.execution_status, "executed")
+                self.assertIn("action_outcome", pipeline.engine.trace.recent()[0])
             finally:
                 pipeline.close()
 
