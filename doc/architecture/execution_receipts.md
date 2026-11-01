@@ -46,4 +46,4 @@ Runtime回帰は実Sessionの終端観測、既存Pipeline/E2E/campaign seam、W
 
 2026-11-01の補助実プレイでは、固定版Tetris（`4e497d1c858914f0a1f0818698029d1c7dad090b`）とBreakout（`4961fece5e9bfb21450b71d1bb8cb3efc8d19338`）をローカルHTTPで隔離Chromiumへ表示し、共通FrameAnalyzer/OCR・無変更RuleProvider・ActionExecutorでクリックした。手動候補やゲーム固有policyは追加していない。Tetrisは1操作後に許可候補がなく停止し、最後のreceiptとunknown結果が一致した。Breakoutは3操作すべてに同世代receiptとunchanged結果が保存された。クリックの有効性やプレイ能力の向上を示す結果ではなく、実画面での帰属確認と現行認識/探索の限界を示す。検証時のtraceと報告は `/tmp/628-tetris-play/`、`/tmp/628-breakout-play/` に保存した（開発環境の一時成果物）。
 
-main側で並行更新中の #619 flow/architecture/README、#622 judgment、#623 safety、#624 records_learning は、統合時にこのreceipt/dispatch契約と整合させる。旧資料の「未送信判断も参照し得る」「dispatch flagは入力API到達の証拠でない」という現状記載は本修正の統合後に更新する。
+#642の統合版資料同期で、flow/architecture入口、judgment、safety、records_learningをこのreceipt/dispatch契約へ合わせる。初版の未送信判断・送信開始フラグに関する制約は当時の実装説明であり、現在の契約と区別する。受領記録の修正だけで全ゲーム対応の因果検証や攻略改善を達成したとは扱わない。
