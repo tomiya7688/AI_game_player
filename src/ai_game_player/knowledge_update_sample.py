@@ -130,8 +130,6 @@ class KnowledgeUpdateSample:
             or value["execution_status"] not in EXECUTION_STATUSES
         ):
             raise ValueError("action-outcome execution status is invalid")
-        if value["action_generation"] != value["correlation_sequence"]:
-            raise ValueError("action generation must match its correlation sequence")
         confidence = _number(value["confidence"], 0, 1, "confidence")
         provenance = event.provenance
         if (

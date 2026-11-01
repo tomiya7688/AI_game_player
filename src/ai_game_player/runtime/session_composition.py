@@ -8,7 +8,7 @@ import os
 import time
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import ExitStack, contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, BinaryIO
 from uuid import uuid4
@@ -24,6 +24,13 @@ from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
 from ai_game_player.runtime_log import RuntimeLog
+from ai_game_player.knowledge_scope import KnowledgeScope
+from ai_game_player.learning_identity import LearningIdentityPolicy
+from ai_game_player.light_adaptation_budget import LightAdaptationBudget
+from ai_game_player.light_session import SessionLightAdaptation
+from ai_game_player.runtime_mode_config import RuntimeModeConfig
+from ai_game_player.execution_receipt import ExecutionObservation
+from ai_game_player.light_execution_projection import VerifiedActionEffect
 
 MIGRATION_LOCK_RETRY_INTERVAL_SECONDS = 0.05
 MIGRATION_LOCK_TIMEOUT_SECONDS = 30.0
@@ -252,6 +259,10 @@ class SessionRuntimeConfiguration:
     window_handle: int | None
     input_mode: str
     window_process_id: int | None
+    runtime_mode: RuntimeModeConfig = field(default_factory=RuntimeModeConfig)
+    knowledge_scope: KnowledgeScope | None = None
+    learning_identity: LearningIdentityPolicy | None = None
+    adaptation_budget: LightAdaptationBudget | None = None
 
 
 # {
@@ -265,11 +276,18 @@ class ManagedSessionRuntime:
     #   引数: [pipeline: session中に再利用する判断・実行pipeline, provider: pipelineへ注入したsession scoped provider]
     #   戻り値: []
     # }
-    def __init__(self, pipeline: DecisionPipeline, provider: Any) -> None:
+    def __init__(
+        self,
+        pipeline: DecisionPipeline,
+        provider: Any,
+        adaptation: SessionLightAdaptation | None = None,
+    ) -> None:
         self.pipeline = pipeline
         self._provider = provider
         self._pipeline_closed = False
         self._provider_closed = False
+        self.adaptation = adaptation
+        self._adaptation_closed = adaptation is None
 
     # {
     #   責務: [run: session pipelineの判断処理を実行する]
@@ -278,7 +296,12 @@ class ManagedSessionRuntime:
     #   戻り値: [ActionDecision: session providerが選んだ操作]
     # }
     def run(self, **arguments: Any) -> ActionDecision:
-        return self.pipeline.run(**arguments)
+        token = self.adaptation.begin_step() if self.adaptation is not None else None
+        try:
+            return self.pipeline.run(**arguments)
+        finally:
+            if token is not None and self.adaptation is not None:
+                self.adaptation.finish_step(token)
 
     # {
     #   責務: [run_and_execute: session pipelineで判断と安全検証付き実行を行う]
@@ -287,7 +310,12 @@ class ManagedSessionRuntime:
     #   戻り値: [ExecutionResult: 実行された候補と実行結果]
     # }
     def run_and_execute(self, **arguments: Any) -> ExecutionResult:
-        return self.pipeline.run_and_execute(**arguments)
+        token = self.adaptation.begin_step() if self.adaptation is not None else None
+        try:
+            return self.pipeline.run_and_execute(**arguments)
+        finally:
+            if token is not None and self.adaptation is not None:
+                self.adaptation.finish_step(token)
 
     # {
     #   責務: [load_execution_history: Pipelineが提供するSession実行履歴を返し、旧factoryにmetrics APIがなければ空履歴を返す]
@@ -307,14 +335,21 @@ class ManagedSessionRuntime:
     #   戻り値: [object: Pipelineが公開したOutcome、または非対応時None]
     # }
     def complete_execution_observation(
-        self, observation: ScreenObservation, *, expected_rearm_token: int
+        self,
+        observation: ScreenObservation,
+        *,
+        expected_rearm_token: int,
+        verified_effect: VerifiedActionEffect | None = None,
     ) -> object:
         complete = getattr(self.pipeline, "complete_execution_observation", None)
-        return (
+        result = (
             complete(observation, expected_rearm_token=expected_rearm_token)
             if callable(complete)
             else None
         )
+        if self.adaptation is not None and isinstance(result, ExecutionObservation):
+            self.adaptation.observe_execution(result, verified_effect)
+        return result
 
     # {
     #   責務: [assess_outcome: session Providerを再利用して現在画面のterminal状態を評価する]
@@ -341,6 +376,12 @@ class ManagedSessionRuntime:
     # }
     def close(self) -> None:
         errors: list[Exception] = []
+        if not self._adaptation_closed and self.adaptation is not None:
+            try:
+                self.adaptation.close()
+                self._adaptation_closed = True
+            except Exception as exc:
+                errors.append(exc)
         close_execution_resources = getattr(
             self.pipeline, "close_execution_resources", None
         )
@@ -473,7 +514,7 @@ class RuntimeComposition:
                         f"provider cleanup also failed ({cleanup_error})"
                     ) from initialization_error
                 raise
-            return ManagedSessionRuntime(pipeline, provider)
+            return _managed_session(pipeline, provider, configuration, controller)
 
         session_events_directory = configuration.game_directory / "session_events"
         migration_marker = session_events_directory / "legacy_migration_v1.complete"
@@ -627,7 +668,7 @@ class RuntimeComposition:
                     + ")"
                 ) from initialization_error
             raise
-        return ManagedSessionRuntime(journal_pipeline, provider)
+        return _managed_session(journal_pipeline, provider, configuration, controller)
 
     # {
     #   責務: [assess_outcome: 指定Providerまたはローカルfallbackで画面状態を評価する]
@@ -701,3 +742,37 @@ def _close_provider(provider: Any) -> None:
         close = getattr(provider, "shutdown", None)
     if close is not None:
         close()
+
+
+# {
+#   責務: [_managed_session: 本番Pipelineにだけ既定light Mode/workerの寿命を接続する]
+#   処理: [custom legacy factory互換を維持し、初期化失敗時はPipeline/Providerを解放する]
+#   引数: [pipeline/provider: 構築済みSession部品, configuration: 確定設定, controller: Session停止世代]
+#   戻り値: [ManagedSessionRuntime: 一つのModeとworkerを所有するruntime]
+#   エラー: [Exception: 初期化失敗。解放を試みて元エラーを伝播する]
+# }
+def _managed_session(
+    pipeline: DecisionPipeline,
+    provider: Any,
+    configuration: SessionRuntimeConfiguration,
+    controller: RunController,
+) -> ManagedSessionRuntime:
+    adaptation = None
+    try:
+        if isinstance(pipeline, DecisionPipeline):
+            adaptation = SessionLightAdaptation(
+                pipeline,
+                configuration.game_directory / "light_adaptation",
+                controller,
+                config=configuration.runtime_mode,
+                scope=configuration.knowledge_scope,
+                identity=configuration.learning_identity,
+                budget=configuration.adaptation_budget,
+            )
+        return ManagedSessionRuntime(pipeline, provider, adaptation)
+    except Exception:
+        try:
+            pipeline.close()
+        finally:
+            _close_provider(provider)
+        raise

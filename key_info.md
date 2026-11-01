@@ -2,6 +2,8 @@
 
 ## できること
 
+- #422: 実Sessionの既定Modeにbounded Light workerを接続。receiptとverified効果、profile保証hash識別、unknown保留、Gate light検証→Mode CAS→durable ack、Stop事実退避。一般ゲームの因果検証/#433識別/#409完全Utility/#425自動資源分類は未完。[契約とp50/p95](doc/architecture/light_adaptation.md)。
+
 - Runtime Mode / Phase のコア契約（5 Mode / 8 Phase、既定 Light、安全境界、Step 版固定、共有 RunController の Stop、Journal / checkpoint）。詳細は `doc/architecture/runtime_modes.md`。
 - 任意構成したKnowledgeFeatureAdapterで、scopeと期限が一致する版を一stepへ固定し、Baselineのsoft prior・重みへ反映できます。モデル文脈への追加は既定OFFです。[Knowledge投影の説明](doc/architecture/knowledge_feature_adapter.md)を参照してください。
 

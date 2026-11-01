@@ -729,6 +729,7 @@ classDiagram
     class KnowledgeBuildResult {
     }
     class KnowledgeBuilder {
+        +empty_snapshot()
         +__init__()
         +build()
     }
@@ -754,6 +755,14 @@ classDiagram
         +_make_projection()
         +_fallback()
     }
+    class KnowledgeLightValidationPolicy {
+        +__post_init__()
+        +assess()
+        +bound_candidate()
+    }
+    class PreparedKnowledgePublication {
+        +authorize()
+    }
     class KnowledgeProjection {
         +__post_init__()
         +from_dict()
@@ -764,6 +773,10 @@ classDiagram
     }
     class KnowledgePromotionGate {
         +__init__()
+        +prepare_light_update()
+        +_prepare_light_update_reserved()
+        +acknowledge_publication()
+        +discard_prepared()
         +initialize_champion()
         +capture()
         +evaluate_and_promote()
@@ -843,6 +856,68 @@ classDiagram
         +__init__()
         +build()
         +_sample_record()
+    }
+    str <|-- LearningIdentityKind
+    Enum <|-- LearningIdentityKind
+    class LearningIdentityKind {
+    }
+    class LearningIdentityPolicy {
+        +__post_init__()
+        +keys()
+    }
+    class LightAdaptationMetrics {
+    }
+    class LightAdaptationRunner {
+        +__init__()
+        +capture()
+        +start()
+        +set_resources()
+        +enqueue()
+        +record_utility()
+        +metrics()
+        +utility_estimates()
+        +close()
+        +_admitted()
+        +publish_at_boundary()
+        +retry_checkpoint()
+        +_put()
+        +_drop()
+        +_run()
+        +_checkpoint_pending()
+        +_run_loop()
+        +_update_batch()
+    }
+    class LightAdaptationBudget {
+        +__post_init__()
+    }
+    class LightResourceSample {
+        +__post_init__()
+        +reason()
+    }
+    str <|-- VerifiedEffectSource
+    Enum <|-- VerifiedEffectSource
+    class VerifiedEffectSource {
+    }
+    class VerifiedActionEffect {
+        +__post_init__()
+    }
+    class LightExecutionProjector {
+        +__init__()
+        +bind()
+        +project()
+    }
+    class SessionLightAdaptation {
+        +__init__()
+        +_held_inputs()
+        +begin_step()
+        +finish_step()
+        +observe_execution()
+        +close()
+    }
+    class UtilityMeasurement {
+        +__post_init__()
+    }
+    class UtilityEstimate {
     }
     class LoopGuard {
         +__init__()

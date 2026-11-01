@@ -43,6 +43,20 @@ class KnowledgeBuildResult:
 # }
 class KnowledgeBuilder:
     # {
+    #   責務: [empty_snapshot: 未学習の静的baselineを既存schemaで生成する]
+    #   処理: [統計ゼロ・不確かさ1を検証済みSnapshotへ固定する。公開は行わない]
+    #   引数: [scope: 隔離範囲, version: 初版ID, created_at: UTC時刻]
+    #   戻り値: [KnowledgeSnapshot: immutableな初期値]
+    # }
+    @staticmethod
+    def empty_snapshot(
+        scope: KnowledgeScope, version: str, created_at: str
+    ) -> KnowledgeSnapshot:
+        return KnowledgeSnapshot.from_dict(
+            _initial_data(scope, version, created_at, None)
+        )
+
+    # {
     #   責務: [__init__: 増分統計の資源・証拠方針を固定する]
     #   処理: [指定が無ければ有界の既定方針を使う]
     #   引数: [policy: 任意の検証済みBuilder方針]

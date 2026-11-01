@@ -4,6 +4,9 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import time
+import threading
+from hashlib import sha256
 from typing import Callable
 
 from ai_game_player.artifact_store import FileSystemArtifactStore
@@ -16,6 +19,15 @@ from ai_game_player.knowledge_evaluation import (
     _canonical,
 )
 from ai_game_player.knowledge_promotion_policy import KnowledgePromotionPolicy
+from ai_game_player.knowledge_builder import KnowledgeBuilder
+from ai_game_player.knowledge_builder_policy import KnowledgeBuilderPolicy
+from ai_game_player.knowledge_light_validation import (
+    KnowledgeLightValidationPolicy,
+    PreparedKnowledgePublication,
+    light_canonical_events,
+    MAX_LIGHT_REPORT_BYTES,
+)
+from ai_game_player.experience import ExperienceEvent
 from ai_game_player.knowledge_scope import KnowledgeScope, validate_identifier
 from ai_game_player.knowledge_snapshot_store import (
     KnowledgeReadResult,
@@ -60,6 +72,209 @@ class KnowledgePromotionGate:
         self.root = Path(root)
         self.reports = FileSystemArtifactStore(self.root / "reports")
         self.runner = KnowledgeEvaluationRunner()
+        self._prepared: dict[
+            str, tuple[PreparedKnowledgePublication, str, str, int, str, str]
+        ] = {}
+        self._prepared_lock = threading.Lock()
+        self._preparing: set[str] = set()
+        self.last_prepare_reason = "idle"
+
+    # {
+    #   責務: [prepare_light_update: 小さい数値deltaを既存Builderで再構成し、未公開候補として検証する]
+    #   処理: [Gate自身が証拠を集計・構造/差分/時間検査する。保存してもactive pointerは変更しない]
+    #   引数: [scope: 隔離範囲, events: 最大64件のcanonical証拠, version/created_at: 新版の参照,
+    #     policy: 明示的なsoft-prior専用軽量方針]
+    #   戻り値: [PreparedKnowledgePublication|None: 合格した未公開候補。自己申告passedは受け取らない]
+    #   エラー: [OSError/ValueError: 保存/契約失敗。旧Championを維持する]
+    # }
+    def prepare_light_update(
+        self,
+        scope: KnowledgeScope,
+        events: tuple[ExperienceEvent, ...],
+        *,
+        version: str,
+        created_at: str,
+        policy: KnowledgeLightValidationPolicy | None = None,
+    ) -> PreparedKnowledgePublication | None:
+        selected = policy or KnowledgeLightValidationPolicy()
+        if (
+            type(selected) is not KnowledgeLightValidationPolicy
+            or not 1 <= len(events) <= 64
+        ):
+            raise ValueError("invalid bounded light publication request")
+        with self._prepared_lock:
+            if scope.key in self._preparing or any(
+                record[1] == scope.key for record in self._prepared.values()
+            ):
+                self.last_prepare_reason = "publication_ack_pending"
+                return None
+            if len(self._prepared) + len(self._preparing) >= 64:
+                self.last_prepare_reason = "publication_capacity"
+                return None
+            self._preparing.add(scope.key)
+        try:
+            return self._prepare_light_update_reserved(
+                scope, events, version, created_at, selected
+            )
+        finally:
+            with self._prepared_lock:
+                self._preparing.discard(scope.key)
+
+    # {
+    #   責務: [_prepare_light_update_reserved: 一scopeの準備所有権を保持してIOと有限検証を実行する]
+    #   処理: [registry lock外で計算・保存し、合格permitの短い登録だけlock内に戻す]
+    #   引数: [scope/events/version/created_at/selected: 検証済みの有限要求]
+    #   戻り値: [PreparedKnowledgePublication|None: Gate実検証済みのinactive候補]
+    # }
+    def _prepare_light_update_reserved(
+        self,
+        scope: KnowledgeScope,
+        events: tuple[ExperienceEvent, ...],
+        version: str,
+        created_at: str,
+        selected: KnowledgeLightValidationPolicy,
+    ) -> PreparedKnowledgePublication | None:
+        started = time.monotonic()
+        canonical_events = light_canonical_events(events)
+        with cross_process_file_lock(self._lock_path(scope)):
+            state = self._read_state(scope)
+        current = self.capture(scope)
+        if (
+            current.snapshot is None
+            or state["champion"] is None
+            or current.snapshot.sha256 != state["champion"]["sha256"]
+        ):
+            self.last_prepare_reason = "missing_champion"
+            return None
+        candidate = (
+            KnowledgeBuilder(KnowledgeBuilderPolicy(max_batch_events=64))
+            .build(
+                current.snapshot,
+                events,
+                scope=scope,
+                version=version,
+                created_at=created_at,
+            )
+            .snapshot
+        )
+        if candidate is None:
+            self.last_prepare_reason = "missing_candidate"
+            return None
+        candidate = selected.bound_candidate(current.snapshot, candidate)
+        work_ms = (time.monotonic() - started) * 1000
+        reason = selected.assess(current.snapshot, candidate, work_ms)
+        self.last_prepare_reason = reason
+        if reason != "accepted":
+            return None
+        self.store.save(candidate)
+        report = self.reports.put(
+            _canonical(
+                {
+                    "schema": "knowledge.light-validation/v1",
+                    "policy": asdict(selected),
+                    "champion_sha256": current.snapshot.sha256,
+                    "challenger_sha256": candidate.sha256,
+                    "work_ms": work_ms,
+                    "event_count": len(events),
+                    "canonical_events": canonical_events,
+                    "canonical_batch_sha256": sha256(
+                        _canonical(canonical_events)
+                    ).hexdigest(),
+                    "source_experience_range": candidate.to_dict()[
+                        "source_experience_range"
+                    ][-8:],
+                    "source_ranges_omitted": max(
+                        0, len(candidate.to_dict()["source_experience_range"]) - 8
+                    ),
+                    "reason": reason,
+                    "paired_replay_performed": False,
+                }
+            ),
+            media_type="application/json",
+            artifact_type="knowledge.light_validation",
+            sensitive=False,
+        )
+        prepared = PreparedKnowledgePublication(
+            candidate, state["generation"], current.snapshot.sha256, report
+        )
+        with self._prepared_lock:
+            self._prepared[prepared.nonce] = (
+                prepared,
+                scope.key,
+                candidate.sha256,
+                state["generation"],
+                current.snapshot.sha256,
+                report.sha256,
+            )
+        return prepared
+
+    # {
+    #   責務: [acknowledge_publication: 成功したruntime Mode CASの公開だけを永続checkpointへ反映する]
+    #   処理: [Gate所有permit・双方SHA・世代・report・authorizationを再照合しatomic commitする]
+    #   引数: [prepared: このGateが発行しcached pointer交換後にauthorizeした候補]
+    #   戻り値: [KnowledgePromotionResult: 永続公開の結論。古いpermitでは現版を巻き戻さない]
+    #   エラー: [ValueError: 未認証/改変permit, OSError: IO失敗。再試行まで次promotionは禁止]
+    # }
+    def acknowledge_publication(
+        self, prepared: PreparedKnowledgePublication
+    ) -> KnowledgePromotionResult:
+        with self._prepared_lock:
+            record = self._prepared.get(prepared.nonce)
+        snapshot = prepared.snapshot
+        if (
+            record is None
+            or record[0] is not prepared
+            or type(prepared.authorized_epoch) is not int
+            or prepared.authorized_epoch < 0
+            or record[1:]
+            != (
+                snapshot.scope.key,
+                snapshot.sha256,
+                prepared.generation,
+                prepared.champion_sha256,
+                prepared.report.sha256,
+            )
+        ):
+            raise ValueError("publication requires an owned authorized permit")
+        with cross_process_file_lock(self._lock_path(snapshot.scope)):
+            state = self._read_state(snapshot.scope)
+            if (
+                state["generation"] != prepared.generation
+                or state["champion"] is None
+                or state["champion"]["sha256"] != prepared.champion_sha256
+            ):
+                return self._result(state, "rejected", "stale_publication")
+            loaded = self.store.read(snapshot.scope, snapshot.version)
+            if loaded.snapshot is None or loaded.snapshot.sha256 != snapshot.sha256:
+                return self._result(state, "rejected", "invalid_publication_snapshot")
+            self.reports.read_bounded(prepared.report, max_bytes=MAX_LIGHT_REPORT_BYTES)
+            state["history"] = (state["history"] + [state["champion"]])[
+                -MAX_ROLLBACK_VERSIONS:
+            ]
+            state["champion"] = _reference(loaded)
+            result = self._commit(
+                snapshot.scope,
+                state,
+                "promoted",
+                "light_validation_v1",
+                prepared.report,
+            )
+        with self._prepared_lock:
+            del self._prepared[prepared.nonce]
+        return result
+
+    # {
+    #   責務: [discard_prepared: Mode切替やStopで不採用になった未公開候補だけを失効する]
+    #   処理: [非認証のGate所有permitをmemory registryから除く。保存Artifactはactiveにならない]
+    #   引数: [prepared: 未公開候補] 戻り値: [なし] エラー: [ValueError: 公開済みpermit]
+    # }
+    def discard_prepared(self, prepared: PreparedKnowledgePublication) -> None:
+        if prepared.authorized_epoch is not None:
+            raise ValueError("authorized publication requires checkpoint recovery")
+        with self._prepared_lock:
+            record = self._prepared.get(prepared.nonce)
+            if record is not None and record[0] is prepared:
+                del self._prepared[prepared.nonce]
 
     # {
     #   責務: [initialize_champion: 利用者・構成側が選んだ最初の保存版だけを登録する]

@@ -68,6 +68,7 @@ class GamePlayerEngine:
         self.evaluator = ActionEvaluator()
         self.provider = provider or RuleProvider()
         self.knowledge_adapter = knowledge_adapter
+        self.last_decision_context: DecisionContext | None = None
         history_path = game_directory / "history.json"
         trace_path = game_directory / "decision_trace.json"
         self.history = HistoryStore(
@@ -148,6 +149,7 @@ class GamePlayerEngine:
         )
         if self.knowledge_adapter is not None:
             context = self.knowledge_adapter.apply(context, observation)
+        self.last_decision_context = context
         if before_provider is not None:
             before_provider()
         if self._uses_context_api():

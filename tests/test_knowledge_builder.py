@@ -163,11 +163,12 @@ class KnowledgeBuilderTest(unittest.TestCase):
         self.assertEqual(data["action_outcome_stats"]["score-label"]["unknown"], 1)
         self.assertEqual(data["candidate_priors"], {})
 
-    def test_same_generation_and_receipt_mismatch_is_rejected(self):
+    def test_stop_generation_is_independent_of_action_correlation_sequence(self):
         event = effect_event(1)
         payload = dict(event.payload, action_generation=2)
-        with self.assertRaisesRegex(ValueError, "generation"):
-            build([replace(event, payload=payload)])
+        result = build([replace(event, payload=payload)])
+        self.assertEqual(result.accepted_events, 1)
+        self.assertEqual(result.snapshot.sample_count, 1)
 
     def test_identical_experience_and_old_sequences_never_count_again_after_restore(
         self,

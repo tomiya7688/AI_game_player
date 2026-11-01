@@ -36,7 +36,8 @@ Builder自身はDBや履歴ファイルを開かず、モデル、GPU、ネッ�
 
 既知の効果として扱うには、次の全条件を満たす必要があります。
 
-- `execution_status=executed`で、実行receiptの`action_generation`が相関系列の順序と一致する。
+- `execution_status=executed`で、統合境界が実行receiptの`action_generation`をStop/rearm世代へ照合する。
+  `correlation_sequence`はSession内のaction連番であり、停止世代と独立する。v1の旧同値eventも有効。
 - 効果の`verified`がtrueで、eventとprovenanceの確信度の小さい方が既定0.6以上である。
 - `evidence_kind`と`provenance.source`が、登録済みの検証元に含まれる。
 - provenanceに元の効果証拠の`evidence_event_id`がある。
@@ -85,7 +86,7 @@ event ID、時刻、source、provenanceを付けます。
 {
   "scope": {"game_id":"example","scene_id":"playing","profile_id":"default","player_id":"player.one","lineage_id":"lineage.one"},
   "source_id":"session.one","source_sequence":12,
-  "correlation_id":"actions.one","correlation_sequence":7,"action_generation":7,
+  "correlation_id":"actions.one","correlation_sequence":7,"action_generation":2,
   "execution_status":"executed","action_id":"score-label",
   "outcome":"no_effect","evidence_kind":"deterministic_action_effect",
   "verified":true,"confidence":0.9
@@ -100,7 +101,7 @@ schemaで宣言した`weight_hints`、`threshold_hints`、正規化xywhの`roi_h
 source IDは読み直すReaderの名前ではなく、同じ経験を同じIDで識別できるsession/episode/stream IDです。
 source順序はそのID内で単調増加させてください。同じ操作に相関する検出器やframeは
 同じ相関IDと操作世代を使ってください。Builderは最終的に判定した効果eventを受ける前提です。
-先に暫定結果を同じ世代で送ると、後の訂正を重複として扱います。訂正を別の学習証拠とする
+先に暫定結果を同じaction連番で送ると、後の訂正を重複として扱います。訂正を別の学習証拠とする
 場合は、呼出側で検証元と相関の意味を明示してください。
 
 Snapshot再ロード後もwatermark以下の再投入は数えません。古い順序が後から到着した場合も
