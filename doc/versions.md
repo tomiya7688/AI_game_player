@@ -61,8 +61,6 @@
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
 
-- Issue #614: 既存の資料リンク検査をRuntime境界・人向けガイドへ広げ、Markdownのタイトル付き・参照形式リンク、コード例の除外、バッククォート/チルダのフェンス、Mermaidの図形式・コメント・引用ラベル・括弧型ノードを扱う軽量検査を追加しました。生成物の鮮度検査と同じ既存CIへ接続し、偽陽性と見逃しの回帰テスト、資料更新・目視確認手順、PRの資料確認欄を追加しました。厳密な描画構文・呼出し順の意味・実機動作は保証しません。
-
 - Issue #475 / PR #593: InspectorとBottom Panelの切替ボタンに、次に行う操作を「を表示」「を非表示」で表示します。保存済みの非表示状態から起動した場合もラベルを合わせ、クリック後はPanel配置・保存状態・ラベルを同期します。停止操作とPanel状態の保存形式は変更しません。
 
 - Issue #475 / PR #488: 既にmainにあるSafetyLogの直近4096件保持を維持し、メモリ上限超過後もファイルへ全監査イベントが残る回帰テストを追加します。メモリのみの保持順、返却一覧の分離、許可・拒否イベントと日本語のJSONL保存を検査します。保持上限・公開API・安全判定は変更しません。
@@ -72,6 +70,8 @@
 
 - Issue #418: 学習Modelを読み込まないmodel-less CI profileとして`tests/test_model_less_core_path.py`を追加する。`JsonObservationSource`が読むObservation fixture（`tests/fixtures/model_less/`）から、OCRテキストによる候補生成、`BaselineDecisionProvider`の判断、`DecisionVerifier`の検証、dry-run実行までを通す。テスト中は`socket`の`connect`・`connect_ex`・`sendto`・`create_connection`・`getaddrinfo`と`urlopen`を遮断し、通信の試行を記録して0件であることを確認する（他のHTTPクライアントや非同期I/Oは対象外）。同点の候補では`abstain`、認識確信度が低い候補では`observe_more`で保留し、どちらも実行履歴が増えないことを確認する。既存のPython unit test CIで実行され、Model artifactは不要。GPU状態は検査しない。#161 Realtime Routerは未実装（P5）のため、Router経由のBaselineへのfallbackは未対応。
 - Issue #92: `main`ブランチ保護の正本として`.github/rulesets/main-protection.json`（Repository Ruleset `Mainguard`）と方針文書`doc/main保護方針.md`を追加する。必須7 workflowの全27 jobをGitHub Actions（integration_id 15368）からの必須status checkとし、PR必須・未解決threadの禁止・削除とforce pushの禁止・Copilot自動レビューを設定する。承認数0、最新化の要求なし、bypassなしとし、その理由と緊急時の手順、merge queueを導入しない評価を記載する。`tools/ruleset_check.py`は必須workflowのjob名（matrixのインラインリストと`include:`を展開）とrulesetの必須checkを比べ、差があれば`tests.yml`と`finish_task.bat`で失敗する。名前を予測できない形（`name:`のないmatrix job、`uses:`、job単位の`if:`、matrix以外の式、引用符のない数値・真偽値、`exclude:`など）と、workflow間で重複するjob名はエラーにする。rulesetファイルが有効・既定ブランチ対象・bypassなし・全checkのintegration_idが15368・削除/force push/PR規則ありであることも検査する。必須workflowの一覧は`tools/pr_workflow_evidence.py`の`REQUIRED_WORKFLOW_PATHS`を共有する。マージゲート`tools/finish_pr_merge.py`は、workflow欄が空文字のGitHub App check `CodeRabbit`・`Sourcery review`が`skipping`の場合に限り記録して停止しない（無料枠切れでPR #512のマージが止まったため）。失敗・保留・取消、workflow欄の欠落、同名のActions job、任意checkしか報告されない場合は従来どおり停止する。GitHub上のrulesetの有効化はリポジトリ所有者の許可後に行う。
+
+- Issue #614: 既存の資料リンク検査をRuntime境界・人向けガイドへ広げ、Markdownのタイトル付き・参照形式リンク、コード例の除外、バッククォート/チルダのフェンス、Mermaidの図形式・コメント・引用ラベル・括弧型ノードを扱う軽量検査を追加しました。生成物の鮮度検査と同じ既存CIへ接続し、偽陽性と見逃しの回帰テスト、資料更新・目視確認手順、PRの資料確認欄を追加しました。厳密な描画構文・呼出し順の意味・実機動作は保証しません。
 - Issue #318 / PR #346追加レビュー: クラスの状態キーを「フィールド」へ統一し、Issue #19の指定手法・本番接続・検証・延期成果物の対照表をレビュー基準へ反映します。Core / Runtime / Real-playの証拠と未確認・明示対象外を区別し、安全検査とプライバシー同意の迂回を差し戻します。自動ゲート実装はIssue #508で追跡します。
 
 - Issue #318: JSON-like Comment Outsを本体コードの宣言コメント規約として明確化し、レビュー基準・コーディング規約を追加。命名、責務分離、処理単位コメント、エラー・安全性・性能・CI/E2E、仕様書と日本語説明の差し戻し条件を定義。コメントは記法だけでなく対象・条件・理由・結果まで説明し、説明不足のレビュー指摘には欠けた意味と修正案を示す基準を追加。C/C++のstructと公開フィールドを対象に含め、C++公開契約のヘッダーをコメントの正本とする配置規則を定義。Python/C++例の宣言名・戻り値・例外を示した契約を一致させ、参照するDraft v0.9仕様とテンプレートのリンクを同一の不変コミットに固定。
