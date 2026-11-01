@@ -1,6 +1,7 @@
 #include "kadoka/runtime_api.h"
 
 #include <array>
+#include <limits>
 #include <cassert>
 
 namespace {
@@ -237,5 +238,29 @@ int main() {
     action.hold_seconds = 0.2;
     assert(kadoka_safety_validate_action(&action, &result) == 0);
     assert(result.allowed == 1);
+
+    // Reject non-finite durations at the C ABI boundary, even when other fields are valid.
+    const std::array<double, 3> non_finite_times{
+        std::numeric_limits<double>::quiet_NaN(),
+        std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+    };
+    for (double invalid_time : non_finite_times) {
+        action.hold_seconds = invalid_time;
+        action.max_hold_seconds = 1.0;
+        assert(kadoka_safety_validate_action(&action, &result) == KADOKA_RUNTIME_STATUS_OK);
+        assert(result.allowed == 0);
+        assert(result.reason_code == KADOKA_SAFETY_REASON_HOLD_TIMEOUT);
+
+        action.hold_seconds = 0.2;
+        action.max_hold_seconds = invalid_time;
+        assert(kadoka_safety_validate_action(&action, &result) == KADOKA_RUNTIME_STATUS_OK);
+        assert(result.allowed == 0);
+        assert(result.reason_code == KADOKA_SAFETY_REASON_HOLD_TIMEOUT);
+    }
+    action.max_hold_seconds = 1.0;
+    assert(kadoka_safety_validate_action(&action, &result) == KADOKA_RUNTIME_STATUS_OK);
+    assert(result.allowed == 1);
+    assert(result.reason_code == KADOKA_SAFETY_REASON_ALLOWED);
     return 0;
 }
