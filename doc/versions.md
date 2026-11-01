@@ -55,6 +55,9 @@
 
 ## Unreleased
 
+- Issue #479: 汎用の任意登録`TransitionModel`契約と、実入力を発行しない2048参照遷移を追加しました。移動・一手一合成と確率spawnを分離し、不変盤面、未認識score、勝利後継続、終了、seed付き仮想restartを扱います。未知ゲームのモデルは利用不可として返します。
+- Issue #479: hash検証済み固定版JavaScriptとslide/move/continue/restartを比較するOracle、CPU/heap測定、単体試験とCIの比較を追加しました。仮説更新・探索・本番Decisionへの接続は#478/#565-#567に残り、この追加だけでは実プレイの強化済みとは扱いません。[設計と検証手順](architecture/transition_simulation.md)を追加しました。
+
 - Issue #475 / PR #136（Issue #56の部分実装）: 言語・責務配置manifestとPython/C ABI宣言の整合性検査を追加します。不正な型、重複した能力配置、細かすぎる境界、読取失敗を検出します。能力ビットの数値をPython bindingへ照合し、現在の言語一覧も検査します。試行IDと既存の原子的保存・ファイルロックでレポートの競合と旧成功の残存を防ぎます。NativeのABI照会・安全検証、JSON変換、画像コピー・ビュー作成、応答期限付きIPCの時間をUbuntu/Windows CIの成果物へ記録します。既存のNative sanitizers・CTest反復・配布物起動・E2Eは保持します。Native bufferの所有権（#233）、独立したNative停止機構、clean Windows配布受入れ（#149）は完了扱いにしません。
 
 - Issue #357 / PR #366: ルートREADMEにPython、ネイティブ実装、GUI、テスト、開発用ツールへのリンクを追加しました。PythonパッケージのREADMEは責務別の実装入口、一回の操作を読む順序、現在の配置とIssue #356の移行計画の区別を説明します。`tests/test_source_navigation.py`は二つのREADMEの相対リンク先の存在を確認し、外部URLとページ内見出しは検査しません。ファイルの移動や入力処理の変更は行いません。
