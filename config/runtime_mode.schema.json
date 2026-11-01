@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-game-player.local/schemas/runtime-mode-v1.json",
+  "title": "Runtime Mode configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mode",
+    "resource_policy_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "mode": {
+      "$ref": "#/$defs/mode"
+    },
+    "resource_policy_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "inference_enabled": {
+      "type": "boolean"
+    },
+    "action_enabled": {
+      "type": "boolean"
+    },
+    "experience_write_enabled": {
+      "type": "boolean"
+    },
+    "knowledge_read_enabled": {
+      "type": "boolean"
+    },
+    "light_update_enabled": {
+      "type": "boolean"
+    },
+    "knowledge_build_enabled": {
+      "type": "boolean"
+    },
+    "heavy_training_enabled": {
+      "type": "boolean"
+    },
+    "evaluation_enabled": {
+      "type": "boolean"
+    },
+    "promotion_enabled": {
+      "type": "boolean"
+    },
+    "safety_core_enabled": {
+      "type": "boolean"
+    },
+    "auto_promotion_policy": {
+      "type": "string"
+    },
+    "degrade_policy": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "INFERENCE_ONLY",
+        "LEARNING_ONLY",
+        "INFERENCE_WITH_LEARNING",
+        "ALTERNATING_INFER_LEARN",
+        "INFERENCE_WITH_LIGHT_ADAPTATION"
+      ],
+      "default": "INFERENCE_WITH_LIGHT_ADAPTATION"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "IDLE",
+        "INFER",
+        "LEARN",
+        "EVALUATE",
+        "PROMOTE",
+        "PAUSED",
+        "STOPPING",
+        "ERROR"
+      ]
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "not": {
+        "pattern": "^(sk-|ghp_|github_pat_)"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "INFERENCE_ONLY"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "inference_enabled": {
+            "const": true
+          },
+          "action_enabled": {
+            "const": true
+          },
+          "experience_write_enabled": {
+            "const": true
+          },
+          "knowledge_read_enabled": {
+            "const": true
+          },
+          "light_update_enabled": {
+            "const": false
+          },
+          "knowledge_build_enabled": {
+            "const": false
+          },
+          "heavy_training_enabled": {
+            "const": false
+          },
+          "evaluation_enabled": {
+            "const": false
+          },
+          "promotion_enabled": {
+            "const": false
+          },
+          "safety_core_enabled": {
+            "const": true
+          },
+          "auto_promotion_policy": {
+            "const": "disabled"
+          },
+          "degrade_policy": {
+            "const": "learning_first"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "LEARNING_ONLY"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "inference_enabled": {
+            "const": false
+          },
+          "action_enabled": {
+            "const": false
+          },
+          "experience_write_enabled": {
+            "const": false
+          },
+          "knowledge_read_enabled": {
+            "const": true
+          },
+          "light_update_enabled": {
+            "const": true
+          },
+          "knowledge_build_enabled": {
+            "const": true
+          },
+          "heavy_training_enabled": {
+            "const": true
+          },
+          "evaluation_enabled": {
+            "const": true
+          },
+          "promotion_enabled": {
+            "const": true
+          },
+          "safety_core_enabled": {
+            "const": true
+          },
+          "auto_promotion_policy": {
+            "const": "evaluated_safe_boundary"
+          },
+          "degrade_policy": {
+            "const": "pause_learning"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "INFERENCE_WITH_LEARNING"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "inference_enabled": {
+            "const": true
+          },
+          "action_enabled": {
+            "const": true
+          },
+          "experience_write_enabled": {
+            "const": true
+          },
+          "knowledge_read_enabled": {
+            "const": true
+          },
+          "light_update_enabled": {
+            "const": true
+          },
+          "knowledge_build_enabled": {
+            "const": true
+          },
+          "heavy_training_enabled": {
+            "const": true
+          },
+          "evaluation_enabled": {
+            "const": true
+          },
+          "promotion_enabled": {
+            "const": true
+          },
+          "safety_core_enabled": {
+            "const": true
+          },
+          "auto_promotion_policy": {
+            "const": "evaluated_safe_boundary"
+          },
+          "degrade_policy": {
+            "const": "learning_first"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "ALTERNATING_INFER_LEARN"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "inference_enabled": {
+            "const": true
+          },
+          "action_enabled": {
+            "const": true
+          },
+          "experience_write_enabled": {
+            "const": true
+          },
+          "knowledge_read_enabled": {
+            "const": true
+          },
+          "light_update_enabled": {
+            "const": true
+          },
+          "knowledge_build_enabled": {
+            "const": true
+          },
+          "heavy_training_enabled": {
+            "const": true
+          },
+          "evaluation_enabled": {
+            "const": true
+          },
+          "promotion_enabled": {
+            "const": true
+          },
+          "safety_core_enabled": {
+            "const": true
+          },
+          "auto_promotion_policy": {
+            "const": "evaluated_safe_boundary"
+          },
+          "degrade_policy": {
+            "const": "learning_first"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "INFERENCE_WITH_LIGHT_ADAPTATION"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "inference_enabled": {
+            "const": true
+          },
+          "action_enabled": {
+            "const": true
+          },
+          "experience_write_enabled": {
+            "const": true
+          },
+          "knowledge_read_enabled": {
+            "const": true
+          },
+          "light_update_enabled": {
+            "const": true
+          },
+          "knowledge_build_enabled": {
+            "const": true
+          },
+          "heavy_training_enabled": {
+            "const": false
+          },
+          "evaluation_enabled": {
+            "const": true
+          },
+          "promotion_enabled": {
+            "const": true
+          },
+          "safety_core_enabled": {
+            "const": true
+          },
+          "auto_promotion_policy": {
+            "const": "evaluated_safe_boundary"
+          },
+          "degrade_policy": {
+            "const": "learning_first"
+          }
+        }
+      }
+    }
+  ]
+}

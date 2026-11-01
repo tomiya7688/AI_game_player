@@ -1,0 +1,50 @@
+{
+  "schema": "kadoka.inference.request/1",
+  "request_id": "req-000001",
+  "operation": "decision",
+  "model": {
+    "id": "standard-small",
+    "revision": null
+  },
+  "context": {
+    "trace_id": "trace-000001",
+    "session_id": "session-001",
+    "turn_id": 42,
+    "frame_id": "frame-0042",
+    "created_at": "2026-09-20T02:30:00+09:00"
+  },
+  "input": {
+    "decision_context": {
+      "schema": "kadoka.decision-context/1",
+      "purpose": "continue the current game safely",
+      "state": {
+        "summary": "Four directional moves are available."
+      },
+      "candidates": [
+        { "action_id": "move-left", "summary": "press left" },
+        { "action_id": "move-right", "summary": "press right" }
+      ]
+    },
+    "allowed_action_ids": ["move-left", "move-right"]
+  },
+  "constraints": {
+    "deadline_ms": 5000,
+    "max_output_tokens": 128,
+    "response_format": {
+      "type": "candidate_selection"
+    },
+    "stop": []
+  },
+  "sampling": {
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "top_k": 40,
+    "seed": 1234
+  },
+  "privacy": {
+    "remote_transmission_allowed": false,
+    "data_classes": ["decision_context"],
+    "sensitive_data_present": false,
+    "policy_ref": "local-default"
+  }
+}

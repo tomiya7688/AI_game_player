@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import errno
 import json
 import stat
 import tempfile
@@ -12,7 +13,9 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from urllib.parse import urlsplit
 
 
-SOURCE_LOCK_PATH = Path(__file__).resolve().parent / "reference_games" / "2048.source.lock.json"
+SOURCE_LOCK_PATH = (
+    Path(__file__).resolve().parent / "reference_games" / "2048.source.lock.json"
+)
 MAX_ARCHIVE_BYTES = 32 * 1024 * 1024
 MAX_EXTRACTED_BYTES = 128 * 1024 * 1024
 
@@ -37,7 +40,9 @@ class PinnedGameSource:
             self._verify_source(destination)
             return destination
 
-        with tempfile.TemporaryDirectory(prefix=f".{commit[:8]}-stage-", dir=self.cache_root) as temporary:
+        with tempfile.TemporaryDirectory(
+            prefix=f".{commit[:8]}-stage-", dir=self.cache_root
+        ) as temporary:
             staging_root = Path(temporary)
             archive_path = staging_root / "source.zip"
             extracted_root = staging_root / "extracted"
@@ -46,7 +51,15 @@ class PinnedGameSource:
             self._verify_source(extracted_root)
             try:
                 extracted_root.rename(destination)
-            except FileExistsError:
+            except OSError as error:
+                # POSIX can report ENOTEMPTY when another process publishes a
+                # complete directory first. Only reuse a winner after checking
+                # its entire locked source; unrelated rename errors still fail.
+                if (
+                    not isinstance(error, FileExistsError)
+                    and error.errno != errno.ENOTEMPTY
+                ):
+                    raise
                 self._verify_source(destination)
         return destination
 
@@ -57,8 +70,14 @@ class PinnedGameSource:
             raise PinnedGameSourceError(
                 f"2048 source lock could not be read: {self.lock_path}; restore the tracked lock file and retry"
             ) from error
-        if not isinstance(lock, dict) or lock.get("schema_version") != 1 or lock.get("game_id") != "2048":
-            raise PinnedGameSourceError("2048 source lock must use schema version 1 and game_id '2048'")
+        if (
+            not isinstance(lock, dict)
+            or lock.get("schema_version") != 1
+            or lock.get("game_id") != "2048"
+        ):
+            raise PinnedGameSourceError(
+                "2048 source lock must use schema version 1 and game_id '2048'"
+            )
         commit = lock.get("commit")
         repository = lock.get("repository")
         archive_url = lock.get("archive_url")
@@ -67,9 +86,15 @@ class PinnedGameSource:
         license_info = lock.get("license")
         repository_parts = urlsplit(repository) if isinstance(repository, str) else None
         archive_parts = urlsplit(archive_url) if isinstance(archive_url, str) else None
-        repository_path = repository_parts.path.strip("/") if repository_parts is not None else ""
-        expected_archive_path = f"/{repository_path}/zip/{commit}" if isinstance(commit, str) else ""
-        license_sha = license_info.get("git_blob_sha") if isinstance(license_info, dict) else None
+        repository_path = (
+            repository_parts.path.strip("/") if repository_parts is not None else ""
+        )
+        expected_archive_path = (
+            f"/{repository_path}/zip/{commit}" if isinstance(commit, str) else ""
+        )
+        license_sha = (
+            license_info.get("git_blob_sha") if isinstance(license_info, dict) else None
+        )
         if (
             not isinstance(commit, str)
             or len(commit) != 40
@@ -127,7 +152,10 @@ class PinnedGameSource:
             and not windows_path.is_absolute()
             and not windows_path.drive
             and "\\" not in path
-            and all(part not in {"", ".", ".."} and ":" not in part for part in path.split("/"))
+            and all(
+                part not in {"", ".", ".."} and ":" not in part
+                for part in path.split("/")
+            )
         )
 
     def _download_archive(self, archive_path: Path) -> None:
@@ -136,7 +164,10 @@ class PinnedGameSource:
             headers={"User-Agent": "Kadoka-AI-Game-Player-E2E"},
         )
         try:
-            with urllib.request.urlopen(request, timeout=60) as response, archive_path.open("xb") as archive:
+            with (
+                urllib.request.urlopen(request, timeout=60) as response,
+                archive_path.open("xb") as archive,
+            ):
                 declared_size = response.headers.get("Content-Length")
                 if declared_size and int(declared_size) > MAX_ARCHIVE_BYTES:
                     raise PinnedGameSourceError(
@@ -162,15 +193,22 @@ class PinnedGameSource:
         try:
             with zipfile.ZipFile(archive_path) as archive:
                 members = archive.infolist()
-                if not members or sum(member.file_size for member in members) > MAX_EXTRACTED_BYTES:
-                    raise PinnedGameSourceError("pinned 2048 archive is empty or exceeds the 128 MiB extraction limit")
+                if (
+                    not members
+                    or sum(member.file_size for member in members) > MAX_EXTRACTED_BYTES
+                ):
+                    raise PinnedGameSourceError(
+                        "pinned 2048 archive is empty or exceeds the 128 MiB extraction limit"
+                    )
                 top_level_names = set()
                 for member in members:
                     member_path = self._validated_member_path(member)
                     if member_path.parts:
                         top_level_names.add(member_path.parts[0])
                 if len(top_level_names) != 1:
-                    raise PinnedGameSourceError("pinned 2048 archive must contain one source directory")
+                    raise PinnedGameSourceError(
+                        "pinned 2048 archive must contain one source directory"
+                    )
 
                 top_level = next(iter(top_level_names))
                 seen_files: set[str] = set()
@@ -188,21 +226,31 @@ class PinnedGameSource:
                         continue
                     normalized_name = "/".join(relative_path).casefold()
                     if normalized_name in seen_files:
-                        raise PinnedGameSourceError("pinned 2048 archive contains duplicate Windows file paths")
+                        raise PinnedGameSourceError(
+                            "pinned 2048 archive contains duplicate Windows file paths"
+                        )
                     seen_files.add(normalized_name)
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    with archive.open(member) as source, target.open("xb") as destination:
+                    with (
+                        archive.open(member) as source,
+                        target.open("xb") as destination,
+                    ):
                         copied_bytes = 0
                         while chunk := source.read(1024 * 128):
                             copied_bytes += len(chunk)
                             extracted_bytes += len(chunk)
-                            if copied_bytes > member.file_size or extracted_bytes > MAX_EXTRACTED_BYTES:
+                            if (
+                                copied_bytes > member.file_size
+                                or extracted_bytes > MAX_EXTRACTED_BYTES
+                            ):
                                 raise PinnedGameSourceError(
                                     "pinned 2048 archive expanded beyond its declared or configured size"
                                 )
                             destination.write(chunk)
                         if copied_bytes != member.file_size:
-                            raise PinnedGameSourceError("pinned 2048 archive member size does not match its directory")
+                            raise PinnedGameSourceError(
+                                "pinned 2048 archive member size does not match its directory"
+                            )
         except PinnedGameSourceError:
             raise
         except Exception as error:
@@ -237,13 +285,21 @@ class PinnedGameSource:
             )
             or file_type not in {0, stat.S_IFREG, stat.S_IFDIR}
         ):
-            raise PinnedGameSourceError(f"pinned 2048 archive contains an unsafe path: {name!r}")
+            raise PinnedGameSourceError(
+                f"pinned 2048 archive contains an unsafe path: {name!r}"
+            )
         return path
 
     def _verify_source(self, source_root: Path) -> None:
         index_path = source_root / "index.html"
-        if source_root.is_symlink() or index_path.is_symlink() or not index_path.is_file():
-            raise PinnedGameSourceError(f"pinned 2048 source is missing index.html: {source_root}")
+        if (
+            source_root.is_symlink()
+            or index_path.is_symlink()
+            or not index_path.is_file()
+        ):
+            raise PinnedGameSourceError(
+                f"pinned 2048 source is missing index.html: {source_root}"
+            )
         file_blobs = self.lock["file_blobs"]
         assert isinstance(file_blobs, dict)
         actual_files: set[str] = set()
@@ -251,17 +307,25 @@ class PinnedGameSource:
         try:
             for path in source_root.rglob("*"):
                 if path.is_symlink():
-                    raise PinnedGameSourceError(f"pinned 2048 source cache contains a symbolic link: {path}")
+                    raise PinnedGameSourceError(
+                        f"pinned 2048 source cache contains a symbolic link: {path}"
+                    )
                 try:
                     path.resolve(strict=True).relative_to(resolved_root)
                 except ValueError as error:
-                    raise PinnedGameSourceError(f"pinned 2048 source cache path escapes its root: {path}") from error
+                    raise PinnedGameSourceError(
+                        f"pinned 2048 source cache path escapes its root: {path}"
+                    ) from error
                 if path.is_file():
                     actual_files.add(path.relative_to(source_root).as_posix())
                 elif not path.is_dir():
-                    raise PinnedGameSourceError(f"pinned 2048 source cache contains a non-file entry: {path}")
+                    raise PinnedGameSourceError(
+                        f"pinned 2048 source cache contains a non-file entry: {path}"
+                    )
         except OSError as error:
-            raise PinnedGameSourceError(f"pinned 2048 source cache could not be inspected: {source_root}") from error
+            raise PinnedGameSourceError(
+                f"pinned 2048 source cache could not be inspected: {source_root}"
+            ) from error
         if actual_files != set(file_blobs):
             raise PinnedGameSourceError(
                 "pinned 2048 source cache has missing or unexpected files; preserve it and review the cache folder"
@@ -271,9 +335,13 @@ class PinnedGameSource:
             try:
                 file_bytes = source_file.read_bytes()
             except OSError as error:
-                raise PinnedGameSourceError(f"pinned 2048 source file could not be read: {source_file}") from error
+                raise PinnedGameSourceError(
+                    f"pinned 2048 source file could not be read: {source_file}"
+                ) from error
             git_blob_header = f"blob {len(file_bytes)}\0".encode("ascii")
-            actual_blob_sha = hashlib.sha1(git_blob_header + file_bytes, usedforsecurity=False).hexdigest()
+            actual_blob_sha = hashlib.sha1(
+                git_blob_header + file_bytes, usedforsecurity=False
+            ).hexdigest()
             if actual_blob_sha != expected_blob_sha:
                 raise PinnedGameSourceError(
                     f"pinned 2048 source file does not match the lock: {relative_path}; "

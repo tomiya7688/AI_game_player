@@ -141,10 +141,16 @@ classDiagram
         +find_orphans()
         +check_integrity()
     }
+    ArtifactStore <|-- BoundedArtifactStore
+    Protocol <|-- BoundedArtifactStore
+    class BoundedArtifactStore {
+        +read_bounded()
+    }
     class FileSystemArtifactStore {
         +__init__()
         +put()
         +read()
+        +read_bounded()
         +verify()
         +find_orphans()
         +check_integrity()
@@ -175,6 +181,7 @@ classDiagram
         +decide()
         +choose_context()
         +_read_snapshot()
+        +_step_weights()
     }
     class BrightRegionDetector {
         +__init__()
@@ -333,6 +340,7 @@ classDiagram
         +_append_entry()
         +_update_entry()
         +record_action_outcome()
+        +record_execution_receipt()
         +recent()
         +recent_actions()
         +_read()
@@ -357,6 +365,11 @@ classDiagram
         +_index_candidates()
         +_build_result()
     }
+    class DeferredTraceAppend {
+        +__init__()
+        +publish()
+        +discard()
+    }
     class GamePlayerEngine {
         +__init__()
         +step()
@@ -366,6 +379,8 @@ classDiagram
         +_uses_context_api()
         +_semantic_outcome_provider()
         +_assess_previous_outcome()
+        +record_execution_receipt()
+        +complete_execution_observation()
     }
     class EvaluationAxis {
         +__post_init__()
@@ -436,6 +451,14 @@ classDiagram
         +load()
         +append()
         +_read_entries()
+    }
+    class ExecutionReceipt {
+        +__post_init__()
+        +to_dict()
+    }
+    class ExecutionObservation {
+        +__post_init__()
+        +to_dict()
     }
     class ArtifactReference {
         +__post_init__()
@@ -610,6 +633,19 @@ classDiagram
         +_find_board_region()
         +_read_cell()
     }
+    class Game2048State {
+        +__post_init__()
+        +terminated()
+    }
+    class ReferenceGame2048TransitionModel {
+        +apply_action()
+        +chance_outcomes()
+        +apply_slide()
+        +spawn_outcomes()
+        +sample_spawn()
+        +continue_game()
+        +restart()
+    }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
         +run()
@@ -684,6 +720,84 @@ classDiagram
         +search()
         +_read()
         +_write()
+    }
+    class KnowledgeBuildResult {
+    }
+    class KnowledgeBuilder {
+        +__init__()
+        +build()
+    }
+    class KnowledgeBuilderPolicy {
+        +__post_init__()
+        +fingerprint()
+    }
+    class KnowledgeEvaluationCase {
+        +__post_init__()
+    }
+    class KnowledgeEvaluationReport {
+        +to_dict()
+        +sha256()
+    }
+    class KnowledgeEvaluationRunner {
+        +run()
+        +_run_locked()
+    }
+    class KnowledgeFeatureAdapter {
+        +__init__()
+        +apply()
+        +project()
+        +_make_projection()
+        +_fallback()
+    }
+    class KnowledgeProjection {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_model_dict()
+    }
+    class KnowledgePromotionResult {
+    }
+    class KnowledgePromotionGate {
+        +__init__()
+        +initialize_champion()
+        +capture()
+        +evaluate_and_promote()
+        +rollback()
+        +audit()
+        +_record_rejection()
+        +_read_state()
+        +_commit()
+        +_lock_path()
+        +_result()
+    }
+    class KnowledgePromotionPolicy {
+        +__post_init__()
+        +assess()
+    }
+    class KnowledgeScope {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +key()
+    }
+    class KnowledgeSnapshot {
+        +__post_init__()
+        +from_dict()
+        +to_dict()
+        +to_bytes()
+        +sha256()
+        +is_expired()
+    }
+    class KnowledgeReadResult {
+    }
+    class KnowledgeSnapshotStore {
+        +__init__()
+        +save()
+        +read()
+        +_index_path()
+    }
+    class KnowledgeUpdateSample {
+        +from_event()
     }
     class LearningCapabilityManifest {
         +__post_init__()
@@ -907,6 +1021,8 @@ classDiagram
         +_decide()
         +run()
         +run_and_execute()
+        +_record_execution_receipt()
+        +complete_execution_observation()
         +load_execution_history()
         +record_safety_outcome()
         +trigger_emergency_stop()
@@ -958,6 +1074,7 @@ classDiagram
         +stop()
         +_validate_running_locked()
         +run_if_current()
+        +record_execution_audit()
         +ensure_running()
     }
     class ResolutionFailure {
@@ -1094,6 +1211,7 @@ classDiagram
         +run()
         +run_and_execute()
         +load_execution_history()
+        +complete_execution_observation()
         +assess_outcome()
         +close()
     }
@@ -1110,6 +1228,68 @@ classDiagram
         +attach_event_journal()
         +detach_event_journal()
         +write()
+    }
+    str <|-- RuntimeMode
+    Enum <|-- RuntimeMode
+    class RuntimeMode {
+    }
+    str <|-- RuntimePhase
+    Enum <|-- RuntimePhase
+    class RuntimePhase {
+    }
+    str <|-- RuntimeOperation
+    Enum <|-- RuntimeOperation
+    class RuntimeOperation {
+    }
+    class RuntimeModeConfig {
+        +__post_init__()
+        +flags()
+        +to_dict()
+        +from_dict()
+        +operations()
+    }
+    ValueError <|-- RuntimeModeTransitionError
+    class RuntimeModeTransitionError {
+    }
+    RuntimeError <|-- RuntimeModePersistenceError
+    class RuntimeModePersistenceError {
+    }
+    class RuntimeModeController {
+        +__init__()
+        +snapshot()
+        +request_mode()
+        +apply_pending_mode()
+        +transition()
+        +begin_step()
+        +finish_step()
+        +permits()
+        +run_if_allowed()
+        +record_evaluation()
+        +degrade()
+        +request_stop()
+        +fail()
+        +recover_to_idle()
+        +resume_at_boundary()
+        +_signal_stop()
+        +_complete_stop_signal()
+        +flush()
+        +restore()
+        +_held_is_clear()
+        +_admit()
+        +_metadata_change()
+        +_change_locked()
+    }
+    class RuntimeModeRecorder {
+        +__init__()
+        +full()
+        +enqueue()
+        +flush()
+    }
+    class RuntimeModeSnapshot {
+        +mode()
+        +to_dict()
+    }
+    class RuntimeStepToken {
     }
     str <|-- SafetyState
     Enum <|-- SafetyState
@@ -1240,6 +1420,25 @@ classDiagram
         +_notify_finished_subscribers()
         +_finish_locked()
         +_capture_loop()
+    }
+    Generic <|-- SimulationKey
+    class SimulationKey {
+    }
+    class SimulationProvider {
+        +__init__()
+        +register()
+        +get_model()
+    }
+    Generic <|-- ActionTransition
+    class ActionTransition {
+    }
+    Generic <|-- ChanceOutcome
+    class ChanceOutcome {
+    }
+    Protocol <|-- TransitionModel
+    class TransitionModel {
+        +apply_action()
+        +chance_outcomes()
     }
     class PlayerSeat {
         +__init__()
@@ -1485,6 +1684,7 @@ classDiagram
     }
     class WindowsInputExecutor {
         +__init__()
+        +has_held_inputs()
         +execute()
         +_verify_target_identity()
         +release_all()

@@ -1,11 +1,12 @@
 [project]
 name = "ai-game-player"
 version = "0.1.0"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 [project.optional-dependencies]
 ocr = ["Pillow", "pytesseract"]
-dev = ["ruff==0.15.22", "mypy==2.3.1", "coverage==7.16.1"]
+dev = ["ruff==0.15.22", "mypy==2.3.1", "coverage==7.16.1", "jsonschema[format]==4.26.0"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
