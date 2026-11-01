@@ -129,3 +129,5 @@ PYTHONPATH=src:. python -m unittest discover -s tests -p test_knowledge_promotio
 復元、許可外操作、壊れた比較元、例外、scope混在、標本不足、重複根拠、資源超過、
 公開途中障害、評価中の世代更新、状態破損、過去版の改ざん、履歴上限を検証します。
 状態遷移の単体試験ではscheduler変動と機能判定を分離し、資源超過拒否は独立ケースで残します。
+
+保存済みpointerはSnapshotと同じ通常ファイル限定の有界読込を使います。FIFOやsymlinkを拒否し、破損したpointerを初期状態として上書きしません。

@@ -8,6 +8,7 @@ from typing import Callable
 
 from ai_game_player.artifact_store import FileSystemArtifactStore
 from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.bounded_file import read_regular_file
 from ai_game_player.cross_process_lock import cross_process_file_lock
 from ai_game_player.knowledge_evaluation import (
     KnowledgeEvaluationCase,
@@ -255,14 +256,16 @@ class KnowledgePromotionGate:
 
     # {
     #   責務: [_read_state: 有界の原子的pointer記録を検証して読む]
-    #   処理: [未作成は初期状態、破損・別scope・未知形式はValueErrorとし上書きしない]
+    #   処理: [通常ファイルだけを容量上限付きで読み、未作成は初期状態、破損・別scopeは拒否する]
     #   引数: [scope: 期待するscope]
     #   戻り値: [dict: 独立したmutable transaction作業コピー]
     #   エラー: [ValueError/OSError: 不正または読取失敗]
     # }
     def _read_state(self, scope: KnowledgeScope) -> dict:
         path = self.root / scope.key / "state.json"
-        if not path.exists():
+        try:
+            payload = read_regular_file(path, max_bytes=MAX_STATE_BYTES)
+        except FileNotFoundError:
             return {
                 "schema_version": 1,
                 "scope": scope.to_dict(),
@@ -271,12 +274,6 @@ class KnowledgePromotionGate:
                 "history": [],
                 "audit": [],
             }
-        if path.is_symlink():
-            raise ValueError("knowledge promotion state must not be a symlink")
-        with path.open("rb") as stream:
-            payload = stream.read(MAX_STATE_BYTES + 1)
-        if len(payload) > MAX_STATE_BYTES:
-            raise ValueError("knowledge promotion state exceeds byte budget")
         state = json.loads(payload, object_pairs_hook=_unique_object)
         _validate_state(state, scope)
         return state

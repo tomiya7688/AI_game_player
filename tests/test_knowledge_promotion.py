@@ -2,6 +2,7 @@ from copy import deepcopy
 from dataclasses import replace
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -309,6 +310,22 @@ class KnowledgePromotionTests(unittest.TestCase):
         result = self.evaluate_for_test(self.scope, "new", self.cases, factory)
         self.assertEqual(result.reason, "stale_evaluation")
         self.assertEqual(self.gate.capture(self.scope).snapshot.version, "old")
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "POSIX FIFO contract")
+    def test_fifo_state_is_rejected_without_opening(self):
+        self.initialize()
+        path = self.root / "promotion" / self.scope.key / "state.json"
+        path.unlink()
+        os.mkfifo(path)
+        with patch(
+            "ai_game_player.bounded_file.os.open",
+            side_effect=AssertionError("FIFO must not open"),
+        ):
+            result = self.gate.capture(self.scope)
+        self.assertIsNone(result.snapshot)
+        self.assertEqual(result.reason, "invalid_promotion_state")
+        with self.assertRaises(ValueError):
+            self.gate.initialize_champion(self.scope, "new")
 
     def test_corrupt_or_oversized_state_falls_back_without_overwriting_evidence(self):
         self.initialize()
