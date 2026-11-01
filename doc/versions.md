@@ -226,6 +226,8 @@ plugin_manifest_schema          1
 
 - Issue #531: scope・期限を照合したKnowledgeをstep固定のsoft evidenceとしてBaseline/Engine/Pipelineへ接続します。候補許可・Safety・認識最低値を変えず、priorと重みhintで判断が変化します。unknownはno-effectに変換しません。モデル公開は明示opt-inの4KiB圧縮文脈、ローカルTraceは版・hash・出所を保持します。[設計・残件・検証](architecture/knowledge_feature_adapter.md)を追加しました。
 
+- Issue #532: 不変KnowledgeのChampion/Challengerを同じ根拠付きケースで実Provider・DecisionVerifierへ通して比較し、成果・回帰・Python時間/heapから昇格を判定するGateを追加しました。対象SHA・Policy・測定を保存し、世代CASと原子的pointer/監査更新、step固定、過去のvalid版へのrollbackを提供します。外部passedフラグを受け付けず、#171/#173の汎用engine・#422の自動学習配線・Windows実機検証とは区別します。[設計と検証](architecture/knowledge_promotion.md)を参照してください。
+
 - Issue #168: JSONL Experience Readerの任意Step/検索index、snapshot/delta再構築、schema v0移行、破損tail回復、checkpoint検証とArtifact参照検査を追加。
 
 - Issue #167: SHA-256 content-addressed Artifact Store、atomic publication、artifact type metadata schema、dedup/integrity/orphan検査とlocal benchmarkを追加。

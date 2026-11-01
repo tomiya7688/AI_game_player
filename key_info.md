@@ -23,6 +23,8 @@
 
 - 数値Knowledge Snapshot v1をgame/scene/profile/Player lineageで隔離して保存・読取できます。不変版、出所、uncertainty、期限、整合性と読込容量を検証し、不正時はstatic fallbackを返します（Issue #529）。
 
+- Knowledgeの更新候補を、同じ根拠付き判断ケースの成果・回帰・資源で比較し、本番版参照を原子的に切替・復元するAPI（Issue #532）。実入力を発行せず、取得済みのstep用Snapshotを変更しません。
+
 ## 制約
 
 - Windows入力は実環境でのみ動作し、ゲームがWindowsメッセージを無視する場合は`mouse`方式が必要です。
@@ -32,5 +34,6 @@
 - `UnknownnessMonitor`は検出器の根拠を受け取るコアAPIです。画面認識器・prototype検索器・知識検索器からの自動入力とゲーム実行pipelineへの接続は未実装です。unknown時の行動選択も行わず、その方針はIssue #206の対象です。
 - Dataset Builderは定義済みのExperience event形式のみをsample化します。Modelの学習・評価・昇格処理そのものは未実装です。sensitive artifact参照は明示opt-inがない限りDatasetから除外されます。
 - GameSessionControllerの各SessionはSession Event Journalへ判断・実行・Safety・RuntimeLog eventを記録し、初回Sessionで旧JSON/JSONL履歴を移行します。Session Journalをまたぐ検索APIとTimeline/Video/Learningからの横断参照はIssue #263で対応します。
+- Knowledge Promotion Gateはoffline評価・公開APIです。通常Sessionへの自動学習・昇格配線（#422）、任意callbackの隔離評価（#173/#183）、Windows実プレイの検証は未実施です。
 - 長期目的、知識埋め込み、複数人格比較は未実装です。
 - Native Runtimeの汎用batch処理はメタデータ契約のみで`NOT_IMPLEMENTED`を返します。専用Frame Preprocess API以外のcapture/input画素処理は未実装で、GUI実行経路もNativeへ自動切替しません。
