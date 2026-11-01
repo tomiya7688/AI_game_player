@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import json
 from math import isfinite
+import re
 from typing import Any, cast
 
 from ai_game_player.knowledge_scope import KnowledgeScope, validate_identifier
@@ -15,6 +16,7 @@ MAX_KNOWLEDGE_BYTES = 1024 * 1024
 MAX_ENTRIES = 4096
 MAX_SOURCES = 1024
 MAX_COUNT = 1_000_000_000_000
+UTC_TIMESTAMP_PATTERN = r"^(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?(?:Z|\+00:00)$"
 SNAPSHOT_FIELDS = frozenset(
     {
         "schema_version",
@@ -119,20 +121,27 @@ class KnowledgeSnapshot:
 
     # {
     #   責務: [from_dict: 数値データと不透明な参照だけを含むKnowledgeを構築する]
-    #   処理: [JSON化し通常コンストラクターで全契約を検証する]
+    #   処理: [JSON化前に全shape・件数・文字列長を検証し、1MiBまでの分割encodeだけを蓄積する]
     #   引数: [value: schema v1のKnowledge辞書。渡した辞書の変更はSnapshotへ影響しない]
     #   戻り値: [KnowledgeSnapshot: 不変の検証済みSnapshot]
     #   エラー: [ValueError/TypeError: JSON化できない値、非有限数、不正な契約]
     # }
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "KnowledgeSnapshot":
+        _validate_snapshot(value)
+        payload = bytearray()
         try:
-            payload = json.dumps(
-                value, sort_keys=True, separators=(",", ":"), allow_nan=False
-            ).encode("utf-8")
+            encoder = json.JSONEncoder(
+                sort_keys=True, separators=(",", ":"), allow_nan=False
+            )
+            for chunk in encoder.iterencode(value):
+                encoded = chunk.encode("utf-8")
+                if len(encoded) > MAX_KNOWLEDGE_BYTES - len(payload):
+                    raise ValueError("knowledge snapshot exceeds its byte contract")
+                payload.extend(encoded)
         except RecursionError as error:
             raise ValueError("knowledge JSON nesting exceeds contract") from error
-        return cls(payload)
+        return cls(bytes(payload))
 
     # {
     #   責務: [to_dict: BuilderやAdapterへ独立したデータコピーを渡す]
@@ -202,7 +211,7 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 #   エラー: [ValueError: object以外、不足または余分なキー]
 # }
 def _fields(value: Any, expected: set[str] | frozenset[str]) -> None:
-    if not isinstance(value, dict) or set(value) != expected:
+    if type(value) is not dict or len(value) != len(expected) or set(value) != expected:
         raise ValueError("knowledge fields do not match contract")
 
 
@@ -244,7 +253,11 @@ def _number(value: Any, lower: float = 0.0, upper: float = 1.0) -> float:
 #   エラー: [ValueError: 時刻形式またはUTC条件が不正]
 # }
 def _timestamp(value: Any) -> datetime:
-    if not isinstance(value, str) or not 1 <= len(value) <= 40:
+    if (
+        not isinstance(value, str)
+        or not 1 <= len(value) <= 40
+        or re.fullmatch(UTC_TIMESTAMP_PATTERN, value) is None
+    ):
         raise ValueError("knowledge timestamp must be UTC")
     try:
         result = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -313,11 +326,17 @@ def _validate_snapshot(value: Any) -> None:
         if width <= 0 or height <= 0 or x + width > 1 or y + height > 1:
             raise ValueError("knowledge ROI lies outside normalized frame")
     _validate_transitions(value["transition_priors"], sample_count)
-    _validate_sources(value["source_experience_range"], sample_count)
+    last_accepted = _validate_sources(value["source_experience_range"], sample_count)
     _fields(value["builder_state"], {"source_watermarks", "correlation_watermarks"})
     for table in value["builder_state"].values():
         for sequence in _id_map(table, MAX_SOURCES).values():
             _count(sequence)
+    processed = value["builder_state"]["source_watermarks"]
+    if any(
+        source not in processed or processed[source] < sequence
+        for source, sequence in last_accepted.items()
+    ):
+        raise ValueError("knowledge processed cursor precedes accepted source evidence")
 
 
 # {
@@ -380,10 +399,10 @@ def _validate_transitions(rows: Any, sample_count: int) -> None:
 #   責務: [_validate_sources: 元Experience範囲の重複・件数・digestを検証する]
 #   処理: [同じsourceの区間重複を拒否し、元件数の合計とsample_countを照合する]
 #   引数: [rows: opaque source範囲配列, sample_count: Snapshot全体の証拠件数]
-#   戻り値: [なし]
+#   戻り値: [dict: sourceごとの採用済み最大sequence。既処理cursorと別に照合する]
 #   エラー: [ValueError: 範囲・SHA・件数が不正または重複]
 # }
-def _validate_sources(rows: Any, sample_count: int) -> None:
+def _validate_sources(rows: Any, sample_count: int) -> dict[str, int]:
     if not isinstance(rows, list) or len(rows) > MAX_SOURCES:
         raise ValueError("knowledge source ranges exceed contract")
     intervals: dict[str, list[tuple[int, int]]] = {}
@@ -415,3 +434,6 @@ def _validate_sources(rows: Any, sample_count: int) -> None:
             raise ValueError("knowledge source ranges overlap")
     if total != sample_count:
         raise ValueError("knowledge source count does not match sample_count")
+    return {
+        source: max(last for _, last in ranges) for source, ranges in intervals.items()
+    }
