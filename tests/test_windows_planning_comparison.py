@@ -1,4 +1,7 @@
 from pathlib import Path
+from contextlib import redirect_stdout
+import io
+import json
 from types import SimpleNamespace
 import tempfile
 import unittest
@@ -7,6 +10,8 @@ from unittest.mock import patch
 from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.campaign_contract import CampaignState
 from ai_game_player.run_control import RunController
+from ai_game_player.decision_withheld import DecisionDisposition
+from ai_game_player.planning_outcome import PlanningOutcome
 from tools import compare_2048_windows_planning as comparison
 
 
@@ -105,6 +110,11 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         self.assertFalse(result["success"])
         self.assertIn("visible score OCR", result["failure"]["message"])
         self.assertTrue(instances[0].closed)
+        summary = comparison.comparison_summary(result)
+        self.assertEqual(summary["failure_stage"], "score_evaluation")
+        self.assertEqual(summary["confirmed_actual_actions"], 3)
+        self.assertEqual(summary["score_status"], "unavailable")
+        self.assertEqual(summary["stop_probe"], "unverified")
 
     def test_missing_optional_sampler_becomes_a_reported_failure(self):
         with (
@@ -121,3 +131,94 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         self.assertFalse(result["success"])
         self.assertEqual(result["failure"]["type"], "ImportError")
         self.assertIsNone(result["resources"])
+
+    def test_nonselect_preserves_current_core_reason_without_fake_input(self):
+        def factory(*args, **kwargs):
+            episode = FakeEpisode(*args, **kwargs)
+            episode.pipeline.engine.provider.last_planning_result = SimpleNamespace(
+                reason="invalid_model_or_quality"
+            )
+            episode.pipeline.engine.provider.last_policy_decision = SimpleNamespace(
+                reason_codes=("planning_unavailable",)
+            )
+            return episode
+
+        withheld = DecisionDisposition(
+            PlanningOutcome.ABSTAIN, ("planning_unavailable",), "planner"
+        )
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", side_effect=factory),
+            patch.object(comparison.DecisionOrchestrator, "run", return_value=withheld),
+            patch.object(
+                comparison.TesseractOcrRecognizer, "optional", return_value=object()
+            ),
+            patch.object(
+                comparison,
+                "evaluate_visible_score",
+                return_value={"value": 0, "confidence": 0.9},
+            ),
+        ):
+            result = comparison.run_episode(
+                "planner", 479, 3, Path(directory), Path(directory)
+            )
+        summary = comparison.comparison_summary(result)
+        self.assertFalse(summary["success"])
+        self.assertEqual(summary["core_reason"], "invalid_model_or_quality")
+        self.assertEqual(summary["policy_reason_codes"], ["planning_unavailable"])
+        self.assertEqual(summary["disposition"], "abstain")
+        self.assertEqual(summary["confirmed_actual_actions"], 0)
+        self.assertEqual(summary["score"], 0)
+        self.assertEqual(summary["stop_probe"], "rejected")
+
+    def test_cli_emits_bounded_episode_summary_before_report_publication(self):
+        captured = io.StringIO()
+        published_counts = []
+
+        def episode(provider, *args, **kwargs):
+            return {
+                "provider": provider,
+                "seed": 479,
+                "success": False,
+                "actions": 0,
+                "failure": {
+                    "type": "RuntimeError",
+                    "message": "x" * 2000 + "\nsecond line",
+                },
+                "failure_stage": "game_initialization",
+                "wall_seconds": 1.5,
+                "raw_frame": "must not be logged",
+                "profile": {"private": True},
+            }
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "os", SimpleNamespace(name="nt")),
+            patch.object(
+                comparison, "new_probe_directory", return_value=Path(directory)
+            ),
+            patch.object(comparison, "run_episode", side_effect=episode),
+            patch.object(comparison.subprocess, "check_output", return_value="test\n"),
+            patch.object(
+                comparison, "source_fingerprint", return_value={"hash": "same"}
+            ),
+            patch.object(
+                comparison,
+                "publish_validation_report",
+                side_effect=lambda *args: published_counts.append(
+                    len(captured.getvalue().splitlines())
+                ),
+            ),
+            redirect_stdout(captured),
+        ):
+            self.assertEqual(comparison.main(["--allow-live-input"]), 1)
+        lines = captured.getvalue().splitlines()
+        summaries = [json.loads(line) for line in lines[:3]]
+        self.assertEqual(
+            [s["provider"] for s in summaries], ["cycling", "baseline", "planner"]
+        )
+        self.assertEqual(published_counts, [1, 2, 3, 3])
+        self.assertTrue(all(len(s["failure_message"]) == 512 for s in summaries))
+        self.assertNotIn("must not be logged", captured.getvalue())
+        self.assertNotIn("private", captured.getvalue())
