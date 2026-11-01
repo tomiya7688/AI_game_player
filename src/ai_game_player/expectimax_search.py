@@ -35,7 +35,7 @@ class SearchFailure(ValueError):
 
 
 # {
-#   責務: [SearchCutoff: node/協調time予算で未完了深さを破棄する]
+#   責務: [SearchCutoff: node/協調time予算または共通合法集合の欠如をcontrolled保留として通知する]
 #   フィールド: [なし: 完了済みcheckpointの採用は親の受領deadline/鮮度が決める]
 # }
 class SearchCutoff(RuntimeError):

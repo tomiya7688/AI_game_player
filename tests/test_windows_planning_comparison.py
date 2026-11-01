@@ -28,6 +28,14 @@ class FakeMonitor:
 
 
 class FakeEpisode:
+    def capture_preflight(self, *, expected_rearm_token, **kwargs):
+        self.pipeline.controller.ensure_running(expected_rearm_token)
+        return self.observe(**kwargs)
+
+    def activate_preflight(self, *, expected_rearm_token, **kwargs):
+        self.pipeline.controller.ensure_running(expected_rearm_token)
+        return self.observe(**kwargs)
+
     def validate_preprocessing(self):
         return {"match": True, "binary": {"sha256": "fixture"}}
 
@@ -308,9 +316,9 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
                 self.assertTrue(
                     all(count == 0 for count, _ in observations[: 2 if recover else 3])
                 )
-                self.assertLessEqual(
-                    observations[1][1]["timeout_seconds"],
-                    comparison.SCREEN_READY_TIMEOUT_SECONDS,
+                self.assertEqual(
+                    observations[1][1]["deadline_monotonic"],
+                    observations[0][1]["deadline_monotonic"],
                 )
                 self.assertGreater(instances[0].source.not_before, 0)
                 self.assertEqual(result["success"], recover)

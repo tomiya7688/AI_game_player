@@ -76,3 +76,9 @@ Windows5.5.3で0画像のOCR回帰が残ったため、次候補は先にSCORE p
 
 
 後続の機能親`175af6be54b8c9aa02d6aa8f83a41aaba05ff52b`は、実Win128条件の根拠に基づき、binary共通2ROIが空でpairを完成できない場合だけ同support/同2ROIのgrayscale・PSM7無whitelistを評価用に再読する。binary部分値とgrayの矛盾、既知の幅不一致/曖昧/低conf/切断はunknownに保ち、.65や通常入力OCRは変更しない。[exact Win RGB/TSV replayとLinux18例・4/6桁・費用](../validation/planning_score_gray_fallback.json)を保持する。これは新Win実行の代用ではなく、旧919/ba195の失敗は歴史として保全する。モデルの追加、値/seed固有処理、Source/学習への接続はない。
+
+
+機能source `deec3e5cb1b26cc432269b1473432d94b0b3053c` の新Windows比較はpush/PR各3seed、全6job・18episodeが成功し、0を含む同画素21testsも全jobで通過した。216attemptのうち213実送信と213盤面変化、3holdで、PR seed481のPlannerだけ9入力/3hold、他17episodeは12入力だった。全得点を取得し、Stop/旧世代操作は全拒否。これは短比較であり、予測盤面の完全一致・長期生存・全ゲーム精度の証拠にはしない。600秒gateは旧launcherの初回全空盤面をreadyとするassertで未開始のまま失敗し、test-only修正後の新headで全CIを再検証する。
+
+
+次の機能親`d4e15a1ba5fb28f8c7b81a4ba8239056fac61c2c`は、旧launcherの元15秒deadline/4候補期待を保ったready判定修正と、短比較専用SAFE_IDLE preflightを追加する。元の絶対45秒、5秒age、元token/Stop・所有照合を緩めず、通常600秒Campaignのobserve経路は維持する。deec3の成功や旧失敗を新phaseの実証へ置換せず、新Win CIの全gatesを確認する。
