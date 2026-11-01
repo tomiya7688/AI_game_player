@@ -178,6 +178,7 @@ class BaselineDecisionProvider:
     #     min_recognition: 最良候補の認識確信度がこの値未満ならobserve_moreする閾値（0〜1）,
     #     knowledge_snapshot: 任意のKnowledge Snapshot。versionとpriorsを持つ辞書,
     #     fallback_priority: Model不可時に使う順序。小さいほど先
+    #     evaluation_weight: 同stepの候補hypothetical品質だけへのsoft係数0..10。actualには使わない
     #   ]
     #   戻り値: [なし]
     #   エラー: [ValueError: 未知の重み名、非有限または負の値、範囲外の閾値の場合]
@@ -189,6 +190,7 @@ class BaselineDecisionProvider:
         min_recognition: float = 0.6,
         knowledge_snapshot: Mapping[str, Any] | None = None,
         fallback_priority: int = 100,
+        evaluation_weight: float = 1.0,
     ) -> None:
         merged = dict(DEFAULT_WEIGHTS)
         for key, raw in (weights or {}).items():
@@ -205,6 +207,13 @@ class BaselineDecisionProvider:
         if not isfinite(min_recognition) or not 0 <= min_recognition <= 1:
             raise ValueError("min_recognition must be between 0 and 1")
         self.weights = merged
+        if (
+            type(evaluation_weight) not in (int, float)
+            or not isfinite(evaluation_weight)
+            or not 0 <= evaluation_weight <= 10
+        ):
+            raise ValueError("runtime evaluation weight must be finite in 0..10")
+        self.evaluation_weight = evaluation_weight
         self.min_margin = min_margin
         self.min_recognition = min_recognition
         self.knowledge_snapshot = knowledge_snapshot
@@ -237,6 +246,13 @@ class BaselineDecisionProvider:
         weights = self._step_weights(context)
         contributions: dict[str, dict[str, float]] = {}
         scores: dict[str, float] = {}
+        qualities = (
+            context.evaluation_projection.candidate_qualities(context.snapshot_id)
+            if context.evaluation_projection is not None
+            else {}
+        )
+        if any(quality.available for quality in qualities.values()):
+            provenance.append("runtime_evaluation/v1; candidate_hypothetical_only")
         for candidate in allowed:
             parts = {
                 "utility": weights["utility"] * candidate.utility_score,
@@ -245,6 +261,11 @@ class BaselineDecisionProvider:
                 "knowledge_prior": weights["knowledge_prior"]
                 * priors.get(candidate.action_id, 0.0),
             }
+            quality = qualities.get(candidate.action_id)
+            if quality is not None and quality.available:
+                parts["primitive_evaluation"] = (
+                    self.evaluation_weight * quality.effective_value
+                )
             contributions[candidate.action_id] = {
                 name: round(value, 6) for name, value in parts.items()
             }
@@ -303,6 +324,14 @@ class BaselineDecisionProvider:
         )
         if decision.knowledge_snapshot_version is not None:
             reason += f", knowledge={decision.knowledge_snapshot_version}"
+        if context.evaluation_projection is not None and any(
+            quality.available
+            for quality in context.evaluation_projection.candidate_qualities(
+                context.snapshot_id
+            ).values()
+        ):
+            profile = context.evaluation_projection.to_dict()["profile"]
+            reason += f", evaluation={profile['profile_id']}@{profile['version']}"
         return ActionDecision(
             str(decision.selected_action_id),
             reason,

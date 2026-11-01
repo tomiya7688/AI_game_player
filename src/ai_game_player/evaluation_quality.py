@@ -36,19 +36,19 @@ class NumericQuality:
     def __post_init__(self) -> None:
         if (
             type(self.value) not in (int, float)
-            or not isfinite(self.value)
             or not -1 <= self.value <= 1
+            or not isfinite(self.value)
             or type(self.confidence) not in (int, float)
-            or not isfinite(self.confidence)
             or not 0 <= self.confidence <= 1
+            or not isfinite(self.confidence)
             or type(self.available) is not bool
             or type(self.projection_version) is not int
             or self.projection_version != QUALITY_PROJECTION_VERSION
             or type(self.provenance) is not tuple
             or len(self.provenance) > 8
             or type(self.coverage) not in (int, float)
-            or not isfinite(self.coverage)
             or not 0 <= self.coverage <= 1
+            or not isfinite(self.coverage)
             or type(self.missing_axes) is not tuple
             or len(self.missing_axes) > 16
         ):
