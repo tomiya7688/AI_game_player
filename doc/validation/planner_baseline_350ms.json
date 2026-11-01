@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "git_sha_at_start": "f145c946685ae7361f8d3e6416b85c6fdf07e988",
+  "harness_sha256": "5434feef454202bae1ee478c766c67eb8c5d5f2b29da8f3b56de2bc6e5c116dd",
+  "provider": "BaselineDecisionProvider",
+  "profile": {
+    "min_margin": 0.0,
+    "min_recognition": 0.65,
+    "purpose": "reference validation tie selection; default profile is not overridden in production"
+  },
+  "observation": "screenshot -> existing recognizer; explicit actual receipt completion after each action",
+  "decision_data": "no hidden game state or live RNG; deterministic RNG initialization is test setup only",
+  "windows_field_play": "Unverified: isolated Chromium backend, no Win32/WGC",
+  "source_report_sha256": "ac36f728f5894d7d61870d4f5e9e58c89c2a7691c4873ba68fd1a6eea7726e08",
+  "source_report_path": "/workspace/AI_game_player-issue-564/build/transition-2048/baseline-comparison/run-d27a7e77807e4c6f98167ad6b35e3cb5/report.json",
+  "settle_ms": 350,
+  "comparison_condition": "Historical reference only; do not pool with 1000ms same-condition comparison",
+  "episodes": [
+    {
+      "seed": 479,
+      "actions": 92,
+      "duration_seconds": 52.971759334001035,
+      "game_over": true,
+      "visible_score": "664",
+      "max_tile": 64,
+      "stopped_input_rejected": true,
+      "predictions_matched": true,
+      "completed_actual_observations": 92,
+      "execution_status_counts": {
+        "executed": 92
+      },
+      "outcome_status_counts": {
+        "unknown": 92
+      }
+    },
+    {
+      "seed": 480,
+      "actions": 148,
+      "duration_seconds": 92.46009255100034,
+      "game_over": true,
+      "visible_score": "1344",
+      "max_tile": 128,
+      "stopped_input_rejected": true,
+      "predictions_matched": true,
+      "completed_actual_observations": 148,
+      "execution_status_counts": {
+        "executed": 148
+      },
+      "outcome_status_counts": {
+        "unknown": 148
+      }
+    },
+    {
+      "seed": 481,
+      "actions": 153,
+      "duration_seconds": 95.75568670900066,
+      "game_over": true,
+      "visible_score": "1448",
+      "max_tile": 128,
+      "stopped_input_rejected": true,
+      "predictions_matched": true,
+      "completed_actual_observations": 153,
+      "execution_status_counts": {
+        "executed": 153
+      },
+      "outcome_status_counts": {
+        "unknown": 153
+      }
+    }
+  ],
+  "mean_score": 1152,
+  "historical_cycling_mean_score": 1242.6666666666667,
+  "claim": "n=3; no demonstrated improvement or statistical significance; actual outcomes remain unknown"
+}

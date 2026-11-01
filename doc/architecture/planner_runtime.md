@@ -42,3 +42,5 @@ Receding-horizonの参照: Mayne et al., *Constrained model predictive control: 
 接続checkpointでは全1,224 tests（45環境skip）、ruff/mypy/coverage/compile/bug/runtime-boundary/performance/workflow-security/required29構成を通過しました。OS admissionとBelief現行照合を除いた場合に新規回帰がFAILすることも確認しています。初期回帰は非SELECTの無入力・cached/別source拒否・有限再観測、state/signature/候補変更、Stop/rearm、失効、dry-run、未解決Safety要求、仮想terminalと実unknownの分離を確認しています。実探索、seeded比較、p50/p95・CPU/RAM/nodesとWindows実測の結果は最終統合時に追記します。未測定を成功扱いにしません。
 
 Pythonの小さな接続層は1step毎で、画像bufferや木をコピーせずbounded参照だけを扱います。探索のtime/node/RAM強制は#565のworkerに置き、OS入力/停止は既存Native境界を維持します。接続層だけをC++へ移してもcapture/認識/worker IPCの支配的costを減らさないため、現在のPython compositionへ配置しています。
+
+過去条件350msの[Baseline実画面比較記録](../validation/planner_baseline_350ms.json)は、f145 production・seed479/480/481でscore664/1344/1448、actions92/148/153、max64/128/128です。393件すべて実行receiptと明示観測があり、実Outcomeは全unknownです。平均1152（既存Cycling1242.67）で改善を示しません。新しい1000ms settleでの同条件比較とは分け、n=3の統計的有意性を主張しません。
