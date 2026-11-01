@@ -54,6 +54,13 @@ class PlanningRiskPolicyTests(unittest.TestCase):
         self.assertIn("observation_upper_bound_below_cost", result.reason_codes)
         self.assertTrue(result.global_risk_known)
 
+    def test_zero_probability_world_does_not_create_action_disagreement(self):
+        belief = make_belief((1.0, 0.0))
+        result = self.decide(self.disagreement_plan(belief), belief)
+        self.assertEqual(result.disagreement, "agreement")
+        self.assertEqual(result.selected_action_id, "a")
+        self.assertEqual(result.information.evpi_upper_bound, 0)
+
     def test_disagreement_observes_only_with_positive_net_real_channel_evsi(self):
         plan = self.disagreement_plan()
         missing = self.decide(plan)

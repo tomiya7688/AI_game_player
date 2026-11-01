@@ -143,15 +143,18 @@ def project_world_values(
         immutable_row = tuple(row)
         rows.append(immutable_row)
         maximum_lower = max(pair[0] for pair in immutable_row)
-        possible_actions.append(
-            {
-                action.action_id
-                for action, pair in zip(actions, immutable_row)
-                if pair[1] >= maximum_lower - 1e-12
-            }
-        )
-    common = set.intersection(*possible_actions)
-    if all(len(items) == 1 for items in possible_actions) and len(common) == 1:
+        if conditional or candidate.weight.value > 0:
+            possible_actions.append(
+                {
+                    action.action_id
+                    for action, pair in zip(actions, immutable_row)
+                    if pair[1] >= maximum_lower - 1e-12
+                }
+            )
+    common = set.intersection(*possible_actions) if possible_actions else set()
+    if not possible_actions:
+        disagreement = "unknown"
+    elif all(len(items) == 1 for items in possible_actions) and len(common) == 1:
         disagreement = "agreement"
     elif not common:
         disagreement = "disagreement"
