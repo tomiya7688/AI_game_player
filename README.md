@@ -62,3 +62,8 @@ py -3.10 -m unittest discover -s tests -v
 ```
 
 GitHub Actionsでもテストを実行します。
+
+
+## 開発用の独立テストゲーム
+
+テトリス・オセロ・将棋・チェス等の10種を、[独立したGPL検証fixture](tools/test_games/README.md)として起動できます。専用環境へ依存を導入し、通常アプリのruntime・配布対象から分離します。[操作受入れと未検証の範囲](doc/独立テストゲーム集.md)を確認してください。

@@ -80,6 +80,21 @@ jobs:
           PY
       - run: python -m mypy
       - run: python -m compileall -q src tools tests
+      - name: Test isolated standalone game fixtures
+        shell: bash
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          python -m venv "$RUNNER_TEMP/test-game-suite"
+          "$RUNNER_TEMP/test-game-suite/bin/python" -m pip install -r tools/test_games/requirements-dev.txt
+          "$RUNNER_TEMP/test-game-suite/bin/python" -m pytest tools/test_games/tests -q -p no:cacheprovider
+          "$RUNNER_TEMP/test-game-suite/bin/python" -m tools.test_games --smoke build/test-games-artifacts/smoke
+      - uses: actions/upload-artifact@v4
+        with:
+          name: standalone-test-game-renders
+          path: build/test-games-artifacts/smoke
+          if-no-files-found: error
 
   python-coverage:
     name: Python branch coverage (3.14)
