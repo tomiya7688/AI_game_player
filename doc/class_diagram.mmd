@@ -176,6 +176,88 @@ classDiagram
         +choose_context()
         +_read_snapshot()
     }
+    ValueError <|-- BeliefStoreError
+    class BeliefStoreError {
+    }
+    class BeliefStorePolicy {
+        +__post_init__()
+    }
+    Generic <|-- BeliefCandidateStore
+    class BeliefCandidateStore {
+        +__init__()
+        +read()
+        +reset()
+        +publish()
+        +_collect()
+        +_make_snapshot()
+        +_is_fresh()
+        +_check_context()
+        +_check_advance()
+        +_check_deadline()
+    }
+    str <|-- BeliefWeightKind
+    Enum <|-- BeliefWeightKind
+    class BeliefWeightKind {
+    }
+    str <|-- BeliefEvidenceKind
+    Enum <|-- BeliefEvidenceKind
+    class BeliefEvidenceKind {
+    }
+    class BeliefContext {
+        +__post_init__()
+        +run_scope()
+        +to_dict()
+    }
+    class BeliefFreshness {
+        +__post_init__()
+    }
+    class BeliefWeight {
+        +__post_init__()
+    }
+    class BeliefEvidenceRef {
+        +__post_init__()
+    }
+    Generic <|-- BeliefEstimateResult
+    class BeliefEstimateResult {
+        +reobserve_requested()
+    }
+    Generic <|-- BayesianBeliefEstimator
+    class BayesianBeliefEstimator {
+        +__init__()
+        +initialize()
+        +reset()
+        +predict()
+        +observe()
+        +_check_prior()
+        +_check_observation()
+        +_posterior()
+        +_remember()
+        +_now()
+        +_check_deadline()
+        +_failure()
+        +_success()
+    }
+    class BeliefActionRef {
+        +__post_init__()
+    }
+    class BeliefLikelihoodBatch {
+        +__post_init__()
+    }
+    class BeliefEstimatorPolicy {
+        +__post_init__()
+    }
+    class BeliefDiagnostics {
+        +__post_init__()
+    }
+    Generic <|-- BeliefSnapshot
+    class BeliefSnapshot {
+        +__post_init__()
+        +reobserve_requested()
+        +entropy_lower_bound_bits()
+        +ranking_weights()
+        +to_dict()
+        +to_bytes()
+    }
     class BrightRegionDetector {
         +__init__()
         +detect()
@@ -609,6 +691,19 @@ classDiagram
         +recognize()
         +_find_board_region()
         +_read_cell()
+    }
+    class Game2048State {
+        +__post_init__()
+        +terminated()
+    }
+    class ReferenceGame2048TransitionModel {
+        +apply_action()
+        +chance_outcomes()
+        +apply_slide()
+        +spawn_outcomes()
+        +sample_spawn()
+        +continue_game()
+        +restart()
     }
     Protocol <|-- SessionRuntime
     class SessionRuntime {
@@ -1241,6 +1336,25 @@ classDiagram
         +_finish_locked()
         +_capture_loop()
     }
+    Generic <|-- SimulationKey
+    class SimulationKey {
+    }
+    class SimulationProvider {
+        +__init__()
+        +register()
+        +get_model()
+    }
+    Generic <|-- ActionTransition
+    class ActionTransition {
+    }
+    Generic <|-- ChanceOutcome
+    class ChanceOutcome {
+    }
+    Protocol <|-- TransitionModel
+    class TransitionModel {
+        +apply_action()
+        +chance_outcomes()
+    }
     class PlayerSeat {
         +__init__()
         +set_occupant()
@@ -1500,4 +1614,18 @@ classDiagram
         +_ledger_hold_mouse()
         +_ledger_release_mouse()
         +_interruptible_sleep()
+    }
+    str <|-- HypothesisOrigin
+    Enum <|-- HypothesisOrigin
+    class HypothesisOrigin {
+    }
+    Generic <|-- TypedStateRef
+    class TypedStateRef {
+        +__post_init__()
+        +to_dict()
+    }
+    Generic <|-- WorldStateHypothesis
+    class WorldStateHypothesis {
+        +__post_init__()
+        +to_dict()
     }
