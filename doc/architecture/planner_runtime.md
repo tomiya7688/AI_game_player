@@ -66,6 +66,14 @@ Windows比較CLIは各providerの終了直後、成果物保存前に有界JSON�
 
 Windows workerの間欠的なABSTAIN/完成depth0は、成功率5/6等で解決と見なしません。期待値・本番/test予算・TTLを維持し、失敗assertへ上限2048字のreason/counters/OS制限方式/受領時刻と期限の差を表示します。seed479の比較jobだけは、既存suite通過後にfinal-marker・実盤面checkpointの2回帰を同じ条件で最大20回fail-fast反復し、失敗attemptを保存します。他2seedのsuite、32required名、600秒受入れgateは保持します。
 
+追加診断でWindows worker_failedは観測期限やcompute cutoffより前に発生したことを確認しました。子の最初のPython例外だけを固定phase/category/errno/winerrorとして有界に保存し、親は終了codeと最高受領depthを別途記録します。自由な例外文・state・stderrは保存せず、結果型/IPC/OS制限/予算を変更しません。原因が確定するまで間欠失敗を解決済みには扱いません。
+
+全文OCRがSCOREラベル自体を見落とすWindows trialには、同frameで認識済み盤面に対応する上段ROIを3倍/PSM6で再読し、literal SCOREだけを回復する評価専用profileを追加します。その後の数字行は2幅一致・端切れ拒否・0.65を維持します。[元2画像と倍率/offsetを含む独立4ケース](../validation/planning_score_header_ocr.json)で1824/1808を回復しました。入力の認識や学習には戻しません。
+
+frame poolの最新lease IDは入力後の生産を保証しません。入力Sourceと評価専用取得は元のNative SystemRelativeTime、host受領時刻、host QPC clock実装を分けて保持し、timestampを現在時刻へ書換えません。settleより前のframeはlease更新/candidate公開より前に捨てます。評価取得もnot_beforeと最後の受理Source時刻の両方を満たすことを要求し、clock不明・future・旧frame・取得失敗はscore=None、Source cache/lease/版を更新しません。OS送信境界の時刻はWMのキュー投入を表す監査値で、ゲームの処理完了ではありません。
+
+新しいWindows短比較だけ、capabilityを確認した既存C ABIのFAST_CV前処理を明示注入し、Sourceが所有するNative contextを終了時に閉じます。既定CampaignはPython前処理のままです。開始時に同じ実画素のmean/hash/明領域成分、候補、意味state、Baseline判断、Planner入力の同値を検査し、不一致なら新profileを合格させません。検証に時間を使った後は新しい実frameで再観測し、TTLを延ばしません。DLLのSHA256/ABI/capabilityと各取得のWGC/GDI・fallback理由を記録します。[Linux C++の同画素fixture検証](../validation/planning_native_frame_parity.json)は全比較が一致しましたが、Windowsの実証とは別です。実DLLのhash一致も3provider比較の条件にします。WGCの既定2000ms待機は変更しておらず、TIMEOUT→GDIかの実証を確認してから待機profileを検討します。e6c7の全9試行はPython前処理の別headであり、この新Windowsprofileの測定として流用しません。
+
 ## 固定seed headless比較
 
 [eb59ba5 / Journal・125ms共通周期の9episode記録](../validation/planning_headless_journal_eb59.json)。source/hash/dirtyは開始・終了で一致しました。Python Randomのcommon streamを合法移動ごとに使用し、ChromiumのLCG familyとは別実験です。各providerの探索/選択条件を固定し、最適化前の重複予測traceを含む条件で測りました。
@@ -86,7 +94,7 @@ Windows workerの間欠的なABSTAIN/完成depth0は、成功率5/6等で解決�
 
 この旧trace重複条件で、各episodeのdecision p50の平均はCycling56.14ms / Baseline68.44ms / Planner203.76ms、3episode中の最大p95は127.65 / 133.50 / 369.80msです。125ms共通pacingはdecision latencyから除き、episode wallに含めます。親CPU合計は25.58 / 38.24 / 84.50秒、Plannerの待機済みworker CPU合計32.23秒。親RSSはprocess lifetime high-water（最大50,508KiB）でepisode差分ではありません。最終trace参照化の全9episode latency改善は未測定とし、同じ入力の意味一致回帰と独立copy cost fixtureで評価します。
 
-Browser比較CLIの`--planner-depth`（既定1）/`--planner-wall-ms`（既定400）は共通SearchBudgetの有限validationを再利用し、要求depth/予算と各手のcompleted_depthをreportへ残します。参照factoryの既定depth2は維持します。現在保存済みのBrowser/headless比較はdepth1の実験profileであり、factory既定depth2の実測coverageとは区別します。
+Browser比較CLIの`--planner-depth`（既定1）/`--planner-wall-ms`（既定400）は共通SearchBudgetの有限validationを再利用し、要求depth/予算と各手のcompleted_depthをreportへ残します。参照factoryの既定depth2は維持します。この旧cohortのBrowser/headless比較はdepth1の実験profileであり、後段のe6c7既定depth2実測とは区別します。
 
 trace参照はstable event ID・内容SHA256・status/`actual_outcome:false`・版/期限を保持します。予測eventを同じRun guard内で先に保存し、成功してからhistory/traceを公開します。保存失敗時は入力0・dangling参照0、後続trace保存失敗時の孤立予測もactualFalseの別eventのままです。close後の再読・digest一致・typed result復元、full/refの同じ5入力でdecision/receipt/event数一致を回帰で確認しています。
 
@@ -97,6 +105,8 @@ trace参照はstable event ID・内容SHA256・status/`actual_outcome:false`・�
 [bb864886 / Journal・1000ms settle・3provider×3seed上限180手の全結果](../validation/planning_browser_journal_bb864.json)はsource/hash/dirtyが両端一致しました。Cycling score1332/1140/1256（全終局、無効7）、Baseline664/1344/1448（全終局、無効15）。Plannerは479で135手/134遷移照合、480で131手/130照合の後に256tile glowによるunknown cellで停止し、481だけ180手上限/score2312/max256/180照合/無効0/Stop後送信0でした。**Planner失敗2/3を落とした平均を作りません。** 修正は#659へ追跡し、修正版は別SHA/別cohortで測定します。
 
 この旧helperの失敗trialではcapture例外後の前boardがlast_stateへ残り、terminal未検証flagと途中scoreが不十分でした。旧値を成功の根拠に使わず、元primaryerror・入力数・完了数・最終画像を保持します。新helperの前state消去/未完action保存/evaluation-only score/null/Journal参照化による記録改善を、旧cohortへ遡って実測したとは扱いません。
+
+fresh callback前と評価取得の双方で、clock整合に加えて既存のCAMPAIGN_OBSERVATION_TIMEOUT_SECONDS（5秒）未満の実capture ageを要求します。settle以後でも18秒古いframeは受理せず、lease/候補/学習を更新しません。新しいage TTLを増やしたり、元の生産時刻をhost受領時刻に置き換えたりはしません。
 
 ## 修正後の既定depth2実画面cohort
 
@@ -111,3 +121,17 @@ Planner全試行が180手上限で生存したためsurvivalは打切りで、�
 [ee2dbe4の同一入力copy fixture](../validation/planning_trace_reference_cost_ee2.json)はsource hash両端一致・dirty0、2world/2action/32chance atom×180recordで、予測本文を含むcache deepcopy p50 102.93ms / p95 105.88ms / peak allocation14,986,776bytes、参照形式 p50 7.17ms / p95 9.22ms / peak1,086,400bytesでした。serialized cacheは6,359,760→368,280bytes。これは固定データのcopy costで、実プレイ全体・予測計算・Journal書込・hash生成の総latency改善ではありません。長枠全9episodeの最適化後latencyを実測したとは主張しません。
 
 非SELECTで停止した試行も、その時点のlast Core reasonとboundedな完全planning auditを保存します。探索未実施のstepでは前stepのCore resultを現在と扱いません。正常な保留でも診断Journalを既存ArtifactStoreへ残し、policyのplanning_unavailableだけでbudget/model/quality等の元理由を失わないようにします。
+
+## e6c7の追加Headless depth2 fixture比較
+
+[原本hash付き全9試行記録](../validation/planning_headless_depth2_e6c7.json)。
+
+原本hash `4e785fb88a159cc8e10a1d8b99d421c3e3bb1f01bd51e9d3287de600b7641a1c`、source `e6c7b66a886fe35f1dba9b0d2bec6e04514df02d` の両端clean/hash・EventJournal receipt・Stop拒否と実プロセスexit0を確認した。画像認識やOS実入力ではないmodel-state fixtureである。Python Random(seed)はBrowserのLCGと異なり、同seedでもtrajectoryやscoreをbackend間で同一視しない。
+
+| provider | seed479/480/481得点 | 平均 | fixture操作合計 |
+|---|---|---|---|
+| cycling | 1472 / 728 / 1672 | 1290.67 | 430 |
+| baseline | 1696 / 2036 / 1876 | 1869.33 | 540 |
+| planner | 2004 / 2264 / 2280 | 2182.67 | 540 |
+
+depth2/400msと共通125ms pacingを維持した。n=3の記述的結果で、打切り・unknown world/conditional仮定・資源scopeを保つ。実画面e6c7の9試行や旧eb59のdepth1 fixtureとは別測定として扱い、Windows受入れや全ゲームの攻略精度へ一般化しない。

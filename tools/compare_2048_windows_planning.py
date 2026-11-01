@@ -20,14 +20,21 @@ from ai_game_player.run_control import ExecutionCancelled
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.planning_comparison_source import source_fingerprint
 from tools.planning_resource_monitor import PlanningResourceMonitor
-from tools.planning_score_evaluation import reread_score_line
+from tools.planning_score_evaluation import reread_score_header_label, reread_score_line
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 from tools.run_2048_campaign import ReferenceGame2048Episode, CAMPAIGN_PURPOSE
 
 
 def evaluate_visible_score(episode, ocr):
     """Post-decision evaluation only. Never write this OCR frame back to Source/Planner."""
-    frame = episode.source.capture.capture(episode.source.window_handle)
+    frame, capture_diagnostic = episode.source.capture_evaluation_frame()
+    if frame is None:
+        return {
+            "value": None,
+            "confidence": 0.0,
+            "capture": capture_diagnostic,
+            "attempts": [],
+        }
     observation = FrameAnalyzer(ocr).analyze(frame, "comparison_score_evaluation")
     adapted, _ = ReferenceGame2048Adapter().adapt(frame, observation)
     game = adapted.features["game_2048"]
@@ -40,6 +47,17 @@ def evaluate_visible_score(episode, ocr):
     ]
     # Require the labelled numeric line even when a legacy whole-page parser guessed a number.
     reread, diagnostic = reread_score_line(frame, observation, ocr)
+    if (
+        reread is None
+        and diagnostic["status"] == "score_label_unavailable_or_ambiguous"
+        and game.get("confidence", 0) >= 0.65
+    ):
+        label_observation, label_diagnostic = reread_score_header_label(
+            frame, observation, game.get("board_bbox"), ocr
+        )
+        if label_observation is not None:
+            reread, diagnostic = reread_score_line(frame, label_observation, ocr)
+        diagnostic["label_search"] = label_diagnostic
     game = {"score": None, "score_confidence": 0.0}
     if reread is not None:
         adapted, _ = ReferenceGame2048Adapter().adapt(frame, reread)
@@ -58,6 +76,7 @@ def evaluate_visible_score(episode, ocr):
         "frame_sha256": sha256(frame.bgra).hexdigest(),
         "reference": "post-decision screenshot OCR only",
         "attempts": attempts,
+        "capture": capture_diagnostic,
     }
 
 
@@ -116,13 +135,26 @@ def run_episode(
             decision_provider=provider,
             planner_conditional=provider == "planner",
             planning_settle_ms=1000,
+            native_preprocessing=True,
             test_seed=seed,
             event_journal=journal,
+        )
+        result["frame_preprocessing_profile"] = getattr(
+            episode.source, "frame_preprocessing_profile", "unknown"
         )
         result["seed_fixture"] = episode.launcher.server.test_seed_metadata
         phase = "initial_observation"
         state = episode.observe()
         result["initial_max_tile"] = state.max_tile
+        phase = "preprocessing_validation"
+        result["preprocessing_validation"] = episode.validate_preprocessing()
+        if not result["preprocessing_validation"]["match"]:
+            raise RuntimeError(
+                "explicit native preprocessing differs from the Python comparison inputs"
+            )
+        # Validation consumed time; plan from a newly accepted real frame without extending TTL.
+        phase = "post_validation_observation"
+        state = episode.observe()
         initial_token = episode.pipeline.controller.rearm_token
         for _ in range(max_steps):
             if state.terminal:
@@ -133,7 +165,9 @@ def run_episode(
             result["last_core_reason"] = None
             result["last_policy_reason_codes"] = []
             orchestrator = DecisionOrchestrator(episode.pipeline)
+            decision_started_ns = time.monotonic_ns()
             outcome = orchestrator.run(execute=True, purpose=CAMPAIGN_PURPOSE)
+            returned_ns = time.monotonic_ns()
             result["decision_attempts"] = list(orchestrator.last_diagnostics)
             latencies.append((time.monotonic_ns() - began) / 1e6)
             planning = episode.pipeline.engine.provider
@@ -155,12 +189,34 @@ def run_episode(
             episode.source.not_before = time.monotonic() + 1
             result["actions"] += 1
             before_board = observed_board(episode)
+            backend = getattr(
+                getattr(episode.pipeline, "executor", None), "live_executor", None
+            )
+            attempt_timing = {
+                "action_id": outcome.action_id,
+                "decision_started_ns": decision_started_ns,
+                "returned_ns": returned_ns,
+                "dispatch_boundary_ns": getattr(
+                    backend, "input_dispatch_started_at_ns", None
+                ),
+                "before_capture": dict(
+                    getattr(episode.source, "latest_capture_diagnostics", {})
+                ),
+                "post_capture": None,
+            }
+            result["input_timings"] = [
+                *result.get("input_timings", []),
+                attempt_timing,
+            ][-3:]
             phase = "post_input_observation"
             state = (
                 episode.observe()
             )  # explicit receipt completion, including final/terminal action
             result["invalid_actions"] += int(state.signature == before.signature)
             after_board = observed_board(episode)
+            attempt_timing["post_capture"] = dict(
+                getattr(episode.source, "latest_capture_diagnostics", {})
+            )
             result["board_changes"] += int(
                 before_board is not None
                 and after_board is not None
@@ -247,6 +303,9 @@ def run_episode(
         result["failure"] = {"type": type(error).__name__, "message": str(error)[:2000]}
     finally:
         timing = getattr(getattr(episode, "source", None), "observation_timing", None)
+        result["last_capture"] = dict(
+            getattr(getattr(episode, "source", None), "latest_capture_diagnostics", {})
+        )
         result["observation_stage_ms"] = {
             stage: round(seconds * 1000, 3)
             for stage, seconds in getattr(timing, "stage_seconds", {}).items()
@@ -352,6 +411,10 @@ def comparison_summary(result):
         ],
         "confirmed_actual_actions": result.get("actions", 0),
         "observed_board_changes": result.get("board_changes", 0),
+        "frame_preprocessing_profile": result.get("frame_preprocessing_profile"),
+        "preprocessing_validation": result.get("preprocessing_validation"),
+        "last_capture": result.get("last_capture"),
+        "input_timings": result.get("input_timings", [])[-3:],
         "planning_runtime": result.get("planning_runtime"),
         "decision_attempts": result.get("decision_attempts", [])[-3:],
         "observation_stage_ms": result.get("observation_stage_ms"),
@@ -405,6 +468,7 @@ def main(argv=None):
         "max_steps": args.max_steps,
         "profile": "short Windows comparison; independent of required 600s gate",
         "persistence_profile": "explicit EventJournal; same append-only path as ManagedSession",
+        "frame_preprocessing_profile": "explicit native FAST_CV for all three providers; unavailable capability fails comparison; campaign default remains Python",
         "decision_state": "existing screenshot board recognizer only; post-decision score OCR never enters Source/Planner",
         "settle_ms": 1000,
         "baseline_profile": {"min_margin": 0, "min_recognition": 0.65},
@@ -434,7 +498,20 @@ def main(argv=None):
         publish_validation_report(output / "report.json", report)
     report["source_at_end"] = source_fingerprint()
     report["source_consistent"] = report["source_at_start"] == report["source_at_end"]
-    report["success"] = report["success"] and report["source_consistent"]
+    binaries = [
+        episode.get("preprocessing_validation", {}).get("binary", {}).get("sha256")
+        for episode in report["episodes"]
+    ]
+    report["native_binary_consistent"] = (
+        len(binaries) == 3
+        and all(isinstance(value, str) and len(value) == 64 for value in binaries)
+        and len(set(binaries)) == 1
+    )
+    report["success"] = (
+        report["success"]
+        and report["source_consistent"]
+        and report["native_binary_consistent"]
+    )
     publish_validation_report(output / "report.json", report)
     print(output / "report.json")
     return 0 if report["success"] else 1

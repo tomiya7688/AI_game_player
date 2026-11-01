@@ -1401,6 +1401,14 @@ classDiagram
         +validate_fresh()
         +_reject()
     }
+    str <|-- WorkerPhase
+    Enum <|-- WorkerPhase
+    class WorkerPhase {
+    }
+    class WorkerDiagnostic {
+        +mark()
+        +record_exception()
+    }
     str <|-- PlayerState
     Enum <|-- PlayerState
     class PlayerState {
@@ -2066,6 +2074,7 @@ classDiagram
     class WindowsInputExecutor {
         +__init__()
         +_admit_input()
+        +_mark_dispatch_started()
         +has_held_inputs()
         +execute()
         +_verify_target_identity()

@@ -26,6 +26,9 @@ class FakeMonitor:
 
 
 class FakeEpisode:
+    def validate_preprocessing(self):
+        return {"match": True, "binary": {"sha256": "fixture"}}
+
     def __init__(self, *args, **kwargs):
         self.records = []
         self.closed = False
@@ -73,7 +76,11 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         frame = ScreenFrame(2, 2, bytes(16))
         episode = SimpleNamespace(
             source=SimpleNamespace(
-                window_handle=1, capture=SimpleNamespace(capture=lambda handle: frame)
+                window_handle=1,
+                capture_evaluation_frame=lambda: (
+                    frame,
+                    {"status": "fresh_evaluation_frame"},
+                ),
             )
         )
         observation = ScreenObservation(

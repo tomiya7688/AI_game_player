@@ -64,10 +64,45 @@ class Cached2048ObservationSource:
         window_handle: int,
         ocr_recognizer: object | None,
         failure_evidence: RecognitionFailureEvidence | None = None,
+        *,
+        native_preprocessing: bool = False,
     ) -> None:
+        if type(native_preprocessing) is not bool:
+            raise ValueError("native preprocessing requires an explicit boolean")
         self.window_handle = window_handle
-        self.capture = WindowsScreenCapture()
-        self.analyzer = FrameAnalyzer(ocr_recognizer)
+        self._preprocessor_runtime = None
+        if native_preprocessing:
+            from ai_game_player.runtime.native import (
+                NativeLoadStatus,
+                discover_native_runtime,
+            )
+            from ai_game_player.runtime.contracts import RuntimeCapability
+
+            loaded = discover_native_runtime()
+            runtime = loaded.runtime
+            if (
+                loaded.status != NativeLoadStatus.AVAILABLE
+                or runtime is None
+                or RuntimeCapability.FAST_CV not in runtime.descriptor.capabilities
+            ):
+                if runtime is not None:
+                    runtime.close()
+                raise RuntimeError(
+                    "explicit comparison native FAST_CV profile is unavailable"
+                )
+            self._preprocessor_runtime = runtime
+        self.frame_preprocessing_profile = (
+            "native_fast_cv_v1" if native_preprocessing else "python_reference"
+        )
+        try:
+            self.capture = WindowsScreenCapture()
+            self.analyzer = FrameAnalyzer(
+                ocr_recognizer, frame_preprocessor=self._preprocessor_runtime
+            )
+        except Exception:
+            if self._preprocessor_runtime is not None:
+                self._preprocessor_runtime.close()
+            raise
         self.adapter = ReferenceGame2048Adapter()
         self.failure_evidence = failure_evidence
         self._cached_read: tuple[ScreenObservation, list[ActionCandidate]] | None = None
@@ -77,6 +112,71 @@ class Cached2048ObservationSource:
         self.settle_seconds = 0.0
         self.not_before = 0.0
         self.fresh_frame_callback: Callable[[], None] | None = None
+        self.latest_capture_diagnostics: dict[str, object] = {}
+        self.latest_frame: ScreenFrame | None = None
+        self._last_accepted_frame_ns = 0
+
+    def _capture_timed_frame(self):
+        started_ns = time.monotonic_ns()
+        frame = self.capture.capture(self.window_handle)
+        received_ns = time.monotonic_ns()
+        error = getattr(self.capture, "last_backend_error", None)
+        backend = getattr(self.capture, "last_capture_backend", None)
+        implementation = time.get_clock_info("monotonic").implementation
+        produced_ns = int(frame.captured_at * 1_000_000_000)
+        clock_verified = 0 < produced_ns <= received_ns and (
+            backend == "gdi"
+            or backend == "wgc"
+            and "queryperformancecounter" in implementation.casefold()
+        )
+        diagnostic = {
+            "request_started_ns": started_ns,
+            "produced_at_ns": produced_ns,
+            "host_received_ns": received_ns,
+            "native_frame_id": frame.frame_id,
+            "backend": backend,
+            "fallback_error_type": str(error).split(":", 1)[0] if error else None,
+            "fallback_timeout": bool(error and "TIMEOUT" in str(error)),
+            "timestamp_semantics": "native_SystemRelativeTime"
+            if backend == "wgc"
+            else "host_GDI_acquisition"
+            if backend == "gdi"
+            else "unverified_backend",
+            "host_clock_implementation": implementation,
+            "clock_epoch_verified": clock_verified,
+        }
+        return frame, diagnostic
+
+    def capture_evaluation_frame(self):
+        """Bounded score-only acquisition; never update source cache, lease or learning."""
+        minimum_ns = max(
+            int(self.not_before * 1_000_000_000),
+            getattr(self, "_last_accepted_frame_ns", 0),
+        )
+        deadline = time.monotonic() + 3
+        diagnostic = {
+            "status": "evaluation_frame_unavailable",
+            "minimum_produced_at_ns": minimum_ns,
+        }
+        for _ in range(2):
+            if time.monotonic() >= deadline:
+                break
+            try:
+                frame, measured = self._capture_timed_frame()
+            except Exception as error:
+                return None, {**diagnostic, "failure_type": type(error).__name__}
+            diagnostic.update(measured)
+            if not measured["clock_epoch_verified"]:
+                return None, {**diagnostic, "status": "evaluation_clock_unverified"}
+            age_ns = time.monotonic_ns() - int(frame.captured_at * 1_000_000_000)
+            diagnostic["frame_age_ns"] = age_ns
+            if (
+                measured["produced_at_ns"] >= minimum_ns
+                and 0 <= age_ns < CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS * 1_000_000_000
+            ):
+                return frame, {**diagnostic, "status": "fresh_evaluation_frame"}
+            diagnostic["status"] = "evaluation_frame_before_barrier"
+        return None, diagnostic
 
     def capture_playable_state(
         self,
@@ -85,6 +185,10 @@ class Cached2048ObservationSource:
         timeout_seconds: float = SCREEN_READY_TIMEOUT_SECONDS,
     ) -> CampaignState:
         self.observation_timing = ObservationTiming()
+        self._cached_read = None
+        self.latest_observation = None
+        self.latest_frame = None
+        self.latest_capture_diagnostics = {}
         started_at = time.monotonic()
         deadline = started_at + min(SCREEN_READY_TIMEOUT_SECONDS, timeout_seconds)
         remaining = self.not_before - started_at
@@ -102,13 +206,27 @@ class Cached2048ObservationSource:
             capture_attempts += 1
             try:
                 with self.observation_timing.measure("capture"):
-                    frame = self.capture.capture(self.window_handle)
+                    frame, measured = self._capture_timed_frame()
             except Exception as error:
                 raise CampaignFailure(
                     "capture_failure",
                     f"2048 window capture failed: {type(error).__name__}: {error}",
                 ) from error
             last_frame = frame
+            self.latest_capture_diagnostics = measured
+            if not measured["clock_epoch_verified"]:
+                raise CampaignFailure(
+                    "capture_failure",
+                    "frame timestamp has an unverified host clock epoch",
+                )
+            age_ns = time.monotonic_ns() - int(frame.captured_at * 1_000_000_000)
+            self.latest_capture_diagnostics["frame_age_ns"] = age_ns
+            if not 0 <= age_ns < CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS * 1_000_000_000:
+                self.latest_capture_diagnostics["discarded_observation_timeout"] = True
+                continue
+            if frame.captured_at < self.not_before:
+                self.latest_capture_diagnostics["discarded_before_not_before"] = True
+                continue
             if on_fresh_frame is not None:
                 with self.observation_timing.measure("observation_refresh"):
                     on_fresh_frame()
@@ -178,6 +296,12 @@ class Cached2048ObservationSource:
                 )
                 self._cached_read = (adapted, candidates)
                 self.latest_observation = adapted
+                self.latest_frame = (
+                    frame
+                    if getattr(self, "_preprocessor_runtime", None) is not None
+                    else None
+                )
+                self._last_accepted_frame_ns = int(frame.captured_at * 1_000_000_000)
                 if self.failure_evidence is not None:
                     with self.observation_timing.measure("evidence_retention"):
                         self.failure_evidence.record_playable(frame, raw_state)
@@ -256,7 +380,20 @@ class Cached2048ObservationSource:
         return self.read()
 
     def close(self) -> None:
-        self.capture.close()
+        capture_error = None
+        try:
+            self.capture.close()
+        except Exception as error:
+            capture_error = error
+        runtime = getattr(self, "_preprocessor_runtime", None)
+        if runtime is not None:
+            try:
+                runtime.close()
+            except Exception:
+                if capture_error is None:
+                    raise
+        if capture_error is not None:
+            raise capture_error
 
 
 class CyclingDirectionProvider:
@@ -301,6 +438,19 @@ class CyclingDirectionProvider:
 
 
 class ReferenceGame2048Episode(CampaignEpisode):
+    def validate_preprocessing(self):
+        from tools.planning_frame_parity import validate_native_preprocessing
+
+        if self.source is None:
+            raise RuntimeError("comparison source is unavailable")
+        runtime = self.source._preprocessor_runtime
+        if runtime is None:
+            raise RuntimeError("explicit native comparison preprocessor is unavailable")
+        try:
+            return validate_native_preprocessing(self.source.latest_frame, runtime)
+        finally:
+            self.source.latest_frame = None
+
     def __init__(
         self,
         episode_number: int,
@@ -312,9 +462,12 @@ class ReferenceGame2048Episode(CampaignEpisode):
         decision_provider: str = "cycling",
         planner_conditional: bool = False,
         planning_settle_ms: int = 900,
+        native_preprocessing: bool = False,
         test_seed: int | None = None,
         event_journal: EventJournal | None = None,
     ) -> None:
+        if type(native_preprocessing) is not bool:
+            raise ValueError("native preprocessing requires an explicit boolean")
         if decision_provider not in {"cycling", "baseline", "planner"}:
             raise ValueError("unknown campaign decision provider")
         if planner_conditional and decision_provider != "planner":
@@ -351,7 +504,10 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 else None
             )
             self.source = Cached2048ObservationSource(
-                window.handle, ocr_recognizer, evidence
+                window.handle,
+                ocr_recognizer,
+                evidence,
+                **({"native_preprocessing": True} if native_preprocessing else {}),
             )
             controller = RunController()
             provider = (

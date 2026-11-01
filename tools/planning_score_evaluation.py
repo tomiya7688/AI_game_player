@@ -7,6 +7,103 @@ import re
 from ai_game_player.screen_capture import ScreenFrame
 
 
+def _scaled_crop(frame, left, top, right, bottom):
+    if (
+        left < 0
+        or top < 0
+        or right > frame.width
+        or bottom > frame.height
+        or left >= right
+        or top >= bottom
+        or (right - left) * (bottom - top) * 9 > 1_000_000
+    ):
+        raise ValueError("score crop exceeds pixel bounds")
+    rows = []
+    for row in range(top, bottom):
+        pixels = frame.bgra[
+            (row * frame.width + left) * 4 : (row * frame.width + right) * 4
+        ]
+        expanded = b"".join(
+            pixels[index : index + 4] * 3 for index in range(0, len(pixels), 4)
+        )
+        rows.append(expanded * 3)
+    return ScreenFrame(
+        (right - left) * 3,
+        (bottom - top) * 3,
+        b"".join(rows),
+        captured_at=frame.captured_at,
+    )
+
+
+def reread_score_header_label(frame, observation, board_bounds, ocr):
+    """Recover only the literal SCORE label from the board-relative pinned UI header."""
+    if not isinstance(board_bounds, (list, tuple)) or len(board_bounds) != 4:
+        return None, {"status": "score_header_board_unavailable"}
+    x, y, width, height = board_bounds
+    geometry = frame.capture_geometry
+    if geometry is not None:
+        convert = (
+            geometry.window_to_roi
+            if geometry.window_bounds is not None
+            else geometry.screen_to_roi
+        )
+        right, bottom = convert(x + width, y + height)
+        x, y = convert(x, y)
+        width, height = right - x, bottom - y
+    left, right = math.floor(x + width * 0.4), math.ceil(x + width)
+    top, bottom = (
+        max(0, math.floor(y - width * 0.45)),
+        min(frame.height, math.ceil(y - width * 0.2)),
+    )
+    try:
+        cropped = _scaled_crop(frame, left, top, right, bottom)
+    except ValueError:
+        return None, {"status": "score_header_crop_out_of_bounds"}
+    words = ocr.recognize(cropped, mode="text_block")
+    labels = []
+    for word in words[:64]:
+        if (
+            word.get("text", "").casefold().strip() != "score"
+            or not 0.65 <= word.get("confidence", 0) <= 1
+        ):
+            continue
+        if (
+            word["x"] <= 3
+            or word["y"] <= 3
+            or word["x"] + word["width"] >= cropped.width - 3
+            or word["y"] + word["height"] >= cropped.height - 3
+        ):
+            continue
+        mapped = dict(word)
+        wx, wy = left + word["x"] / 3, top + word["y"] / 3
+        ww, wh = word["width"] / 3, word["height"] / 3
+        if geometry is not None:
+            convert = (
+                geometry.roi_to_window
+                if geometry.window_bounds is not None
+                else geometry.roi_to_screen
+            )
+            right_x, bottom_y = convert(wx + ww, wy + wh)
+            wx, wy = convert(wx, wy)
+            ww, wh = right_x - wx, bottom_y - wy
+        mapped.update(x=wx, y=wy, width=ww, height=wh, bbox=(wx, wy, ww, wh))
+        labels.append(mapped)
+    diagnostic = {
+        "status": "scaled_header_label",
+        "crop_bbox": [left, top, right - left, bottom - top],
+        "scale": 3,
+        "label_count": len(labels),
+        "label_confidences": [label["confidence"] for label in labels[:2]],
+    }
+    if len(labels) != 1:
+        return None, diagnostic
+    return replace(
+        observation,
+        ocr_text=["SCORE"],
+        features={**observation.features, "ocr_candidates": labels},
+    ), diagnostic
+
+
 def reread_score_line(frame, observation, ocr):
     """Use one confident label, never a board number or hidden game state."""
     labels = [
@@ -64,21 +161,7 @@ def reread_score_line(frame, observation, ocr):
             or (right - left) * (bottom - top) * scale * scale > 1_000_000
         ):
             return None, {"status": "score_line_crop_out_of_bounds"}
-        rows = []
-        for row in range(top, bottom):
-            pixels = frame.bgra[
-                (row * frame.width + left) * 4 : (row * frame.width + right) * 4
-            ]
-            expanded = b"".join(
-                pixels[index : index + 4] * scale for index in range(0, len(pixels), 4)
-            )
-            rows.append(expanded * scale)
-        cropped = ScreenFrame(
-            (right - left) * scale,
-            (bottom - top) * scale,
-            b"".join(rows),
-            captured_at=frame.captured_at,
-        )
+        cropped = _scaled_crop(frame, left, top, right, bottom)
         words = ocr.recognize(cropped, mode="single_numeric_line")
         if len(words) != 1 or not re.fullmatch(
             r"[0-9][0-9,]{0,11}", words[0].get("text", "")

@@ -128,6 +128,7 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
 
         class FakeCapture:
             frame_number = 0
+            last_capture_backend = "gdi"
 
             def capture(self, _window_handle):
                 self.frame_number += 1
@@ -136,7 +137,7 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
                     1,
                     1,
                     b"\0" * 4,
-                    captured_at=float(self.frame_number),
+                    captured_at=run_2048_campaign.time.monotonic(),
                     frame_id=self.frame_number,
                 )
 
@@ -495,6 +496,7 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
     def test_recognition_timeout_reports_capture_diagnostics(self):
         class FakeCapture:
             frame_number = 0
+            last_capture_backend = "gdi"
 
             def capture(self, _window_handle):
                 self.frame_number += 1
@@ -557,6 +559,11 @@ class ReferenceGame2048EpisodeTests(unittest.TestCase):
                 run_2048_campaign.time, "monotonic", side_effect=advance_monotonic_clock
             ),
             patch.object(run_2048_campaign.time, "sleep"),
+            patch.object(
+                run_2048_campaign.time,
+                "monotonic_ns",
+                side_effect=lambda: int(current_time[0] * 1_000_000_000),
+            ),
         ):
             with self.assertRaises(CampaignFailure) as raised:
                 source.capture_playable_state()

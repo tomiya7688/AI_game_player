@@ -10827,6 +10827,7 @@
         "ai_game_player.planning_outcome",
         "ai_game_player.planning_result",
         "ai_game_player.planning_wire",
+        "ai_game_player.planning_worker_diagnostic",
         "ai_game_player.run_control",
         "ai_game_player.world_state_hypothesis"
       ],
@@ -11114,6 +11115,22 @@
           "line": 23,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.planning_worker_diagnostic"
+          ],
+          "module": "ai_game_player.planning_worker_diagnostic",
+          "names": [
+            {
+              "alias": null,
+              "name": "collect_worker_diagnostic"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.planning_wire"
           ],
           "module": "ai_game_player.planning_wire",
@@ -11135,7 +11152,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
+          "line": 29,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -11155,7 +11172,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 29,
+          "line": 30,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.world_state_hypothesis"
@@ -11172,7 +11189,7 @@
       "module": "ai_game_player.bounded_planner",
       "path": "src/ai_game_player/bounded_planner.py",
       "source_location": {
-        "end_line": 589,
+        "end_line": 609,
         "start_line": 1
       },
       "symbols": [
@@ -11192,8 +11209,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 558,
-            "start_line": 37
+            "end_line": 578,
+            "start_line": 39
           }
         },
         {
@@ -11233,8 +11250,8 @@
           "signature": "(self, registrations: tuple[PlanningRegistration, ...], *, clock_id: str, controller: RunController | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 63,
-            "start_line": 42
+            "end_line": 66,
+            "start_line": 44
           }
         },
         {
@@ -11286,8 +11303,8 @@
           "signature": "(self, belief: BeliefSnapshot[Any], allowed_action_ids: tuple[str, ...], *, registration_id: str, budget: SearchBudget | None = …, current_belief: Callable[[], BeliefSnapshot[Any] | None] | None = …) -> PlanningResult",
           "source_location": {
             "column": 4,
-            "end_line": 191,
-            "start_line": 69
+            "end_line": 195,
+            "start_line": 72
           }
         },
         {
@@ -11309,8 +11326,8 @@
           "signature": "(reason: str) -> PlanningResult",
           "source_location": {
             "column": 8,
-            "end_line": 103,
-            "start_line": 100
+            "end_line": 107,
+            "start_line": 104
           }
         },
         {
@@ -11386,8 +11403,8 @@
           "signature": "(self, directory: Path, nonce: str, belief: BeliefSnapshot[Any], allowed: tuple[str, ...], registration: PlanningRegistration, budget: SearchBudget, token: int, cutoff: int, current: Callable[[], BeliefSnapshot[Any] | None] | None) -> PlanningResult",
           "source_location": {
             "column": 4,
-            "end_line": 392,
-            "start_line": 197
+            "end_line": 412,
+            "start_line": 201
           }
         },
         {
@@ -11409,8 +11426,8 @@
           "signature": "(reason: str) -> PlanningResult",
           "source_location": {
             "column": 8,
-            "end_line": 219,
-            "start_line": 215
+            "end_line": 223,
+            "start_line": 219
           }
         },
         {
@@ -11486,8 +11503,8 @@
           "signature": "(self, message: dict[str, Any], nonce: str, belief: BeliefSnapshot[Any], allowed: tuple[str, ...], registration: PlanningRegistration, budget: SearchBudget, token: int, cutoff: int, received: int) -> PlanningResult",
           "source_location": {
             "column": 4,
-            "end_line": 490,
-            "start_line": 398
+            "end_line": 510,
+            "start_line": 418
           }
         },
         {
@@ -11527,8 +11544,8 @@
           "signature": "(self, belief: BeliefSnapshot[Any], token: int, current: Callable[[], BeliefSnapshot[Any] | None] | None) -> str | None",
           "source_location": {
             "column": 4,
-            "end_line": 519,
-            "start_line": 496
+            "end_line": 539,
+            "start_line": 516
           }
         },
         {
@@ -11586,8 +11603,8 @@
           "signature": "(self, belief: BeliefSnapshot[Any], allowed: tuple[str, ...], registration: PlanningRegistration | None, token: int, cutoff: int, reason: str) -> PlanningResult",
           "source_location": {
             "column": 4,
-            "end_line": 558,
-            "start_line": 525
+            "end_line": 578,
+            "start_line": 545
           }
         },
         {
@@ -11609,8 +11626,8 @@
           "signature": "(process: subprocess.Popen[bytes]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 589,
-            "start_line": 566
+            "end_line": 609,
+            "start_line": 586
           }
         }
       ]
@@ -47437,7 +47454,7 @@
       "module": "ai_game_player.ocr_recognizer",
       "path": "src/ai_game_player/ocr_recognizer.py",
       "source_location": {
-        "end_line": 65,
+        "end_line": 67,
         "start_line": 1
       },
       "symbols": [
@@ -47457,7 +47474,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 65,
+            "end_line": 67,
             "start_line": 5
           }
         },
@@ -47546,7 +47563,7 @@
           "signature": "(self, frame: ScreenFrame, *, mode: str = …) -> list[dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 65,
+            "end_line": 67,
             "start_line": 27
           }
         }
@@ -51998,7 +52015,7 @@
       "module": "ai_game_player.planner_provider",
       "path": "src/ai_game_player/planner_provider.py",
       "source_location": {
-        "end_line": 496,
+        "end_line": 497,
         "start_line": 1
       },
       "symbols": [
@@ -52018,7 +52035,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 496,
+            "end_line": 497,
             "start_line": 38
           }
         },
@@ -52368,7 +52385,7 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 437,
+            "end_line": 438,
             "start_line": 400
           }
         },
@@ -52420,8 +52437,8 @@
           "signature": "(self, receipt: ExecutionReceipt) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 471,
-            "start_line": 444
+            "end_line": 472,
+            "start_line": 445
           }
         },
         {
@@ -52445,8 +52462,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 479,
-            "start_line": 478
+            "end_line": 480,
+            "start_line": 479
           }
         },
         {
@@ -52480,8 +52497,8 @@
           "signature": "(self, reason: str, outcome: PlanningOutcome = …) -> NoReturn",
           "source_location": {
             "column": 4,
-            "end_line": 496,
-            "start_line": 486
+            "end_line": 497,
+            "start_line": 487
           }
         }
       ]
@@ -56540,6 +56557,7 @@
         "ai_game_player.planning_outcome",
         "ai_game_player.planning_result",
         "ai_game_player.planning_wire",
+        "ai_game_player.planning_worker_diagnostic",
         "ai_game_player.planning_worker_limits",
         "ai_game_player.world_state_hypothesis"
       ],
@@ -56613,9 +56631,29 @@
           ]
         },
         {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_worker_diagnostic"
+          ],
+          "module": "ai_game_player.planning_worker_diagnostic",
+          "names": [
+            {
+              "alias": null,
+              "name": "WorkerDiagnostic"
+            },
+            {
+              "alias": null,
+              "name": "WorkerPhase"
+            }
+          ]
+        },
+        {
           "kind": "import",
           "level": 0,
-          "line": 57,
+          "line": 63,
           "local_dependencies": [],
           "module": "importlib",
           "names": [
@@ -56628,7 +56666,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 58,
+          "line": 64,
           "local_dependencies": [],
           "module": "math",
           "names": [
@@ -56641,7 +56679,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 60,
+          "line": 66,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.belief_contract"
@@ -56657,7 +56695,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 61,
+          "line": 67,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.belief_validation"
@@ -56681,7 +56719,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 66,
+          "line": 72,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.expectimax_search"
@@ -56709,7 +56747,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 72,
+          "line": 78,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_contract"
@@ -56733,7 +56771,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 77,
+          "line": 83,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_outcome"
@@ -56749,7 +56787,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 78,
+          "line": 84,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_result"
@@ -56765,7 +56803,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 79,
+          "line": 85,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_wire"
@@ -56793,7 +56831,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 85,
+          "line": 91,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.world_state_hypothesis"
@@ -56809,7 +56847,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 146,
+          "line": 155,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_2048"
@@ -56825,7 +56863,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 280,
+          "line": 298,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.planning_wire"
@@ -56842,7 +56880,7 @@
       "module": "ai_game_player.planning_worker",
       "path": "src/ai_game_player/planning_worker.py",
       "source_location": {
-        "end_line": 297,
+        "end_line": 315,
         "start_line": 1
       },
       "symbols": [
@@ -56865,8 +56903,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 47,
-            "start_line": 17
+            "end_line": 53,
+            "start_line": 18
           }
         },
         {
@@ -56887,15 +56925,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "method"
+            },
+            {
+              "annotation": "WorkerDiagnostic",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "diagnostic"
             }
           ],
           "qualified_name": "_execute",
           "return_annotation": "int",
-          "signature": "(directory: Path, method: str) -> int",
+          "signature": "(directory: Path, method: str, diagnostic: WorkerDiagnostic) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 270,
-            "start_line": 56
+            "end_line": 288,
+            "start_line": 62
           }
         },
         {
@@ -56929,8 +56973,347 @@
           "signature": "(directory: Path, reason: str, nonce: str | None = …) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 293,
-            "start_line": 279
+            "end_line": 311,
+            "start_line": 297
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.planning_wire"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 132,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_wire"
+          ],
+          "module": "ai_game_player.planning_wire",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_planning_json"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.planning_worker_diagnostic",
+      "path": "src/ai_game_player/planning_worker_diagnostic.py",
+      "source_location": {
+        "end_line": 197,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkerPhase",
+          "parameters": [],
+          "qualified_name": "WorkerPhase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 26,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_code",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_code",
+          "return_annotation": "int | None",
+          "signature": "(value: object) -> int | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_category",
+          "parameters": [
+            {
+              "annotation": "BaseException",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "_category",
+          "return_annotation": "str",
+          "signature": "(error: BaseException) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 68,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(slots=True)"
+          ],
+          "kind": "class",
+          "name": "WorkerDiagnostic",
+          "parameters": [],
+          "qualified_name": "WorkerDiagnostic",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 117,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "mark",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "WorkerPhase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "phase"
+            }
+          ],
+          "qualified_name": "WorkerDiagnostic.mark",
+          "return_annotation": "None",
+          "signature": "(self, phase: WorkerPhase) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "record_exception",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "directory"
+            },
+            {
+              "annotation": "BaseException",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "WorkerDiagnostic.record_exception",
+          "return_annotation": "None",
+          "signature": "(self, directory: Path, error: BaseException) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 117,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "collect_worker_diagnostic",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "directory"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "exit_code"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "cleanup_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "exit_seen_before_cleanup"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "highest_received_depth"
+            }
+          ],
+          "qualified_name": "collect_worker_diagnostic",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(directory: Path, exit_code: int | None, *, cleanup_requested: bool, exit_seen_before_cleanup: bool, highest_received_depth: int = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 186,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_present",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_present",
+          "return_annotation": "bool | None",
+          "signature": "(path: Path) -> bool | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 197,
+            "start_line": 193
           }
         }
       ]
@@ -68166,7 +68549,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 292,
+          "line": 333,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -68187,7 +68570,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 324,
+          "line": 379,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -68209,7 +68592,7 @@
       "module": "ai_game_player.screen_capture",
       "path": "src/ai_game_player/screen_capture.py",
       "source_location": {
-        "end_line": 387,
+        "end_line": 461,
         "start_line": 1
       },
       "symbols": [
@@ -68231,8 +68614,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 30,
-            "start_line": 17
+            "end_line": 33,
+            "start_line": 20
           }
         },
         {
@@ -68253,8 +68636,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 33
+            "end_line": 37,
+            "start_line": 36
           }
         },
         {
@@ -68275,8 +68658,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 50,
-            "start_line": 42
+            "end_line": 53,
+            "start_line": 45
           }
         },
         {
@@ -68295,8 +68678,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 387,
-            "start_line": 56
+            "end_line": 461,
+            "start_line": 60
           }
         },
         {
@@ -68336,8 +68719,8 @@
           "signature": "(self, *, user32: Any | None = …, gdi32: Any | None = …, wgc_capture_factory: Callable[[int], Any] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 64
+            "end_line": 87,
+            "start_line": 68
           }
         },
         {
@@ -68365,8 +68748,8 @@
           "signature": "(self, capture_region: CaptureRegion | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 90,
-            "start_line": 89
+            "end_line": 95,
+            "start_line": 94
           }
         },
         {
@@ -68400,8 +68783,8 @@
           "signature": "(self, window_handle: int | None = …, capture_region: CaptureRegion | None = …) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 98
+            "end_line": 123,
+            "start_line": 103
           }
         },
         {
@@ -68435,8 +68818,8 @@
           "signature": "(self, window_handle: int | None = …, *, include_bounds: bool = …) -> ScreenFrame",
           "source_location": {
             "column": 4,
-            "end_line": 248,
-            "start_line": 125
+            "end_line": 289,
+            "start_line": 132
           }
         },
         {
@@ -68464,8 +68847,8 @@
           "signature": "(self, window_handle: int) -> PixelRect",
           "source_location": {
             "column": 4,
-            "end_line": 268,
-            "start_line": 257
+            "end_line": 309,
+            "start_line": 298
           }
         },
         {
@@ -68493,8 +68876,8 @@
           "signature": "(self, window_handle: int) -> ScreenFrame | None",
           "source_location": {
             "column": 4,
-            "end_line": 330,
-            "start_line": 276
+            "end_line": 388,
+            "start_line": 317
           }
         },
         {
@@ -68516,8 +68899,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 347,
-            "start_line": 337
+            "end_line": 405,
+            "start_line": 395
           }
         },
         {
@@ -68539,8 +68922,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 363,
-            "start_line": 354
+            "end_line": 423,
+            "start_line": 412
           }
         },
         {
@@ -68594,8 +68977,8 @@
           "signature": "(user32: Any, window: int, left: int, top: int, right: int, bottom: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 387,
-            "start_line": 366
+            "end_line": 461,
+            "start_line": 426
           }
         }
       ]
@@ -76934,7 +77317,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 168,
+          "line": 179,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.action_executor"
@@ -76951,7 +77334,7 @@
       "module": "ai_game_player.windows_input",
       "path": "src/ai_game_player/windows_input.py",
       "source_location": {
-        "end_line": 508,
+        "end_line": 520,
         "start_line": 1
       },
       "symbols": [
@@ -76987,7 +77370,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 508,
+            "end_line": 520,
             "start_line": 67
           }
         },
@@ -77058,7 +77441,7 @@
           "signature": "(self, window_handle: int | None = …, input_mode: str = …, window_process_id: int | None = …, *, stop_checker: Callable[[], bool] | None = …, input_admission: Callable[[], None] | None = …, input_ledger: InputLedger | None = …, hold_ttl_seconds: float | None = …, automated_cursor_position_callback: Callable[[tuple[int, int] | None, bool], None] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 125,
+            "end_line": 126,
             "start_line": 93
           }
         },
@@ -77081,8 +77464,31 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 136,
-            "start_line": 132
+            "end_line": 137,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_mark_dispatch_started",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsInputExecutor._mark_dispatch_started",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 144
           }
         },
         {
@@ -77106,8 +77512,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 145
+            "end_line": 157,
+            "start_line": 156
           }
         },
         {
@@ -77135,8 +77541,8 @@
           "signature": "(self, candidate: ActionCandidate) -> ExecutionResult",
           "source_location": {
             "column": 4,
-            "end_line": 197,
-            "start_line": 167
+            "end_line": 209,
+            "start_line": 178
           }
         },
         {
@@ -77158,8 +77564,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 214
+            "end_line": 244,
+            "start_line": 226
           }
         },
         {
@@ -77181,8 +77587,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 234
+            "end_line": 259,
+            "start_line": 246
           }
         },
         {
@@ -77210,8 +77616,8 @@
           "signature": "(self, candidate: ActionCandidate) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 256
+            "end_line": 325,
+            "start_line": 268
           }
         },
         {
@@ -77239,8 +77645,8 @@
           "signature": "(self, lparam: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 347,
-            "start_line": 322
+            "end_line": 359,
+            "start_line": 334
           }
         },
         {
@@ -77268,8 +77674,8 @@
           "signature": "(self, candidate: ActionCandidate) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 371,
-            "start_line": 356
+            "end_line": 383,
+            "start_line": 368
           }
         },
         {
@@ -77297,8 +77703,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 401,
-            "start_line": 380
+            "end_line": 413,
+            "start_line": 392
           }
         },
         {
@@ -77326,8 +77732,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 428,
-            "start_line": 410
+            "end_line": 440,
+            "start_line": 422
           }
         },
         {
@@ -77355,8 +77761,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 448,
-            "start_line": 437
+            "end_line": 460,
+            "start_line": 449
           }
         },
         {
@@ -77384,8 +77790,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 475,
-            "start_line": 457
+            "end_line": 487,
+            "start_line": 469
           }
         },
         {
@@ -77413,8 +77819,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 479,
-            "start_line": 477
+            "end_line": 491,
+            "start_line": 489
           }
         },
         {
@@ -77442,8 +77848,8 @@
           "signature": "(self, virtual_key: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 486,
-            "start_line": 481
+            "end_line": 498,
+            "start_line": 493
           }
         },
         {
@@ -77471,8 +77877,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 490,
-            "start_line": 488
+            "end_line": 502,
+            "start_line": 500
           }
         },
         {
@@ -77500,8 +77906,8 @@
           "signature": "(self, button: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 497,
-            "start_line": 492
+            "end_line": 509,
+            "start_line": 504
           }
         },
         {
@@ -77529,8 +77935,8 @@
           "signature": "(self, duration: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 508,
-            "start_line": 499
+            "end_line": 520,
+            "start_line": 511
           }
         }
       ]
@@ -78106,7 +78512,7 @@
       "module": "tests.test_2048_campaign",
       "path": "tests/test_2048_campaign.py",
       "source_location": {
-        "end_line": 639,
+        "end_line": 646,
         "start_line": 1
       },
       "symbols": [
@@ -78128,7 +78534,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 596,
+            "end_line": 603,
             "start_line": 20
           }
         },
@@ -78341,7 +78747,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 212,
+            "end_line": 213,
             "start_line": 126
           }
         },
@@ -78361,7 +78767,7 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 141,
+            "end_line": 142,
             "start_line": 129
           }
         },
@@ -78390,8 +78796,8 @@
           "signature": "(self, _window_handle)",
           "source_location": {
             "column": 12,
-            "end_line": 141,
-            "start_line": 132
+            "end_line": 142,
+            "start_line": 133
           }
         },
         {
@@ -78410,8 +78816,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 148,
-            "start_line": 143
+            "end_line": 149,
+            "start_line": 144
           }
         },
         {
@@ -78445,8 +78851,8 @@
           "signature": "(self, frame, _screen_id)",
           "source_location": {
             "column": 12,
-            "end_line": 148,
-            "start_line": 144
+            "end_line": 149,
+            "start_line": 145
           }
         },
         {
@@ -78465,8 +78871,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 167,
-            "start_line": 150
+            "end_line": 168,
+            "start_line": 151
           }
         },
         {
@@ -78500,8 +78906,8 @@
           "signature": "(self, frame, _observation)",
           "source_location": {
             "column": 12,
-            "end_line": 167,
-            "start_line": 151
+            "end_line": 168,
+            "start_line": 152
           }
         },
         {
@@ -78523,8 +78929,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 214
+            "end_line": 234,
+            "start_line": 215
           }
         },
         {
@@ -78539,8 +78945,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 216,
-            "start_line": 215
+            "end_line": 217,
+            "start_line": 216
           }
         },
         {
@@ -78562,8 +78968,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 259,
-            "start_line": 235
+            "end_line": 260,
+            "start_line": 236
           }
         },
         {
@@ -78585,8 +78991,8 @@
           "signature": "(on_fresh_frame)",
           "source_location": {
             "column": 8,
-            "end_line": 243,
-            "start_line": 241
+            "end_line": 244,
+            "start_line": 242
           }
         },
         {
@@ -78616,8 +79022,8 @@
           "signature": "(self, root)",
           "source_location": {
             "column": 4,
-            "end_line": 300,
-            "start_line": 262
+            "end_line": 301,
+            "start_line": 263
           }
         },
         {
@@ -78639,8 +79045,8 @@
           "signature": "(on_fresh_frame = …)",
           "source_location": {
             "column": 12,
-            "end_line": 277,
-            "start_line": 273
+            "end_line": 278,
+            "start_line": 274
           }
         },
         {
@@ -78662,8 +79068,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 316,
-            "start_line": 302
+            "end_line": 317,
+            "start_line": 303
           }
         },
         {
@@ -78685,8 +79091,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 330,
-            "start_line": 318
+            "end_line": 331,
+            "start_line": 319
           }
         },
         {
@@ -78708,8 +79114,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 356,
-            "start_line": 332
+            "end_line": 357,
+            "start_line": 333
           }
         },
         {
@@ -78724,8 +79130,8 @@
           "signature": "()",
           "source_location": {
             "column": 24,
-            "end_line": 349,
-            "start_line": 346
+            "end_line": 350,
+            "start_line": 347
           }
         },
         {
@@ -78747,8 +79153,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 381,
-            "start_line": 358
+            "end_line": 382,
+            "start_line": 359
           }
         },
         {
@@ -78763,8 +79169,8 @@
           "signature": "()",
           "source_location": {
             "column": 24,
-            "end_line": 373,
-            "start_line": 370
+            "end_line": 374,
+            "start_line": 371
           }
         },
         {
@@ -78786,8 +79192,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 409,
-            "start_line": 383
+            "end_line": 410,
+            "start_line": 384
           }
         },
         {
@@ -78809,8 +79215,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 493,
-            "start_line": 411
+            "end_line": 494,
+            "start_line": 412
           }
         },
         {
@@ -78838,8 +79244,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 28,
-            "end_line": 449,
-            "start_line": 444
+            "end_line": 450,
+            "start_line": 445
           }
         },
         {
@@ -78854,8 +79260,8 @@
           "signature": "()",
           "source_location": {
             "column": 28,
-            "end_line": 455,
-            "start_line": 451
+            "end_line": 456,
+            "start_line": 452
           }
         },
         {
@@ -78870,8 +79276,8 @@
           "signature": "()",
           "source_location": {
             "column": 28,
-            "end_line": 464,
-            "start_line": 457
+            "end_line": 465,
+            "start_line": 458
           }
         },
         {
@@ -78893,8 +79299,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 572,
-            "start_line": 495
+            "end_line": 579,
+            "start_line": 496
           }
         },
         {
@@ -78913,8 +79319,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 507,
-            "start_line": 496
+            "end_line": 509,
+            "start_line": 497
           }
         },
         {
@@ -78942,8 +79348,8 @@
           "signature": "(self, _window_handle)",
           "source_location": {
             "column": 12,
-            "end_line": 507,
-            "start_line": 499
+            "end_line": 509,
+            "start_line": 501
           }
         },
         {
@@ -78962,8 +79368,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 513,
-            "start_line": 509
+            "end_line": 515,
+            "start_line": 511
           }
         },
         {
@@ -78997,8 +79403,8 @@
           "signature": "(self, frame, _screen_id)",
           "source_location": {
             "column": 12,
-            "end_line": 513,
-            "start_line": 510
+            "end_line": 515,
+            "start_line": 512
           }
         },
         {
@@ -79017,8 +79423,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 533,
-            "start_line": 515
+            "end_line": 535,
+            "start_line": 517
           }
         },
         {
@@ -79052,8 +79458,8 @@
           "signature": "(self, _frame, _observation)",
           "source_location": {
             "column": 12,
-            "end_line": 533,
-            "start_line": 518
+            "end_line": 535,
+            "start_line": 520
           }
         },
         {
@@ -79068,8 +79474,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 551,
-            "start_line": 549
+            "end_line": 553,
+            "start_line": 551
           }
         },
         {
@@ -79091,8 +79497,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 596,
-            "start_line": 574
+            "end_line": 603,
+            "start_line": 581
           }
         },
         {
@@ -79114,8 +79520,8 @@
           "signature": "(**_arguments)",
           "source_location": {
             "column": 8,
-            "end_line": 576,
-            "start_line": 575
+            "end_line": 583,
+            "start_line": 582
           }
         },
         {
@@ -79138,8 +79544,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 635,
-            "start_line": 603
+            "end_line": 642,
+            "start_line": 610
           }
         },
         {
@@ -79161,8 +79567,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 635,
-            "start_line": 604
+            "end_line": 642,
+            "start_line": 611
           }
         }
       ]
@@ -99318,7 +99724,7 @@
       "module": "tests.test_expectimax_planner",
       "path": "tests/test_expectimax_planner.py",
       "source_location": {
-        "end_line": 958,
+        "end_line": 1019,
         "start_line": 1
       },
       "symbols": [
@@ -99603,6 +100009,22 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
+          "name": "unexpected_factory_domain",
+          "parameters": [],
+          "qualified_name": "unexpected_factory_domain",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
           "name": "table_domain",
           "parameters": [],
           "qualified_name": "table_domain",
@@ -99610,8 +100032,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 152
+            "end_line": 157,
+            "start_line": 156
           }
         },
         {
@@ -99626,8 +100048,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 157,
-            "start_line": 156
+            "end_line": 161,
+            "start_line": 160
           }
         },
         {
@@ -99642,8 +100064,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 161,
-            "start_line": 160
+            "end_line": 165,
+            "start_line": 164
           }
         },
         {
@@ -99658,8 +100080,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 165,
-            "start_line": 164
+            "end_line": 169,
+            "start_line": 168
           }
         },
         {
@@ -99674,8 +100096,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 169,
-            "start_line": 168
+            "end_line": 173,
+            "start_line": 172
           }
         },
         {
@@ -99690,8 +100112,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 173,
-            "start_line": 172
+            "end_line": 177,
+            "start_line": 176
           }
         },
         {
@@ -99706,8 +100128,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 177,
-            "start_line": 176
+            "end_line": 181,
+            "start_line": 180
           }
         },
         {
@@ -99722,8 +100144,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 181,
-            "start_line": 180
+            "end_line": 185,
+            "start_line": 184
           }
         },
         {
@@ -99738,8 +100160,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 185,
-            "start_line": 184
+            "end_line": 189,
+            "start_line": 188
           }
         },
         {
@@ -99754,8 +100176,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 189,
-            "start_line": 188
+            "end_line": 193,
+            "start_line": 192
           }
         },
         {
@@ -99770,8 +100192,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 193,
-            "start_line": 192
+            "end_line": 197,
+            "start_line": 196
           }
         },
         {
@@ -99786,8 +100208,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 197,
-            "start_line": 196
+            "end_line": 201,
+            "start_line": 200
           }
         },
         {
@@ -99802,8 +100224,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 201,
-            "start_line": 200
+            "end_line": 205,
+            "start_line": 204
           }
         },
         {
@@ -99818,8 +100240,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 205,
-            "start_line": 204
+            "end_line": 209,
+            "start_line": 208
           }
         },
         {
@@ -99841,8 +100263,8 @@
           "signature": "(result)",
           "source_location": {
             "column": 0,
-            "end_line": 230,
-            "start_line": 208
+            "end_line": 234,
+            "start_line": 212
           }
         },
         {
@@ -99863,8 +100285,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 918,
-            "start_line": 233
+            "end_line": 979,
+            "start_line": 237
           }
         },
         {
@@ -99928,8 +100350,8 @@
           "signature": "(self, *, states = …, weights = …, kind = …, ttl = …, game_id = …, schema = …, state_type = …)",
           "source_location": {
             "column": 4,
-            "end_line": 292,
-            "start_line": 234
+            "end_line": 296,
+            "start_line": 238
           }
         },
         {
@@ -99957,8 +100379,8 @@
           "signature": "(self, factory = …)",
           "source_location": {
             "column": 4,
-            "end_line": 306,
-            "start_line": 294
+            "end_line": 310,
+            "start_line": 298
           }
         },
         {
@@ -100016,8 +100438,77 @@
           "signature": "(self, *, factory = …, belief = …, budget = …, allowed = …, current = …, controller = …)",
           "source_location": {
             "column": 4,
-            "end_line": 331,
-            "start_line": 308
+            "end_line": 344,
+            "start_line": 312
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_worker_python_exception_has_only_fixed_metadata",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectimaxPlannerTests.test_worker_python_exception_has_only_fixed_metadata",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 368,
+            "start_line": 346
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_parent_diagnostic_failure_cannot_change_selection_or_cleanup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectimaxPlannerTests.test_parent_diagnostic_failure_cannot_change_selection_or_cleanup",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 378,
+            "start_line": 370
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_preflight_fallback_clears_previous_worker_diagnostic",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExpectimaxPlannerTests.test_preflight_fallback_clears_previous_worker_diagnostic",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 386,
+            "start_line": 380
           }
         },
         {
@@ -100039,8 +100530,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 363,
-            "start_line": 333
+            "end_line": 418,
+            "start_line": 388
           }
         },
         {
@@ -100062,8 +100553,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 374,
-            "start_line": 365
+            "end_line": 429,
+            "start_line": 420
           }
         },
         {
@@ -100085,8 +100576,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 399,
-            "start_line": 376
+            "end_line": 454,
+            "start_line": 431
           }
         },
         {
@@ -100108,8 +100599,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 422,
-            "start_line": 401
+            "end_line": 477,
+            "start_line": 456
           }
         },
         {
@@ -100137,8 +100628,8 @@
           "signature": "(path, maximum)",
           "source_location": {
             "column": 8,
-            "end_line": 412,
-            "start_line": 404
+            "end_line": 467,
+            "start_line": 459
           }
         },
         {
@@ -100160,8 +100651,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 434,
-            "start_line": 424
+            "end_line": 489,
+            "start_line": 479
           }
         },
         {
@@ -100183,8 +100674,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 456,
-            "start_line": 436
+            "end_line": 511,
+            "start_line": 491
           }
         },
         {
@@ -100206,8 +100697,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 473,
-            "start_line": 458
+            "end_line": 528,
+            "start_line": 513
           }
         },
         {
@@ -100229,8 +100720,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 483,
-            "start_line": 475
+            "end_line": 538,
+            "start_line": 530
           }
         },
         {
@@ -100252,8 +100743,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 498,
-            "start_line": 485
+            "end_line": 553,
+            "start_line": 540
           }
         },
         {
@@ -100275,8 +100766,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 528,
-            "start_line": 500
+            "end_line": 583,
+            "start_line": 555
           }
         },
         {
@@ -100298,8 +100789,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 582,
-            "start_line": 530
+            "end_line": 643,
+            "start_line": 585
           }
         },
         {
@@ -100321,8 +100812,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 610,
-            "start_line": 584
+            "end_line": 671,
+            "start_line": 645
           }
         },
         {
@@ -100344,8 +100835,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 625,
-            "start_line": 612
+            "end_line": 686,
+            "start_line": 673
           }
         },
         {
@@ -100367,8 +100858,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 638,
-            "start_line": 627
+            "end_line": 699,
+            "start_line": 688
           }
         },
         {
@@ -100390,8 +100881,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 656,
-            "start_line": 640
+            "end_line": 717,
+            "start_line": 701
           }
         },
         {
@@ -100413,8 +100904,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 683,
-            "start_line": 658
+            "end_line": 744,
+            "start_line": 719
           }
         },
         {
@@ -100442,8 +100933,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 666,
-            "start_line": 663
+            "end_line": 727,
+            "start_line": 724
           }
         },
         {
@@ -100465,8 +100956,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 700,
-            "start_line": 685
+            "end_line": 761,
+            "start_line": 746
           }
         },
         {
@@ -100488,8 +100979,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 716,
-            "start_line": 702
+            "end_line": 777,
+            "start_line": 763
           }
         },
         {
@@ -100511,8 +101002,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 758,
-            "start_line": 718
+            "end_line": 819,
+            "start_line": 779
           }
         },
         {
@@ -100540,8 +101031,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 730,
-            "start_line": 726
+            "end_line": 791,
+            "start_line": 787
           }
         },
         {
@@ -100556,8 +101047,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 739,
-            "start_line": 732
+            "end_line": 800,
+            "start_line": 793
           }
         },
         {
@@ -100579,8 +101070,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 800,
-            "start_line": 760
+            "end_line": 861,
+            "start_line": 821
           }
         },
         {
@@ -100608,8 +101099,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 771,
-            "start_line": 768
+            "end_line": 832,
+            "start_line": 829
           }
         },
         {
@@ -100631,8 +101122,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 807,
-            "start_line": 802
+            "end_line": 868,
+            "start_line": 863
           }
         },
         {
@@ -100654,8 +101145,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 821,
-            "start_line": 809
+            "end_line": 882,
+            "start_line": 870
           }
         },
         {
@@ -100677,8 +101168,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 857,
-            "start_line": 823
+            "end_line": 918,
+            "start_line": 884
           }
         },
         {
@@ -100700,8 +101191,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 895,
-            "start_line": 859
+            "end_line": 956,
+            "start_line": 920
           }
         },
         {
@@ -100723,8 +101214,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 918,
-            "start_line": 897
+            "end_line": 979,
+            "start_line": 958
           }
         },
         {
@@ -100743,8 +101234,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 935,
-            "start_line": 921
+            "end_line": 996,
+            "start_line": 982
           }
         },
         {
@@ -100778,8 +101269,8 @@
           "signature": "(self, state, action_id)",
           "source_location": {
             "column": 4,
-            "end_line": 932,
-            "start_line": 922
+            "end_line": 993,
+            "start_line": 983
           }
         },
         {
@@ -100807,8 +101298,8 @@
           "signature": "(self, transition)",
           "source_location": {
             "column": 4,
-            "end_line": 935,
-            "start_line": 934
+            "end_line": 996,
+            "start_line": 995
           }
         },
         {
@@ -100827,8 +101318,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 944,
-            "start_line": 938
+            "end_line": 1005,
+            "start_line": 999
           }
         },
         {
@@ -100856,8 +101347,8 @@
           "signature": "(self, state)",
           "source_location": {
             "column": 4,
-            "end_line": 944,
-            "start_line": 939
+            "end_line": 1005,
+            "start_line": 1000
           }
         },
         {
@@ -100872,8 +101363,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 954,
-            "start_line": 947
+            "end_line": 1015,
+            "start_line": 1008
           }
         },
         {
@@ -100888,8 +101379,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 958,
-            "start_line": 957
+            "end_line": 1019,
+            "start_line": 1018
           }
         }
       ]
@@ -124172,7 +124663,7 @@
       "module": "tests.test_ocr_recognizer",
       "path": "tests/test_ocr_recognizer.py",
       "source_location": {
-        "end_line": 51,
+        "end_line": 57,
         "start_line": 1
       },
       "symbols": [
@@ -124314,7 +124805,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 51,
+            "end_line": 57,
             "start_line": 27
           }
         },
@@ -124337,7 +124828,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 44,
+            "end_line": 50,
             "start_line": 28
           }
         },
@@ -124423,8 +124914,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 46
+            "end_line": 57,
+            "start_line": 52
           }
         }
       ]
@@ -129725,6 +130216,231 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.frame_preprocessor",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.contracts",
+        "tools",
+        "tools.planning_frame_parity"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_preprocessor"
+          ],
+          "module": "ai_game_player.frame_preprocessor",
+          "names": [
+            {
+              "alias": null,
+              "name": "PythonFramePreprocessor"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.contracts"
+          ],
+          "module": "ai_game_player.runtime.contracts",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeCapability"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "test_game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_fixture"
+            },
+            {
+              "alias": null,
+              "name": "read_fixture"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_frame_parity"
+          ],
+          "module": "tools.planning_frame_parity",
+          "names": [
+            {
+              "alias": null,
+              "name": "validate_native_preprocessing"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_frame_parity",
+      "path": "tests/test_planning_frame_parity.py",
+      "source_location": {
+        "end_line": 42,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PlanningFrameParityTests",
+          "parameters": [],
+          "qualified_name": "PlanningFrameParityTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_pixel_validation_includes_candidate_semantic_and_decision_effects",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningFrameParityTests.test_same_pixel_validation_includes_candidate_semantic_and_decision_effects",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "changed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "options"
+            }
+          ],
+          "qualified_name": "PlanningFrameParityTests.test_same_pixel_validation_includes_candidate_semantic_and_decision_effects.changed",
+          "return_annotation": null,
+          "signature": "(frame, **options)",
+          "source_location": {
+            "column": 12,
+            "end_line": 37,
+            "start_line": 35
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.models",
         "ai_game_player.windows_input"
       ],
@@ -132253,6 +132969,10 @@
           "names": [
             {
               "alias": null,
+              "name": "reread_score_header_label"
+            },
+            {
+              "alias": null,
               "name": "reread_score_line"
             }
           ]
@@ -132261,7 +132981,7 @@
       "module": "tests.test_planning_score_evaluation",
       "path": "tests/test_planning_score_evaluation.py",
       "source_location": {
-        "end_line": 126,
+        "end_line": 181,
         "start_line": 1
       },
       "symbols": [
@@ -132373,8 +133093,88 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 126,
+            "end_line": 181,
             "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_whole_page_label_can_be_recovered_from_same_frame_header",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanningScoreEvaluationTests.test_missing_whole_page_label_can_be_recovered_from_same_frame_header",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 86,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [
+            "LineOcr"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "HeaderOcr",
+          "parameters": [],
+          "qualified_name": "PlanningScoreEvaluationTests.test_missing_whole_page_label_can_be_recovered_from_same_frame_header.HeaderOcr",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 56,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "recognize",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "mode"
+            }
+          ],
+          "qualified_name": "PlanningScoreEvaluationTests.test_missing_whole_page_label_can_be_recovered_from_same_frame_header.HeaderOcr.recognize",
+          "return_annotation": null,
+          "signature": "(self, frame, *, mode)",
+          "source_location": {
+            "column": 12,
+            "end_line": 56,
+            "start_line": 35
           }
         },
         {
@@ -132396,8 +133196,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 33
+            "end_line": 124,
+            "start_line": 88
           }
         },
         {
@@ -132419,8 +133219,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 91,
-            "start_line": 71
+            "end_line": 146,
+            "start_line": 126
           }
         },
         {
@@ -132442,8 +133242,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 103,
-            "start_line": 93
+            "end_line": 158,
+            "start_line": 148
           }
         },
         {
@@ -132465,8 +133265,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 105
+            "end_line": 171,
+            "start_line": 160
           }
         },
         {
@@ -132488,8 +133288,250 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 118
+            "end_line": 181,
+            "start_line": 173
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.planning_worker_diagnostic"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planning_worker_diagnostic"
+          ],
+          "module": "ai_game_player.planning_worker_diagnostic",
+          "names": [
+            {
+              "alias": null,
+              "name": "WorkerDiagnostic"
+            },
+            {
+              "alias": null,
+              "name": "WorkerPhase"
+            },
+            {
+              "alias": null,
+              "name": "collect_worker_diagnostic"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_planning_worker_diagnostic",
+      "path": "tests/test_planning_worker_diagnostic.py",
+      "source_location": {
+        "end_line": 88,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkerDiagnosticTests",
+          "parameters": [],
+          "qualified_name": "WorkerDiagnosticTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 88,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fixed_exception_fields_and_first_record_preserve_phase_without_text",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkerDiagnosticTests.test_fixed_exception_fields_and_first_record_preserve_phase_without_text",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 15
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_absent_python_file_distinguishes_abnormal_exit_and_parent_cleanup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkerDiagnosticTests.test_absent_python_file_distinguishes_abnormal_exit_and_parent_cleanup",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 56,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_untrusted_extra_fields_and_oversized_file_are_not_returned",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkerDiagnosticTests.test_untrusted_extra_fields_and_oversized_file_are_not_returned",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_recording_memory_failure_is_best_effort",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkerDiagnosticTests.test_recording_memory_failure_is_best_effort",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_phase_timing_failure_is_best_effort",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkerDiagnosticTests.test_phase_timing_failure_is_best_effort",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 88,
+            "start_line": 80
           }
         }
       ]
@@ -134668,7 +135710,7 @@
       "module": "tests.test_recognition_failure_evidence",
       "path": "tests/test_recognition_failure_evidence.py",
       "source_location": {
-        "end_line": 148,
+        "end_line": 193,
         "start_line": 1
       },
       "symbols": [
@@ -134703,7 +135745,7 @@
           "signature": "(directory: Path, game_state: dict, candidates: list | None = …)",
           "source_location": {
             "column": 0,
-            "end_line": 35,
+            "end_line": 48,
             "start_line": 19
           }
         },
@@ -134725,8 +135767,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 144,
-            "start_line": 38
+            "end_line": 189,
+            "start_line": 51
           }
         },
         {
@@ -134748,8 +135790,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 39
+            "end_line": 92,
+            "start_line": 52
           }
         },
         {
@@ -134771,8 +135813,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 85,
-            "start_line": 77
+            "end_line": 102,
+            "start_line": 94
           }
         },
         {
@@ -134794,8 +135836,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 87
+            "end_line": 135,
+            "start_line": 104
           }
         },
         {
@@ -134817,8 +135859,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 108
+            "end_line": 149,
+            "start_line": 137
           }
         },
         {
@@ -134840,8 +135882,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 129,
-            "start_line": 120
+            "end_line": 166,
+            "start_line": 151
           }
         },
         {
@@ -134863,8 +135905,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 131
+            "end_line": 180,
+            "start_line": 168
           }
         },
         {
@@ -134886,8 +135928,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 144,
-            "start_line": 140
+            "end_line": 189,
+            "start_line": 182
           }
         }
       ]
@@ -155207,7 +156249,7 @@
       "module": "tests.test_windows_input",
       "path": "tests/test_windows_input.py",
       "source_location": {
-        "end_line": 625,
+        "end_line": 629,
         "start_line": 1
       },
       "symbols": [
@@ -155683,7 +156725,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 625,
+            "end_line": 629,
             "start_line": 98
           }
         },
@@ -155706,7 +156748,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 112,
+            "end_line": 114,
             "start_line": 99
           }
         },
@@ -155729,8 +156771,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 128,
-            "start_line": 114
+            "end_line": 130,
+            "start_line": 116
           }
         },
         {
@@ -155752,8 +156794,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 130
+            "end_line": 152,
+            "start_line": 132
           }
         },
         {
@@ -155775,8 +156817,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 166,
-            "start_line": 151
+            "end_line": 170,
+            "start_line": 154
           }
         },
         {
@@ -155798,8 +156840,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 168
+            "end_line": 189,
+            "start_line": 172
           }
         },
         {
@@ -155820,8 +156862,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 172,
-            "start_line": 169
+            "end_line": 176,
+            "start_line": 173
           }
         },
         {
@@ -155849,8 +156891,8 @@
           "signature": "(self, character)",
           "source_location": {
             "column": 12,
-            "end_line": 172,
-            "start_line": 170
+            "end_line": 176,
+            "start_line": 174
           }
         },
         {
@@ -155872,8 +156914,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 236,
-            "start_line": 187
+            "end_line": 240,
+            "start_line": 191
           }
         },
         {
@@ -155894,8 +156936,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 204,
-            "start_line": 191
+            "end_line": 208,
+            "start_line": 195
           }
         },
         {
@@ -155929,8 +156971,8 @@
           "signature": "(self, _handle, process_id_pointer)",
           "source_location": {
             "column": 12,
-            "end_line": 196,
-            "start_line": 192
+            "end_line": 200,
+            "start_line": 196
           }
         },
         {
@@ -155958,8 +157000,8 @@
           "signature": "(self, character)",
           "source_location": {
             "column": 12,
-            "end_line": 199,
-            "start_line": 198
+            "end_line": 203,
+            "start_line": 202
           }
         },
         {
@@ -156005,8 +157047,8 @@
           "signature": "(self, virtual_key, scan_code, flags, extra_info)",
           "source_location": {
             "column": 12,
-            "end_line": 204,
-            "start_line": 201
+            "end_line": 208,
+            "start_line": 205
           }
         },
         {
@@ -156021,8 +157063,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 219,
-            "start_line": 215
+            "end_line": 223,
+            "start_line": 219
           }
         },
         {
@@ -156044,8 +157086,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 238
+            "end_line": 244,
+            "start_line": 242
           }
         },
         {
@@ -156067,8 +157109,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 256,
-            "start_line": 242
+            "end_line": 260,
+            "start_line": 246
           }
         },
         {
@@ -156090,8 +157132,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 258
+            "end_line": 282,
+            "start_line": 262
           }
         },
         {
@@ -156113,8 +157155,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 283,
-            "start_line": 280
+            "end_line": 287,
+            "start_line": 284
           }
         },
         {
@@ -156136,8 +157178,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 303,
-            "start_line": 285
+            "end_line": 307,
+            "start_line": 289
           }
         },
         {
@@ -156156,8 +157198,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 297,
-            "start_line": 286
+            "end_line": 301,
+            "start_line": 290
           }
         },
         {
@@ -156185,8 +157227,8 @@
           "signature": "(self, candidate)",
           "source_location": {
             "column": 12,
-            "end_line": 297,
-            "start_line": 287
+            "end_line": 301,
+            "start_line": 291
           }
         },
         {
@@ -156208,8 +157250,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 318,
-            "start_line": 305
+            "end_line": 322,
+            "start_line": 309
           }
         },
         {
@@ -156231,8 +157273,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 339,
-            "start_line": 320
+            "end_line": 343,
+            "start_line": 324
           }
         },
         {
@@ -156260,8 +157302,8 @@
           "signature": "(position, move_in_progress)",
           "source_location": {
             "column": 8,
-            "end_line": 325,
-            "start_line": 324
+            "end_line": 329,
+            "start_line": 328
           }
         },
         {
@@ -156283,8 +157325,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 366,
-            "start_line": 341
+            "end_line": 370,
+            "start_line": 345
           }
         },
         {
@@ -156312,8 +157354,8 @@
           "signature": "(position, move_in_progress)",
           "source_location": {
             "column": 8,
-            "end_line": 347,
-            "start_line": 346
+            "end_line": 351,
+            "start_line": 350
           }
         },
         {
@@ -156335,8 +157377,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 386,
-            "start_line": 368
+            "end_line": 390,
+            "start_line": 372
           }
         },
         {
@@ -156358,8 +157400,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 408,
-            "start_line": 388
+            "end_line": 412,
+            "start_line": 392
           }
         },
         {
@@ -156381,8 +157423,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 426,
-            "start_line": 410
+            "end_line": 430,
+            "start_line": 414
           }
         },
         {
@@ -156404,8 +157446,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 454,
-            "start_line": 428
+            "end_line": 458,
+            "start_line": 432
           }
         },
         {
@@ -156427,8 +157469,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 491,
-            "start_line": 456
+            "end_line": 495,
+            "start_line": 460
           }
         },
         {
@@ -156450,8 +157492,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 529,
-            "start_line": 493
+            "end_line": 533,
+            "start_line": 497
           }
         },
         {
@@ -156473,8 +157515,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 565,
-            "start_line": 531
+            "end_line": 569,
+            "start_line": 535
           }
         },
         {
@@ -156496,8 +157538,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 592,
-            "start_line": 567
+            "end_line": 596,
+            "start_line": 571
           }
         },
         {
@@ -156519,8 +157561,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 621,
-            "start_line": 594
+            "end_line": 625,
+            "start_line": 598
           }
         },
         {
@@ -156542,8 +157584,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 625,
-            "start_line": 623
+            "end_line": 629,
+            "start_line": 627
           }
         }
       ]
@@ -156798,7 +157840,7 @@
       "module": "tests.test_windows_planning_comparison",
       "path": "tests/test_windows_planning_comparison.py",
       "source_location": {
-        "end_line": 317,
+        "end_line": 324,
         "start_line": 1
       },
       "symbols": [
@@ -156884,8 +157926,31 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 68,
+            "end_line": 71,
             "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "validate_preprocessing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeEpisode.validate_preprocessing",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 30,
+            "start_line": 29
           }
         },
         {
@@ -156919,8 +157984,8 @@
           "signature": "(self, *args, **kwargs)",
           "source_location": {
             "column": 4,
-            "end_line": 41,
-            "start_line": 29
+            "end_line": 44,
+            "start_line": 32
           }
         },
         {
@@ -156954,8 +158019,8 @@
           "signature": "(self, expected_rearm_token = …, **kwargs)",
           "source_location": {
             "column": 4,
-            "end_line": 47,
-            "start_line": 43
+            "end_line": 50,
+            "start_line": 46
           }
         },
         {
@@ -156977,8 +158042,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 49
+            "end_line": 68,
+            "start_line": 52
           }
         },
         {
@@ -157000,8 +158065,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 67
+            "end_line": 71,
+            "start_line": 70
           }
         },
         {
@@ -157022,8 +158087,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 317,
-            "start_line": 71
+            "end_line": 324,
+            "start_line": 74
           }
         },
         {
@@ -157045,8 +158110,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 109,
-            "start_line": 72
+            "end_line": 116,
+            "start_line": 75
           }
         },
         {
@@ -157068,8 +158133,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 111
+            "end_line": 146,
+            "start_line": 118
           }
         },
         {
@@ -157091,8 +158156,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 141
+            "end_line": 182,
+            "start_line": 148
           }
         },
         {
@@ -157114,8 +158179,8 @@
           "signature": "(episode)",
           "source_location": {
             "column": 8,
-            "end_line": 152,
-            "start_line": 144
+            "end_line": 159,
+            "start_line": 151
           }
         },
         {
@@ -157137,8 +158202,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 210,
-            "start_line": 177
+            "end_line": 217,
+            "start_line": 184
           }
         },
         {
@@ -157166,8 +158231,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 183,
-            "start_line": 180
+            "end_line": 190,
+            "start_line": 187
           }
         },
         {
@@ -157189,8 +158254,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 226,
-            "start_line": 212
+            "end_line": 233,
+            "start_line": 219
           }
         },
         {
@@ -157212,8 +158277,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 266,
-            "start_line": 228
+            "end_line": 273,
+            "start_line": 235
           }
         },
         {
@@ -157241,8 +158306,8 @@
           "signature": "(*args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 237,
-            "start_line": 229
+            "end_line": 244,
+            "start_line": 236
           }
         },
         {
@@ -157264,8 +158329,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 317,
-            "start_line": 268
+            "end_line": 324,
+            "start_line": 275
           }
         },
         {
@@ -157299,8 +158364,315 @@
           "signature": "(provider, *args, **kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 286,
-            "start_line": 272
+            "end_line": 293,
+            "start_line": 279
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.models",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.contracts",
+        "ai_game_player.runtime.native",
+        "ai_game_player.screen_capture",
+        "tools",
+        "tools.compare_2048_windows_planning",
+        "tools.run_2048_campaign"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenObservation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.screen_capture"
+          ],
+          "module": "ai_game_player.screen_capture",
+          "names": [
+            {
+              "alias": null,
+              "name": "ScreenFrame"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.contracts"
+          ],
+          "module": "ai_game_player.runtime.contracts",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeCapability"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.native"
+          ],
+          "module": "ai_game_player.runtime.native",
+          "names": [
+            {
+              "alias": null,
+              "name": "NativeLoadStatus"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "tools",
+            "tools.run_2048_campaign"
+          ],
+          "module": "tools.run_2048_campaign",
+          "names": [
+            {
+              "alias": null,
+              "name": "Cached2048ObservationSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "tools",
+            "tools.compare_2048_windows_planning"
+          ],
+          "module": "tools.compare_2048_windows_planning",
+          "names": [
+            {
+              "alias": null,
+              "name": "evaluate_visible_score"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_windows_planning_frame_freshness",
+      "path": "tests/test_windows_planning_frame_freshness.py",
+      "source_location": {
+        "end_line": 164,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WindowsPlanningFrameFreshnessTests",
+          "parameters": [],
+          "qualified_name": "WindowsPlanningFrameFreshnessTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 164,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "source",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "times"
+            }
+          ],
+          "qualified_name": "WindowsPlanningFrameFreshnessTests.source",
+          "return_annotation": null,
+          "signature": "(self, times)",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_score_frame_cannot_bypass_settle_and_last_accepted_barriers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningFrameFreshnessTests.test_stale_score_frame_cannot_bypass_settle_and_last_accepted_barriers",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_or_future_clock_is_rejected_without_timestamp_rewrite",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningFrameFreshnessTests.test_unknown_or_future_clock_is_rejected_without_timestamp_rewrite",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 77,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_queued_old_frame_does_not_refresh_lease_or_publish_a_new_source_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningFrameFreshnessTests.test_queued_old_frame_does_not_refresh_lease_or_publish_a_new_source_id",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 125,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_capability_is_required_and_close_attempts_both_owned_resources",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlanningFrameFreshnessTests.test_native_capability_is_required_and_close_attempts_both_owned_resources",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 164,
+            "start_line": 127
           }
         }
       ]
@@ -166627,6 +167999,10 @@
           "names": [
             {
               "alias": null,
+              "name": "reread_score_header_label"
+            },
+            {
+              "alias": null,
               "name": "reread_score_line"
             }
           ]
@@ -166671,7 +168047,7 @@
       "module": "tools.compare_2048_windows_planning",
       "path": "tools/compare_2048_windows_planning.py",
       "source_location": {
-        "end_line": 444,
+        "end_line": 521,
         "start_line": 1
       },
       "symbols": [
@@ -166700,7 +168076,7 @@
           "signature": "(episode, ocr)",
           "source_location": {
             "column": 0,
-            "end_line": 61,
+            "end_line": 80,
             "start_line": 28
           }
         },
@@ -166723,8 +168099,8 @@
           "signature": "(episode)",
           "source_location": {
             "column": 0,
-            "end_line": 78,
-            "start_line": 64
+            "end_line": 97,
+            "start_line": 83
           }
         },
         {
@@ -166776,8 +168152,8 @@
           "signature": "(provider, seed, max_steps, cache, output, *, save_failure_evidence = …)",
           "source_location": {
             "column": 0,
-            "end_line": 306,
-            "start_line": 81
+            "end_line": 365,
+            "start_line": 100
           }
         },
         {
@@ -166799,8 +168175,8 @@
           "signature": "(result)",
           "source_location": {
             "column": 0,
-            "end_line": 370,
-            "start_line": 309
+            "end_line": 433,
+            "start_line": 368
           }
         },
         {
@@ -166828,8 +168204,8 @@
           "signature": "(value, limit = …)",
           "source_location": {
             "column": 4,
-            "end_line": 317,
-            "start_line": 312
+            "end_line": 376,
+            "start_line": 371
           }
         },
         {
@@ -166851,8 +168227,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 440,
-            "start_line": 373
+            "end_line": 517,
+            "start_line": 436
           }
         }
       ]
@@ -170033,6 +171409,174 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.baseline_provider",
+        "ai_game_player.decision_context",
+        "ai_game_player.frame_analyzer",
+        "ai_game_player.game_2048_adapter",
+        "ai_game_player.planner_2048_observation"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.baseline_provider"
+          ],
+          "module": "ai_game_player.baseline_provider",
+          "names": [
+            {
+              "alias": null,
+              "name": "BaselineDecisionProvider"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "DecisionContextBuilder"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.frame_analyzer"
+          ],
+          "module": "ai_game_player.frame_analyzer",
+          "names": [
+            {
+              "alias": null,
+              "name": "FrameAnalyzer"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_2048_adapter"
+          ],
+          "module": "ai_game_player.game_2048_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "ReferenceGame2048Adapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.planner_2048_observation"
+          ],
+          "module": "ai_game_player.planner_2048_observation",
+          "names": [
+            {
+              "alias": null,
+              "name": "Reference2048PlanningObservation"
+            }
+          ]
+        }
+      ],
+      "module": "tools.planning_frame_parity",
+      "path": "tools/planning_frame_parity.py",
+      "source_location": {
+        "end_line": 96,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validate_native_preprocessing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime"
+            }
+          ],
+          "qualified_name": "validate_native_preprocessing",
+          "return_annotation": null,
+          "signature": "(frame, runtime)",
+          "source_location": {
+            "column": 0,
+            "end_line": 96,
+            "start_line": 14
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.belief_contract",
         "ai_game_player.belief_snapshot",
         "ai_game_player.planning_information",
@@ -170593,10 +172137,98 @@
       "module": "tools.planning_score_evaluation",
       "path": "tools/planning_score_evaluation.py",
       "source_location": {
-        "end_line": 129,
+        "end_line": 212,
         "start_line": 1
       },
       "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_scaled_crop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "left"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "top"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "right"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bottom"
+            }
+          ],
+          "qualified_name": "_scaled_crop",
+          "return_annotation": null,
+          "signature": "(frame, left, top, right, bottom)",
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 10
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "reread_score_header_label",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "frame"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "board_bounds"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr"
+            }
+          ],
+          "qualified_name": "reread_score_header_label",
+          "return_annotation": null,
+          "signature": "(frame, observation, board_bounds, ocr)",
+          "source_location": {
+            "column": 0,
+            "end_line": 104,
+            "start_line": 38
+          }
+        },
         {
           "bases": [],
           "data_model": null,
@@ -170628,8 +172260,8 @@
           "signature": "(frame, observation, ocr)",
           "source_location": {
             "column": 0,
-            "end_line": 129,
-            "start_line": 10
+            "end_line": 212,
+            "start_line": 107
           }
         }
       ]
@@ -174669,9 +176301,13 @@
         "ai_game_player.pipeline",
         "ai_game_player.planner_factory",
         "ai_game_player.run_control",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.contracts",
+        "ai_game_player.runtime.native",
         "ai_game_player.screen_capture",
         "tools",
         "tools.observation_timing",
+        "tools.planning_frame_parity",
         "tools.recognition_failure_evidence",
         "tools.reference_game_2048_launcher",
         "tools.reference_game_2048_source",
@@ -175210,12 +176846,66 @@
               "name": "SOURCE_LOCK_PATH"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 75,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.native"
+          ],
+          "module": "ai_game_player.runtime.native",
+          "names": [
+            {
+              "alias": null,
+              "name": "NativeLoadStatus"
+            },
+            {
+              "alias": null,
+              "name": "discover_native_runtime"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 79,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.contracts"
+          ],
+          "module": "ai_game_player.runtime.contracts",
+          "names": [
+            {
+              "alias": null,
+              "name": "RuntimeCapability"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 442,
+          "local_dependencies": [
+            "tools",
+            "tools.planning_frame_parity"
+          ],
+          "module": "tools.planning_frame_parity",
+          "names": [
+            {
+              "alias": null,
+              "name": "validate_native_preprocessing"
+            }
+          ]
         }
       ],
       "module": "tools.run_2048_campaign",
       "path": "tools/run_2048_campaign.py",
       "source_location": {
-        "end_line": 685,
+        "end_line": 841,
         "start_line": 1
       },
       "symbols": [
@@ -175235,7 +176925,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 259,
+            "end_line": 396,
             "start_line": 61
           }
         },
@@ -175269,15 +176959,67 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "failure_evidence"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "native_preprocessing"
             }
           ],
           "qualified_name": "Cached2048ObservationSource.__init__",
           "return_annotation": "None",
-          "signature": "(self, window_handle: int, ocr_recognizer: object | None, failure_evidence: RecognitionFailureEvidence | None = …) -> None",
+          "signature": "(self, window_handle: int, ocr_recognizer: object | None, failure_evidence: RecognitionFailureEvidence | None = …, *, native_preprocessing: bool = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 79,
+            "end_line": 117,
             "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_capture_timed_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Cached2048ObservationSource._capture_timed_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "capture_evaluation_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Cached2048ObservationSource.capture_evaluation_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 179,
+            "start_line": 150
           }
         },
         {
@@ -175311,8 +177053,8 @@
           "signature": "(self, on_fresh_frame: Callable[[], None] | None = …, *, timeout_seconds: float = …) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 81
+            "end_line": 339,
+            "start_line": 181
           }
         },
         {
@@ -175358,8 +177100,8 @@
           "signature": "(self, detail: str, frame: ScreenFrame | None, game_state: dict[str, object], diagnostics: dict[str, object]) -> CampaignFailure",
           "source_location": {
             "column": 4,
-            "end_line": 241,
-            "start_line": 217
+            "end_line": 365,
+            "start_line": 341
           }
         },
         {
@@ -175381,8 +177123,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 250,
-            "start_line": 243
+            "end_line": 374,
+            "start_line": 367
           }
         },
         {
@@ -175404,8 +177146,8 @@
           "signature": "(self) -> tuple[ScreenObservation, list[ActionCandidate]]",
           "source_location": {
             "column": 4,
-            "end_line": 256,
-            "start_line": 252
+            "end_line": 380,
+            "start_line": 376
           }
         },
         {
@@ -175427,8 +177169,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 259,
-            "start_line": 258
+            "end_line": 396,
+            "start_line": 382
           }
         },
         {
@@ -175447,8 +177189,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 300,
-            "start_line": 262
+            "end_line": 437,
+            "start_line": 399
           }
         },
         {
@@ -175470,8 +177212,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 264,
-            "start_line": 263
+            "end_line": 401,
+            "start_line": 400
           }
         },
         {
@@ -175505,8 +177247,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 300,
-            "start_line": 266
+            "end_line": 437,
+            "start_line": 403
           }
         },
         {
@@ -175527,8 +177269,31 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 546,
-            "start_line": 303
+            "end_line": 702,
+            "start_line": 440
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "validate_preprocessing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReferenceGame2048Episode.validate_preprocessing",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 452,
+            "start_line": 441
           }
         },
         {
@@ -175599,6 +177364,12 @@
               "name": "planning_settle_ms"
             },
             {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "native_preprocessing"
+            },
+            {
               "annotation": "int | None",
               "has_default": true,
               "kind": "positional_or_keyword",
@@ -175613,11 +177384,11 @@
           ],
           "qualified_name": "ReferenceGame2048Episode.__init__",
           "return_annotation": "None",
-          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …, test_seed: int | None = …, event_journal: EventJournal | None = …) -> None",
+          "signature": "(self, episode_number: int, cache_root: Path, runtime_root: Path, browser_path: Path | None, ocr_recognizer: object | None, save_failure_evidence: bool = …, decision_provider: str = …, planner_conditional: bool = …, planning_settle_ms: int = …, native_preprocessing: bool = …, test_seed: int | None = …, event_journal: EventJournal | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 393,
-            "start_line": 304
+            "end_line": 549,
+            "start_line": 454
           }
         },
         {
@@ -175639,8 +177410,8 @@
           "signature": "(self) -> CampaignState",
           "source_location": {
             "column": 4,
-            "end_line": 453,
-            "start_line": 395
+            "end_line": 609,
+            "start_line": 551
           }
         },
         {
@@ -175655,8 +177426,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 8,
-            "end_line": 418,
-            "start_line": 407
+            "end_line": 574,
+            "start_line": 563
           }
         },
         {
@@ -175678,8 +177449,8 @@
           "signature": "(self) -> CampaignActionResult",
           "source_location": {
             "column": 4,
-            "end_line": 499,
-            "start_line": 455
+            "end_line": 655,
+            "start_line": 611
           }
         },
         {
@@ -175701,8 +177472,8 @@
           "signature": "(self) -> dict[str, object] | None",
           "source_location": {
             "column": 4,
-            "end_line": 504,
-            "start_line": 501
+            "end_line": 660,
+            "start_line": 657
           }
         },
         {
@@ -175742,8 +177513,8 @@
           "signature": "(self, status: str, confidence: float, evidence: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 517,
-            "start_line": 506
+            "end_line": 673,
+            "start_line": 662
           }
         },
         {
@@ -175765,8 +177536,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 546,
-            "start_line": 519
+            "end_line": 702,
+            "start_line": 675
           }
         },
         {
@@ -175788,8 +177559,8 @@
           "signature": "(root: Path) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 561,
-            "start_line": 549
+            "end_line": 717,
+            "start_line": 705
           }
         },
         {
@@ -175804,8 +177575,8 @@
           "signature": "() -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 610,
-            "start_line": 564
+            "end_line": 766,
+            "start_line": 720
           }
         },
         {
@@ -175820,8 +177591,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 681,
-            "start_line": 613
+            "end_line": 837,
+            "start_line": 769
           }
         }
       ]

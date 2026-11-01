@@ -120,6 +120,7 @@ class WindowsInputExecutor:
         if self.hold_ttl_seconds <= 0:
             raise ValueError("hold TTL must be positive")
         self.input_dispatch_started = False
+        self.input_dispatch_started_at_ns: int | None = None
         self._held_keys: set[int] = set()
         self._held_mouse: set[str] = set()
         self._held_mouse_lparams: dict[str, int] = {}
@@ -134,6 +135,16 @@ class WindowsInputExecutor:
             raise RuntimeError("input stopped before OS dispatch")
         if self.input_admission is not None:
             self.input_admission()
+
+    # {
+    #   責務: [_mark_dispatch_started: 最初の実OS API呼出し境界の時刻を監査用に保存する]
+    #   処理: [API成功・ゲーム処理完了の証明とはせず、既存dispatch flagの意味を維持する]
+    #   引数: [なし] 戻り値: [なし]
+    # }
+    def _mark_dispatch_started(self) -> None:
+        if not self.input_dispatch_started:
+            self.input_dispatch_started_at_ns = time.monotonic_ns()
+        self.input_dispatch_started = True
 
     # {
     #   責務: [has_held_inputs: このExecutorが所有する押下状態をI/Oなしで確認する]
@@ -168,6 +179,7 @@ class WindowsInputExecutor:
         from ai_game_player.action_executor import ExecutionResult
 
         self.input_dispatch_started = False
+        self.input_dispatch_started_at_ns = None
         if os.name != "nt":
             raise RuntimeError("WindowsInputExecutor requires Windows")
         if self.stop_checker():
@@ -285,7 +297,7 @@ class WindowsInputExecutor:
             self.automated_cursor_position_callback((x, y), True)
         try:
             self._admit_input()
-            self.input_dispatch_started = True
+            self._mark_dispatch_started()
             if not user32.SetCursorPos(x, y):
                 raise RuntimeError(
                     "SetCursorPos に失敗したためクリックを送信しませんでした。"
@@ -328,7 +340,7 @@ class WindowsInputExecutor:
         up_sent = False
         try:
             self._admit_input()
-            self.input_dispatch_started = True
+            self._mark_dispatch_started()
             if not user32.PostMessageW(self.window_handle, 0x0201, 0x0001, lparam):
                 raise RuntimeError(
                     "対象ウィンドウへのマウス押下送信に失敗しました。"
@@ -385,7 +397,7 @@ class WindowsInputExecutor:
                 if self.window_handle is None:
                     raise RuntimeError("window_message requires a selected window")
                 self._admit_input()
-                self.input_dispatch_started = True
+                self._mark_dispatch_started()
                 if not user32.PostMessageW(self.window_handle, 0x0100, virtual_key, 0):
                     raise RuntimeError(
                         "対象ウィンドウへのキー押下送信に失敗しました。"
@@ -393,7 +405,7 @@ class WindowsInputExecutor:
                     )
             else:
                 self._admit_input()
-                self.input_dispatch_started = True
+                self._mark_dispatch_started()
                 user32.keybd_event(virtual_key, 0, 0, 0)
         except Exception:
             self._ledger_release_key(virtual_key)
@@ -440,7 +452,7 @@ class WindowsInputExecutor:
         self._ledger_hold_mouse(button)
         try:
             self._admit_input()
-            self.input_dispatch_started = True
+            self._mark_dispatch_started()
             _user32_with_prototypes().mouse_event(0x0002, 0, 0, 0, 0)
         except Exception:
             self._ledger_release_mouse(button)

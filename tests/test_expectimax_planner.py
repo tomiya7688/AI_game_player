@@ -149,6 +149,10 @@ def split_legal_domain():
     return domain("split_legal")
 
 
+def unexpected_factory_domain():
+    raise RuntimeError("private-model-string-must-not-be-recorded")
+
+
 def table_domain():
     return domain("table")
 
@@ -328,7 +332,58 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             budget=budget or SearchBudget(max_depth=1, wall_time_ms=1000),
             current_belief=current,
         )
+        if (
+            result.outcome != PlanningOutcome.SELECT
+            and planner.last_worker_diagnostic is not None
+        ):
+            print(
+                "PLANNER_WORKER_DIAGNOSTIC "
+                + json.dumps(planner.last_worker_diagnostic, sort_keys=True)[:4096],
+                flush=True,
+            )
         return result
+
+    def test_worker_python_exception_has_only_fixed_metadata(self):
+        registration = self.registration("unexpected_factory_domain")
+        belief, _ = self.belief()
+        planner = BoundedExpectimaxPlanner(
+            (registration,), clock_id=belief.context.clock_id
+        )
+        result = planner.plan(
+            belief,
+            ("left",),
+            registration_id=registration.registration_id,
+            budget=SearchBudget(wall_time_ms=1000),
+        )
+        self.assertEqual(result.reason, "worker_failed")
+        diagnostic = planner.last_worker_diagnostic
+        self.assertIsNotNone(diagnostic)
+        self.assertEqual(diagnostic["python_exception_status"], "recorded")
+        self.assertEqual(diagnostic["python_exception"]["phase"], "factory_create")
+        self.assertEqual(
+            diagnostic["python_exception"]["exception_category"], "runtime"
+        )
+        self.assertTrue(diagnostic["finished_exists"])
+        self.assertFalse(diagnostic["checkpoint_exists"])
+        self.assertNotIn("private-model-string", json.dumps(diagnostic))
+
+    def test_parent_diagnostic_failure_cannot_change_selection_or_cleanup(self):
+        with patch(
+            "ai_game_player.bounded_planner.collect_worker_diagnostic",
+            side_effect=MemoryError,
+        ):
+            result = self.run_plan()
+        self.assertEqual(
+            result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
+        )
+
+    def test_preflight_fallback_clears_previous_worker_diagnostic(self):
+        belief, _ = self.belief()
+        planner = BoundedExpectimaxPlanner((), clock_id=belief.context.clock_id)
+        planner.last_worker_diagnostic = {"previous": True}
+        result = planner.plan(belief, ("left",), registration_id="unknown")
+        self.assertEqual(result.reason, "transition_unavailable")
+        self.assertIsNone(planner.last_worker_diagnostic)
 
     def test_multiple_worlds_and_chance_match_independent_fraction_oracle(self):
         result = self.run_plan()
@@ -568,6 +623,12 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 allow_conditional_selection=True,
             ),
         )
+        if result.outcome != PlanningOutcome.SELECT:
+            print(
+                "PLANNER_WORKER_DIAGNOSTIC "
+                + json.dumps(planner.last_worker_diagnostic, sort_keys=True)[:4096],
+                flush=True,
+            )
         self.assertEqual(
             result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
         )
