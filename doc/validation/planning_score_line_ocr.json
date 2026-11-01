@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "measurement_kind": "Linux Tesseract CLI TSV re-reading of two saved visible UI screenshots; not Windows actual input validation",
+  "tesseract_version": "5.5.0",
+  "fixture_repository_commit": "1baec58e3c907593dacabc16cffa25b400b916ec",
+  "profiles": {
+    "document": "--psm 3",
+    "numeric_line": "--psm 7 -c tessedit_char_whitelist=0123456789,",
+    "scaling": 3,
+    "width_agreement_required": true,
+    "confidence_threshold": 0.65
+  },
+  "fixtures": [
+    {
+      "fixture": "glow-256",
+      "document_score": null,
+      "document_confidence": 0.0,
+      "line_score": 1824,
+      "line_confidence": 0.9596552300000001,
+      "diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            365,
+            109,
+            79,
+            36
+          ],
+          [
+            346,
+            109,
+            117,
+            36
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.9596552300000001,
+        "numeric_word_count": 1
+      },
+      "fixture_sha256": "49f7f4dcec40cbd31618232a187cc98f057f1f00934c965113e88e872ee8705e",
+      "fixture_path": "tests/fixtures/2048/glow-256.png"
+    },
+    {
+      "fixture": "glow-256-seed480",
+      "document_score": null,
+      "document_confidence": 0.0,
+      "line_score": 1808,
+      "line_confidence": 0.95962486,
+      "diagnostic": {
+        "status": "single_numeric_line_width_agreement",
+        "crop_bboxes": [
+          [
+            365,
+            109,
+            79,
+            36
+          ],
+          [
+            346,
+            109,
+            117,
+            36
+          ]
+        ],
+        "scale": 3,
+        "score_label_confidence": 0.9596552300000001,
+        "numeric_word_count": 1
+      },
+      "fixture_sha256": "3420d594b7660e1a89e4a76686a93cb65bdede185a1f3e29598fcda2fb04a1af",
+      "fixture_path": "tests/fixtures/2048/glow-256-seed480.png"
+    }
+  ],
+  "reread_helper_sha256": "b476dea20e45059816c1fb8a882841323c92c9bbc57f7a1dce064aa20106b9d7",
+  "strict_parser_repository_commit": "1baec58e3c907593dacabc16cffa25b400b916ec"
+}

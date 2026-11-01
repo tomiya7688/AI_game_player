@@ -20,6 +20,7 @@ from ai_game_player.run_control import ExecutionCancelled
 from tools.browser_probe_support import new_probe_directory, publish_validation_report
 from tools.planning_comparison_source import source_fingerprint
 from tools.planning_resource_monitor import PlanningResourceMonitor
+from tools.planning_score_evaluation import reread_score_line
 from tools.reference_game_2048_source import SOURCE_LOCK_PATH
 from tools.run_2048_campaign import ReferenceGame2048Episode, CAMPAIGN_PURPOSE
 
@@ -30,12 +31,51 @@ def evaluate_visible_score(episode, ocr):
     observation = FrameAnalyzer(ocr).analyze(frame, "comparison_score_evaluation")
     adapted, _ = ReferenceGame2048Adapter().adapt(frame, observation)
     game = adapted.features["game_2048"]
+    attempts = [
+        {
+            "profile": "document",
+            "value": game.get("score"),
+            "confidence": game.get("score_confidence"),
+        }
+    ]
+    # Require the labelled numeric line even when a legacy whole-page parser guessed a number.
+    reread, diagnostic = reread_score_line(frame, observation, ocr)
+    game = {"score": None, "score_confidence": 0.0}
+    if reread is not None:
+        adapted, _ = ReferenceGame2048Adapter().adapt(frame, reread)
+        game = adapted.features["game_2048"]
+    attempts.append(
+        {
+            "profile": "single_numeric_line",
+            **diagnostic,
+            "value": game.get("score"),
+            "confidence": game.get("score_confidence"),
+        }
+    )
     return {
         "value": game.get("score"),
         "confidence": game.get("score_confidence"),
         "frame_sha256": sha256(frame.bgra).hexdigest(),
         "reference": "post-decision screenshot OCR only",
+        "attempts": attempts,
     }
+
+
+def observed_board(episode):
+    observation = getattr(episode.source, "latest_observation", None)
+    board = getattr(observation, "features", {}).get("game_2048", {}).get("board")
+    if (
+        not isinstance(board, (list, tuple))
+        or len(board) != 4
+        or any(
+            not isinstance(row, (list, tuple))
+            or len(row) != 4
+            or any(type(cell) is not int for cell in row)
+            for row in board
+        )
+    ):
+        return None
+    return tuple(tuple(row) for row in board)
 
 
 def run_episode(
@@ -50,6 +90,7 @@ def run_episode(
         "max_steps": max_steps,
         "actions": 0,
         "invalid_actions": 0,
+        "board_changes": 0,
         "policy_reobservations": 0,
         "fresh_input_captures": 0,
         "plans": [],
@@ -91,9 +132,9 @@ def run_episode(
             phase = "decision_execution"
             result["last_core_reason"] = None
             result["last_policy_reason_codes"] = []
-            outcome = DecisionOrchestrator(episode.pipeline).run(
-                execute=True, purpose=CAMPAIGN_PURPOSE
-            )
+            orchestrator = DecisionOrchestrator(episode.pipeline)
+            outcome = orchestrator.run(execute=True, purpose=CAMPAIGN_PURPOSE)
+            result["decision_attempts"] = list(orchestrator.last_diagnostics)
             latencies.append((time.monotonic_ns() - began) / 1e6)
             planning = episode.pipeline.engine.provider
             plan = getattr(planning, "last_planning_result", None)
@@ -102,6 +143,10 @@ def run_episode(
             result["last_policy_reason_codes"] = (
                 list(policy.reason_codes) if policy is not None else []
             )
+            diagnostics = getattr(planning, "runtime_diagnostics", None)
+            result["planning_runtime"] = (
+                diagnostics() if callable(diagnostics) else None
+            )
             if isinstance(outcome, DecisionDisposition):
                 result["withheld"] = outcome.to_dict()
                 break
@@ -109,11 +154,18 @@ def run_episode(
                 raise RuntimeError("comparison did not execute actual input")
             episode.source.not_before = time.monotonic() + 1
             result["actions"] += 1
+            before_board = observed_board(episode)
             phase = "post_input_observation"
             state = (
                 episode.observe()
             )  # explicit receipt completion, including final/terminal action
             result["invalid_actions"] += int(state.signature == before.signature)
+            after_board = observed_board(episode)
+            result["board_changes"] += int(
+                before_board is not None
+                and after_board is not None
+                and after_board != before_board
+            )
             if plan is not None:
                 result["planning_budget"] = asdict(planning.search_budget)
                 result["fresh_input_captures"] += 1
@@ -175,16 +227,38 @@ def run_episode(
         result["minimum_actual_input_met"] = result["actions"] >= min(3, max_steps)
         if (
             not result["minimum_actual_input_met"]
+            or result["board_changes"] < 1
             or not result["stopped_input_rejected"]
             or not result["stale_generation_rejected"]
         ):
             raise AssertionError(
-                "comparison minimum actual input or Stop/stale guard failed"
+                "comparison minimum actual input, observed board change or Stop/stale guard failed"
             )
     except Exception as error:
+        planning = getattr(
+            getattr(getattr(episode, "pipeline", None), "engine", None),
+            "provider",
+            None,
+        )
+        diagnostics = getattr(planning, "runtime_diagnostics", None)
+        if callable(diagnostics):
+            result["planning_runtime"] = diagnostics()
         result["failure_stage"] = phase
         result["failure"] = {"type": type(error).__name__, "message": str(error)[:2000]}
     finally:
+        timing = getattr(getattr(episode, "source", None), "observation_timing", None)
+        result["observation_stage_ms"] = {
+            stage: round(seconds * 1000, 3)
+            for stage, seconds in getattr(timing, "stage_seconds", {}).items()
+            if stage
+            in {
+                "capture",
+                "frame_analysis",
+                "board_adaptation",
+                "observation_refresh",
+                "retry_wait",
+            }
+        }
         if episode is not None:
             try:
                 episode.close()
@@ -277,9 +351,15 @@ def comparison_summary(result):
             bounded(reason) for reason in result.get("last_policy_reason_codes", ())[:8]
         ],
         "confirmed_actual_actions": result.get("actions", 0),
+        "observed_board_changes": result.get("board_changes", 0),
+        "planning_runtime": result.get("planning_runtime"),
+        "decision_attempts": result.get("decision_attempts", [])[-3:],
+        "observation_stage_ms": result.get("observation_stage_ms"),
         "execution_history_count": result.get("execution_history_count"),
         "score_status": "verified_ocr" if score_valid else "unavailable",
         "score": score.get("value") if score_valid else None,
+        "score_confidence": score.get("confidence"),
+        "score_attempts": score.get("attempts", [])[:2],
         "elapsed_seconds": result.get("wall_seconds"),
         "stop_probe": "rejected"
         if result.get("stopped_input_rejected")

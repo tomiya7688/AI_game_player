@@ -45,6 +45,7 @@ class DecisionOrchestrator:
             timeout_ns,
             clock_ns,
         )
+        self.last_diagnostics: tuple[dict[str, Any], ...] = ()
 
     # {
     #   責務: [run: 最初の一判断または有限なfresh再観測後の結果を返す]
@@ -57,6 +58,7 @@ class DecisionOrchestrator:
     ) -> ActionDecision | ExecutionResult | DecisionDisposition:
         started = self.clock_ns()
         attempts = 0
+        self.last_diagnostics = ()
         while True:
             try:
                 call = self.pipeline.run_and_execute if execute else self.pipeline.run
@@ -73,6 +75,15 @@ class DecisionOrchestrator:
                     self._deadline_check(started)()
                 return cast(ActionDecision | ExecutionResult, result)
             except DecisionWithheld as withheld:
+                self.last_diagnostics = (
+                    *self.last_diagnostics,
+                    {
+                        "outcome": withheld.disposition.outcome.value,
+                        "reason_codes": list(withheld.disposition.reason_codes[:8]),
+                        "reobservations": attempts,
+                        "elapsed_ns": max(0, self.clock_ns() - started),
+                    },
+                )[-3:]
                 disposition = replace(withheld.disposition, reobservations=attempts)
                 if disposition.outcome != PlanningOutcome.OBSERVE_MORE:
                     return disposition

@@ -415,9 +415,14 @@ class DecisionPipeline:
                 self.expected_fresh_reference = ObservationFreshness.from_observation(
                     observation
                 )
+                note_stage = getattr(self.engine.provider, "note_runtime_stage", None)
+                if callable(note_stage):
+                    note_stage("fresh_read_start")
                 fresh_observation, fresh_candidates = self._read_candidates(
                     ocr_texts, require_fresh_observation=True
                 )
+                if callable(note_stage):
+                    note_stage("fresh_read_end")
                 self.controller.ensure_running(run_token)
                 allowed_fresh = self.engine.evaluator.evaluate(
                     fresh_observation, fresh_candidates
@@ -436,6 +441,8 @@ class DecisionPipeline:
                         item.action_id for item in allowed_fresh
                     ],
                 )
+                if callable(note_stage):
+                    note_stage("verification_end")
                 if fresh_reliability.status != ReliabilityStatus.TRUST:
                     raise DecisionWithheld(
                         DecisionDisposition(
@@ -451,6 +458,8 @@ class DecisionPipeline:
                 assessment = self.safety_evaluator.evaluate(
                     fresh_observation, selected, fresh_safety_context
                 )
+                if callable(note_stage):
+                    note_stage("safety_end")
                 self.last_safety_result = assessment
                 self.safety_audit.append_evaluation(
                     assessment, snapshot_id=snapshot_id, goal=purpose

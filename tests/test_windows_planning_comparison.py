@@ -12,6 +12,8 @@ from ai_game_player.campaign_contract import CampaignState
 from ai_game_player.run_control import RunController
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.models import ScreenObservation
+from ai_game_player.screen_capture import ScreenFrame
 from tools import compare_2048_windows_planning as comparison
 
 
@@ -30,7 +32,7 @@ class FakeEpisode:
         self.launcher = SimpleNamespace(
             server=SimpleNamespace(test_seed_metadata={"seed": kwargs["test_seed"]})
         )
-        self.source = SimpleNamespace(not_before=0)
+        self.source = SimpleNamespace(not_before=0, latest_observation=None)
         self.pipeline = SimpleNamespace(
             controller=RunController(),
             engine=SimpleNamespace(provider=SimpleNamespace()),
@@ -45,6 +47,21 @@ class FakeEpisode:
         return result
 
     def observe(self):
+        self.source.latest_observation = ScreenObservation(
+            "fixture",
+            100,
+            100,
+            features={
+                "game_2048": {
+                    "board": [
+                        [2 + 2 * len(self.records), 0, 0, 0],
+                        [0] * 4,
+                        [0] * 4,
+                        [0] * 4,
+                    ]
+                }
+            },
+        )
         return CampaignState(f"board{len(self.records)}", False, 0, 2)
 
     def close(self):
@@ -52,6 +69,45 @@ class FakeEpisode:
 
 
 class WindowsPlanningComparisonTests(unittest.TestCase):
+    def test_whole_page_number_without_a_score_label_is_never_the_metric(self):
+        frame = ScreenFrame(2, 2, bytes(16))
+        episode = SimpleNamespace(
+            source=SimpleNamespace(
+                window_handle=1, capture=SimpleNamespace(capture=lambda handle: frame)
+            )
+        )
+        observation = ScreenObservation(
+            "score",
+            2,
+            2,
+            features={"ocr_candidates": [{"text": "2048", "confidence": 0.99}]},
+        )
+        with (
+            patch.object(comparison.FrameAnalyzer, "analyze", return_value=observation),
+            patch.object(
+                comparison.ReferenceGame2048Adapter,
+                "adapt",
+                return_value=(
+                    ScreenObservation(
+                        "score",
+                        2,
+                        2,
+                        features={
+                            "game_2048": {"score": 2048, "score_confidence": 0.99}
+                        },
+                    ),
+                    [],
+                ),
+            ),
+        ):
+            result = comparison.evaluate_visible_score(episode, object())
+        self.assertIsNone(result["value"])
+        self.assertEqual(result["confidence"], 0)
+        self.assertEqual(result["attempts"][0]["value"], 2048)
+        self.assertEqual(
+            result["attempts"][1]["status"], "score_label_unavailable_or_ambiguous"
+        )
+
     def test_short_comparison_requires_actual_inputs_and_stop_stale_rejection(self):
         with (
             tempfile.TemporaryDirectory() as directory,
@@ -80,6 +136,43 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         self.assertTrue(result["stale_generation_rejected"])
         self.assertEqual(result["score_evaluation"]["value"], 8)
         self.assertEqual(len(result["latency_ms"]["samples"]), 3)
+        self.assertEqual(result["board_changes"], 3)
+
+    def test_sent_messages_without_observed_board_changes_cannot_pass(self):
+        observe = FakeEpisode.observe
+
+        def unchanged(episode):
+            state = observe(episode)
+            episode.source.latest_observation.features["game_2048"]["board"] = [
+                [2, 0, 0, 0],
+                [0] * 4,
+                [0] * 4,
+                [0] * 4,
+            ]
+            return state
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", FakeEpisode),
+            patch.object(FakeEpisode, "observe", unchanged),
+            patch.object(
+                comparison.TesseractOcrRecognizer, "optional", return_value=object()
+            ),
+            patch.object(
+                comparison,
+                "evaluate_visible_score",
+                return_value={"value": 0, "confidence": 0.9},
+            ),
+        ):
+            result = comparison.run_episode(
+                "cycling", 479, 3, Path(directory), Path(directory)
+            )
+        self.assertFalse(result["success"])
+        self.assertEqual(result["actions"], 3)
+        self.assertEqual(result["board_changes"], 0)
+        self.assertTrue(result["stopped_input_rejected"])
+        self.assertIn("observed board change", result["failure"]["message"])
 
     def test_missing_score_is_failure_and_owned_episode_is_closed(self):
         instances = []

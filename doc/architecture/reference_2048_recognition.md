@@ -50,3 +50,18 @@ cohort `run-fb9ac0a0c93a43a0a0b2f793adc9e698` は、同じdepth1/node10000/400ms
 [測定要約JSON](../validation/recognition_659_screen_5ed5.json)は全reportのSHA-256と条件・資源測定のscopeを保持する。完全reportは開発環境の`build/transition-2048/issue-659-fixed-screen/run-fb9ac0a0c93a43a0a0b2f793adc9e698/report.json`。環境切替後に元exec session IDが失われたためOS終了codeの直接取得はUnverifiedであり、mainのsuccess=true→return0分岐と最終reportログを確認した範囲にとどめる。
 
 この測定後に親#565/#566/#567の数値wave（凸平均の1ULP区間逸脱修正）を通常mergeする。5ed5のdepth1証拠を、後続headのdepth2探索やWindows受入れの代用にしない。5ed5のWindows CIで残った探索深さと短時間比較の失敗は、新headの両event CIで再検証する。
+
+
+## 同じ認識コードでの深さ2比較
+
+source `e6c7b66a886fe35f1dba9b0d2bec6e04514df02d` では、本認識修正と同じRecognizer/Adapterを使い、既定のdepth2/node10000/400msを固定して3 seed×3 providerを比較した。[条件・全9試行の測定要約](../validation/planning_browser_depth2_e6c7.json)は両端head・source hash・clean状態を保持する。
+
+| provider | seed479 / 480 / 481 の得点 | 平均 | 実操作合計 / 最大tile |
+|---|---|---|---|
+| Cycling | 1332 / 1140 / 1256 | 1242.67 | 404 / 各128 |
+| Baseline | 664 / 1344 / 1448 | 1152 | 393 / 64,128,128 |
+| Planner | 2268 / 2244 / 2268 | 2260 | 540 / 各256 |
+
+Plannerの全540操作はreceipt・明示完了観測・遷移照合と一致し、no-opとStop後入力は0。519操作はdepth2、21操作は予算内に完成したdepth1を使った。全9試行/1337操作で合成点和が、判断後の独立UI得点と一致した。Plannerは全3試行が180手capで生存し、勝利ではない。各provider n=3のこの条件での記述的比較で、4CPU quotaを3seed processで共有したため資源測定は隔離されていない。未知world mass1・conditional opt-inを保ち、因果学習や全ゲーム性能へ拡張しない。
+
+Windowsの評価専用得点は、同frameのSCOREラベルから数字行を異なる2幅で切り出し、3倍拡大/PSM7の一致・端切れ拒否を使う。[実2画像での補助OCR記録](../validation/planning_score_line_ocr.json)と、screen/window座標の倍率・offset回帰を保持する。全文OCRでラベル自体が読めなければ依然unknownである。confidence0.65、予算、TTL、SourceとSafetyの基準は維持し、新headのWindows受入れは引き続き別途検証する。
