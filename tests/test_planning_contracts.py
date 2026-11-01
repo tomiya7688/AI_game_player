@@ -116,6 +116,16 @@ class PlanningContractTests(unittest.TestCase):
         ):
             with self.assertRaises(ValueError):
                 WeightedValue(*args)
+        for field in ("value", "probability", "lower_bound", "upper_bound"):
+            malformed = {
+                "value": 0.2,
+                "probability": 1.0,
+                "lower_bound": 0.2,
+                "upper_bound": 0.2,
+                field: 10**500,
+            }
+            with self.subTest(huge_integer=field), self.assertRaises(ValueError):
+                WeightedValue(**malformed)
         result = self.result()
         for changes in (
             {"selected_action_id": "unverified"},

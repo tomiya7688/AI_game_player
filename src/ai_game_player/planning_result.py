@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 import math
+from typing import cast
 
 from ai_game_player.belief_contract import BeliefContext
 from ai_game_player.belief_validation import belief_id, belief_integer, belief_number
@@ -16,7 +17,8 @@ from ai_game_player.planning_outcome import PlanningOutcome
 # }
 def _quality(value: object) -> float:
     if (
-        type(value) not in (int, float)
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
         or not -1 <= value <= 1
         or not math.isfinite(value)
     ):
@@ -191,7 +193,8 @@ class PlanningCounters:
 #     reason: 固定終了理由, model_id/model_version/evaluator_id/evaluator_version: 登録元,
 #     quality_projection_version/quality_profile_version/value_unit: 数値の意味と版,
 #     created_at_ns/expires_at_ns/compute_cutoff_at_ns: 親clockの受領/観測失効/計算受領期限,
-#     counters: 子の有限コスト, limit_enforcement: 実際のOS制限方式, run_generation: 共有Run世代]
+#     counters: 子の有限コスト, limit_enforcement: 実際のOS制限方式, run_generation: 共有Run世代,
+#     continuation_semantics: 共通操作列と完全将来観測のpolicy仮定を区別]
 # }
 @dataclass(frozen=True, slots=True)
 class PlanningResult:
@@ -218,6 +221,7 @@ class PlanningResult:
     counters: PlanningCounters
     limit_enforcement: str
     run_generation: int
+    continuation_semantics: str = "one_step"
 
     # {
     #   責務: [__post_init__: 同じ仮説集合の質量・global値・許可Action・版・期限を整合させる]
@@ -234,6 +238,13 @@ class PlanningResult:
             raise ValueError("planning result requires typed contracts")
         belief_integer(self.belief_version, 1)
         belief_integer(self.completed_depth, 0, 32)
+        if (
+            self.continuation_semantics
+            not in {"one_step", "open_loop_mpc", "state_observed_expectimax"}
+            or (self.completed_depth > 1 and self.continuation_semantics == "one_step")
+            or (self.completed_depth <= 1 and self.continuation_semantics != "one_step")
+        ):
+            raise ValueError("planning continuation policy semantics mismatch")
         belief_integer(self.quality_projection_version, 1)
         belief_integer(self.created_at_ns)
         belief_integer(self.expires_at_ns)
@@ -263,8 +274,8 @@ class PlanningResult:
             or len(set(self.allowed_action_ids)) != len(self.allowed_action_ids)
         ):
             raise ValueError("planning allowed action set exceeds contract")
-        for action in self.allowed_action_ids:
-            belief_id(action)
+        for allowed_id in self.allowed_action_ids:
+            belief_id(allowed_id)
         if (
             type(self.action_values) is not tuple
             or len(self.action_values) > 32
@@ -300,8 +311,9 @@ class PlanningResult:
                 ):
                     raise ValueError("calibrated planning requires world probabilities")
                 weights = {
-                    item.hypothesis_id: item.belief_weight
+                    item.hypothesis_id: float(item.belief_weight)
                     for item in action.hypothesis_values
+                    if item.belief_weight is not None
                 }
                 if not math.isclose(
                     math.fsum(weights.values()) + self.residual_unknown_mass,
@@ -311,7 +323,7 @@ class PlanningResult:
                 ):
                     raise ValueError("planning world mass plus residual must equal one")
                 point = math.fsum(
-                    item.belief_weight * item.expected_quality
+                    cast(float, item.belief_weight) * item.expected_quality
                     for item in action.hypothesis_values
                 )
                 if (
@@ -331,7 +343,7 @@ class PlanningResult:
                         "conditional planning must retain unknown world probability"
                     )
                 weights = {
-                    item.hypothesis_id: item.relative_score
+                    item.hypothesis_id: cast(float, item.relative_score)
                     for item in action.hypothesis_values
                 }
             if baseline_weights is not None and baseline_weights != weights:
