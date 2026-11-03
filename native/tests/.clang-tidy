@@ -1,0 +1,4 @@
+# Native テスト実行ファイル用の追加設定（Issue #115）。親の native/.clang-tidy を継承する。
+# - bugprone-exception-escape: テストの main から想定外の例外が漏れた場合は異常終了がそのままテスト失敗になるため。
+InheritParentConfig: true
+Checks: '-bugprone-exception-escape'

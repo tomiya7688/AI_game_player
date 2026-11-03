@@ -1,0 +1,27 @@
+# Issue #115 Native Security Profile: clang-tidy 22.1.8 (PyPI wheel `clang-tidy==22.1.8`) で固定運用する。
+# 有効化したcheckの警告はすべてエラー（merge blocker）として扱う。
+# 無効化したcheckと理由:
+# - bugprone-easily-swappable-parameters: C ABI v1 の公開関数は width/height 等の同型引数順を契約として固定しているため。
+# - cert-err33-c: 現行の該当箇所は stderr への診断出力 fprintf の戻り値だけで、失敗しても安全判定や所有権に影響しないため。
+# - cert-err09-cpp / cert-err61-cpp: WinRT の try_get_activation_factory が返す名前付き hresult_error を再送出する既存契約のため。
+# - bugprone-empty-catch: 終了処理で例外を握りつぶす catch には理由コメントがあり、解放処理を継続する設計のため。
+# - clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling: Annex K (*_s) への置換を求め移植性を失うため。
+#   境界を持たない文字列/書式API は tools/native_security_check.py の NSC001 で禁止する。
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-core.*,
+  clang-analyzer-cplusplus.*,
+  clang-analyzer-deadcode.*,
+  clang-analyzer-security.*,
+  clang-analyzer-unix.*,
+  -bugprone-easily-swappable-parameters,
+  -cert-err33-c,
+  -cert-err09-cpp,
+  -cert-err61-cpp,
+  -bugprone-empty-catch,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*[/\\]native[/\\](include|src|tests)[/\\].*'
+FormatStyle: none

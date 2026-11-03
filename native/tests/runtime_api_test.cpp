@@ -55,7 +55,7 @@ void test_batch_contract(const kadoka_runtime_handle* runtime) {
 }
 
 void test_frame_preprocess(const kadoka_runtime_handle* runtime) {
-    std::array<uint8_t, 6u * 5u * 4u> pixels{};
+    std::array<uint8_t, size_t{6u} * 5u * 4u> pixels{};
     for (size_t index = 3u; index < pixels.size(); index += 4u) {
         pixels[index] = 255u;
     }
