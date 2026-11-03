@@ -155,6 +155,8 @@ classDiagram
         +read()
         +read_bounded()
         +verify()
+        +read_metadata()
+        +object_path()
         +find_orphans()
         +check_integrity()
         +_load()
@@ -1518,6 +1520,63 @@ classDiagram
     class ConfiguredRegionDetector {
         +__init__()
         +detect()
+    }
+    RuntimeError <|-- RetentionSafetyError
+    class RetentionSafetyError {
+    }
+    RuntimeError <|-- RetentionCapacityError
+    class RetentionCapacityError {
+    }
+    Protocol <|-- RetentionFileSystem
+    class RetentionFileSystem {
+        +read_index()
+        +write_index()
+        +remove_object()
+    }
+    class LocalRetentionFileSystem {
+        +read_index()
+        +write_index()
+        +remove_object()
+    }
+    class RetentionReport {
+    }
+    class RetentionCollector {
+        +__init__()
+        +load_entries()
+        +register()
+        +can_admit()
+        +needs_collection()
+        +plan()
+        +set_protected()
+        +collect()
+        +_measure_usage()
+        +_safe_object_path()
+        +_now_ms()
+    }
+    class _StoreUsage {
+    }
+    ValueError <|-- RetentionIndexError
+    class RetentionIndexError {
+    }
+    class RetentionEntry {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class RemovedEntry {
+    }
+    class BlockedEntry {
+    }
+    class RetentionPlan {
+    }
+    ValueError <|-- RetentionPolicyError
+    class RetentionPolicyError {
+    }
+    class RetentionPolicy {
+        +__post_init__()
+        +expiry_for()
+        +to_dict()
+        +from_dict()
     }
     RuntimeError <|-- ExecutionCancelled
     class ExecutionCancelled {

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:retention-policy:1",
+  "title": "AI Game Player Retention Policy",
+  "description": "Storage budget, hard limit and TTL policy for the Retention Core (Issue #164). soft_budget_bytes must not exceed hard_limit_bytes. TTL values are milliseconds; null means no expiry.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "soft_budget_bytes", "hard_limit_bytes", "default_ttl_ms", "ttl_ms_by_type", "max_entries"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "soft_budget_bytes": {"type": "integer", "minimum": 1},
+    "hard_limit_bytes": {"type": "integer", "minimum": 1},
+    "default_ttl_ms": {"type": ["integer", "null"], "minimum": 1},
+    "ttl_ms_by_type": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z][a-z0-9_.-]*$"},
+      "additionalProperties": {"type": ["integer", "null"], "minimum": 1}
+    },
+    "max_entries": {"type": "integer", "minimum": 1, "maximum": 100000}
+  }
+}
