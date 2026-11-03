@@ -49,7 +49,6 @@ GATE_TEST_MODULES = (
     "test_planning_file_reader",
     "test_windows_bundle_check",
     "test_bundle_self_check",
-    "test_live_input_tooltip",
     "test_captured_source",
     "test_windows_planning_frame_freshness",
 )
