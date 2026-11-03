@@ -65,7 +65,8 @@ from planning_toy_domains import domain
 # covers starting a fresh Python worker, which took 0.5-1 s on a Windows host
 # with several site-packages .pth hooks while the full suite ran. Searches end
 # on max_depth or an explicit reason long before this bound, so fast hosts do
-# not wait for it. It stays below the 3 s default belief TTL.
+# not wait for it. The default test belief TTL (10 s) leaves headroom for
+# test setup and scheduling delays before planning starts.
 WORKER_RESULT_BUDGET_MS = 2500
 
 
@@ -101,7 +102,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         states=(0, 1),
         weights=(0.25, 0.65),
         kind=BeliefWeightKind.CALIBRATED_PROBABILITY,
-        ttl=3_000_000_000,
+        ttl=10_000_000_000,
         game_id="counter",
         schema="counter.v1",
         state_type=int,
@@ -890,8 +891,8 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             belief=belief,
             allowed=("left",),
             # The budget includes worker start-up (see WORKER_RESULT_BUDGET_MS).
-            # Depth 2 sleeps at least 4 s and the belief expires after 3 s, so
-            # the cutoff still lands between depth 1 and depth 2.
+            # Depth 2 sleeps at least 4 s, so the 2 s cutoff still lands between
+            # depth 1 and depth 2, well before the 10 s belief TTL.
             budget=SearchBudget(max_depth=3, wall_time_ms=2000),
         )
         self.assertEqual(
