@@ -158,7 +158,7 @@
 
 - 資産・入口・影響・露出: 配布コード、Native DLL、依存Model、署名鍵、利用者端末を脅かします。GitHub Actions、package依存、外部artifact、Release工程が入口です。影響はHigh、CIのNative sanitizerは現行、dependency / Secret / SASTのblocking Gateは未確認です。
 - Prevent: 現行CIは通常testとNative ABI testを行い、`language-ci.yml`はC++ sanitizer / GCC analyzerを実行します。これらはdependency audit、Secret scan、全言語SASTの代替ではありません。multi-language gateは#112 / #113および子Issueが未完了です。
-- Detect: 安全なC++ / Windows回帰は`safety-ci.yml`等で検査します。現行workflowからPython security profile、依存脆弱性監査、Secret scanのblocking実装を確認できません。#267 / #285–#287も確認対象です。
+- Detect: 安全なC++ / Windows回帰は`safety-ci.yml`等で検査します。Python security profile（Bandit）は`python-security-ci.yml`でblocking（#114）、依存脆弱性監査（pip-audit）は警告のみ（#90でblocking化を判断）です。Secret scanのblocking実装は確認できません。#267 / #285–#287も確認対象です。
 - Contain: PR CI実行とmainのrequired-check enforcementは別です。Issue #92はbranch ruleset未整備を記録していますが、現在のGitHub repository settingsはこの作業では確認していません。Main protectionはUnverifiedです。
 - Recover: 脆弱性の非公開報告、severity、advisory、修正後regression testは#120の完了条件です。現行mainに`SECURITY.md`はありません。
 - 残余リスク・確認先: CIが成功しても悪意ある依存・workflow変更・署名material侵害がない証明にはなりません。CI / Supply Chain / Release領域が確認します。

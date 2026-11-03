@@ -110959,7 +110959,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_all_fourteen_required_pairs_pass",
+          "name": "test_all_sixteen_required_pairs_pass",
           "parameters": [
             {
               "annotation": null,
@@ -110968,7 +110968,7 @@
               "name": "self"
             }
           ],
-          "qualified_name": "WorkflowRunGateTests.test_all_fourteen_required_pairs_pass",
+          "qualified_name": "WorkflowRunGateTests.test_all_sixteen_required_pairs_pass",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
@@ -146040,6 +146040,1105 @@
             "column": 4,
             "end_line": 26,
             "start_line": 23
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.python_security_check"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "date"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "tools",
+            "tools.python_security_check"
+          ],
+          "module": "tools.python_security_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "EXPIRED_SUPPRESSION"
+            },
+            {
+              "alias": null,
+              "name": "SCAN_ERROR"
+            },
+            {
+              "alias": null,
+              "name": "STALE_SUPPRESSION"
+            },
+            {
+              "alias": null,
+              "name": "ProfileError"
+            },
+            {
+              "alias": null,
+              "name": "evaluate_bandit"
+            },
+            {
+              "alias": null,
+              "name": "evaluate_pip_audit"
+            },
+            {
+              "alias": null,
+              "name": "load_profile"
+            },
+            {
+              "alias": null,
+              "name": "main"
+            },
+            {
+              "alias": null,
+              "name": "parse_profile"
+            },
+            {
+              "alias": null,
+              "name": "run_bandit"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_python_security_check",
+      "path": "tests/test_python_security_check.py",
+      "source_location": {
+        "end_line": 518,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_profile",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "_profile",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(**overrides: Any) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_suppression",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "_suppression",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(**overrides: Any) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_result",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rule"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "severity"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "confidence"
+            }
+          ],
+          "qualified_name": "_result",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(path: str, rule: str, severity: str, line: int = …, confidence: str = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 74,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bandit",
+          "parameters": [
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "results"
+            },
+            {
+              "annotation": "list[Any] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "errors"
+            }
+          ],
+          "qualified_name": "_bandit",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(results: list[dict[str, Any]], errors: list[Any] | None = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 84,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PythonSecurityProfileTests",
+          "parameters": [],
+          "qualified_name": "PythonSecurityProfileTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 478,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.tearDown",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_evaluate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "results"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "profile_overrides"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests._evaluate",
+          "return_annotation": null,
+          "signature": "(self, results: list[dict[str, Any]], **profile_overrides: Any)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_threshold_finding_blocks_and_low_finding_is_advisory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_threshold_finding_blocks_and_low_finding_is_advisory",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_low_confidence_finding_does_not_block",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_low_confidence_finding_does_not_block",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 126,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sensitive_module_keeps_confidence_floor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_sensitive_module_keeps_confidence_floor",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 128
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sensitive_module_blocks_listed_low_severity_rule",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_sensitive_module_blocks_listed_low_severity_rule",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_windows_style_bandit_path_is_normalized",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_windows_style_bandit_path_is_normalized",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_valid_suppression_requires_matching_rule_path_and_source_text",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_valid_suppression_requires_matching_rule_path_and_source_text",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_with_other_source_text_does_not_hide_finding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_with_other_source_text_does_not_hide_finding",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expired_suppression_blocks_even_if_finding_matches",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_expired_suppression_blocks_even_if_finding_matches",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unused_suppression_is_reported_as_stale",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_unused_suppression_is_reported_as_stale",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bandit_scan_errors_block",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_bandit_scan_errors_block",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 199,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_covers_only_its_declared_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_covers_only_its_declared_count",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 201
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_level_and_outside_path_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_unknown_level_and_outside_path_fail_closed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 227,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_run_bandit_refuses_nested_bandit_config",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_run_bandit_refuses_nested_bandit_config",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 234,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_optional_lists_may_be_empty",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_optional_lists_may_be_empty",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 236
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_cannot_hide_unjudgeable_finding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_cannot_hide_unjudgeable_finding",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 249,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bandit_suppression_target_must_be_repository_relative",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_bandit_suppression_target_must_be_repository_relative",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 254,
+            "start_line": 251
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_metrics_keys_must_name_real_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_metrics_keys_must_name_real_files",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 262,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_rejects_empty_and_malformed_reports",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_rejects_empty_and_malformed_reports",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 283,
+            "start_line": 264
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_suppression_uses_pep503_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_suppression_uses_pep503_names",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 301,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_without_scanned_files_blocks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_report_without_scanned_files_blocks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 308,
+            "start_line": 303
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_requires_reason_expiry_issue_and_bounded_lifetime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_requires_reason_expiry_issue_and_bounded_lifetime",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 325,
+            "start_line": 310
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_profile_rejects_unknown_schema_and_thresholds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_profile_rejects_unknown_schema_and_thresholds",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 364,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_is_advisory_and_supports_alias_suppression",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_is_advisory_and_supports_alias_suppression",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 395,
+            "start_line": 366
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_blocking_mode_blocks_unsuppressed_vulnerability",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_blocking_mode_blocks_unsuppressed_vulnerability",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 411,
+            "start_line": 397
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_writes_report_and_returns_failure_exit_code",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_writes_report_and_returns_failure_exit_code",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 443,
+            "start_line": 413
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_rejects_malformed_report_fields_with_exit_code_two",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_rejects_malformed_report_fields_with_exit_code_two",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 467,
+            "start_line": 445
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_reports_profile_errors_with_exit_code_two",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_reports_profile_errors_with_exit_code_two",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 478,
+            "start_line": 469
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RepositorySecurityProfileTests",
+          "parameters": [],
+          "qualified_name": "RepositorySecurityProfileTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 514,
+            "start_line": 481
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repository_profile_is_valid_and_suppressions_target_existing_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositorySecurityProfileTests.test_repository_profile_is_valid_and_suppressions_target_existing_files",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 495,
+            "start_line": 482
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_security_tools_are_pinned_and_wired_into_ci",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositorySecurityProfileTests.test_security_tools_are_pinned_and_wired_into_ci",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 514,
+            "start_line": 497
           }
         }
       ]
@@ -189229,7 +190328,7 @@
       "module": "tools.pr_workflow_evidence",
       "path": "tools/pr_workflow_evidence.py",
       "source_location": {
-        "end_line": 116,
+        "end_line": 117,
         "start_line": 1
       },
       "symbols": [
@@ -189251,8 +190350,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 17,
-            "start_line": 16
+            "end_line": 18,
+            "start_line": 17
           }
         },
         {
@@ -189271,8 +190370,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 116,
-            "start_line": 20
+            "end_line": 117,
+            "start_line": 21
           }
         },
         {
@@ -189318,8 +190417,8 @@
           "signature": "(self, repository: str, pr_number: int, head_sha: str, read_json: Callable[[str], object]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 27,
-            "start_line": 23
+            "end_line": 28,
+            "start_line": 24
           }
         },
         {
@@ -189341,8 +190440,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 29
+            "end_line": 52,
+            "start_line": 30
           }
         },
         {
@@ -189370,8 +190469,8 @@
           "signature": "(self, event: str) -> list[dict]",
           "source_location": {
             "column": 4,
-            "end_line": 78,
-            "start_line": 53
+            "end_line": 79,
+            "start_line": 54
           }
         },
         {
@@ -189411,8 +190510,8 @@
           "signature": "(self, run: dict, event: str, seen_ids: set[int]) -> datetime",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 80
+            "end_line": 117,
+            "start_line": 81
           }
         }
       ]
@@ -192207,6 +193306,1033 @@
             "column": 0,
             "end_line": 221,
             "start_line": 115
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [],
+          "module": "fnmatch",
+          "names": [
+            {
+              "alias": null,
+              "name": "fnmatch"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "date"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            },
+            {
+              "alias": null,
+              "name": "PurePosixPath"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        }
+      ],
+      "module": "tools.python_security_check",
+      "path": "tools/python_security_check.py",
+      "source_location": {
+        "end_line": 622,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ProfileError",
+          "parameters": [],
+          "qualified_name": "ProfileError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "Suppression",
+          "parameters": [],
+          "qualified_name": "Suppression",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "label",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Suppression.label",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 60,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "SecurityProfile",
+          "parameters": [],
+          "qualified_name": "SecurityProfile",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 72,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "Finding",
+          "parameters": [],
+          "qualified_name": "Finding",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 94,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "as_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Finding.as_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "EvaluationReport",
+          "parameters": [],
+          "qualified_name": "EvaluationReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 119,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "blocking",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationReport.blocking",
+          "return_annotation": "list[Finding]",
+          "signature": "(self) -> list[Finding]",
+          "source_location": {
+            "column": 4,
+            "end_line": 110,
+            "start_line": 105
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "as_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationReport.as_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 112
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            },
+            {
+              "annotation": "type",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kind"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "_require",
+          "return_annotation": "Any",
+          "signature": "(mapping: dict[str, Any], key: str, kind: type, context: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 126,
+            "start_line": 122
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_string_list",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "allow_empty"
+            }
+          ],
+          "qualified_name": "_string_list",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(mapping: dict[str, Any], key: str, context: str, *, allow_empty: bool = …) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 139,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_scan_paths",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            }
+          ],
+          "qualified_name": "_scan_paths",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(mapping: dict[str, Any]) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 142
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_level",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "_level",
+          "return_annotation": "str",
+          "signature": "(mapping: dict[str, Any], key: str, context: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 160,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_suppression",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "index"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "max_days"
+            }
+          ],
+          "qualified_name": "_parse_suppression",
+          "return_annotation": "Suppression",
+          "signature": "(raw: Any, index: int, today: date, max_days: int) -> Suppression",
+          "source_location": {
+            "column": 0,
+            "end_line": 200,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "parse_profile",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "parse_profile",
+          "return_annotation": "SecurityProfile",
+          "signature": "(raw: Any, today: date) -> SecurityProfile",
+          "source_location": {
+            "column": 0,
+            "end_line": 240,
+            "start_line": 203
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_profile",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "load_profile",
+          "return_annotation": "SecurityProfile",
+          "signature": "(path: Path, today: date) -> SecurityProfile",
+          "source_location": {
+            "column": 0,
+            "end_line": 248,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_outside_root",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_outside_root",
+          "return_annotation": "bool",
+          "signature": "(path: str) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 253,
+            "start_line": 251
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_distribution_name",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_distribution_name",
+          "return_annotation": "str",
+          "signature": "(name: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_relative_path",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "filename"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "_relative_path",
+          "return_annotation": "str",
+          "signature": "(filename: str, root: Path) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 269,
+            "start_line": 261
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "is_sensitive",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            }
+          ],
+          "qualified_name": "is_sensitive",
+          "return_annotation": "bool",
+          "signature": "(path: str, profile: SecurityProfile) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 277,
+            "start_line": 272
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_source_lines",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "list[int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line_range"
+            }
+          ],
+          "qualified_name": "_source_lines",
+          "return_annotation": "str",
+          "signature": "(root: Path, path: str, line_range: list[int]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 287,
+            "start_line": 280
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_active_suppressions",
+          "parameters": [
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "tool"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            },
+            {
+              "annotation": "EvaluationReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_active_suppressions",
+          "return_annotation": "list[Suppression]",
+          "signature": "(profile: SecurityProfile, tool: str, today: date, report: EvaluationReport) -> list[Suppression]",
+          "source_location": {
+            "column": 0,
+            "end_line": 309,
+            "start_line": 290
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_claim",
+          "parameters": [
+            {
+              "annotation": "Suppression",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "suppression"
+            },
+            {
+              "annotation": "dict[Suppression, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "used"
+            },
+            {
+              "annotation": "Finding",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "finding"
+            }
+          ],
+          "qualified_name": "_claim",
+          "return_annotation": "bool",
+          "signature": "(suppression: Suppression, used: dict[Suppression, int], finding: Finding) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 320,
+            "start_line": 312
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_report_stale",
+          "parameters": [
+            {
+              "annotation": "list[Suppression]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "active"
+            },
+            {
+              "annotation": "dict[Suppression, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "used"
+            },
+            {
+              "annotation": "EvaluationReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_report_stale",
+          "return_annotation": "None",
+          "signature": "(active: list[Suppression], used: dict[Suppression, int], report: EvaluationReport) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 337,
+            "start_line": 323
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate_bandit",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "evaluate_bandit",
+          "return_annotation": "EvaluationReport",
+          "signature": "(raw: Any, profile: SecurityProfile, root: Path, today: date) -> EvaluationReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 431,
+            "start_line": 340
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate_pip_audit",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "evaluate_pip_audit",
+          "return_annotation": "EvaluationReport",
+          "signature": "(raw: Any, profile: SecurityProfile, today: date) -> EvaluationReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 497,
+            "start_line": 434
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_bandit",
+          "parameters": [
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "run_bandit",
+          "return_annotation": "Any",
+          "signature": "(profile: SecurityProfile, root: Path) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 532,
+            "start_line": 500
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_json",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "_read_json",
+          "return_annotation": "Any",
+          "signature": "(path: Path, label: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 539,
+            "start_line": 535
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 618,
+            "start_line": 542
           }
         }
       ]
