@@ -328,6 +328,17 @@ class TrainingDiagnosisTest(unittest.TestCase):
         )
         self.assertEqual(report.cases_considered, 1)
 
+    def test_non_string_context_label_is_counted_invalid(self):
+        bad = replace(
+            context_event(1),
+            payload={**context_event(1).payload, "label_status": ["verified_effect"]},
+        )
+        cases, excluded = collect_diagnosis_cases(
+            [episode([outcome_event(1, verified=False), bad])], POLICY
+        )
+        self.assertEqual(excluded, {"invalid_context": 1})
+        self.assertEqual(cases[0].label_status, "observed_only")
+
     def test_duplicate_episode_and_case_limit(self):
         first = episode([outcome_event(1)], [outcome_event(2)])
         policy = TrainingDiagnosisPolicy(max_cases=1)

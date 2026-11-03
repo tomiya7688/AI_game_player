@@ -439,6 +439,7 @@ def _valid_context(payload: Mapping[str, Any]) -> bool:
         return False
     if (
         not isinstance(payload["outcome_event_id"], str)
+        or not isinstance(payload["label_status"], str)
         or payload["label_status"] not in LABEL_STATUSES
     ):
         return False
