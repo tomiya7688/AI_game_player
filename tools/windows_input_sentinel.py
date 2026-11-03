@@ -24,6 +24,10 @@ GLOBAL_INPUT_FUNCTIONS = frozenset(
         "SetCursorPos",
         "SetPhysicalCursorPos",
         "BlockInput",
+        "InjectTouchInput",
+        "InjectSyntheticPointerInput",
+        "InjectMouseInput",
+        "InjectKeyboardInput",
     }
 )
 WINDOW_MESSAGE_FUNCTIONS = frozenset(
@@ -36,6 +40,8 @@ WINDOW_MESSAGE_FUNCTIONS = frozenset(
         "SendMessageTimeoutA",
         "SendNotifyMessageW",
         "SendNotifyMessageA",
+        "SendMessageCallbackW",
+        "SendMessageCallbackA",
     }
 )
 # 第1引数がHWNDではなくthread IDのため所有窓を判定できない。入力messageは常に遮断する。
@@ -46,8 +52,13 @@ GUARDED_FUNCTIONS = (
 # WM_KEYFIRST..WM_KEYLAST と WM_MOUSEFIRST..WM_MOUSELAST。WM_PRINT等の描画要求は対象外。
 KEYBOARD_MESSAGE_RANGE = range(0x0100, 0x0109 + 1)
 MOUSE_MESSAGE_RANGE = range(0x0200, 0x020E + 1)
-# 入力と同等に操作を起こすmessage: WM_INPUT、WM_SYSCOMMAND、WM_HOTKEY、WM_APPCOMMAND。
-INPUT_EQUIVALENT_MESSAGES = frozenset({0x00FF, 0x0112, 0x0312, 0x0319})
+# 入力と同等に操作・状態変更を起こすmessage: WM_CLOSE、WM_INPUT、WM_COMMAND、WM_SYSCOMMAND、
+# WM_GESTURE、WM_TOUCH、WM_HOTKEY、WM_APPCOMMAND。
+INPUT_EQUIVALENT_MESSAGES = frozenset(
+    {0x0010, 0x00FF, 0x0111, 0x0112, 0x0119, 0x0240, 0x0312, 0x0319}
+)
+# WM_POINTERDEVICECHANGE..WM_POINTERHWHEEL（0x0238〜0x024F、WM_TOUCH 0x0240を含む）。
+POINTER_MESSAGE_RANGE = range(0x0238, 0x024F + 1)
 
 
 class InputSentinelViolation(RuntimeError):
@@ -64,6 +75,7 @@ class SentinelEvent:
     owner_process_id: int | None
     reason: str
     context: str = ""
+    thread: str = ""
 
 
 def _plain_int(value: Any) -> int:
@@ -79,6 +91,7 @@ def is_input_message(message: int) -> bool:
     return (
         message in KEYBOARD_MESSAGE_RANGE
         or message in MOUSE_MESSAGE_RANGE
+        or message in POINTER_MESSAGE_RANGE
         or message in INPUT_EQUIVALENT_MESSAGES
     )
 
@@ -170,6 +183,8 @@ class InputSentinel:
     def _block(self, event: SentinelEvent) -> None:
         if not event.context:
             event = replace(event, context=self.context)
+        # 前のテストが残したworkerからの呼出しも追跡できるよう、呼出しthread名を添える。
+        event = replace(event, thread=threading.current_thread().name)
         with self._lock:
             self.blocked.append(event)
         raise InputSentinelViolation(

@@ -1,5 +1,6 @@
 import ctypes
 import os
+import threading
 import unittest
 
 from tools.windows_input_sentinel import (
@@ -13,6 +14,19 @@ from tools.windows_input_sentinel import (
 )
 
 TEST_PROCESS_ID = 4242
+# 実装の集合とは独立に、遮断必須のグローバル入力APIを固定する。
+REQUIRED_GLOBAL_INPUT_APIS = (
+    "SendInput",
+    "keybd_event",
+    "mouse_event",
+    "SetCursorPos",
+    "SetPhysicalCursorPos",
+    "BlockInput",
+    "InjectTouchInput",
+    "InjectSyntheticPointerInput",
+    "InjectMouseInput",
+    "InjectKeyboardInput",
+)
 OWNED_WINDOW = 0x1001
 FOREIGN_WINDOW = 0x2002
 
@@ -38,7 +52,8 @@ def make_sentinel():
 
 class InputSentinelPolicyTest(unittest.TestCase):
     def test_global_input_apis_are_blocked_before_the_real_function_runs(self):
-        for name in sorted(GLOBAL_INPUT_FUNCTIONS):
+        self.assertTrue(set(REQUIRED_GLOBAL_INPUT_APIS) <= GLOBAL_INPUT_FUNCTIONS)
+        for name in REQUIRED_GLOBAL_INPUT_APIS:
             with self.subTest(function=name):
                 sentinel = make_sentinel()
                 real = RecordingFunction()
@@ -195,10 +210,21 @@ class InputSentinelPolicyTest(unittest.TestCase):
 
         with self.assertRaises(InputSentinelViolation):
             guarded(TEST_PROCESS_ID, 0x0100, 0x41, 0)
-        guarded(TEST_PROCESS_ID, 0x0010, 0, 0)
+        guarded(TEST_PROCESS_ID, 0x000F, 0, 0)
 
         self.assertEqual(len(real.calls), 1)
         self.assertEqual(sentinel.blocked[0].reason, "thread-input-message")
+
+    def test_send_message_callback_to_foreign_window_is_blocked(self):
+        sentinel = make_sentinel()
+        real = RecordingFunction()
+
+        with self.assertRaises(InputSentinelViolation):
+            sentinel.guard("SendMessageCallbackW", real)(
+                FOREIGN_WINDOW, 0x0010, 0, 0, None, 0
+            )
+
+        self.assertEqual(real.calls, [])
 
     def test_blocked_event_records_the_running_test(self):
         sentinel = make_sentinel()
@@ -208,15 +234,26 @@ class InputSentinelPolicyTest(unittest.TestCase):
             sentinel.guard("SendInput", RecordingFunction())(1, None, 0)
 
         self.assertEqual(sentinel.blocked[0].context, "test_module.Case.test_name")
+        self.assertEqual(sentinel.blocked[0].thread, threading.current_thread().name)
 
     def test_message_ranges_cover_keyboard_and_mouse_only(self):
         self.assertTrue(is_input_message(0x0100))
         self.assertTrue(is_input_message(0x0109))
         self.assertTrue(is_input_message(0x0200))
         self.assertTrue(is_input_message(0x020E))
-        for input_equivalent in (0x00FF, 0x0112, 0x0312, 0x0319):
+        for input_equivalent in (
+            0x0010,
+            0x00FF,
+            0x0111,
+            0x0112,
+            0x0119,
+            0x0240,
+            0x0246,
+            0x0312,
+            0x0319,
+        ):
             self.assertTrue(is_input_message(input_equivalent), hex(input_equivalent))
-        self.assertFalse(is_input_message(0x0010))
+        self.assertFalse(is_input_message(0x000F))
         self.assertFalse(is_input_message(0x0317))
 
     def test_user32_library_name_matching(self):

@@ -8,9 +8,9 @@ GitHub ActionsのWindows runnerで、Windows固有のCapture・Window targeting�
 
 - 対象: `GATE_TEST_MODULES`に列挙したWindows境界のテスト（target/window検証、座標変換、`WindowsInput`、desktop/HWND capture、Win32 ABI、bundle self-check、planning用window snapshotとファイル読取）と、`test_fail_safe*.py`（lease・TTL・hold・release-allの状態遷移）。1プロセスで実行します。
 - 実入力センチネル: `tools/windows_input_sentinel.py`が`ctypes.CDLL.__getitem__`を差し替え、`ctypes.windll.user32`と`ctypes.WinDLL("user32")`のどちらから取得した関数も監視します。
-  - グローバル入力API（`SendInput`、`keybd_event`、`mouse_event`、`SetCursorPos`、`SetPhysicalCursorPos`、`BlockInput`）は、実関数を呼ぶ前に必ず遮断します。
-  - `PostMessage`・`SendMessage`・`SendMessageTimeout`・`SendNotifyMessage`のうち、キーボード（`0x0100`〜`0x0109`）・マウス（`0x0200`〜`0x020E`）と、入力と同等に操作を起こす`WM_INPUT`・`WM_SYSCOMMAND`・`WM_HOTKEY`・`WM_APPCOMMAND`は、送信先HWNDの所有PIDがテストプロセス自身と一致する場合だけ通します。所有PIDが取得できない（照会の例外を含む）HWNDとHWND 0は遮断します。送信先が窓ではなくthreadの`PostThreadMessage`は、これらのmessageを常に遮断します。`WM_PRINT`などの描画要求は制限しません。
-  - 監視はinstall後に取得した関数だけに効きます。runnerは`ai_game_player`がinstall前にimport済みなら自己検査失敗とし、テストモジュールはinstall後に読み込みます。遮断記録には実行中のテストIDを添えます。
+  - グローバル入力API（`SendInput`、`keybd_event`、`mouse_event`、`SetCursorPos`、`SetPhysicalCursorPos`、`BlockInput`、`InjectTouchInput`、`InjectSyntheticPointerInput`、`InjectMouseInput`、`InjectKeyboardInput`）は、実関数を呼ぶ前に必ず遮断します。
+  - `PostMessage`・`SendMessage`・`SendMessageTimeout`・`SendNotifyMessage`・`SendMessageCallback`のうち、キーボード（`0x0100`〜`0x0109`）・マウス（`0x0200`〜`0x020E`）・pointer/touch（`0x0238`〜`0x024F`）と、入力と同等に操作・状態変更を起こす`WM_CLOSE`・`WM_INPUT`・`WM_COMMAND`・`WM_SYSCOMMAND`・`WM_GESTURE`・`WM_HOTKEY`・`WM_APPCOMMAND`は、送信先HWNDの所有PIDがテストプロセス自身と一致する場合だけ通します。所有PIDが取得できない（照会の例外を含む）HWNDとHWND 0は遮断します。送信先が窓ではなくthreadの`PostThreadMessage`は、これらのmessageを常に遮断します。`WM_PRINT`などの描画要求は制限しません。
+  - 監視はinstall後に取得した関数だけに効きます。runnerは`ai_game_player`がinstall前にimport済みなら自己検査失敗とし、テストモジュールはinstall後に読み込みます。遮断記録には実行中のテストIDと呼出しthread名を添えます。
   - 遮断した呼出しは`InputSentinelViolation`を送出し、同時に記録します。テストが例外を握りつぶして成功しても、記録が1件でもあればgateは失敗します。
 - 自己検査: テスト実行前に、両方の取得経路で入力関数が監視対象になっていること、遮断が実呼出し前に起きることを確かめます。監視されていない関数を見つけた場合は呼び出さずに中断します。判定に誤りがあっても無害なよう、自己検査ではVK 0と存在しないHWNDを使います。
 - 空振り防止: Windowsでしか実行されない`REQUIRED_WINDOWS_TESTS`がskipされた、または実行されなかった場合は失敗します。Windows以外では実行を拒否します（終了コード2）。
@@ -27,6 +27,7 @@ GitHub ActionsのWindows runnerで、Windows固有のCapture・Window targeting�
 - 子プロセスのuser32呼出し。live-target smoke（`tools/run_windows_safety_ci.py`）、2048 E2E（`tools/run_windows_e2e.py`、`test_reference_game_2048_launcher`、`test_2048_campaign`）、外部watchdogの障害注入（`tools/run_fail_safe_ci.py`）は、runnerが自分で起動した窓を対象にする別ジョブで、このgateに含めません。
 - user32以外の入力経路（DirectInput、ドライバ、UI Automation等）。プロジェクトは現在これらを使いません。
 - Native Runtime（C++）からのWin32呼出し。
+- 所有確認から送信までの間に自作窓が破棄され、同じHWND値が別プロセスに再利用される競合。テストは自作窓を送信後に破棄するため、この間隔での再利用は想定していません。
 
 ## 完了条件と検証場所の対応
 
