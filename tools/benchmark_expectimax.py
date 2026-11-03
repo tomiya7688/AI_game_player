@@ -338,18 +338,26 @@ def main(argv=None):
     )
     before = fingerprints()
     fixture_path = ROOT / "tests/fixtures/belief/ambiguous_2048.json"
-    fixture = json.loads(fixture_path.read_text())
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
     report = {
         "schema_version": 1,
         "run_id": uuid4().hex,
         "started_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": "running",
         "git_sha": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, timeout=10
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
         ).strip(),
         "git_dirty": bool(
             subprocess.check_output(
-                ["git", "status", "--porcelain"], cwd=ROOT, text=True, timeout=10
+                ["git", "status", "--porcelain"],
+                cwd=ROOT,
+                text=True,
+                timeout=10,
+                encoding="utf-8",
             ).strip()
         ),
         "source_sha256": before,

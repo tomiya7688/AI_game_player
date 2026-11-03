@@ -14,6 +14,9 @@ PULL_REQUEST_URL = "https://github.com/tomiya7688/AI_game_player/pull/466"
 PULL_REQUEST_HEAD_SHA = "a" * 40
 
 
+HEAD_REF = "claude/issue-719-push-evidence-ref"
+
+
 def _completed_process(
     stdout: str = "",
     stderr: str = "",
@@ -24,7 +27,7 @@ def _completed_process(
 
 def _pull_request_snapshot(head_sha: str = PULL_REQUEST_HEAD_SHA, state: str = "OPEN") -> CompletedProcess[str]:
     return _completed_process(
-        json.dumps({"state": state, "mergeable": "MERGEABLE", "headRefOid": head_sha})
+        json.dumps({"state": state, "mergeable": "MERGEABLE", "headRefOid": head_sha, "headRefName": HEAD_REF})
     )
 
 

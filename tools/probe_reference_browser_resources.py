@@ -266,7 +266,9 @@ def main(argv: list[str] | None = None) -> int:
         "success": False,
         "cases": [],
     }
-    (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+    (output / "report.json").write_text(
+        json.dumps(report, indent=2) + "\n", encoding="utf-8"
+    )
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as pw:
@@ -289,7 +291,9 @@ def main(argv: list[str] | None = None) -> int:
                         else "probe_failure"
                     )
                 report["cases"].append(result)
-                (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+                (output / "report.json").write_text(
+                    json.dumps(report, indent=2) + "\n", encoding="utf-8"
+                )
                 print(
                     json.dumps({"case": case, "success": result["success"]}), flush=True
                 )
@@ -309,7 +313,9 @@ def main(argv: list[str] | None = None) -> int:
         and not report.get("browser_cleanup_failed")
         and not report.get("source_integrity_failed")
     )
-    (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+    (output / "report.json").write_text(
+        json.dumps(report, indent=2) + "\n", encoding="utf-8"
+    )
     return 0 if report["success"] else 1
 
 

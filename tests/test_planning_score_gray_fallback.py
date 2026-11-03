@@ -17,7 +17,7 @@ FOLDER = Path(__file__).parent / "fixtures/2048/score-windows-headers"
 
 
 def zero_fixture(scaled=False):
-    manifest = json.loads((FOLDER / "manifest.json").read_text())
+    manifest = json.loads((FOLDER / "manifest.json").read_text(encoding="utf-8"))
     item = next(
         item
         for item in manifest["cases"]
@@ -63,9 +63,9 @@ def zero_fixture(scaled=False):
 
 class RawWindowsOcr:
     def __init__(self):
-        self.raw = json.loads((FOLDER / "windows_919_numeric_raw.json").read_text())[
-            "records"
-        ]
+        self.raw = json.loads(
+            (FOLDER / "windows_919_numeric_raw.json").read_text(encoding="utf-8")
+        )["records"]
         self.calls = []
 
     def recognize(self, frame, *, mode):

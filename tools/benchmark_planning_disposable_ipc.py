@@ -133,7 +133,7 @@ def main():
             "schema_version": 1,
             "legacy_pipeline_reference_sha": "294cab92d6970aa1cd3485f21d180786d76c848b",
             "base_sha": subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=root, text=True
+                ["git", "rev-parse", "HEAD"], cwd=root, text=True, encoding="utf-8"
             ).strip(),
             "candidate_diff_sha256": sha256(
                 subprocess.check_output(["git", "diff", "--", "src"], cwd=root)
@@ -141,7 +141,7 @@ def main():
             "platform": platform.platform(),
             "python": platform.python_version(),
             "filesystem": subprocess.check_output(
-                ["stat", "-f", "-c", "%T", directory], text=True
+                ["stat", "-f", "-c", "%T", directory], text=True, encoding="utf-8"
             ).strip()
             if os.name == "posix"
             else "unmeasured",

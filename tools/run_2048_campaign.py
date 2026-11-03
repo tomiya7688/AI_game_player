@@ -1155,6 +1155,7 @@ def _git_commit(root: Path) -> str | None:
             capture_output=True,
             text=True,
             timeout=5,
+            encoding="utf-8",
         )
     except (OSError, subprocess.SubprocessError):
         return os.environ.get("GITHUB_SHA")

@@ -26,9 +26,11 @@ class BenchmarkReportTest(unittest.TestCase):
             path.write_text('{"status":"success","metrics":[1]}', encoding="utf-8")
             attempt = BenchmarkReportAttempt(path)
             attempt.begin()
-            self.assertEqual(json.loads(path.read_text())["status"], "running")
+            self.assertEqual(
+                json.loads(path.read_text(encoding="utf-8"))["status"], "running"
+            )
             attempt.fail(ValueError("measurement failed"))
-            value = json.loads(path.read_text())
+            value = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(value["status"], "failed")
             self.assertEqual(value["run_id"], attempt.run_id)
             self.assertNotIn("metrics", value)
@@ -65,7 +67,7 @@ class BenchmarkReportTest(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     older.publish({"value": "old"})
                 self.assertFalse(older.fail(ValueError("old failed")))
-                value = json.loads(path.read_text())
+                value = json.loads(path.read_text(encoding="utf-8"))
                 self.assertEqual(value["value"], "newer")
                 self.assertEqual(value["status"], "success")
             finally:
@@ -87,10 +89,14 @@ class BenchmarkReportTest(unittest.TestCase):
                 with self.assertRaises(OSError):
                     attempt.publish({"value": "new"})
             self.assertEqual(path.read_bytes(), before)
-            self.assertEqual(json.loads(path.read_text())["status"], "running")
+            self.assertEqual(
+                json.loads(path.read_text(encoding="utf-8"))["status"], "running"
+            )
             self.assertFalse(list(path.parent.glob(".report.json.*.tmp")))
             attempt.fail(OSError("interrupted replacement"))
-            self.assertEqual(json.loads(path.read_text())["status"], "failed")
+            self.assertEqual(
+                json.loads(path.read_text(encoding="utf-8"))["status"], "failed"
+            )
 
     def test_transient_read_failure_can_be_recorded_as_failed(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -103,7 +109,9 @@ class BenchmarkReportTest(unittest.TestCase):
                 with self.assertRaisesRegex(OSError, "temporary read failure"):
                     attempt.publish({"value": 1})
             self.assertTrue(attempt.fail(OSError("temporary read failure")))
-            self.assertEqual(json.loads(path.read_text())["status"], "failed")
+            self.assertEqual(
+                json.loads(path.read_text(encoding="utf-8"))["status"], "failed"
+            )
 
     def test_read_failure_followed_by_newer_writer_preserves_newer_result(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -133,4 +141,6 @@ class BenchmarkReportTest(unittest.TestCase):
             self.assertFalse(attempt.fail(ValueError("after success")))
             with self.assertRaises(RuntimeError):
                 attempt.begin()
-            self.assertEqual(json.loads(path.read_text())["status"], "success")
+            self.assertEqual(
+                json.loads(path.read_text(encoding="utf-8"))["status"], "success"
+            )
