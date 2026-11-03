@@ -1,7 +1,8 @@
-"""配布bundle自己検査の各項目が、bundle外の部品や読込失敗を不合格にすることを確認します（Issue #149）。"""
+"""配布bundle自己検査の各項目が、bundle外の部品や読込失敗を不合格にすることを確認します（Issue #149、#515）。"""
 
 from __future__ import annotations
 
+import base64
 import json
 import sys
 import tempfile
@@ -188,9 +189,81 @@ class BundleSelfCheckTest(unittest.TestCase):
                 "assets",
                 "tk",
                 "ssl",
+                "trust",
             ],
         )
         self.assertFalse(results[0].ok)
+
+    def test_trust_records_the_default_context_and_absent_trust_modules(self):
+        sink: dict[str, object] = {}
+        with tempfile.TemporaryDirectory() as directory:
+            bundle = Path(directory).resolve()
+            with patch("importlib.util.find_spec", return_value=None):
+                result = self_check._check_trust(bundle, sink)
+        self.assertTrue(result.ok, result.detail)
+        self.assertEqual(
+            sink["modules"], {"certifi": None, "pip": None, "truststore": None}
+        )
+        self.assertIsNone(sink["certifi_where"])
+        self.assertEqual(
+            set(sink["default_verify_paths"]), set(self_check.VERIFY_PATH_FIELDS)
+        )
+        self.assertEqual(set(sink["environment"]), {"SSL_CERT_FILE", "SSL_CERT_DIR"})
+        certificates = sink["context_ca_certs"]
+        self.assertIsInstance(certificates, list)
+        for text in certificates:
+            base64.b64decode(text, validate=True)
+        self.assertIn(f"{len(certificates)} CA certificates", result.detail)
+        self.assertEqual(sink["platform"], sys.platform)
+        stores = sink["windows_store_certs"]
+        self.assertEqual(bool(stores), sys.platform == "win32")
+        for store_entry in stores:
+            self.assertIn(store_entry["store"], self_check.WINDOWS_TRUST_STORES)
+            base64.b64decode(store_entry["der"], validate=True)
+
+    def test_trust_requires_a_present_certifi_bundle_inside_the_bundle(self):
+        with tempfile.TemporaryDirectory() as directory:
+            bundle = Path(directory).resolve()
+            spec = MagicMock(origin=str(bundle / "certifi" / "__init__.py"))
+
+            def find_spec(name):
+                return spec if name == "certifi" else None
+
+            for where, ok in (
+                (bundle / "certifi" / "cacert.pem", True),
+                (ROOT / "cacert.pem", False),
+            ):
+                with self.subTest(where=where):
+                    certifi = MagicMock()
+                    certifi.where.return_value = str(where)
+                    sink: dict[str, object] = {}
+                    with (
+                        patch("importlib.util.find_spec", side_effect=find_spec),
+                        patch("importlib.import_module", return_value=certifi),
+                    ):
+                        result = self_check._check_trust(bundle, sink)
+                    self.assertEqual(result.ok, ok, result.detail)
+                    self.assertEqual(sink["certifi_where"], str(where))
+
+    def test_report_carries_the_trust_details(self):
+        def collect(trust_sink):
+            trust_sink["modules"] = {"certifi": None}
+            return [self_check.BundleCheckResult("trust", True, "ok")]
+
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "report.json"
+            with patch.object(self_check, "collect_bundle_checks", side_effect=collect):
+                code = self_check.run_bundle_self_check(report)
+            value = json.loads(report.read_text(encoding="utf-8"))
+        self.assertEqual(code, 0)
+        self.assertEqual(value["trust"], {"modules": {"certifi": None}})
+
+    def test_source_has_no_static_certifi_import(self):
+        # PyInstaller would collect certifi and its cacert.pem for a static import.
+        source = (ROOT / "src" / "ai_game_player" / "bundle_self_check.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotRegex(source, r"(?m)^\s*(import certifi|from certifi )")
 
     def test_entrypoint_requires_a_report_path(self):
         with patch.object(sys, "argv", ["Kadoka.exe", "--bundle-self-check"]):
