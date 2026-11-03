@@ -240,6 +240,59 @@ class PythonSecurityProfileTests(unittest.TestCase):
 
         self.assertEqual((), profile.sensitive_paths)
 
+    def test_suppression_cannot_hide_unjudgeable_finding(self) -> None:
+        report = self._evaluate(
+            [_result("src/pkg/net.py", "B310", "UNDEFINED")],
+            suppressions=[_suppression()],
+        )
+
+        self.assertIn("bandit:B310", {finding.code for finding in report.blocking})
+
+    def test_bandit_suppression_target_must_be_repository_relative(self) -> None:
+        for target in ("../outside.py", "/abs/net.py", "C:/net.py"):
+            with self.subTest(target=target), self.assertRaises(ProfileError):
+                parse_profile(_profile(suppressions=[_suppression(path=target)]), TODAY)
+
+    def test_metrics_keys_must_name_real_files(self) -> None:
+        profile = parse_profile(_profile(), TODAY)
+        raw = {"results": [], "metrics": {"_totals": {}, "src/pkg/fake.py": {}}}
+
+        report = evaluate_bandit(raw, profile, self.root, TODAY)
+
+        self.assertEqual([SCAN_ERROR], [finding.code for finding in report.blocking])
+
+    def test_pip_audit_rejects_empty_and_malformed_reports(self) -> None:
+        profile = parse_profile(_profile(), TODAY)
+
+        empty = evaluate_pip_audit({"dependencies": []}, profile, TODAY)
+
+        self.assertEqual([SCAN_ERROR], [finding.code for finding in empty.blocking])
+        for dependency in (
+            {"name": "idna", "version": "3.0"},
+            {"name": "idna", "version": "3.0", "vulns": "none"},
+            {"version": "3.0", "vulns": []},
+            {"name": "idna", "vulns": [{"aliases": []}]},
+        ):
+            with self.subTest(dependency=dependency), self.assertRaises(ProfileError):
+                evaluate_pip_audit({"dependencies": [dependency]}, profile, TODAY)
+
+    def test_pip_audit_suppression_uses_pep503_names(self) -> None:
+        entry = _suppression(
+            tool="pip-audit", rule="GHSA-x", package="Foo_Bar", match=""
+        )
+        del entry["path"]
+        profile = parse_profile(_profile(suppressions=[entry]), TODAY)
+        raw = {
+            "dependencies": [
+                {"name": "foo.bar", "version": "1", "vulns": [{"id": "GHSA-x"}]}
+            ]
+        }
+
+        report = evaluate_pip_audit(raw, profile, TODAY)
+
+        self.assertEqual([], report.blocking)
+        self.assertEqual(1, report.as_dict()["scanned_dependencies"])
+
     def test_report_without_scanned_files_blocks(self) -> None:
         profile = parse_profile(_profile(), TODAY)
 

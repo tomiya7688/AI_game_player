@@ -1,11 +1,3 @@
-## 2026-11-04 Python Security Profile（Issue #114）
-
-- Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
-- `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
-- dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。
-- `python-security-ci`を必須workflow（8件）とrulesetの必須check（34件）へ追加し、`doc/main保護方針.md`とワークフロー文書の件数を実際の定義に合わせました。
-- ID生成用のSHA-1呼出しへ`usedforsecurity=False`を指定しました。生成されるIDの値は変わりません。[判定規則と未対応範囲](security/python_security_profile.md)。
-
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
@@ -130,6 +122,12 @@ plugin_manifest_schema          1
 各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
 
 ## Unreleased
+
+- Issue #114: Python Security Profile。Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
+- `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
+- dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。
+- `python-security-ci`を必須workflow（8件）とrulesetの必須check（34件）へ追加し、`doc/main保護方針.md`とワークフロー文書の件数を実際の定義に合わせました。
+- ID生成用のSHA-1呼出しへ`usedforsecurity=False`を指定しました。生成されるIDの値は変わりません。[判定規則と未対応範囲](security/python_security_profile.md)。
 
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。 実機能親18eのplanning専用IPC・私有HTTPの有限queue・失敗後診断も互換実装として保持し、永続Safetyと将来Rust配置、新headのWindows受入を区別します。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
 

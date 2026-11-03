@@ -98,6 +98,8 @@ class Finding:
 class EvaluationReport:
     findings: list[Finding] = field(default_factory=list)
     scanned_files: int = 0
+    # Bandit counts files; pip-audit counts dependencies, reported under a separate key.
+    scanned_unit: str = "files"
 
     @property
     def blocking(self) -> list[Finding]:
@@ -111,7 +113,7 @@ class EvaluationReport:
         return {
             "schema_version": PROFILE_SCHEMA_VERSION,
             "passed": not self.blocking,
-            "scanned_files": self.scanned_files,
+            f"scanned_{self.scanned_unit}": self.scanned_files,
             "blocking_findings": len(self.blocking),
             "findings": [finding.as_dict() for finding in self.findings],
         }
@@ -192,9 +194,10 @@ def _parse_suppression(raw: Any, index: int, today: date, max_days: int) -> Supp
     count = raw.get("count", 1)
     if not isinstance(count, int) or isinstance(count, bool) or count < 1:
         raise ProfileError(f"{context}.count must be a positive integer")
-    return Suppression(
-        tool, rule, target.replace("\\", "/"), match, reason, expires, issue, count
-    )
+    target = target.replace("\\", "/")
+    if tool == "bandit" and _outside_root(target):
+        raise ProfileError(f"{context}.path must be a repository-relative path")
+    return Suppression(tool, rule, target, match, reason, expires, issue, count)
 
 
 def parse_profile(raw: Any, today: date) -> SecurityProfile:
@@ -243,6 +246,16 @@ def load_profile(path: Path, today: date) -> SecurityProfile:
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
         raise ProfileError(f"cannot read profile {path}: {error}") from error
     return parse_profile(raw, today)
+
+
+def _outside_root(path: str) -> bool:
+    posix = PurePosixPath(path)
+    return posix.is_absolute() or ".." in posix.parts or ":" in path
+
+
+def _distribution_name(name: str) -> str:
+    # PEP 503 normalisation, so "Foo_Bar", "foo.bar" and "foo-bar" are the same package.
+    return re.sub(r"[-_.]+", "-", name).lower()
 
 
 def _relative_path(filename: str, root: Path) -> str:
@@ -332,7 +345,13 @@ def evaluate_bandit(
     report = EvaluationReport()
     metrics = raw.get("metrics")
     if isinstance(metrics, dict):
-        report.scanned_files = sum(1 for key in metrics if key != "_totals")
+        # Count only metrics keys that name real files under the root, not arbitrary keys.
+        for key in metrics:
+            if key == "_totals":
+                continue
+            relative = _relative_path(str(key), root)
+            if not _outside_root(relative) and (root / relative).is_file():
+                report.scanned_files += 1
     if report.scanned_files == 0:
         report.findings.append(
             Finding(SCAN_ERROR, ".", 0, "Bandit report lists no scanned files")
@@ -368,9 +387,7 @@ def evaluate_bandit(
         unjudgeable = (
             severity not in KNOWN_LEVELS
             or confidence not in KNOWN_LEVELS
-            or PurePosixPath(path).is_absolute()
-            or ".." in PurePosixPath(path).parts
-            or ":" in path
+            or _outside_root(path)
         )
         meets_threshold = unjudgeable or (
             SEVERITY_ORDER[severity] >= minimum_severity
@@ -392,7 +409,8 @@ def evaluate_bandit(
             severity=severity,
             blocking=meets_threshold or sensitive_rule,
         )
-        if finding.blocking:
+        # An unjudgeable finding can never be suppressed.
+        if finding.blocking and not unjudgeable:
             line_range = result.get("line_range")
             numbers = (
                 [int(number) for number in line_range]
@@ -420,7 +438,13 @@ def evaluate_pip_audit(
         raise ProfileError(
             "pip-audit report must be a JSON object with a dependencies list"
         )
-    report = EvaluationReport()
+    report = EvaluationReport(scanned_unit="dependencies")
+    if not raw["dependencies"]:
+        report.findings.append(
+            Finding(
+                SCAN_ERROR, ".", 0, "pip-audit report lists no audited dependencies"
+            )
+        )
     active = _active_suppressions(profile, "pip-audit", today, report)
     used: dict[Suppression, int] = {}
     blocking = profile.dependency_audit_mode == "blocking"
@@ -428,9 +452,15 @@ def evaluate_pip_audit(
         if not isinstance(dependency, dict):
             raise ProfileError("pip-audit dependencies must be objects")
         report.scanned_files += 1
-        name = str(dependency.get("name", "")).lower()
+        name = dependency.get("name")
+        vulns = dependency.get("vulns")
+        if not isinstance(name, str) or not name or not isinstance(vulns, list):
+            raise ProfileError("pip-audit dependencies need a name and a vulns list")
+        name = _distribution_name(name)
         version = str(dependency.get("version", ""))
-        for vulnerability in dependency.get("vulns") or []:
+        for vulnerability in vulns:
+            if not isinstance(vulnerability, dict) or not vulnerability.get("id"):
+                raise ProfileError("pip-audit vulnerabilities need an id")
             aliases = vulnerability.get("aliases") or []
             if not isinstance(aliases, list):
                 raise ProfileError("pip-audit aliases must be a list")
@@ -450,7 +480,7 @@ def evaluate_pip_audit(
             )
             for suppression in active:
                 if (
-                    suppression.target.lower() == name
+                    _distribution_name(suppression.target) == name
                     and suppression.rule in identifiers
                     and _claim(suppression, used, finding)
                 ):
@@ -471,6 +501,8 @@ def run_bandit(profile: SecurityProfile, root: Path) -> Any:
         output = Path(directory) / "bandit.json"
         command = [
             sys.executable,
+            # Isolated mode: a bandit.py in the checkout or PYTHONPATH cannot shadow the scanner.
+            "-I",
             "-m",
             "bandit",
             "--recursive",
@@ -572,7 +604,10 @@ def main(argv: list[str] | None = None) -> int:
     if report.blocking:
         print(f"{label} FAILED blocking={len(report.blocking)}", file=sys.stderr)
         return 1
-    print(f"{label} OK scanned={report.scanned_files} advisory={len(advisory)}")
+    print(
+        f"{label} OK scanned_{report.scanned_unit}={report.scanned_files} "
+        f"advisory={len(advisory)}"
+    )
     return 0
 
 

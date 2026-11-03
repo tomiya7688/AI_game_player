@@ -33,6 +33,7 @@ jobs:
           name: python-security-bandit-profile
           path: build/python-security/
           if-no-files-found: warn
+          overwrite: true
 
   dependency-audit:
     name: Python dependency audit (pip-audit, advisory)
@@ -59,7 +60,7 @@ jobs:
           mkdir -p build/python-security
           status=0
           PIPAPI_PYTHON_LOCATION="$RUNNER_TEMP/audit-target/bin/python" \
-            python -m pip_audit --skip-editable --progress-spinner off --format json \
+            python -I -m pip_audit --skip-editable --progress-spinner off --format json \
             --output build/python-security/pip-audit.json || status=$?
           if [ ! -s build/python-security/pip-audit.json ]; then
             case "$GITHUB_EVENT_NAME" in
@@ -81,3 +82,4 @@ jobs:
           name: python-security-dependency-audit
           path: build/python-security/
           if-no-files-found: warn
+          overwrite: true

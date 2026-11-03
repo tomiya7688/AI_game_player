@@ -13,6 +13,7 @@
       "src/ai_game_player/*_provider.py",
       "src/ai_game_player/planning_worker.py",
       "src/ai_game_player/bounded_planner.py",
+      "src/ai_game_player/fail_safe_runtime.py",
       "src/ai_game_player/runtime/*.py",
       "src/ai_game_player/config.py",
       "src/ai_game_player/atomic_json.py",
@@ -31,6 +32,25 @@
     "issue": "#90"
   },
   "suppressions": [
+    {
+      "tool": "bandit",
+      "rule": "B603",
+      "path": "src/ai_game_player/fail_safe_runtime.py",
+      "match": "subprocess.Popen(command",
+      "reason": "外部watchdogを固定argv（sys.executable・固定moduleまたは--failsafe-watchdog・状態directory）で起動し、shellを使いません。入出力はDEVNULLです。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B110",
+      "path": "src/ai_game_player/fail_safe_runtime.py",
+      "match": "except Exception:",
+      "count": 6,
+      "reason": "fail-safe経路で、journal記録・release callback等の二次的な失敗が停止・復旧判定の戻り値を変えないよう、意図的に例外を無視しています。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
     {
       "tool": "bandit",
       "rule": "B310",

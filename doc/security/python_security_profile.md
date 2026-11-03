@@ -15,10 +15,10 @@
 
 - 走査対象は`src`と`tools`です。`scan_paths`は空にできず、絶対path、`..`を含むpath、Banditのoptionと解釈される`-`始まりのpathは拒否します。Bandit起動は固定argvでshellを使わないため、Sourcery/opengrepの`dangerous-subprocess-use-audit`はその行だけ`nosemgrep`で理由付きに抑止しています。`tests`はfixtureやテスト用の危険な入力を含むため対象外です。
 - severityとconfidenceがともにMEDIUM以上の指摘はblockingです。変数を含むcommandをshellで実行するsubprocessの`shell=True`や`os.system`、pickle等の危険なdeserialize、`yaml.load`、`tempfile.mktemp`、`eval`/`exec`、TLS検証の無効化、tarfileの無検査展開、弱いhashなどが該当します。
-- 重点監視module（Provider、動的importするPlanning worker、worker起動、Native読込、file/network境界）では、LOWの指定rule（B105〜B107の秘密値の直書き、B110/B112の例外の握りつぶし、B603/B607のsubprocess起動）もblockingにします。confidenceの下限（MEDIUM）は重点moduleでも変えません。対象のpathは`sensitive_modules.paths`で宣言します。
+- 重点監視module（Provider、外部watchdogを起動するfail-safe runtime、動的importするPlanning worker、worker起動、Native読込、file/network境界）では、LOWの指定rule（B105〜B107の秘密値の直書き、B110/B112の例外の握りつぶし、B603/B607のsubprocess起動）もblockingにします。confidenceの下限（MEDIUM）は重点moduleでも変えません。対象のpathは`sensitive_modules.paths`で宣言します。
 - 上記以外のLOW指摘は判定結果のJSONへ記録するだけで、CIを失敗させません。
 - Banditの行内`# nosec`は理由と期限を持てないため、`--ignore-nosec`で無効化します。抑制はprofileの`suppressions`だけで管理します。
-- Banditがfileを解析できなかった場合は、走査が不完全なためblockingにします。走査file数が0件の報告、未知のseverity/confidence、repository外のpathもblockingにします。走査対象に`.bandit`設定fileがある場合はprofileを上書きできるため、`--run-bandit`を中止します（終了コード2）。
+- Banditがfileを解析できなかった場合は、走査が不完全なためblockingにします。走査file数が0件の報告（metricsのkeyがroot配下の実fileを指す件数で数えます）、未知のseverity/confidence、repository外のpathもblockingにします。走査対象に`.bandit`設定fileがある場合はprofileを上書きできるため、`--run-bandit`を中止します（終了コード2）。
 
 ## 抑制の管理
 
@@ -33,6 +33,8 @@
 ## dependency audit（Issue #90との接続）
 
 `dependency-audit` jobは、`.[dev,ocr,browser-validation]`を別のvenvへ入れ、`PIPAPI_PYTHON_LOCATION`でそのvenvをpip-auditへ監査させます。pip-auditは公開の脆弱性情報へ問い合わせるため、結果は実行日に依存します。
+
+依存が0件の報告、`name`や`vulns`の欠けた報告は監査未完了として扱い、それぞれblocking・終了コード2にします。package名はPEP 503で正規化して抑制と照合します。BanditとAuditはどちらも`python -I`（isolated mode）で起動し、checkout内の同名moduleで置き換えられないようにします。
 
 profileの`dependency_audit.mode`は現在`advisory`です。既知の脆弱性は警告として表示し、判定結果のJSONへ保存しますが、PRを失敗させません。pip-auditが報告を書けなかった場合（fileが無い、または空）、push・pull_requestでは「未確認」の警告を出してjobを成功させ、定期実行・手動実行ではjobを失敗させます。blockingへの移行と依存lockの方針はIssue #90で決めます。
 
