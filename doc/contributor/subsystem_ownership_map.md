@@ -87,7 +87,7 @@ Capability ManifestとComposition Resolverは`src/ai_game_player/runtime/`に実
 ### Evaluation / Outcome / Experience / Learning
 
 - 責務: 画面差分や終端表示などのEvidence（結果を判断する根拠）から操作結果を評価し、Episode / Step / Eventを保存・検索し、学習用データのprovenance（由来）を保ちます。
-- 現行コード: `src/ai_game_player/evaluator.py`、`outcome*.py`、`decision_verifier.py`、`experience.py`、`experience_reader.py`、`learning.py`、`learning_dataset.py`、`artifact_store.py`、`campaign_*.py`。
+- 現行コード: `src/ai_game_player/evaluator.py`、`outcome*.py`、`decision_verifier.py`、`experience.py`、`experience_reader.py`、`learning.py`、`learning_dataset.py`、`artifact_store.py`、`retention_*.py`、`campaign_*.py`。
 - 公開境界: `OutcomeAssessment`と`DeterministicOutcomeFusion`が状態変化の評価を担います。`ExperienceEpisode`、`ExperienceStep`、`ExperienceEvent`はversioned Experience schema v1（版番号付きJSONデータ形式）を構成し、学習能力は`LearningCapabilityManifest`で宣言します。
 - 関連Issue: #43、#166–#182、#247。
 - 作業に必要な知識: 変更対象のschema、既存データの読み書き条件、対応fixture。
