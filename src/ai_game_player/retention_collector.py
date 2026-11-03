@@ -30,6 +30,8 @@ from ai_game_player.retention_policy import RetentionPolicy
 
 RETENTION_INDEX_FILENAME = "retention-index.json"
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# Windowsのreparse point属性（junction/symlink）。stat定数はWindows版Pythonにしかないため値を固定する。
+_FILE_ATTRIBUTE_REPARSE_POINT = 0x400
 
 
 # {
@@ -463,10 +465,17 @@ def _live_digests(references: Iterable[ArtifactReference]) -> frozenset[str]:
 
 # {
 #   責務: [_is_junction: Windowsのdirectory junction（symlink判定に出ないreparse point）を検出する]
-#   処理: [Python 3.12以降のos.path.isjunctionがあれば使い、ない版ではjunctionなしとして扱う]
+#   処理: [Python 3.12以降はos.path.isjunctionを使う。3.10/3.11ではlstatのreparse point属性で判定し、
+#     属性を持たない非Windowsではjunctionなしとする]
 #   引数: [path: 検査するpath]
-#   戻り値: [bool: Trueならjunctionで、削除対象にしない]
+#   戻り値: [bool: Trueならjunctionなどのreparse pointで、削除対象にしない]
 # }
 def _is_junction(path: Path) -> bool:
     checker = getattr(os.path, "isjunction", None)
-    return bool(checker(path)) if checker is not None else False
+    if checker is not None:
+        return bool(checker(path))
+    try:
+        attributes = getattr(os.lstat(path), "st_file_attributes", 0)
+    except OSError:
+        return False
+    return bool(attributes & _FILE_ATTRIBUTE_REPARSE_POINT)

@@ -51,7 +51,7 @@ Protected記録はどの段階でも外しません。Protectedと外部参照�
 
 - `collect(live_references)`へ、Experience/Event Journal等が現在参照している`ArtifactReference`を渡します。参照中のdigestはTTL・budgetのどちらでも削除しません。
 - 実行順は「計画 → 全削除先の安全検査 → 索引の原子的置換 → object削除」です。削除途中で停止しても、索引から外れたobjectがorphanとして残るだけで、索引や外部参照が存在しないobjectを指す状態は作りません。
-- 削除先は、Store配置（`root/先頭2文字/digest`）と実体pathが一致し、root・shard・object directoryのいずれもsymlinkでない場合だけ許可します。Windowsのdirectory junctionもsymlinkと同様に拒否します。1件でも外れれば`RetentionSafetyError`で、索引を変更せず何も削除しません。`LocalRetentionFileSystem.remove_object`は削除直前にも同じ検査を繰り返しますが、検査と削除の間の差替え（TOCTOU）を完全には排除できないため、管理rootは同じユーザーの信頼できるprocessだけが書く前提です。
+- 削除先は、Store配置（`root/先頭2文字/digest`）と実体pathが一致し、root・shard・object directoryのいずれもsymlinkでない場合だけ許可します。Windowsのdirectory junctionもsymlinkと同様に拒否します（Python 3.12以降は`os.path.isjunction`、3.10/3.11はreparse point属性で判定）。1件でも外れれば`RetentionSafetyError`で、索引を変更せず何も削除しません。`LocalRetentionFileSystem.remove_object`は削除直前にも同じ検査を繰り返しますが、検査と削除の間の差替え（TOCTOU）を完全には排除できないため、管理rootは同じユーザーの信頼できるprocessだけが書く前提です。
 - 索引にあるのにobjectやmetadataが欠落・破損している場合、計測段階で`RetentionIndexError`となり、GCは停止したままです。自動修復はせず、Reader/Recovery（#168）または手動確認で索引を直します。
 - 削除途中で停止して残ったorphanは、未索引objectとして容量に数え続けますが自動削除しません（orphan cleanupは残件）。
 - 同じrootへの同時`register`/`collect`は呼出側が直列化します（プロセス間lockは本Issueの範囲外）。

@@ -5,6 +5,9 @@ import unittest
 from pathlib import Path
 
 from ai_game_player.artifact_store import FileSystemArtifactStore
+from unittest import mock
+
+from ai_game_player import retention_collector
 from ai_game_player.retention_collector import (
     RETENTION_INDEX_FILENAME,
     LocalRetentionFileSystem,
@@ -510,6 +513,24 @@ class RetentionCollectorTest(unittest.TestCase):
             collector.collect()
         self.assertEqual([], self.fs.removed)
         self.assertTrue((outside / "keep.txt").exists())
+
+    def test_junction_fallback_uses_reparse_attribute_without_isjunction(self):
+        class FakeStat:
+            st_file_attributes = 0x400
+
+        with (
+            mock.patch.object(
+                retention_collector.os.path, "isjunction", None, create=True
+            ),
+            mock.patch.object(retention_collector.os, "lstat", return_value=FakeStat()),
+        ):
+            self.assertTrue(retention_collector._is_junction(self.base))
+        with (
+            self.assertRaises(RetentionSafetyError),
+            mock.patch.object(retention_collector, "_is_junction", return_value=True),
+        ):
+            LocalRetentionFileSystem().remove_object(self.base)
+        self.assertTrue(self.base.exists())
 
     def test_index_is_rewritten_before_objects_are_deleted(self):
         class FailingRemoval(RecordingFileSystem):
