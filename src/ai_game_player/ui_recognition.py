@@ -136,7 +136,7 @@ class UiDetectionPipeline:
         left, top, width, height = representative.bbox
         identity = f"{representative.element_type}|{self._normalize(representative.text)}|{left}|{top}|{width}|{height}"
         return DetectedElement(
-            "ui-" + sha1(identity.encode("utf-8")).hexdigest()[:10],
+            "ui-" + sha1(identity.encode("utf-8"), usedforsecurity=False).hexdigest()[:10],
             representative.element_type,
             representative.bbox,
             f"ui_fusion:{sources}",
@@ -298,7 +298,7 @@ class UiRecognitionMemory:
             confidence = sum(sample.confidence for sample in samples) / len(samples)
             text = next((sample.text for sample in samples if sample.text), None)
             identity = f"{visual_id}|{element_type}|{'|'.join(games)}"
-            promoted.append(UiPrototype("prototype-" + sha1(identity.encode("utf-8")).hexdigest()[:10], visual_id, element_type, bbox, games, round(confidence, 6), text))
+            promoted.append(UiPrototype("prototype-" + sha1(identity.encode("utf-8"), usedforsecurity=False).hexdigest()[:10], visual_id, element_type, bbox, games, round(confidence, 6), text))
         data = self._read()
         data["prototypes"] = [prototype.to_dict() for prototype in promoted]
         self._write(data)
