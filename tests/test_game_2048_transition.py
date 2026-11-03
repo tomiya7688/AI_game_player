@@ -257,7 +257,7 @@ class Game2048TransitionTests(unittest.TestCase):
             "transition_model.py",
             "simulation_provider.py",
         ):
-            tree = ast.parse((root / name).read_text())
+            tree = ast.parse((root / name).read_text(encoding="utf-8"))
             imports = {
                 node.module
                 for node in ast.walk(tree)

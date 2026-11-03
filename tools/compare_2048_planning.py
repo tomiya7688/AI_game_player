@@ -286,11 +286,11 @@ def main(argv=None):
         "fixture_minimum_step_period_ms": 125,
         "timing_scope": "decision latency excludes common pacing; episode wall includes pacing; Safety limits unchanged",
         "git_commit": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
+            ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
         ).strip(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
         "git_status": subprocess.check_output(
-            ["git", "status", "--porcelain"], text=True
+            ["git", "status", "--porcelain"], text=True, encoding="utf-8"
         ),
         "rng": "same Python Random(seed), accepted move sample_spawn from getrandbits32; separate from Chromium LCG test RNG",
         "decision_state": "public model board/score fixture only; no browser/OS or hidden RNG supplied to provider",
@@ -324,10 +324,10 @@ def main(argv=None):
     report["source_at_end"] = source_fingerprint()
     report["source_consistent"] = report["source_at_start"] == report["source_at_end"]
     report["git_commit_at_end"] = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], text=True
+        ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
     ).strip()
     report["git_status_at_end"] = subprocess.check_output(
-        ["git", "status", "--porcelain"], text=True
+        ["git", "status", "--porcelain"], text=True, encoding="utf-8"
     )
     path = output / "report.json"
     publish_validation_report(path, report)

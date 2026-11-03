@@ -139,7 +139,9 @@ class BrowserPlanningCleanupTests(unittest.TestCase):
             self.assertEqual(run.call_args.kwargs["planner_depth"], 2)
             self.assertEqual(run.call_args.kwargs["planner_wall_ms"], 600)
             report = json.loads(
-                next(Path(directory).glob("run-*/report.json")).read_text()
+                next(Path(directory).glob("run-*/report.json")).read_text(
+                    encoding="utf-8"
+                )
             )
         self.assertEqual(report["profiles"]["planner"]["max_depth"], 2)
         self.assertEqual(report["profiles"]["planner"]["wall_time_ms"], 600)

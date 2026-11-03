@@ -100,14 +100,14 @@ class DiagnosticBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             profile = Path(folder)
             file = profile / "DevToolsActivePort"
-            file.write_text("456\n/devtools/browser/private-token\n")
+            file.write_text("456\n/devtools/browser/private-token\n", encoding="utf-8")
             self.assertEqual(456, diag._port(profile))
             for content in (
                 "0\n/devtools/browser/private-token",
                 "456\nws://other/secret",
                 "1" * 1025,
             ):
-                file.write_text(content)
+                file.write_text(content, encoding="utf-8")
                 with self.assertRaises(ValueError):
                     diag._port(profile)
 
@@ -116,7 +116,9 @@ class DiagnosticBoundaryTests(unittest.TestCase):
             profile = Path(folder)
             path = profile / "DevToolsActivePort"
             target = profile / "regular"
-            target.write_text("456\n/devtools/browser/private-token\n")
+            target.write_text(
+                "456\n/devtools/browser/private-token\n", encoding="utf-8"
+            )
             if hasattr(os, "symlink"):
                 try:
                     path.symlink_to(target)
@@ -141,7 +143,7 @@ class DiagnosticBoundaryTests(unittest.TestCase):
                 opened.assert_not_called()
                 self.assertLess(time.monotonic() - started, 0.1)
                 path.unlink()
-            path.write_text(target.read_text())
+            path.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
             original_profile = profile.lstat()
             original_file = path.lstat()
             reparse_file = SimpleNamespace(
@@ -359,7 +361,7 @@ class DiagnosticTransportTests(unittest.IsolatedAsyncioTestCase):
             with tempfile.TemporaryDirectory() as folder:
                 profile = Path(folder)
                 (profile / "DevToolsActivePort").write_text(
-                    f"{port}\n/devtools/browser/private-token\n"
+                    f"{port}\n/devtools/browser/private-token\n", encoding="utf-8"
                 )
                 with (
                     patch.object(

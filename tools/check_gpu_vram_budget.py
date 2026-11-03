@@ -46,6 +46,7 @@ def query_total_vram_used_mib() -> int | None:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=10,
+            encoding="utf-8",
         )
     except (OSError, subprocess.SubprocessError):
         return None

@@ -365,11 +365,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     estimator_policy = BeliefEstimatorPolicy(max_update_ns=1_000_000_000)
     git_sha = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, timeout=10
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, timeout=10, encoding="utf-8"
     ).strip()
     dirty = bool(
         subprocess.check_output(
-            ["git", "status", "--porcelain"], cwd=ROOT, text=True, timeout=10
+            ["git", "status", "--porcelain"],
+            cwd=ROOT,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
         ).strip()
     )
     before = source_fingerprints()

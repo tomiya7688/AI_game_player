@@ -29,7 +29,7 @@ class BrowserProbeSupportTests(unittest.TestCase):
                 ".gitignore": "ignored.js\nlocal.env\n",
             }
             for name, content in files.items():
-                (source / name).write_text(content)
+                (source / name).write_text(content, encoding="utf-8")
 
             def git(*arguments):
                 return (
@@ -52,15 +52,17 @@ class BrowserProbeSupportTests(unittest.TestCase):
                 "-m",
                 "fixture",
             )
-            (source / "ignored.js").write_text("ignored local secret")
-            (source / "local.env").write_text("ignored local secret")
+            (source / "ignored.js").write_text("ignored local secret", encoding="utf-8")
+            (source / "local.env").write_text("ignored local secret", encoding="utf-8")
             destination = Path(directory) / "public"
             export_game_assets(source, git("rev-parse", "HEAD"), destination)
             self.assertEqual(
                 {p.name for p in destination.iterdir()},
                 {"index.html", "game.js", "style.css"},
             )
-            self.assertEqual((destination / "game.js").read_text(), files["game.js"])
+            self.assertEqual(
+                (destination / "game.js").read_text(encoding="utf-8"), files["game.js"]
+            )
 
     def test_concurrent_reports_retain_both_complete_results(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -73,9 +75,10 @@ class BrowserProbeSupportTests(unittest.TestCase):
                     )
                 )
             self.assertEqual(
-                {json.loads(p.read_text())["run"] for p in archives}, {1, 2}
+                {json.loads(p.read_text(encoding="utf-8"))["run"] for p in archives},
+                {1, 2},
             )
-            self.assertIn(json.loads(target.read_text())["run"], {1, 2})
+            self.assertIn(json.loads(target.read_text(encoding="utf-8"))["run"], {1, 2})
             self.assertEqual(len(list(Path(directory).glob("report-*.json"))), 2)
 
     def test_interrupted_latest_publication_preserves_previous_and_archive(self):
@@ -92,10 +95,10 @@ class BrowserProbeSupportTests(unittest.TestCase):
             with patch.object(browser_probe_support, "stage_json_write", fail_latest):
                 with self.assertRaises(OSError):
                     publish_validation_report(target, {"run": 2})
-            self.assertEqual(json.loads(target.read_text()), {"run": 1})
+            self.assertEqual(json.loads(target.read_text(encoding="utf-8")), {"run": 1})
             self.assertEqual(
                 {
-                    json.loads(p.read_text())["run"]
+                    json.loads(p.read_text(encoding="utf-8"))["run"]
                     for p in Path(directory).glob("report-*.json")
                 },
                 {1, 2},
