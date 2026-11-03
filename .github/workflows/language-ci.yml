@@ -272,6 +272,9 @@ jobs:
           if (-not (Test-Path "build/app-bundle/dist/Kadoka/kadoka_native_runtime.dll")) {
             throw "Native runtime DLL is missing from application bundle"
           }
+      - name: Relocated minimal-environment self-check and smoke
+        shell: pwsh
+        run: python tools/windows_bundle_check.py launch build/app-bundle/dist/Kadoka --workdir "$env:RUNNER_TEMP/kadoka-relocated"
       - uses: actions/upload-artifact@v4
         with:
           name: kadoka-windows-smoke-bundle
