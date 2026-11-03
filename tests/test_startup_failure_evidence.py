@@ -140,7 +140,7 @@ class StartupFailureEvidenceTests(unittest.TestCase):
             manifest = evidence.StartupFailureEvidence(Path(directory)).save(
                 41, {"window_wait": 25000.0}
             )
-            value = json.loads(manifest.read_text())
+            value = json.loads(manifest.read_text(encoding="utf-8"))
             self.assertEqual(value["worker_status"], "worker_timeout")
             self.assertEqual(value["windows"], [])
             self.assertEqual(
@@ -168,7 +168,7 @@ class StartupFailureEvidenceTests(unittest.TestCase):
                 enumerate_windows=lambda _: records,
                 capture=capture,
             )
-            value = json.loads(manifest.read_text())
+            value = json.loads(manifest.read_text(encoding="utf-8"))
             self.assertEqual(len(value["windows"]), 3)
             self.assertEqual(
                 [row["capture_status"] for row in value["windows"]],
@@ -194,7 +194,7 @@ class StartupFailureEvidenceTests(unittest.TestCase):
                 enumerate_windows=lambda _: [window()],
                 capture=Mock(side_effect=RuntimeError("secret browser title")),
             )
-            text = manifest.read_text()
+            text = manifest.read_text(encoding="utf-8")
             self.assertNotIn("secret browser title", text)
             self.assertEqual(
                 json.loads(text)["windows"][0]["error_type"], "RuntimeError"
@@ -225,7 +225,9 @@ class StartupFailureEvidenceTests(unittest.TestCase):
             self.assertEqual(
                 [
                     row["capture_status"]
-                    for row in json.loads(manifest.read_text())["windows"]
+                    for row in json.loads(manifest.read_text(encoding="utf-8"))[
+                        "windows"
+                    ]
                 ],
                 ["unavailable", "unavailable", "size_budget"],
             )

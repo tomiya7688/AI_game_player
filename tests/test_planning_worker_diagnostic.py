@@ -63,7 +63,7 @@ class WorkerDiagnosticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for content in ('{"secret":"private"}', "x" * 1025):
-                (root / "python_failure.json").write_text(content)
+                (root / "python_failure.json").write_text(content, encoding="utf-8")
                 report = collect_worker_diagnostic(
                     root, 1, cleanup_requested=False, exit_seen_before_cleanup=True
                 )

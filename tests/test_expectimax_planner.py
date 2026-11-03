@@ -26,7 +26,6 @@ from ai_game_player.belief_contract import (
     BeliefWeightKind,
 )
 from ai_game_player.bounded_planner import BoundedExpectimaxPlanner
-from ai_game_player.evaluation_quality import NumericQuality
 from ai_game_player.expectimax_search import (
     ExpectimaxSearch,
     SearchCutoff,
@@ -40,7 +39,6 @@ from ai_game_player.planning_2048 import (
     reference_2048_registration,
 )
 from ai_game_player.planning_contract import (
-    PlanningDomain,
     PlanningRegistration,
     SearchBudget,
 )
@@ -53,180 +51,22 @@ from ai_game_player.planning_worker_diagnostic import WorkerDiagnostic
 from ai_game_player.planning_file_reader import read_planning_bytes
 from ai_game_player.planning_wire import publish_planning_json, read_planning_json
 from ai_game_player.run_control import RunController
-from ai_game_player.transition_model import ActionTransition, ChanceOutcome
 from ai_game_player.world_state_hypothesis import (
     HypothesisOrigin,
     TypedStateRef,
     WorldStateHypothesis,
 )
 
-
-class ToyModel:
-    def __init__(self, behavior="table"):
-        self.behavior = behavior
-        self.calls = 0
-
-    def apply_action(self, state, action_id):
-        self.calls += 1
-        if self.behavior == "slow" or (self.behavior == "slow_deep" and state >= 10):
-            time.sleep(2)
-        if self.behavior == "allocate":
-            _ = bytearray(512 * 1024 * 1024)
-        if self.behavior in ("depth", "transposition"):
-            return ActionTransition(
-                1 if self.behavior == "transposition" else state + 1, True, 0
-            )
-        return ActionTransition(
-            ({"left": 10, "right": 30}[action_id] + state * 10), True, 0
-        )
-
-    def chance_outcomes(self, transition):
-        if self.behavior == "split_legal":
-            return (ChanceOutcome(10, 0.5), ChanceOutcome(11, 0.5))
-        if self.behavior == "invalid_probability":
-            return (ChanceOutcome(11, 0.8), ChanceOutcome(12, 0.8))
-        if self.behavior == "huge_probability":
-            return (ChanceOutcome(11, 10**500),)
-        if self.behavior == "wrong_state":
-            return (ChanceOutcome("wrong", 1.0),)
-        if self.behavior == "oversize":
-            return (ChanceOutcome(2**300, 1.0),)
-        if self.behavior == "depth":
-            return (ChanceOutcome(transition.state, 1),)
-        if self.behavior == "transposition":
-            return (
-                ChanceOutcome(transition.state, 0.4),
-                ChanceOutcome(transition.state, 0.6),
-            )
-        first = (
-            0.75 if transition.state == 10 else 0.25 if transition.state == 20 else 0.5
-        )
-        return (
-            ChanceOutcome(transition.state + 1, first),
-            ChanceOutcome(transition.state + 2, 1 - first),
-        )
+import planning_toy_domains
+from planning_toy_domains import domain
 
 
-class ToyQuality:
-    def __init__(self, behavior="table"):
-        self.behavior = behavior
-
-    def evaluate(self, state):
-        if self.behavior == "slow_quality":
-            time.sleep(2)
-        if self.behavior == "unknown_quality":
-            return NumericQuality()
-        value = {
-            11: 0.8,
-            12: -0.8,
-            21: 0.2,
-            22: 0.6,
-            31: 0.3,
-            32: 0.3,
-            41: 0.8,
-            42: 0.8,
-        }.get(state, min(1, state / 10))
-        support = 0.5 if self.behavior == "partial_quality" else 1.0
-        return NumericQuality(
-            value=value, confidence=support, available=True, coverage=support
-        )
-
-
-def decode_int(raw):
-    value = json.loads(raw)
-    if not isinstance(value, dict) or set(value) != {"int"}:
-        raise ValueError("expected int typed state")
-    return int(value["int"])
-
-
-def domain(behavior):
-    def legal(state):
-        if behavior == "split_legal" and state in (10, 11):
-            return ("left",) if state == 10 else ("right",)
-        if behavior in ("depth", "slow_deep"):
-            return ("left",)
-        if behavior == "intersection" and state == 1:
-            return ("right",)
-        return ("left", "right") if state < 10 else ()
-
-    return PlanningDomain(
-        int, decode_int, ToyModel(behavior), legal, ToyQuality(behavior)
-    )
-
-
-def split_legal_domain():
-    return domain("split_legal")
-
-
-def unexpected_factory_domain():
-    raise RuntimeError("private-model-string-must-not-be-recorded")
-
-
-def table_domain():
-    return domain("table")
-
-
-def depth_domain():
-    return domain("depth")
-
-
-def cache_domain():
-    return domain("transposition")
-
-
-def slow_domain():
-    return domain("slow")
-
-
-def slow_deep_domain():
-    return domain("slow_deep")
-
-
-def slow_quality_domain():
-    return domain("slow_quality")
-
-
-def allocate_domain():
-    return domain("allocate")
-
-
-def invalid_domain():
-    return domain("invalid_probability")
-
-
-def huge_probability_domain():
-    return domain("huge_probability")
-
-
-def wrong_state_domain():
-    return domain("wrong_state")
-
-
-def oversize_domain():
-    return domain("oversize")
-
-
-def intersection_domain():
-    return domain("intersection")
-
-
-def disjoint_legal_domain():
-    value = table_domain()
-    return replace(
-        value, legal_actions=lambda state: ("left",) if state == 0 else ("right",)
-    )
-
-
-def terminal_domain():
-    return replace(table_domain(), legal_actions=lambda state: ())
-
-
-def unknown_quality_domain():
-    return domain("unknown_quality")
-
-
-def partial_quality_domain():
-    return domain("partial_quality")
+# Upper bound for tests that expect a worker result. The wall-time budget also
+# covers starting a fresh Python worker, which took 0.5-1 s on a Windows host
+# with several site-packages .pth hooks while the full suite ran. Searches end
+# on max_depth or an explicit reason long before this bound, so fast hosts do
+# not wait for it. It stays below the 3 s default belief TTL.
+WORKER_RESULT_BUDGET_MS = 2500
 
 
 def planning_result_diagnostic(result):
@@ -318,7 +158,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
     def registration(self, factory="table_domain"):
         return PlanningRegistration(
             factory,
-            __name__,
+            planning_toy_domains.__name__,
             factory,
             "counter",
             "counter.v1",
@@ -349,7 +189,8 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             belief,
             allowed,
             registration_id=factory,
-            budget=budget or SearchBudget(max_depth=1, wall_time_ms=1000),
+            budget=budget
+            or SearchBudget(max_depth=1, wall_time_ms=WORKER_RESULT_BUDGET_MS),
             current_belief=current,
         )
         if (
@@ -373,7 +214,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             belief,
             ("left",),
             registration_id=registration.registration_id,
-            budget=SearchBudget(wall_time_ms=1000),
+            budget=SearchBudget(wall_time_ms=WORKER_RESULT_BUDGET_MS),
         )
         self.assertEqual(result.reason, "worker_failed")
         diagnostic = planner.last_worker_diagnostic
@@ -499,7 +340,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 max_depth=3,
                 max_cache_entries=2,
                 max_cache_bytes=1000,
-                wall_time_ms=1000,
+                wall_time_ms=WORKER_RESULT_BUDGET_MS,
             ),
         )
         self.assertEqual(result.completed_depth, 3, planning_result_diagnostic(result))
@@ -510,7 +351,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             factory="depth_domain",
             belief=belief,
             allowed=("left",),
-            budget=SearchBudget(max_depth=3, wall_time_ms=1000),
+            budget=SearchBudget(max_depth=3, wall_time_ms=WORKER_RESULT_BUDGET_MS),
         )
         self.assertEqual(deep.completed_depth, 3, planning_result_diagnostic(deep))
         self.assertAlmostEqual(deep.action_values[0].expected_quality, 0.27)
@@ -611,7 +452,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
     def test_infeasible_common_future_sequence_keeps_completed_shallow_depth(self):
         result = self.run_plan(
             factory="split_legal_domain",
-            budget=SearchBudget(max_depth=3, wall_time_ms=1000),
+            budget=SearchBudget(max_depth=3, wall_time_ms=WORKER_RESULT_BUDGET_MS),
         )
         self.assertEqual(
             result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
@@ -637,7 +478,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self.assertEqual(engine.counters().nodes_visited, 2)
         self.assertLessEqual(engine.domain.model.calls, 2)
         result = self.run_plan(
-            budget=SearchBudget(max_nodes=2, max_depth=4, wall_time_ms=1000)
+            budget=SearchBudget(
+                max_nodes=2, max_depth=4, wall_time_ms=WORKER_RESULT_BUDGET_MS
+            )
         )
         self.assertIsNone(result.selected_action_id)
         self.assertEqual(result.completed_depth, 0)
@@ -646,7 +489,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self,
     ):
         result = self.run_plan(
-            budget=SearchBudget(max_depth=1, max_trace_values=1, wall_time_ms=1000)
+            budget=SearchBudget(
+                max_depth=1, max_trace_values=1, wall_time_ms=WORKER_RESULT_BUDGET_MS
+            )
         )
         left = next(item for item in result.action_values if item.action_id == "left")
         self.assertAlmostEqual(left.expected_quality, 0.425)
@@ -748,10 +593,12 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             belief,
             tuple(ACTION_DIRECTION_BY_ID),
             registration_id=registration.registration_id,
+            # Depth 2 ends on max_depth; the bound only absorbs worker start-up
+            # and the 2048 module import on slow hosts (belief TTL is 10 s).
             budget=SearchBudget(
                 max_depth=2,
                 max_nodes=10000,
-                wall_time_ms=2000,
+                wall_time_ms=2 * WORKER_RESULT_BUDGET_MS,
                 allow_conditional_selection=True,
             ),
         )
@@ -785,7 +632,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         experiment = self.run_plan(
             belief=belief,
             budget=SearchBudget(
-                max_depth=1, allow_conditional_selection=True, wall_time_ms=1000
+                max_depth=1,
+                allow_conditional_selection=True,
+                wall_time_ms=WORKER_RESULT_BUDGET_MS,
             ),
         )
         self.assertEqual(
@@ -1040,7 +889,10 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             factory="slow_deep_domain",
             belief=belief,
             allowed=("left",),
-            budget=SearchBudget(max_depth=3, wall_time_ms=300),
+            # The budget includes worker start-up (see WORKER_RESULT_BUDGET_MS).
+            # Depth 2 sleeps at least 4 s and the belief expires after 3 s, so
+            # the cutoff still lands between depth 1 and depth 2.
+            budget=SearchBudget(max_depth=3, wall_time_ms=2000),
         )
         self.assertEqual(
             result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
@@ -1056,10 +908,13 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         result = self.run_plan(
             factory="allocate_domain",
             budget=SearchBudget(
-                max_depth=1, worker_memory_bytes=64 * 1024**2, wall_time_ms=1000
+                max_depth=1,
+                worker_memory_bytes=64 * 1024**2,
+                wall_time_ms=WORKER_RESULT_BUDGET_MS,
             ),
         )
-        self.assertLess(time.monotonic() - started, 2)
+        # The parent must not wait for the child beyond the budget plus 1 s.
+        self.assertLess(time.monotonic() - started, WORKER_RESULT_BUDGET_MS / 1000 + 1)
         self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
         self.assertIsNone(result.selected_action_id)
         self.assertIn(result.reason, ("worker_memory_limit", "worker_failed"))
@@ -1176,7 +1031,9 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self,
     ):
         fixture = json.loads(
-            (Path(__file__).parent / "fixtures/belief/ambiguous_2048.json").read_text()
+            (Path(__file__).parent / "fixtures/belief/ambiguous_2048.json").read_text(
+                encoding="utf-8"
+            )
         )
         registration = reference_2048_registration()
         states = tuple(Game2048State(item["cells"]) for item in fixture["candidates"])
@@ -1195,7 +1052,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             belief,
             ("2048-move-left", "2048-move-right", "2048-move-down"),
             registration_id=registration.registration_id,
-            budget=SearchBudget(max_depth=1, wall_time_ms=1000),
+            budget=SearchBudget(max_depth=1, wall_time_ms=WORKER_RESULT_BUDGET_MS),
             current_belief=lambda: store.read(belief.context),
         )
         self.assertEqual(
@@ -1212,7 +1069,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self,
     ):
         belief, _ = self.belief(states=(0, 1), weights=(0.5, 0.5))
-        budget = SearchBudget(max_depth=2, wall_time_ms=1000)
+        budget = SearchBudget(max_depth=2, wall_time_ms=WORKER_RESULT_BUDGET_MS)
         partial = self.run_plan(
             factory="hidden_domain",
             belief=belief,
@@ -1268,43 +1125,3 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             {item.hypothesis_id for item in result.action_values[0].hypothesis_values},
             {positive.hypothesis_id},
         )
-
-
-class HiddenWorldModel:
-    def apply_action(self, state, action_id):
-        if state in (0, 1):
-            target = state + 10 if action_id == "probe" else 200
-        elif state in (10, 11):
-            correct = (state == 10 and action_id == "probe") or (
-                state == 11 and action_id == "safe"
-            )
-            target = 100 if correct else 101
-        else:
-            raise ValueError("terminal state has no action")
-        return ActionTransition(target, True, 0)
-
-    def chance_outcomes(self, transition):
-        return (ChanceOutcome(transition.state, 1),)
-
-
-class HiddenWorldQuality:
-    def evaluate(self, state):
-        return NumericQuality(
-            value={100: 1.0, 101: -1.0, 200: 0.3}.get(state, 0.0),
-            confidence=1.0,
-            available=True,
-        )
-
-
-def hidden_domain():
-    return PlanningDomain(
-        int,
-        decode_int,
-        HiddenWorldModel(),
-        lambda state: ("probe", "safe") if state in (0, 1, 10, 11) else (),
-        HiddenWorldQuality(),
-    )
-
-
-def observed_domain():
-    return replace(hidden_domain(), future_state_observable=True)

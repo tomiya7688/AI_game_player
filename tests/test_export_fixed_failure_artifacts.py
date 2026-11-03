@@ -100,14 +100,16 @@ class ExportTests(unittest.TestCase):
         )
         self.trace = self.lease / "trace.jsonl"
         self.trace.write_text(
-            '{"event":"step","step":77,"action_id":"SECRET_ACTION","latency_ms":10}\n'
+            '{"event":"step","step":77,"action_id":"SECRET_ACTION","latency_ms":10}\n',
+            encoding="utf-8",
         )
         (self.episode / "safety_guard.jsonl").write_text(
-            '{"timestamp":123,"state":"active","reason":"SECRET_REASON"}\n'
+            '{"timestamp":123,"state":"active","reason":"SECRET_REASON"}\n',
+            encoding="utf-8",
         )
 
     def write(self, path, value):
-        path.write_text(json.dumps(value))
+        path.write_text(json.dumps(value), encoding="utf-8")
 
     def write_manifest(self):
         self.write(self.image / "manifest.json", self.manifest)
@@ -209,7 +211,16 @@ class ExportTests(unittest.TestCase):
         raw = self.image / "last-captured.bgra"
         original = self.image / "original.bgra"
         raw.rename(original)
-        raw.symlink_to(original)
+        try:
+            raw.symlink_to(original)
+        except NotImplementedError as error:
+            self.skipTest(f"the platform cannot create a file symlink: {error}")
+        except OSError as error:
+            # Only ERROR_PRIVILEGE_NOT_HELD (Windows without Developer Mode or
+            # SeCreateSymbolicLinkPrivilege) is an OS inability; other errors fail.
+            if getattr(error, "winerror", None) != 1314:
+                raise
+            self.skipTest(f"Windows denied symlink creation privilege: {error}")
         self.assert_reject("linked_path")
 
     def test_duplicate_and_nonfinite_json(self):
@@ -231,7 +242,8 @@ class ExportTests(unittest.TestCase):
             "".join(
                 json.dumps({"event": "step", "step": n, "private": "SECRET"}) + "\n"
                 for n in range(20)
-            )
+            ),
+            encoding="utf-8",
         )
         rows = [json.loads(line) for line in m.export(self.root).splitlines()]
         self.assertEqual(

@@ -106,6 +106,7 @@ def compare_oracle(source_root, cases, expected):
         text=True,
         timeout=120,
         check=True,
+        encoding="utf-8",
     )
     actual = json.loads(result.stdout)
     if len(actual) != len(expected):

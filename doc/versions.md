@@ -1,3 +1,9 @@
+## 2026-11-04 Windowsローカルでのfinish_task安定化（Issue #718）
+
+- `PYTHONUTF8`未設定のcp932 Windowsで`finish_task.bat`のunittestが失敗する問題を修正。tests/toolsの`read_text`/`write_text`と`subprocess`の`text=True`に`encoding="utf-8"`を明示し、`runtime_boundary_check`の子processは`-X utf8`で起動します。`src/`は既にUTF-8明示済みで、製品の動作は変わりません。
+- Planner workerがcompute budget内でテストmodule本体（`unittest.mock`等を含む）をimportしていたため、toy domainを`tests/planning_toy_domains.py`へ分離。worker結果を期待するテストだけ予算上限を2500ms（既定belief TTL 3秒未満）とし、cutoff・遅延・停止系の予算と判定は維持します。
+- テスト内のSQLite読取接続を`contextlib.closing`で閉じ、Windowsで一時`events.db`の削除がWinError 32になる問題を解消。symlinkテストは`ERROR_PRIVILEGE_NOT_HELD`（1314）のときだけ理由付きでskipします。
+
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。

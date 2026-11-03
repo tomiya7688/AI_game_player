@@ -78,7 +78,7 @@ def test_actual_x11_game_controls(name, tmp_path):
     driver = None
 
     def read():
-        return json.loads(oracle.read_text()) if oracle.exists() else {}
+        return json.loads(oracle.read_text(encoding="utf-8")) if oracle.exists() else {}
 
     def tap(key):
         driver.key(key, True)
@@ -116,7 +116,9 @@ def test_actual_x11_game_controls(name, tmp_path):
         else:
             tap("space")
         effect = eventually(lambda: read() if game_effect(name, read()) else None)
-        (output / "after-input.json").write_text(json.dumps(effect, indent=2))
+        (output / "after-input.json").write_text(
+            json.dumps(effect, indent=2), encoding="utf-8"
+        )
         driver.capture(output / "after-input.png")
         tap("p")
         paused = eventually(lambda: read() if read().get("paused") else None)
@@ -162,7 +164,8 @@ def test_actual_x11_game_controls(name, tmp_path):
                     },
                 },
                 indent=2,
-            )
+            ),
+            encoding="utf-8",
         )
     finally:
         if driver is not None:

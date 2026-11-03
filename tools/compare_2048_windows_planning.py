@@ -691,11 +691,11 @@ def main(argv=None):
     report = {
         "schema_version": 1,
         "git_commit": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
+            ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
         ).strip(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
         "source_at_start": source_fingerprint(),
-        "game_source_lock": json.loads(SOURCE_LOCK_PATH.read_text()),
+        "game_source_lock": json.loads(SOURCE_LOCK_PATH.read_text(encoding="utf-8")),
         "seed": args.seed,
         "failure_evidence_enabled": args.save_failure_evidence,
         "browser_failure_diagnostics_enabled": args.save_browser_diagnostics,
