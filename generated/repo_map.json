@@ -72507,6 +72507,1262 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "MappingProxyType"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.stage_envelope",
+      "path": "src/ai_game_player/stage_envelope.py",
+      "source_location": {
+        "end_line": 705,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeError",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            }
+          ],
+          "qualified_name": "StageEnvelopeError.__init__",
+          "return_annotation": "None",
+          "signature": "(self, code: str, message: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "StageEnvelope",
+          "parameters": [],
+          "qualified_name": "StageEnvelope",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 297,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 185,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_validate_identity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope._validate_identity",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 194
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_validate_trace_and_provenance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope._validate_trace_and_provenance",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 232,
+            "start_line": 213
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 264,
+            "start_line": 240
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "StageEnvelope.from_dict",
+          "return_annotation": "StageEnvelope",
+          "signature": "(cls, document: Mapping[str, Any]) -> StageEnvelope",
+          "source_location": {
+            "column": 4,
+            "end_line": 297,
+            "start_line": 278
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_schema_version",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_schema_version",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 316,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_exact_fields",
+          "parameters": [
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "_require_exact_fields",
+          "return_annotation": "None",
+          "signature": "(document: Mapping[str, Any]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 335,
+            "start_line": 326
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_array",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_array",
+          "return_annotation": "list[Any]",
+          "signature": "(value: Any, field_name: str) -> list[Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 350,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_artifact_reference_from_dict",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_artifact_reference_from_dict",
+          "return_annotation": "ArtifactReference",
+          "signature": "(value: Any) -> ArtifactReference",
+          "source_location": {
+            "column": 0,
+            "end_line": 370,
+            "start_line": 360
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_normalize_artifact_refs",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_normalize_artifact_refs",
+          "return_annotation": "tuple[ArtifactReference, ...]",
+          "signature": "(value: Any) -> tuple[ArtifactReference, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 391,
+            "start_line": 380
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_normalize_derived_from",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "envelope_id"
+            }
+          ],
+          "qualified_name": "_normalize_derived_from",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(value: Any, envelope_id: str) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 418,
+            "start_line": 401
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_stage_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_stage_id",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 440,
+            "start_line": 428
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_metadata_keys",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_metadata_keys",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 456,
+            "start_line": 450
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_utc_timestamp",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_utc_timestamp",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 478,
+            "start_line": 466
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_confidence",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_confidence",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 499,
+            "start_line": 488
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_integer_in_range",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "minimum"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "_require_integer_in_range",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str, minimum: int, maximum: int) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 520,
+            "start_line": 509
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_member",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "allowed"
+            }
+          ],
+          "qualified_name": "_require_member",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str, allowed: frozenset[str]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 535,
+            "start_line": 530
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_pattern",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            },
+            {
+              "annotation": "re.Pattern[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pattern"
+            }
+          ],
+          "qualified_name": "_require_pattern",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str, pattern: re.Pattern[str]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 549,
+            "start_line": 545
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_opaque_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_opaque_id",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 560,
+            "start_line": 559
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_optional_opaque_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_optional_opaque_id",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 572,
+            "start_line": 570
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_namespaced_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_namespaced_id",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 583,
+            "start_line": 582
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_freeze_root_object",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_freeze_root_object",
+          "return_annotation": "Mapping[str, Any]",
+          "signature": "(value: Any, field_name: str) -> Mapping[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 598,
+            "start_line": 593
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_freeze_json_object",
+          "parameters": [
+            {
+              "annotation": "Mapping[Any, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "_freeze_json_object",
+          "return_annotation": "Mapping[str, Any]",
+          "signature": "(value: Mapping[Any, Any], path: str, depth: int) -> Mapping[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 626,
+            "start_line": 608
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_freeze_json_value",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "_freeze_json_value",
+          "return_annotation": "Any",
+          "signature": "(value: Any, path: str, depth: int) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 675,
+            "start_line": 640
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_encodable_text",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_require_encodable_text",
+          "return_annotation": "None",
+          "signature": "(value: str, path: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 691,
+            "start_line": 685
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_thaw_json_value",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_thaw_json_value",
+          "return_annotation": "Any",
+          "signature": "(value: Any) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 705,
+            "start_line": 700
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.stage_envelope"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.stage_envelope"
+          ],
+          "module": "ai_game_player.stage_envelope",
+          "names": [
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_DEPTH"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_ENCODED_BYTES"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_SCHEMA_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelope"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelopeError"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.stage_envelope_codec",
+      "path": "src/ai_game_player/stage_envelope_codec.py",
+      "source_location": {
+        "end_line": 300,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "encode_stage_envelope",
+          "parameters": [
+            {
+              "annotation": "StageEnvelope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "envelope"
+            }
+          ],
+          "qualified_name": "encode_stage_envelope",
+          "return_annotation": "bytes",
+          "signature": "(envelope: StageEnvelope) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 53,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "decode_stage_envelope",
+          "parameters": [
+            {
+              "annotation": "bytes | str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "Mapping[int, StageEnvelopeMigration] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "migrations"
+            }
+          ],
+          "qualified_name": "decode_stage_envelope",
+          "return_annotation": "StageEnvelope",
+          "signature": "(data: bytes | str, migrations: Mapping[int, StageEnvelopeMigration] | None = …) -> StageEnvelope",
+          "source_location": {
+            "column": 0,
+            "end_line": 95,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "migrate_stage_envelope_document",
+          "parameters": [
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            },
+            {
+              "annotation": "Mapping[int, StageEnvelopeMigration]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "migrations"
+            }
+          ],
+          "qualified_name": "migrate_stage_envelope_document",
+          "return_annotation": "Mapping[str, Any]",
+          "signature": "(document: Mapping[str, Any], migrations: Mapping[int, StageEnvelopeMigration]) -> Mapping[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 136,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_document_version",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "_document_version",
+          "return_annotation": "int",
+          "signature": "(document: Any) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 156,
+            "start_line": 146
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_decode_utf8_text",
+          "parameters": [
+            {
+              "annotation": "bytes | str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "_decode_utf8_text",
+          "return_annotation": "str",
+          "signature": "(data: bytes | str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 207,
+            "start_line": 166
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_excessive_nesting",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_reject_excessive_nesting",
+          "return_annotation": "None",
+          "signature": "(text: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 245,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_object_without_duplicate_keys",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_object_without_duplicate_keys",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 263,
+            "start_line": 255
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_binary64_number",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "token"
+            }
+          ],
+          "qualified_name": "_parse_binary64_number",
+          "return_annotation": "float",
+          "signature": "(token: str) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 287,
+            "start_line": 276
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_non_finite_constant",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "constant"
+            }
+          ],
+          "qualified_name": "_reject_non_finite_constant",
+          "return_annotation": "Any",
+          "signature": "(constant: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 300,
+            "start_line": 297
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -110797,7 +112053,7 @@
       "module": "tests.test_finish_pr_merge",
       "path": "tests/test_finish_pr_merge.py",
       "source_location": {
-        "end_line": 391,
+        "end_line": 394,
         "start_line": 1
       },
       "symbols": [
@@ -110832,8 +112088,8 @@
           "signature": "(stdout: str = …, stderr: str = …, return_code: int = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 17
+            "end_line": 25,
+            "start_line": 20
           }
         },
         {
@@ -110861,8 +112117,8 @@
           "signature": "(head_sha: str = …, state: str = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 28,
-            "start_line": 25
+            "end_line": 31,
+            "start_line": 28
           }
         },
         {
@@ -110896,8 +112152,8 @@
           "signature": "(threads: list[dict[str, object]] | None = …, has_next_page: bool = …, end_cursor: str | None = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 52,
-            "start_line": 31
+            "end_line": 55,
+            "start_line": 34
           }
         },
         {
@@ -110919,8 +112175,8 @@
           "signature": "(checks: list[dict[str, object]] | None = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 57,
-            "start_line": 55
+            "end_line": 60,
+            "start_line": 58
           }
         },
         {
@@ -110941,8 +112197,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 387,
-            "start_line": 60
+            "end_line": 390,
+            "start_line": 63
           }
         },
         {
@@ -110964,8 +112220,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 61
+            "end_line": 68,
+            "start_line": 64
           }
         },
         {
@@ -110995,8 +112251,8 @@
           "signature": "(self, run_gh_mock: unittest.mock.Mock) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 100,
-            "start_line": 68
+            "end_line": 103,
+            "start_line": 71
           }
         },
         {
@@ -111018,8 +112274,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 102
+            "end_line": 119,
+            "start_line": 105
           }
         },
         {
@@ -111041,8 +112297,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 118
+            "end_line": 141,
+            "start_line": 121
           }
         },
         {
@@ -111064,8 +112320,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 168,
-            "start_line": 140
+            "end_line": 171,
+            "start_line": 143
           }
         },
         {
@@ -111087,8 +112343,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 170
+            "end_line": 201,
+            "start_line": 173
           }
         },
         {
@@ -111110,8 +112366,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 226,
-            "start_line": 200
+            "end_line": 229,
+            "start_line": 203
           }
         },
         {
@@ -111133,8 +112389,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 244,
-            "start_line": 228
+            "end_line": 247,
+            "start_line": 231
           }
         },
         {
@@ -111156,8 +112412,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 278,
-            "start_line": 246
+            "end_line": 281,
+            "start_line": 249
           }
         },
         {
@@ -111179,8 +112435,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 291,
-            "start_line": 280
+            "end_line": 294,
+            "start_line": 283
           }
         },
         {
@@ -111202,8 +112458,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 293
+            "end_line": 307,
+            "start_line": 296
           }
         },
         {
@@ -111225,8 +112481,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 306
+            "end_line": 327,
+            "start_line": 309
           }
         },
         {
@@ -111248,8 +112504,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 358,
-            "start_line": 326
+            "end_line": 361,
+            "start_line": 329
           }
         },
         {
@@ -111271,8 +112527,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 375,
-            "start_line": 360
+            "end_line": 378,
+            "start_line": 363
           }
         },
         {
@@ -111294,8 +112550,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 387,
-            "start_line": 377
+            "end_line": 390,
+            "start_line": 380
           }
         }
       ]
@@ -111879,7 +113135,7 @@
       "module": "tests.test_finish_pr_workflow_runs",
       "path": "tests/test_finish_pr_workflow_runs.py",
       "source_location": {
-        "end_line": 215,
+        "end_line": 271,
         "start_line": 1
       },
       "symbols": [
@@ -111902,8 +113158,8 @@
           "signature": "(payload)",
           "source_location": {
             "column": 0,
-            "end_line": 20,
-            "start_line": 19
+            "end_line": 21,
+            "start_line": 20
           }
         },
         {
@@ -111925,8 +113181,8 @@
           "signature": "(event)",
           "source_location": {
             "column": 0,
-            "end_line": 39,
-            "start_line": 23
+            "end_line": 41,
+            "start_line": 24
           }
         },
         {
@@ -111947,8 +113203,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 65,
-            "start_line": 42
+            "end_line": 93,
+            "start_line": 44
           }
         },
         {
@@ -111970,8 +113226,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 43
+            "end_line": 69,
+            "start_line": 45
           }
         },
         {
@@ -111999,8 +113255,112 @@
           "signature": "(arguments, timeout)",
           "source_location": {
             "column": 8,
-            "end_line": 59,
-            "start_line": 44
+            "end_line": 63,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_success_message_counts_every_required_workflow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_success_message_counts_every_required_workflow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_gh",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_success_message_counts_every_required_workflow.run_gh",
+          "return_annotation": null,
+          "signature": "(arguments, timeout)",
+          "source_location": {
+            "column": 8,
+            "end_line": 77,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_head_branch_in_pr_view_stops_before_workflow_lookup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_missing_head_branch_in_pr_view_stops_before_workflow_lookup",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_gh",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_missing_head_branch_in_pr_view_stops_before_workflow_lookup.run_gh",
+          "return_annotation": null,
+          "signature": "(arguments, timeout)",
+          "source_location": {
+            "column": 8,
+            "end_line": 88,
+            "start_line": 85
           }
         },
         {
@@ -112021,8 +113381,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 211,
-            "start_line": 68
+            "end_line": 267,
+            "start_line": 96
           }
         },
         {
@@ -112044,8 +113404,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 69
+            "end_line": 100,
+            "start_line": 97
           }
         },
         {
@@ -112073,8 +113433,8 @@
           "signature": "(self, endpoint)",
           "source_location": {
             "column": 4,
-            "end_line": 83,
-            "start_line": 74
+            "end_line": 111,
+            "start_line": 102
           }
         },
         {
@@ -112096,8 +113456,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 85
+            "end_line": 114,
+            "start_line": 113
           }
         },
         {
@@ -112131,8 +113491,8 @@
           "signature": "(self, conclusion = …, status = …)",
           "source_location": {
             "column": 4,
-            "end_line": 91,
-            "start_line": 88
+            "end_line": 119,
+            "start_line": 116
           }
         },
         {
@@ -112154,8 +113514,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 95,
-            "start_line": 93
+            "end_line": 123,
+            "start_line": 121
           }
         },
         {
@@ -112177,8 +113537,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 97
+            "end_line": 129,
+            "start_line": 125
           }
         },
         {
@@ -112200,8 +113560,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 103
+            "end_line": 134,
+            "start_line": 131
           }
         },
         {
@@ -112223,8 +113583,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 111,
-            "start_line": 108
+            "end_line": 139,
+            "start_line": 136
           }
         },
         {
@@ -112246,8 +113606,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 113
+            "end_line": 144,
+            "start_line": 141
           }
         },
         {
@@ -112269,8 +113629,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 118
+            "end_line": 149,
+            "start_line": 146
           }
         },
         {
@@ -112292,8 +113652,100 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 123
+            "end_line": 154,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_later_tag_success_does_not_hide_failed_branch_push",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_later_tag_success_does_not_hide_failed_branch_push",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 162,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_other_branch_or_tag_push_runs_are_not_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_other_branch_or_tag_push_runs_are_not_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 164
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pull_request_runs_do_not_require_push_head_branch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_pull_request_runs_do_not_require_push_head_branch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_or_invalid_head_ref_stops",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowRunGateTests.test_missing_or_invalid_head_ref_stops",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 177
           }
         },
         {
@@ -112315,8 +113767,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 131,
-            "start_line": 128
+            "end_line": 187,
+            "start_line": 184
           }
         },
         {
@@ -112338,8 +113790,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 133
+            "end_line": 195,
+            "start_line": 189
           }
         },
         {
@@ -112361,8 +113813,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 148,
-            "start_line": 141
+            "end_line": 204,
+            "start_line": 197
           }
         },
         {
@@ -112384,8 +113836,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 155,
-            "start_line": 150
+            "end_line": 211,
+            "start_line": 206
           }
         },
         {
@@ -112407,8 +113859,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 157
+            "end_line": 216,
+            "start_line": 213
           }
         },
         {
@@ -112430,8 +113882,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 162
+            "end_line": 225,
+            "start_line": 218
           }
         },
         {
@@ -112453,8 +113905,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 171
+            "end_line": 232,
+            "start_line": 227
           }
         },
         {
@@ -112476,8 +113928,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 178
+            "end_line": 237,
+            "start_line": 234
           }
         },
         {
@@ -112499,8 +113951,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 188,
-            "start_line": 183
+            "end_line": 244,
+            "start_line": 239
           }
         },
         {
@@ -112522,8 +113974,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 194,
-            "start_line": 190
+            "end_line": 250,
+            "start_line": 246
           }
         },
         {
@@ -112545,8 +113997,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 199,
-            "start_line": 196
+            "end_line": 255,
+            "start_line": 252
           }
         },
         {
@@ -112568,8 +114020,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 204,
-            "start_line": 201
+            "end_line": 260,
+            "start_line": 257
           }
         },
         {
@@ -112591,8 +114043,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 206
+            "end_line": 267,
+            "start_line": 262
           }
         }
       ]
@@ -166466,6 +167918,1161 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.stage_envelope",
+        "ai_game_player.stage_envelope_codec"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "ast",
+          "names": [
+            {
+              "alias": null,
+              "name": "ast"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "copy"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclasses"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "importlib.util",
+          "names": [
+            {
+              "alias": null,
+              "name": "importlib.util"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.stage_envelope"
+          ],
+          "module": "ai_game_player.stage_envelope",
+          "names": [
+            {
+              "alias": null,
+              "name": "CORE_STAGE_IDS"
+            },
+            {
+              "alias": null,
+              "name": "PRODUCER_KINDS"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_BOUNDARIES"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_FIELDS"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_INTEGER_MAX"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_INTEGER_MIN"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_ARTIFACT_REFS"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_DEPTH"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_DERIVED_FROM"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_ENCODED_BYTES"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_SCHEMA_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelope"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelopeError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.stage_envelope_codec"
+          ],
+          "module": "ai_game_player.stage_envelope_codec",
+          "names": [
+            {
+              "alias": null,
+              "name": "decode_stage_envelope"
+            },
+            {
+              "alias": null,
+              "name": "encode_stage_envelope"
+            },
+            {
+              "alias": null,
+              "name": "migrate_stage_envelope_document"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 177,
+          "local_dependencies": [],
+          "module": "jsonschema",
+          "names": [
+            {
+              "alias": null,
+              "name": "Draft202012Validator"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_stage_envelope",
+      "path": "tests/test_stage_envelope.py",
+      "source_location": {
+        "end_line": 445,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_json",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "load_json",
+          "return_annotation": null,
+          "signature": "(path: Path)",
+          "source_location": {
+            "column": 0,
+            "end_line": 41,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "example_document",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "example_document",
+          "return_annotation": "dict",
+          "signature": "(name: str = …) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_envelope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "make_envelope",
+          "return_annotation": "StageEnvelope",
+          "signature": "(**overrides) -> StageEnvelope",
+          "source_location": {
+            "column": 0,
+            "end_line": 63,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "nested_object",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "nested_object",
+          "return_annotation": "dict",
+          "signature": "(depth: int) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validator_outcome",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "validator_outcome",
+          "return_annotation": "str",
+          "signature": "(case: dict) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 83,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeConformanceTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeConformanceTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 118,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reference_validator_matches_every_conformance_vector",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeConformanceTest.test_reference_validator_matches_every_conformance_vector",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_conformance_vectors_cover_every_error_code_and_valid_documents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeConformanceTest.test_conformance_vectors_cover_every_error_code_and_valid_documents",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_examples_are_valid_and_round_trip_to_identical_canonical_bytes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeConformanceTest.test_examples_are_valid_and_round_trip_to_identical_canonical_bytes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 118,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeSchemaTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeSchemaTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 189,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 122
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_fields_match_reference_validator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_fields_match_reference_validator",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_limits_annotation_matches_reference_constants",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_limits_annotation_matches_reference_constants",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_enumerations_match_reference_validator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_enumerations_match_reference_validator",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 173,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipUnless(HAS_JSONSCHEMA, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_schema_alone_agrees_with_schema_valid_flags",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_alone_agrees_with_schema_valid_flags",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeValidationTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeValidationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 296,
+            "start_line": 192
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_versions_are_rejected_as_unsupported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_unknown_versions_are_rejected_as_unsupported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_json_payload_values_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_non_json_payload_values_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 212,
+            "start_line": 202
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_depth_limit_counts_containers_from_the_envelope_root",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_depth_limit_counts_containers_from_the_envelope_root",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 223,
+            "start_line": 214
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_payload_and_metadata_are_frozen_and_to_dict_returns_independent_copies",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_payload_and_metadata_are_frozen_and_to_dict_returns_independent_copies",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 247,
+            "start_line": 225
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_replace_revalidates_modified_envelopes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_replace_revalidates_modified_envelopes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 260,
+            "start_line": 249
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trace_and_provenance_survive_round_trip",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_trace_and_provenance_survive_round_trip",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 280,
+            "start_line": 262
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_from_dict_rejects_non_object_and_wrong_container_types",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_from_dict_rejects_non_object_and_wrong_container_types",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 296,
+            "start_line": 282
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeCodecTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeCodecTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 381,
+            "start_line": 299
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_encoding_is_canonical_and_independent_of_key_order",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_encoding_is_canonical_and_independent_of_key_order",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 317,
+            "start_line": 300
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_encode_and_decode_reject_documents_over_the_byte_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_encode_and_decode_reject_documents_over_the_byte_limit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 329,
+            "start_line": 319
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_deep_nesting_is_rejected_before_recursive_parsing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_deep_nesting_is_rejected_before_recursive_parsing",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 335,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_invalid_text_encodings",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_rejects_invalid_text_encodings",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 343,
+            "start_line": 337
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unmatched_closing_bracket_cannot_lower_the_depth_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_unmatched_closing_bracket_cannot_lower_the_depth_count",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 351,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_huge_integer_confidence_is_malformed_without_overflow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_huge_integer_confidence_is_malformed_without_overflow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 357,
+            "start_line": 353
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unpaired_surrogates_are_malformed_in_values_and_keys",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_unpaired_surrogates_are_malformed_in_values_and_keys",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 365,
+            "start_line": 359
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_string_input_over_the_limit_is_rejected_before_encoding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_string_input_over_the_limit_is_rejected_before_encoding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 371,
+            "start_line": 367
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_overlong_integer_literal_is_malformed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_overlong_integer_literal_is_malformed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 381,
+            "start_line": 373
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeMigrationTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeMigrationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 424,
+            "start_line": 384
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_registered_migration_chain_upgrades_old_documents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_registered_migration_chain_upgrades_old_documents",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 400,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "migrate_v0",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_registered_migration_chain_upgrades_old_documents.migrate_v0",
+          "return_annotation": null,
+          "signature": "(document)",
+          "source_location": {
+            "column": 8,
+            "end_line": 395,
+            "start_line": 391
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_or_non_advancing_migrations_are_unsupported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_missing_or_non_advancing_migrations_are_unsupported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 415,
+            "start_line": 402
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_newer_versions_are_never_migrated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_newer_versions_are_never_migrated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 424,
+            "start_line": 417
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeDependencyTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeDependencyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 441,
+            "start_line": 427
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_contract_modules_do_not_import_core_pipeline_objects",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeDependencyTest.test_contract_modules_do_not_import_core_pipeline_objects",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 441,
+            "start_line": 428
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.runtime",
         "ai_game_player.runtime.native",
         "ai_game_player.screen_capture",
@@ -188137,6 +190744,10 @@
           "names": [
             {
               "alias": null,
+              "name": "REQUIRED_WORKFLOW_PATHS"
+            },
+            {
+              "alias": null,
               "name": "WorkflowRunGate"
             },
             {
@@ -188154,6 +190765,10 @@
           "names": [
             {
               "alias": null,
+              "name": "REQUIRED_WORKFLOW_PATHS"
+            },
+            {
+              "alias": null,
               "name": "WorkflowRunGate"
             },
             {
@@ -188166,7 +190781,7 @@
       "module": "tools.finish_pr_merge",
       "path": "tools/finish_pr_merge.py",
       "source_location": {
-        "end_line": 773,
+        "end_line": 784,
         "start_line": 1
       },
       "symbols": [
@@ -188210,8 +190825,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 88,
-            "start_line": 85
+            "end_line": 90,
+            "start_line": 86
           }
         },
         {
@@ -188232,8 +190847,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 109,
-            "start_line": 104
+            "end_line": 111,
+            "start_line": 106
           }
         },
         {
@@ -188254,8 +190869,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 121,
-            "start_line": 120
+            "end_line": 123,
+            "start_line": 122
           }
         },
         {
@@ -188277,8 +190892,8 @@
           "signature": "(pull_request_url: str) -> PullRequestReference",
           "source_location": {
             "column": 0,
-            "end_line": 173,
-            "start_line": 143
+            "end_line": 175,
+            "start_line": 145
           }
         },
         {
@@ -188306,8 +190921,8 @@
           "signature": "(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 213,
-            "start_line": 195
+            "end_line": 215,
+            "start_line": 197
           }
         },
         {
@@ -188329,8 +190944,8 @@
           "signature": "(command_result: subprocess.CompletedProcess[str]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 238,
-            "start_line": 232
+            "end_line": 240,
+            "start_line": 234
           }
         },
         {
@@ -188364,8 +190979,8 @@
           "signature": "(arguments: list[str], timeout_seconds: int, action_description: str) -> subprocess.CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 270,
-            "start_line": 261
+            "end_line": 272,
+            "start_line": 263
           }
         },
         {
@@ -188393,8 +191008,8 @@
           "signature": "(command_result: subprocess.CompletedProcess[str], action_description: str) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 296,
-            "start_line": 292
+            "end_line": 298,
+            "start_line": 294
           }
         },
         {
@@ -188416,8 +191031,8 @@
           "signature": "(pull_request: PullRequestReference) -> PullRequestSnapshot",
           "source_location": {
             "column": 0,
-            "end_line": 342,
-            "start_line": 318
+            "end_line": 347,
+            "start_line": 320
           }
         },
         {
@@ -188439,8 +191054,8 @@
           "signature": "(pull_request: PullRequestReference) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 375,
-            "start_line": 363
+            "end_line": 380,
+            "start_line": 368
           }
         },
         {
@@ -188462,8 +191077,8 @@
           "signature": "(pull_request: PullRequestReference) -> list[dict[str, object]]",
           "source_location": {
             "column": 0,
-            "end_line": 450,
-            "start_line": 398
+            "end_line": 455,
+            "start_line": 403
           }
         },
         {
@@ -188485,8 +191100,8 @@
           "signature": "(response_data: object) -> tuple[list[UnresolvedReviewThread], bool, str | None]",
           "source_location": {
             "column": 0,
-            "end_line": 531,
-            "start_line": 472
+            "end_line": 536,
+            "start_line": 477
           }
         },
         {
@@ -188508,8 +191123,8 @@
           "signature": "(pull_request: PullRequestReference) -> list[UnresolvedReviewThread]",
           "source_location": {
             "column": 0,
-            "end_line": 593,
-            "start_line": 554
+            "end_line": 598,
+            "start_line": 559
           }
         },
         {
@@ -188531,8 +191146,8 @@
           "signature": "(threads: list[UnresolvedReviewThread]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 626,
-            "start_line": 614
+            "end_line": 631,
+            "start_line": 619
           }
         },
         {
@@ -188553,15 +191168,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "head_sha"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "head_ref"
             }
           ],
           "qualified_name": "_require_workflow_runs",
           "return_annotation": "None",
-          "signature": "(pull_request: PullRequestReference, head_sha: str) -> None",
+          "signature": "(pull_request: PullRequestReference, head_sha: str, head_ref: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 643,
-            "start_line": 629
+            "end_line": 654,
+            "start_line": 634
           }
         },
         {
@@ -188583,8 +191204,8 @@
           "signature": "(endpoint: str) -> object",
           "source_location": {
             "column": 4,
-            "end_line": 635,
-            "start_line": 631
+            "end_line": 643,
+            "start_line": 639
           }
         },
         {
@@ -188606,8 +191227,8 @@
           "signature": "(pull_request_url: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 709,
-            "start_line": 669
+            "end_line": 720,
+            "start_line": 680
           }
         },
         {
@@ -188635,8 +191256,8 @@
           "signature": "(pull_request: PullRequestReference, expected_head: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 734,
-            "start_line": 712
+            "end_line": 745,
+            "start_line": 723
           }
         },
         {
@@ -188658,8 +191279,8 @@
           "signature": "(arguments: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 769,
-            "start_line": 753
+            "end_line": 780,
+            "start_line": 764
           }
         }
       ]
@@ -192406,7 +195027,7 @@
       "module": "tools.pr_workflow_evidence",
       "path": "tools/pr_workflow_evidence.py",
       "source_location": {
-        "end_line": 117,
+        "end_line": 131,
         "start_line": 1
       },
       "symbols": [
@@ -192448,7 +195069,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 117,
+            "end_line": 131,
             "start_line": 21
           }
         },
@@ -192484,6 +195105,12 @@
               "name": "head_sha"
             },
             {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "head_ref"
+            },
+            {
               "annotation": "Callable[[str], object]",
               "has_default": false,
               "kind": "positional_or_keyword",
@@ -192492,10 +195119,10 @@
           ],
           "qualified_name": "WorkflowRunGate.__init__",
           "return_annotation": "None",
-          "signature": "(self, repository: str, pr_number: int, head_sha: str, read_json: Callable[[str], object]) -> None",
+          "signature": "(self, repository: str, pr_number: int, head_sha: str, head_ref: str, read_json: Callable[[str], object]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 28,
+            "end_line": 33,
             "start_line": 24
           }
         },
@@ -192518,8 +195145,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 52,
-            "start_line": 30
+            "end_line": 66,
+            "start_line": 35
           }
         },
         {
@@ -192547,8 +195174,8 @@
           "signature": "(self, event: str) -> list[dict]",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 54
+            "end_line": 93,
+            "start_line": 68
           }
         },
         {
@@ -192588,8 +195215,8 @@
           "signature": "(self, run: dict, event: str, seen_ids: set[int]) -> datetime",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 81
+            "end_line": 131,
+            "start_line": 95
           }
         }
       ]

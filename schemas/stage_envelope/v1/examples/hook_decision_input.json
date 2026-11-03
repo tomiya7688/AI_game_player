@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "envelope_id": "env-0002",
+  "stage": "decision",
+  "boundary": "input",
+  "session_id": "session-1",
+  "frame_id": "frame-42",
+  "turn_id": "turn-7",
+  "timestamp_utc": "2026-11-04T09:30:00.123456789Z",
+  "monotonic_ns": 123456789,
+  "trace_id": "trace-1",
+  "correlation_id": "corr-9",
+  "parent_envelope_id": "env-0001",
+  "producer_kind": "hook",
+  "producer_id": "plugin.example.ocr_fix",
+  "producer_version": "0.3.1+local",
+  "derived_from": [
+    "env-0001",
+    "env-0000"
+  ],
+  "payload_schema": "kadoka.decision.context",
+  "payload_schema_version": 2,
+  "payload": {
+    "candidates": [
+      {
+        "id": "button.start",
+        "label": "スタート",
+        "score": 0.75
+      }
+    ],
+    "notes": null,
+    "count": -3
+  },
+  "confidence": 0.75,
+  "metadata": {
+    "plugin.example": {
+      "reason": "ocr-correction"
+    }
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "frame.raw",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+    }
+  ]
+}
