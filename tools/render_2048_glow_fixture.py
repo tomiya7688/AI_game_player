@@ -113,7 +113,7 @@ def main(argv=None):
                             "oracle_scope": "fixture generation only; recognition receives BGRA pixels",
                         }
                         (args.output / (name + ".json")).write_text(
-                            json.dumps(metadata, indent=2) + "\n"
+                            json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
                         )
                         print(name, metadata["expected_board_bbox"], flush=True)
                     finally:

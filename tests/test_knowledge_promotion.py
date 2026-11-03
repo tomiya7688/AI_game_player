@@ -27,7 +27,7 @@ FIXTURE = Path(__file__).parent / "fixtures/knowledge/snapshot-v1.json"
 
 
 def snapshot(version, good=False, **updates):
-    value = json.loads(FIXTURE.read_text())
+    value = json.loads(FIXTURE.read_text(encoding="utf-8"))
     value["version"] = str(version)
     value["snapshot_id"] = f"knowledge.{version}"
     value["candidate_priors"] = {
@@ -111,7 +111,7 @@ class KnowledgePromotionTests(unittest.TestCase):
         self.assertEqual(captured_step.version, "old")
         self.assertEqual(captured_step.sha256, self.old.sha256)
         report_files = tuple((self.root / "promotion/reports").glob("*/*/payload"))
-        report = json.loads(report_files[0].read_text())
+        report = json.loads(report_files[0].read_text(encoding="utf-8"))
         self.assertEqual(report["champion_sha256"], self.old.sha256)
         self.assertEqual(report["challenger_sha256"], self.new.sha256)
         self.assertNotIn("passed", report)
@@ -418,7 +418,9 @@ class KnowledgePromotionTests(unittest.TestCase):
                 )
             self.assertEqual(len(self.gate.audit(self.scope)), 3)
             state = json.loads(
-                (self.root / "promotion" / self.scope.key / "state.json").read_text()
+                (self.root / "promotion" / self.scope.key / "state.json").read_text(
+                    encoding="utf-8"
+                )
             )
             self.assertEqual(len(state["history"]), 2)
             self.assertEqual(state["audit"][-1]["generation"], state["generation"])

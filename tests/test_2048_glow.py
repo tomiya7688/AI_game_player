@@ -14,7 +14,7 @@ FIXTURES = Path(__file__).parent / "fixtures/2048"
 
 def glow_frame(name="glow-256"):
 
-    metadata = json.loads((FIXTURES / (name + ".json")).read_text())
+    metadata = json.loads((FIXTURES / (name + ".json")).read_text(encoding="utf-8"))
     pixels = zlib.decompress((FIXTURES / (name + ".bgra.zlib")).read_bytes())
     assert sha256(pixels).hexdigest() == metadata["bgra_sha256"]
     return metadata, ScreenFrame(metadata["width"], metadata["height"], pixels)
@@ -90,7 +90,7 @@ class GlowRecognitionTests(unittest.TestCase):
         self.assertEqual(6, len(paths))
         for path in paths:
             with self.subTest(path=path.name):
-                metadata = json.loads(path.read_text())
+                metadata = json.loads(path.read_text(encoding="utf-8"))
                 pixels = zlib.decompress(path.with_suffix(".bgra.zlib").read_bytes())
                 self.assertEqual(metadata["bgra_sha256"], sha256(pixels).hexdigest())
                 frame = ScreenFrame(metadata["width"], metadata["height"], pixels)

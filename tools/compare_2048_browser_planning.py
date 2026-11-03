@@ -560,10 +560,10 @@ def main():
     report = {
         "schema_version": 1,
         "git_sha_at_start": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
+            ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
         ).strip(),
         "git_status_at_start": subprocess.check_output(
-            ["git", "status", "--porcelain"], text=True
+            ["git", "status", "--porcelain"], text=True, encoding="utf-8"
         ),
         "source_at_start": source_fingerprint(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -626,10 +626,10 @@ def main():
         server.server_close()
         worker.join(timeout=5)
     report["git_sha_at_end"] = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], text=True
+        ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
     ).strip()
     report["git_status_at_end"] = subprocess.check_output(
-        ["git", "status", "--porcelain"], text=True
+        ["git", "status", "--porcelain"], text=True, encoding="utf-8"
     )
     report["source_at_end"] = source_fingerprint()
     report["source_changed_during_run"] = (

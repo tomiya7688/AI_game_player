@@ -152,7 +152,7 @@ def main():
     }
     print(json.dumps({k: v for k, v in report.items() if k != "cases"}), flush=True)
     folder = Path("tests/fixtures/2048/score-windows-headers")
-    manifest = json.loads((folder / "manifest.json").read_text())
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     ocr = Ocr(executable)
     seen = set()
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -217,7 +217,7 @@ def main():
                 }
                 report["cases"].append(record)
                 print(json.dumps(record), flush=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n")
+    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

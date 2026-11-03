@@ -64,7 +64,10 @@ class EpisodeFailureDiagnosticTests(unittest.TestCase):
         self.assertEqual(result["browser"]["reason"], "failure_frame_not_preserved")
         self.assertEqual(self.events, ["snapshot"])
         self.assertEqual(
-            json.loads(self.episode._failure_diagnostics_path.read_text()), result
+            json.loads(
+                self.episode._failure_diagnostics_path.read_text(encoding="utf-8")
+            ),
+            result,
         )
         self.assertTrue(result["failure_status_unchanged"])
 
@@ -77,7 +80,10 @@ class EpisodeFailureDiagnosticTests(unittest.TestCase):
             failure_confirmed=True, frame_preserved=True
         )
         self.assertEqual(
-            json.loads(self.episode._failure_diagnostics_path.read_text()), first
+            json.loads(
+                self.episode._failure_diagnostics_path.read_text(encoding="utf-8")
+            ),
+            first,
         )
 
     def test_browser_error_does_not_discard_valid_heartbeat_or_print_message(self):
@@ -98,7 +104,9 @@ class EpisodeFailureDiagnosticTests(unittest.TestCase):
                     result["heartbeat"]["reason"], "invalid_or_oversized_metadata"
                 )
                 self.assertEqual(result["browser"]["status"], "available")
-                json.loads(self.episode._failure_diagnostics_path.read_text())
+                json.loads(
+                    self.episode._failure_diagnostics_path.read_text(encoding="utf-8")
+                )
 
     def test_file_failure_preserves_original_diagnostic_and_does_not_raise(self):
         with patch(

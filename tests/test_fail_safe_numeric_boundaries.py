@@ -185,7 +185,7 @@ class FailSafeNumericBoundaryTests(unittest.TestCase):
                     runtime._observation_expires_at, prior["observation_expires_at"]
                 )
                 self.assertEqual(runtime.state, FailSafeState.RECOVERY_REQUIRED)
-                text = runtime.lease_store.path.read_text()
+                text = runtime.lease_store.path.read_text(encoding="utf-8")
                 self.assertNotIn("NaN", text)
                 self.assertNotIn("Infinity", text)
                 json.loads(
@@ -235,7 +235,7 @@ class FailSafeNumericBoundaryTests(unittest.TestCase):
                     self.assertEqual(store.read()["reason"], "invalid_lease_timestamp")
                     self.assertEqual(store.read()["observation_expires_at"], 0.0)
                     json.loads(
-                        store.path.read_text(),
+                        store.path.read_text(encoding="utf-8"),
                         parse_constant=lambda _value: self.fail("nonfinite persisted"),
                     )
                     self.assertTrue(
