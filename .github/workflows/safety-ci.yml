@@ -92,3 +92,26 @@ jobs:
           name: kadoka-safety-ci-audit
           path: build/safety-ci
           if-no-files-found: error
+
+  windows-platform-gate:
+    name: Windows platform gate (no live input)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Run Windows boundary tests under the real-input sentinel
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+        run: python tools/run_windows_platform_gate.py --report build/windows-platform-gate/report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kadoka-windows-platform-gate
+          path: build/windows-platform-gate
+          if-no-files-found: error

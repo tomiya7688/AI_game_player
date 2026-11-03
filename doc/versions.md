@@ -136,6 +136,8 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #94: `safety-ci`へ`Windows platform gate (no live input)`ジョブを追加（必須checkは38件）。`tools/run_windows_platform_gate.py`がWindows境界のテストと`test_fail_safe*.py`を1プロセスで実行し、`tools/windows_input_sentinel.py`がuser32のグローバル入力APIを呼出し前に遮断、キーボード／マウスのwindow messageはテストプロセス自身の窓宛てだけを通します。遮断が1回でもあるか、Windowsでしか実行されない必須テストがskipされるとgateは失敗し、`build/windows-platform-gate/report.json`を保存します。導入時に検出した`test_fail_safe_runtime`の外部watchdog試験のグローバルkey-up送信は、OS境界を記録用に置き換えて解放要求を検証する形に直しました（本番の解放処理は不変）。完了条件と検証場所の対応、センチネルの範囲外、実機-only項目は[Windows安全統合ゲート](Windows安全統合ゲート.md)。
+
 - Issue #115: Native C++ Security Profileの第1段として、`tools/native_security_check.py`（コメント・文字列・行継続を処理し、境界なし文字列/書式API・プロセス起動・`alloca`をhigh、失敗を検出できない変換・生のメモリ転送・手動ヒープ管理・生のnew/deleteをmediumとして検出。許可は`config/native_security_allowlist.json`の理由付き1項目=1検出のみで、未使用項目と対象0件も失敗）と、`clang-tidy==22.1.8`固定の`native/.clang-tidy`・`tools/native_clang_tidy.py`（Linuxは非Windows stub、WindowsはWGC / Direct3D実装を解析）を追加し、`language-ci`の新3ジョブを必須チェック宣言へ登録しました（必須checkは37件、`doc/main保護方針.md`も更新）。導入時の検出に従い`runtime_api.h`の負のstatusマクロを括弧で囲みました（値は不変）。CodeQL、Windows sanitizer、FFI異常入力fuzz、handle lifetime検査は未対応です。[検査範囲と限界](architecture/native_security_profile.md)。
 - Issue #718: `PYTHONUTF8`未設定のcp932 Windowsで`finish_task.bat`のunittestが失敗する問題を修正。tests/toolsの`read_text`/`write_text`と`subprocess`の`text=True`に`encoding="utf-8"`を明示し、`runtime_boundary_check`の子processは`-X utf8`で起動します。`src/`は既にUTF-8明示済みで、製品の動作は変わりません。
 - Planner workerがcompute budget内でテストmodule本体（`unittest.mock`等を含む）をimportしていたため、toy domainを`tests/planning_toy_domains.py`へ分離。worker結果を期待するテストだけ予算上限を2500ms、テスト既定belief TTLを10秒とし、cutoff・遅延・停止系の予算と判定は維持します。
