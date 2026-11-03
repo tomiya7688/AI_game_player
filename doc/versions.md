@@ -1,3 +1,11 @@
+## 2026-11-04 Python Security Profile（Issue #114）
+
+- Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
+- `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
+- dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。
+- `python-security-ci`を必須workflow（8件）とrulesetの必須check（34件）へ追加し、`doc/main保護方針.md`とワークフロー文書の件数を実際の定義に合わせました。
+- ID生成用のSHA-1呼出しへ`usedforsecurity=False`を指定しました。生成されるIDの値は変わりません。[判定規則と未対応範囲](security/python_security_profile.md)。
+
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
