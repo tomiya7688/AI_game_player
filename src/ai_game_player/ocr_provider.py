@@ -273,7 +273,7 @@ class OcrFusionPipeline:
         normalized = self._normalize(representative.text)
         x, y, width, height = representative.bbox
         identity = f"{normalized}|{x // 8}|{y // 8}|{width // 8}|{height // 8}"
-        element_id = "ocr-" + sha1(identity.encode("utf-8")).hexdigest()[:10]
+        element_id = "ocr-" + sha1(identity.encode("utf-8"), usedforsecurity=False).hexdigest()[:10]
         return DetectedElement(
             element_id,
             "text",
