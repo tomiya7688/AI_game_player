@@ -12024,7 +12024,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 7,
+          "line": 9,
           "local_dependencies": [],
           "module": "__future__",
           "names": [
@@ -12037,7 +12037,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 9,
+          "line": 11,
           "local_dependencies": [],
           "module": "json",
           "names": [
@@ -12050,7 +12050,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 10,
+          "line": 12,
           "local_dependencies": [],
           "module": "sys",
           "names": [
@@ -12063,7 +12063,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 13,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -12080,7 +12080,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 14,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -12093,7 +12093,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 15,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -12106,7 +12106,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 63,
+          "line": 77,
           "local_dependencies": [
             "ai_game_player"
           ],
@@ -12121,7 +12121,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 88,
+          "line": 102,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -12142,7 +12142,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 119,
+          "line": 133,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.safety_guard"
@@ -12158,7 +12158,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 145,
+          "line": 159,
           "local_dependencies": [
             "ai_game_player"
           ],
@@ -12173,7 +12173,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 176,
+          "line": 190,
           "local_dependencies": [],
           "module": "_tkinter",
           "names": [
@@ -12186,7 +12186,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 177,
+          "line": 191,
           "local_dependencies": [],
           "module": "tkinter",
           "names": [
@@ -12199,7 +12199,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 197,
+          "line": 211,
           "local_dependencies": [],
           "module": "_ssl",
           "names": [
@@ -12212,7 +12212,72 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 198,
+          "line": 212,
+          "local_dependencies": [],
+          "module": "ssl",
+          "names": [
+            {
+              "alias": null,
+              "name": "ssl"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 230,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 231,
+          "local_dependencies": [],
+          "module": "importlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "importlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 232,
+          "local_dependencies": [],
+          "module": "importlib.util",
+          "names": [
+            {
+              "alias": null,
+              "name": "importlib.util"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 233,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 234,
           "local_dependencies": [],
           "module": "ssl",
           "names": [
@@ -12226,7 +12291,7 @@
       "module": "ai_game_player.bundle_self_check",
       "path": "src/ai_game_player/bundle_self_check.py",
       "source_location": {
-        "end_line": 260,
+        "end_line": 352,
         "start_line": 1
       },
       "symbols": [
@@ -12248,8 +12313,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 27,
-            "start_line": 24
+            "end_line": 41,
+            "start_line": 38
           }
         },
         {
@@ -12277,8 +12342,8 @@
           "signature": "(path: Path, bundle_root: Path) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 40,
-            "start_line": 36
+            "end_line": 54,
+            "start_line": 50
           }
         },
         {
@@ -12293,8 +12358,8 @@
           "signature": "() -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 53,
-            "start_line": 48
+            "end_line": 67,
+            "start_line": 62
           }
         },
         {
@@ -12316,8 +12381,8 @@
           "signature": "(bundle_root: Path) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 78,
-            "start_line": 62
+            "end_line": 92,
+            "start_line": 76
           }
         },
         {
@@ -12339,8 +12404,8 @@
           "signature": "(bundle_root: Path) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 108,
-            "start_line": 87
+            "end_line": 122,
+            "start_line": 101
           }
         },
         {
@@ -12362,8 +12427,8 @@
           "signature": "(bundle_root: Path) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 135,
-            "start_line": 118
+            "end_line": 149,
+            "start_line": 132
           }
         },
         {
@@ -12385,8 +12450,8 @@
           "signature": "(bundle_root: Path) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 144
+            "end_line": 167,
+            "start_line": 158
           }
         },
         {
@@ -12414,8 +12479,8 @@
           "signature": "(module: object, bundle_root: Path) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 166,
-            "start_line": 162
+            "end_line": 180,
+            "start_line": 176
           }
         },
         {
@@ -12437,8 +12502,8 @@
           "signature": "(bundle_root: Path) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 187,
-            "start_line": 175
+            "end_line": 201,
+            "start_line": 189
           }
         },
         {
@@ -12460,8 +12525,37 @@
           "signature": "(bundle_root: Path) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 203,
-            "start_line": 196
+            "end_line": 217,
+            "start_line": 210
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_trust",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            },
+            {
+              "annotation": "dict[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sink"
+            }
+          ],
+          "qualified_name": "_check_trust",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path, sink: dict[str, object]) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 287,
+            "start_line": 229
           }
         },
         {
@@ -12489,8 +12583,8 @@
           "signature": "(name: str, check: Callable[[], BundleCheckResult]) -> BundleCheckResult",
           "source_location": {
             "column": 0,
-            "end_line": 218,
-            "start_line": 212
+            "end_line": 302,
+            "start_line": 296
           }
         },
         {
@@ -12505,15 +12599,21 @@
               "has_default": true,
               "kind": "positional_or_keyword",
               "name": "bundle_root"
+            },
+            {
+              "annotation": "dict[str, object] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "trust_sink"
             }
           ],
           "qualified_name": "collect_bundle_checks",
           "return_annotation": "list[BundleCheckResult]",
-          "signature": "(bundle_root: Path | None = …) -> list[BundleCheckResult]",
+          "signature": "(bundle_root: Path | None = …, trust_sink: dict[str, object] | None = …) -> list[BundleCheckResult]",
           "source_location": {
             "column": 0,
-            "end_line": 238,
-            "start_line": 227
+            "end_line": 327,
+            "start_line": 312
           }
         },
         {
@@ -12535,8 +12635,8 @@
           "signature": "(report_path: Path) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 260,
-            "start_line": 248
+            "end_line": 352,
+            "start_line": 338
           }
         }
       ]
@@ -91679,6 +91779,19 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
           "module": "json",
           "names": [
             {
@@ -91690,7 +91803,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "sys",
           "names": [
@@ -91703,7 +91816,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -91716,7 +91829,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -91729,7 +91842,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -91742,7 +91855,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -91759,7 +91872,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.__main__"
@@ -91775,7 +91888,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.bundle_self_check"
@@ -91791,7 +91904,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -91813,7 +91926,7 @@
       "module": "tests.test_bundle_self_check",
       "path": "tests/test_bundle_self_check.py",
       "source_location": {
-        "end_line": 212,
+        "end_line": 285,
         "start_line": 1
       },
       "symbols": [
@@ -91835,8 +91948,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 208,
-            "start_line": 19
+            "end_line": 281,
+            "start_line": 20
           }
         },
         {
@@ -91858,8 +91971,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 23,
-            "start_line": 20
+            "end_line": 24,
+            "start_line": 21
           }
         },
         {
@@ -91881,8 +91994,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 30,
-            "start_line": 25
+            "end_line": 31,
+            "start_line": 26
           }
         },
         {
@@ -91904,8 +92017,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 39,
-            "start_line": 32
+            "end_line": 40,
+            "start_line": 33
           }
         },
         {
@@ -91927,8 +92040,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 49,
-            "start_line": 41
+            "end_line": 50,
+            "start_line": 42
           }
         },
         {
@@ -91950,8 +92063,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 62,
-            "start_line": 51
+            "end_line": 63,
+            "start_line": 52
           }
         },
         {
@@ -91973,8 +92086,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 64
+            "end_line": 69,
+            "start_line": 65
           }
         },
         {
@@ -91996,8 +92109,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 107,
-            "start_line": 70
+            "end_line": 108,
+            "start_line": 71
           }
         },
         {
@@ -92019,8 +92132,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 142,
-            "start_line": 109
+            "end_line": 143,
+            "start_line": 110
           }
         },
         {
@@ -92042,8 +92155,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 144
+            "end_line": 148,
+            "start_line": 145
           }
         },
         {
@@ -92065,8 +92178,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 155,
-            "start_line": 149
+            "end_line": 156,
+            "start_line": 150
           }
         },
         {
@@ -92081,8 +92194,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 151,
-            "start_line": 150
+            "end_line": 152,
+            "start_line": 151
           }
         },
         {
@@ -92104,8 +92217,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 174,
-            "start_line": 157
+            "end_line": 175,
+            "start_line": 158
           }
         },
         {
@@ -92127,8 +92240,146 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 176
+            "end_line": 195,
+            "start_line": 177
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trust_records_the_default_context_and_absent_trust_modules",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_trust_records_the_default_context_and_absent_trust_modules",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 222,
+            "start_line": 197
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trust_requires_a_present_certifi_bundle_inside_the_bundle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_trust_requires_a_present_certifi_bundle_inside_the_bundle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 246,
+            "start_line": 224
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "find_spec",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_trust_requires_a_present_certifi_bundle_inside_the_bundle.find_spec",
+          "return_annotation": null,
+          "signature": "(name)",
+          "source_location": {
+            "column": 12,
+            "end_line": 230,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_carries_the_trust_details",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_report_carries_the_trust_details",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 259,
+            "start_line": 248
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "collect",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trust_sink"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_report_carries_the_trust_details.collect",
+          "return_annotation": null,
+          "signature": "(trust_sink)",
+          "source_location": {
+            "column": 8,
+            "end_line": 251,
+            "start_line": 249
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_source_has_no_static_certifi_import",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_source_has_no_static_certifi_import",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 266,
+            "start_line": 261
           }
         },
         {
@@ -92150,8 +92401,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 195
+            "end_line": 271,
+            "start_line": 268
           }
         },
         {
@@ -92173,8 +92424,823 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 208,
-            "start_line": 200
+            "end_line": 281,
+            "start_line": 273
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tests.test_trust_inventory",
+        "tools",
+        "tools.windows_bundle_check"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "zipfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "zipfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "tests.test_trust_inventory"
+          ],
+          "module": "tests.test_trust_inventory",
+          "names": [
+            {
+              "alias": null,
+              "name": "EMSIGN_ECC_G3_PEM"
+            },
+            {
+              "alias": null,
+              "name": "_fake_der"
+            },
+            {
+              "alias": null,
+              "name": "_pem"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "tools",
+            "tools.windows_bundle_check"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "check",
+              "name": "windows_bundle_check"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_bundle_trust_check",
+      "path": "tests/test_bundle_trust_check.py",
+      "source_location": {
+        "end_line": 289,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_zip_bytes",
+          "parameters": [
+            {
+              "annotation": "dict[str, bytes]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "members"
+            }
+          ],
+          "qualified_name": "_zip_bytes",
+          "return_annotation": "bytes",
+          "signature": "(members: dict[str, bytes]) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 31,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CarriedTrustTest",
+          "parameters": [],
+          "qualified_name": "CarriedTrustTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 40,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.tearDown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 42
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "relative"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.put",
+          "return_annotation": "None",
+          "signature": "(self, relative: str, data: bytes) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "errors",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.errors",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bundle_without_ca_material_passes_with_nothing_carried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_bundle_without_ca_material_passes_with_nothing_carried",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_clean_certifi_bundle_is_listed_and_passes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_clean_certifi_bundle_is_listed_and_passes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_incident_root_fails_wherever_it_is_carried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_incident_root_fails_wherever_it_is_carried",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 76,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_fails_on_an_incident_and_passes_a_clean_bundle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_cli_fails_on_an_incident_and_passes_a_clean_bundle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_zip_members_are_checked_including_a_zip_appended_to_a_dll",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_zip_members_are_checked_including_a_zip_appended_to_a_dll",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 97,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_clean_zip_member_is_listed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_clean_zip_member_is_listed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ca_material_that_cannot_be_inspected_fails_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_ca_material_that_cannot_be_inspected_fails_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 109
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_marker_split_across_read_chunks_is_found",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_marker_split_across_read_chunks_is_found",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_oversized_ca_material_and_zip_member_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_oversized_ca_material_and_zip_member_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_bundle_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_missing_bundle_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "TrustReportTest",
+          "parameters": [],
+          "qualified_name": "TrustReportTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 270,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "certificates"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "paths"
+            }
+          ],
+          "qualified_name": "TrustReportTest.report",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self, *certificates: bytes, **paths: object) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_clean_default_context_passes_and_is_summarised",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_clean_default_context_passes_and_is_summarised",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_incident_root_in_the_default_context_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_incident_root_in_the_default_context_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 190,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_malformed_trust_reports_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_malformed_trust_reports_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 203,
+            "start_line": 192
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_windows_store_entries_are_required_on_windows_and_checked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_windows_store_entries_are_required_on_windows_and_checked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 238,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_default_cafile_and_capath_on_the_host_are_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_existing_default_cafile_and_capath_on_the_host_are_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 256,
+            "start_line": 240
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reported_default_paths_that_cannot_be_read_now_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_reported_default_paths_that_cannot_be_read_now_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 267,
+            "start_line": 258
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_launch_requires_the_trust_self_check_item",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrustReportTest.test_launch_requires_the_trust_self_check_item",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 270,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BuildScriptTest",
+          "parameters": [],
+          "qualified_name": "BuildScriptTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 285,
+            "start_line": 273
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_build_starts_clean_and_gates_the_carried_trust",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BuildScriptTest.test_build_starts_clean_and_gates_the_carried_trust",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 285,
+            "start_line": 274
           }
         }
       ]
@@ -215577,12 +216643,15 @@
       ]
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "tools",
+        "tools.trust_inventory"
+      ],
       "imports": [
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
+          "line": 37,
           "local_dependencies": [],
           "module": "__future__",
           "names": [
@@ -215595,7 +216664,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 30,
+          "line": 39,
           "local_dependencies": [],
           "module": "argparse",
           "names": [
@@ -215608,7 +216677,46 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 31,
+          "line": 40,
+          "local_dependencies": [],
+          "module": "base64",
+          "names": [
+            {
+              "alias": null,
+              "name": "base64"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 41,
+          "local_dependencies": [],
+          "module": "binascii",
+          "names": [
+            {
+              "alias": null,
+              "name": "binascii"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 42,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 43,
           "local_dependencies": [],
           "module": "json",
           "names": [
@@ -215621,7 +216729,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 32,
+          "line": 44,
           "local_dependencies": [],
           "module": "os",
           "names": [
@@ -215634,7 +216742,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 33,
+          "line": 45,
           "local_dependencies": [],
           "module": "shutil",
           "names": [
@@ -215647,7 +216755,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 34,
+          "line": 46,
           "local_dependencies": [],
           "module": "struct",
           "names": [
@@ -215660,7 +216768,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 35,
+          "line": 47,
           "local_dependencies": [],
           "module": "subprocess",
           "names": [
@@ -215673,7 +216781,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 36,
+          "line": 48,
           "local_dependencies": [],
           "module": "sys",
           "names": [
@@ -215684,9 +216792,22 @@
           ]
         },
         {
+          "kind": "import",
+          "level": 0,
+          "line": 49,
+          "local_dependencies": [],
+          "module": "zipfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "zipfile"
+            }
+          ]
+        },
+        {
           "kind": "from",
           "level": 0,
-          "line": 37,
+          "line": 50,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -215699,7 +216820,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 38,
+          "line": 51,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -215708,12 +216829,28 @@
               "name": "Path"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 57,
+          "local_dependencies": [
+            "tools",
+            "tools.trust_inventory"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "trust_inventory"
+            }
+          ]
         }
       ],
       "module": "tools.windows_bundle_check",
       "path": "tools/windows_bundle_check.py",
       "source_location": {
-        "end_line": 481,
+        "end_line": 753,
         "start_line": 1
       },
       "symbols": [
@@ -215735,8 +216872,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 120,
-            "start_line": 114
+            "end_line": 153,
+            "start_line": 147
           }
         },
         {
@@ -215755,8 +216892,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 216,
-            "start_line": 123
+            "end_line": 249,
+            "start_line": 156
           }
         },
         {
@@ -215784,8 +216921,8 @@
           "signature": "(self, data: bytes) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 126
+            "end_line": 193,
+            "start_line": 159
           }
         },
         {
@@ -215813,8 +216950,8 @@
           "signature": "(self, offset: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 162
+            "end_line": 196,
+            "start_line": 195
           }
         },
         {
@@ -215842,8 +216979,8 @@
           "signature": "(self, offset: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 166,
-            "start_line": 165
+            "end_line": 199,
+            "start_line": 198
           }
         },
         {
@@ -215871,8 +217008,8 @@
           "signature": "(self, rva: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 168
+            "end_line": 205,
+            "start_line": 201
           }
         },
         {
@@ -215900,8 +217037,8 @@
           "signature": "(self, rva: int) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 179,
-            "start_line": 174
+            "end_line": 212,
+            "start_line": 207
           }
         },
         {
@@ -215929,8 +217066,8 @@
           "signature": "(self, index: int) -> tuple[int, int]",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 181
+            "end_line": 215,
+            "start_line": 214
           }
         },
         {
@@ -215952,8 +217089,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 184
+            "end_line": 231,
+            "start_line": 217
           }
         },
         {
@@ -215975,8 +217112,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 200
+            "end_line": 249,
+            "start_line": 233
           }
         },
         {
@@ -215998,8 +217135,8 @@
           "signature": "(path: Path) -> PeImports",
           "source_location": {
             "column": 0,
-            "end_line": 234,
-            "start_line": 219
+            "end_line": 267,
+            "start_line": 252
           }
         },
         {
@@ -216021,8 +217158,8 @@
           "signature": "(name: str) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 240,
-            "start_line": 237
+            "end_line": 273,
+            "start_line": 270
           }
         },
         {
@@ -216050,8 +217187,8 @@
           "signature": "(module: Path, bundle: Path) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 247,
-            "start_line": 243
+            "end_line": 280,
+            "start_line": 276
           }
         },
         {
@@ -216079,8 +217216,8 @@
           "signature": "(directory: Path, cache: dict[Path, set[str]]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 257,
-            "start_line": 250
+            "end_line": 290,
+            "start_line": 283
           }
         },
         {
@@ -216102,8 +217239,216 @@
           "signature": "(bundle: Path) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 311,
-            "start_line": 260
+            "end_line": 344,
+            "start_line": 293
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_has_pem_marker",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_has_pem_marker",
+          "return_annotation": "bool",
+          "signature": "(path: Path) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 357,
+            "start_line": 347
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_incident_errors",
+          "parameters": [
+            {
+              "annotation": "list[trust_inventory.TargetMatch]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "matches"
+            }
+          ],
+          "qualified_name": "_incident_errors",
+          "return_annotation": "list[str]",
+          "signature": "(matches: list[trust_inventory.TargetMatch]) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 366,
+            "start_line": 360
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "pem_errors",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "pem_errors",
+          "return_annotation": "tuple[str, list[str]]",
+          "signature": "(label: str, data: bytes) -> tuple[str, list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 393,
+            "start_line": 369
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_looks_like_ca",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "_looks_like_ca",
+          "return_annotation": "bool",
+          "signature": "(name: str, data: bytes) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 399,
+            "start_line": 396
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_zip_member_findings",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "relative"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_zip_member_findings",
+          "return_annotation": "tuple[list[str], list[str]]",
+          "signature": "(relative: str, path: Path) -> tuple[list[str], list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 423,
+            "start_line": 402
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "check_carried_trust",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle"
+            }
+          ],
+          "qualified_name": "check_carried_trust",
+          "return_annotation": "tuple[list[str], list[str]]",
+          "signature": "(bundle: Path) -> tuple[list[str], list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 461,
+            "start_line": 426
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_host_trust_file",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_host_trust_file",
+          "return_annotation": "tuple[str, list[str]]",
+          "signature": "(label: str, path: Path) -> tuple[str, list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 473,
+            "start_line": 464
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "trust_report_errors",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trust"
+            }
+          ],
+          "qualified_name": "trust_report_errors",
+          "return_annotation": "tuple[list[str], list[str]]",
+          "signature": "(trust: object) -> tuple[list[str], list[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 561,
+            "start_line": 476
           }
         },
         {
@@ -216125,8 +217470,8 @@
           "signature": "(workdir: Path) -> dict[str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 341,
-            "start_line": 314
+            "end_line": 591,
+            "start_line": 564
           }
         },
         {
@@ -216172,8 +217517,8 @@
           "signature": "(executable: Path, arguments: list[str], environment: dict[str, str], cwd: Path, timeout: float) -> tuple[int | str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 367,
-            "start_line": 344
+            "end_line": 617,
+            "start_line": 594
           }
         },
         {
@@ -216207,8 +217552,8 @@
           "signature": "(label: str, code: int | str, output: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 373,
-            "start_line": 370
+            "end_line": 623,
+            "start_line": 620
           }
         },
         {
@@ -216242,8 +217587,8 @@
           "signature": "(report: object, code: int | str, relocated: Path) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 401,
-            "start_line": 376
+            "end_line": 651,
+            "start_line": 626
           }
         },
         {
@@ -216277,8 +217622,8 @@
           "signature": "(bundle: Path, workdir: Path, timeout: float = …) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 434,
-            "start_line": 404
+            "end_line": 696,
+            "start_line": 654
           }
         },
         {
@@ -216300,8 +217645,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 477,
-            "start_line": 437
+            "end_line": 749,
+            "start_line": 699
           }
         }
       ]
