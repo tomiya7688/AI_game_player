@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "issue": "#114",
+  "bandit": {
+    "scan_paths": ["src", "tools"],
+    "min_severity": "MEDIUM",
+    "min_confidence": "MEDIUM"
+  },
+  "sensitive_modules": {
+    "description": "Provider・Plugin（動的import）・worker起動・Native読込・file/network境界。ここでは低severityの指定ruleもblockingにします。",
+    "paths": [
+      "src/ai_game_player/provider.py",
+      "src/ai_game_player/*_provider.py",
+      "src/ai_game_player/planning_worker.py",
+      "src/ai_game_player/bounded_planner.py",
+      "src/ai_game_player/fail_safe_runtime.py",
+      "src/ai_game_player/runtime/*.py",
+      "src/ai_game_player/config.py",
+      "src/ai_game_player/atomic_json.py",
+      "src/ai_game_player/bounded_file.py",
+      "src/ai_game_player/artifact_store.py",
+      "src/ai_game_player/experience_reader.py",
+      "src/ai_game_player/planning_file_reader.py",
+      "src/ai_game_player/knowledge_snapshot_store.py",
+      "tools/reference_game_2048_source.py"
+    ],
+    "extra_blocking_rules": ["B105", "B106", "B107", "B110", "B112", "B603", "B607"]
+  },
+  "max_suppression_days": 366,
+  "dependency_audit": {
+    "mode": "advisory",
+    "issue": "#90"
+  },
+  "suppressions": [
+    {
+      "tool": "bandit",
+      "rule": "B603",
+      "path": "src/ai_game_player/fail_safe_runtime.py",
+      "match": "subprocess.Popen(command",
+      "reason": "外部watchdogを固定argv（sys.executable・固定moduleまたは--failsafe-watchdog・状態directory）で起動し、shellを使いません。入出力はDEVNULLです。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B110",
+      "path": "src/ai_game_player/fail_safe_runtime.py",
+      "match": "except Exception:",
+      "count": 6,
+      "reason": "fail-safe経路で、journal記録・release callback等の二次的な失敗が停止・復旧判定の戻り値を変えないよう、意図的に例外を無視しています。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B310",
+      "path": "src/ai_game_player/provider.py",
+      "match": "urlopen(request",
+      "count": 3,
+      "reason": "Ollama endpointは利用者が設定するHTTP接続先で、要求先は固定の/api/tagsと/api/generateだけです。http/https以外のschemeを拒否する入力検証は未実装のため、期限内に検証を追加してこの抑制を削除します。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B310",
+      "path": "tools/reference_game_2048_source.py",
+      "match": "urllib.request.urlopen(request",
+      "reason": "取得先はlockのarchive_urlだけで、読込前にhttpsとcodeload.github.comの固定commitであることを検証し、取得後にSHA-256を照合します。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B310",
+      "path": "tools/probe_reference_http_queue.py",
+      "match": "urlopen(url + path",
+      "reason": "開発用probeが同じprocessで起動した127.0.0.1の一時HTTP serverだけを読みます。利用者入力のURLは受け取りません。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B603",
+      "path": "src/ai_game_player/bounded_planner.py",
+      "match": "subprocess.Popen(",
+      "reason": "Planner workerを固定argv（sys.executable・固定module・作業directory・数値予算）で起動し、shellを使いません。入出力はDEVNULLで、結果はファイル契約側で検証します。",
+      "expires": "2027-05-31",
+      "issue": "#114"
+    }
+  ]
+}

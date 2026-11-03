@@ -129,6 +129,11 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #114: Python Security Profile。Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
+- `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
+- dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。
+- `python-security-ci`を必須workflow（8件）とrulesetの必須check（34件）へ追加し、`doc/main保護方針.md`とワークフロー文書の件数を実際の定義に合わせました。
+- ID生成用のSHA-1呼出しへ`usedforsecurity=False`を指定しました。生成されるIDの値は変わりません。[判定規則と未対応範囲](security/python_security_profile.md)。
 - Issue #514: #482の最低版（pip 26.2.2、certifi 2026.10.19、uv 0.13.4、sigstore 4.5.1）を`requirements/python-trust-constraints.txt`へ固定しました。`tools/trust_gate.py`は、pip・pip同梱certifiの最低版未満、CA bundleとWindowsのROOT・CAストアのインシデント対象証明書、確認できない信頼源を失敗にします。pip installを行うLinux・WindowsのCI job、テストゲームのbootstrap、Windows bundleのbuild scriptが、pipを使う前に検査します。配布物の中のCA bundleは#515へ残します。[固定版の検証](Python証明書信頼棚卸し.md#固定版の検証issue-514)。
 
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。 実機能親18eのplanning専用IPC・私有HTTPの有限queue・失敗後診断も互換実装として保持し、永続Safetyと将来Rust配置、新headのWindows受入を区別します。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
