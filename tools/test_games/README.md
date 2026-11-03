@@ -5,7 +5,7 @@
 
 ## Windowsで起動する
 
-Python 3.10以降と、`python -m pip` で起動できるpip 22.3以降が必要です。初回はリポジトリのルートで `run_test_games.bat -Setup` を実行してください。依存ライブラリを `build/test-games-venv` にインストールし、メニューを開きます。インストール時だけネット接続が必要です。次回からは `run_test_games.bat` をダブルクリックしてください。
+Python 3.10以降と、`python -m pip` で起動できるpip 26.2.2以降が必要です（信頼の最低版、Issue #514）。初回はリポジトリのルートで `run_test_games.bat -Setup` を実行してください。依存ライブラリを `build/test-games-venv` にインストールし、メニューを開きます。インストール時だけネット接続が必要です。次回からは `run_test_games.bat` をダブルクリックしてください。
 
 `run_test_games.bat -Game othello -Seed 0` のようにゲームを直接指定できます。共通操作は R（同じseedで再開始）、P（一時停止・再開）、Esc（メニューへ戻る／メニューから終了）です。ゲーム画面からフォーカスが外れると一時停止します。AI GAME PLAYERで操作する際も、ゲーム画面を前面に置き、Pで一時停止を解除してください。
 

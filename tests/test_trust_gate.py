@@ -78,6 +78,8 @@ class FloorFileTest(unittest.TestCase):
             cases = {
                 "pip>=26.2.2\n": "missing floors",
                 "pip==26.2.2\n": "not a 'name>=version' floor",
+                "pip>=26..2\n": "not a 'name>=version' floor",
+                "pip>=26.2.\n": "not a 'name>=version' floor",
                 "pip>=1\npip>=2\n": "duplicate floor",
             }
             for text, message in cases.items():
@@ -197,6 +199,30 @@ class EvaluateTest(unittest.TestCase):
                 report.details["pip_trust_source"] = value
                 self.assertEqual(len(_evaluate(report, FLOORS)), 1)
 
+    def test_trusted_host_settings_fail(self):
+        cases = {
+            "environment": {"environment": {"PIP_TRUSTED_HOST": "pypi.org"}},
+            "config": {
+                "pip_config": {
+                    "files": [],
+                    "settings": {"global.trusted-host": "pypi.org"},
+                }
+            },
+        }
+        for name, change in cases.items():
+            with self.subTest(name=name):
+                messages = _evaluate(_fresh_report(details=change), FLOORS)
+                self.assertTrue(any("trusted-host" in m for m in messages), messages)
+
+    def test_importable_certifi_without_metadata_is_still_checked(self):
+        report = _fresh_report(
+            details={"certifi_where": "/fixture/certifi.pem"},
+            certifi_bundle=_bundle(_match(INCIDENT_SHA)),
+        )
+        text = "\n".join(_evaluate(report, FLOORS))
+        self.assertIn("certifi: not installed", text)
+        self.assertIn(f"incident certificate {INCIDENT_SHA}", text)
+
     def test_bundle_reports_fail_only_on_incident_or_uninspected(self):
         clean = trust_inventory.EnvironmentReport(
             "os",
@@ -270,12 +296,12 @@ class WorkflowWiringTest(unittest.TestCase):
             encoding="utf-8"
         )
         upgrade = text.index(
-            'test-game-suite/bin/python" -m pip install --disable-pip-version-check --upgrade'
+            'python -m pip --python "$RUNNER_TEMP/test-game-suite/bin/python" install'
         )
         gate = text.index(
             'trust_gate.py --python "$RUNNER_TEMP/test-game-suite/bin/python"'
         )
-        install = text.index('test-game-suite/bin/python" -m pip install -r')
+        install = text.index('test-game-suite/bin/python" -m pip install -c')
         self.assertLess(upgrade, gate)
         self.assertLess(gate, install)
 

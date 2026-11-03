@@ -40,7 +40,7 @@ REQUIRED_FLOORS = ("pip", "certifi", "uv", "sigstore")
 # The Windows store that lists distrusted certificates. Every other store name (ROOT, CA,
 # or anything unexpected) is treated as trusted, so an unknown name fails closed.
 DISTRUST_WINDOWS_STORES = ("Disallowed",)
-_FLOOR_LINE = re.compile(r"^([A-Za-z0-9][A-Za-z0-9._-]*)\s*>=\s*([0-9][0-9.]*)$")
+_FLOOR_LINE = re.compile(r"^([A-Za-z0-9][A-Za-z0-9._-]*)\s*>=\s*([0-9]+(?:\.[0-9]+)*)$")
 # Certificate names and paths come from inspected data; keep each printed report on one line.
 _CONTROL = re.compile(r"[\x00-\x1f\x7f]")
 
@@ -178,7 +178,9 @@ def evaluate(
         for reason in _require("certifi", vendored.get("version"), floors)
     ]
     violations += _bundle_violations("pip vendored certifi", report.pip_bundle)
-    if packages.get("certifi") is not None:
+    if packages.get("certifi") is not None or details.get("certifi_where"):
+        # certifi can be importable without distribution metadata; its bundle is
+        # still checked and the missing version fails as "not installed".
         violations += _require("certifi", packages.get("certifi"), floors)
         violations += _bundle_violations("certifi", report.certifi_bundle)
     for tool in ("uv", "sigstore"):
@@ -188,8 +190,24 @@ def evaluate(
         violations.append("pip trust source: not recorded")
     elif source.casefold().startswith(("unknown", "pip not installed")):
         violations.append(f"pip trust source: {source}")
+    violations += _trusted_host_violations(details)
     violations += _windows_violations(report, on_windows)
     return violations
+
+
+def _trusted_host_violations(details: dict[str, object]) -> list[str]:
+    """pip skips TLS certificate verification for trusted hosts, so any such setting fails."""
+    environment = details.get("environment")
+    environment = environment if isinstance(environment, dict) else {}
+    config = details.get("pip_config")
+    config = config if isinstance(config, dict) else {}
+    settings = config.get("settings")
+    settings = settings if isinstance(settings, dict) else {}
+    found = ["PIP_TRUSTED_HOST"] if environment.get("PIP_TRUSTED_HOST") else []
+    found += sorted(
+        key for key, value in settings.items() if key.endswith("trusted-host") and value
+    )
+    return [f"pip trusted-host disables TLS verification ({name})" for name in found]
 
 
 def _evidence(report: trust_inventory.EnvironmentReport) -> str:

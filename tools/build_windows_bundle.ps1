@@ -18,7 +18,7 @@ cmake --build $NativeBuild --config Release --parallel
 # The build interpreter's pip and certifi must meet the trust floor (Issue #514).
 & $Python tools/trust_gate.py
 if ($LASTEXITCODE -ne 0) {
-    throw "Build Python is below the trust floor. Run: $Python -m pip install --upgrade -c requirements/python-trust-constraints.txt pip"
+    throw "Build Python failed the trust gate; see the TRUST GATE lines above. Old pip/certifi: $Python -m pip install --upgrade -c requirements/python-trust-constraints.txt pip. An incident certificate needs the OS or bundle trust store updated."
 }
 
 & $Python -m PyInstaller `

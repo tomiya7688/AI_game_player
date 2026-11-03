@@ -103,6 +103,7 @@ CERTIFICATE_ENVIRONMENT_VARIABLES = (
     "PIP_USE_FEATURE",
     "PIP_USE_DEPRECATED",
     "PIP_CONFIG_FILE",
+    "PIP_TRUSTED_HOST",
 )
 
 # Runs inside the inspected interpreter. It only reads state and prints one marked JSON line.
@@ -166,7 +167,7 @@ try:
         for name, setting in pairs:
             if name.startswith(":env:"):
                 continue
-            if name.rsplit(".", 1)[-1] in ("cert", "client-cert", "use-deprecated", "use-feature"):
+            if name.rsplit(".", 1)[-1] in ("cert", "client-cert", "use-deprecated", "use-feature", "trusted-host"):
                 settings[name] = setting
     result["pip_config"] = {
         "files": [

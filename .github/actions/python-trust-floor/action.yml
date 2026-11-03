@@ -10,9 +10,6 @@ runs:
     - name: Apply the trust constraints to later pip installs
       shell: bash
       run: echo "PIP_CONSTRAINT=$GITHUB_WORKSPACE/requirements/python-trust-constraints.txt" >> "$GITHUB_ENV"
-    - name: Upgrade pip to the trust floor
-      shell: bash
-      run: python -m pip install --disable-pip-version-check --upgrade -c "$GITHUB_WORKSPACE/requirements/python-trust-constraints.txt" pip
     - name: Distrust the incident root in the Linux OS store
       if: runner.os == 'Linux'
       shell: bash
@@ -25,6 +22,14 @@ runs:
           sudo sed -i "s|^${entry}\$|!${entry}|" /etc/ca-certificates.conf
           sudo update-ca-certificates --fresh
           echo "Deselected $entry from the OS CA store"
+        fi
+    - name: Upgrade pip only when it misses the trust floor
+      shell: bash
+      # Upgrading runs the existing pip over the network, so skip it when that pip
+      # already passes; the gate's own report follows in the next step.
+      run: |
+        if ! python "$GITHUB_WORKSPACE/tools/trust_gate.py" > /dev/null; then
+          python -m pip install --disable-pip-version-check --upgrade -c "$GITHUB_WORKSPACE/requirements/python-trust-constraints.txt" pip
         fi
     - name: Verify the trust floor
       shell: bash
