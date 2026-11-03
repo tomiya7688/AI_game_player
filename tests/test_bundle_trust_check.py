@@ -298,7 +298,9 @@ class BuildScriptTest(unittest.TestCase):
         trust = script.index("tools/windows_bundle_check.py trust $AppDir")
         self.assertLess(clean, pyinstaller)
         self.assertLess(pyinstaller, trust)
-        self.assertIn("throw", script[trust : trust + 200])
+        self.assertRegex(
+            script[trust : trust + 200], r"if \(\$LASTEXITCODE -ne 0\) \{\s*throw "
+        )
 
 
 if __name__ == "__main__":
