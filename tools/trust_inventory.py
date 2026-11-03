@@ -296,7 +296,8 @@ def check_version(name: str, installed: str | None, minimum: str | None = None) 
     if not found:
         return f"unknown ({installed})"
     release, suffix = found.group(1), found.group(2)
-    minimum = minimum or MINIMUM_VERSIONS[name]
+    if minimum is None:
+        minimum = MINIMUM_VERSIONS[name]
     if suffix and not re.fullmatch(r"\.?post\d*", suffix):
         return f"unknown ({installed}; pre-release or local suffix)"
     if _release_tuple(release) >= _release_tuple(minimum):

@@ -37,8 +37,9 @@ DEFAULT_CONSTRAINTS = (
     trust_inventory.REPO_ROOT / "requirements" / "python-trust-constraints.txt"
 )
 REQUIRED_FLOORS = ("pip", "certifi", "uv", "sigstore")
-# Windows stores whose entries are trust anchors or intermediates; Disallowed is distrust.
-TRUSTED_WINDOWS_STORES = ("ROOT", "CA")
+# The Windows store that lists distrusted certificates. Every other store name (ROOT, CA,
+# or anything unexpected) is treated as trusted, so an unknown name fails closed.
+DISTRUST_WINDOWS_STORES = ("Disallowed",)
 _FLOOR_LINE = re.compile(r"^([A-Za-z0-9][A-Za-z0-9._-]*)\s*>=\s*([0-9][0-9.]*)$")
 # Certificate names and paths come from inspected data; keep each printed report on one line.
 _CONTROL = re.compile(r"[\x00-\x1f\x7f]")
@@ -117,22 +118,27 @@ def _optional(
     return _require(name, installed, floors)
 
 
-def _windows_violations(report: trust_inventory.EnvironmentReport) -> list[str]:
+def _windows_violations(
+    report: trust_inventory.EnvironmentReport, on_windows: bool
+) -> list[str]:
     details = report.details
     violations = []
     if "windows_store_error" in details:
         violations.append(f"windows store: {details['windows_store_error']}")
+    elif report.windows_store_matches is None and on_windows:
+        # The probe lists the stores on every Windows interpreter; a missing list is unchecked.
+        violations.append("windows store: not inspected")
     for entry in details.get("windows_store_errors") or []:
         entry = entry if isinstance(entry, dict) else {}
         store = entry.get("store", "?")
-        if store in TRUSTED_WINDOWS_STORES:
+        if store not in DISTRUST_WINDOWS_STORES:
             violations.append(
-                f"windows:{store}: entry not inspected ({entry.get('error')})"
+                f"windows:{store}: entry not inspected ({entry.get('error', 'no reason recorded')})"
             )
     for match in report.windows_store_matches or []:
         store = match.source.split(":", 1)[-1]
         if (
-            store in TRUSTED_WINDOWS_STORES
+            store not in DISTRUST_WINDOWS_STORES
             and match.incident != trust_inventory.NO_INCIDENT_MATCH
         ):
             violations.append(
@@ -142,13 +148,16 @@ def _windows_violations(report: trust_inventory.EnvironmentReport) -> list[str]:
 
 
 def evaluate(
-    report: trust_inventory.EnvironmentReport, floors: dict[str, str]
+    report: trust_inventory.EnvironmentReport,
+    floors: dict[str, str],
+    on_windows: bool = sys.platform == "win32",
 ) -> list[str]:
     """Return every reason the inspected environment misses the trust floor (empty = pass).
 
     A --bundle report only carries `certifi_bundle`; an interpreter report carries
     the probe details. An interpreter without pip fails, because the gate is meant
-    for the interpreter whose pip downloads packages.
+    for the interpreter whose pip downloads packages. `on_windows` says whether the
+    inspected interpreters run on Windows, where a missing store listing fails.
     """
     if report.status != "inspected":
         return [f"not inspected: {report.status}"]
@@ -174,10 +183,12 @@ def evaluate(
         violations += _bundle_violations("certifi", report.certifi_bundle)
     for tool in ("uv", "sigstore"):
         violations += _optional(tool, packages.get(tool), cli_paths.get(tool), floors)
-    source = str(details.get("pip_trust_source", "not recorded"))
-    if source.startswith(("unknown", "pip not installed", "not recorded")):
+    source = details.get("pip_trust_source")
+    if not isinstance(source, str) or not source.strip():
+        violations.append("pip trust source: not recorded")
+    elif source.casefold().startswith(("unknown", "pip not installed")):
         violations.append(f"pip trust source: {source}")
-    violations += _windows_violations(report)
+    violations += _windows_violations(report, on_windows)
     return violations
 
 

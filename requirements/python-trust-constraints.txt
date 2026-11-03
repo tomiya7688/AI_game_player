@@ -1,10 +1,11 @@
 # Minimum versions of the Python tooling that downloads or verifies packages
 # (Issue #514, parent #482; incident GHSA-6q48-6c7w-9gw2).
-# Use as a pip constraints file (-c / PIP_CONSTRAINT). A constraint only applies
-# when the package is installed, so uv and sigstore are not added by this file;
-# both are unused in this repository (see the trust inventory document in doc/,
-# Issue #513). Keep this file ASCII: pip decodes it with the locale encoding.
-# tools/trust_gate.py reads the floors below and fails when an inspected
+# Use as a pip constraints file (-c / PIP_CONSTRAINT). Each floor applies only
+# when that package is installed; the file never adds a package. uv and sigstore
+# are unused in this repository (see the trust inventory document in doc/,
+# Issue #513) and keep their floors in case they are installed later.
+# Keep this file ASCII: pip decodes it with the locale encoding.
+# tools/trust_gate.py reads all four floors below and fails when an inspected
 # interpreter is older or still trusts an incident root.
 pip>=26.2.2
 certifi>=2026.10.19

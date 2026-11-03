@@ -159,8 +159,8 @@ CIでは、pipが使う2つの信頼源（OSのCA bundleとpip同梱certifi）�
 
 - pipまたはpip同梱certifiが最低版未満、pre-releaseなどで判定できない、またはpipが無い。
 - 単体certifi・uv・sigstoreがinstallされていて最低版未満。uv・sigstoreのコマンドがPATH上にだけあり、パッケージのversionが無い（コマンドは実行しないため、versionを確認できない）。
-- 確認したCA bundle（単体certifi、pip同梱certifi、`--bundle`で指定したファイル）か、WindowsのROOT・CAストアに、`incident root`または`incident-related name`の証明書がある。WindowsのDisallowedストアは不信頼の一覧なので、そこにある対象証明書は失敗にしません。
-- 確認できなかったもの（Pythonの確認スクリプトの失敗、読めないbundle、WindowsのROOT・CAストアで展開できなかったエントリ、pipの信頼源が`unknown`）。確認できないものは合格にしません。
+- 確認したCA bundle（単体certifi、pip同梱certifi、`--bundle`で指定したファイル）か、WindowsのDisallowed以外のストア（ROOT・CA、想定外の名前のストアも含む）に、`incident root`または`incident-related name`の証明書がある。WindowsのDisallowedストアは不信頼の一覧なので、そこにある対象証明書は失敗にしません。
+- 確認できなかったもの（Pythonの確認スクリプトの失敗、読めないbundle、WindowsでDisallowed以外のストアの展開できなかったエントリ、Windowsでストアの一覧が無い、pipの信頼源が無い・空・`unknown`）。actionは、LinuxでOSのCA bundleが無い場合も失敗にします。確認できないものは合格にしません。
 
 | 終了コード | 意味 |
 |---|---|
@@ -174,7 +174,7 @@ CIでは、pipが使う2つの信頼源（OSのCA bundleとpip同梱certifi）�
 
 | 場所 | 内容 |
 |---|---|
-| `.github/actions/python-trust-floor` | 後続のpip installへ`PIP_CONSTRAINT`を設定し、pipを最低版以上へ更新してから`tools/trust_gate.py`を実行する。Linuxでは`/etc/ssl/certs/ca-certificates.crt`も検査する |
+| `.github/actions/python-trust-floor` | 後続のpip installへ`PIP_CONSTRAINT`を設定し、pipを最低版以上へ更新する。Linuxでは、OSの信頼ストア（ca-certificates）で`mozilla/emSign_ECC_Root_CA_-_G3.crt`が有効なら`/etc/ca-certificates.conf`で無効にし、`update-ca-certificates --fresh`で作り直す。その後`tools/trust_gate.py`を実行する。Linuxでは`/etc/ssl/certs/ca-certificates.crt`と、`/etc/ssl/certs/*.pem`を連結したファイルも検査する（truststoreはOpenSSLの既定のファイルとディレクトリの両方を読むため） |
 | `tests.yml`（ubuntu） | `python-quality`と`python-coverage`で、最初のpip installの前に上のactionを使う。`python-quality`は、更新前の状態を`tools/trust_inventory.py`で記録してからactionを実行する（更新前後の検査）。テストゲーム用のvenvは、ensurepipが入れるpipが最低版より古い場合があるため、venvの中でpipを更新し、そのvenvのPythonを検査してから依存を入れる |
 | `upd-architecture-ci.yml`（ubuntu） | `upd-checker`で、git+httpsのinstallの前にactionを使う |
 | `language-ci.yml`（ubuntu、windows） | `contract-assets`（ubuntu）、`windows-app-bundle`・`windows-e2e`・`windows-planning-comparison`（windows）で、最初のpip installの前にactionを使う。windowsではROOT・CA・Disallowedストアも検査する |
@@ -197,11 +197,18 @@ python tools/trust_gate.py
 - Windowsのテストゲーム環境（`build/test-games-venv`）はpipを持たず、ホストのpipが依存を入れます。ホストのPythonで1と2を実行してから、`run_test_games.bat -Setup`を実行してください。Linuxの手順は`tools/test_games/README.md`にあります。
 - 2で失敗した場合は、表示された理由を確認してください。`incident`の行は、そのbundleかストアに対象ルートが残っていることを示します。pipの更新だけでは直らないため、そのPython・OSの信頼ストアを更新してから、もう一度検査してください。
 
+### CIで見つかった対象ルート（2026-11-03）
+
+PR #715の最初のCIで、`tests.yml`の`python-coverage` job（ubuntu-latest、Python 3.14.8、pip 26.3、pip同梱certifi 2026.10.23）のOSのCA bundle `/etc/ssl/certs/ca-certificates.crt`（SHA-256 `ecd9dc38bc3efb7dbd6431f57e29d2f8d6a0f0d211e1464b3fef2cbfe266fcd2`）に、対象ルート`emSign ECC Root CA - G3`（`86a1ecba…be6b`）が含まれていました。gateはこのjobを失敗にしました。同じrunの`python-quality` jobと、#513の確認（run 41196982172、SHA-256 `e05a523d…6ad6`）のbundleには含まれていませんでした。runnerのimageによってOSのCA bundleが異なります。
+
+pip 24.2以降はLinuxでもOSのCA bundleを信頼点に加えるため、このrunnerのpipは対象ルートを信頼していたことになります（pip同梱certifiに対象ルートが無くても、truststore側で検証が通る）。そのため、上のactionでOSの信頼ストアから対象ルートを無効にしてから検査するようにしました。無効にした後の結果は、PR #715のCIで確認します。
+
 ### この節の限界
 
 - `--upgrade`は、最低版以上の最新のpipを入れます。特定のversionへの固定ではありません。
 - `upd-checker`のgit+httpsのinstallでは、リポジトリの取得をgitが行います。gitが使う信頼源（OpenSSLまたはWindowsの信頼ストア）は、このツールでは確認していません。
 - `PIP_CONSTRAINT`がpipのbuild isolation環境へ渡るかは、pipのversionで変わります。このリポジトリのbuild依存（setuptoolsなど）はcertifiを含まないため、確認していません。
+- OSの信頼ストアから無効にするのは、ca-certificatesの上のファイル名の1件だけです。別の名前で入っていた場合は無効にできず、gateがフィンガープリントで失敗にします。WindowsのrunnerとWindowsの開発機の信頼ストアは変更しません（gateの検査だけ）。
 - 配布物（PyInstallerの成果物）の中のCA bundleは#515の対象です。
 
 ## アプリ本体のTLS利用

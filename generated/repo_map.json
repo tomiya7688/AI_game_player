@@ -165417,7 +165417,7 @@
       "module": "tests.test_trust_gate",
       "path": "tests/test_trust_gate.py",
       "source_location": {
-        "end_line": 277,
+        "end_line": 300,
         "start_line": 1
       },
       "symbols": [
@@ -165503,6 +165503,41 @@
           }
         },
         {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_evaluate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "floors"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "on_windows"
+            }
+          ],
+          "qualified_name": "_evaluate",
+          "return_annotation": null,
+          "signature": "(report, floors, on_windows = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 64,
+            "start_line": 63
+          }
+        },
+        {
           "bases": [
             "unittest.TestCase"
           ],
@@ -165520,8 +165555,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 85,
-            "start_line": 63
+            "end_line": 89,
+            "start_line": 67
           }
         },
         {
@@ -165543,8 +165578,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 66,
-            "start_line": 64
+            "end_line": 70,
+            "start_line": 68
           }
         },
         {
@@ -165566,8 +165601,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 68
+            "end_line": 73,
+            "start_line": 72
           }
         },
         {
@@ -165589,8 +165624,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 85,
-            "start_line": 71
+            "end_line": 89,
+            "start_line": 75
           }
         },
         {
@@ -165611,8 +165646,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 191,
-            "start_line": 88
+            "end_line": 214,
+            "start_line": 92
           }
         },
         {
@@ -165634,8 +165669,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 90,
-            "start_line": 89
+            "end_line": 94,
+            "start_line": 93
           }
         },
         {
@@ -165657,8 +165692,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 92
+            "end_line": 117,
+            "start_line": 96
           }
         },
         {
@@ -165680,8 +165715,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 115
+            "end_line": 122,
+            "start_line": 119
           }
         },
         {
@@ -165703,8 +165738,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 145,
-            "start_line": 120
+            "end_line": 149,
+            "start_line": 124
           }
         },
         {
@@ -165726,8 +165761,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 147
+            "end_line": 161,
+            "start_line": 151
           }
         },
         {
@@ -165749,8 +165784,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 159
+            "end_line": 179,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_store_names_are_trusted_and_missing_listing_fails_on_windows",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_unknown_store_names_are_trusted_and_missing_listing_fails_on_windows",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 191,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_or_blank_trust_source_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_missing_or_blank_trust_source_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 193
           }
         },
         {
@@ -165772,8 +165853,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 191,
-            "start_line": 177
+            "end_line": 214,
+            "start_line": 200
           }
         },
         {
@@ -165794,8 +165875,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 222,
-            "start_line": 194
+            "end_line": 245,
+            "start_line": 217
           }
         },
         {
@@ -165829,8 +165910,8 @@
           "signature": "(self, report, argv = …)",
           "source_location": {
             "column": 4,
-            "end_line": 202,
-            "start_line": 195
+            "end_line": 225,
+            "start_line": 218
           }
         },
         {
@@ -165852,8 +165933,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 204
+            "end_line": 235,
+            "start_line": 227
           }
         },
         {
@@ -165875,8 +165956,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 222,
-            "start_line": 214
+            "end_line": 245,
+            "start_line": 237
           }
         },
         {
@@ -165897,8 +165978,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 273,
-            "start_line": 225
+            "end_line": 296,
+            "start_line": 248
           }
         },
         {
@@ -165920,8 +166001,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 243,
-            "start_line": 228
+            "end_line": 266,
+            "start_line": 251
           }
         },
         {
@@ -165943,8 +166024,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 257,
-            "start_line": 245
+            "end_line": 280,
+            "start_line": 268
           }
         },
         {
@@ -165966,8 +166047,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 273,
-            "start_line": 259
+            "end_line": 296,
+            "start_line": 282
           }
         }
       ]
@@ -209806,7 +209887,7 @@
       "module": "tools.trust_gate",
       "path": "tools/trust_gate.py",
       "source_location": {
-        "end_line": 254,
+        "end_line": 265,
         "start_line": 1
       },
       "symbols": [
@@ -209828,8 +209909,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 53
+            "end_line": 55,
+            "start_line": 54
           }
         },
         {
@@ -209851,8 +209932,8 @@
           "signature": "(path: Path) -> dict[str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 84,
-            "start_line": 57
+            "end_line": 85,
+            "start_line": 58
           }
         },
         {
@@ -209880,8 +209961,8 @@
           "signature": "(what: str, bundle: trust_inventory.BundleResult | None) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 99,
-            "start_line": 87
+            "end_line": 100,
+            "start_line": 88
           }
         },
         {
@@ -209915,8 +209996,8 @@
           "signature": "(name: str, installed: object, floors: dict[str, str]) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 105,
-            "start_line": 102
+            "end_line": 106,
+            "start_line": 103
           }
         },
         {
@@ -209956,8 +210037,8 @@
           "signature": "(name: str, installed: object, path: object, floors: dict[str, str]) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 108
+            "end_line": 118,
+            "start_line": 109
           }
         },
         {
@@ -209972,15 +210053,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "report"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "on_windows"
             }
           ],
           "qualified_name": "_windows_violations",
           "return_annotation": "list[str]",
-          "signature": "(report: trust_inventory.EnvironmentReport) -> list[str]",
+          "signature": "(report: trust_inventory.EnvironmentReport, on_windows: bool) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 141,
-            "start_line": 120
+            "end_line": 147,
+            "start_line": 121
           }
         },
         {
@@ -210001,15 +210088,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "floors"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "on_windows"
             }
           ],
           "qualified_name": "evaluate",
           "return_annotation": "list[str]",
-          "signature": "(report: trust_inventory.EnvironmentReport, floors: dict[str, str]) -> list[str]",
+          "signature": "(report: trust_inventory.EnvironmentReport, floors: dict[str, str], on_windows: bool = …) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 181,
-            "start_line": 144
+            "end_line": 192,
+            "start_line": 150
           }
         },
         {
@@ -210031,8 +210124,8 @@
           "signature": "(report: trust_inventory.EnvironmentReport) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 200,
-            "start_line": 184
+            "end_line": 211,
+            "start_line": 195
           }
         },
         {
@@ -210054,8 +210147,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 204,
-            "start_line": 203
+            "end_line": 215,
+            "start_line": 214
           }
         },
         {
@@ -210077,8 +210170,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 250,
-            "start_line": 207
+            "end_line": 261,
+            "start_line": 218
           }
         }
       ]
@@ -210250,7 +210343,7 @@
       "module": "tools.trust_inventory",
       "path": "tools/trust_inventory.py",
       "source_location": {
-        "end_line": 1016,
+        "end_line": 1017,
         "start_line": 1
       },
       "symbols": [
@@ -210443,7 +210536,7 @@
           "signature": "(name: str, installed: str | None, minimum: str | None = …) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 304,
+            "end_line": 305,
             "start_line": 286
           }
         },
@@ -210466,8 +210559,8 @@
           "signature": "(der: bytes) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 336,
-            "start_line": 312
+            "end_line": 337,
+            "start_line": 313
           }
         },
         {
@@ -210489,8 +210582,8 @@
           "signature": "(der: bytes) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 348,
-            "start_line": 339
+            "end_line": 349,
+            "start_line": 340
           }
         },
         {
@@ -210518,8 +210611,8 @@
           "signature": "(sha256: str, names: list[str]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 366,
-            "start_line": 351
+            "end_line": 367,
+            "start_line": 352
           }
         },
         {
@@ -210541,8 +210634,8 @@
           "signature": "(name: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 372,
-            "start_line": 369
+            "end_line": 373,
+            "start_line": 370
           }
         },
         {
@@ -210570,8 +210663,8 @@
           "signature": "(source: str, certificates: list[bytes]) -> list[TargetMatch]",
           "source_location": {
             "column": 0,
-            "end_line": 393,
-            "start_line": 375
+            "end_line": 394,
+            "start_line": 376
           }
         },
         {
@@ -210593,8 +210686,8 @@
           "signature": "(matches: list[TargetMatch] | None) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 398,
-            "start_line": 396
+            "end_line": 399,
+            "start_line": 397
           }
         },
         {
@@ -210616,8 +210709,8 @@
           "signature": "(text: object) -> tuple[int, ...] | None",
           "source_location": {
             "column": 0,
-            "end_line": 403,
-            "start_line": 401
+            "end_line": 404,
+            "start_line": 402
           }
         },
         {
@@ -210639,8 +210732,8 @@
           "signature": "(details: dict[str, object]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 492,
-            "start_line": 406
+            "end_line": 493,
+            "start_line": 407
           }
         },
         {
@@ -210662,8 +210755,8 @@
           "signature": "(data: bytes) -> list[bytes]",
           "source_location": {
             "column": 0,
-            "end_line": 507,
-            "start_line": 495
+            "end_line": 508,
+            "start_line": 496
           }
         },
         {
@@ -210685,8 +210778,8 @@
           "signature": "(path: Path) -> BundleResult",
           "source_location": {
             "column": 0,
-            "end_line": 548,
-            "start_line": 510
+            "end_line": 549,
+            "start_line": 511
           }
         },
         {
@@ -210714,8 +210807,8 @@
           "signature": "(path: Path, label: str | None = …) -> EnvironmentReport",
           "source_location": {
             "column": 0,
-            "end_line": 559,
-            "start_line": 551
+            "end_line": 560,
+            "start_line": 552
           }
         },
         {
@@ -210737,8 +210830,8 @@
           "signature": "(python: str) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 572,
-            "start_line": 562
+            "end_line": 573,
+            "start_line": 563
           }
         },
         {
@@ -210760,8 +210853,8 @@
           "signature": "(stdout: str) -> dict[str, object] | None",
           "source_location": {
             "column": 0,
-            "end_line": 584,
-            "start_line": 575
+            "end_line": 585,
+            "start_line": 576
           }
         },
         {
@@ -210783,8 +210876,8 @@
           "signature": "(value: object) -> dict",
           "source_location": {
             "column": 0,
-            "end_line": 588,
-            "start_line": 587
+            "end_line": 589,
+            "start_line": 588
           }
         },
         {
@@ -210806,8 +210899,8 @@
           "signature": "(value: object) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 597,
-            "start_line": 591
+            "end_line": 598,
+            "start_line": 592
           }
         },
         {
@@ -210835,8 +210928,8 @@
           "signature": "(report: EnvironmentReport, entries: object) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 640,
-            "start_line": 600
+            "end_line": 641,
+            "start_line": 601
           }
         },
         {
@@ -210864,8 +210957,8 @@
           "signature": "(python: str, label: str | None = …) -> EnvironmentReport",
           "source_location": {
             "column": 0,
-            "end_line": 704,
-            "start_line": 643
+            "end_line": 705,
+            "start_line": 644
           }
         },
         {
@@ -210893,8 +210986,8 @@
           "signature": "(text: str, limit: int = …) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 728,
-            "start_line": 722
+            "end_line": 729,
+            "start_line": 723
           }
         },
         {
@@ -210916,8 +211009,8 @@
           "signature": "(root: Path) -> tuple[list[dict[str, object]], list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 781,
-            "start_line": 753
+            "end_line": 782,
+            "start_line": 754
           }
         },
         {
@@ -210939,8 +211032,8 @@
           "signature": "(value: object) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 786,
-            "start_line": 784
+            "end_line": 787,
+            "start_line": 785
           }
         },
         {
@@ -210962,8 +211055,8 @@
           "signature": "(match: TargetMatch) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 796,
-            "start_line": 789
+            "end_line": 797,
+            "start_line": 790
           }
         },
         {
@@ -210991,8 +211084,8 @@
           "signature": "(title: str, bundle: BundleResult | None) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 810,
-            "start_line": 799
+            "end_line": 811,
+            "start_line": 800
           }
         },
         {
@@ -211026,8 +211119,8 @@
           "signature": "(reports: list[EnvironmentReport], repository: list[dict[str, object]], unreadable: list[str]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 893,
-            "start_line": 813
+            "end_line": 894,
+            "start_line": 814
           }
         },
         {
@@ -211049,8 +211142,8 @@
           "signature": "(report: dict[str, object]) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 916,
-            "start_line": 896
+            "end_line": 917,
+            "start_line": 897
           }
         },
         {
@@ -211084,8 +211177,8 @@
           "signature": "(json_path: Path | None, markdown_path: Path | None, bundles: list[Path]) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 932,
-            "start_line": 919
+            "end_line": 933,
+            "start_line": 920
           }
         },
         {
@@ -211107,8 +211200,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 1012,
-            "start_line": 943
+            "end_line": 1013,
+            "start_line": 944
           }
         }
       ]
