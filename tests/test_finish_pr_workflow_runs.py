@@ -13,6 +13,7 @@ from tools.pr_workflow_evidence import REQUIRED_WORKFLOW_PATHS, WorkflowRunGate,
 
 
 HEAD_SHA = "a" * 40
+HEAD_REF = "claude/issue-719-push-evidence-ref"
 PR_URL = "https://github.com/tomiya7688/AI_game_player/pull/466"
 
 
@@ -27,6 +28,7 @@ def make_runs(event):
             "run_attempt": 1,
             "head_sha": HEAD_SHA,
             "event": event,
+            "head_branch": HEAD_REF,
             "path": path,
             "status": "completed",
             "conclusion": "success",
@@ -43,7 +45,9 @@ class WorkflowMergeEntryTests(unittest.TestCase):
     def test_successful_check_list_does_not_hide_failed_push_workflow(self):
         def run_gh(arguments, timeout):
             if arguments[:2] == ["pr", "view"]:
-                return completed({"state": "OPEN", "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA})
+                return completed(
+                    {"state": "OPEN", "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA, "headRefName": HEAD_REF}
+                )
             if arguments[:2] == ["pr", "checks"]:
                 return completed([{"name": "tests", "state": "SUCCESS", "bucket": "pass"}])
             if arguments[:2] == ["api", "graphql"]:
@@ -64,6 +68,30 @@ class WorkflowMergeEntryTests(unittest.TestCase):
         self.assertEqual(3, code)
         self.assertFalse(any(call.args[0][:2] == ["pr", "merge"] for call in gh.call_args_list))
 
+    def test_success_message_counts_every_required_workflow(self):
+        pull_request = finish_pr_merge.parse_pull_request_reference(PR_URL)
+        runs = {event: make_runs(event) for event in ("push", "pull_request")}
+
+        def run_gh(arguments, timeout):
+            event = parse_qs(urlsplit(arguments[-1]).query)["event"][0]
+            return completed({"total_count": len(runs[event]), "workflow_runs": runs[event]})
+
+        output = StringIO()
+        with patch.object(finish_pr_merge, "_run_gh", side_effect=run_gh), redirect_stdout(output):
+            finish_pr_merge._require_workflow_runs(pull_request, HEAD_SHA, HEAD_REF)
+        self.assertIn(f"Required {len(REQUIRED_WORKFLOW_PATHS)} workflows passed", output.getvalue())
+
+    def test_missing_head_branch_in_pr_view_stops_before_workflow_lookup(self):
+        def run_gh(arguments, timeout):
+            if arguments[:2] == ["pr", "view"]:
+                return completed({"state": "OPEN", "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA})
+            raise AssertionError(f"unexpected gh call: {arguments}")
+
+        with patch.object(finish_pr_merge, "_run_gh", side_effect=run_gh):
+            with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
+                code = finish_pr_merge.main([PR_URL])
+        self.assertEqual(3, code)
+
 
 class WorkflowRunGateTests(unittest.TestCase):
     def setUp(self):
@@ -83,7 +111,7 @@ class WorkflowRunGateTests(unittest.TestCase):
         return {"total_count": len(runs), "workflow_runs": runs[(page-1)*100:page*100]}
 
     def verify(self):
-        WorkflowRunGate("tomiya7688/AI_game_player", 466, HEAD_SHA, self.read_json).verify()
+        WorkflowRunGate("tomiya7688/AI_game_player", 466, HEAD_SHA, HEAD_REF, self.read_json).verify()
 
     def newest(self, conclusion="failure", status="completed"):
         run = deepcopy(self.runs["push"][0])
@@ -124,6 +152,34 @@ class WorkflowRunGateTests(unittest.TestCase):
         self.runs["push"][0]["conclusion"] = "failure"
         self.newest("success")
         self.verify()
+
+    def test_later_tag_success_does_not_hide_failed_branch_push(self):
+        """同一SHAでbranch push失敗→同じcommitへのtag push成功でも、branchの失敗で停止する。"""
+        self.runs["push"][0]["conclusion"] = "failure"
+        self.newest("success")
+        self.runs["push"][-1]["head_branch"] = "v1.0.0"
+        with self.assertRaisesRegex(WorkflowEvidenceError, str(self.runs["push"][0]["id"])):
+            self.verify()
+
+    def test_other_branch_or_tag_push_runs_are_not_evidence(self):
+        for value in ("v1.0.0", "main", None, 5):
+            with self.subTest(value=value):
+                self.runs["push"] = make_runs("push")
+                self.runs["push"][0]["head_branch"] = value
+                with self.assertRaisesRegex(WorkflowEvidenceError, "head branch .* missing"):
+                    self.verify()
+
+    def test_pull_request_runs_do_not_require_push_head_branch(self):
+        for run in self.runs["pull_request"]:
+            run["head_branch"] = "other"
+        self.verify()
+
+    def test_missing_or_invalid_head_ref_stops(self):
+        for value in (None, "", "  ", "refs/heads/x"):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(WorkflowEvidenceError, "head branch"):
+                    WorkflowRunGate("tomiya7688/AI_game_player", 466, HEAD_SHA, value, self.read_json)
+        self.assertEqual([], self.requests)
 
     def test_current_rerun_attempt_must_be_successful(self):
         self.runs["push"][0].update(run_attempt=2, conclusion="failure")
