@@ -1,3 +1,10 @@
+## 2026-11-04 Windows配布bundleの同梱検査と移動後起動（Issue #149の一部）
+
+- `tools/windows_bundle_check.py layout`を追加し、`tools/build_windows_bundle.ps1`の最後に実行します。bundle内の全PE fileのimport表（遅延読込を含む）を読み、各DLLがbundle内にあるかWindowsの部品であることを、build機の`System32`を参照せずに判定します。VC++ runtimeはWindowsの部品として扱いません。
+- 従来のNative DLLは`MSVCP140.dll`を必要とし、PyInstallerはこのDLLを同梱していませんでした（VC++再頒布パッケージのないWindowsではNative Runtimeなしで起動する状態）。bundle用のNative buildだけMSVC runtimeを静的リンク（`/MT`）へ変更しました。buildの各段階の終了codeも検査します。
+- `Kadoka.exe --bundle-self-check <report>`を追加しました。凍結状態、`sys.path`とpackageがbundle内にあること、bundle直下のNative DLLの読込（通常の探索とSafety補助経路）、同梱資源、Tcl/Tk、OpenSSLを検査し、JSON reportと終了codeで返します。
+- `tools/windows_bundle_check.py launch`は、bundleを空白・日本語を含む別pathへ複製し、WindowsのdirectoryだけのPATH、`PYTHON*`/`KADOKA_*`なし、新しいprofile directory、リポジトリ外の作業directoryで自己検査と`--smoke-test`を実行します。CIの`windows-app-bundle` jobへ追加しました。
+- CI runnerにはVC++再頒布パッケージ等が導入済みのため、clean Windowsでの起動確認は未実施です。確認範囲と残りの作業は[Windows配布bundle説明書](Windows配布bundle説明書.md)に記録しました。
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
