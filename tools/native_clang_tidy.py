@@ -52,7 +52,11 @@ def build_targets(repository_root: Path, *, windows: bool) -> list[ClangTidyTarg
 
 
 def run_clang_tidy(clang_tidy: str, targets: Sequence[ClangTidyTarget]) -> int:
-    """各対象へclang-tidyを実行し、1件でも失敗があれば1を返す。"""
+    """各対象へclang-tidyを実行し、対象が0件または1件でも失敗があれば1を返す。"""
+    if not targets:
+        # 対象の探索漏れで必須チェックが空のまま成功しないようにする。
+        print("native-clang-tidy: 解析対象のソースが0件です", file=sys.stderr)
+        return 1
     failed: list[str] = []
     for target in targets:
         command = [
@@ -62,7 +66,14 @@ def run_clang_tidy(clang_tidy: str, targets: Sequence[ClangTidyTarget]) -> int:
             "--",
             *target.compiler_arguments,
         ]
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
         output = (completed.stdout + completed.stderr).strip()
         print(f"== {target.path.as_posix()} (exit {completed.returncode})")
         if output:

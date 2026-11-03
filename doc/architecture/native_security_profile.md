@@ -8,15 +8,15 @@
 
 | 検査 | 実行口 | CIジョブ（`language-ci`） | 失敗条件 |
 |---|---|---|---|
-| 危険C/C++ API検出 | `python tools/native_security_check.py native` | `Native dangerous C/C++ API detector` | 許可リストに登録されていない medium 以上の検出、または現在のソースに一致しない許可リスト項目が1件以上ある |
-| clang-tidy（bugprone / cert / clang-analyzer） | `python tools/native_clang_tidy.py --clang-tidy clang-tidy` | `Native clang-tidy security profile (ubuntu-latest)`、`(windows-latest)` | `native/.clang-tidy` で有効なcheckの警告が1件以上ある（`WarningsAsErrors: '*'`） |
+| 危険C/C++ API検出 | `python tools/native_security_check.py native` | `Native dangerous C/C++ API detector` | 許可リストに登録されていない medium 以上の検出、現在のソースに一致しない許可リスト項目、または検査対象ソース0件 |
+| clang-tidy（bugprone / cert / clang-analyzer） | `python tools/native_clang_tidy.py --clang-tidy clang-tidy` | `Native clang-tidy security profile (ubuntu-latest)`、`(windows-latest)` | `native/.clang-tidy` で有効なcheckの警告が1件以上ある（`WarningsAsErrors: '*'`）、または解析対象0件 |
 | ASan + UBSan + GCC analyzer（既存） | `cmake -DKADOKA_ENABLE_SANITIZERS=ON -DKADOKA_ENABLE_GCC_ANALYZER=ON` | `Native C++ ASan + UBSan + GCC analyzer` | sanitizer検出・analyzer警告・テスト失敗（既存のまま） |
 
 3つの追加ジョブ名は `.github/rulesets/main-protection.json` の必須チェックへ追加しました。GitHub上のrulesetへの適用はリポジトリ設定の操作であり、このPRでは行いません。
 
 ## 危険API検出の規則
 
-検出器はコメント、文字列リテラル、raw文字列、文字リテラルを空白へ置き換えてから、規則表の関数名の呼出し（`name(`、`std::name(`、`::name(`）を検出します。メンバー呼出し（`obj.free(`）、`std` 以外の名前空間修飾（`kadoka::memcpy(`）、別名の識別子（`strcpy_s(`）は検出しません。
+検出器はコメント、文字列リテラル、raw文字列、文字リテラルを空白へ置き換えてから、規則表の関数名の呼出し（`name(`、`std::name(`、`::name(`）を検出します。関数名と `(` の間に改行がある呼出しも検出し、関数名がある行を報告します。対象は標準C/C++とWindowsのグローバルAPIだけで、メンバー呼出し（`obj.free(`）、`std` 以外の名前空間・クラス修飾（`kadoka::memcpy(`、`Pool::free(`）、別名の識別子（`strcpy_s(`）は検出しません。独自名前空間で危険APIを包む関数の中身は、その定義側の呼出しとして検出されます。
 
 | 規則 | 重大度 | 対象API | 理由 |
 |---|---|---|---|
@@ -28,7 +28,7 @@
 | NSC006 | medium | `malloc`、`calloc`、`realloc`、`free`、`_aligned_malloc`、`_aligned_free` | RAIIを経由しない手動ヒープ管理 |
 
 - 既定の `--fail-on medium` では、すべての規則がmergeを止めます。`--fail-on high` を指定すると medium の検出は `advisory:` として表示だけ行います。
-- 許可リストは `config/native_security_allowlist.json` です。各項目は `path`、`rule`、`function`、`code`（コメント・文字列を除き空白を1つに正規化した該当行）、10文字以上の `reason` を必須とします。行番号では照合しないため、該当行の内容が変わると項目は一致しなくなり、未使用項目として失敗します。
+- 許可リストは `config/native_security_allowlist.json` です。各項目は `path`、`rule`、`function`、`code`（コメント・文字列を除き空白を1つに正規化した該当行）、10文字以上の `reason` を必須とします。行番号では照合しないため、該当行の内容が変わると項目は一致しなくなり、未使用項目として失敗します。1項目が許可するのは1件の検出だけで、同じ内容の行が複数あればその件数分の項目が必要です。`path` は `./` や `\` を含んでいても相対POSIXパスへ正規化して照合します。
 - 現在の許可は `native/src/wgc_capture.cpp` の行単位 `std::memcpy` 1件だけです。コピー前に必要容量を `uint64_t` で検査しています。D3D Mapの `pData` / `RowPitch` の防御検査は #652 で扱います。
 
 ## clang-tidyの固定設定

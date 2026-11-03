@@ -169,6 +169,76 @@ class NativeSecurityCheckTests(unittest.TestCase):
         self.assertEqual(document["blocking"][0]["rule"], "NSC001")
         self.assertEqual(document["blocking"][0]["path"], "native/a.c")
 
+    def test_call_split_across_lines_is_detected_on_the_name_line(self) -> None:
+        findings = scan_source("a.cpp", "int x;\nstrcpy\n    (d, s);\n")
+
+        self.assertEqual(
+            [(f.function, f.line_number, f.code) for f in findings],
+            [("strcpy", 2, "strcpy")],
+        )
+
+    def test_crlf_line_continuation_inside_string_stays_a_literal(self) -> None:
+        source = 'const char* t = "a\\\r\nsystem(x)";\r\nmemset(p, 0, n);\r\n'
+
+        findings = scan_source("a.cpp", source)
+
+        self.assertEqual(
+            [(f.function, f.line_number) for f in findings], [("memset", 3)]
+        )
+
+    def test_each_allowlist_entry_permits_only_one_finding(self) -> None:
+        findings = scan_source(
+            "native/a.cpp", "std::memcpy(a, b, n);\nstd::memcpy(a, b, n);\n"
+        )
+        entry = AllowlistEntry(
+            "native/a.cpp",
+            "NSC005",
+            "memcpy",
+            "std::memcpy(a, b, n);",
+            "bounds checked above",
+        )
+
+        single_remaining, _ = apply_allowlist(findings, [entry])
+        double_remaining, double_stale = apply_allowlist(findings, [entry, entry])
+
+        self.assertEqual([f.line_number for f in single_remaining], [2])
+        self.assertEqual((double_remaining, double_stale), ([], []))
+
+    def test_allowlist_paths_are_normalized_to_relative_posix(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "allow.json"
+            entry = {
+                "rule": "NSC005",
+                "function": "memcpy",
+                "code": "x",
+                "reason": "bounds checked above",
+            }
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "entries": [
+                            {**entry, "path": "./native/src/a.cpp"},
+                            {**entry, "path": "native\\src\\b.cpp"},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            entries = load_allowlist(path)
+
+        self.assertEqual(
+            [item.path for item in entries], ["native/src/a.cpp", "native/src/b.cpp"]
+        )
+
+    def test_empty_source_set_is_an_error_not_a_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            with self.assertRaises(ValueError):
+                run_check([root], root, None, "medium")
+
     def test_repository_native_sources_have_no_blocking_findings(self) -> None:
         blocking, advisory, stale = run_check(
             [REPOSITORY_ROOT / "native"],

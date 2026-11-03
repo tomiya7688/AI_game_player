@@ -81,6 +81,13 @@ class NativeClangTidyTests(unittest.TestCase):
             with mock.patch("builtins.print"):
                 self.assertEqual(run_clang_tidy("clang-tidy", targets), 1)
 
+    def test_run_clang_tidy_fails_when_no_targets_were_found(self) -> None:
+        with mock.patch("tools.native_clang_tidy.subprocess.run") as run:
+            with mock.patch("builtins.print"):
+                self.assertEqual(run_clang_tidy("clang-tidy", []), 1)
+
+        run.assert_not_called()
+
     def test_main_rejects_unpinned_version_without_analyzing(self) -> None:
         with mock.patch(
             "tools.native_clang_tidy.subprocess.run",

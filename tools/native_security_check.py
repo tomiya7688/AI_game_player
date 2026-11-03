@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import posixpath
 import re
 import sys
 from collections.abc import Iterable, Sequence
@@ -229,24 +230,30 @@ def _find_quoted_end(source: str, start: int) -> int:
 
 
 def scan_source(relative_path: str, source: str) -> list[NativeSecurityFinding]:
-    """1ファイル分のソース文字列から規則に該当する関数呼出しを列挙する。"""
-    stripped_lines = strip_comments_and_literals(source).splitlines()
+    """1ファイル分のソース文字列から規則に該当する関数呼出しを列挙する。
+
+    関数名と `(` の間の改行も検出するため、行ごとではなく除去済みソース全体へ照合し、
+    報告する行番号とコードは関数名がある行とする。
+    """
+    # CRLFを先に正規化し、文字列内の行継続（\ + CRLF）を通常の改行と同じに扱う。
+    stripped = strip_comments_and_literals(source.replace("\r\n", "\n"))
+    stripped_lines = stripped.split("\n")
     findings: list[NativeSecurityFinding] = []
-    for line_number, line in enumerate(stripped_lines, start=1):
-        for match in _CALL_PATTERN.finditer(line):
-            function = match.group("name")
-            rule = _FUNCTION_TO_RULE[function]
-            findings.append(
-                NativeSecurityFinding(
-                    rule.rule_id,
-                    rule.severity,
-                    relative_path,
-                    line_number,
-                    function,
-                    _normalize_code(line),
-                    rule.message,
-                )
+    for match in _CALL_PATTERN.finditer(stripped):
+        function = match.group("name")
+        rule = _FUNCTION_TO_RULE[function]
+        line_number = stripped.count("\n", 0, match.start("name")) + 1
+        findings.append(
+            NativeSecurityFinding(
+                rule.rule_id,
+                rule.severity,
+                relative_path,
+                line_number,
+                function,
+                _normalize_code(stripped_lines[line_number - 1]),
+                rule.message,
             )
+        )
     return findings
 
 
@@ -301,7 +308,7 @@ def load_allowlist(path: Path) -> list[AllowlistEntry]:
             raise ValueError(f"{path}: entries[{position}] の reason が短すぎます")
         entries.append(
             AllowlistEntry(
-                str(values["path"]).replace("\\", "/"),
+                _normalize_relative_path(str(values["path"])),
                 str(values["rule"]),
                 str(values["function"]),
                 _normalize_code(str(values["code"])),
@@ -311,17 +318,26 @@ def load_allowlist(path: Path) -> list[AllowlistEntry]:
     return entries
 
 
+def _normalize_relative_path(path: str) -> str:
+    # 許可リストの `./native/...` や `native\\...` を検出側の相対POSIXパスと同じ形にそろえる。
+    return posixpath.normpath(path.replace("\\", "/")).removeprefix("./")
+
+
 def apply_allowlist(
     findings: Sequence[NativeSecurityFinding], entries: Sequence[AllowlistEntry]
 ) -> tuple[list[NativeSecurityFinding], list[AllowlistEntry]]:
-    """許可リストに一致した検出を除き、残った検出と一度も一致しなかった許可リスト項目を返す。"""
+    """許可リストに一致した検出を除き、残った検出と一度も一致しなかった許可リスト項目を返す。
+
+    1項目は1件の検出だけを許可する。同じ内容の行が複数ある場合は、その件数分の項目が必要。
+    """
     used: set[int] = set()
     remaining: list[NativeSecurityFinding] = []
     for finding in findings:
         matched = False
         for position, entry in enumerate(entries):
             if (
-                entry.path == finding.path
+                position not in used
+                and entry.path == finding.path
                 and entry.rule == finding.rule
                 and entry.function == finding.function
                 and entry.code == finding.code
@@ -340,9 +356,15 @@ def run_check(
 ) -> tuple[
     list[NativeSecurityFinding], list[NativeSecurityFinding], list[AllowlistEntry]
 ]:
-    """対象ソースを走査し、(blocking検出, 報告のみの検出, 未使用の許可リスト項目) を返す。"""
+    """対象ソースを走査し、(blocking検出, 報告のみの検出, 未使用の許可リスト項目) を返す。
+
+    検査対象のソースが0件の場合は、空の検査を成功扱いしないため ValueError を送出する。
+    """
+    sources = iter_native_sources(paths)
+    if not sources:
+        raise ValueError("検査対象のC/C++ソースが0件です")
     findings: list[NativeSecurityFinding] = []
-    for source_path in iter_native_sources(paths):
+    for source_path in sources:
         relative = source_path.resolve().relative_to(root.resolve()).as_posix()
         findings.extend(
             scan_source(
