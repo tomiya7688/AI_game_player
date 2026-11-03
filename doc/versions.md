@@ -124,6 +124,11 @@ plugin_manifest_schema          1
 ## Unreleased
 
 - Issue #115: Native C++ Security Profileの第1段として、`tools/native_security_check.py`（コメント・文字列・行継続を処理し、境界なし文字列/書式API・プロセス起動・`alloca`をhigh、失敗を検出できない変換・生のメモリ転送・手動ヒープ管理・生のnew/deleteをmediumとして検出。許可は`config/native_security_allowlist.json`の理由付き1項目=1検出のみで、未使用項目と対象0件も失敗）と、`clang-tidy==22.1.8`固定の`native/.clang-tidy`・`tools/native_clang_tidy.py`（Linuxは非Windows stub、WindowsはWGC / Direct3D実装を解析）を追加し、`language-ci`の新3ジョブを必須チェック宣言へ登録しました（必須checkは37件、`doc/main保護方針.md`も更新）。導入時の検出に従い`runtime_api.h`の負のstatusマクロを括弧で囲みました（値は不変）。CodeQL、Windows sanitizer、FFI異常入力fuzz、handle lifetime検査は未対応です。[検査範囲と限界](architecture/native_security_profile.md)。
+- Issue #149（一部）: `tools/windows_bundle_check.py layout`を追加し、`tools/build_windows_bundle.ps1`の最後に実行します。bundle内の全PE fileのimport表（遅延読込を含む）を読み、各DLLがbundle内にあるかWindowsの部品であることを、build機の`System32`を参照せずに判定します。VC++ runtimeはWindowsの部品として扱いません。
+- 従来のNative DLLは`MSVCP140.dll`を必要とし、PyInstallerはこのDLLを同梱していませんでした（VC++再頒布パッケージのないWindowsではNative Runtimeなしで起動する状態）。bundle用のNative buildだけMSVC runtimeを静的リンク（`/MT`）へ変更しました。buildの各段階の終了codeも検査します。
+- `Kadoka.exe --bundle-self-check <report>`を追加しました。凍結状態、`sys.path`とpackageがbundle内にあること、bundle直下のNative DLLの読込（通常の探索とSafety補助経路）、同梱資源、Tcl/Tk、OpenSSLを検査し、JSON reportと終了codeで返します。
+- `tools/windows_bundle_check.py launch`は、bundleを空白・日本語を含む別pathへ複製し、WindowsのdirectoryだけのPATH、`PYTHON*`/`KADOKA_*`なし、新しいprofile directory、リポジトリ外の作業directoryで自己検査と`--smoke-test`を実行します。CIの`windows-app-bundle` jobへ追加しました。
+- CI runnerにはVC++再頒布パッケージ等が導入済みのため、clean Windowsでの起動確認は未実施です。確認範囲と残りの作業は[Windows配布bundle説明書](Windows配布bundle説明書.md)に記録しました。
 - Issue #114: Python Security Profile。Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
 - `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
 - dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。
