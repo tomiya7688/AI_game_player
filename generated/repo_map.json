@@ -146212,6 +146212,10 @@
             {
               "alias": null,
               "name": "parse_profile"
+            },
+            {
+              "alias": null,
+              "name": "run_bandit"
             }
           ]
         }
@@ -146219,7 +146223,7 @@
       "module": "tests.test_python_security_check",
       "path": "tests/test_python_security_check.py",
       "source_location": {
-        "end_line": 434,
+        "end_line": 451,
         "start_line": 1
       },
       "symbols": [
@@ -146242,8 +146246,8 @@
           "signature": "(**overrides: Any) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 45,
-            "start_line": 28
+            "end_line": 46,
+            "start_line": 29
           }
         },
         {
@@ -146265,8 +146269,8 @@
           "signature": "(**overrides: Any) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 59,
-            "start_line": 48
+            "end_line": 60,
+            "start_line": 49
           }
         },
         {
@@ -146312,8 +146316,8 @@
           "signature": "(path: str, rule: str, severity: str, line: int = …, confidence: str = …) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 73,
-            "start_line": 62
+            "end_line": 74,
+            "start_line": 63
           }
         },
         {
@@ -146341,8 +146345,8 @@
           "signature": "(results: list[dict[str, Any]], errors: list[Any] | None = …) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 83,
-            "start_line": 76
+            "end_line": 84,
+            "start_line": 77
           }
         },
         {
@@ -146363,8 +146367,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 394,
-            "start_line": 86
+            "end_line": 411,
+            "start_line": 87
           }
         },
         {
@@ -146386,8 +146390,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 100,
-            "start_line": 87
+            "end_line": 101,
+            "start_line": 88
           }
         },
         {
@@ -146409,8 +146413,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 103,
-            "start_line": 102
+            "end_line": 104,
+            "start_line": 103
           }
         },
         {
@@ -146444,8 +146448,8 @@
           "signature": "(self, results: list[dict[str, Any]], **profile_overrides: Any)",
           "source_location": {
             "column": 4,
-            "end_line": 107,
-            "start_line": 105
+            "end_line": 108,
+            "start_line": 106
           }
         },
         {
@@ -146467,8 +146471,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 109
+            "end_line": 119,
+            "start_line": 110
           }
         },
         {
@@ -146490,8 +146494,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 125,
-            "start_line": 120
+            "end_line": 126,
+            "start_line": 121
           }
         },
         {
@@ -146513,8 +146517,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 132,
-            "start_line": 127
+            "end_line": 133,
+            "start_line": 128
           }
         },
         {
@@ -146536,8 +146540,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 134
+            "end_line": 142,
+            "start_line": 135
           }
         },
         {
@@ -146559,8 +146563,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 148,
-            "start_line": 143
+            "end_line": 149,
+            "start_line": 144
           }
         },
         {
@@ -146582,8 +146586,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 158,
-            "start_line": 150
+            "end_line": 159,
+            "start_line": 151
           }
         },
         {
@@ -146605,8 +146609,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 160
+            "end_line": 170,
+            "start_line": 161
           }
         },
         {
@@ -146628,8 +146632,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 180,
-            "start_line": 171
+            "end_line": 181,
+            "start_line": 172
           }
         },
         {
@@ -146651,8 +146655,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 187,
-            "start_line": 182
+            "end_line": 188,
+            "start_line": 183
           }
         },
         {
@@ -146674,8 +146678,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 189
+            "end_line": 199,
+            "start_line": 190
           }
         },
         {
@@ -146697,8 +146701,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 214,
-            "start_line": 200
+            "end_line": 215,
+            "start_line": 201
           }
         },
         {
@@ -146720,8 +146724,54 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 224,
-            "start_line": 216
+            "end_line": 227,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_run_bandit_refuses_nested_bandit_config",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_run_bandit_refuses_nested_bandit_config",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 234,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_optional_lists_may_be_empty",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_optional_lists_may_be_empty",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 236
           }
         },
         {
@@ -146743,8 +146793,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 226
+            "end_line": 248,
+            "start_line": 243
           }
         },
         {
@@ -146766,8 +146816,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 248,
-            "start_line": 233
+            "end_line": 265,
+            "start_line": 250
           }
         },
         {
@@ -146789,8 +146839,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 280,
-            "start_line": 250
+            "end_line": 297,
+            "start_line": 267
           }
         },
         {
@@ -146812,8 +146862,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 311,
-            "start_line": 282
+            "end_line": 328,
+            "start_line": 299
           }
         },
         {
@@ -146835,8 +146885,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 327,
-            "start_line": 313
+            "end_line": 344,
+            "start_line": 330
           }
         },
         {
@@ -146858,8 +146908,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 359,
-            "start_line": 329
+            "end_line": 376,
+            "start_line": 346
           }
         },
         {
@@ -146881,8 +146931,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 383,
-            "start_line": 361
+            "end_line": 400,
+            "start_line": 378
           }
         },
         {
@@ -146904,8 +146954,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 394,
-            "start_line": 385
+            "end_line": 411,
+            "start_line": 402
           }
         },
         {
@@ -146926,8 +146976,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 430,
-            "start_line": 397
+            "end_line": 447,
+            "start_line": 414
           }
         },
         {
@@ -146949,8 +146999,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 411,
-            "start_line": 398
+            "end_line": 428,
+            "start_line": 415
           }
         },
         {
@@ -146972,8 +147022,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 430,
-            "start_line": 413
+            "end_line": 447,
+            "start_line": 430
           }
         }
       ]
@@ -192511,7 +192561,7 @@
       "module": "tools.python_security_check",
       "path": "tools/python_security_check.py",
       "source_location": {
-        "end_line": 571,
+        "end_line": 576,
         "start_line": 1
       },
       "symbols": [
@@ -192784,14 +192834,20 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "context"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "allow_empty"
             }
           ],
           "qualified_name": "_string_list",
           "return_annotation": "tuple[str, ...]",
-          "signature": "(mapping: dict[str, Any], key: str, context: str) -> tuple[str, ...]",
+          "signature": "(mapping: dict[str, Any], key: str, context: str, *, allow_empty: bool = …) -> tuple[str, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 133,
+            "end_line": 137,
             "start_line": 127
           }
         },
@@ -192814,8 +192870,8 @@
           "signature": "(mapping: dict[str, Any]) -> tuple[str, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 145,
-            "start_line": 136
+            "end_line": 149,
+            "start_line": 140
           }
         },
         {
@@ -192849,8 +192905,8 @@
           "signature": "(mapping: dict[str, Any], key: str, context: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 152,
-            "start_line": 148
+            "end_line": 156,
+            "start_line": 152
           }
         },
         {
@@ -192890,8 +192946,8 @@
           "signature": "(raw: Any, index: int, today: date, max_days: int) -> Suppression",
           "source_location": {
             "column": 0,
-            "end_line": 191,
-            "start_line": 155
+            "end_line": 195,
+            "start_line": 159
           }
         },
         {
@@ -192919,8 +192975,8 @@
           "signature": "(raw: Any, today: date) -> SecurityProfile",
           "source_location": {
             "column": 0,
-            "end_line": 231,
-            "start_line": 194
+            "end_line": 235,
+            "start_line": 198
           }
         },
         {
@@ -192948,8 +193004,8 @@
           "signature": "(path: Path, today: date) -> SecurityProfile",
           "source_location": {
             "column": 0,
-            "end_line": 239,
-            "start_line": 234
+            "end_line": 243,
+            "start_line": 238
           }
         },
         {
@@ -192977,8 +193033,8 @@
           "signature": "(filename: str, root: Path) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 250,
-            "start_line": 242
+            "end_line": 254,
+            "start_line": 246
           }
         },
         {
@@ -193006,8 +193062,8 @@
           "signature": "(path: str, profile: SecurityProfile) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 258,
-            "start_line": 253
+            "end_line": 262,
+            "start_line": 257
           }
         },
         {
@@ -193041,8 +193097,8 @@
           "signature": "(root: Path, path: str, line_range: list[int]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 268,
-            "start_line": 261
+            "end_line": 272,
+            "start_line": 265
           }
         },
         {
@@ -193082,8 +193138,8 @@
           "signature": "(profile: SecurityProfile, tool: str, today: date, report: EvaluationReport) -> list[Suppression]",
           "source_location": {
             "column": 0,
-            "end_line": 290,
-            "start_line": 271
+            "end_line": 294,
+            "start_line": 275
           }
         },
         {
@@ -193117,8 +193173,8 @@
           "signature": "(suppression: Suppression, used: dict[Suppression, int], finding: Finding) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 301,
-            "start_line": 293
+            "end_line": 305,
+            "start_line": 297
           }
         },
         {
@@ -193152,8 +193208,8 @@
           "signature": "(active: list[Suppression], used: dict[Suppression, int], report: EvaluationReport) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 318,
-            "start_line": 304
+            "end_line": 322,
+            "start_line": 308
           }
         },
         {
@@ -193193,8 +193249,8 @@
           "signature": "(raw: Any, profile: SecurityProfile, root: Path, today: date) -> EvaluationReport",
           "source_location": {
             "column": 0,
-            "end_line": 406,
-            "start_line": 321
+            "end_line": 411,
+            "start_line": 325
           }
         },
         {
@@ -193228,8 +193284,8 @@
           "signature": "(raw: Any, profile: SecurityProfile, today: date) -> EvaluationReport",
           "source_location": {
             "column": 0,
-            "end_line": 453,
-            "start_line": 409
+            "end_line": 458,
+            "start_line": 414
           }
         },
         {
@@ -193257,8 +193313,8 @@
           "signature": "(profile: SecurityProfile, root: Path) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 484,
-            "start_line": 456
+            "end_line": 489,
+            "start_line": 461
           }
         },
         {
@@ -193286,8 +193342,8 @@
           "signature": "(path: Path, label: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 491,
-            "start_line": 487
+            "end_line": 496,
+            "start_line": 492
           }
         },
         {
@@ -193309,8 +193365,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 567,
-            "start_line": 494
+            "end_line": 572,
+            "start_line": 499
           }
         }
       ]

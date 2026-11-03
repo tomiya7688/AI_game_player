@@ -124,9 +124,13 @@ def _require(mapping: dict[str, Any], key: str, kind: type, context: str) -> Any
     return value
 
 
-def _string_list(mapping: dict[str, Any], key: str, context: str) -> tuple[str, ...]:
+def _string_list(
+    mapping: dict[str, Any], key: str, context: str, *, allow_empty: bool = True
+) -> tuple[str, ...]:
     values = _require(mapping, key, list, context)
-    if not values or not all(isinstance(value, str) and value for value in values):
+    if (not values and not allow_empty) or not all(
+        isinstance(value, str) and value for value in values
+    ):
         raise ProfileError(
             f"{context}.{key} must be a non-empty list of non-empty strings"
         )
@@ -134,7 +138,7 @@ def _string_list(mapping: dict[str, Any], key: str, context: str) -> tuple[str, 
 
 
 def _scan_paths(mapping: dict[str, Any]) -> tuple[str, ...]:
-    paths = _string_list(mapping, "scan_paths", "bandit")
+    paths = _string_list(mapping, "scan_paths", "bandit", allow_empty=False)
     for path in paths:
         if (
             PurePosixPath(path).is_absolute()
@@ -363,7 +367,8 @@ def evaluate_bandit(
             severity not in KNOWN_LEVELS
             or confidence not in KNOWN_LEVELS
             or PurePosixPath(path).is_absolute()
-            or path.startswith("../")
+            or ".." in PurePosixPath(path).parts
+            or ":" in path
         )
         meets_threshold = unjudgeable or (
             SEVERITY_ORDER[severity] >= minimum_severity
@@ -454,12 +459,12 @@ def evaluate_pip_audit(
 
 
 def run_bandit(profile: SecurityProfile, root: Path) -> Any:
-    # Bandit reads a ".bandit" file from its targets, which could narrow the scan outside the profile.
-    for directory in (Path("."), *map(Path, profile.scan_paths)):
-        if (root / directory / ".bandit").exists():
-            raise ProfileError(
-                f"{directory / '.bandit'} would override the profile; remove it"
-            )
+    # Bandit reads ".bandit" files under its targets, which could narrow the scan outside the profile.
+    overrides = [root / ".bandit"] if (root / ".bandit").exists() else []
+    for scan_path in profile.scan_paths:
+        overrides.extend((root / scan_path).rglob(".bandit"))
+    if overrides:
+        raise ProfileError(f"{overrides[0]} would override the profile; remove it")
     with tempfile.TemporaryDirectory() as directory:
         output = Path(directory) / "bandit.json"
         command = [

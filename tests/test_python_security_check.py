@@ -19,6 +19,7 @@ from tools.python_security_check import (
     load_profile,
     main,
     parse_profile,
+    run_bandit,
 )
 
 TODAY = date(2026, 11, 4)
@@ -218,10 +219,26 @@ class PythonSecurityProfileTests(unittest.TestCase):
             [
                 _result("src/pkg/plain.py", "B603", "UNDEFINED"),
                 _result("../elsewhere/plain.py", "B603", "LOW"),
+                _result("src/../../elsewhere/plain.py", "B603", "LOW"),
+                _result("C:\\elsewhere\\plain.py", "B603", "LOW"),
             ]
         )
 
-        self.assertEqual(2, len(report.blocking))
+        self.assertEqual(4, len(report.blocking))
+
+    def test_run_bandit_refuses_nested_bandit_config(self) -> None:
+        (self.root / "src/pkg/.bandit").write_text("[bandit]\n", encoding="utf-8")
+        profile = parse_profile(_profile(), TODAY)
+
+        with self.assertRaisesRegex(ProfileError, "override the profile"):
+            run_bandit(profile, self.root)
+
+    def test_optional_lists_may_be_empty(self) -> None:
+        profile = parse_profile(
+            _profile(sensitive_modules={"paths": [], "extra_blocking_rules": []}), TODAY
+        )
+
+        self.assertEqual((), profile.sensitive_paths)
 
     def test_report_without_scanned_files_blocks(self) -> None:
         profile = parse_profile(_profile(), TODAY)
