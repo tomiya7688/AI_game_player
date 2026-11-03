@@ -16,20 +16,21 @@
 
 ## 危険API検出の規則
 
-検出器はコメント、文字列リテラル、raw文字列、文字リテラルを空白へ置き換えてから、規則表の関数名の呼出し（`name(`、`std::name(`、`::name(`）を検出します。関数名と `(` の間に改行がある呼出しも検出し、関数名がある行を報告します。対象は標準C/C++とWindowsのグローバルAPIだけで、メンバー呼出し（`obj.free(`）、`std` 以外の名前空間・クラス修飾（`kadoka::memcpy(`、`Pool::free(`）、別名の識別子（`strcpy_s(`）は検出しません。独自名前空間で危険APIを包む関数の中身は、その定義側の呼出しとして検出されます。
+検出器はコメント、文字列リテラル、raw文字列、文字リテラルを空白へ置き換えてから、規則表の関数名の呼出し（`name(`、`std::name(`、`::name(`）を検出します。走査前にコンパイラと同じく行継続（`\` + 改行）を連結し、`::std::memcpy(`、`std :: strcpy(` のような空白付きの修飾や、関数名と `(` の間に改行がある呼出しも検出して、関数名がある元の行を報告します。対象は標準C/C++とWindowsのグローバルAPIだけで、メンバー呼出し（`obj.free(`）、`std` 以外の名前空間・クラス修飾（`kadoka::memcpy(`、`Pool::free(`）、別名の識別子（`strcpy_s(`）は検出しません。独自名前空間で危険APIを包む関数の中身は、その定義側の呼出しとして検出されます。
 
 | 規則 | 重大度 | 対象API | 理由 |
 |---|---|---|---|
 | NSC001 | high | `gets`、`strcpy`、`strcat`、`sprintf`、`vsprintf`、`wcscpy`、`wcscat`、`swprintf`、`lstrcpy*`、`wsprintf*` など | 出力容量を受け取らない文字列/書式API |
-| NSC002 | high | `system`、`popen`、`WinExec`、`ShellExecute*`、`CreateProcess*` など | Native Runtimeからの外部コマンド/プロセス起動 |
+| NSC002 | high | `system`、`popen`、`WinExec`、`ShellExecute*`、`CreateProcess*`（`AsUser`、`WithLogonW`、`WithTokenW`を含む）、`exec*`、`posix_spawn*`、`_spawn*` など | Native Runtimeからの外部コマンド/プロセス起動 |
 | NSC003 | high | `alloca`、`_alloca`、`_malloca` | 入力サイズ由来のスタック溢れ |
 | NSC004 | medium | `atoi`、`atol`、`atoll`、`atof`、`strtok`、`rand`、`srand` | 変換失敗を検出できない、再入不能、または予測可能 |
 | NSC005 | medium | `memcpy`、`memmove`、`memset`、`CopyMemory`、`RtlCopyMemory` など | 容量検査を呼出し側に依存する生のメモリ転送 |
 | NSC006 | medium | `malloc`、`calloc`、`realloc`、`free`、`_aligned_malloc`、`_aligned_free` | RAIIを経由しない手動ヒープ管理 |
+| NSC007 | medium | 生の `new` / `delete` 式（`= delete`、`#include <new>`、`operator new` / `operator delete` の宣言は除く） | 所有権と解放の対応を呼出し側の規約に依存する |
 
 - 既定の `--fail-on medium` では、すべての規則がmergeを止めます。`--fail-on high` を指定すると medium の検出は `advisory:` として表示だけ行います。
 - 許可リストは `config/native_security_allowlist.json` です。各項目は `path`、`rule`、`function`、`code`（コメント・文字列を除き空白を1つに正規化した該当行）、10文字以上の `reason` を必須とします。行番号では照合しないため、該当行の内容が変わると項目は一致しなくなり、未使用項目として失敗します。1項目が許可するのは1件の検出だけで、同じ内容の行が複数あればその件数分の項目が必要です。`path` は `./` や `\` を含んでいても相対POSIXパスへ正規化して照合します。
-- 現在の許可は `native/src/wgc_capture.cpp` の行単位 `std::memcpy` 1件だけです。コピー前に必要容量を `uint64_t` で検査しています。D3D Mapの `pData` / `RowPitch` の防御検査は #652 で扱います。
+- 現在の許可は6件です。`native/src/wgc_capture.cpp` の行単位 `std::memcpy` 1件（コピー前に必要容量を `uint64_t` で検査。D3D Mapの `pData` / `RowPitch` の防御検査は #652）と、C ABIのopaque handle（runtime、WGC session、frame lease）を確保・解放する `new (std::nothrow)` / `delete` 5件です。handleの並行呼出しとlifetimeは #652 で扱います。
 
 ## clang-tidyの固定設定
 

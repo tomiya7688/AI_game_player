@@ -74,12 +74,36 @@ RULES: tuple[NativeSecurityRule, ...] = (
                 "_popen",
                 "_wpopen",
                 "WinExec",
+                "ShellExecute",
                 "ShellExecuteA",
                 "ShellExecuteW",
+                "ShellExecuteEx",
                 "ShellExecuteExA",
                 "ShellExecuteExW",
+                "CreateProcess",
                 "CreateProcessA",
                 "CreateProcessW",
+                "CreateProcessAsUser",
+                "CreateProcessAsUserA",
+                "CreateProcessAsUserW",
+                "CreateProcessWithLogonW",
+                "CreateProcessWithTokenW",
+                "execl",
+                "execle",
+                "execlp",
+                "execv",
+                "execve",
+                "execvp",
+                "execvpe",
+                "posix_spawn",
+                "posix_spawnp",
+                "_execl",
+                "_execv",
+                "_execvp",
+                "_spawnl",
+                "_spawnv",
+                "_spawnvp",
+                "_wspawnv",
             }
         ),
         "外部コマンド/プロセス起動APIです。Native Runtimeから起動する場合は許可リストへ理由を登録してください",
@@ -124,12 +148,25 @@ RULES: tuple[NativeSecurityRule, ...] = (
     ),
 )
 
+# 関数呼出しではなく式として現れるため、_CALL_PATTERN とは別の正規表現で検出する。
+HEAP_EXPRESSION_RULE = NativeSecurityRule(
+    "NSC007",
+    "medium",
+    frozenset({"new", "delete"}),
+    "生のnew/delete式です。C ABIのopaque handle等で必要な場合は所有権の移動と解放関数を許可リストへ記録してください",
+)
+
 _FUNCTION_TO_RULE = {function: rule for rule in RULES for function in rule.functions}
 _CALL_PATTERN = re.compile(
-    r"(?<![\w.>:])(?:(?:std)?::)?(?P<name>"
+    r"(?<![\w.>:])(?:(?:::\s*)?std\s*::\s*|::\s*)?(?P<name>"
     + "|".join(sorted(_FUNCTION_TO_RULE, key=len, reverse=True))
     + r")\s*\("
 )
+# `= delete;`、`#include <new>`、`operator new` は対象外（後者は検出後に除外する）。
+_HEAP_EXPRESSION_PATTERN = re.compile(
+    r"(?<![\w.>:])(?:::\s*)?(?P<name>new|delete)\b(?=\s*[\w(\[*:])"
+)
+_OPERATOR_KEYWORD = re.compile(r"\boperator\s*$")
 _RAW_STRING_PREFIX = re.compile(r'(?:u8|u|U|L)?R"(?P<delimiter>[^()\\\s"]{0,16})\(')
 
 
@@ -236,25 +273,54 @@ def scan_source(relative_path: str, source: str) -> list[NativeSecurityFinding]:
     報告する行番号とコードは関数名がある行とする。
     """
     # CRLFを先に正規化し、文字列内の行継続（\ + CRLF）を通常の改行と同じに扱う。
-    stripped = strip_comments_and_literals(source.replace("\r\n", "\n"))
-    stripped_lines = stripped.split("\n")
+    normalized = source.replace("\r\n", "\n")
+    # コンパイラと同じく、コメント・リテラル解析より前に行継続（\ + 改行）を連結する。
+    joined, line_of = _join_line_splices(normalized)
+    stripped = strip_comments_and_literals(joined)
+    original_lines = strip_comments_and_literals(normalized).split("\n")
+    matches = [
+        (match, _FUNCTION_TO_RULE[match.group("name")])
+        for match in _CALL_PATTERN.finditer(stripped)
+    ]
+    matches.extend(
+        (match, HEAP_EXPRESSION_RULE)
+        for match in _HEAP_EXPRESSION_PATTERN.finditer(stripped)
+        if _OPERATOR_KEYWORD.search(stripped, 0, match.start()) is None
+    )
     findings: list[NativeSecurityFinding] = []
-    for match in _CALL_PATTERN.finditer(stripped):
-        function = match.group("name")
-        rule = _FUNCTION_TO_RULE[function]
-        line_number = stripped.count("\n", 0, match.start("name")) + 1
+    for match, rule in sorted(matches, key=lambda item: item[0].start("name")):
+        line_number = line_of[match.start("name")]
         findings.append(
             NativeSecurityFinding(
                 rule.rule_id,
                 rule.severity,
                 relative_path,
                 line_number,
-                function,
-                _normalize_code(stripped_lines[line_number - 1]),
+                match.group("name"),
+                _normalize_code(original_lines[line_number - 1]),
                 rule.message,
             )
         )
     return findings
+
+
+def _join_line_splices(source: str) -> tuple[str, list[int]]:
+    # 連結後の各文字が元ソースの何行目にあったか（1始まり）を併せて返す。
+    joined: list[str] = []
+    line_of: list[int] = []
+    line_number = 1
+    index = 0
+    while index < len(source):
+        if source.startswith("\\\n", index):
+            line_number += 1
+            index += 2
+            continue
+        joined.append(source[index])
+        line_of.append(line_number)
+        if source[index] == "\n":
+            line_number += 1
+        index += 1
+    return "".join(joined), line_of
 
 
 def _normalize_code(line: str) -> str:

@@ -1,9 +1,3 @@
-## 2026-11-04 Native C++ Security Profile 第1段（Issue #115）
-
-- `tools/native_security_check.py` を追加。`native/` のC/C++からコメント・文字列を除き、境界なし文字列/書式API・外部コマンド起動・`alloca`（high）と、失敗を検出できない変換・生のメモリ転送・手動ヒープ管理（medium）の呼出しを検出します。許可は `config/native_security_allowlist.json` の理由付き項目だけで、未使用項目も失敗にします。
-- `native/.clang-tidy` と `tools/native_clang_tidy.py` を追加。`clang-tidy==22.1.8` に固定し、bugprone / cert / clang-analyzer系の警告をすべてエラーにします。Linuxは非Windows stub、WindowsはWGC / Direct3D実装を解析します。
-- `language-ci` に `Native dangerous C/C++ API detector` と `Native clang-tidy security profile (ubuntu-latest / windows-latest)` を追加し、rulesetの必須チェック宣言へ登録しました。導入時の検出に従い `runtime_api.h` の負のstatusマクロを括弧で囲みました（値は不変）。CodeQL、Windows sanitizer、FFI異常入力fuzz、handle lifetime検査は未対応です。[検査範囲と限界](architecture/native_security_profile.md)。
-
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
@@ -128,6 +122,8 @@ plugin_manifest_schema          1
 各contractのbreaking/compatible変更規則は、そのmachine-readable schemaまたはarchitecture documentを正本とする。
 
 ## Unreleased
+
+- Issue #115: Native C++ Security Profileの第1段として、`tools/native_security_check.py`（コメント・文字列・行継続を処理し、境界なし文字列/書式API・プロセス起動・`alloca`をhigh、失敗を検出できない変換・生のメモリ転送・手動ヒープ管理・生のnew/deleteをmediumとして検出。許可は`config/native_security_allowlist.json`の理由付き1項目=1検出のみで、未使用項目と対象0件も失敗）と、`clang-tidy==22.1.8`固定の`native/.clang-tidy`・`tools/native_clang_tidy.py`（Linuxは非Windows stub、WindowsはWGC / Direct3D実装を解析）を追加し、`language-ci`の新3ジョブを必須チェック宣言へ登録しました。導入時の検出に従い`runtime_api.h`の負のstatusマクロを括弧で囲みました（値は不変）。CodeQL、Windows sanitizer、FFI異常入力fuzz、handle lifetime検査は未対応です。[検査範囲と限界](architecture/native_security_profile.md)。
 
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。 実機能親18eのplanning専用IPC・私有HTTPの有限queue・失敗後診断も互換実装として保持し、永続Safetyと将来Rust配置、新headのWindows受入を区別します。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
 

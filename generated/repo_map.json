@@ -128896,7 +128896,7 @@
       "module": "tests.test_native_security_check",
       "path": "tests/test_native_security_check.py",
       "source_location": {
-        "end_line": 256,
+        "end_line": 312,
         "start_line": 1
       },
       "symbols": [
@@ -128918,7 +128918,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 252,
+            "end_line": 308,
             "start_line": 23
           }
         },
@@ -129226,6 +129226,98 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_backslash_newline_splices_are_joined_before_matching",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeSecurityCheckTests.test_backslash_newline_splices_are_joined_before_matching",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 243,
+            "start_line": 235
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_global_and_spaced_std_qualifiers_are_detected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeSecurityCheckTests.test_global_and_spaced_std_qualifiers_are_detected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 245
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_process_creation_variants_are_high_severity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeSecurityCheckTests.test_process_creation_variants_are_high_severity",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 265,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_raw_new_and_delete_expressions_are_detected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NativeSecurityCheckTests.test_raw_new_and_delete_expressions_are_detected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 289,
+            "start_line": 267
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_empty_source_set_is_an_error_not_a_pass",
           "parameters": [
             {
@@ -129240,8 +129332,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 235
+            "end_line": 296,
+            "start_line": 291
           }
         },
         {
@@ -129263,8 +129355,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 252,
-            "start_line": 242
+            "end_line": 308,
+            "start_line": 298
           }
         }
       ]
@@ -187007,7 +187099,7 @@
       "module": "tools.native_security_check",
       "path": "tools/native_security_check.py",
       "source_location": {
-        "end_line": 451,
+        "end_line": 517,
         "start_line": 1
       },
       "symbols": [
@@ -187051,8 +187143,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 144,
-            "start_line": 137
+            "end_line": 181,
+            "start_line": 174
           }
         },
         {
@@ -187073,8 +187165,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 148
+            "end_line": 190,
+            "start_line": 185
           }
         },
         {
@@ -187096,8 +187188,8 @@
           "signature": "(source: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 196,
-            "start_line": 156
+            "end_line": 233,
+            "start_line": 193
           }
         },
         {
@@ -187119,8 +187211,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 200,
-            "start_line": 199
+            "end_line": 237,
+            "start_line": 236
           }
         },
         {
@@ -187148,8 +187240,8 @@
           "signature": "(source: str, index: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 215,
-            "start_line": 203
+            "end_line": 252,
+            "start_line": 240
           }
         },
         {
@@ -187177,8 +187269,8 @@
           "signature": "(source: str, start: int) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 229,
-            "start_line": 218
+            "end_line": 266,
+            "start_line": 255
           }
         },
         {
@@ -187206,8 +187298,31 @@
           "signature": "(relative_path: str, source: str) -> list[NativeSecurityFinding]",
           "source_location": {
             "column": 0,
-            "end_line": 257,
-            "start_line": 232
+            "end_line": 304,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_join_line_splices",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            }
+          ],
+          "qualified_name": "_join_line_splices",
+          "return_annotation": "tuple[str, list[int]]",
+          "signature": "(source: str) -> tuple[str, list[int]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 323,
+            "start_line": 307
           }
         },
         {
@@ -187229,8 +187344,8 @@
           "signature": "(line: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 261,
-            "start_line": 260
+            "end_line": 327,
+            "start_line": 326
           }
         },
         {
@@ -187252,8 +187367,8 @@
           "signature": "(paths: Iterable[Path]) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 277,
-            "start_line": 264
+            "end_line": 343,
+            "start_line": 330
           }
         },
         {
@@ -187275,8 +187390,8 @@
           "signature": "(path: Path) -> list[AllowlistEntry]",
           "source_location": {
             "column": 0,
-            "end_line": 318,
-            "start_line": 280
+            "end_line": 384,
+            "start_line": 346
           }
         },
         {
@@ -187298,8 +187413,8 @@
           "signature": "(path: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 323,
-            "start_line": 321
+            "end_line": 389,
+            "start_line": 387
           }
         },
         {
@@ -187327,8 +187442,8 @@
           "signature": "(findings: Sequence[NativeSecurityFinding], entries: Sequence[AllowlistEntry]) -> tuple[list[NativeSecurityFinding], list[AllowlistEntry]]",
           "source_location": {
             "column": 0,
-            "end_line": 351,
-            "start_line": 326
+            "end_line": 417,
+            "start_line": 392
           }
         },
         {
@@ -187368,8 +187483,8 @@
           "signature": "(paths: Sequence[Path], root: Path, allowlist_path: Path | None, fail_on: str) -> tuple[list[NativeSecurityFinding], list[NativeSecurityFinding], list[AllowlistEntry]]",
           "source_location": {
             "column": 0,
-            "end_line": 385,
-            "start_line": 354
+            "end_line": 451,
+            "start_line": 420
           }
         },
         {
@@ -187391,8 +187506,8 @@
           "signature": "(finding: NativeSecurityFinding) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 392,
-            "start_line": 388
+            "end_line": 458,
+            "start_line": 454
           }
         },
         {
@@ -187414,8 +187529,8 @@
           "signature": "(argv: Sequence[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 447,
-            "start_line": 395
+            "end_line": 513,
+            "start_line": 461
           }
         }
       ]

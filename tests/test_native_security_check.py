@@ -232,6 +232,62 @@ class NativeSecurityCheckTests(unittest.TestCase):
             [item.path for item in entries], ["native/src/a.cpp", "native/src/b.cpp"]
         )
 
+    def test_backslash_newline_splices_are_joined_before_matching(self) -> None:
+        source = "int a;\nstr\\\ncpy(d, s);\nmemset \\\n(p, 0, n);\n"
+
+        findings = scan_source("a.cpp", source)
+
+        self.assertEqual(
+            [(f.function, f.line_number) for f in findings],
+            [("strcpy", 2), ("memset", 4)],
+        )
+
+    def test_global_and_spaced_std_qualifiers_are_detected(self) -> None:
+        source = "::std::memcpy(a, b, n);\nstd :: strcpy(a, b);\n:: system(x);\n"
+
+        self.assertEqual(
+            [f.function for f in scan_source("a.cpp", source)],
+            ["memcpy", "strcpy", "system"],
+        )
+
+    def test_process_creation_variants_are_high_severity(self) -> None:
+        source = "CreateProcessAsUserW(t, a);\nexecvp(p, v);\nposix_spawn(&p, a);\n"
+
+        findings = scan_source("a.cpp", source)
+
+        self.assertEqual(
+            [(f.function, f.rule, f.severity) for f in findings],
+            [
+                ("CreateProcessAsUserW", "NSC002", "high"),
+                ("execvp", "NSC002", "high"),
+                ("posix_spawn", "NSC002", "high"),
+            ],
+        )
+
+    def test_raw_new_and_delete_expressions_are_detected(self) -> None:
+        source = (
+            "#include <new>\n"
+            "auto* h = new (std::nothrow) Handle{};\n"
+            "auto* v = ::new Value;\n"
+            "delete h;\n"
+            "delete[] buffer;\n"
+            "Handle(const Handle&) = delete;\n"
+            "void* operator new(std::size_t size);\n"
+            "void operator delete(void* p) noexcept;\n"
+        )
+
+        findings = scan_source("a.cpp", source)
+
+        self.assertEqual(
+            [(f.function, f.rule, f.line_number) for f in findings],
+            [
+                ("new", "NSC007", 2),
+                ("new", "NSC007", 3),
+                ("delete", "NSC007", 4),
+                ("delete", "NSC007", 5),
+            ],
+        )
+
     def test_empty_source_set_is_an_error_not_a_pass(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
