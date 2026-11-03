@@ -18,6 +18,10 @@ GitHub ActionsのWindows runnerで、Windows固有のCapture・Window targeting�
 
 導入時の検査で、`test_fail_safe_runtime`の外部watchdog試験がWindowsで実OSへグローバルkey-up（`keybd_event`、SPACE）を送っていたことを検出しました。この試験はOS境界`_release_key_os`だけを記録用に置き換え、解放要求の内容（キー、input mode、HWND）を検証する形に直しました。本番の解放処理は変更していません。
 
+### 既知の除外
+
+- `test_live_input_tooltip`: Tk窓へ`<Enter>`/`<FocusIn>`を`event_generate`してtooltip表示を確かめる試験が、hosted Windows runnerではhover/focusを得られずに失敗します（PR #730の初回runで`AssertionError: unexpectedly None`、センチネルの遮断は0件）。入力の安全性とは無関係のため本gateの対象から外し、Ubuntuの全体テストでは引き続き実行します。Windows runnerで決定論的にする作業は#731で扱い、完了後に対象へ戻します。
+
 ### センチネルの範囲外
 
 - 子プロセスのuser32呼出し。live-target smoke（`tools/run_windows_safety_ci.py`）、2048 E2E（`tools/run_windows_e2e.py`、`test_reference_game_2048_launcher`、`test_2048_campaign`）、外部watchdogの障害注入（`tools/run_fail_safe_ci.py`）は、runnerが自分で起動した窓を対象にする別ジョブで、このgateに含めません。
