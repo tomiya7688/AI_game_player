@@ -244,7 +244,7 @@ class DataInventory:
 
 # {
 #   責務: [load_data_inventory: inventory JSON fileを上限付きで読み検証済みinventoryを返す]
-#   処理: [通常fileだけを上限byte以内で読み、UTF-8 JSONとして解析してfrom_dictへ渡す]
+#   処理: [通常fileだけを上限byte以内で読み、重複keyを拒否しながらUTF-8 JSONとして解析してfrom_dictへ渡す]
 #   引数: [path: inventory JSON。省略時は同梱の正本]
 #   戻り値: [DataInventory: 検証済みinventory]
 #   エラー: [DataInventoryError: 読取・解析・検証の失敗]
@@ -253,10 +253,28 @@ def load_data_inventory(path: Path | None = None) -> DataInventory:
     target = DEFAULT_DATA_INVENTORY_PATH if path is None else path
     try:
         raw = read_regular_file(target, max_bytes=MAX_DATA_INVENTORY_BYTES)
-        document = json.loads(raw.decode("utf-8"))
+        document = json.loads(
+            raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_members
+        )
     except (OSError, UnicodeDecodeError, ValueError) as exc:
         raise DataInventoryError(f"cannot read data inventory: {exc}") from exc
     return DataInventory.from_dict(document)
+
+
+# {
+#   責務: [_reject_duplicate_members: JSON objectの重複keyを拒否する]
+#   処理: [json.loadsは重複keyを後の値で黙って上書きするため、object_pairs_hookで同じkeyの再出現を検出する]
+#   引数: [pairs: 1つのJSON objectのkeyと値の組（出現順）]
+#   戻り値: [dict[str, object]: 重複のないobject]
+#   エラー: [DataInventoryError: 同じkeyが2回以上ある]
+# }
+def _reject_duplicate_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise DataInventoryError(f"duplicate JSON key: {key!r}")
+        result[key] = value
+    return result
 
 
 # {
@@ -411,7 +429,11 @@ def _parse_transmitters(
             raise DataInventoryError("transmitter needs site, data_classes and note")
         site = _require_site(item["site"], transmitters, "transmitter")
         classes = item["data_classes"]
-        if not isinstance(classes, list) or len(set(classes)) != len(classes):
+        if not isinstance(classes, list) or not all(
+            isinstance(data_class, str) for data_class in classes
+        ):
+            raise DataInventoryError(f"{site}.data_classes must be an array of strings")
+        if len(set(classes)) != len(classes):
             raise DataInventoryError(f"{site}.data_classes must be a unique array")
         for data_class in classes:
             _require_known(data_class, known, site)

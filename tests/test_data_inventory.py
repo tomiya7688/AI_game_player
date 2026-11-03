@@ -415,6 +415,25 @@ class DataInventoryValidationTest(unittest.TestCase):
         with self.assertRaises(DataClassPolicyError):
             DataClassPolicy.from_dict(item)
 
+    def test_rejects_non_string_transmitter_classes(self) -> None:
+        value = document()
+        value["transmitters"][0]["data_classes"] = [["ocr_text"]]
+        self.assert_rejected(value)
+
+    def test_load_rejects_duplicate_json_keys(self) -> None:
+        text = DEFAULT_DATA_INVENTORY_PATH.read_text(encoding="utf-8")
+        duplicated = text.replace(
+            '"frame.raw": "raw_frame",',
+            '"frame.raw": "raw_frame", "frame.raw": "knowledge",',
+            1,
+        )
+        self.assertNotEqual(text, duplicated)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "inventory.json"
+            path.write_text(duplicated, encoding="utf-8")
+            with self.assertRaisesRegex(DataInventoryError, "duplicate JSON key"):
+                load_data_inventory(path)
+
     def test_load_rejects_unreadable_or_invalid_json(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "inventory.json"

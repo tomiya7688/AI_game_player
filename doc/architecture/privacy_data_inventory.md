@@ -16,7 +16,7 @@ Privacy条件が文章だけだと、Provider・Recorder・Learningで保存や�
 | `src/ai_game_player/data_inventory.py` | `load_data_inventory()`と`DataInventory`：読込・相互参照検証・問合せ |
 | `tests/test_data_inventory.py` | 既定値・検証・問合せと、未分類の保存/送信箇所を検出するcoverage test |
 
-読込は256KiB上限の通常fileだけを対象にし、版不一致・未知キー・未登録classへの参照・重複は部分結果なしで拒否します（fail-closed）。
+読込は256KiB上限の通常fileだけを対象にし、JSON objectの重複key、版不一致・未知キー・未登録classへの参照・重複は部分結果なしで拒否します（fail-closed）。
 
 ## data classの項目
 
