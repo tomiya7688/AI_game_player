@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from urllib.parse import urlparse
 
 try:
-    from tools.pr_workflow_evidence import WorkflowRunGate, WorkflowEvidenceError
+    from tools.pr_workflow_evidence import REQUIRED_WORKFLOW_PATHS, WorkflowRunGate, WorkflowEvidenceError
 except ModuleNotFoundError:
-    from pr_workflow_evidence import WorkflowRunGate, WorkflowEvidenceError
+    from pr_workflow_evidence import REQUIRED_WORKFLOW_PATHS, WorkflowRunGate, WorkflowEvidenceError
 
 API_COMMAND_TIMEOUT_SECONDS = 60
 CHECK_COMMAND_TIMEOUT_SECONDS = 60 * 60
@@ -648,7 +648,10 @@ def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str, he
         ).verify()
     except WorkflowEvidenceError as error:
         raise MergeGateError(str(error)) from error
-    print("[OK] Required 7 workflows passed for both push and pull_request events.", flush=True)
+    print(
+        f"[OK] Required {len(REQUIRED_WORKFLOW_PATHS)} workflows passed for both push and pull_request events.",
+        flush=True,
+    )
 
 
 # {

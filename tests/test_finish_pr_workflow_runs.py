@@ -68,6 +68,19 @@ class WorkflowMergeEntryTests(unittest.TestCase):
         self.assertEqual(3, code)
         self.assertFalse(any(call.args[0][:2] == ["pr", "merge"] for call in gh.call_args_list))
 
+    def test_success_message_counts_every_required_workflow(self):
+        pull_request = finish_pr_merge.parse_pull_request_reference(PR_URL)
+        runs = {event: make_runs(event) for event in ("push", "pull_request")}
+
+        def run_gh(arguments, timeout):
+            event = parse_qs(urlsplit(arguments[-1]).query)["event"][0]
+            return completed({"total_count": len(runs[event]), "workflow_runs": runs[event]})
+
+        output = StringIO()
+        with patch.object(finish_pr_merge, "_run_gh", side_effect=run_gh), redirect_stdout(output):
+            finish_pr_merge._require_workflow_runs(pull_request, HEAD_SHA, HEAD_REF)
+        self.assertIn(f"Required {len(REQUIRED_WORKFLOW_PATHS)} workflows passed", output.getvalue())
+
     def test_missing_head_branch_in_pr_view_stops_before_workflow_lookup(self):
         def run_gh(arguments, timeout):
             if arguments[:2] == ["pr", "view"]:

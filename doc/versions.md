@@ -2,6 +2,7 @@
 
 - `tools/pr_workflow_evidence.py`のpush Workflow Runを、head SHA・pathに加えて`head_branch`がPRのhead branch名と一致するrunだけから選ぶよう変更。同じcommitへのtag push・別branch pushで成功したrunが、PR branchのpush失敗を隠さないようにしました。一致runが無いpathは従来どおり欠落として停止します（fail-closed）。
 - `tools/finish_pr_merge.py`は`gh pr view`で`headRefName`も取得し、欠落・空ならWorkflow Run照会前に停止します。pull_request runは従来どおりPR番号とhead SHAの関連付けで検証します。
+- 成功時の表示「Required N workflows」を固定の7から`REQUIRED_WORKFLOW_PATHS`の件数（現在8）へ変更しました。
 - 同一SHAでbranch push失敗→tag push成功の再現テスト、tag/別branch/型不正のhead_branch、head branch名欠落の停止テストを追加しました。
 
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）

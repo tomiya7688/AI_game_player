@@ -111786,7 +111786,7 @@
       "module": "tests.test_finish_pr_workflow_runs",
       "path": "tests/test_finish_pr_workflow_runs.py",
       "source_location": {
-        "end_line": 258,
+        "end_line": 271,
         "start_line": 1
       },
       "symbols": [
@@ -111854,7 +111854,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 80,
+            "end_line": 93,
             "start_line": 44
           }
         },
@@ -111915,6 +111915,58 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_success_message_counts_every_required_workflow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_success_message_counts_every_required_workflow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_gh",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "WorkflowMergeEntryTests.test_success_message_counts_every_required_workflow.run_gh",
+          "return_annotation": null,
+          "signature": "(arguments, timeout)",
+          "source_location": {
+            "column": 8,
+            "end_line": 77,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_missing_head_branch_in_pr_view_stops_before_workflow_lookup",
           "parameters": [
             {
@@ -111929,8 +111981,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 80,
-            "start_line": 71
+            "end_line": 93,
+            "start_line": 84
           }
         },
         {
@@ -111958,8 +112010,8 @@
           "signature": "(arguments, timeout)",
           "source_location": {
             "column": 8,
-            "end_line": 75,
-            "start_line": 72
+            "end_line": 88,
+            "start_line": 85
           }
         },
         {
@@ -111980,8 +112032,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 254,
-            "start_line": 83
+            "end_line": 267,
+            "start_line": 96
           }
         },
         {
@@ -112003,8 +112055,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 84
+            "end_line": 100,
+            "start_line": 97
           }
         },
         {
@@ -112032,8 +112084,8 @@
           "signature": "(self, endpoint)",
           "source_location": {
             "column": 4,
-            "end_line": 98,
-            "start_line": 89
+            "end_line": 111,
+            "start_line": 102
           }
         },
         {
@@ -112055,8 +112107,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 100
+            "end_line": 114,
+            "start_line": 113
           }
         },
         {
@@ -112090,8 +112142,8 @@
           "signature": "(self, conclusion = …, status = …)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 103
+            "end_line": 119,
+            "start_line": 116
           }
         },
         {
@@ -112113,8 +112165,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 110,
-            "start_line": 108
+            "end_line": 123,
+            "start_line": 121
           }
         },
         {
@@ -112136,8 +112188,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 112
+            "end_line": 129,
+            "start_line": 125
           }
         },
         {
@@ -112159,8 +112211,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 118
+            "end_line": 134,
+            "start_line": 131
           }
         },
         {
@@ -112182,8 +112234,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 123
+            "end_line": 139,
+            "start_line": 136
           }
         },
         {
@@ -112205,8 +112257,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 131,
-            "start_line": 128
+            "end_line": 144,
+            "start_line": 141
           }
         },
         {
@@ -112228,8 +112280,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 136,
-            "start_line": 133
+            "end_line": 149,
+            "start_line": 146
           }
         },
         {
@@ -112251,8 +112303,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 138
+            "end_line": 154,
+            "start_line": 151
           }
         },
         {
@@ -112274,8 +112326,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 143
+            "end_line": 162,
+            "start_line": 156
           }
         },
         {
@@ -112297,8 +112349,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 151
+            "end_line": 170,
+            "start_line": 164
           }
         },
         {
@@ -112320,8 +112372,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 162,
-            "start_line": 159
+            "end_line": 175,
+            "start_line": 172
           }
         },
         {
@@ -112343,8 +112395,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 164
+            "end_line": 182,
+            "start_line": 177
           }
         },
         {
@@ -112366,8 +112418,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 174,
-            "start_line": 171
+            "end_line": 187,
+            "start_line": 184
           }
         },
         {
@@ -112389,8 +112441,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 176
+            "end_line": 195,
+            "start_line": 189
           }
         },
         {
@@ -112412,8 +112464,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 191,
-            "start_line": 184
+            "end_line": 204,
+            "start_line": 197
           }
         },
         {
@@ -112435,8 +112487,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 193
+            "end_line": 211,
+            "start_line": 206
           }
         },
         {
@@ -112458,8 +112510,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 200
+            "end_line": 216,
+            "start_line": 213
           }
         },
         {
@@ -112481,8 +112533,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 205
+            "end_line": 225,
+            "start_line": 218
           }
         },
         {
@@ -112504,8 +112556,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 219,
-            "start_line": 214
+            "end_line": 232,
+            "start_line": 227
           }
         },
         {
@@ -112527,8 +112579,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 224,
-            "start_line": 221
+            "end_line": 237,
+            "start_line": 234
           }
         },
         {
@@ -112550,8 +112602,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 226
+            "end_line": 244,
+            "start_line": 239
           }
         },
         {
@@ -112573,8 +112625,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 233
+            "end_line": 250,
+            "start_line": 246
           }
         },
         {
@@ -112596,8 +112648,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 242,
-            "start_line": 239
+            "end_line": 255,
+            "start_line": 252
           }
         },
         {
@@ -112619,8 +112671,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 244
+            "end_line": 260,
+            "start_line": 257
           }
         },
         {
@@ -112642,8 +112694,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 254,
-            "start_line": 249
+            "end_line": 267,
+            "start_line": 262
           }
         }
       ]
@@ -188162,6 +188214,10 @@
           "names": [
             {
               "alias": null,
+              "name": "REQUIRED_WORKFLOW_PATHS"
+            },
+            {
+              "alias": null,
               "name": "WorkflowRunGate"
             },
             {
@@ -188179,6 +188235,10 @@
           "names": [
             {
               "alias": null,
+              "name": "REQUIRED_WORKFLOW_PATHS"
+            },
+            {
+              "alias": null,
               "name": "WorkflowRunGate"
             },
             {
@@ -188191,7 +188251,7 @@
       "module": "tools.finish_pr_merge",
       "path": "tools/finish_pr_merge.py",
       "source_location": {
-        "end_line": 781,
+        "end_line": 784,
         "start_line": 1
       },
       "symbols": [
@@ -188591,7 +188651,7 @@
           "signature": "(pull_request: PullRequestReference, head_sha: str, head_ref: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 651,
+            "end_line": 654,
             "start_line": 634
           }
         },
@@ -188637,8 +188697,8 @@
           "signature": "(pull_request_url: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 717,
-            "start_line": 677
+            "end_line": 720,
+            "start_line": 680
           }
         },
         {
@@ -188666,8 +188726,8 @@
           "signature": "(pull_request: PullRequestReference, expected_head: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 742,
-            "start_line": 720
+            "end_line": 745,
+            "start_line": 723
           }
         },
         {
@@ -188689,8 +188749,8 @@
           "signature": "(arguments: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 777,
-            "start_line": 761
+            "end_line": 780,
+            "start_line": 764
           }
         }
       ]
