@@ -186,6 +186,7 @@ class RecoveryBudget:
 #     snapshot_id: 行動の基準Snapshot。REDECIDEでは新しく観測したSnapshot
 #     attempt: episode内のattempt番号。行動を要求しない場合は0
 #     stop_reason: REQUEST_STOPの場合の停止理由文
+#     episode_id: Controller内で単調増加するepisode番号。episodeに属さない拒否planは0
 #   ]
 #   処理: [
 #     to_dict: recovery.plan/v1形式へ変換する
@@ -204,24 +205,25 @@ class RecoveryPlan:
     snapshot_id: str | None
     attempt: int = 0
     stop_reason: str | None = None
+    episode_id: int = 0
 
     # {
     #   責務: [
     #     correlation_id: 同じepisodeのplan・attempt・結果をJournalで結び付けるIDを返す
     #   ]
     #   処理: [
-    #     1: 行動世代・Scene・event参照から決定論的なIDを作る
+    #     1: 行動世代・episode番号・Scene・event参照から決定論的なIDを作る
     #   ]
     #   引数: [
     #     self: 対象のplan
     #   ]
     #   戻り値: [
-    #     str: recovery:<epoch>:<scene>:<event_ref>形式のID
+    #     str: recovery:<epoch>:<episode_id>:<scene>:<event_ref>形式のID
     #   ]
     # }
     @property
     def correlation_id(self) -> str:
-        return f"recovery:{self.action_epoch}:{self.scene_id or '-'}:{self.event_ref or '-'}"
+        return f"recovery:{self.action_epoch}:{self.episode_id}:{self.scene_id or '-'}:{self.event_ref or '-'}"
 
     # {
     #   責務: [
@@ -255,6 +257,7 @@ class RecoveryPlan:
             "snapshot_id": self.snapshot_id,
             "attempt": self.attempt,
             "stop_reason": self.stop_reason,
+            "episode_id": self.episode_id,
         }
 
 

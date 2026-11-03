@@ -33,14 +33,14 @@
 2. **進行無し**: 受け付けた最大step数より古いイベントと、同じ（Scene, category, step数）のイベントは`DUPLICATE_EVENT`、解消・失敗直後の`cooldown_steps`未満は`COOLDOWN`、結果待ち中の新イベントは`PLAN_PENDING`。いずれもABSTAINで、予算を消費しません。
 3. **Scene変更**: 別Sceneのイベントで、前Sceneのepisode・連続失敗数・cooldownを破棄します。
 4. **CRITICAL**: `SelfCheckSeverity.CRITICAL`は直ちに`REQUEST_STOP`（`CRITICAL_SELF_CHECK`）。イベントのseverityから新しい入力候補は作りません。
-5. **WARNING**: episodeを開始して`REOBSERVE`。再観測で新しいSnapshotを得た場合だけ「再観測済み」とし、そのSnapshotで`REDECIDE`します。新しいFrameが来なければ再観測予算だけを消費し、同じFrameで再判断を繰り返しません。`RESOLVED`は、episode開始時ともplanの基準Snapshotとも異なるSnapshotで報告された場合だけ解消として扱います。`ack`は、結果待ちplanと行動・attempt番号・行動世代がすべて一致する結果だけを受け付け、結果の世代で再armしません。
+5. **WARNING**: episodeを開始して`REOBSERVE`。再観測で新しいSnapshotを得た場合だけ「再観測済み」とし、そのSnapshotで`REDECIDE`します。新しいFrameが来なければ再観測予算だけを消費し、同じFrameで再判断を繰り返しません。`RESOLVED`は、期限前に、episode開始時ともplanの基準Snapshotとも異なるSnapshotで報告された場合だけ解消として扱います。`ack`は、結果待ちplanと行動・attempt番号・行動世代がすべて一致する結果だけを受け付け、結果の世代で再armしません。
 6. **打切り**: 1 episodeのattemptは最大`max_reobserve + max_redecide`回。予算切れは`BUDGET_EXHAUSTED`、`now_monotonic >= deadline`は`DEADLINE_EXCEEDED`でepisode失敗です。同一Sceneの連続失敗が`max_scene_failures`に達すると`REQUEST_STOP`（`SCENE_FAILURES_EXCEEDED`、停止理由文に直前の失敗理由を含む）、それ未満はABSTAINで通常経路へ戻します。
 
 時刻が非有限または逆行した場合、世代が負の場合、Snapshotが空の場合は`ValueError`です。
 
 ## 記録と失敗時の扱い
 
-`RecoverySessionAdapter`は、各planを`recovery.plan`（status=action、payload=`recovery.plan/v1`）、各attempt結果を`recovery.attempt`（payload=`recovery.attempt/v1`）としてJournalへ追記し、同じepisodeを`correlation_id`（`recovery:<世代>:<Scene>:<event_ref>`）で結び付けます。Journalへの記録に失敗した場合は、記録の無いRecoveryを続けないため`JOURNAL_FAILED`の`REQUEST_STOP`へ昇格し、停止要求を必ず渡します。既存Stopが要求済みのときは停止要求関数を呼びません。
+`RecoverySessionAdapter`は、各planを`recovery.plan`（status=action、payload=`recovery.plan/v1`）、各attempt結果を`recovery.attempt`（payload=`recovery.attempt/v1`）としてJournalへ追記し、同じepisodeを`correlation_id`（`recovery:<世代>:<episode番号>:<Scene>:<event_ref>`。episode番号は`reset()`や再armでも戻らない単調増加値）で結び付けます。Journalへの記録に失敗した場合は、記録の無いRecoveryを続けないため`JOURNAL_FAILED`の`REQUEST_STOP`へ昇格し、停止要求を必ず渡します。既存Stopが要求済みのときは停止要求関数を呼びません。
 
 ## 現在の接続範囲と残り
 

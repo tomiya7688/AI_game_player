@@ -24,6 +24,7 @@ SEEN_EVENT_LIMIT = 64
 #     _RecoveryEpisode: 1つのSelf-Check異常に対するRecoveryの進行をController内部で保持する
 #   ]
 #   フィールド: [
+#     episode_id: Controller内で単調増加するepisode番号（resetでも戻さない）
 #     event_ref: 対象イベントの識別子
 #     step_count: 対象イベントのSelf-Check step数
 #     start_snapshot_id: episode開始時のSnapshot
@@ -36,6 +37,7 @@ SEEN_EVENT_LIMIT = 64
 # }
 @dataclass
 class _RecoveryEpisode:
+    episode_id: int
     event_ref: str
     step_count: int
     start_snapshot_id: str
@@ -86,6 +88,8 @@ class RecoveryController:
         self.policy = policy or RecoveryPolicy()
         self._lock = threading.Lock()
         self._action_epoch = 0
+        # resetや再armでも戻さず、Journalのcorrelation_idを一意にする。
+        self._episode_sequence = 0
         self._reset_locked()
 
     # {
@@ -160,8 +164,13 @@ class RecoveryController:
                 self._enter_scene_locked(event.scene_id)
             if event.severity is SelfCheckSeverity.CRITICAL:
                 self._episode = None
+                self._episode_sequence += 1
                 return self._stop_locked(
-                    RecoveryReason.CRITICAL_SELF_CHECK, snapshot_id, event.reason
+                    RecoveryReason.CRITICAL_SELF_CHECK,
+                    snapshot_id,
+                    event.reason,
+                    event_ref=f"{event.category.value}@{event.step_count}",
+                    episode_id=self._episode_sequence,
                 )
             episode = self._episode
             if episode is None:
@@ -169,7 +178,9 @@ class RecoveryController:
                     return self._plan_locked(
                         RecoveryAction.ABSTAIN, RecoveryReason.COOLDOWN, snapshot_id
                     )
+                self._episode_sequence += 1
                 episode = _RecoveryEpisode(
+                    episode_id=self._episode_sequence,
                     event_ref=f"{event.category.value}@{event.step_count}",
                     step_count=event.step_count,
                     start_snapshot_id=snapshot_id,
@@ -255,7 +266,8 @@ class RecoveryController:
                 and result.snapshot_id != episode.start_snapshot_id
                 and result.snapshot_id != pending.snapshot_id
             )
-            if resolved_on_new_frame:
+            # 期限到達後に届いた解消報告は受け付けず、_advance_lockedで期限切れとして失敗させる。
+            if resolved_on_new_frame and now_monotonic < episode.deadline:
                 return self._resolve_locked(result.snapshot_id)
             return self._advance_locked(now_monotonic, result.snapshot_id)
 
@@ -605,7 +617,6 @@ class RecoveryController:
     # }
     def _resolve_locked(self, snapshot_id: str) -> RecoveryPlan:
         episode = self._require_episode_locked()
-        plan_event_ref = episode.event_ref
         self._scene_failures = 0
         self._cooldown_until_step = episode.step_count + self.policy.cooldown_steps
         self._episode = None
@@ -614,7 +625,8 @@ class RecoveryController:
             RecoveryAction.ABSTAIN,
             RecoveryReason.RESOLVED,
             snapshot_id,
-            event_ref=plan_event_ref,
+            event_ref=episode.event_ref,
+            episode_id=episode.episode_id,
         )
 
     # {
@@ -637,7 +649,6 @@ class RecoveryController:
         self, reason: RecoveryReason, snapshot_id: str | None
     ) -> RecoveryPlan:
         episode = self._require_episode_locked()
-        event_ref = episode.event_ref
         self._scene_failures += 1
         self._cooldown_until_step = episode.step_count + self.policy.cooldown_steps
         self._episode = None
@@ -646,11 +657,16 @@ class RecoveryController:
                 RecoveryReason.SCENE_FAILURES_EXCEEDED,
                 snapshot_id,
                 reason.value,
-                event_ref=event_ref,
+                event_ref=episode.event_ref,
+                episode_id=episode.episode_id,
             )
         self._state = RecoveryState.IDLE
         return self._plan_locked(
-            RecoveryAction.ABSTAIN, reason, snapshot_id, event_ref=event_ref
+            RecoveryAction.ABSTAIN,
+            reason,
+            snapshot_id,
+            event_ref=episode.event_ref,
+            episode_id=episode.episode_id,
         )
 
     # {
@@ -665,6 +681,7 @@ class RecoveryController:
     #     snapshot_id: 記録対象のSnapshot
     #     detail: 停止理由文へ付ける補足。無ければNone
     #     event_ref: 対象イベント。省略時は進行中episodeの値
+    #     episode_id: 対象episode番号。省略時は進行中episodeの値
     #   ]
     #   戻り値: [
     #     RecoveryPlan: REQUEST_STOPのplan
@@ -677,6 +694,7 @@ class RecoveryController:
         detail: str | None,
         *,
         event_ref: str | None = None,
+        episode_id: int | None = None,
     ) -> RecoveryPlan:
         stop_reason = f"recovery:{reason.value}" + (f": {detail}" if detail else "")
         self._state = RecoveryState.STOP_REQUESTED
@@ -687,6 +705,7 @@ class RecoveryController:
             snapshot_id,
             stop_reason=stop_reason,
             event_ref=event_ref,
+            episode_id=episode_id,
         )
 
     # {
@@ -704,6 +723,7 @@ class RecoveryController:
     #     attempt: attempt番号。行動を要求しない場合は0
     #     stop_reason: REQUEST_STOPの理由文
     #     event_ref: 対象イベント。省略時は進行中episodeの値
+    #     episode_id: 対象episode番号。省略時は進行中episodeの値、episodeが無ければ0
     #   ]
     #   戻り値: [
     #     RecoveryPlan: 組み立てたplan
@@ -718,6 +738,7 @@ class RecoveryController:
         attempt: int = 0,
         stop_reason: str | None = None,
         event_ref: str | None = None,
+        episode_id: int | None = None,
     ) -> RecoveryPlan:
         episode = self._episode
         if episode is None:
@@ -732,6 +753,7 @@ class RecoveryController:
             )
             deadline = episode.deadline
             event_ref = event_ref or episode.event_ref
+            episode_id = episode.episode_id if episode_id is None else episode_id
         return RecoveryPlan(
             action=action,
             reason=reason,
@@ -744,6 +766,7 @@ class RecoveryController:
             snapshot_id=snapshot_id,
             attempt=attempt,
             stop_reason=stop_reason,
+            episode_id=0 if episode_id is None else episode_id,
         )
 
 

@@ -60680,7 +60680,7 @@
       "module": "ai_game_player.recovery_controller",
       "path": "src/ai_game_player/recovery_controller.py",
       "source_location": {
-        "end_line": 769,
+        "end_line": 792,
         "start_line": 1
       },
       "symbols": [
@@ -60702,8 +60702,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 47,
-            "start_line": 38
+            "end_line": 49,
+            "start_line": 39
           }
         },
         {
@@ -60722,8 +60722,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 747,
-            "start_line": 70
+            "end_line": 770,
+            "start_line": 72
           }
         },
         {
@@ -60751,8 +60751,8 @@
           "signature": "(self, policy: RecoveryPolicy | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 85
+            "end_line": 93,
+            "start_line": 87
           }
         },
         {
@@ -60776,8 +60776,8 @@
           "signature": "(self) -> RecoveryState",
           "source_location": {
             "column": 4,
-            "end_line": 108,
-            "start_line": 106
+            "end_line": 112,
+            "start_line": 110
           }
         },
         {
@@ -60835,8 +60835,8 @@
           "signature": "(self, event: SelfCheckEvent, *, snapshot_id: str, action_generation: int, now_monotonic: float, stop_requested: bool, target_lost: bool = …) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 134
+            "end_line": 195,
+            "start_line": 138
           }
         },
         {
@@ -60876,8 +60876,8 @@
           "signature": "(self, result: RecoveryAttemptResult, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 260,
-            "start_line": 207
+            "end_line": 272,
+            "start_line": 218
           }
         },
         {
@@ -60911,8 +60911,8 @@
           "signature": "(self, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan | None",
           "source_location": {
             "column": 4,
-            "end_line": 302,
-            "start_line": 281
+            "end_line": 314,
+            "start_line": 293
           }
         },
         {
@@ -60946,8 +60946,8 @@
           "signature": "(self, reason: RecoveryReason, snapshot_id: str | None = …) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 319
+            "end_line": 336,
+            "start_line": 331
           }
         },
         {
@@ -60969,8 +60969,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 342,
-            "start_line": 340
+            "end_line": 354,
+            "start_line": 352
           }
         },
         {
@@ -60992,8 +60992,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 367,
-            "start_line": 358
+            "end_line": 379,
+            "start_line": 370
           }
         },
         {
@@ -61015,8 +61015,8 @@
           "signature": "(self) -> _RecoveryEpisode",
           "source_location": {
             "column": 4,
-            "end_line": 389,
-            "start_line": 386
+            "end_line": 401,
+            "start_line": 398
           }
         },
         {
@@ -61044,8 +61044,8 @@
           "signature": "(self, now_monotonic: float) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 413,
-            "start_line": 408
+            "end_line": 425,
+            "start_line": 420
           }
         },
         {
@@ -61091,8 +61091,8 @@
           "signature": "(self, action_generation: int, stop_requested: bool, target_lost: bool, snapshot_id: str) -> RecoveryPlan | None",
           "source_location": {
             "column": 4,
-            "end_line": 474,
-            "start_line": 437
+            "end_line": 486,
+            "start_line": 449
           }
         },
         {
@@ -61120,8 +61120,8 @@
           "signature": "(self, snapshot_id: str | None) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 496,
-            "start_line": 490
+            "end_line": 508,
+            "start_line": 502
           }
         },
         {
@@ -61149,8 +61149,8 @@
           "signature": "(self, scene_id: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 517,
-            "start_line": 512
+            "end_line": 529,
+            "start_line": 524
           }
         },
         {
@@ -61184,8 +61184,8 @@
           "signature": "(self, now_monotonic: float, snapshot_id: str) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 560,
-            "start_line": 536
+            "end_line": 572,
+            "start_line": 548
           }
         },
         {
@@ -61225,8 +61225,8 @@
           "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 590,
-            "start_line": 578
+            "end_line": 602,
+            "start_line": 590
           }
         },
         {
@@ -61254,8 +61254,8 @@
           "signature": "(self, snapshot_id: str) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 618,
-            "start_line": 606
+            "end_line": 630,
+            "start_line": 618
           }
         },
         {
@@ -61289,8 +61289,8 @@
           "signature": "(self, reason: RecoveryReason, snapshot_id: str | None) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 654,
-            "start_line": 636
+            "end_line": 670,
+            "start_line": 648
           }
         },
         {
@@ -61329,15 +61329,21 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "event_ref"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "episode_id"
             }
           ],
           "qualified_name": "RecoveryController._stop_locked",
           "return_annotation": "RecoveryPlan",
-          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None, detail: str | None, *, event_ref: str | None = …) -> RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None, detail: str | None, *, event_ref: str | None = …, episode_id: int | None = …) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 690,
-            "start_line": 673
+            "end_line": 709,
+            "start_line": 690
           }
         },
         {
@@ -61388,15 +61394,21 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "event_ref"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "episode_id"
             }
           ],
           "qualified_name": "RecoveryController._plan_locked",
           "return_annotation": "RecoveryPlan",
-          "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str | None, *, attempt: int = …, stop_reason: str | None = …, event_ref: str | None = …) -> RecoveryPlan",
+          "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str | None, *, attempt: int = …, stop_reason: str | None = …, event_ref: str | None = …, episode_id: int | None = …) -> RecoveryPlan",
           "source_location": {
             "column": 4,
-            "end_line": 747,
-            "start_line": 712
+            "end_line": 770,
+            "start_line": 732
           }
         },
         {
@@ -61418,8 +61430,8 @@
           "signature": "(snapshot_id: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 769,
-            "start_line": 767
+            "end_line": 792,
+            "start_line": 790
           }
         }
       ]
@@ -61470,7 +61482,7 @@
       "module": "ai_game_player.recovery_models",
       "path": "src/ai_game_player/recovery_models.py",
       "source_location": {
-        "end_line": 337,
+        "end_line": 340,
         "start_line": 1
       },
       "symbols": [
@@ -61651,8 +61663,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 258,
-            "start_line": 195
+            "end_line": 261,
+            "start_line": 196
           }
         },
         {
@@ -61676,8 +61688,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 224,
-            "start_line": 223
+            "end_line": 226,
+            "start_line": 225
           }
         },
         {
@@ -61699,8 +61711,8 @@
           "signature": "(self) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 258,
-            "start_line": 240
+            "end_line": 261,
+            "start_line": 242
           }
         },
         {
@@ -61721,8 +61733,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 337,
-            "start_line": 278
+            "end_line": 340,
+            "start_line": 281
           }
         },
         {
@@ -61744,8 +61756,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 312,
-            "start_line": 304
+            "end_line": 315,
+            "start_line": 307
           }
         },
         {
@@ -61767,8 +61779,8 @@
           "signature": "(self) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 337,
-            "start_line": 328
+            "end_line": 340,
+            "start_line": 331
           }
         }
       ]
@@ -156031,7 +156043,7 @@
       "module": "tests.test_recovery_controller",
       "path": "tests/test_recovery_controller.py",
       "source_location": {
-        "end_line": 574,
+        "end_line": 596,
         "start_line": 1
       },
       "symbols": [
@@ -156135,7 +156147,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 428,
+            "end_line": 450,
             "start_line": 48
           }
         },
@@ -156502,6 +156514,52 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_resolved_after_deadline_is_a_deadline_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_resolved_after_deadline_is_a_deadline_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 284,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_correlation_ids_stay_unique_across_reset_and_critical_events",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_correlation_ids_stay_unique_across_reset_and_critical_events",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 295,
+            "start_line": 286
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_hung_worker_is_cut_off_by_poll_and_late_ack_is_ignored",
           "parameters": [
             {
@@ -156516,8 +156574,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 281,
-            "start_line": 275
+            "end_line": 303,
+            "start_line": 297
           }
         },
         {
@@ -156539,8 +156597,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 286,
-            "start_line": 283
+            "end_line": 308,
+            "start_line": 305
           }
         },
         {
@@ -156562,8 +156620,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 303,
-            "start_line": 288
+            "end_line": 325,
+            "start_line": 310
           }
         },
         {
@@ -156585,8 +156643,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 331,
-            "start_line": 305
+            "end_line": 353,
+            "start_line": 327
           }
         },
         {
@@ -156608,8 +156666,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 356,
-            "start_line": 333
+            "end_line": 378,
+            "start_line": 355
           }
         },
         {
@@ -156631,8 +156689,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 372,
-            "start_line": 358
+            "end_line": 394,
+            "start_line": 380
           }
         },
         {
@@ -156654,8 +156712,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 428,
-            "start_line": 374
+            "end_line": 450,
+            "start_line": 396
           }
         },
         {
@@ -156676,8 +156734,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 570,
-            "start_line": 431
+            "end_line": 592,
+            "start_line": 453
           }
         },
         {
@@ -156696,8 +156754,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 442,
-            "start_line": 432
+            "end_line": 464,
+            "start_line": 454
           }
         },
         {
@@ -156725,8 +156783,8 @@
           "signature": "(self, fail_on: int | None = …) -> None",
           "source_location": {
             "column": 8,
-            "end_line": 436,
-            "start_line": 433
+            "end_line": 458,
+            "start_line": 455
           }
         },
         {
@@ -156760,8 +156818,8 @@
           "signature": "(self, event_type, **fields)",
           "source_location": {
             "column": 8,
-            "end_line": 442,
-            "start_line": 438
+            "end_line": 464,
+            "start_line": 460
           }
         },
         {
@@ -156783,8 +156841,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 467,
-            "start_line": 444
+            "end_line": 489,
+            "start_line": 466
           }
         },
         {
@@ -156806,8 +156864,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 484,
-            "start_line": 469
+            "end_line": 506,
+            "start_line": 491
           }
         },
         {
@@ -156829,8 +156887,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 503,
-            "start_line": 486
+            "end_line": 525,
+            "start_line": 508
           }
         },
         {
@@ -156852,8 +156910,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 517,
-            "start_line": 505
+            "end_line": 539,
+            "start_line": 527
           }
         },
         {
@@ -156875,8 +156933,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 537,
-            "start_line": 519
+            "end_line": 559,
+            "start_line": 541
           }
         },
         {
@@ -156898,8 +156956,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 570,
-            "start_line": 539
+            "end_line": 592,
+            "start_line": 561
           }
         },
         {
@@ -156927,8 +156985,8 @@
           "signature": "(runtime, command)",
           "source_location": {
             "column": 8,
-            "end_line": 544,
-            "start_line": 542
+            "end_line": 566,
+            "start_line": 564
           }
         },
         {
@@ -156947,8 +157005,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 548,
-            "start_line": 546
+            "end_line": 570,
+            "start_line": 568
           }
         },
         {
@@ -156970,8 +157028,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 548,
-            "start_line": 547
+            "end_line": 570,
+            "start_line": 569
           }
         }
       ]

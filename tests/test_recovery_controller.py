@@ -272,6 +272,28 @@ class RecoveryControllerTest(unittest.TestCase):
             (RecoveryAction.ABSTAIN, RecoveryReason.DEADLINE_EXCEEDED),
         )
 
+    def test_resolved_after_deadline_is_a_deadline_failure(self):
+        plan = self.event_plan(2)
+        late = self.controller.ack(
+            result_for(plan, "frame-2", RecoveryAttemptStatus.RESOLVED),
+            now_monotonic=3.0,
+        )
+        self.assertEqual(
+            (late.action, late.reason),
+            (RecoveryAction.ABSTAIN, RecoveryReason.DEADLINE_EXCEEDED),
+        )
+
+    def test_correlation_ids_stay_unique_across_reset_and_critical_events(self):
+        first = self.event_plan(2)
+        self.controller.reset()
+        second = self.event_plan(2)
+        self.assertEqual(first.event_ref, second.event_ref)
+        self.assertNotEqual(first.correlation_id, second.correlation_id)
+        critical = self.event_plan(9, now=0.1, severity=SelfCheckSeverity.CRITICAL)
+        self.assertEqual(critical.event_ref, "repeated_cycle@9")
+        self.assertEqual(critical.episode_id, 3)
+        self.assertIn(":3:scene-a:repeated_cycle@9", critical.correlation_id)
+
     def test_hung_worker_is_cut_off_by_poll_and_late_ack_is_ignored(self):
         plan = self.event_plan(2)
         self.assertIsNone(self.controller.poll(now_monotonic=2.9))
