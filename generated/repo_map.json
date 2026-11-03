@@ -183018,7 +183018,7 @@
       "module": "tests.test_windows_input_sentinel",
       "path": "tests/test_windows_input_sentinel.py",
       "source_location": {
-        "end_line": 205,
+        "end_line": 257,
         "start_line": 1
       },
       "symbols": [
@@ -183134,7 +183134,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 174,
+            "end_line": 226,
             "start_line": 39
           }
         },
@@ -183373,6 +183373,121 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_out_of_order_uninstall_keeps_the_later_sentinel_installed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_out_of_order_uninstall_keeps_the_later_sentinel_installed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 162
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_owner_lookup_failure_fails_closed_and_is_recorded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_owner_lookup_failure_fails_closed_and_is_recorded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "broken_lookup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_handle"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_owner_lookup_failure_fails_closed_and_is_recorded.broken_lookup",
+          "return_annotation": null,
+          "signature": "(_handle)",
+          "source_location": {
+            "column": 8,
+            "end_line": 180,
+            "start_line": 179
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_thread_input_messages_are_always_blocked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_thread_input_messages_are_always_blocked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 201,
+            "start_line": 191
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_blocked_event_records_the_running_test",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_blocked_event_records_the_running_test",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 210,
+            "start_line": 203
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_message_ranges_cover_keyboard_and_mouse_only",
           "parameters": [
             {
@@ -183387,8 +183502,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 168,
-            "start_line": 162
+            "end_line": 220,
+            "start_line": 212
           }
         },
         {
@@ -183410,8 +183525,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 174,
-            "start_line": 170
+            "end_line": 226,
+            "start_line": 222
           }
         },
         {
@@ -183434,8 +183549,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 201,
-            "start_line": 178
+            "end_line": 253,
+            "start_line": 230
           }
         },
         {
@@ -183457,8 +183572,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 201,
-            "start_line": 179
+            "end_line": 253,
+            "start_line": 231
           }
         }
       ]
@@ -214568,7 +214683,7 @@
       "module": "tools.run_windows_platform_gate",
       "path": "tools/run_windows_platform_gate.py",
       "source_location": {
-        "end_line": 202,
+        "end_line": 226,
         "start_line": 1
       },
       "symbols": [
@@ -214613,7 +214728,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 86,
+            "end_line": 90,
             "start_line": 77
           }
         },
@@ -214648,8 +214763,8 @@
           "signature": "(self, *arguments: object, **keywords: object) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 80
+            "end_line": 84,
+            "start_line": 82
           }
         },
         {
@@ -214677,8 +214792,31 @@
           "signature": "(self, test: unittest.TestCase) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 84
+            "end_line": 90,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_absent_window_handle",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "user32"
+            }
+          ],
+          "qualified_name": "_absent_window_handle",
+          "return_annotation": "int",
+          "signature": "(user32: object) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 99,
+            "start_line": 93
           }
         },
         {
@@ -214700,8 +214838,8 @@
           "signature": "(sentinel: InputSentinel) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 89
+            "end_line": 134,
+            "start_line": 102
           }
         },
         {
@@ -214729,8 +214867,8 @@
           "signature": "(report_path: Path, verbosity: int = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 190,
-            "start_line": 120
+            "end_line": 214,
+            "start_line": 137
           }
         },
         {
@@ -214752,8 +214890,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 198,
-            "start_line": 193
+            "end_line": 222,
+            "start_line": 217
           }
         }
       ]
@@ -226777,6 +226915,10 @@
             {
               "alias": null,
               "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "replace"
             }
           ]
         },
@@ -226813,7 +226955,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 220,
+          "line": 259,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -226827,7 +226969,7 @@
       "module": "tools.windows_input_sentinel",
       "path": "tools/windows_input_sentinel.py",
       "source_location": {
-        "end_line": 233,
+        "end_line": 272,
         "start_line": 1
       },
       "symbols": [
@@ -226849,8 +226991,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 48,
-            "start_line": 47
+            "end_line": 54,
+            "start_line": 53
           }
         },
         {
@@ -226871,8 +227013,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 59,
-            "start_line": 52
+            "end_line": 66,
+            "start_line": 58
           }
         },
         {
@@ -226894,8 +227036,8 @@
           "signature": "(value: Any) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 67,
-            "start_line": 62
+            "end_line": 74,
+            "start_line": 69
           }
         },
         {
@@ -226917,8 +227059,8 @@
           "signature": "(message: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 72,
-            "start_line": 70
+            "end_line": 83,
+            "start_line": 77
           }
         },
         {
@@ -226940,8 +227082,8 @@
           "signature": "(library_name: str | None) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 79,
-            "start_line": 75
+            "end_line": 90,
+            "start_line": 86
           }
         },
         {
@@ -226960,8 +227102,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 190,
-            "start_line": 82
+            "end_line": 229,
+            "start_line": 93
           }
         },
         {
@@ -226995,8 +227137,8 @@
           "signature": "(self, owner_process_id_of: Callable[[int], int], current_process_id: int | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 90
+            "end_line": 116,
+            "start_line": 102
           }
         },
         {
@@ -227030,8 +227172,37 @@
           "signature": "(self, function_name: str, arguments: tuple[Any, ...]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 104
+            "end_line": 159,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_owner_or_zero",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "InputSentinel._owner_or_zero",
+          "return_annotation": "int",
+          "signature": "(self, window_handle: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 168,
+            "start_line": 161
           }
         },
         {
@@ -227059,8 +227230,8 @@
           "signature": "(self, event: SentinelEvent) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 143
+            "end_line": 179,
+            "start_line": 170
           }
         },
         {
@@ -227094,8 +227265,8 @@
           "signature": "(self, function_name: str, function: Any) -> Any",
           "source_location": {
             "column": 4,
-            "end_line": 159,
-            "start_line": 152
+            "end_line": 188,
+            "start_line": 181
           }
         },
         {
@@ -227117,8 +227288,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 161
+            "end_line": 215,
+            "start_line": 190
           }
         },
         {
@@ -227146,8 +227317,8 @@
           "signature": "(library: Any, name_or_ordinal: Any) -> Any",
           "source_location": {
             "column": 8,
-            "end_line": 174,
-            "start_line": 168
+            "end_line": 205,
+            "start_line": 199
           }
         },
         {
@@ -227169,8 +227340,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 185
+            "end_line": 229,
+            "start_line": 217
           }
         },
         {
@@ -227189,8 +227360,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 215,
-            "start_line": 193
+            "end_line": 254,
+            "start_line": 232
           }
         },
         {
@@ -227230,8 +227401,8 @@
           "signature": "(self, sentinel: InputSentinel, function_name: str, function: Any) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 201,
-            "start_line": 196
+            "end_line": 240,
+            "start_line": 235
           }
         },
         {
@@ -227259,8 +227430,8 @@
           "signature": "(self, sentinel: InputSentinel) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 203
+            "end_line": 244,
+            "start_line": 242
           }
         },
         {
@@ -227288,8 +227459,8 @@
           "signature": "(self, *arguments: Any) -> Any",
           "source_location": {
             "column": 4,
-            "end_line": 209,
-            "start_line": 207
+            "end_line": 248,
+            "start_line": 246
           }
         },
         {
@@ -227317,8 +227488,8 @@
           "signature": "(self, name: str) -> Any",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 211
+            "end_line": 251,
+            "start_line": 250
           }
         },
         {
@@ -227352,8 +227523,8 @@
           "signature": "(self, name: str, value: Any) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 254,
+            "start_line": 253
           }
         },
         {
@@ -227368,8 +227539,8 @@
           "signature": "() -> Callable[[int], int]",
           "source_location": {
             "column": 0,
-            "end_line": 233,
-            "start_line": 218
+            "end_line": 272,
+            "start_line": 257
           }
         },
         {
@@ -227391,8 +227562,8 @@
           "signature": "(window_handle: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 227
+            "end_line": 270,
+            "start_line": 266
           }
         }
       ]
