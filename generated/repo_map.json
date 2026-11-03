@@ -146219,7 +146219,7 @@
       "module": "tests.test_python_security_check",
       "path": "tests/test_python_security_check.py",
       "source_location": {
-        "end_line": 345,
+        "end_line": 434,
         "start_line": 1
       },
       "symbols": [
@@ -146317,6 +146317,35 @@
           }
         },
         {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bandit",
+          "parameters": [
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "results"
+            },
+            {
+              "annotation": "list[Any] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "errors"
+            }
+          ],
+          "qualified_name": "_bandit",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(results: list[dict[str, Any]], errors: list[Any] | None = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 83,
+            "start_line": 76
+          }
+        },
+        {
           "bases": [
             "unittest.TestCase"
           ],
@@ -146334,8 +146363,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 305,
-            "start_line": 76
+            "end_line": 394,
+            "start_line": 86
           }
         },
         {
@@ -146357,8 +146386,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 90,
-            "start_line": 77
+            "end_line": 100,
+            "start_line": 87
           }
         },
         {
@@ -146380,8 +146409,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 93,
-            "start_line": 92
+            "end_line": 103,
+            "start_line": 102
           }
         },
         {
@@ -146415,8 +146444,8 @@
           "signature": "(self, results: list[dict[str, Any]], **profile_overrides: Any)",
           "source_location": {
             "column": 4,
-            "end_line": 99,
-            "start_line": 95
+            "end_line": 107,
+            "start_line": 105
           }
         },
         {
@@ -146438,8 +146467,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 110,
-            "start_line": 101
+            "end_line": 118,
+            "start_line": 109
           }
         },
         {
@@ -146461,8 +146490,31 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 112
+            "end_line": 125,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sensitive_module_keeps_confidence_floor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_sensitive_module_keeps_confidence_floor",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 132,
+            "start_line": 127
           }
         },
         {
@@ -146484,8 +146536,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 126,
-            "start_line": 119
+            "end_line": 141,
+            "start_line": 134
           }
         },
         {
@@ -146507,8 +146559,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 128
+            "end_line": 148,
+            "start_line": 143
           }
         },
         {
@@ -146530,8 +146582,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 135
+            "end_line": 158,
+            "start_line": 150
           }
         },
         {
@@ -146553,8 +146605,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 154,
-            "start_line": 145
+            "end_line": 169,
+            "start_line": 160
           }
         },
         {
@@ -146576,8 +146628,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 156
+            "end_line": 180,
+            "start_line": 171
           }
         },
         {
@@ -146599,8 +146651,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 167
+            "end_line": 187,
+            "start_line": 182
           }
         },
         {
@@ -146622,8 +146674,77 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 174
+            "end_line": 198,
+            "start_line": 189
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_covers_only_its_declared_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_covers_only_its_declared_count",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 214,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_level_and_outside_path_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_unknown_level_and_outside_path_fail_closed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 224,
+            "start_line": 216
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_without_scanned_files_blocks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_report_without_scanned_files_blocks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 231,
+            "start_line": 226
           }
         },
         {
@@ -146645,8 +146766,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 201,
-            "start_line": 188
+            "end_line": 248,
+            "start_line": 233
           }
         },
         {
@@ -146668,8 +146789,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 217,
-            "start_line": 203
+            "end_line": 280,
+            "start_line": 250
           }
         },
         {
@@ -146691,8 +146812,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 248,
-            "start_line": 219
+            "end_line": 311,
+            "start_line": 282
           }
         },
         {
@@ -146714,8 +146835,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 262,
-            "start_line": 250
+            "end_line": 327,
+            "start_line": 313
           }
         },
         {
@@ -146737,8 +146858,31 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 294,
-            "start_line": 264
+            "end_line": 359,
+            "start_line": 329
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_rejects_malformed_report_fields_with_exit_code_two",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_rejects_malformed_report_fields_with_exit_code_two",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 383,
+            "start_line": 361
           }
         },
         {
@@ -146760,8 +146904,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 305,
-            "start_line": 296
+            "end_line": 394,
+            "start_line": 385
           }
         },
         {
@@ -146782,8 +146926,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 341,
-            "start_line": 308
+            "end_line": 430,
+            "start_line": 397
           }
         },
         {
@@ -146805,8 +146949,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 322,
-            "start_line": 309
+            "end_line": 411,
+            "start_line": 398
           }
         },
         {
@@ -146828,8 +146972,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 341,
-            "start_line": 324
+            "end_line": 430,
+            "start_line": 413
           }
         }
       ]
@@ -192256,6 +192400,19 @@
           "level": 0,
           "line": 18,
           "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [],
           "module": "subprocess",
           "names": [
             {
@@ -192267,7 +192424,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 19,
+          "line": 20,
           "local_dependencies": [],
           "module": "sys",
           "names": [
@@ -192280,7 +192437,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 20,
+          "line": 21,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -192293,7 +192450,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 22,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -192310,7 +192467,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 23,
           "local_dependencies": [],
           "module": "datetime",
           "names": [
@@ -192323,7 +192480,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 23,
+          "line": 24,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -192340,7 +192497,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 24,
+          "line": 25,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -192354,7 +192511,7 @@
       "module": "tools.python_security_check",
       "path": "tools/python_security_check.py",
       "source_location": {
-        "end_line": 504,
+        "end_line": 571,
         "start_line": 1
       },
       "symbols": [
@@ -192376,8 +192533,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 40,
-            "start_line": 39
+            "end_line": 45,
+            "start_line": 44
           }
         },
         {
@@ -192398,8 +192555,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 44
+            "end_line": 60,
+            "start_line": 49
           }
         },
         {
@@ -192421,8 +192578,8 @@
           "signature": "(self) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 53
+            "end_line": 60,
+            "start_line": 59
           }
         },
         {
@@ -192443,8 +192600,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 66,
-            "start_line": 58
+            "end_line": 72,
+            "start_line": 64
           }
         },
         {
@@ -192465,8 +192622,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 88,
-            "start_line": 70
+            "end_line": 94,
+            "start_line": 76
           }
         },
         {
@@ -192488,8 +192645,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 79
+            "end_line": 94,
+            "start_line": 85
           }
         },
         {
@@ -192510,8 +192667,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 111,
-            "start_line": 92
+            "end_line": 117,
+            "start_line": 98
           }
         },
         {
@@ -192535,8 +192692,8 @@
           "signature": "(self) -> list[Finding]",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 97
+            "end_line": 108,
+            "start_line": 103
           }
         },
         {
@@ -192558,8 +192715,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 111,
-            "start_line": 104
+            "end_line": 117,
+            "start_line": 110
           }
         },
         {
@@ -192599,8 +192756,8 @@
           "signature": "(mapping: dict[str, Any], key: str, kind: type, context: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 118,
-            "start_line": 114
+            "end_line": 124,
+            "start_line": 120
           }
         },
         {
@@ -192634,8 +192791,31 @@
           "signature": "(mapping: dict[str, Any], key: str, context: str) -> tuple[str, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 125,
-            "start_line": 121
+            "end_line": 133,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_scan_paths",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            }
+          ],
+          "qualified_name": "_scan_paths",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(mapping: dict[str, Any]) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 145,
+            "start_line": 136
           }
         },
         {
@@ -192669,8 +192849,8 @@
           "signature": "(mapping: dict[str, Any], key: str, context: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 132,
-            "start_line": 128
+            "end_line": 152,
+            "start_line": 148
           }
         },
         {
@@ -192710,8 +192890,8 @@
           "signature": "(raw: Any, index: int, today: date, max_days: int) -> Suppression",
           "source_location": {
             "column": 0,
-            "end_line": 168,
-            "start_line": 135
+            "end_line": 191,
+            "start_line": 155
           }
         },
         {
@@ -192739,8 +192919,8 @@
           "signature": "(raw: Any, today: date) -> SecurityProfile",
           "source_location": {
             "column": 0,
-            "end_line": 201,
-            "start_line": 171
+            "end_line": 231,
+            "start_line": 194
           }
         },
         {
@@ -192768,8 +192948,8 @@
           "signature": "(path: Path, today: date) -> SecurityProfile",
           "source_location": {
             "column": 0,
-            "end_line": 209,
-            "start_line": 204
+            "end_line": 239,
+            "start_line": 234
           }
         },
         {
@@ -192797,8 +192977,8 @@
           "signature": "(filename: str, root: Path) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 220,
-            "start_line": 212
+            "end_line": 250,
+            "start_line": 242
           }
         },
         {
@@ -192826,8 +193006,8 @@
           "signature": "(path: str, profile: SecurityProfile) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 228,
-            "start_line": 223
+            "end_line": 258,
+            "start_line": 253
           }
         },
         {
@@ -192861,8 +193041,8 @@
           "signature": "(root: Path, path: str, line_range: list[int]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 238,
-            "start_line": 231
+            "end_line": 268,
+            "start_line": 261
           }
         },
         {
@@ -192902,8 +193082,43 @@
           "signature": "(profile: SecurityProfile, tool: str, today: date, report: EvaluationReport) -> list[Suppression]",
           "source_location": {
             "column": 0,
-            "end_line": 260,
-            "start_line": 241
+            "end_line": 290,
+            "start_line": 271
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_claim",
+          "parameters": [
+            {
+              "annotation": "Suppression",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "suppression"
+            },
+            {
+              "annotation": "dict[Suppression, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "used"
+            },
+            {
+              "annotation": "Finding",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "finding"
+            }
+          ],
+          "qualified_name": "_claim",
+          "return_annotation": "bool",
+          "signature": "(suppression: Suppression, used: dict[Suppression, int], finding: Finding) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 301,
+            "start_line": 293
           }
         },
         {
@@ -192920,7 +193135,7 @@
               "name": "active"
             },
             {
-              "annotation": "set[Suppression]",
+              "annotation": "dict[Suppression, int]",
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "used"
@@ -192934,11 +193149,11 @@
           ],
           "qualified_name": "_report_stale",
           "return_annotation": "None",
-          "signature": "(active: list[Suppression], used: set[Suppression], report: EvaluationReport) -> None",
+          "signature": "(active: list[Suppression], used: dict[Suppression, int], report: EvaluationReport) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 275,
-            "start_line": 263
+            "end_line": 318,
+            "start_line": 304
           }
         },
         {
@@ -192978,8 +193193,8 @@
           "signature": "(raw: Any, profile: SecurityProfile, root: Path, today: date) -> EvaluationReport",
           "source_location": {
             "column": 0,
-            "end_line": 348,
-            "start_line": 278
+            "end_line": 406,
+            "start_line": 321
           }
         },
         {
@@ -193013,8 +193228,8 @@
           "signature": "(raw: Any, profile: SecurityProfile, today: date) -> EvaluationReport",
           "source_location": {
             "column": 0,
-            "end_line": 393,
-            "start_line": 351
+            "end_line": 453,
+            "start_line": 409
           }
         },
         {
@@ -193042,8 +193257,8 @@
           "signature": "(profile: SecurityProfile, root: Path) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 418,
-            "start_line": 396
+            "end_line": 484,
+            "start_line": 456
           }
         },
         {
@@ -193071,8 +193286,8 @@
           "signature": "(path: Path, label: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 425,
-            "start_line": 421
+            "end_line": 491,
+            "start_line": 487
           }
         },
         {
@@ -193094,8 +193309,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 500,
-            "start_line": 428
+            "end_line": 567,
+            "start_line": 494
           }
         }
       ]

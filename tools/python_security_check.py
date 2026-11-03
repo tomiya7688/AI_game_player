@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -27,9 +28,13 @@ PROFILE_SCHEMA_VERSION = 1
 DEFAULT_PROFILE = Path("config/python_security_profile.json")
 DEFAULT_OUTPUT = Path("build/python-security/report.json")
 SEVERITY_ORDER = {"UNDEFINED": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3}
+KNOWN_LEVELS = frozenset({"LOW", "MEDIUM", "HIGH"})
 TOOLS = frozenset({"bandit", "pip-audit"})
 DEPENDENCY_AUDIT_MODES = frozenset({"advisory", "blocking"})
 MINIMUM_REASON_LENGTH = 10
+# Hard ceiling: a profile cannot raise the suppression lifetime above one review year.
+MAXIMUM_SUPPRESSION_DAYS = 366
+ISSUE_REFERENCE = re.compile(r"^#[1-9][0-9]*$")
 
 EXPIRED_SUPPRESSION = "PSP901"
 STALE_SUPPRESSION = "PSP902"
@@ -49,6 +54,7 @@ class Suppression:
     reason: str
     expires: date
     issue: str
+    count: int = 1
 
     def label(self) -> str:
         return f"{self.tool}:{self.rule}:{self.target}"
@@ -120,9 +126,23 @@ def _require(mapping: dict[str, Any], key: str, kind: type, context: str) -> Any
 
 def _string_list(mapping: dict[str, Any], key: str, context: str) -> tuple[str, ...]:
     values = _require(mapping, key, list, context)
-    if not all(isinstance(value, str) and value for value in values):
-        raise ProfileError(f"{context}.{key} must contain non-empty strings")
-    return tuple(values)
+    if not values or not all(isinstance(value, str) and value for value in values):
+        raise ProfileError(
+            f"{context}.{key} must be a non-empty list of non-empty strings"
+        )
+    return tuple(value.replace("\\", "/") for value in values)
+
+
+def _scan_paths(mapping: dict[str, Any]) -> tuple[str, ...]:
+    paths = _string_list(mapping, "scan_paths", "bandit")
+    for path in paths:
+        if (
+            PurePosixPath(path).is_absolute()
+            or ":" in path
+            or ".." in PurePosixPath(path).parts
+        ):
+            raise ProfileError("bandit.scan_paths must be repository-relative paths")
+    return paths
 
 
 def _level(mapping: dict[str, Any], key: str, context: str) -> str:
@@ -144,7 +164,7 @@ def _parse_suppression(raw: Any, index: int, today: date, max_days: int) -> Supp
     rule = _require(raw, "rule", str, context).strip()
     reason = _require(raw, "reason", str, context).strip()
     issue = _require(raw, "issue", str, context).strip()
-    if not target or not rule or not issue.startswith("#"):
+    if not target or not rule or not ISSUE_REFERENCE.match(issue):
         raise ProfileError(
             f"{context} needs a rule, a {target_key}, and an Issue reference such as #114"
         )
@@ -163,8 +183,11 @@ def _parse_suppression(raw: Any, index: int, today: date, max_days: int) -> Supp
         raise ProfileError(f"{context}.match must be a string")
     if tool == "bandit" and not match.strip():
         raise ProfileError(f"{context}.match must name the flagged source text")
+    count = raw.get("count", 1)
+    if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+        raise ProfileError(f"{context}.count must be a positive integer")
     return Suppression(
-        tool, rule, target.replace("\\", "/"), match, reason, expires, issue
+        tool, rule, target.replace("\\", "/"), match, reason, expires, issue, count
     )
 
 
@@ -180,15 +203,22 @@ def parse_profile(raw: Any, today: date) -> SecurityProfile:
             f"dependency_audit.mode must be one of {sorted(DEPENDENCY_AUDIT_MODES)}"
         )
     max_days = _require(raw, "max_suppression_days", int, "profile")
-    if max_days <= 0:
-        raise ProfileError("profile.max_suppression_days must be positive")
+    if not 0 < max_days <= MAXIMUM_SUPPRESSION_DAYS:
+        raise ProfileError(
+            f"profile.max_suppression_days must be between 1 and {MAXIMUM_SUPPRESSION_DAYS}"
+        )
+    audit_issue = _require(dependency_audit, "issue", str, "dependency_audit")
+    if not ISSUE_REFERENCE.match(audit_issue):
+        raise ProfileError(
+            "dependency_audit.issue must be an Issue reference such as #90"
+        )
     raw_suppressions = _require(raw, "suppressions", list, "profile")
     suppressions = tuple(
         _parse_suppression(entry, index, today, max_days)
         for index, entry in enumerate(raw_suppressions)
     )
     return SecurityProfile(
-        scan_paths=_string_list(bandit, "scan_paths", "bandit"),
+        scan_paths=_scan_paths(bandit),
         min_severity=_level(bandit, "min_severity", "bandit"),
         min_confidence=_level(bandit, "min_confidence", "bandit"),
         sensitive_paths=_string_list(sensitive, "paths", "sensitive_modules"),
@@ -210,7 +240,7 @@ def load_profile(path: Path, today: date) -> SecurityProfile:
 
 
 def _relative_path(filename: str, root: Path) -> str:
-    candidate = Path(filename)
+    candidate = Path(filename.replace("\\", "/"))
     if candidate.is_absolute():
         try:
             candidate = candidate.resolve().relative_to(root.resolve())
@@ -223,7 +253,7 @@ def _relative_path(filename: str, root: Path) -> str:
 def is_sensitive(path: str, profile: SecurityProfile) -> bool:
     posix = PurePosixPath(path)
     return any(
-        posix.match(pattern) or fnmatch.fnmatch(path, pattern)
+        posix.match(pattern) or fnmatch.fnmatchcase(path, pattern)
         for pattern in profile.sensitive_paths
     )
 
@@ -260,17 +290,30 @@ def _active_suppressions(
     return active
 
 
+def _claim(
+    suppression: Suppression, used: dict[Suppression, int], finding: Finding
+) -> bool:
+    # One entry covers at most `count` findings, so a new identical call site still blocks.
+    if used.get(suppression, 0) >= suppression.count:
+        return False
+    used[suppression] = used.get(suppression, 0) + 1
+    finding.suppressed_by = suppression.label()
+    return True
+
+
 def _report_stale(
-    active: list[Suppression], used: set[Suppression], report: EvaluationReport
+    active: list[Suppression], used: dict[Suppression, int], report: EvaluationReport
 ) -> None:
     for suppression in active:
-        if suppression not in used:
+        matched = used.get(suppression, 0)
+        if matched < suppression.count:
             report.findings.append(
                 Finding(
                     STALE_SUPPRESSION,
                     suppression.target,
                     0,
-                    f"suppression {suppression.label()} matched no finding; remove it from the profile",
+                    f"suppression {suppression.label()} matched {matched} of "
+                    f"{suppression.count} findings; update or remove it",
                 )
             )
 
@@ -284,6 +327,10 @@ def evaluate_bandit(
     metrics = raw.get("metrics")
     if isinstance(metrics, dict):
         report.scanned_files = sum(1 for key in metrics if key != "_totals")
+    if report.scanned_files == 0:
+        report.findings.append(
+            Finding(SCAN_ERROR, ".", 0, "Bandit report lists no scanned files")
+        )
     for error in raw.get("errors") or []:
         filename = error.get("filename", "?") if isinstance(error, dict) else "?"
         reason = (
@@ -300,7 +347,7 @@ def evaluate_bandit(
             )
         )
     active = _active_suppressions(profile, "bandit", today, report)
-    used: set[Suppression] = set()
+    used: dict[Suppression, int] = {}
     minimum_severity = SEVERITY_ORDER[profile.min_severity]
     minimum_confidence = SEVERITY_ORDER[profile.min_confidence]
     for result in raw["results"]:
@@ -311,11 +358,23 @@ def evaluate_bandit(
         severity = str(result.get("issue_severity", "UNDEFINED")).upper()
         confidence = str(result.get("issue_confidence", "UNDEFINED")).upper()
         line = int(result.get("line_number") or 0)
-        meets_threshold = (
-            SEVERITY_ORDER.get(severity, 0) >= minimum_severity
+        # Unknown levels or paths outside the root cannot be judged by the profile: fail closed.
+        unjudgeable = (
+            severity not in KNOWN_LEVELS
+            or confidence not in KNOWN_LEVELS
+            or PurePosixPath(path).is_absolute()
+            or path.startswith("../")
+        )
+        meets_threshold = unjudgeable or (
+            SEVERITY_ORDER[severity] >= minimum_severity
+            and SEVERITY_ORDER[confidence] >= minimum_confidence
+        )
+        # Sensitive modules lower the severity floor for listed rules, not the confidence floor.
+        sensitive_rule = (
+            rule in profile.sensitive_rules
+            and is_sensitive(path, profile)
             and SEVERITY_ORDER.get(confidence, 0) >= minimum_confidence
         )
-        sensitive_rule = rule in profile.sensitive_rules and is_sensitive(path, profile)
         finding = Finding(
             f"bandit:{rule}",
             path,
@@ -339,9 +398,8 @@ def evaluate_bandit(
                     suppression.rule == rule
                     and suppression.target == path
                     and suppression.match in source
+                    and _claim(suppression, used, finding)
                 ):
-                    finding.suppressed_by = suppression.label()
-                    used.add(suppression)
                     break
         report.findings.append(finding)
     _report_stale(active, used, report)
@@ -357,7 +415,7 @@ def evaluate_pip_audit(
         )
     report = EvaluationReport()
     active = _active_suppressions(profile, "pip-audit", today, report)
-    used: set[Suppression] = set()
+    used: dict[Suppression, int] = {}
     blocking = profile.dependency_audit_mode == "blocking"
     for dependency in raw["dependencies"]:
         if not isinstance(dependency, dict):
@@ -366,8 +424,11 @@ def evaluate_pip_audit(
         name = str(dependency.get("name", "")).lower()
         version = str(dependency.get("version", ""))
         for vulnerability in dependency.get("vulns") or []:
+            aliases = vulnerability.get("aliases") or []
+            if not isinstance(aliases, list):
+                raise ProfileError("pip-audit aliases must be a list")
             identifiers = {str(vulnerability.get("id", ""))} | {
-                str(alias) for alias in vulnerability.get("aliases") or []
+                str(alias) for alias in aliases
             }
             fixes = (
                 ", ".join(str(fix) for fix in vulnerability.get("fix_versions") or [])
@@ -384,9 +445,8 @@ def evaluate_pip_audit(
                 if (
                     suppression.target.lower() == name
                     and suppression.rule in identifiers
+                    and _claim(suppression, used, finding)
                 ):
-                    finding.suppressed_by = suppression.label()
-                    used.add(suppression)
                     break
             report.findings.append(finding)
     _report_stale(active, used, report)
@@ -394,6 +454,12 @@ def evaluate_pip_audit(
 
 
 def run_bandit(profile: SecurityProfile, root: Path) -> Any:
+    # Bandit reads a ".bandit" file from its targets, which could narrow the scan outside the profile.
+    for directory in (Path("."), *map(Path, profile.scan_paths)):
+        if (root / directory / ".bandit").exists():
+            raise ProfileError(
+                f"{directory / '.bandit'} would override the profile; remove it"
+            )
     with tempfile.TemporaryDirectory() as directory:
         output = Path(directory) / "bandit.json"
         command = [
@@ -469,7 +535,8 @@ def main(argv: list[str] | None = None) -> int:
                 else _read_json(arguments.bandit_report, "Bandit report")
             )
             report = evaluate_bandit(raw, profile, arguments.root, today)
-    except ProfileError as error:
+    except (ProfileError, TypeError, ValueError, AttributeError) as error:
+        # A malformed report field is an unreadable report, not a passing scan.
         print(f"PYTHON SECURITY PROFILE ERROR: {error}", file=sys.stderr)
         return 2
 

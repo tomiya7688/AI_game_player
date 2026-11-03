@@ -13,20 +13,20 @@
 
 ## Banditの判定規則
 
-- 走査対象は`src`と`tools`です。`tests`はfixtureやテスト用の危険な入力を含むため対象外です。
+- 走査対象は`src`と`tools`です。`scan_paths`は空にできず、絶対pathや`..`を含むpathは拒否します。`tests`はfixtureやテスト用の危険な入力を含むため対象外です。
 - severityとconfidenceがともにMEDIUM以上の指摘はblockingです。変数を含むcommandをshellで実行するsubprocessの`shell=True`や`os.system`、pickle等の危険なdeserialize、`yaml.load`、`tempfile.mktemp`、`eval`/`exec`、TLS検証の無効化、tarfileの無検査展開、弱いhashなどが該当します。
-- 重点監視module（Provider、動的importするPlanning worker、worker起動、Native読込、file/network境界）では、LOWの指定rule（B105〜B107の秘密値の直書き、B110/B112の例外の握りつぶし、B603/B607のsubprocess起動）もblockingにします。対象のpathは`sensitive_modules.paths`で宣言します。
+- 重点監視module（Provider、動的importするPlanning worker、worker起動、Native読込、file/network境界）では、LOWの指定rule（B105〜B107の秘密値の直書き、B110/B112の例外の握りつぶし、B603/B607のsubprocess起動）もblockingにします。confidenceの下限（MEDIUM）は重点moduleでも変えません。対象のpathは`sensitive_modules.paths`で宣言します。
 - 上記以外のLOW指摘は判定結果のJSONへ記録するだけで、CIを失敗させません。
 - Banditの行内`# nosec`は理由と期限を持てないため、`--ignore-nosec`で無効化します。抑制はprofileの`suppressions`だけで管理します。
-- Banditがfileを解析できなかった場合は、走査が不完全なためblockingにします。
+- Banditがfileを解析できなかった場合は、走査が不完全なためblockingにします。走査file数が0件の報告、未知のseverity/confidence、repository外のpathもblockingにします。走査対象に`.bandit`設定fileがある場合はprofileを上書きできるため、`--run-bandit`を中止します（終了コード2）。
 
 ## 抑制の管理
 
 `suppressions`の各項目は、tool、rule、対象（Banditは`path`、pip-auditは`package`）、理由、期限、Issue番号を必須とします。
 
-- Banditの抑制は`match`に指摘行の文字列を指定し、同じfileの同じruleでも別の呼出し箇所を隠さないようにします。
-- 理由は10文字以上、期限は`YYYY-MM-DD`で、判定日から366日以内でなければprofileを読み込めません（終了コード2）。
-- 期限切れの抑制（PSP901）と、どの指摘にも一致しない抑制（PSP902）はblockingです。修正後は抑制を削除し、継続する場合は再レビューして期限を更新します。
+- Banditの抑制は`match`に指摘行の文字列を指定し、同じfileの同じruleでも別の呼出し箇所を隠さないようにします。1項目が抑制する件数は`count`（省略時1）までで、同じ文字列の呼出しが増えた場合は超過分がblockingになります。
+- 理由は10文字以上、Issue番号は`#114`の形式、期限は`YYYY-MM-DD`で判定日から`max_suppression_days`以内でなければprofileを読み込めません（終了コード2）。`max_suppression_days`自体も366日を超える値にはできません。
+- 期限切れの抑制（PSP901）と、どの指摘にも一致しない抑制（PSP902）はblockingです。対象fileを削除・改名した場合や、指摘が閾値未満になった場合もPSP902になります。修正後は抑制を削除し、継続する場合は再レビューして期限を更新します。
 
 現在の抑制は、利用者が設定するOllama endpointへの`urlopen`（http/https以外のschemeを拒否する検証は未実装）、https固定・SHA-256照合済みの参照ゲーム取得、127.0.0.1だけを読む開発用probe、固定argvのPlanner worker起動の4件です。
 
@@ -34,7 +34,7 @@
 
 `dependency-audit` jobは、`.[dev,ocr,browser-validation]`を別のvenvへ入れ、`PIPAPI_PYTHON_LOCATION`でそのvenvをpip-auditへ監査させます。pip-auditは公開の脆弱性情報へ問い合わせるため、結果は実行日に依存します。
 
-profileの`dependency_audit.mode`は現在`advisory`です。既知の脆弱性は警告として表示し、判定結果のJSONへ保存しますが、PRを失敗させません。pip-auditが報告を書けなかった場合、push・pull_requestでは「未確認」の警告を出してjobを成功させ、定期実行・手動実行ではjobを失敗させます。blockingへの移行と依存lockの方針はIssue #90で決めます。
+profileの`dependency_audit.mode`は現在`advisory`です。既知の脆弱性は警告として表示し、判定結果のJSONへ保存しますが、PRを失敗させません。pip-auditが報告を書けなかった場合（fileが無い、または空）、push・pull_requestでは「未確認」の警告を出してjobを成功させ、定期実行・手動実行ではjobを失敗させます。blockingへの移行と依存lockの方針はIssue #90で決めます。
 
 ## ローカルでの実行
 

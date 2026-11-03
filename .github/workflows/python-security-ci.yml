@@ -54,14 +54,14 @@ jobs:
       - name: Audit installed dependencies
         shell: bash
         # pip-audit queries the public vulnerability service. While the audit is advisory (#90),
-        # an unreachable service is a PR warning, and a failure on scheduled/manual runs.
+        # a missing report is a warning on push/pull_request and a failure on scheduled/manual runs.
         run: |
           mkdir -p build/python-security
           status=0
           PIPAPI_PYTHON_LOCATION="$RUNNER_TEMP/audit-target/bin/python" \
             python -m pip_audit --skip-editable --progress-spinner off --format json \
             --output build/python-security/pip-audit.json || status=$?
-          if [ ! -f build/python-security/pip-audit.json ]; then
+          if [ ! -s build/python-security/pip-audit.json ]; then
             case "$GITHUB_EVENT_NAME" in
               push|pull_request)
                 echo "::warning::pip-audit wrote no report (exit $status); dependency audit is unverified"

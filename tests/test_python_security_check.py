@@ -38,7 +38,7 @@ def _profile(**overrides: Any) -> dict[str, Any]:
             "extra_blocking_rules": ["B603", "B110"],
         },
         "max_suppression_days": 366,
-        "dependency_audit": {"mode": "advisory"},
+        "dependency_audit": {"mode": "advisory", "issue": "#90"},
         "suppressions": [],
     }
     profile.update(overrides)
@@ -73,6 +73,16 @@ def _result(
     }
 
 
+def _bandit(
+    results: list[dict[str, Any]], errors: list[Any] | None = None
+) -> dict[str, Any]:
+    return {
+        "results": results,
+        "errors": errors or [],
+        "metrics": {"_totals": {}, "src/pkg/net.py": {}},
+    }
+
+
 class PythonSecurityProfileTests(unittest.TestCase):
     def setUp(self) -> None:
         self._directory = tempfile.TemporaryDirectory()
@@ -94,9 +104,7 @@ class PythonSecurityProfileTests(unittest.TestCase):
 
     def _evaluate(self, results: list[dict[str, Any]], **profile_overrides: Any):
         profile = parse_profile(_profile(**profile_overrides), TODAY)
-        return evaluate_bandit(
-            {"results": results, "errors": []}, profile, self.root, TODAY
-        )
+        return evaluate_bandit(_bandit(results), profile, self.root, TODAY)
 
     def test_threshold_finding_blocks_and_low_finding_is_advisory(self) -> None:
         report = self._evaluate(
@@ -112,6 +120,13 @@ class PythonSecurityProfileTests(unittest.TestCase):
     def test_low_confidence_finding_does_not_block(self) -> None:
         report = self._evaluate(
             [_result("src/pkg/net.py", "B310", "HIGH", confidence="LOW")]
+        )
+
+        self.assertEqual([], report.blocking)
+
+    def test_sensitive_module_keeps_confidence_floor(self) -> None:
+        report = self._evaluate(
+            [_result("src/pkg/ollama_provider.py", "B603", "LOW", confidence="LOW")]
         )
 
         self.assertEqual([], report.blocking)
@@ -174,14 +189,44 @@ class PythonSecurityProfileTests(unittest.TestCase):
     def test_bandit_scan_errors_block(self) -> None:
         profile = parse_profile(_profile(), TODAY)
         report = evaluate_bandit(
-            {
-                "results": [],
-                "errors": [{"filename": "src/pkg/bad.py", "reason": "syntax error"}],
-            },
+            _bandit([], [{"filename": "src/pkg/bad.py", "reason": "syntax error"}]),
             profile,
             self.root,
             TODAY,
         )
+
+        self.assertEqual([SCAN_ERROR], [finding.code for finding in report.blocking])
+
+    def test_suppression_covers_only_its_declared_count(self) -> None:
+        findings = [
+            _result("src/pkg/net.py", "B310", "MEDIUM"),
+            _result("src/pkg/net.py", "B310", "MEDIUM"),
+        ]
+
+        single = self._evaluate(findings, suppressions=[_suppression()])
+        double = self._evaluate(findings, suppressions=[_suppression(count=2)])
+        excess = self._evaluate(findings[:1], suppressions=[_suppression(count=2)])
+
+        self.assertEqual(["bandit:B310"], [finding.code for finding in single.blocking])
+        self.assertEqual([], double.blocking)
+        self.assertEqual(
+            [STALE_SUPPRESSION], [finding.code for finding in excess.blocking]
+        )
+
+    def test_unknown_level_and_outside_path_fail_closed(self) -> None:
+        report = self._evaluate(
+            [
+                _result("src/pkg/plain.py", "B603", "UNDEFINED"),
+                _result("../elsewhere/plain.py", "B603", "LOW"),
+            ]
+        )
+
+        self.assertEqual(2, len(report.blocking))
+
+    def test_report_without_scanned_files_blocks(self) -> None:
+        profile = parse_profile(_profile(), TODAY)
+
+        report = evaluate_bandit({"results": []}, profile, self.root, TODAY)
 
         self.assertEqual([SCAN_ERROR], [finding.code for finding in report.blocking])
 
@@ -193,8 +238,10 @@ class PythonSecurityProfileTests(unittest.TestCase):
             _suppression(expires="next year"),
             _suppression(expires="2028-01-01"),
             _suppression(issue="114"),
+            _suppression(issue="#todo"),
             _suppression(match=""),
             _suppression(tool="semgrep"),
+            _suppression(count=0),
         ]
         for entry in invalid_entries:
             with self.subTest(entry=entry), self.assertRaises(ProfileError):
@@ -210,7 +257,23 @@ class PythonSecurityProfileTests(unittest.TestCase):
                     "min_confidence": "LOW",
                 }
             ),
-            _profile(dependency_audit={"mode": "ignore"}),
+            _profile(dependency_audit={"mode": "ignore", "issue": "#90"}),
+            _profile(dependency_audit={"mode": "advisory"}),
+            _profile(
+                bandit={
+                    "scan_paths": [],
+                    "min_severity": "MEDIUM",
+                    "min_confidence": "MEDIUM",
+                }
+            ),
+            _profile(
+                bandit={
+                    "scan_paths": ["../outside"],
+                    "min_severity": "MEDIUM",
+                    "min_confidence": "MEDIUM",
+                }
+            ),
+            _profile(max_suppression_days=367),
             _profile(max_suppression_days=0),
         ):
             with self.subTest(raw=raw), self.assertRaises(ProfileError):
@@ -248,7 +311,9 @@ class PythonSecurityProfileTests(unittest.TestCase):
         self.assertIsNone(report.findings[1].suppressed_by)
 
     def test_pip_audit_blocking_mode_blocks_unsuppressed_vulnerability(self) -> None:
-        profile = parse_profile(_profile(dependency_audit={"mode": "blocking"}), TODAY)
+        profile = parse_profile(
+            _profile(dependency_audit={"mode": "blocking", "issue": "#90"}), TODAY
+        )
         raw = {
             "dependencies": [
                 {"name": "idna", "version": "3.0", "vulns": [{"id": "GHSA-x"}]}
@@ -266,7 +331,7 @@ class PythonSecurityProfileTests(unittest.TestCase):
         profile_path.write_text(json.dumps(_profile()), encoding="utf-8")
         bandit_path = self.root / "bandit.json"
         bandit_path.write_text(
-            json.dumps({"results": [_result("src/pkg/net.py", "B310", "HIGH")]}),
+            json.dumps(_bandit([_result("src/pkg/net.py", "B310", "HIGH")])),
             encoding="utf-8",
         )
         output = self.root / "out/report.json"
@@ -292,6 +357,30 @@ class PythonSecurityProfileTests(unittest.TestCase):
 
         self.assertEqual(1, exit_code)
         self.assertFalse(json.loads(output.read_text(encoding="utf-8"))["passed"])
+
+    def test_cli_rejects_malformed_report_fields_with_exit_code_two(self) -> None:
+        profile_path = self.root / "profile.json"
+        profile_path.write_text(json.dumps(_profile()), encoding="utf-8")
+        bandit_path = self.root / "bandit.json"
+        result = _result("src/pkg/net.py", "B310", "HIGH")
+        result["line_number"] = "two"
+        bandit_path.write_text(json.dumps(_bandit([result])), encoding="utf-8")
+
+        with contextlib.redirect_stderr(io.StringIO()):
+            exit_code = main(
+                [
+                    "--bandit-report",
+                    str(bandit_path),
+                    "--profile",
+                    str(profile_path),
+                    "--root",
+                    str(self.root),
+                    "--output",
+                    str(self.root / "out.json"),
+                ]
+            )
+
+        self.assertEqual(2, exit_code)
 
     def test_cli_reports_profile_errors_with_exit_code_two(self) -> None:
         profile_path = self.root / "profile.json"

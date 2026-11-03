@@ -36,6 +36,7 @@
       "rule": "B310",
       "path": "src/ai_game_player/provider.py",
       "match": "urlopen(request",
+      "count": 3,
       "reason": "Ollama endpointは利用者が設定するHTTP接続先で、要求先は固定の/api/tagsと/api/generateだけです。http/https以外のschemeを拒否する入力検証は未実装のため、期限内に検証を追加してこの抑制を削除します。",
       "expires": "2027-05-31",
       "issue": "#114"
