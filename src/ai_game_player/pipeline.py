@@ -33,12 +33,14 @@ from ai_game_player.observation_source import ObservationSource
 from ai_game_player.ocr_detector import OcrTextCandidateDetector
 from ai_game_player.run_control import ExecutionCancelled, RunController
 from ai_game_player.safety_guard import EmergencyStop, SafetyGuard, SafetyGuardConfig
+from ai_game_player.hook_runtime import HookRuntime
+from ai_game_player.perception_hook_boundary import PerceptionHookBoundary
 from ai_game_player.runtime_log import RuntimeLog
 
 
 # {
 #   責務: [DecisionPipeline: 画面観測から検証済み判断、安全評価、世代guard付き実行までを接続する]
-#   フィールド: [source: 画面と候補を返す入力元, engine: Decision Context作成と回答検証, safety_evaluator: 操作リスク評価, executor: dry-runまたはOS入力, controller: 停止・再開世代, event_journal: 任意のSession event保存先]
+#   フィールド: [source: 画面と候補を返す入力元, engine: Decision Context作成と回答検証, safety_evaluator: 操作リスク評価, executor: dry-runまたはOS入力, controller: 停止・再開世代, event_journal: 任意のSession event保存先, perception_hooks: 任意のperception/output Hook境界]
 #   処理: [判断snapshotに含まれる候補実体を実行まで保ち、Action SafetyとDecision Reliabilityを別の根拠として記録する。game adapterが新しい画面の観測完了時刻をFailSafeRuntimeへ記録する入口も提供する]
 #   履歴: [指定Journalへ判断・実行・安全eventを追記し、RuntimeLog bindingはこのPipelineが所有するtokenで解除する]
 # }
@@ -78,6 +80,7 @@ class DecisionPipeline:
     #     migrate_runtime_log: trueなら旧RuntimeLog JSONLをJournalへ移行する
     #     knowledge_adapter: 選択済みKnowledgeをstep固定で投影する。Safetyや実入力許可は変更しない
     #     evaluation_adapter: 通常推論で6軸を投影する既定部品。ModeのArtifact評価とは別
+    #     hook_runtime: 指定時だけperception/output境界をread/inject Hookへ公開する。runtimeは既定で無効で、Hook出力は候補・判断・Safetyへ戻さない
     #   ]
     #   戻り値: []
     # }
@@ -108,6 +111,7 @@ class DecisionPipeline:
         migrate_runtime_log: bool = True,
         knowledge_adapter: KnowledgeFeatureAdapter | None = None,
         evaluation_adapter: RuntimeEvaluationAdapter | None = None,
+        hook_runtime: HookRuntime | None = None,
     ) -> None:
         self.source = source
         self.last_observation: ScreenObservation | None = None
@@ -157,6 +161,16 @@ class DecisionPipeline:
             else None,
         )
         self.last_safety_result: ActionSafetyResult | None = None
+        self.perception_hooks = (
+            PerceptionHookBoundary(
+                hook_runtime,
+                session_id=event_journal.session_id
+                if event_journal is not None
+                else None,
+            )
+            if hook_runtime is not None
+            else None
+        )
         if self.event_journal is not None and self.runtime_log is not None:
             self._runtime_log_attachment_token = self.runtime_log.attach_event_journal(
                 self.event_journal,
@@ -202,10 +216,10 @@ class DecisionPipeline:
 
     # {
     #   責務: [_read_candidates: 画面観測と設定済み候補から判断用の候補一覧を作る]
-    #   処理: [1: sourceから画面と設定済み候補を取得する, 2: FailSafeRuntimeが実行中なら観測完了時刻を更新する, 3: OCR候補と画像候補を設定済み候補へ統合する]
+    #   処理: [1: sourceから画面と設定済み候補を取得する, 2: FailSafeRuntimeが実行中なら観測完了時刻を更新する, 3: OCR候補と画像候補を設定済み候補へ統合する, 4: hook_runtime指定時は統合結果をperception/output Hookへ公開する]
     #   引数: [ocr_texts: 呼び出し側が指定するOCR結果。NoneならScreenObservationのocr_candidatesを使用する]
     #   戻り値: [ScreenObservationと統合済みActionCandidate一覧の組]
-    #   エラー: [source、OCR検出、候補変換の処理で発生した例外を呼び出し元へ伝える]
+    #   エラー: [source、OCR検出、候補変換の処理で発生した例外を呼び出し元へ伝える, DecisionWithheld: 失敗時HALT方針のHookが失敗した場合（入力なしのABSTAIN）]
     # }
     def _read_candidates(
         self,
@@ -256,7 +270,11 @@ class DecisionPipeline:
             for value in observation.features.get("image_candidates", [])
             if isinstance(value, dict)
         ]
-        return observation, self.merger.merge(configured, detected, image)
+        candidates = self.merger.merge(configured, detected, image)
+        if self.perception_hooks is not None:
+            # read/inject Hookだけを呼ぶ。出力は候補・判断・Safetyへ戻さない。
+            self.perception_hooks.run(observation, candidates)
+        return observation, candidates
 
     # {
     #   責務: [_decide: 候補を判断し、推論応答を履歴へ確定する前に停止状態を再検証する]
