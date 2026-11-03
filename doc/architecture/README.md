@@ -10,6 +10,7 @@
 | 新しい画面から次の操作までの順番 | [一回の判断と実行の流れ](flow_for_readers.md) |
 | UI・Python・Windows・任意サービスの役割 | [部品と実行場所](runtime_map_for_readers.md) |
 | PythonとC++の分け方を開発者として考える | [既存Runtime Architecture](runtime_layers.md)・[Native境界](native_runtime_boundary.md) |
+| Native C/C++の危険API検出・clang-tidy・sanitizerの検査範囲 | [Native C++ Security Profile](native_security_profile.md) |
 | 機械的な呼出し一覧 | [既存のシーケンス図](../sequence_diagram.mmd)・[クラス図](../class_diagram.mmd) |
 | ゲーム固有の操作の検証 | [判断パイプライン機能説明書](../判断パイプライン機能説明書.md)・[操作実行機能説明書](../操作実行機能説明書.md) |
 | 状態仮説と未知質量・仮想遷移の境界 | [BeliefSnapshot](belief_snapshot.md)・[予測とBayes更新](belief_update.md)・[仮想遷移](transition_simulation.md)・[bounded探索Core](expectimax_planning.md) |
