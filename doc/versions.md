@@ -130,6 +130,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #150: Pipeline stage間の中間データをHook・Provider・Replayへ渡す版付き契約`StageEnvelope` v1を追加しました。JSON Schema、言語共通の適合ケース52件、有効例2件、Python参照validatorとcodecを用意します。未知field・未知版・重複key・NaN・int64範囲外・binary64のunderflow・対のないsurrogate・自己参照を拒否し、1MiB・深さ32・件数上限をparse前に判定します。canonical JSONの往復と版移行点（v1では空）を試験します。Pipelineからの生成とHook runtimeへの接続は#151/#152/#153の範囲です。[契約と上限](architecture/stage_envelope.md)。
 - Issue #149（一部）: `tools/windows_bundle_check.py layout`を追加し、`tools/build_windows_bundle.ps1`の最後に実行します。bundle内の全PE fileのimport表（遅延読込を含む）を読み、各DLLがbundle内にあるかWindowsの部品であることを、build機の`System32`を参照せずに判定します。VC++ runtimeはWindowsの部品として扱いません。
 - 従来のNative DLLは`MSVCP140.dll`を必要とし、PyInstallerはこのDLLを同梱していませんでした（VC++再頒布パッケージのないWindowsではNative Runtimeなしで起動する状態）。bundle用のNative buildだけMSVC runtimeを静的リンク（`/MT`）へ変更しました。buildの各段階の終了codeも検査します。
 - `Kadoka.exe --bundle-self-check <report>`を追加しました。凍結状態、`sys.path`とpackageがbundle内にあること、bundle直下のNative DLLの読込（通常の探索とSafety補助経路）、同梱資源、Tcl/Tk、OpenSSLを検査し、JSON reportと終了codeで返します。
