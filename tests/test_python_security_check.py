@@ -265,8 +265,14 @@ class PythonSecurityProfileTests(unittest.TestCase):
         profile = parse_profile(_profile(), TODAY)
 
         empty = evaluate_pip_audit({"dependencies": []}, profile, TODAY)
+        only_skipped = evaluate_pip_audit(
+            {"dependencies": [{"name": "ai-game-player", "skip_reason": "editable"}]},
+            profile,
+            TODAY,
+        )
 
         self.assertEqual([SCAN_ERROR], [finding.code for finding in empty.blocking])
+        self.assertEqual([SCAN_ERROR], [f.code for f in only_skipped.blocking])
         for dependency in (
             {"name": "idna", "version": "3.0"},
             {"name": "idna", "version": "3.0", "vulns": "none"},
@@ -284,7 +290,8 @@ class PythonSecurityProfileTests(unittest.TestCase):
         profile = parse_profile(_profile(suppressions=[entry]), TODAY)
         raw = {
             "dependencies": [
-                {"name": "foo.bar", "version": "1", "vulns": [{"id": "GHSA-x"}]}
+                {"name": "foo.bar", "version": "1", "vulns": [{"id": "GHSA-x"}]},
+                {"name": "ai-game-player", "skip_reason": "editable"},
             ]
         }
 

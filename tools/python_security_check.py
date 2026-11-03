@@ -439,23 +439,24 @@ def evaluate_pip_audit(
             "pip-audit report must be a JSON object with a dependencies list"
         )
     report = EvaluationReport(scanned_unit="dependencies")
-    if not raw["dependencies"]:
-        report.findings.append(
-            Finding(
-                SCAN_ERROR, ".", 0, "pip-audit report lists no audited dependencies"
-            )
-        )
     active = _active_suppressions(profile, "pip-audit", today, report)
     used: dict[Suppression, int] = {}
     blocking = profile.dependency_audit_mode == "blocking"
     for dependency in raw["dependencies"]:
         if not isinstance(dependency, dict):
             raise ProfileError("pip-audit dependencies must be objects")
-        report.scanned_files += 1
         name = dependency.get("name")
         vulns = dependency.get("vulns")
+        # --skip-editable reports the local project as {"name", "skip_reason"}; it was not audited.
+        if (
+            isinstance(name, str)
+            and name
+            and isinstance(dependency.get("skip_reason"), str)
+        ):
+            continue
         if not isinstance(name, str) or not name or not isinstance(vulns, list):
             raise ProfileError("pip-audit dependencies need a name and a vulns list")
+        report.scanned_files += 1
         name = _distribution_name(name)
         version = str(dependency.get("version", ""))
         for vulnerability in vulns:
@@ -486,6 +487,12 @@ def evaluate_pip_audit(
                 ):
                     break
             report.findings.append(finding)
+    if report.scanned_files == 0:
+        report.findings.append(
+            Finding(
+                SCAN_ERROR, ".", 0, "pip-audit report lists no audited dependencies"
+            )
+        )
     _report_stale(active, used, report)
     return report
 
