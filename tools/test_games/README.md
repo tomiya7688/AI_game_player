@@ -5,7 +5,7 @@
 
 ## Windowsで起動する
 
-Python 3.10以降と、`python -m pip` で起動できるpip 22.3以降が必要です。初回はリポジトリのルートで `run_test_games.bat -Setup` を実行してください。依存ライブラリを `build/test-games-venv` にインストールし、メニューを開きます。インストール時だけネット接続が必要です。次回からは `run_test_games.bat` をダブルクリックしてください。
+Python 3.10以降と、`python -m pip` で起動できるpip 26.2.2以降が必要です（信頼の最低版、Issue #514）。初回はリポジトリのルートで `run_test_games.bat -Setup` を実行してください。依存ライブラリを `build/test-games-venv` にインストールし、メニューを開きます。インストール時だけネット接続が必要です。次回からは `run_test_games.bat` をダブルクリックしてください。
 
 `run_test_games.bat -Game othello -Seed 0` のようにゲームを直接指定できます。共通操作は R（同じseedで再開始）、P（一時停止・再開）、Esc（メニューへ戻る／メニューから終了）です。ゲーム画面からフォーカスが外れると一時停止します。AI GAME PLAYERで操作する際も、ゲーム画面を前面に置き、Pで一時停止を解除してください。
 
@@ -55,11 +55,13 @@ build/test-games-venv/Scripts/python.exe -m pytest tools/test_games/tests -q -p 
 
 このゲーム集と専用テストはGPLの開発fixtureです。通常アプリの`src/ai_game_player`やPython依存へは追加せず、独立した仮想環境とプロセスで起動します。本体と組み合わせる場合は、通常の画面取得とキーボード・マウス入力を使ってください。ゲームの盤面配列や座標の正解をAIのObservation/Decisionへ注入しません。
 
-Windowsの`-Setup`は独立環境だけに依存を導入します。Linuxでは次のように起動してください。
+Windowsの`-Setup`は独立環境だけに依存を導入します。依存を入れる前に、ホストのpipが信頼の最低版（`requirements/python-trust-constraints.txt`、Issue #514）を満たすことを`tools/trust_gate.py`で検査します。Linuxでは次のように起動してください。
 
 ```bash
 python -m venv build/test-games-venv
-build/test-games-venv/bin/python -m pip install -r tools/test_games/requirements-dev.txt
+build/test-games-venv/bin/python -m pip install --upgrade -c requirements/python-trust-constraints.txt pip
+python tools/trust_gate.py --python build/test-games-venv/bin/python
+build/test-games-venv/bin/python -m pip install -c requirements/python-trust-constraints.txt -r tools/test_games/requirements-dev.txt
 build/test-games-venv/bin/python -m tools.test_games --game shogi --seed 29
 ```
 

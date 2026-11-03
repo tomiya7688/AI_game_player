@@ -23,6 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
       - name: Install schema validator
         run: python -m pip install --disable-pip-version-check 'jsonschema[format]==4.26.0'
       - name: Validate versioned Provider and config schemas
@@ -267,6 +268,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
       - name: Install pinned clang-tidy
         run: python -m pip install --disable-pip-version-check "clang-tidy==22.1.8"
       - name: Run clang-tidy with native/.clang-tidy
@@ -282,6 +284,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
       - name: Install application builder
         run: python -m pip install --disable-pip-version-check pyinstaller
       - name: Build complete application bundle
@@ -317,6 +320,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
       - name: Run sample-control-confirmed live input loop to milestone
         shell: pwsh
         env:
@@ -380,6 +384,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
       - name: Install optional comparison OCR and process sampler
         id: comparison_dependencies
         shell: pwsh

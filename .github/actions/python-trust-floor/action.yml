@@ -1,0 +1,49 @@
+name: Python trust floor
+description: >-
+  Issue #514: upgrade pip within requirements/python-trust-constraints.txt, keep the
+  same floors for every later pip install in the job, distrust the incident root in
+  the Linux runner's OS store, and fail when the interpreter or the runner's CA
+  certificates miss the floor or still trust an incident root.
+runs:
+  using: composite
+  steps:
+    - name: Apply the trust constraints to later pip installs
+      shell: bash
+      run: echo "PIP_CONSTRAINT=$GITHUB_WORKSPACE/requirements/python-trust-constraints.txt" >> "$GITHUB_ENV"
+    - name: Distrust the incident root in the Linux OS store
+      if: runner.os == 'Linux'
+      shell: bash
+      # Some runner images still ship emSign ECC Root CA - G3 (GHSA-6q48-6c7w-9gw2) in the
+      # ca-certificates store that pip's truststore loads. Deselect it and rebuild the store;
+      # the gate below checks the result by fingerprint, so a renamed file still fails.
+      run: |
+        entry="mozilla/emSign_ECC_Root_CA_-_G3.crt"
+        if [ -f /etc/ca-certificates.conf ] && grep -qxF "$entry" /etc/ca-certificates.conf; then
+          sudo sed -i "s|^${entry}\$|!${entry}|" /etc/ca-certificates.conf
+          sudo update-ca-certificates --fresh
+          echo "Deselected $entry from the OS CA store"
+        fi
+    - name: Upgrade pip only when it misses the trust floor
+      shell: bash
+      # Upgrading runs the existing pip over the network, so skip it when that pip
+      # already passes; the gate's own report follows in the next step.
+      run: |
+        if ! python "$GITHUB_WORKSPACE/tools/trust_gate.py" > /dev/null; then
+          python -m pip install --disable-pip-version-check --upgrade -c "$GITHUB_WORKSPACE/requirements/python-trust-constraints.txt" pip
+        fi
+    - name: Verify the trust floor
+      shell: bash
+      run: |
+        # On Linux, truststore loads OpenSSL's default CA file and directory; check both.
+        bundles=()
+        if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
+          bundles+=(--bundle /etc/ssl/certs/ca-certificates.crt)
+        elif [ "$RUNNER_OS" = Linux ]; then
+          echo "::error::OS CA bundle /etc/ssl/certs/ca-certificates.crt is missing; the trust floor cannot be checked"
+          exit 1
+        fi
+        if compgen -G "/etc/ssl/certs/*.pem" > /dev/null; then
+          cat /etc/ssl/certs/*.pem > "$RUNNER_TEMP/os-ca-directory.pem"
+          bundles+=(--bundle "$RUNNER_TEMP/os-ca-directory.pem")
+        fi
+        python "$GITHUB_WORKSPACE/tools/trust_gate.py" "${bundles[@]}"
