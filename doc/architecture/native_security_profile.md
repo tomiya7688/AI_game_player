@@ -16,11 +16,11 @@
 
 ## 危険API検出の規則
 
-検出器はコメント、文字列リテラル、raw文字列、文字リテラルを空白へ置き換えてから、規則表の関数名の呼出し（`name(`、`std::name(`、`::name(`）を検出します。走査前にコンパイラと同じく行継続（`\` + 改行）を連結し、`::std::memcpy(`、`std :: strcpy(` のような空白付きの修飾や、関数名と `(` の間に改行がある呼出しも検出して、関数名がある元の行を報告します。対象は標準C/C++とWindowsのグローバルAPIだけで、メンバー呼出し（`obj.free(`）、`std` 以外の名前空間・クラス修飾（`kadoka::memcpy(`、`Pool::free(`）、別名の識別子（`strcpy_s(`）は検出しません。独自名前空間で危険APIを包む関数の中身は、その定義側の呼出しとして検出されます。
+検出器はコメント、文字列リテラル、raw文字列、文字リテラルを空白へ置き換えてから、規則表の関数名の呼出し（`name(`、`std::name(`、`::name(`）を検出します。走査前にコンパイラと同じく行継続（`\` + 改行）を連結し、`::std::memcpy(`、`std :: strcpy(` のような空白付きの修飾や、関数名と `(` の間に改行がある呼出しも検出して、関数名がある元の行を報告します。容量引数を受け取る `swprintf` / `vswprintf` は対象外ですが、容量引数の正しさは名前照合では確認できないため、clang-tidyとレビューで確認します。対象は標準C/C++とWindowsのグローバルAPIだけで、メンバー呼出し（`obj.free(`、`pool-> system(`）、`std` 以外の名前空間・クラス修飾（`kadoka::memcpy(`、`Pool::free(`）、別名の識別子（`strcpy_s(`）は検出しません。独自名前空間で危険APIを包む関数の中身は、その定義側の呼出しとして検出されます。
 
 | 規則 | 重大度 | 対象API | 理由 |
 |---|---|---|---|
-| NSC001 | high | `gets`、`strcpy`、`strcat`、`sprintf`、`vsprintf`、`wcscpy`、`wcscat`、`swprintf`、`lstrcpy*`、`wsprintf*` など | 出力容量を受け取らない文字列/書式API |
+| NSC001 | high | `gets`、`strcpy`、`strcat`、`sprintf`、`vsprintf`、`wcscpy`、`wcscat`、`lstrcpy*`、`wsprintf*` など | 出力容量を受け取らない文字列/書式API |
 | NSC002 | high | `system`、`popen`、`WinExec`、`ShellExecute*`、`CreateProcess*`（`AsUser`、`WithLogonW`、`WithTokenW`を含む）、`exec*`、`posix_spawn*`、`_spawn*` など | Native Runtimeからの外部コマンド/プロセス起動 |
 | NSC003 | high | `alloca`、`_alloca`、`_malloca` | 入力サイズ由来のスタック溢れ |
 | NSC004 | medium | `atoi`、`atol`、`atoll`、`atof`、`strtok`、`rand`、`srand` | 変換失敗を検出できない、再入不能、または予測可能 |

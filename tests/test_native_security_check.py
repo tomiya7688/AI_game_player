@@ -250,6 +250,26 @@ class NativeSecurityCheckTests(unittest.TestCase):
             ["memcpy", "strcpy", "system"],
         )
 
+    def test_spaced_member_and_namespace_access_is_ignored_but_ternary_is_not(
+        self,
+    ) -> None:
+        source = (
+            "pool-> system(x);\n"
+            "obj . free(p);\n"
+            "kadoka:: memcpy(a, b, n);\n"
+            "auto r = ok ? 0 : memset(p, 0, n);\n"
+        )
+
+        self.assertEqual(
+            [(f.function, f.line_number) for f in scan_source("a.cpp", source)],
+            [("memset", 4)],
+        )
+
+    def test_bounded_wide_formatting_functions_are_not_banned(self) -> None:
+        source = 'swprintf(buffer, count, L"%d", value);\nvswprintf(buffer, count, format, args);\n'
+
+        self.assertEqual(scan_source("a.cpp", source), [])
+
     def test_process_creation_variants_are_high_severity(self) -> None:
         source = "CreateProcessAsUserW(t, a);\nexecvp(p, v);\nposix_spawn(&p, a);\n"
 

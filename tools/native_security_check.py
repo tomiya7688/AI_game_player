@@ -44,8 +44,6 @@ RULES: tuple[NativeSecurityRule, ...] = (
                 "vsprintf",
                 "wcscpy",
                 "wcscat",
-                "swprintf",
-                "vswprintf",
                 "_mbscpy",
                 "_mbscat",
                 "lstrcpy",
@@ -281,6 +279,7 @@ def scan_source(relative_path: str, source: str) -> list[NativeSecurityFinding]:
     matches = [
         (match, _FUNCTION_TO_RULE[match.group("name")])
         for match in _CALL_PATTERN.finditer(stripped)
+        if not _is_member_or_scoped_access(stripped, match.start())
     ]
     matches.extend(
         (match, HEAP_EXPRESSION_RULE)
@@ -302,6 +301,13 @@ def scan_source(relative_path: str, source: str) -> list[NativeSecurityFinding]:
             )
         )
     return findings
+
+
+def _is_member_or_scoped_access(text: str, start: int) -> bool:
+    # `pool-> system(`、`obj . free(`、`kadoka:: memcpy(` のように空白を挟んだ
+    # メンバー呼出しと std 以外の修飾を除外する。三項演算子の `: memcpy(` は除外しない。
+    before = text[:start].rstrip()
+    return before.endswith((".", "->", "::"))
 
 
 def _join_line_splices(source: str) -> tuple[str, list[int]]:
