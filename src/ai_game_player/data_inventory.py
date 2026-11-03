@@ -142,15 +142,22 @@ class DataInventory:
     # {
     #   責務: [forbidden_field_paths: JSON互換値にcredential禁止field名が含まれる位置を列挙する]
     #   処理: [dict/list/tupleを再帰的に辿り、小文字化・`-`を`_`へ置換したkeyが禁止名と一致するか、
-    #     `_禁止名`で終わる位置を`$.a.b[0]`形式で返す。値の中身は判定に使わない]
+    #     `_禁止名`で終わる位置を`$.a.b[0]`形式で返す。同じcontainerは1回だけ辿る。値の中身は判定に使わない。
+    #     接尾一致は`csrf_token`等を漏らさないためのfail-closed判定で、非機密の`*_token`も検出し得る]
     #   引数: [value: 送信・保存前のpayload]
     #   戻り値: [tuple[str, ...]: 禁止field位置。空ならcredential名のfieldはない]
     # }
     def forbidden_field_paths(self, value: object) -> tuple[str, ...]:
         found: list[str] = []
         stack: list[tuple[str, object]] = [("$", value)]
+        visited: set[int] = set()
         while stack:
             path, current = stack.pop()
+            if isinstance(current, (Mapping, list, tuple)):
+                # 自己参照を含むPython objectでも停止させるため、同じcontainerは1回だけ辿る。
+                if id(current) in visited:
+                    continue
+                visited.add(id(current))
             if isinstance(current, Mapping):
                 for key, child in current.items():
                     child_path = f"{path}.{key}"
@@ -255,7 +262,7 @@ def load_data_inventory(path: Path | None = None) -> DataInventory:
 # {
 #   責務: [_parse_classes: class配列をID→policyへ変換する]
 #   処理: [各要素をDataClassPolicyへ復元し、ID重複とcontainsの未登録参照を拒否する。
-#     外側classが内包classより低い機微度を持つ場合と、端末外送信可能なclassがlocal-only classを内包する場合も拒否する]
+#     外側classが内包classより低い機微度を持つ場合、端末外送信可能なclassがlocal-only classを内包する場合、循環内包も拒否する]
 #   引数: [value: classes配列]
 #   戻り値: [dict[str, DataClassPolicy]: ID→policy]
 #   エラー: [DataInventoryError: 配列でない、空、重複、未登録参照、内包関係の矛盾、policy不正]
@@ -292,7 +299,38 @@ def _parse_classes(value: object) -> dict[str, DataClassPolicy]:
                     f"{policy.data_class} may leave the machine but contains "
                     f"local-only {contained.data_class}"
                 )
+    _reject_containment_cycles(classes)
     return classes
+
+
+# {
+#   責務: [_reject_containment_cycles: containsの内包関係に循環がないことを確認する]
+#   処理: [深さ優先で各classからcontainsを辿り、探索中のclassへ戻る辺があれば拒否する]
+#   引数: [classes: 未登録参照を検査済みのID→policy]
+#   戻り値: [なし]
+#   エラー: [DataInventoryError: 間接的な循環内包がある]
+# }
+def _reject_containment_cycles(classes: Mapping[str, DataClassPolicy]) -> None:
+    finished: set[str] = set()
+    for root in sorted(classes):
+        active: set[str] = set()
+        stack: list[tuple[str, int]] = [(root, 0)]
+        while stack:
+            data_class, index = stack.pop()
+            if index == 0:
+                if data_class in finished:
+                    continue
+                active.add(data_class)
+            contains = classes[data_class].contains
+            if index < len(contains):
+                stack.append((data_class, index + 1))
+                child = contains[index]
+                if child in active:
+                    raise DataInventoryError(f"containment cycle through {child}")
+                stack.append((child, 0))
+            else:
+                active.discard(data_class)
+                finished.add(data_class)
 
 
 # {

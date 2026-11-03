@@ -12,6 +12,8 @@ _DATA_CLASS_ID = re.compile(r"^[a-z][a-z0-9_]*$")
 _MODULE_NAME = re.compile(r"^ai_game_player(\.[a-z_][a-z0-9_]*)+$")
 # 既定で保存されるmode。offは利用者が明示的に有効化した時だけ保存する。
 _PERSISTED_BY_DEFAULT = frozenset({"transient", "local_bounded", "local"})
+# TTLを持たないmode。期限の意味がないため、値があれば誤設定として拒否する。
+_NO_TTL_MODES = frozenset({"never", "transient", "local"})
 
 
 # {
@@ -50,7 +52,7 @@ class DataClassPolicy:
     # {
     #   責務: [__post_init__: 列挙値の誤りと、privacy-preservingでない既定を生成時点で拒否する]
     #   処理: [ID・列挙値・TTL・module名を検査し、forbiddenは保存も送信も禁止、
-    #     highは無期限local保存禁止、期限付き保存はTTL必須という不変条件を確認する]
+    #     highは無期限local保存禁止、local_boundedはTTL必須、never/transient/localはTTLなし、という不変条件を確認する]
     #   引数: [なし]
     #   戻り値: [なし]
     #   エラー: [DataClassPolicyError: いずれかの値・不変条件が契約外]
@@ -103,6 +105,10 @@ class DataClassPolicy:
             raise DataClassPolicyError(f"{name} is high sensitivity and needs a bound")
         if self.default_persistence == "local_bounded" and retention is None:
             raise DataClassPolicyError(f"{name} is local_bounded and needs a TTL")
+        if self.default_persistence in _NO_TTL_MODES and retention is not None:
+            raise DataClassPolicyError(
+                f"{name} is {self.default_persistence} and must not declare a TTL"
+            )
 
     # {
     #   責務: [persisted_by_default: 利用者の操作なしに端末内へ保存される既定かを返す]

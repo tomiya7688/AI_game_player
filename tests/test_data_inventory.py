@@ -242,6 +242,9 @@ class DataInventoryRegistryTest(unittest.TestCase):
             self.inventory.forbidden_field_paths(payload),
         )
         self.assertEqual((), self.inventory.forbidden_field_paths({"tokens": 1}))
+        cyclic: dict = {"password": 1}
+        cyclic["self"] = cyclic
+        self.assertEqual(("$.password",), self.inventory.forbidden_field_paths(cyclic))
 
     def test_retention_ttl_defaults_feed_retention_policy(self) -> None:
         ttl_by_type = self.inventory.ttl_ms_by_artifact_type()
@@ -359,6 +362,8 @@ class DataInventoryValidationTest(unittest.TestCase):
             ("trace", {"default_retention_ms": None}),
             ("trace", {"remote": "always"}),
             ("ocr_text", {"default_retention_ms": 0}),
+            ("knowledge", {"default_retention_ms": 1}),
+            ("worker_ipc", {"default_retention_ms": 1}),
         )
         for data_class, change in cases:
             value = document()
@@ -373,6 +378,13 @@ class DataInventoryValidationTest(unittest.TestCase):
         value = document()
         self.find_class(value, "trace")["sensitivity"] = "medium"
         self.assert_rejected(value)
+        value = document()
+        # history→decision_context→historyの間接循環（機微度・送信可否は整合させる）。
+        self.find_class(value, "history").update(
+            {"sensitivity": "high", "contains": ["decision_context"]}
+        )
+        with self.assertRaisesRegex(DataInventoryError, "cycle"):
+            self.load(value)
 
     def test_rejects_duplicates_and_missing_notes(self) -> None:
         value = document()

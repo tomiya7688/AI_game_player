@@ -33,7 +33,8 @@ Privacy条件が文章だけだと、Provider・Recorder・Learningで保存や�
 
 - `forbidden`は`default_persistence: never`かつ`remote: never`。
 - `high`は無期限の`local`保存にしない。
-- `local_bounded`はTTL必須。
+- `local_bounded`はTTL必須。`never`・`transient`・`local`はTTLを持たない（`off`のTTLはopt-in時の既定期限）。
+- `contains`は間接的な循環を含まない。
 - 外側classは内包classより低い機微度を持たない。端末外送信可能（`opt_in`）なclassは、local-only（`never`）なclassを内包しない。
 - credential用の`forbidden` classが1つ以上ある。
 
@@ -96,7 +97,7 @@ inventory.forbidden_field_paths(payload)                  # credential名field�
 inventory.ttl_ms_by_artifact_type()                       # RetentionPolicy.ttl_ms_by_type用
 ```
 
-未登録のclassやartifact型は推測せず`DataInventoryError`で拒否します。`forbidden_field_paths`はfield名だけを見ます（小文字化・`-`→`_`後に禁止名と一致、または`_禁止名`で終わる）。値の内容からcredentialを検出することはしません。
+未登録のclassやartifact型は推測せず`DataInventoryError`で拒否します。`forbidden_field_paths`はfield名だけを見ます（小文字化・`-`→`_`後に禁止名と一致、または`_禁止名`で終わる）。値の内容からcredentialを検出することはしません。接尾一致は`csrf_token`等を見逃さないためのfail-closed判定で、非機密の`*_token`も検出し得ます。自己参照を含むobjectでも同じcontainerは1回だけ辿ります。
 
 ## Retention Core（#164）との接続
 
