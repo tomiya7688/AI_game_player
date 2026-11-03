@@ -48,6 +48,7 @@ jobs:
               Path("schemas/inference_provider/v1/cancel_response.schema.json"),
               Path("schemas/config/default_models.schema.json"),
               Path("schemas/config/e2e_reference_games.schema.json"),
+              Path("schemas/stage_envelope/v1/stage_envelope.schema.json"),
           ]
           schemas = {}
           for path in schema_paths:
@@ -103,6 +104,14 @@ jobs:
               (
                   Path("schemas/inference_provider/v1/examples/decision_response.json"),
                   schemas["schemas/inference_provider/v1/inference_response.schema.json"],
+              ),
+              (
+                  Path("schemas/stage_envelope/v1/examples/core_perception_output.json"),
+                  schemas["schemas/stage_envelope/v1/stage_envelope.schema.json"],
+              ),
+              (
+                  Path("schemas/stage_envelope/v1/examples/hook_decision_input.json"),
+                  schemas["schemas/stage_envelope/v1/stage_envelope.schema.json"],
               ),
           ]
           for path, schema in examples:

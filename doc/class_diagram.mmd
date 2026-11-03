@@ -1834,6 +1834,17 @@ classDiagram
         +register()
         +get_model()
     }
+    ValueError <|-- StageEnvelopeError
+    class StageEnvelopeError {
+        +__init__()
+    }
+    class StageEnvelope {
+        +__post_init__()
+        +_validate_identity()
+        +_validate_trace_and_provenance()
+        +to_dict()
+        +from_dict()
+    }
     Generic <|-- ActionTransition
     class ActionTransition {
     }

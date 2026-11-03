@@ -1,0 +1,1602 @@
+{
+ "description": "Shared conformance vectors for StageEnvelope v1. expect is 'valid' or the StageEnvelopeError code a conforming validator must report. schema_valid is the result of validating document against stage_envelope.schema.json alone (null for raw-text cases); true for an invalid case means the rule is enforced only by the validator rules listed in x-kadoka-validator-rules.",
+ "schema_version": 1,
+ "cases": [
+  {
+   "name": "valid_core_minimal",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "valid_hook_all_fields",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0002",
+    "stage": "decision",
+    "boundary": "input",
+    "session_id": "session-1",
+    "frame_id": "frame-42",
+    "turn_id": "turn-7",
+    "timestamp_utc": "2026-11-04T09:30:00.123456789Z",
+    "monotonic_ns": 123456789,
+    "trace_id": "trace-1",
+    "correlation_id": "corr-9",
+    "parent_envelope_id": "env-0001",
+    "producer_kind": "hook",
+    "producer_id": "plugin.example.ocr_fix",
+    "producer_version": "0.3.1+local",
+    "derived_from": [
+     "env-0001",
+     "env-0000"
+    ],
+    "payload_schema": "kadoka.decision.context",
+    "payload_schema_version": 2,
+    "payload": {
+     "candidates": [
+      {
+       "id": "button.start",
+       "label": "スタート",
+       "score": 0.75
+      }
+     ],
+     "notes": null,
+     "count": -3
+    },
+    "confidence": 0.75,
+    "metadata": {
+     "plugin.example": {
+      "reason": "ocr-correction"
+     }
+    },
+    "artifact_refs": [
+     {
+      "artifact_id": "frame.raw",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "valid_extension_stage",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "ext.plugin.example.filter",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "valid_integer_confidence_bounds",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": 1,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "valid_depth_at_limit",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {
+     "n": {
+      "n": {
+       "n": {
+        "n": {
+         "n": {
+          "n": {
+           "n": {
+            "n": {
+             "n": {
+              "n": {
+               "n": {
+                "n": {
+                 "n": {
+                  "n": {
+                   "n": {
+                    "n": {
+                     "n": {
+                      "n": {
+                       "n": {
+                        "n": {
+                         "n": {
+                          "n": {
+                           "n": {
+                            "n": {
+                             "n": {
+                              "n": {
+                               "n": {
+                                "n": {
+                                 "n": {
+                                  "n": {}
+                                 }
+                                }
+                               }
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "valid_replay_producer",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "replay",
+    "producer_id": "replay.session_player",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "missing_field",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "unknown_top_level_field",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": [],
+    "internal_object": {}
+   }
+  },
+  {
+   "name": "schema_version_string",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": "1",
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "schema_version_boolean",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": true,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "schema_version_newer",
+   "expect": "unsupported_version",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 2,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "schema_version_zero_without_migration",
+   "expect": "unsupported_version",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 0,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "unknown_core_stage",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "render",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "extension_stage_without_name",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "ext.",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "unknown_boundary",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "middle",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "unknown_producer_kind",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "plugin",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "opaque_id_with_space",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session 1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "opaque_id_trailing_newline",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1\n",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "timestamp_without_z",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00+09:00",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "timestamp_not_calendar",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-02-30T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "confidence_above_one",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": 1.5,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "confidence_boolean",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": true,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "payload_not_object",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": [
+     1,
+     2
+    ],
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "payload_integer_outside_int64",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {
+     "value": 9223372036854775808
+    },
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "payload_schema_version_zero",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 0,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "monotonic_ns_negative",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": -1,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "metadata_key_not_namespaced",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {
+     "Plugin Note": 1
+    },
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "derived_from_duplicate",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [
+     "env-a",
+     "env-a"
+    ],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "derived_from_self_reference",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [
+     "env-0001"
+    ],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "parent_self_reference",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": "env-0001",
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "artifact_ref_bad_digest",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": [
+     {
+      "artifact_id": "frame.raw",
+      "sha256": "abc",
+      "media_type": "image/png",
+      "sensitive": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "derived_from_over_limit",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [
+     "env-000",
+     "env-001",
+     "env-002",
+     "env-003",
+     "env-004",
+     "env-005",
+     "env-006",
+     "env-007",
+     "env-008",
+     "env-009",
+     "env-010",
+     "env-011",
+     "env-012",
+     "env-013",
+     "env-014",
+     "env-015",
+     "env-016"
+    ],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "artifact_refs_over_limit",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": [
+     {
+      "artifact_id": "frame.0",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.1",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.2",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.3",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.4",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.5",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.6",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.7",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.8",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.9",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.10",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.11",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.12",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.13",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.14",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.15",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.16",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.17",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.18",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.19",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.20",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.21",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.22",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.23",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.24",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.25",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.26",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.27",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.28",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.29",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.30",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.31",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.32",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.33",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.34",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.35",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.36",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.37",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.38",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.39",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.40",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.41",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.42",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.43",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.44",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.45",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.46",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.47",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.48",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.49",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.50",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.51",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.52",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.53",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.54",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.55",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.56",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.57",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.58",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.59",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.60",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.61",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.62",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.63",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     },
+     {
+      "artifact_id": "frame.64",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "image/png",
+      "sensitive": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "depth_over_limit",
+   "expect": "limit_exceeded",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {
+     "n": {
+      "n": {
+       "n": {
+        "n": {
+         "n": {
+          "n": {
+           "n": {
+            "n": {
+             "n": {
+              "n": {
+               "n": {
+                "n": {
+                 "n": {
+                  "n": {
+                   "n": {
+                    "n": {
+                     "n": {
+                      "n": {
+                       "n": {
+                        "n": {
+                         "n": {
+                          "n": {
+                           "n": {
+                            "n": {
+                             "n": {
+                              "n": {
+                               "n": {
+                                "n": {
+                                 "n": {
+                                  "n": {
+                                   "n": {}
+                                  }
+                                 }
+                                }
+                               }
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "text_duplicate_key",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null,\"trace_id\":\"trace-2\"}"
+  },
+  {
+   "name": "text_nan_constant",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":NaN,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
+  },
+  {
+   "name": "text_overflowing_float",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{\"x\":1e400},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
+  },
+  {
+   "name": "text_root_array",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "[{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}]"
+  },
+  {
+   "name": "text_deep_brackets_before_parse",
+   "expect": "limit_exceeded",
+   "schema_valid": null,
+   "text": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+  },
+  {
+   "name": "text_brackets_inside_string_do_not_count",
+   "expect": "valid",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{\"s\":\"[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\"},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
+  }
+ ]
+}

@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/stage-envelope/v1/stage-envelope.schema.json",
+  "title": "Kadoka StageEnvelope v1",
+  "description": "Language-neutral contract for intermediate data passed between pipeline stages and to processing hooks. Every field is required; optional values are explicit null. Constraints that JSON Schema cannot express (UTF-8 byte size, nesting depth of objects and arrays, int64 range and finiteness of payload numbers, duplicate object keys, calendar validity of timestamp_utc, and self-reference in parent_envelope_id or derived_from) are listed in x-kadoka-limits and x-kadoka-validator-rules and are enforced by the reference validator src/ai_game_player/stage_envelope.py.",
+  "x-kadoka-limits": {
+    "max_encoded_bytes": 1048576,
+    "max_depth": 32,
+    "max_derived_from": 16,
+    "max_artifact_refs": 64,
+    "integer_min": -9223372036854775808,
+    "integer_max": 9223372036854775807
+  },
+  "x-kadoka-validator-rules": [
+    "The document is UTF-8 without a byte order mark and at most max_encoded_bytes bytes.",
+    "Object and array nesting depth, counting the root envelope object as 1, is at most max_depth; scalars do not add depth.",
+    "Duplicate object keys and the non-standard constants NaN, Infinity and -Infinity are rejected.",
+    "Every integer is within integer_min..integer_max and every number is finite.",
+    "timestamp_utc is a real calendar date-time.",
+    "parent_envelope_id and derived_from must not contain envelope_id.",
+    "A schema_version other than 1 is rejected as unsupported_version unless a registered migration chain reaches version 1."
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "envelope_id",
+    "stage",
+    "boundary",
+    "session_id",
+    "frame_id",
+    "turn_id",
+    "timestamp_utc",
+    "monotonic_ns",
+    "trace_id",
+    "correlation_id",
+    "parent_envelope_id",
+    "producer_kind",
+    "producer_id",
+    "producer_version",
+    "derived_from",
+    "payload_schema",
+    "payload_schema_version",
+    "payload",
+    "confidence",
+    "metadata",
+    "artifact_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "envelope_id": {
+      "$ref": "#/$defs/opaque_id"
+    },
+    "stage": {
+      "type": "string",
+      "pattern": "^(?:capture|perception|state|reasoning|decision|safety|execution|outcome|evaluation|ext\\.[a-z0-9_.-]{1,124})(?![\\s\\S])"
+    },
+    "boundary": {
+      "enum": [
+        "input",
+        "output"
+      ]
+    },
+    "session_id": {
+      "$ref": "#/$defs/opaque_id"
+    },
+    "frame_id": {
+      "$ref": "#/$defs/nullable_opaque_id"
+    },
+    "turn_id": {
+      "$ref": "#/$defs/nullable_opaque_id"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,9})?Z(?![\\s\\S])"
+    },
+    "monotonic_ns": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "trace_id": {
+      "$ref": "#/$defs/opaque_id"
+    },
+    "correlation_id": {
+      "$ref": "#/$defs/nullable_opaque_id"
+    },
+    "parent_envelope_id": {
+      "$ref": "#/$defs/nullable_opaque_id"
+    },
+    "producer_kind": {
+      "enum": [
+        "core",
+        "hook",
+        "provider",
+        "replay"
+      ]
+    },
+    "producer_id": {
+      "$ref": "#/$defs/namespaced_id"
+    },
+    "producer_version": {
+      "type": "string",
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}(?![\\s\\S])"
+    },
+    "derived_from": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/opaque_id"
+      }
+    },
+    "payload_schema": {
+      "$ref": "#/$defs/namespaced_id"
+    },
+    "payload_schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "payload": {
+      "type": "object"
+    },
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "metadata": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/namespaced_id"
+      }
+    },
+    "artifact_refs": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/artifact_reference"
+      }
+    }
+  },
+  "$defs": {
+    "opaque_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}(?![\\s\\S])"
+    },
+    "nullable_opaque_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}(?![\\s\\S])"
+    },
+    "namespaced_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}(?![\\s\\S])"
+    },
+    "artifact_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "sha256",
+        "media_type",
+        "sensitive"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]*(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+        },
+        "media_type": {
+          "type": "string",
+          "pattern": "^[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000/]+/[^\\u0009-\\u000D\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000/]+(?![\\s\\S])"
+        },
+        "sensitive": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -71946,6 +71946,1210 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "MappingProxyType"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.stage_envelope",
+      "path": "src/ai_game_player/stage_envelope.py",
+      "source_location": {
+        "end_line": 682,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeError",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            }
+          ],
+          "qualified_name": "StageEnvelopeError.__init__",
+          "return_annotation": "None",
+          "signature": "(self, code: str, message: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "StageEnvelope",
+          "parameters": [],
+          "qualified_name": "StageEnvelope",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 297,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 185,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_validate_identity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope._validate_identity",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 194
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_validate_trace_and_provenance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope._validate_trace_and_provenance",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 232,
+            "start_line": 213
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelope.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 264,
+            "start_line": 240
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "StageEnvelope.from_dict",
+          "return_annotation": "StageEnvelope",
+          "signature": "(cls, document: Mapping[str, Any]) -> StageEnvelope",
+          "source_location": {
+            "column": 4,
+            "end_line": 297,
+            "start_line": 278
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_schema_version",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_schema_version",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 316,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_exact_fields",
+          "parameters": [
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "_require_exact_fields",
+          "return_annotation": "None",
+          "signature": "(document: Mapping[str, Any]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 335,
+            "start_line": 326
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_array",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_array",
+          "return_annotation": "list[Any]",
+          "signature": "(value: Any, field_name: str) -> list[Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 350,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_artifact_reference_from_dict",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_artifact_reference_from_dict",
+          "return_annotation": "ArtifactReference",
+          "signature": "(value: Any) -> ArtifactReference",
+          "source_location": {
+            "column": 0,
+            "end_line": 370,
+            "start_line": 360
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_normalize_artifact_refs",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_normalize_artifact_refs",
+          "return_annotation": "tuple[ArtifactReference, ...]",
+          "signature": "(value: Any) -> tuple[ArtifactReference, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 391,
+            "start_line": 380
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_normalize_derived_from",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "envelope_id"
+            }
+          ],
+          "qualified_name": "_normalize_derived_from",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(value: Any, envelope_id: str) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 418,
+            "start_line": 401
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_stage_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_stage_id",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 437,
+            "start_line": 428
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_metadata_keys",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_metadata_keys",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 453,
+            "start_line": 447
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_utc_timestamp",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_utc_timestamp",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 475,
+            "start_line": 463
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_confidence",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_validate_confidence",
+          "return_annotation": "None",
+          "signature": "(value: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 497,
+            "start_line": 485
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_integer_in_range",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "minimum"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "maximum"
+            }
+          ],
+          "qualified_name": "_require_integer_in_range",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str, minimum: int, maximum: int) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 518,
+            "start_line": 507
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_member",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "allowed"
+            }
+          ],
+          "qualified_name": "_require_member",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str, allowed: frozenset[str]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 533,
+            "start_line": 528
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_pattern",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            },
+            {
+              "annotation": "re.Pattern[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pattern"
+            }
+          ],
+          "qualified_name": "_require_pattern",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str, pattern: re.Pattern[str]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 547,
+            "start_line": 543
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_opaque_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_opaque_id",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 558,
+            "start_line": 557
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_optional_opaque_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_optional_opaque_id",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 570,
+            "start_line": 568
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_namespaced_id",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_require_namespaced_id",
+          "return_annotation": "None",
+          "signature": "(value: Any, field_name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 581,
+            "start_line": 580
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_freeze_root_object",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "field_name"
+            }
+          ],
+          "qualified_name": "_freeze_root_object",
+          "return_annotation": "Mapping[str, Any]",
+          "signature": "(value: Any, field_name: str) -> Mapping[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 596,
+            "start_line": 591
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_freeze_json_object",
+          "parameters": [
+            {
+              "annotation": "Mapping[Any, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "_freeze_json_object",
+          "return_annotation": "Mapping[str, Any]",
+          "signature": "(value: Mapping[Any, Any], path: str, depth: int) -> Mapping[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 622,
+            "start_line": 606
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_freeze_json_value",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "_freeze_json_value",
+          "return_annotation": "Any",
+          "signature": "(value: Any, path: str, depth: int) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 668,
+            "start_line": 636
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_thaw_json_value",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_thaw_json_value",
+          "return_annotation": "Any",
+          "signature": "(value: Any) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 682,
+            "start_line": 677
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.stage_envelope"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.stage_envelope"
+          ],
+          "module": "ai_game_player.stage_envelope",
+          "names": [
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_DEPTH"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_ENCODED_BYTES"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_SCHEMA_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelope"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelopeError"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.stage_envelope_codec",
+      "path": "src/ai_game_player/stage_envelope_codec.py",
+      "source_location": {
+        "end_line": 258,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "encode_stage_envelope",
+          "parameters": [
+            {
+              "annotation": "StageEnvelope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "envelope"
+            }
+          ],
+          "qualified_name": "encode_stage_envelope",
+          "return_annotation": "bytes",
+          "signature": "(envelope: StageEnvelope) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 47,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "decode_stage_envelope",
+          "parameters": [
+            {
+              "annotation": "bytes | str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            },
+            {
+              "annotation": "Mapping[int, StageEnvelopeMigration] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "migrations"
+            }
+          ],
+          "qualified_name": "decode_stage_envelope",
+          "return_annotation": "StageEnvelope",
+          "signature": "(data: bytes | str, migrations: Mapping[int, StageEnvelopeMigration] | None = …) -> StageEnvelope",
+          "source_location": {
+            "column": 0,
+            "end_line": 88,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "migrate_stage_envelope_document",
+          "parameters": [
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            },
+            {
+              "annotation": "Mapping[int, StageEnvelopeMigration]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "migrations"
+            }
+          ],
+          "qualified_name": "migrate_stage_envelope_document",
+          "return_annotation": "Mapping[str, Any]",
+          "signature": "(document: Mapping[str, Any], migrations: Mapping[int, StageEnvelopeMigration]) -> Mapping[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 129,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_document_version",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "_document_version",
+          "return_annotation": "int",
+          "signature": "(document: Any) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 149,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_decode_utf8_text",
+          "parameters": [
+            {
+              "annotation": "bytes | str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "_decode_utf8_text",
+          "return_annotation": "str",
+          "signature": "(data: bytes | str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 194,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_excessive_nesting",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_reject_excessive_nesting",
+          "return_annotation": "None",
+          "signature": "(text: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 227,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_object_without_duplicate_keys",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_object_without_duplicate_keys",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 245,
+            "start_line": 237
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_non_finite_constant",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "constant"
+            }
+          ],
+          "qualified_name": "_reject_non_finite_constant",
+          "return_annotation": "Any",
+          "signature": "(constant: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 255
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -164153,6 +165357,1069 @@
             "column": 4,
             "end_line": 288,
             "start_line": 282
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.stage_envelope",
+        "ai_game_player.stage_envelope_codec"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "ast",
+          "names": [
+            {
+              "alias": null,
+              "name": "ast"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "copy"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclasses"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "importlib.util",
+          "names": [
+            {
+              "alias": null,
+              "name": "importlib.util"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.stage_envelope"
+          ],
+          "module": "ai_game_player.stage_envelope",
+          "names": [
+            {
+              "alias": null,
+              "name": "CORE_STAGE_IDS"
+            },
+            {
+              "alias": null,
+              "name": "PRODUCER_KINDS"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_BOUNDARIES"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_FIELDS"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_INTEGER_MAX"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_INTEGER_MIN"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_ARTIFACT_REFS"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_DEPTH"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_DERIVED_FROM"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_MAX_ENCODED_BYTES"
+            },
+            {
+              "alias": null,
+              "name": "STAGE_ENVELOPE_SCHEMA_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelope"
+            },
+            {
+              "alias": null,
+              "name": "StageEnvelopeError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.stage_envelope_codec"
+          ],
+          "module": "ai_game_player.stage_envelope_codec",
+          "names": [
+            {
+              "alias": null,
+              "name": "decode_stage_envelope"
+            },
+            {
+              "alias": null,
+              "name": "encode_stage_envelope"
+            },
+            {
+              "alias": null,
+              "name": "migrate_stage_envelope_document"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 170,
+          "local_dependencies": [],
+          "module": "jsonschema",
+          "names": [
+            {
+              "alias": null,
+              "name": "Draft202012Validator"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_stage_envelope",
+      "path": "tests/test_stage_envelope.py",
+      "source_location": {
+        "end_line": 404,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_json",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "load_json",
+          "return_annotation": null,
+          "signature": "(path: Path)",
+          "source_location": {
+            "column": 0,
+            "end_line": 41,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "example_document",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "example_document",
+          "return_annotation": "dict",
+          "signature": "(name: str = …) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_envelope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "make_envelope",
+          "return_annotation": "StageEnvelope",
+          "signature": "(**overrides) -> StageEnvelope",
+          "source_location": {
+            "column": 0,
+            "end_line": 63,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "nested_object",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "depth"
+            }
+          ],
+          "qualified_name": "nested_object",
+          "return_annotation": "dict",
+          "signature": "(depth: int) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validator_outcome",
+          "parameters": [
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "validator_outcome",
+          "return_annotation": "str",
+          "signature": "(case: dict) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 83,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeConformanceTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeConformanceTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 118,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_reference_validator_matches_every_conformance_vector",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeConformanceTest.test_reference_validator_matches_every_conformance_vector",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_conformance_vectors_cover_every_error_code_and_valid_documents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeConformanceTest.test_conformance_vectors_cover_every_error_code_and_valid_documents",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_examples_are_valid_and_round_trip_to_identical_canonical_bytes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeConformanceTest.test_examples_are_valid_and_round_trip_to_identical_canonical_bytes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 118,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeSchemaTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeSchemaTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 182,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 122
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_fields_match_reference_validator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_fields_match_reference_validator",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_limits_annotation_matches_reference_constants",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_limits_annotation_matches_reference_constants",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schema_enumerations_match_reference_validator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_enumerations_match_reference_validator",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipUnless(HAS_JSONSCHEMA, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_schema_alone_agrees_with_schema_valid_flags",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeSchemaTest.test_schema_alone_agrees_with_schema_valid_flags",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 169
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeValidationTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeValidationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 283,
+            "start_line": 185
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_versions_are_rejected_as_unsupported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_unknown_versions_are_rejected_as_unsupported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 193,
+            "start_line": 186
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_json_payload_values_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_non_json_payload_values_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 205,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_depth_limit_counts_containers_from_the_envelope_root",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_depth_limit_counts_containers_from_the_envelope_root",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 207
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_payload_and_metadata_are_frozen_and_to_dict_returns_independent_copies",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_payload_and_metadata_are_frozen_and_to_dict_returns_independent_copies",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 234,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_replace_revalidates_modified_envelopes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_replace_revalidates_modified_envelopes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 247,
+            "start_line": 236
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trace_and_provenance_survive_round_trip",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_trace_and_provenance_survive_round_trip",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 267,
+            "start_line": 249
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_from_dict_rejects_non_object_and_wrong_container_types",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeValidationTest.test_from_dict_rejects_non_object_and_wrong_container_types",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 283,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeCodecTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeCodecTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 340,
+            "start_line": 286
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_encoding_is_canonical_and_independent_of_key_order",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_encoding_is_canonical_and_independent_of_key_order",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 304,
+            "start_line": 287
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_encode_and_decode_reject_documents_over_the_byte_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_encode_and_decode_reject_documents_over_the_byte_limit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 316,
+            "start_line": 306
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_deep_nesting_is_rejected_before_recursive_parsing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_deep_nesting_is_rejected_before_recursive_parsing",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 322,
+            "start_line": 318
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_invalid_text_encodings",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_rejects_invalid_text_encodings",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 330,
+            "start_line": 324
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_overlong_integer_literal_is_malformed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_overlong_integer_literal_is_malformed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 340,
+            "start_line": 332
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeMigrationTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeMigrationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 383,
+            "start_line": 343
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_registered_migration_chain_upgrades_old_documents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_registered_migration_chain_upgrades_old_documents",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 359,
+            "start_line": 344
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "migrate_v0",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_registered_migration_chain_upgrades_old_documents.migrate_v0",
+          "return_annotation": null,
+          "signature": "(document)",
+          "source_location": {
+            "column": 8,
+            "end_line": 354,
+            "start_line": 350
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_or_non_advancing_migrations_are_unsupported",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_missing_or_non_advancing_migrations_are_unsupported",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 374,
+            "start_line": 361
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_newer_versions_are_never_migrated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeMigrationTest.test_newer_versions_are_never_migrated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 383,
+            "start_line": 376
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StageEnvelopeDependencyTest",
+          "parameters": [],
+          "qualified_name": "StageEnvelopeDependencyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 400,
+            "start_line": 386
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_contract_modules_do_not_import_core_pipeline_objects",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeDependencyTest.test_contract_modules_do_not_import_core_pipeline_objects",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 400,
+            "start_line": 387
           }
         }
       ]
