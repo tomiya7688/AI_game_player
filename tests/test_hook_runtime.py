@@ -2,6 +2,7 @@ import dataclasses
 import threading
 import unittest
 
+from ai_game_player.experience import ArtifactReference
 from ai_game_player.hook_dispatch_result import (
     HOOK_STATUS_COMPLETED,
     HOOK_STATUS_FAILED,
@@ -334,6 +335,20 @@ class HookRuntimeDispatchTest(unittest.TestCase):
             "changed_trace": lambda e, reg: dataclasses.replace(
                 derive_hook_envelope(e, reg, envelope_id="o"), trace_id="trace-2"
             ),
+            "changed_frame": lambda e, reg: dataclasses.replace(
+                derive_hook_envelope(e, reg, envelope_id="o"), frame_id="frame-9"
+            ),
+            "changed_correlation": lambda e, reg: dataclasses.replace(
+                derive_hook_envelope(e, reg, envelope_id="o"), correlation_id="c-9"
+            ),
+            "added_artifact_ref": lambda e, reg: dataclasses.replace(
+                derive_hook_envelope(e, reg, envelope_id="o"),
+                artifact_refs=(
+                    ArtifactReference(
+                        "sha256." + "a" * 64, "a" * 64, "image/png", False
+                    ),
+                ),
+            ),
         }
         for name, build in cases.items():
             with self.subTest(case=name):
@@ -351,7 +366,7 @@ class HookRuntimeDispatchTest(unittest.TestCase):
                     result = runtime.dispatch(source)
 
                 self.assertTrue(result.halted)
-                self.assertEqual(result.halt_reasons[0].split(":")[0], "a.mod")
+                self.assertEqual(result.halt_reasons, ("a.mod:contract_violation",))
                 self.assertIs(result.envelope, source)
                 self.assertEqual(calls, [])
 

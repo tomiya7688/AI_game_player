@@ -67,7 +67,7 @@ class PerceptionHookBoundary:
     #   責務: [run: 1回の候補統合結果をHookへ公開し、HALT方針のHookが失敗したら入力なしの保留にする]
     #   処理: [
     #     1: 境界に有効なHookがなければEnvelopeを作らずNoneを返す
-    #     2: 観測と候補から座標なしのEnvelopeを作る。作れない場合、HALT方針のHookがあれば保留、無ければlogへ残してNoneを返す
+    #     2: 観測と候補から座標なしのEnvelopeを作る。契約外の値（StageEnvelopeError・TypeError・ValueError）で作れない場合、HALT方針のHookがあれば保留、無ければlogへ残してNoneを返す
     #     3: dispatchし、haltedなら`hook_halted`の保留（ABSTAIN）を送出する
     #   ]
     #   引数: [observation: 判断対象の画面観測, candidates: 統合済みの操作候補]
@@ -84,12 +84,17 @@ class PerceptionHookBoundary:
             return None
         try:
             envelope = self._build_envelope(observation, candidates)
-        except StageEnvelopeError as error:
+        except (StageEnvelopeError, TypeError, ValueError) as error:
+            # 候補の値が契約外でも、HALT方針のHookがなければCoreの判断は止めない。
             if self.runtime.has_halting_hooks(
                 PERCEPTION_HOOK_STAGE, PERCEPTION_HOOK_BOUNDARY
             ):
                 raise _withheld("hook_envelope_unavailable") from None
-            _LOGGER.warning("perception hook envelope skipped: %s", error.code)
+            _LOGGER.warning(
+                "perception hook envelope skipped: error_type=%s code=%s",
+                type(error).__name__,
+                getattr(error, "code", None),
+            )
             return None
         result = self.runtime.dispatch(envelope)
         self.last_result = result
@@ -102,7 +107,7 @@ class PerceptionHookBoundary:
     #   処理: [文字列を上限長へ切り詰め、候補を先頭から上限件数まで入れ、producer_kind=coreのEnvelopeを作る]
     #   引数: [observation: 画面観測, candidates: 統合済み候補]
     #   戻り値: [StageEnvelope: 検証済みEnvelope]
-    #   エラー: [StageEnvelopeError: 文字列や値がv1契約に違反する場合]
+    #   エラー: [StageEnvelopeError: 文字列や値がv1契約に違反する場合, TypeError: 候補の文字列fieldが文字列でない場合]
     # }
     def _build_envelope(
         self,

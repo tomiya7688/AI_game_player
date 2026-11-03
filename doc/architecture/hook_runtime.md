@@ -21,7 +21,7 @@ Issue [#151](https://github.com/tomiya7688/AI_game_player/issues/151)（親 [#58
 | mode | callbackの戻り値 | runtimeの扱い |
 |---|---|---|
 | `read` | `None`だけ | 観測だけ。Envelopeは不変（`payload`・`metadata`は読み取り専用mapping）なので書き換えは例外になり、失敗として記録します。`None`以外を返すと`contract_violation`です |
-| `modify` | 新しい`StageEnvelope` 1件 | 後段へ渡すEnvelopeを置き換えます。stage・boundary・`payload_schema`・`payload_schema_version`は入力と同じでなければなりません。複数のmodifyは順に連鎖し、各出力の`parent_envelope_id`は直前のEnvelopeを指します |
+| `modify` | 新しい`StageEnvelope` 1件 | 後段へ渡すEnvelopeを置き換えます。変えられるのは`payload`・`confidence`・`metadata`と、自身のID・時刻・provenanceだけです。stage・boundary・`payload_schema`・`payload_schema_version`・`frame_id`・`turn_id`・`correlation_id`・`artifact_refs`は入力と同じでなければなりません（Artifact参照は、権限の判定（#152）がないまま他のdataを指せるため固定します）。複数のmodifyは順に連鎖し、各出力の`parent_envelope_id`は直前のEnvelopeを指します |
 | `inject` | `StageEnvelope`のlistまたはtuple | 派生Envelopeを`HookDispatchResult.injected`へ追加します。入力IDを`derived_from`に含めます。`safety`・`execution` stageのEnvelopeは作れません |
 
 Hook出力は`derive_hook_envelope()`で作れます。この関数は`producer_kind: "hook"`、`producer_id`/`producer_version`（登録の`hook_id`/`hook_version`）、`parent_envelope_id`と`derived_from`（入力ID）を設定し、`dataclasses.replace()`で作り直して検証します。
@@ -50,7 +50,7 @@ runtimeは、Hookが返したobjectを信用しません。`object.__setattr__`�
 | `max_injected`（injectの1回） | 4件 | 16件 |
 | `max_injected_total`（1 dispatch、runtime単位） | 16件 | 64件 |
 
-Hookは専用のdaemon threadで呼び、`timeout_ns`まで待ちます。例外（`SystemExit`を含む）はthread内で捕捉し、Coreのthreadへ伝えません。失敗は`exception`・`timeout`・`invalid_output`・`contract_violation`・`quarantined`に分類し、`ai_game_player.hook_runtime` loggerへWARNINGで記録します。logにはHook ID・mode・接続点・分類・code・例外の型名だけを出し、例外の文面やpayloadは出しません。
+Hookは専用のdaemon threadで呼び、`timeout_ns`まで待ちます。例外（`SystemExit`を含む）はthread内で捕捉し、Coreのthreadへ伝えません。失敗は`exception`・`timeout`・`invalid_output`・`contract_violation`・`quarantined`に分類し、`ai_game_player.hook_runtime` loggerへWARNINGで記録します。logにはHook ID・mode・接続点・分類・code・例外の型名だけを出し、例外の文面やpayloadは出しません。出力の再検証はcanonical JSONのencodeとdecodeを1回ずつ行うため、その分の処理時間がHookを登録した境界にかかります（runtimeが無効、または登録がない境界では行いません）。
 
 失敗したHookの出力は、方針にかかわらず使いません（fail-closed）。その後の扱いは`on_failure`で決めます。
 
@@ -59,7 +59,7 @@ Hookは専用のdaemon threadで呼び、`timeout_ns`まで待ちます。例外
 | `skip` | 失敗を記録し、直前のEnvelopeのまま残りのHookと後段を続ける | `read`・`inject` |
 | `halt` | 残りのHookを呼ばず`halted=True`を返す。呼び出し側は後段へ進まず、入力なしで止まる | `modify`（加工を前提とする後段へ、未加工のdataを黙って渡さないため） |
 
-timeoutしたHookは、その時点でquarantine（以後呼ばない）にします。Pythonのthreadは外から止められず、同じHookを再び呼ぶと実行中のthreadが増えるためです。例外・不正出力は`max_consecutive_failures`（既定3）回連続でquarantineにし、成功すると回数を0に戻します。quarantineされた`halt`方針のHookは、以後のdispatchを毎回`halted`にします。
+timeoutしたHookは、その時点でquarantine（以後呼ばない）にします。Pythonのthreadは外から止められず、同じHookを再び呼ぶと実行中のthreadが増えるためです。例外・不正出力は`max_consecutive_failures`（既定3）回連続でquarantineにし、成功すると回数を0に戻します。quarantineされた`halt`方針のHookは、以後のdispatchを毎回`halted`にします（必須のHookが動かない状態で後段へ進まないため）。復帰するには`unregister()`で外し、原因を直してから登録し直します。timeoutで残るthreadは、quarantineにより1つのHook登録につき最大1本です。
 
 `HookExecutionRecord.elapsed_ns`はHookごとの所要時間、`HookDispatchResult.elapsed_ns`はdispatch全体の所要時間です（どちらも単調時計のns）。
 
@@ -79,7 +79,7 @@ timeoutしたHookは、その時点でquarantine（以後呼ばない）にし�
 | `candidate_count` | 統合後の候補数 |
 | `candidates` | 先頭64件の`action_id`・`kind`・`label`（各256文字まで）・`confidence`・`dangerous` |
 
-座標（`x`・`y`）、矩形（`bbox`）、保持時間はpayloadに含めません。`session_id`はSession Journalがあればその値、なければ接続点ごとに生成したIDです。`halt`方針のHookが失敗すると、`_read_candidates()`は`hook_halted`の保留を送出し、provider・Safety・入力のいずれも呼びません。Envelopeを作れない場合（例：対のないsurrogateを含む画面ID）は、`halt`方針のHookがあれば`hook_envelope_unavailable`の保留、なければWARNINGを残してHookを呼ばずに続けます。
+座標（`x`・`y`）、矩形（`bbox`）、保持時間はpayloadに含めません。`session_id`はSession Journalがあればその値、なければ接続点ごとに生成したIDです。`halt`方針のHookが失敗すると、`_read_candidates()`は`hook_halted`の保留を送出し、provider・Safety・入力のいずれも呼びません。Envelopeを作れない場合（例：対のないsurrogateを含む画面ID、文字列でない候補label。`StageEnvelopeError`・`TypeError`・`ValueError`）は、`halt`方針のHookがあれば`hook_envelope_unavailable`の保留、なければWARNINGを残してHookを呼ばずに続けます。
 
 ## 隔離しないもの
 

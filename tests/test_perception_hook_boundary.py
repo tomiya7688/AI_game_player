@@ -143,6 +143,17 @@ class PerceptionHookBoundaryTest(unittest.TestCase):
             caught.exception.disposition.reason_codes, ("hook_envelope_unavailable",)
         )
 
+    def test_non_string_candidate_field_is_skipped_without_halting_hooks(self):
+        runtime = HookRuntime(enabled=True)
+        boundary = self.make_boundary(runtime)
+        runtime.register(perception_hook("demo.reader", HookMode.READ, lambda _: None))
+        odd = ActionCandidate("a1", "click", None)  # type: ignore[arg-type]
+        with self.assertLogs(
+            "ai_game_player.perception_hook_boundary", "WARNING"
+        ) as logs:
+            self.assertIsNone(boundary.run(ScreenObservation("menu", 2, 2), [odd]))
+        self.assertIn("error_type=TypeError", logs.output[0])
+
 
 class PipelinePerceptionHookTest(unittest.TestCase):
     def test_pipeline_without_runtime_has_no_hook_boundary(self):

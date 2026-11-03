@@ -41,6 +41,18 @@ _EXTENSION_STAGE_PATTERN = re.compile(r"ext\.[a-z][a-z0-9_.-]{0,123}")
 # modify → read → inject の順。readは後段へ渡る最終Envelopeを、injectは加工後の値を基に派生する。
 _MODE_ORDER = (HookMode.MODIFY, HookMode.READ, HookMode.INJECT)
 HOOK_RUNTIME_MAX_INJECTED_TOTAL = 64
+# modifyが変えられるのはpayload・confidence・metadataと自身のID・時刻・provenanceだけ。
+# Artifact参照は権限（#152）なしに他者のdataを指せるため、入力のまま保つ。
+_MODIFY_FIXED_FIELDS = (
+    "stage",
+    "boundary",
+    "payload_schema",
+    "payload_schema_version",
+    "frame_id",
+    "turn_id",
+    "correlation_id",
+    "artifact_refs",
+)
 
 HookAuthorizer = Callable[[HookRegistration], None]
 
@@ -507,7 +519,7 @@ class HookRuntime:
     #   責務: [_check_provenance: Hook出力が呼び出したHook自身の派生物として正しく記録され、許可された境界にあるか確認する]
     #   処理: [
     #     1: producer_kind=hook、producer_id/producer_versionが登録値、parentが入力ID、session/traceが入力と同じか確認する
-    #     2: modifyはstage・boundary・payload契約を入力と同じに保つ
+    #     2: modifyは_MODIFY_FIXED_FIELDS（境界・payload契約・frame/turn/相関ID・Artifact参照）を入力と同じに保つ
     #     3: injectは入力IDをderived_fromに含め、Safety/Execution stageのEnvelopeを作らない
     #   ]
     #   引数: [registration: 出力したHook, envelope: 再検証済み出力, current: Hookへ渡した入力]
@@ -534,14 +546,12 @@ class HookRuntime:
         ):
             raise _HookContractViolation("hook output must keep session and trace")
         if registration.mode is HookMode.MODIFY:
-            if (
-                envelope.stage != current.stage
-                or envelope.boundary != current.boundary
-                or envelope.payload_schema != current.payload_schema
-                or envelope.payload_schema_version != current.payload_schema_version
+            if any(
+                getattr(envelope, name) != getattr(current, name)
+                for name in _MODIFY_FIXED_FIELDS
             ):
                 raise _HookContractViolation(
-                    "modify hooks must keep the boundary and payload contract"
+                    "modify hooks must keep the boundary, payload contract and references"
                 )
             return
         if current.envelope_id not in envelope.derived_from:
