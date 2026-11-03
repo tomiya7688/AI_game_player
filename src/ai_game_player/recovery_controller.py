@@ -155,7 +155,7 @@ class RecoveryController:
                     RecoveryAction.ABSTAIN, RecoveryReason.DUPLICATE_EVENT, snapshot_id
                 )
             self._seen_events.append(event_key)
-            self._latest_step = event.step_count
+            self._latest_step = max(self._latest_step, event.step_count)
             if event.scene_id != self._scene_id:
                 self._enter_scene_locked(event.scene_id)
             if event.severity is SelfCheckSeverity.CRITICAL:
