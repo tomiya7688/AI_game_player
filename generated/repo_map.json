@@ -16714,6 +16714,908 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.data_class_policy",
+      "path": "src/ai_game_player/data_class_policy.py",
+      "source_location": {
+        "end_line": 179,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DataClassPolicyError",
+          "parameters": [],
+          "qualified_name": "DataClassPolicyError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "DataClassPolicy",
+          "parameters": [],
+          "qualified_name": "DataClassPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 167,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataClassPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 105,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "persisted_by_default",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataClassPolicy.persisted_by_default",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "may_leave_machine",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataClassPolicy.may_leave_machine",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 125,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "DataClassPolicy.from_dict",
+          "return_annotation": "DataClassPolicy",
+          "signature": "(cls, value: object) -> DataClassPolicy",
+          "source_location": {
+            "column": 4,
+            "end_line": 167,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_choice",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "choices"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_require_choice",
+          "return_annotation": "None",
+          "signature": "(value: object, choices: tuple[str, ...], name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 179,
+            "start_line": 177
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.bounded_file",
+        "ai_game_player.data_class_policy"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Iterable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "MappingProxyType"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.bounded_file"
+          ],
+          "module": "ai_game_player.bounded_file",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_regular_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.data_class_policy"
+          ],
+          "module": "ai_game_player.data_class_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "SENSITIVITIES"
+            },
+            {
+              "alias": null,
+              "name": "DataClassPolicy"
+            },
+            {
+              "alias": null,
+              "name": "DataClassPolicyError"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.data_inventory",
+      "path": "src/ai_game_player/data_inventory.py",
+      "source_location": {
+        "end_line": 439,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DataInventoryError",
+          "parameters": [],
+          "qualified_name": "DataInventoryError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "DataInventory",
+          "parameters": [],
+          "qualified_name": "DataInventory",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 235,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "policy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data_class"
+            }
+          ],
+          "qualified_name": "DataInventory.policy",
+          "return_annotation": "DataClassPolicy",
+          "signature": "(self, data_class: str) -> DataClassPolicy",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "class_for_artifact_type",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact_type"
+            }
+          ],
+          "qualified_name": "DataInventory.class_for_artifact_type",
+          "return_annotation": "DataClassPolicy",
+          "signature": "(self, artifact_type: str) -> DataClassPolicy",
+          "source_location": {
+            "column": 4,
+            "end_line": 99,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "effective_classes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Iterable[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data_classes"
+            }
+          ],
+          "qualified_name": "DataInventory.effective_classes",
+          "return_annotation": "frozenset[str]",
+          "signature": "(self, data_classes: Iterable[str]) -> frozenset[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 117,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "remote_eligible_classes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventory.remote_eligible_classes",
+          "return_annotation": "frozenset[str]",
+          "signature": "(self) -> frozenset[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 128,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "ttl_ms_by_artifact_type",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventory.ttl_ms_by_artifact_type",
+          "return_annotation": "dict[str, int | None]",
+          "signature": "(self) -> dict[str, int | None]",
+          "source_location": {
+            "column": 4,
+            "end_line": 140,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "forbidden_field_paths",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "DataInventory.forbidden_field_paths",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(self, value: object) -> tuple[str, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_is_forbidden_name",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            }
+          ],
+          "qualified_name": "DataInventory._is_forbidden_name",
+          "return_annotation": "bool",
+          "signature": "(self, key: str) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 171
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "DataInventory.from_dict",
+          "return_annotation": "DataInventory",
+          "signature": "(cls, value: object) -> DataInventory",
+          "source_location": {
+            "column": 4,
+            "end_line": 235,
+            "start_line": 187
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_data_inventory",
+          "parameters": [
+            {
+              "annotation": "Path | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "load_data_inventory",
+          "return_annotation": "DataInventory",
+          "signature": "(path: Path | None = …) -> DataInventory",
+          "source_location": {
+            "column": 0,
+            "end_line": 252,
+            "start_line": 245
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_classes",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_parse_classes",
+          "return_annotation": "dict[str, DataClassPolicy]",
+          "signature": "(value: object) -> dict[str, DataClassPolicy]",
+          "source_location": {
+            "column": 0,
+            "end_line": 295,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_artifact_types",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "known"
+            }
+          ],
+          "qualified_name": "_parse_artifact_types",
+          "return_annotation": "dict[str, str]",
+          "signature": "(value: object, known: frozenset[str]) -> dict[str, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 314,
+            "start_line": 305
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_writers",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "known"
+            }
+          ],
+          "qualified_name": "_parse_writers",
+          "return_annotation": "tuple[dict[str, str | None], dict[str, str | None]]",
+          "signature": "(value: object, known: frozenset[str]) -> tuple[dict[str, str | None], dict[str, str | None]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 355,
+            "start_line": 325
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_transmitters",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "known"
+            }
+          ],
+          "qualified_name": "_parse_transmitters",
+          "return_annotation": "dict[str, frozenset[str]]",
+          "signature": "(value: object, known: frozenset[str]) -> dict[str, frozenset[str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 383,
+            "start_line": 365
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_non_data_paths",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_parse_non_data_paths",
+          "return_annotation": "dict[str, str]",
+          "signature": "(value: object) -> dict[str, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 402,
+            "start_line": 393
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_site",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "Mapping[str, object]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "existing"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kind"
+            }
+          ],
+          "qualified_name": "_require_site",
+          "return_annotation": "str",
+          "signature": "(value: object, existing: Mapping[str, object], kind: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 417,
+            "start_line": 412
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_known",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "known"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "owner"
+            }
+          ],
+          "qualified_name": "_require_known",
+          "return_annotation": "None",
+          "signature": "(value: object, known: frozenset[str], owner: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 429,
+            "start_line": 427
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_is_field_name",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_is_field_name",
+          "return_annotation": "bool",
+          "signature": "(value: str) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 439,
+            "start_line": 438
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.atomic_json",
@@ -101923,6 +102825,1104 @@
             "column": 1,
             "end_line": 11,
             "start_line": 8
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.data_class_policy",
+        "ai_game_player.data_inventory",
+        "ai_game_player.retention_policy"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "ast",
+          "names": [
+            {
+              "alias": null,
+              "name": "ast"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "copy",
+          "names": [
+            {
+              "alias": null,
+              "name": "copy"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "importlib.util",
+          "names": [
+            {
+              "alias": null,
+              "name": "importlib.util"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.data_class_policy"
+          ],
+          "module": "ai_game_player.data_class_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "DataClassPolicy"
+            },
+            {
+              "alias": null,
+              "name": "DataClassPolicyError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.data_inventory"
+          ],
+          "module": "ai_game_player.data_inventory",
+          "names": [
+            {
+              "alias": null,
+              "name": "DEFAULT_DATA_INVENTORY_PATH"
+            },
+            {
+              "alias": null,
+              "name": "DataInventory"
+            },
+            {
+              "alias": null,
+              "name": "DataInventoryError"
+            },
+            {
+              "alias": null,
+              "name": "load_data_inventory"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_policy"
+          ],
+          "module": "ai_game_player.retention_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "RetentionPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 168,
+          "local_dependencies": [],
+          "module": "jsonschema",
+          "names": [
+            {
+              "alias": null,
+              "name": "Draft202012Validator"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_data_inventory",
+      "path": "tests/test_data_inventory.py",
+      "source_location": {
+        "end_line": 417,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "document",
+          "parameters": [],
+          "qualified_name": "document",
+          "return_annotation": "dict",
+          "signature": "() -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "module_name",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "module_name",
+          "return_annotation": "str",
+          "signature": "(path: Path) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "call_name",
+          "parameters": [
+            {
+              "annotation": "ast.Call",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "call"
+            }
+          ],
+          "qualified_name": "call_name",
+          "return_annotation": "tuple[str | None, str | None]",
+          "signature": "(call: ast.Call) -> tuple[str | None, str | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "open_mode",
+          "parameters": [
+            {
+              "annotation": "ast.Call",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "call"
+            }
+          ],
+          "qualified_name": "open_mode",
+          "return_annotation": "object",
+          "signature": "(call: ast.Call) -> object",
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SourceScan",
+          "parameters": [],
+          "qualified_name": "SourceScan",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 156,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SourceScan.__init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_visit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module"
+            },
+            {
+              "annotation": "ast.AST",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "node"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "SourceScan._visit",
+          "return_annotation": "None",
+          "signature": "(self, module: str, node: ast.AST, scope: list[str]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_call",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module"
+            },
+            {
+              "annotation": "ast.Call",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "call"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "SourceScan._call",
+          "return_annotation": "None",
+          "signature": "(self, module: str, call: ast.Call, scope: list[str]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_defaults",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ast.FunctionDef | ast.AsyncFunctionDef",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "function"
+            }
+          ],
+          "qualified_name": "SourceScan._defaults",
+          "return_annotation": "None",
+          "signature": "(self, function: ast.FunctionDef | ast.AsyncFunctionDef) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_literal",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ast.AST",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "node"
+            }
+          ],
+          "qualified_name": "SourceScan._literal",
+          "return_annotation": "None",
+          "signature": "(self, node: ast.AST) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 156,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DataInventoryRegistryTest",
+          "parameters": [],
+          "qualified_name": "DataInventoryRegistryTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 277,
+            "start_line": 162
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 164,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipUnless(HAS_JSONSCHEMA, REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_canonical_document_matches_schema",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_canonical_document_matches_schema",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 172,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_issue_scope_classes_and_credential_class_are_defined",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_issue_scope_classes_and_credential_class_are_defined",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 195,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_1_0_defaults_are_local_first",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_1_0_defaults_are_local_first",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 210,
+            "start_line": 197
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_policy_queries",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_policy_queries",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 227,
+            "start_line": 212
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_forbidden_field_paths_find_nested_credentials",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_forbidden_field_paths_find_nested_credentials",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_retention_ttl_defaults_feed_retention_policy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_retention_ttl_defaults_feed_retention_policy",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 258,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_owner_modules_exist",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_owner_modules_exist",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 267,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_provider_wire_data_classes_are_remote_eligible",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_provider_wire_data_classes_are_remote_eligible",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 277,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DataInventoryCoverageTest",
+          "parameters": [],
+          "qualified_name": "DataInventoryCoverageTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 320,
+            "start_line": 280
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryCoverageTest.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 284,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_persistence_site_is_classified",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryCoverageTest.test_every_persistence_site_is_classified",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 292,
+            "start_line": 286
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_transmission_site_is_classified_and_remote_eligible",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryCoverageTest.test_every_transmission_site_is_classified_and_remote_eligible",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 307,
+            "start_line": 294
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_storage_path_literal_is_classified",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryCoverageTest.test_every_storage_path_literal_is_classified",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 314,
+            "start_line": 309
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_artifact_type_in_source_is_mapped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryCoverageTest.test_every_artifact_type_in_source_is_mapped",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 320,
+            "start_line": 316
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DataInventoryValidationTest",
+          "parameters": [],
+          "qualified_name": "DataInventoryValidationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 413,
+            "start_line": 323
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "load",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.load",
+          "return_annotation": "DataInventory",
+          "signature": "(self, value: dict) -> DataInventory",
+          "source_location": {
+            "column": 4,
+            "end_line": 325,
+            "start_line": 324
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "find_class",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data_class"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.find_class",
+          "return_annotation": "dict",
+          "signature": "(self, value: dict, data_class: str) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 328,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "assert_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.assert_rejected",
+          "return_annotation": "None",
+          "signature": "(self, value: dict) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 332,
+            "start_line": 330
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_version_and_unknown_fields",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_rejects_version_and_unknown_fields",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 341,
+            "start_line": 334
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_unknown_class_references",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_rejects_unknown_class_references",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 352,
+            "start_line": 343
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_non_privacy_preserving_defaults",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_rejects_non_privacy_preserving_defaults",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 367,
+            "start_line": 354
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_inconsistent_containment",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_rejects_inconsistent_containment",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 375,
+            "start_line": 369
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_duplicates_and_missing_notes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_rejects_duplicates_and_missing_notes",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 398,
+            "start_line": 377
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_policy_rejects_implemented_class_without_owner",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_policy_rejects_implemented_class_without_owner",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 404,
+            "start_line": 400
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_load_rejects_unreadable_or_invalid_json",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryValidationTest.test_load_rejects_unreadable_or_invalid_json",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 413,
+            "start_line": 406
           }
         }
       ]
