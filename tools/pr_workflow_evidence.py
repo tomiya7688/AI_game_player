@@ -19,16 +19,25 @@ class WorkflowEvidenceError(RuntimeError):
 
 
 class WorkflowRunGate:
-    """対象repo・PR・headと読み取り関数を保持し、必須8 workflow×2 eventを検証する。"""
+    """対象repo・PR・head commit/branchと読み取り関数を保持し、必須8 workflow×2 eventを検証する。"""
 
-    def __init__(self, repository: str, pr_number: int, head_sha: str, read_json: Callable[[str], object]) -> None:
+    def __init__(
+        self, repository: str, pr_number: int, head_sha: str, head_ref: str, read_json: Callable[[str], object]
+    ) -> None:
+        if not isinstance(head_ref, str) or not head_ref.strip() or head_ref.startswith("refs/"):
+            raise WorkflowEvidenceError("push: PR head branch name is missing or invalid; merge stopped")
         self.repository = repository
         self.pr_number = pr_number
         self.head_sha = head_sha
+        self.head_ref = head_ref
         self.read_json = read_json
 
     def verify(self) -> None:
-        """eventごとに全pageを読み、各pathの最新runの現在attemptが成功した場合だけ戻る。"""
+        """eventごとに全pageを読み、各pathの最新runの現在attemptが成功した場合だけ戻る。
+
+        push runは同じcommitへのtag・別branchのpushも同じhead SHAで返るため、PRのhead branchと
+        head_branchが一致するrunだけを候補にする。一致runが無いpathは欠落として停止する。
+        """
         seen_ids: set[int] = set()
         for event in WORKFLOW_EVENTS:
             latest: dict[str, tuple[datetime, int, dict]] = {}
@@ -37,12 +46,17 @@ class WorkflowRunGate:
                 path = run["path"]
                 if path not in REQUIRED_WORKFLOW_PATHS:
                     continue
+                if event == "push" and run.get("head_branch") != self.head_ref:
+                    continue
                 candidate = (created, run["id"], run)
                 if path not in latest or candidate[:2] > latest[path][:2]:
                     latest[path] = candidate
             missing = REQUIRED_WORKFLOW_PATHS - latest.keys()
             if missing:
-                raise WorkflowEvidenceError(f"{event}: required workflow runs are missing: {', '.join(sorted(missing))}")
+                scope = f" for head branch {self.head_ref!r}" if event == "push" else ""
+                raise WorkflowEvidenceError(
+                    f"{event}: required workflow runs{scope} are missing: {', '.join(sorted(missing))}"
+                )
             for path, (_, run_id, run) in latest.items():
                 if run.get("status") != "completed" or run.get("conclusion") != "success":
                     raise WorkflowEvidenceError(
