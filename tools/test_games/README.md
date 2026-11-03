@@ -55,11 +55,13 @@ build/test-games-venv/Scripts/python.exe -m pytest tools/test_games/tests -q -p 
 
 このゲーム集と専用テストはGPLの開発fixtureです。通常アプリの`src/ai_game_player`やPython依存へは追加せず、独立した仮想環境とプロセスで起動します。本体と組み合わせる場合は、通常の画面取得とキーボード・マウス入力を使ってください。ゲームの盤面配列や座標の正解をAIのObservation/Decisionへ注入しません。
 
-Windowsの`-Setup`は独立環境だけに依存を導入します。Linuxでは次のように起動してください。
+Windowsの`-Setup`は独立環境だけに依存を導入します。依存を入れる前に、ホストのpipが信頼の最低版（`requirements/python-trust-constraints.txt`、Issue #514）を満たすことを`tools/trust_gate.py`で検査します。Linuxでは次のように起動してください。
 
 ```bash
 python -m venv build/test-games-venv
-build/test-games-venv/bin/python -m pip install -r tools/test_games/requirements-dev.txt
+build/test-games-venv/bin/python -m pip install --upgrade -c requirements/python-trust-constraints.txt pip
+python tools/trust_gate.py --python build/test-games-venv/bin/python
+build/test-games-venv/bin/python -m pip install -c requirements/python-trust-constraints.txt -r tools/test_games/requirements-dev.txt
 build/test-games-venv/bin/python -m tools.test_games --game shogi --seed 29
 ```
 

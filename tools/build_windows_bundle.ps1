@@ -15,6 +15,12 @@ New-Item -ItemType Directory -Force -Path $BuildRoot | Out-Null
 cmake -S native -B $NativeBuild -DCMAKE_BUILD_TYPE=Release
 cmake --build $NativeBuild --config Release --parallel
 
+# The build interpreter's pip and certifi must meet the trust floor (Issue #514).
+& $Python tools/trust_gate.py
+if ($LASTEXITCODE -ne 0) {
+    throw "Build Python is below the trust floor. Run: $Python -m pip install --upgrade -c requirements/python-trust-constraints.txt pip"
+}
+
 & $Python -m PyInstaller `
     --noconfirm `
     --clean `

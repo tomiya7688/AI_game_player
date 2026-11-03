@@ -18,12 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - run: python -m pip install -e ".[dev]"
-      - run: python -m ruff format --check --force-exclude tests/test_fail_safe_initial_observation_grace.py
-      - run: python -m ruff check src tools tests
-      - run: python tools/workflow_security_check.py .github/workflows
-      - run: python tools/ruleset_check.py
-      - name: Python trust inventory (Issue #513, read-only)
+      - name: Python trust inventory before the trust floor (Issue #513, read-only)
         shell: bash
         # The report also goes to the job log, because step summaries cannot be read through the API.
         run: |
@@ -45,6 +40,12 @@ jobs:
             echo "::warning::trust inventory wrote no report (exit $status)"
           fi
           exit "$status"
+      - uses: ./.github/actions/python-trust-floor
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff format --check --force-exclude tests/test_fail_safe_initial_observation_grace.py
+      - run: python -m ruff check src tools tests
+      - run: python tools/workflow_security_check.py .github/workflows
+      - run: python tools/ruleset_check.py
       - name: Require bounded SafetyLog retention
         shell: bash
         run: |
@@ -87,6 +88,9 @@ jobs:
           SDL_AUDIODRIVER: dummy
         run: |
           python -m venv "$RUNNER_TEMP/test-game-suite"
+          # A new venv gets the pip bundled with ensurepip, which can be older than the trust floor.
+          "$RUNNER_TEMP/test-game-suite/bin/python" -m pip install --disable-pip-version-check --upgrade -c requirements/python-trust-constraints.txt pip
+          python tools/trust_gate.py --python "$RUNNER_TEMP/test-game-suite/bin/python"
           "$RUNNER_TEMP/test-game-suite/bin/python" -m pip install -r tools/test_games/requirements-dev.txt
           "$RUNNER_TEMP/test-game-suite/bin/python" -m pytest tools/test_games/tests -q -p no:cacheprovider
           "$RUNNER_TEMP/test-game-suite/bin/python" -m tools.test_games --smoke build/test-games-artifacts/smoke
@@ -106,6 +110,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+      - uses: ./.github/actions/python-trust-floor
       - run: python -m pip install -e ".[dev]"
       - run: mkdir -p build/coverage
       - name: Run unit tests with branch coverage

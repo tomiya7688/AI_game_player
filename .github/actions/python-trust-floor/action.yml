@@ -1,0 +1,23 @@
+name: Python trust floor
+description: >-
+  Issue #514: upgrade pip within requirements/python-trust-constraints.txt, keep the
+  same floors for every later pip install in the job, and fail when the interpreter
+  or the runner's CA bundle misses the floor or trusts an incident root.
+runs:
+  using: composite
+  steps:
+    - name: Apply the trust constraints to later pip installs
+      shell: bash
+      run: echo "PIP_CONSTRAINT=$GITHUB_WORKSPACE/requirements/python-trust-constraints.txt" >> "$GITHUB_ENV"
+    - name: Upgrade pip to the trust floor
+      shell: bash
+      run: python -m pip install --disable-pip-version-check --upgrade -c requirements/python-trust-constraints.txt pip
+    - name: Verify the trust floor
+      shell: bash
+      run: |
+        # The OS CA bundle is what truststore loads through OpenSSL's default paths on Linux.
+        bundles=()
+        if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
+          bundles=(--bundle /etc/ssl/certs/ca-certificates.crt)
+        fi
+        python tools/trust_gate.py "${bundles[@]}"

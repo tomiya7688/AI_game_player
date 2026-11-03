@@ -138,9 +138,71 @@ CIでは、pipが使う2つの信頼源（OSのCA bundleとpip同梱certifi）�
 
 ### リポジトリ内の固定・同梱
 
-- 上の走査範囲で、pip・certifi・uv・sigstoreのversion固定はありませんでした。requirements、lock file、constraints、Dockerfileは存在しません。
+- 上の走査範囲で、pip・certifi・uv・sigstoreのversion固定はありませんでした。requirements、lock file、constraints、Dockerfileは存在しません（2026-10-31時点。#514で最低版のconstraintsを追加しました。下の「固定版の検証」を参照）。
 - uv、sigstoreは、走査範囲のどこからも使われていません。
 - 配布物: `tools/build_windows_bundle.ps1`がPyInstallerでWindows用の実行ファイルを作ります。成果物の中に同梱されたPython・OpenSSL・CA bundleは、この作業では確認していません。
+
+## 固定版の検証（Issue #514）
+
+#514では、#482の最低版をリポジトリの1ファイルに固定し、CI・build script・bootstrap scriptが、pipを使う前にその最低版と信頼源を検査するようにしました。
+
+### 最低版の固定
+
+- `requirements/python-trust-constraints.txt`に、pip `>=26.2.2`、certifi `>=2026.10.19`、uv `>=0.13.4`、sigstore `>=4.5.1`を書きました。pipのconstraintsファイル（`-c`、環境変数`PIP_CONSTRAINT`）として使います。constraintsは、そのパッケージがinstallされる場合だけ効き、パッケージを追加しません。
+- uvとsigstoreは、#513の走査範囲のどこからも使われていません（上の「リポジトリ内の固定・同梱」）。将来installされた場合に最低版を下回らないよう、constraintsにだけ残しています。
+- このファイルはASCIIだけで書きます。pipはrequirements・constraintsファイルを、BOMやcoding宣言がなければロケールの文字コードで読むためです（WindowsのCP932で日本語を読めない）。
+- pyproject.tomlの依存には、pip・certifiも、それらを引き込むパッケージもありません。lock fileもありません。そのため、変更したのはconstraintsとそれを使う手順だけです。
+
+### 検査ツール: `tools/trust_gate.py`
+
+`tools/trust_inventory.py`と同じ確認（読み取りだけ）を行い、次のどれかに当たると終了コード1で失敗します。
+
+- pipまたはpip同梱certifiが最低版未満、pre-releaseなどで判定できない、またはpipが無い。
+- 単体certifi・uv・sigstoreがinstallされていて最低版未満。uv・sigstoreのコマンドがPATH上にだけあり、パッケージのversionが無い（コマンドは実行しないため、versionを確認できない）。
+- 確認したCA bundle（単体certifi、pip同梱certifi、`--bundle`で指定したファイル）か、WindowsのROOT・CAストアに、`incident root`または`incident-related name`の証明書がある。WindowsのDisallowedストアは不信頼の一覧なので、そこにある対象証明書は失敗にしません。
+- 確認できなかったもの（Pythonの確認スクリプトの失敗、読めないbundle、WindowsのROOT・CAストアで展開できなかったエントリ、pipの信頼源が`unknown`）。確認できないものは合格にしません。
+
+| 終了コード | 意味 |
+|---|---|
+| 0 | 指定したすべてのPythonとbundleが条件を満たした |
+| 1 | 1つ以上のPythonまたはbundleが条件を満たさない、または確認できなかった |
+| 2 | constraintsファイルを読めない、`名前>=version`以外の行がある、または必要な最低版が無い |
+
+`--python`を省略すると、ツールを起動したPythonを確認します。各Pythonについて、pipとpip同梱certifiのversion、pip同梱bundleのSHA-256、pipの信頼源を1行で表示します。合格は、上の「判定の限界」の範囲での合格です。証明書チェーンの解析や実際のTLS接続はしていません。
+
+### 適用した場所
+
+| 場所 | 内容 |
+|---|---|
+| `.github/actions/python-trust-floor` | 後続のpip installへ`PIP_CONSTRAINT`を設定し、pipを最低版以上へ更新してから`tools/trust_gate.py`を実行する。Linuxでは`/etc/ssl/certs/ca-certificates.crt`も検査する |
+| `tests.yml`（ubuntu） | `python-quality`と`python-coverage`で、最初のpip installの前に上のactionを使う。`python-quality`は、更新前の状態を`tools/trust_inventory.py`で記録してからactionを実行する（更新前後の検査）。テストゲーム用のvenvは、ensurepipが入れるpipが最低版より古い場合があるため、venvの中でpipを更新し、そのvenvのPythonを検査してから依存を入れる |
+| `upd-architecture-ci.yml`（ubuntu） | `upd-checker`で、git+httpsのinstallの前にactionを使う |
+| `language-ci.yml`（ubuntu、windows） | `contract-assets`（ubuntu）、`windows-app-bundle`・`windows-e2e`・`windows-planning-comparison`（windows）で、最初のpip installの前にactionを使う。windowsではROOT・CA・Disallowedストアも検査する |
+| `tools/test_games/launch.ps1` | `-Setup`で、依存をダウンロードするホストのpipを検査し、constraintsを付けてinstallする。検査に失敗したら、pipの更新コマンドを表示して止まる |
+| `tools/build_windows_bundle.ps1` | PyInstallerを実行する前に、build用のPythonを検査する。成果物の中のCA bundleは#515で確認する |
+
+pip installを実行しないCI job（`bug-ci`、`safety-ci`、`fail-safe-ci`、`performance-ci`、`tests.yml`の`unit-tests`など）は、pipの信頼源を使わないため対象にしていません。`tests/test_trust_gate.py`が、workflowの各jobでpip installがactionの後にあること（またはその行がconstraintsを指定していること）を検査します。
+
+### 既存環境の更新・再構築の手順
+
+```powershell
+# 1. pipを最低版以上へ更新する（単体certifiがあれば同じconstraintsで更新する）
+python -m pip install --upgrade -c requirements/python-trust-constraints.txt pip
+python -m pip install --upgrade -c requirements/python-trust-constraints.txt certifi  # 単体certifiを使っている場合だけ
+# 2. 更新後の信頼源を検査する（終了コード0なら条件を満たす）
+python tools/trust_gate.py
+```
+
+- venvは、venvのPythonで1を実行し、`python tools/trust_gate.py --python <venvのpython>`で検査します。古いpipのまま作られたvenvを残す理由がなければ、削除して作り直してから同じ手順を実行してください。
+- Windowsのテストゲーム環境（`build/test-games-venv`）はpipを持たず、ホストのpipが依存を入れます。ホストのPythonで1と2を実行してから、`run_test_games.bat -Setup`を実行してください。Linuxの手順は`tools/test_games/README.md`にあります。
+- 2で失敗した場合は、表示された理由を確認してください。`incident`の行は、そのbundleかストアに対象ルートが残っていることを示します。pipの更新だけでは直らないため、そのPython・OSの信頼ストアを更新してから、もう一度検査してください。
+
+### この節の限界
+
+- `--upgrade`は、最低版以上の最新のpipを入れます。特定のversionへの固定ではありません。
+- `upd-checker`のgit+httpsのinstallでは、リポジトリの取得をgitが行います。gitが使う信頼源（OpenSSLまたはWindowsの信頼ストア）は、このツールでは確認していません。
+- `PIP_CONSTRAINT`がpipのbuild isolation環境へ渡るかは、pipのversionで変わります。このリポジトリのbuild依存（setuptoolsなど）はcertifiを含まないため、確認していません。
+- 配布物（PyInstallerの成果物）の中のCA bundleは#515の対象です。
 
 ## アプリ本体のTLS利用
 

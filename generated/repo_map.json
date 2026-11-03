@@ -165297,6 +165297,684 @@
     {
       "dependencies": [
         "tools",
+        "tools.trust_gate",
+        "tools.trust_inventory"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "tools",
+            "tools.trust_gate",
+            "tools.trust_inventory"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "trust_gate"
+            },
+            {
+              "alias": null,
+              "name": "trust_inventory"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_trust_gate",
+      "path": "tests/test_trust_gate.py",
+      "source_location": {
+        "end_line": 277,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_match",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sha256"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            }
+          ],
+          "qualified_name": "_match",
+          "return_annotation": "trust_inventory.TargetMatch",
+          "signature": "(sha256: str, source: str = …) -> trust_inventory.TargetMatch",
+          "source_location": {
+            "column": 0,
+            "end_line": 30,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bundle",
+          "parameters": [
+            {
+              "annotation": "trust_inventory.TargetMatch",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "matches"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "status"
+            }
+          ],
+          "qualified_name": "_bundle",
+          "return_annotation": null,
+          "signature": "(*matches: trust_inventory.TargetMatch, status: str = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 36,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_fresh_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "changes"
+            }
+          ],
+          "qualified_name": "_fresh_report",
+          "return_annotation": "trust_inventory.EnvironmentReport",
+          "signature": "(**changes) -> trust_inventory.EnvironmentReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FloorFileTest",
+          "parameters": [],
+          "qualified_name": "FloorFileTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 85,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repository_floors_match_the_482_minimums",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FloorFileTest.test_repository_floors_match_the_482_minimums",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 66,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_constraints_file_is_ascii_for_pip_locale_decoding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FloorFileTest.test_constraints_file_is_ascii_for_pip_locale_decoding",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 69,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_missing_unparsable_and_duplicate_floors",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FloorFileTest.test_rejects_missing_unparsable_and_duplicate_floors",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "EvaluateTest",
+          "parameters": [],
+          "qualified_name": "EvaluateTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 191,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fresh_environment_passes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_fresh_environment_passes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_old_environment_fails_on_versions_and_incident_root",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_old_environment_fails_on_versions_and_incident_root",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_incident_root_in_up_to_date_bundle_still_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_incident_root_in_up_to_date_bundle_still_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 118,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_not_inspected_sources_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_not_inspected_sources_fail_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 145,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_optional_tools_absent_pass_present_must_meet_floor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_optional_tools_absent_pass_present_must_meet_floor",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_windows_disallowed_store_is_distrust_but_root_store_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_windows_disallowed_store_is_distrust_but_root_store_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bundle_reports_fail_only_on_incident_or_uninspected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluateTest.test_bundle_reports_fail_only_on_incident_or_uninspected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 191,
+            "start_line": 177
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MainTest",
+          "parameters": [],
+          "qualified_name": "MainTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 222,
+            "start_line": 194
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "MainTest._run",
+          "return_annotation": null,
+          "signature": "(self, report, argv = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 202,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exit_codes_and_single_line_output",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_exit_codes_and_single_line_output",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 212,
+            "start_line": 204
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bad_constraints_exit_2_without_inspection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MainTest.test_bad_constraints_exit_2_without_inspection",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 222,
+            "start_line": 214
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowWiringTest",
+          "parameters": [],
+          "qualified_name": "WorkflowWiringTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 273,
+            "start_line": 225
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_installs_follow_the_trust_floor_action",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowWiringTest.test_pip_installs_follow_the_trust_floor_action",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 243,
+            "start_line": 228
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_new_venv_pip_is_upgraded_and_gated_before_use",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowWiringTest.test_new_venv_pip_is_upgraded_and_gated_before_use",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 245
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bootstrap_and_build_scripts_run_the_gate_before_pip_or_pyinstaller",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowWiringTest.test_bootstrap_and_build_scripts_run_the_gate_before_pip_or_pyinstaller",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 273,
+            "start_line": 259
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
         "tools.trust_inventory"
       ],
       "imports": [
@@ -209051,6 +209729,361 @@
       "symbols": []
     },
     {
+      "dependencies": [
+        "tools",
+        "tools.trust_inventory"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 27,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 34,
+          "local_dependencies": [
+            "tools",
+            "tools.trust_inventory"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": null,
+              "name": "trust_inventory"
+            }
+          ]
+        }
+      ],
+      "module": "tools.trust_gate",
+      "path": "tools/trust_gate.py",
+      "source_location": {
+        "end_line": 254,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ConstraintsError",
+          "parameters": [],
+          "qualified_name": "ConstraintsError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 54,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_floors",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "load_floors",
+          "return_annotation": "dict[str, str]",
+          "signature": "(path: Path) -> dict[str, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 84,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bundle_violations",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "what"
+            },
+            {
+              "annotation": "trust_inventory.BundleResult | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle"
+            }
+          ],
+          "qualified_name": "_bundle_violations",
+          "return_annotation": "list[str]",
+          "signature": "(what: str, bundle: trust_inventory.BundleResult | None) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 99,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "installed"
+            },
+            {
+              "annotation": "dict[str, str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "floors"
+            }
+          ],
+          "qualified_name": "_require",
+          "return_annotation": "list[str]",
+          "signature": "(name: str, installed: object, floors: dict[str, str]) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 105,
+            "start_line": 102
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_optional",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "installed"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "dict[str, str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "floors"
+            }
+          ],
+          "qualified_name": "_optional",
+          "return_annotation": "list[str]",
+          "signature": "(name: str, installed: object, path: object, floors: dict[str, str]) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 117,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_windows_violations",
+          "parameters": [
+            {
+              "annotation": "trust_inventory.EnvironmentReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_windows_violations",
+          "return_annotation": "list[str]",
+          "signature": "(report: trust_inventory.EnvironmentReport) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 141,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate",
+          "parameters": [
+            {
+              "annotation": "trust_inventory.EnvironmentReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": "dict[str, str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "floors"
+            }
+          ],
+          "qualified_name": "evaluate",
+          "return_annotation": "list[str]",
+          "signature": "(report: trust_inventory.EnvironmentReport, floors: dict[str, str]) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 181,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_evidence",
+          "parameters": [
+            {
+              "annotation": "trust_inventory.EnvironmentReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_evidence",
+          "return_annotation": "str",
+          "signature": "(report: trust_inventory.EnvironmentReport) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 200,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_one_line",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_one_line",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 204,
+            "start_line": 203
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 250,
+            "start_line": 207
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -209397,11 +210430,17 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "installed"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "minimum"
             }
           ],
           "qualified_name": "check_version",
           "return_annotation": "str",
-          "signature": "(name: str, installed: str | None) -> str",
+          "signature": "(name: str, installed: str | None, minimum: str | None = …) -> str",
           "source_location": {
             "column": 0,
             "end_line": 304,

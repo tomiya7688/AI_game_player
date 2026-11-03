@@ -283,8 +283,8 @@ def _release_tuple(text: str) -> tuple[int, ...]:
     return tuple(parts)
 
 
-def check_version(name: str, installed: str | None) -> str:
-    """Classify an installed version against the #482 minimum.
+def check_version(name: str, installed: str | None, minimum: str | None = None) -> str:
+    """Classify an installed version against a minimum (default: the #482 minimum).
 
     Returns "ok", "outdated", "not installed" or "unknown". Release numbers are
     compared with trailing zeros ignored (26.2 == 26.2.0). A pre-release or other
@@ -296,7 +296,7 @@ def check_version(name: str, installed: str | None) -> str:
     if not found:
         return f"unknown ({installed})"
     release, suffix = found.group(1), found.group(2)
-    minimum = MINIMUM_VERSIONS[name]
+    minimum = minimum or MINIMUM_VERSIONS[name]
     if suffix and not re.fullmatch(r"\.?post\d*", suffix):
         return f"unknown ({installed}; pre-release or local suffix)"
     if _release_tuple(release) >= _release_tuple(minimum):
