@@ -12,6 +12,14 @@ $SpecRoot = Join-Path $BuildRoot "spec"
 
 New-Item -ItemType Directory -Force -Path $BuildRoot | Out-Null
 
+# Start PyInstaller from an empty work, dist and spec directory so no file from an
+# earlier build (for example a stale cacert.pem) can reach the bundle (Issue #515).
+foreach ($Stale in @($PyInstallerWork, $DistRoot, $SpecRoot)) {
+    if (Test-Path -LiteralPath $Stale) {
+        Remove-Item -LiteralPath $Stale -Recurse -Force
+    }
+}
+
 # Link the MSVC runtime statically (/MT) so the end-user machine needs no VC++
 # Redistributable: PyInstaller does not collect MSVCP140.dll for this DLL, and
 # the C ABI returns no CRT-owned memory (Issue #149).
@@ -64,6 +72,13 @@ if (-not (Test-Path $Exe)) {
 & $Python tools/windows_bundle_check.py layout $AppDir
 if ($LASTEXITCODE -ne 0) {
     throw "Bundle layout check failed; see the BUNDLE LAYOUT ERROR lines above."
+}
+
+# Every CA file the bundle carries must decode and hold no incident certificate
+# (GHSA-6q48-6c7w-9gw2); CA material that cannot be inspected fails (Issue #515).
+& $Python tools/windows_bundle_check.py trust $AppDir
+if ($LASTEXITCODE -ne 0) {
+    throw "Bundle trust check failed; see the BUNDLE TRUST ERROR lines above."
 }
 
 Write-Host "Built application bundle: $AppDir"
