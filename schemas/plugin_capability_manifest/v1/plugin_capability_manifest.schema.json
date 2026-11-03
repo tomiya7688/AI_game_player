@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schema/plugin-capability-manifest/v1/plugin-capability-manifest.schema.json",
+  "title": "Kadoka Plugin Capability Manifest v1",
+  "description": "Language-neutral declaration of the permissions and hook scope a plugin requests. Enforcement is deny-by-default: a hook that no registered manifest declares is never registered. This is an in-process policy check, not a sandbox; isolation is a separate runtime (Issue #235). Constraints that JSON Schema cannot express are listed in x-kadoka-limits and x-kadoka-validator-rules and are enforced by the reference validator src/ai_game_player/plugin_capability_manifest.py.",
+  "x-kadoka-limits": {
+    "max_encoded_bytes": 65536,
+    "max_depth": 32,
+    "max_hooks": 32,
+    "max_permissions": 16,
+    "max_payload_schemas": 16,
+    "max_inject_targets": 16,
+    "max_versions": 16,
+    "max_data_classes": 32,
+    "max_publisher_length": 128,
+    "max_description_length": 512
+  },
+  "x-kadoka-permissions": {
+    "in_process": [
+      "hook.inject",
+      "hook.modify",
+      "hook.read"
+    ],
+    "isolation_required": [
+      "filesystem.read",
+      "filesystem.write",
+      "model.invoke",
+      "network.connect"
+    ],
+    "forbidden": [
+      "input.direct",
+      "safety.override"
+    ]
+  },
+  "x-kadoka-validator-rules": [
+    "The document is UTF-8 without a byte order mark and at most max_encoded_bytes bytes; nesting depth is at most max_depth (same rules as StageEnvelope v1).",
+    "Duplicate object keys, NaN/Infinity, and non-integer tokens in integer fields (for example 1.0) are rejected as malformed.",
+    "A manifest_version other than 1 is unsupported_version; a non-integer manifest_version is malformed.",
+    "Every permission is a known permission id (unknown_permission otherwise); input.direct and safety.override are never granted (forbidden_permission).",
+    "A hook whose stage is safety or execution must use mode read, and inject targets must not be safety or execution (forbidden_permission).",
+    "Every hook mode M requires hook.M in permissions (undeclared_permission); a declared hook.M that no hook uses is malformed.",
+    "hook_id equals plugin_id or starts with plugin_id followed by '.'; hook ids are unique.",
+    "inject hooks declare 1..max_inject_targets inject_targets; read and modify hooks declare none and use budget.max_injected 0.",
+    "payload_schema values in input_payload_schemas are unique; (stage, boundary, payload_schema) in inject_targets is unique.",
+    "Array length above its maximum is limit_exceeded; a missing, unknown or wrongly typed field is malformed.",
+    "Checks run in field order (manifest_version, fields, plugin_id, plugin_version, compatibility, permissions, hooks, permission/mode consistency, audit) and arrays from the first item; the first violation decides the code.",
+    "Patterns end with the ECMA-262 lookahead (?![\\s\\S]) so that a trailing newline never matches.",
+    "Passing this schema alone is not conformance; a conforming validator must also pass every case in conformance.json, and a conforming enforcer every case in enforcement_conformance.json."
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "plugin_id",
+    "plugin_version",
+    "compatibility",
+    "permissions",
+    "hooks",
+    "audit"
+  ],
+  "$defs": {
+    "namespaced_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}(?![\\s\\S])"
+    },
+    "versions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9223372036854775807
+      }
+    },
+    "stage": {
+      "type": "string",
+      "pattern": "^(?:capture|perception|state|reasoning|decision|safety|execution|outcome|evaluation|ext\\.[a-z][a-z0-9_.-]{0,123})(?![\\s\\S])"
+    },
+    "writable_stage": {
+      "type": "string",
+      "pattern": "^(?:capture|perception|state|reasoning|decision|outcome|evaluation|ext\\.[a-z][a-z0-9_.-]{0,123})(?![\\s\\S])"
+    },
+    "boundary": {
+      "enum": [
+        "input",
+        "output"
+      ]
+    },
+    "payload_grant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payload_schema",
+        "versions"
+      ],
+      "properties": {
+        "payload_schema": {
+          "$ref": "#/$defs/namespaced_id"
+        },
+        "versions": {
+          "$ref": "#/$defs/versions"
+        }
+      }
+    },
+    "inject_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "boundary",
+        "payload_schema",
+        "versions"
+      ],
+      "properties": {
+        "stage": {
+          "$ref": "#/$defs/writable_stage"
+        },
+        "boundary": {
+          "$ref": "#/$defs/boundary"
+        },
+        "payload_schema": {
+          "$ref": "#/$defs/namespaced_id"
+        },
+        "versions": {
+          "$ref": "#/$defs/versions"
+        }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hook_id",
+        "mode",
+        "stage",
+        "boundary",
+        "input_payload_schemas",
+        "inject_targets",
+        "budget",
+        "data_classes"
+      ],
+      "properties": {
+        "hook_id": {
+          "$ref": "#/$defs/namespaced_id"
+        },
+        "mode": {
+          "enum": [
+            "read",
+            "modify",
+            "inject"
+          ]
+        },
+        "stage": {
+          "$ref": "#/$defs/stage"
+        },
+        "boundary": {
+          "$ref": "#/$defs/boundary"
+        },
+        "input_payload_schemas": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/payload_grant"
+          }
+        },
+        "inject_targets": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/inject_target"
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "timeout_ns",
+            "max_output_bytes",
+            "max_injected"
+          ],
+          "properties": {
+            "timeout_ns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000000
+            },
+            "max_output_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1048576
+            },
+            "max_injected": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16
+            }
+          }
+        },
+        "data_classes": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespaced_id"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "inject"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "inject_targets": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "inject_targets": {
+                "maxItems": 0
+              },
+              "budget": {
+                "properties": {
+                  "max_injected": {
+                    "const": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "stage": {
+                "enum": [
+                  "safety",
+                  "execution"
+                ]
+              }
+            },
+            "required": [
+              "stage"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "const": "read"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "manifest_version": {
+      "const": 1
+    },
+    "plugin_id": {
+      "$ref": "#/$defs/namespaced_id"
+    },
+    "plugin_version": {
+      "type": "string",
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}(?![\\s\\S])"
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_envelope_schema_versions"
+      ],
+      "properties": {
+        "stage_envelope_schema_versions": {
+          "$ref": "#/$defs/versions"
+        }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "hook.inject",
+          "hook.modify",
+          "hook.read",
+          "filesystem.read",
+          "filesystem.write",
+          "model.invoke",
+          "network.connect"
+        ]
+      }
+    },
+    "hooks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/hook"
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "publisher",
+        "description"
+      ],
+      "properties": {
+        "publisher": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+        }
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ import threading
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Protocol
 
 from ai_game_player.hook_dispatch_result import (
     HOOK_STATUS_COMPLETED,
@@ -55,6 +55,53 @@ _MODIFY_FIXED_FIELDS = (
 )
 
 HookAuthorizer = Callable[[HookRegistration], None]
+HOOK_FAILURE_CAPABILITY_DENIED = "capability_denied"
+# access_policyの例外が拒否codeを持たない場合のerror_code。判定の失敗も拒否として扱う（fail-closed）。
+HOOK_POLICY_ERROR_CODE = "policy_error"
+# 拒否として記録するcodeの字面。PluginCapabilityDenied等、ValueError系の拒否例外が持つ想定。
+_DENIAL_CODE_PATTERN = re.compile(r"[a-z][a-z0-9_]{0,63}")
+
+
+# {
+#   責務: [HookAccessPolicy: Hookの登録・入力・出力を権限の宣言と照合する判定の形を定める（#152 PluginCapabilityPolicyが実装する）]
+#   フィールド: [なし: 判定の呼び出し口だけを定めるProtocol]
+#   補足: [各methodは拒否時に、小文字の`code`属性を持つValueError系の例外を送出する。codeはHookExecutionRecord.error_codeへ記録する。
+#     それ以外の例外も拒否として扱い、error_codeはpolicy_errorになる]
+# }
+class HookAccessPolicy(Protocol):
+    # {
+    #   責務: [authorize_registration: Hook登録が宣言の範囲内か判定する]
+    #   処理: [実装が登録値をManifest等と照合する]
+    #   引数: [registration: register()へ渡された登録]
+    #   戻り値: [なし]
+    #   エラー: [任意の例外: 拒否。Hookは登録されない]
+    # }
+    def authorize_registration(self, registration: HookRegistration) -> None: ...
+
+    # {
+    #   責務: [authorize_input: Hookへ渡すEnvelopeが宣言の範囲内か判定する]
+    #   処理: [実装がEnvelopeの接続点・payload契約を照合する]
+    #   引数: [registration: 呼ぶ予定のHook, envelope: Hookへ渡す予定のEnvelope]
+    #   戻り値: [なし]
+    #   エラー: [任意の例外: 拒否。Hookは呼ばれない]
+    # }
+    def authorize_input(
+        self, registration: HookRegistration, envelope: StageEnvelope
+    ) -> None: ...
+
+    # {
+    #   責務: [authorize_output: Hookの出力Envelopeが宣言の範囲内か判定する]
+    #   処理: [実装が出力の接続点・payload契約・参照を照合する]
+    #   引数: [registration: 出力したHook, output: 再検証済みの出力, source: Hookへ渡した入力]
+    #   戻り値: [なし]
+    #   エラー: [任意の例外: 拒否。そのHookの出力は全件捨てる]
+    # }
+    def authorize_output(
+        self,
+        registration: HookRegistration,
+        output: StageEnvelope,
+        source: StageEnvelope,
+    ) -> None: ...
 
 
 # {
@@ -63,6 +110,22 @@ HookAuthorizer = Callable[[HookRegistration], None]
 # }
 class _HookContractViolation(ValueError):
     pass
+
+
+# {
+#   責務: [_HookCapabilityDenied: access_policyがHook出力を拒否したことと、そのcodeを内部で伝える]
+#   フィールド: [code: access_policyの拒否code（codeがなければpolicy_error）]
+# }
+class _HookCapabilityDenied(Exception):
+    # {
+    #   責務: [__init__: 拒否codeを保持する]
+    #   処理: [codeを属性へ保存する]
+    #   引数: [code: 拒否code]
+    #   戻り値: [なし]
+    # }
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.code = code
 
 
 # {
@@ -95,7 +158,8 @@ class _InvocationOutcome:
 #     enabled: Falseならdispatchは何も呼ばず入力をそのまま返す（既定False）
 #     _points: (stage, boundary)ごとに許可するHookMode
 #     _hooks: hook_idごとの登録・失敗状態
-#     _authorizer: 登録時に呼ぶ権限判定（#152 Capability Manifestの接続点。既定は無判定）
+#     _authorizer: 登録時に呼ぶ追加の判定（既定は無判定）
+#     _access_policy: 登録・入力・出力を権限の宣言と照合する判定（#152。既定Noneは無判定で、権限の確認があることを意味しない）
 #     _clock_ns: latency計測用の単調時計
 #     _max_consecutive_failures: 連続失敗でquarantineする回数
 #     _max_injected_total: 1回のdispatchで追加できる派生Envelopeの総数
@@ -108,6 +172,7 @@ class HookRuntime:
     #   責務: [__init__: 無効状態のruntimeを作り、時計と失敗上限を固定する]
     #   処理: [失敗上限と派生件数上限の範囲を確認し、空の接続点表・登録表を作る]
     #   引数: [enabled: Trueのときだけdispatchで登録Hookを呼ぶ, authorizer: 登録ごとに呼び、拒否時は例外を送出する関数,
+    #     access_policy: 登録・Hookへの入力・Hookの出力ごとに呼ぶ権限判定（拒否時は例外）,
     #     clock_ns: latency計測用の単調時計（ns）, max_consecutive_failures: この回数連続で失敗したHookをquarantineする,
     #     max_injected_total: 1回のdispatchで受け入れる派生Envelopeの総数上限]
     #   戻り値: [なし]
@@ -118,6 +183,7 @@ class HookRuntime:
         *,
         enabled: bool = False,
         authorizer: HookAuthorizer | None = None,
+        access_policy: HookAccessPolicy | None = None,
         clock_ns: Callable[[], int] = time.monotonic_ns,
         max_consecutive_failures: int = 3,
         max_injected_total: int = 16,
@@ -134,6 +200,7 @@ class HookRuntime:
             )
         self.enabled = bool(enabled)
         self._authorizer = authorizer
+        self._access_policy = access_policy
         self._clock_ns = clock_ns
         self._max_consecutive_failures = max_consecutive_failures
         self._max_injected_total = max_injected_total
@@ -177,12 +244,12 @@ class HookRuntime:
     #   責務: [register: Hookを宣言済みの境界へ登録する]
     #   処理: [
     #     1: 境界が宣言済みで、そのmodeを許可しているか確認する
-    #     2: authorizerがあれば呼び、拒否（例外）なら登録しない
+    #     2: authorizer・access_policyがあれば呼び、拒否（例外）なら登録しない
     #     3: hook_idの重複を拒否して登録表へ追加する
     #   ]
     #   引数: [registration: 検証済みの登録内容]
     #   戻り値: [なし]
-    #   エラー: [ValueError: 未宣言の境界・未許可のmode・hook_id重複の場合, authorizerが送出した例外: 権限判定で拒否された場合]
+    #   エラー: [ValueError: 未宣言の境界・未許可のmode・hook_id重複の場合, authorizer・access_policyが送出した例外: 権限判定で拒否された場合]
     # }
     def register(self, registration: HookRegistration) -> None:
         if not isinstance(registration, HookRegistration):
@@ -201,6 +268,8 @@ class HookRuntime:
             )
         if self._authorizer is not None:
             self._authorizer(registration)
+        if self._access_policy is not None:
+            self._access_policy.authorize_registration(registration)
         with self._lock:
             if registration.hook_id in self._hooks:
                 raise ValueError(
@@ -327,8 +396,9 @@ class HookRuntime:
     #   責務: [_run_one: 1つのHookを予算内で呼び、出力を検査して記録と採用する出力を返す]
     #   処理: [
     #     1: quarantine済みなら呼ばずにquarantinedを記録する
-    #     2: callbackを期限付きで呼び、timeout・例外・出力違反を失敗として分類する
-    #     3: 成功なら連続失敗数を0に戻し、失敗なら数を増やして上限またはtimeoutでquarantineし、logへ残す
+    #     2: access_policyが入力を拒否したら呼ばずにcapability_deniedを記録する（Hookの失敗ではないため連続失敗数は変えない）
+    #     3: callbackを期限付きで呼び、timeout・例外・出力違反・出力の権限拒否を失敗として分類する
+    #     4: 成功なら連続失敗数を0に戻し、失敗なら数を増やして上限またはtimeoutでquarantineし、logへ残す
     #   ]
     #   引数: [state: 登録状態, original: dispatchへの入力Envelope, current: modify適用後のEnvelope,
     #     seen_ids: このdispatchで既に使われたEnvelope ID（成功時に追加する）, injected_count: 既に採用した派生Envelope数]
@@ -355,6 +425,28 @@ class HookRuntime:
                 ),
                 (),
             )
+        denied_code = self._input_denial(registration, current)
+        if denied_code is not None:
+            _LOGGER.warning(
+                "hook %s (%s at %s/%s) was not called: kind=%s code=%s",
+                registration.hook_id,
+                mode,
+                original.stage,
+                original.boundary,
+                HOOK_FAILURE_CAPABILITY_DENIED,
+                denied_code,
+            )
+            return (
+                HookExecutionRecord(
+                    registration.hook_id,
+                    mode,
+                    HOOK_STATUS_FAILED,
+                    0,
+                    failure_kind=HOOK_FAILURE_CAPABILITY_DENIED,
+                    error_code=denied_code,
+                ),
+                (),
+            )
         outcome = self._invoke(registration, current)
         failure_kind: str | None = None
         error_code: str | None = None
@@ -372,6 +464,8 @@ class HookRuntime:
                 failure_kind, error_code = "invalid_output", error.code
             except _HookContractViolation:
                 failure_kind = "contract_violation"
+            except _HookCapabilityDenied as error:
+                failure_kind, error_code = HOOK_FAILURE_CAPABILITY_DENIED, error.code
         if failure_kind is None:
             state.consecutive_failures = 0
             seen_ids.update(item.envelope_id for item in outputs)
@@ -416,6 +510,23 @@ class HookRuntime:
         )
 
     # {
+    #   責務: [_input_denial: access_policyがHookへの入力Envelopeを拒否するか判定する]
+    #   処理: [access_policyがなければ許可する。例外はすべて拒否とし、codeを取り出す（判定の失敗もfail-closed）]
+    #   引数: [registration: 呼ぶ予定のHook, envelope: Hookへ渡す予定のEnvelope]
+    #   戻り値: [str | None: 拒否code。許可ならNone]
+    # }
+    def _input_denial(
+        self, registration: HookRegistration, envelope: StageEnvelope
+    ) -> str | None:
+        if self._access_policy is None:
+            return None
+        try:
+            self._access_policy.authorize_input(registration, envelope)
+        except Exception as error:  # noqa: BLE001 - 判定の失敗も拒否として扱う
+            return _denial_code(error)
+        return None
+
+    # {
     #   責務: [_invoke: callbackを専用daemon threadで呼び、timeout_ns以内に終わったかと結果・所要時間を返す]
     #   処理: [threadを開始してtimeoutまでjoinし、終わっていなければtimed_outにする。例外はthread内で捕捉して呼び出し側へ返す]
     #   引数: [registration: 呼ぶHook, envelope: callbackへ渡す不変Envelope]
@@ -456,11 +567,13 @@ class HookRuntime:
     #     2: modifyは1件、injectはlist/tupleで上限件数以内を受け入れる
     #     3: 各EnvelopeをHookの予算内でcanonical JSONへencodeし、decodeし直して信頼できる新しいinstanceにする
     #     4: producer・parent・session/trace・ID重複・stage/boundaryの規則を確認する
+    #     5: access_policyがあれば、各出力が宣言した出力範囲にあるか確認する
     #   ]
     #   引数: [registration: 出力したHook, value: callbackの戻り値, current: Hookへ渡したEnvelope,
     #     seen_ids: 使用済みEnvelope ID, injected_count: 既に採用した派生Envelope数]
     #   戻り値: [tuple[StageEnvelope, ...]: 採用する出力（readは空）]
-    #   エラー: [StageEnvelopeError: 出力がv1契約またはbyte予算に違反する場合, _HookContractViolation: mode・provenance・境界規則に違反する場合]
+    #   エラー: [StageEnvelopeError: 出力がv1契約またはbyte予算に違反する場合, _HookContractViolation: mode・provenance・境界規則に違反する場合,
+    #     _HookCapabilityDenied: access_policyが出力を拒否した場合]
     # }
     def _accept_outputs(
         self,
@@ -492,6 +605,13 @@ class HookRuntime:
             self._check_provenance(registration, envelope, current)
             if envelope.envelope_id in seen_ids or envelope.envelope_id in batch_ids:
                 raise _HookContractViolation("hook output reused an envelope_id")
+            if self._access_policy is not None:
+                try:
+                    self._access_policy.authorize_output(
+                        registration, envelope, current
+                    )
+                except Exception as error:  # noqa: BLE001 - 判定の失敗も拒否として扱う
+                    raise _HookCapabilityDenied(_denial_code(error)) from None
             batch_ids.add(envelope.envelope_id)
             accepted.append(envelope)
         return tuple(accepted)
@@ -560,3 +680,20 @@ class HookRuntime:
             raise _HookContractViolation(
                 "hooks must not create safety or execution envelopes"
             )
+
+
+# {
+#   責務: [_denial_code: access_policyの例外から記録用の拒否codeを取り出す]
+#   処理: [ValueError系で`code`属性が拒否codeの字面ならそれを返す。それ以外の例外（判定自体の障害）はpolicy_errorにして拒否と区別する]
+#   引数: [error: access_policyが送出した例外]
+#   戻り値: [str: HookExecutionRecord.error_codeへ記録するcode]
+# }
+def _denial_code(error: Exception) -> str:
+    code = getattr(error, "code", None)
+    if (
+        isinstance(error, ValueError)
+        and isinstance(code, str)
+        and _DENIAL_CODE_PATTERN.fullmatch(code)
+    ):
+        return code
+    return HOOK_POLICY_ERROR_CODE

@@ -71,7 +71,7 @@ Schemaの`pattern`は、末尾の改行を許さないためにECMA-262の先読
 ## 後続Issueとの境界
 
 - **Hook runtime（#151）**: stageの前後（`boundary`）でEnvelopeを受け取ります。read/modify/injectの結果は`producer_kind: "hook"`と`parent_envelope_id`を付けた新しいEnvelopeとして作り、`decode_stage_envelope()`またはコンストラクタで再検証します。実行順序・timeout・latency計測は#151の範囲です。
-- **Capability（#152）**: `stage`・`boundary`・`payload_schema`の組を、権限の対象範囲（stage/data access scope）として参照できます。`producer_id`・`producer_version`は監査の記録に使います。Envelopeのfieldは権限を与えません。
+- **Capability（#152）**: `stage`・`boundary`・`payload_schema`の組を、権限の対象範囲（stage/data access scope）として参照します（[Plugin Capability Manifest](plugin_capability_manifest.md)）。`producer_id`・`producer_version`は監査の記録に使います。Envelopeのfieldは権限を与えません。
 - **Replay（#153）**: `producer_kind: "replay"`、`trace_id`・`derived_from`で、記録したEnvelopeとの対応を保ちます。
 - **Safety**: `stage: "safety"`のEnvelopeは観測用のデータです。この契約には、Safety Gateを無効にしたり迂回したりするfieldはありません。
 

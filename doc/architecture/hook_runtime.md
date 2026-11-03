@@ -50,7 +50,7 @@ runtimeは、Hookが返したobjectを信用しません。`object.__setattr__`�
 | `max_injected`（injectの1回） | 4件 | 16件 |
 | `max_injected_total`（1 dispatch、runtime単位） | 16件 | 64件 |
 
-Hookは専用のdaemon threadで呼び、`timeout_ns`まで待ちます。例外（`SystemExit`を含む）はthread内で捕捉し、Coreのthreadへ伝えません。失敗は`exception`・`timeout`・`invalid_output`・`contract_violation`・`quarantined`に分類し、`ai_game_player.hook_runtime` loggerへWARNINGで記録します。logにはHook ID・mode・接続点・分類・code・例外の型名だけを出し、例外の文面やpayloadは出しません。出力の再検証はcanonical JSONのencodeとdecodeを1回ずつ行うため、その分の処理時間がHookを登録した境界にかかります（runtimeが無効、または登録がない境界では行いません）。
+Hookは専用のdaemon threadで呼び、`timeout_ns`まで待ちます。例外（`SystemExit`を含む）はthread内で捕捉し、Coreのthreadへ伝えません。失敗は`exception`・`timeout`・`invalid_output`・`contract_violation`・`capability_denied`（#152の権限判定で拒否）・`quarantined`に分類し、`ai_game_player.hook_runtime` loggerへWARNINGで記録します。logにはHook ID・mode・接続点・分類・code・例外の型名だけを出し、例外の文面やpayloadは出しません。出力の再検証はcanonical JSONのencodeとdecodeを1回ずつ行うため、その分の処理時間がHookを登録した境界にかかります（runtimeが無効、または登録がない境界では行いません）。
 
 失敗したHookの出力は、方針にかかわらず使いません（fail-closed）。その後の扱いは`on_failure`で決めます。
 
@@ -89,11 +89,13 @@ timeoutしたHookは、その時点でquarantine（以後呼ばない）にし�
 - CPU・memory：上限はありません。
 - file・network・OS入力API・Core内部object：Pythonのimportで直接使えます。runtimeはそれらへの参照を渡さないだけで、利用を防げません。
 
-信頼できないPluginを動かす前提ではありません。権限の宣言と判定は#152（Capability Manifest）、subprocess/IPCによる隔離とcapabilityの強制は#235の範囲です。
+信頼できないPluginを動かす前提ではありません。権限の宣言と判定は#152（[Plugin Capability Manifest](plugin_capability_manifest.md)。同じprocess内の判定でsandboxではない）、subprocess/IPCによる隔離とcapabilityの強制は#235の範囲です。
 
-## #152への接続点
+## 権限の判定（#152）
 
-`HookRuntime(authorizer=...)`に渡した関数は、`register()`のたびに`HookRegistration`を受け取ります。例外を送出すると、そのHookは登録されません。#152は`hook_id`・`mode`・`stage`・`boundary`をCapability Manifestと照合する関数をここへ渡します。既定（`None`）は判定をしません。権限の確認があることを意味しません。
+`HookRuntime(access_policy=...)`に[Plugin Capability Manifest](plugin_capability_manifest.md)の`PluginCapabilityPolicy`を渡すと、登録時（`authorize_registration`）、Hookを呼ぶ前の入力Envelope（`authorize_input`）、再検証後の各出力Envelope（`authorize_output`）で、Manifestの宣言と照合します。宣言のないHookは登録しません（deny-by-default）。入力の拒否ではHookを呼ばず、出力の拒否ではその出力を全件捨て、どちらも`failure_kind: "capability_denied"`と拒否codeを`error_code`へ記録します。判定が例外で失敗した場合も拒否として扱います（`policy_error`）。
+
+`HookRuntime(authorizer=...)`に渡した関数は、従来どおり`register()`のたびに`HookRegistration`を受け取ります。例外を送出すると、そのHookは登録されません。`access_policy`・`authorizer`の既定（`None`）は判定をしません。権限の確認があることを意味しません。この判定は同じprocess内のpolicy checkで、下の「隔離しないもの」は変わりません。
 
 ## 未実装（#151の残り）
 
