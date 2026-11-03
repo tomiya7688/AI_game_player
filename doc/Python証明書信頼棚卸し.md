@@ -140,7 +140,7 @@ CIでは、pipが使う2つの信頼源（OSのCA bundleとpip同梱certifi）�
 
 - 上の走査範囲で、pip・certifi・uv・sigstoreのversion固定はありませんでした。requirements、lock file、constraints、Dockerfileは存在しません（2026-10-31時点。#514で最低版のconstraintsを追加しました。下の「固定版の検証」を参照）。
 - uv、sigstoreは、走査範囲のどこからも使われていません。
-- 配布物: `tools/build_windows_bundle.ps1`がPyInstallerでWindows用の実行ファイルを作ります。成果物の中に同梱されたPython・OpenSSL・CA bundleは、この作業では確認していません。
+- 配布物: `tools/build_windows_bundle.ps1`がPyInstallerでWindows用の実行ファイルを作ります。成果物の中のPython・OpenSSL・CA bundleは、下の「配布物の信頼源（Issue #515）」で確認しました。
 
 ## 固定版の検証（Issue #514）
 
@@ -180,7 +180,7 @@ CIでは、pipが使う2つの信頼源（OSのCA bundleとpip同梱certifi）�
 | `upd-architecture-ci.yml`（ubuntu） | `upd-checker`で、git+httpsのinstallの前にactionを使う |
 | `language-ci.yml`（ubuntu、windows） | `contract-assets`（ubuntu）、`windows-app-bundle`・`windows-e2e`・`windows-planning-comparison`（windows）で、最初のpip installの前にactionを使う。windowsではROOT・CA・Disallowedストアも検査する |
 | `tools/test_games/launch.ps1` | `-Setup`で、依存をダウンロードするホストのpipを検査し、constraintsを付けてinstallする。検査に失敗したら、pipの更新コマンドを表示して止まる |
-| `tools/build_windows_bundle.ps1` | PyInstallerを実行する前に、build用のPythonを検査する。成果物の中のCA bundleは#515で確認する |
+| `tools/build_windows_bundle.ps1` | PyInstallerを実行する前に、build用のPythonを検査する。成果物の中のCA bundleは、build後に`tools/windows_bundle_check.py trust`で検査する（#515） |
 
 pip installを実行しないCI job（`bug-ci`、`safety-ci`、`fail-safe-ci`、`performance-ci`、`tests.yml`の`unit-tests`など）は、pipの信頼源を使わないため対象にしていません。`tests/test_trust_gate.py`が、workflowの各jobでpip installがactionの後にあること（またはその行がconstraintsを指定していること）を検査します。
 
@@ -219,7 +219,48 @@ setup-pythonが入れたpipは最初から26.3で最低版以上のため、更�
 - `upd-checker`のgit+httpsのinstallでは、リポジトリの取得をgitが行います。gitが使う信頼源（OpenSSLまたはWindowsの信頼ストア）は、このツールでは確認していません。
 - `PIP_CONSTRAINT`がpipのbuild isolation環境へ渡るかは、pipのversionで変わります。このリポジトリのbuild依存（setuptoolsなど）はcertifiを含まないため、確認していません。
 - OSの信頼ストアから無効にするのは、ca-certificatesの上のファイル名の1件だけです。別の名前で入っていた場合は無効にできず、gateがフィンガープリントで失敗にします。WindowsのrunnerとWindowsの開発機の信頼ストアは変更しません（gateの検査だけ）。
-- 配布物（PyInstallerの成果物）の中のCA bundleは#515の対象です。
+- 配布物（PyInstallerの成果物）の中のCA bundleは、次の節（#515）で扱います。
+
+## 配布物の信頼源（Issue #515）
+
+配布物（`tools/build_windows_bundle.ps1`が作るPyInstallerのonedir bundle）が、実際にどのCAを同梱し、どのCAを信頼するかを確認しました。検査の手順は`doc/Windows配布bundle説明書.md`の検査2（`trust`項目）と検査3です。
+
+### 凍結したアプリの信頼源
+
+凍結したアプリのTLS接続は、標準の`ssl.create_default_context()`だけを使います（下の「アプリ本体のTLS利用」）。その信頼源は次のとおりで、それぞれ次の方法で確認します。
+
+| 信頼源 | 確認方法 | 判定 |
+|---|---|---|
+| bundleが同梱するCA資料（PyInstallerが集めた`certifi/cacert.pem`、pip同梱certifiの`cacert.pem`、名前を変えたPEM、zip内のPEM） | 検査3がbundleの全ファイルとzip memberを読む | 対象証明書、または読めないCA資料があれば失敗 |
+| `certifi`・`pip`・`truststore`のmoduleがbundleに入っているか | 凍結したexe内で`importlib.util.find_spec`を実行する（検査2の`trust`項目） | 記録する。`certifi`があれば`certifi.where()`がbundle内であることを要求 |
+| 凍結した`_ssl`の既定TLS contextが読み込んだCA一覧 | 凍結したexe内で`get_ca_certs(binary_form=True)`を記録し、`tools/trust_inventory.py`で照合する | 対象証明書があれば失敗 |
+| WindowsのCA・ROOTストア（凍結した`_ssl`が`load_default_certs`で読む） | 凍結したexe内で`ssl.enum_certificates`の`x509_asn`の項目を記録して照合する。`get_ca_certs`はCAでない証明書を返さないため、別に記録する | 対象証明書があれば失敗。Windowsで一覧が無ければ失敗 |
+| OpenSSLの既定のCA file・directory（`ssl.get_default_verify_paths`） | path・環境変数名を記録する。このhostに存在すれば、各ファイルを読んで照合する | 対象証明書、または読めないファイルがあれば失敗 |
+
+### 確認結果（2026-11-04、ローカルのクリーンbuild）
+
+- 環境: Windows 10、Python 3.14.7（OpenSSL 3.5.7）、PyInstaller 6.22.3、pyinstaller-hooks-contrib 2026.7、build用のpip 26.2.2（pip同梱certifi 2026.10.19）、単体certifi 2026.10.23。baseは`origin/main`の5f4eb75。
+- buildの前に`pyinstaller-work`・`dist`・`spec`を削除し、PyInstallerを`--clean`で実行しました。bundleは83ファイルです。
+- 同梱するCA資料: **0件**。PEM・証明書の拡張子を持つファイルは無く、`_internal/base_library.zip`（155 member）と`tcl90.dll`・`tcl9tk90.dll`の末尾のzip（839・90 member）にもありませんでした。PyInstallerのPYZ（`PYZ-00.toc`）にも`certifi`・`pip`・`truststore`・`requests`・`urllib3`は入っていません。アプリが`certifi`をimportしないため、`hook-certifi`（`cacert.pem`を集める）は使われません。凍結したexe内の`find_spec`も3つのmoduleを全て`None`と報告しました。
+- 凍結した`_ssl`: `_internal/_ssl.pyd`（SHA-256 `4cfb154c…13b8`）と同梱の`libssl-3.dll`・`libcrypto-3.dll`を使い、OpenSSL 3.5.7です。既定のCA fileは`C:\Program Files\Common Files\SSL\cert.pem`、directoryは同じ場所の`certs`で、このhostにはどちらも存在しません（`cafile=None`、`capath=None`）。`SSL_CERT_FILE`・`SSL_CERT_DIR`は未設定です。
+- 既定TLS contextのCA一覧は407件で、eMudhra・emSignの名前を持つ証明書は3件（`emSign Root CA - G1`、`emSign Root CA - C1`、`emSign ECC Root CA - C3`）、インシデントの対象は0件でした。WindowsストアはROOT 503件、CA 33件で、対象は0件でした。
+- つまり、このbuildのbundleが信頼するのは、**実行したhostのWindowsのCA・ROOTストア**と、そのhostにOpenSSLの既定のCA file・directoryがあればその内容だけです。bundle自身はCA bundleを持ちません。
+- 負例: このbundleの複製に、対象ルート（`emSign ECC Root CA - G3`）だけを持つ`_internal/certifi/cacert.pem`を置くと、検査3は終了コード1で失敗しました。単体テスト（`tests/test_bundle_trust_check.py`）は、前回のbuildの残骸と同じ位置・名前を変えたファイル・zip member・DLL末尾のzip・DER・不正なbase64・`TRUSTED CERTIFICATE`・PKCS7・上限超過で失敗することと、build scriptがPyInstallerの前に残骸を削除し後に検査3を実行することを確認します。
+- CIの`windows-app-bundle` jobは、build scriptの検査3と、移動後の起動（検査2の`trust`項目）を毎回実行します。runnerのWindowsストアに対象ルートがあれば、このjobは失敗します。
+
+### 過去の成果物
+
+- GitHub Release: **0件**（`gh release list`、2026-11-04）。tagは`archive/refactor-source-package-layout-2026-11-01`の1件だけで、配布物は添付されていません。onefileのexe、ZIP、portable版を公開した記録はリポジトリ内にありません。
+- CIのartifact `kadoka-windows-smoke-bundle`（`language-ci.yml`の`windows-app-bundle` jobがbundleのdirectoryをuploadしたもの）: **1560件**が未失効で残っています（作成日2026-09-14〜2026-11-03、各約15MB、失効予定2026-12-13〜2027-02-01）。リポジトリは公開のため、GitHubにログインした利用者はこれらをダウンロードできます。
+- これらの過去の成果物は、作り直すことができず、この作業では中身を検査していません（ダウンロードしていません）。当時のbuild scriptもアプリのcertifiのimportを持たないため、同じ構成ならCA bundleを同梱しない見込みですが、確認ではありません。確認する場合は、artifactを新しい空のdirectoryへ展開して`python tools/windows_bundle_check.py trust <展開先>/`を実行します。対象証明書が見つかった場合は、そのartifactを削除し、利用者へ交換を案内します。artifactの削除と、確認を省いて一括削除するかの判断は保守者が行います（この作業では削除していません）。
+
+### この節の限界
+
+- 実際のTLS接続での検証（対象ルートが発行したchainを、凍結したアプリが拒否するかの試験）はしていません。
+- Windowsのストアの結果は、確認したhostの、確認した時点の内容です。Windowsは必要になったルート証明書を自動で取得するため、利用者の手元でストアに無いことは、Windowsがそのchainを拒否する証明ではありません（上の「判定の限界」）。利用者の手元でOpenSSLの既定のCA file・directoryが作られていた場合、凍結したアプリはその内容も信頼します。
+- 検査3は、zipでない圧縮データ（`Kadoka.exe`に埋め込まれたPYZ・PKGの中身）は展開しません。PYZはPython moduleのbytecodeで、PyInstallerはdataファイルをonedirの`_internal`へ置くため、`cacert.pem`はファイルとして現れます。moduleの文字列として埋め込まれた証明書は見つけられません。代わりに、検査2が`certifi`・`pip`・`truststore`のmoduleの有無を凍結したexe内で確認します。
+- 証明書の照合は`tools/trust_inventory.py`と同じ名前・フィンガープリントの判定で、同じ限界があります。
+- 確認したのはローカルの開発機1台のbuildです。CIのbuildの結果は、そのjobのログで確認します。
 
 ## アプリ本体のTLS利用
 
@@ -233,13 +274,14 @@ setup-pythonが入れたpipは最初から26.3で最低版以上のため、更�
 | 単体certifiを直接使うクライアント | このリポジトリのコードには無い。ローカルの単体certifi（2026.10.23）にインシデントの対象ルートは無い | 他のツールが単体certifiを使うか |
 | アプリ本体 | certifiを使わず、標準`ssl`の既定コンテキストを使う | 実際のHTTPS接続での検証 |
 | CI（ubuntu、quality job） | 上の「CI（GitHub Actions）」の節を参照 | Windowsのrunner |
-| PyInstaller配布物 | 作成方法 | 成果物内のPython・OpenSSL・CA bundle（#515） |
+| PyInstaller配布物 | 同梱するCA資料は0件。凍結した`_ssl`はhostのWindowsのCA・ROOTストア（確認したhostで対象0件）と、hostにあればOpenSSLの既定のCA file・directoryを信頼する。build・CIで毎回検査する（#515） | 過去のCI artifact 1560件の中身、利用者の手元のWindowsストア、実際のTLS接続 |
 
 残る未確認事項:
 
-1. PyInstallerで作った配布物の中のPython・OpenSSL・CA bundle。配布物は利用者の手元で動くため、最も影響が大きい対象です。#515で、クリーンビルドした成果物を確認します。
-2. Windowsのrunner。
-3. 実際のHTTPS接続での検証。
+1. 過去のCI artifact（`kadoka-windows-smoke-bundle`、1560件）の中身。上の「過去の成果物」を参照してください。現在のbuildの成果物は#515で確認済みです。
+2. 実際のHTTPS接続での検証。
+
+WindowsのrunnerのROOT・CAストアは、#514のgateと#515の検査2が毎回検査します。
 
 ## P0の重大性についての評価案
 
@@ -248,7 +290,14 @@ setup-pythonが入れたpipは最初から26.3で最低版以上のため、更�
 前回の評価案では、P0から下げる条件を3つ挙げていました。2026-10-31の確認で、それぞれ次の状態です。
 
 1. 残っていた証明書がインシデントの対象かどうか: **確認済み**。G1・C1・ECC C3は対象外で、対象ルート（ECC G3）はローカルのどのbundleにもありません。Windowsストアでは確認時点で未検出ですが、上の理由で安全の根拠にはしません。
-2. PyInstaller配布物: **未確認**（#515）。
+2. PyInstaller配布物: 現在のbuildについて**確認済み**（#515、2026-11-04）。bundleは同梱するCA資料を持たず、凍結した`_ssl`の信頼源はhostのWindowsストアとOpenSSLの既定のCA file・directoryです。確認したhostでは対象0件でした。build scriptとCIは、対象証明書や読めないCA資料があれば失敗します。過去のCI artifactは作り直せず、中身は**未確認**です（GitHub Releaseは0件）。
 3. CIとローカルのpipの信頼源: ローカルは、pip同梱certifiについて**確認済み**、Windowsストア側は**確認時点で未検出**です。CIは、上の「CI（GitHub Actions）」の節の値で判断します。
 
-条件2が未確認なので、#482全体はP0のまま扱います。本Issue（#513）の棚卸しで見つかったbundleには、更新が必要なものはありません（CIのubuntu環境を含む）。ただし、2026.10.18より前のcertifiを含む環境が見つかった場合は、更新の対象です。
+#513の時点では条件2が未確認だったため、#482全体をP0のまま扱っていました。本Issue（#513）の棚卸しで見つかったbundleには、更新が必要なものはありません（CIのubuntu環境を含む）。ただし、2026.10.18より前のcertifiを含む環境が見つかった場合は、更新の対象です。
+
+#515の後の評価案（2026-11-04）: 3つの条件は、残りの未確認事項を除いて満たされました。対象ルートを同梱・信頼する配布物・build環境は見つかっておらず、build・CIは対象ルートを検出すると失敗します。配布物の経路でP0の理由として残るのは、公開リポジトリのCI artifact（1560件、失効予定2026-12-13〜2027-02-01）の中身が未確認であることだけです。これらはGitHub Releaseとして配布したものではなく、開発・確認用のartifactです。そのため、#482をP0から下げられると評価します（下げる場合の目安はP2）。ただし次の2つを条件とします。
+
+- このPRのCI（`windows-app-bundle`）で、検査2の`trust`項目と検査3が合格すること。
+- 過去のCI artifactの扱い（展開して検査3を実行する、削除する、または失効を待つ）を保守者が決めること。
+
+P0から下げるかどうかは保守者が判断します。

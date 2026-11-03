@@ -1,10 +1,10 @@
-# Windows配布bundle説明書（Issue #149）
+# Windows配布bundle説明書（Issue #149、#515）
 
-この文書は、`tools/build_windows_bundle.ps1`が作るWindows用配布物（以下、bundle）の配置と、bundleの起動を確かめる検査を説明します。検査で確認できる範囲と、確認できない範囲を区別して記録します。
+この文書は、`tools/build_windows_bundle.ps1`が作るWindows用配布物（以下、bundle）の配置と、bundleの起動・同梱CAを確かめる検査を説明します。検査で確認できる範囲と、確認できない範囲を区別して記録します。
 
 ## bundleの配置
 
-`tools/build_windows_bundle.ps1`は、`build/app-bundle/dist/Kadoka/`に次の配置を作ります。
+`tools/build_windows_bundle.ps1`は、`build/app-bundle/dist/Kadoka/`に次の配置を作ります。PyInstallerを実行する前に、前回のbuildで作った`pyinstaller-work`・`dist`・`spec`の各directoryを削除します（Issue #515）。前回の成果物に残ったファイル（古い`cacert.pem`など）が、新しいbundleへ混ざらないようにするためです。Native buildのdirectory（`native`）は削除しません。PyInstallerの`--clean`は、PyInstallerのcache（`%LOCALAPPDATA%\pyinstaller`）も削除します。bundleの形式はonedirだけで、onefileのexeは作りません。
 
 | path | 内容 | 配置の理由 |
 |---|---|---|
@@ -54,11 +54,31 @@ python tools/windows_bundle_check.py launch build/app-bundle/dist/Kadoka --workd
    | `native_safety` | 安全検証の補助経路が同じbundle直下のDLLを読める |
    | `assets` | 同梱資源がbundle内にあり空でない |
    | `tk` | Tcl/Tkを読み込み、Tk rootを作成・破棄できる |
-   | `ssl` | 同梱OpenSSLで既定のTLS contextを作れる（通信はしない。CAの内容は#515で扱う） |
+   | `ssl` | 同梱OpenSSLで既定のTLS contextを作れる（通信はしない） |
+   | `trust` | 凍結した`_ssl`の既定TLS contextが信頼するCA証明書の一覧（DERのbase64）、OpenSSLの既定のCA file・directory、`SSL_CERT_FILE`・`SSL_CERT_DIR`、`certifi`・`pip`・`truststore`がbundleに入っているかを、reportの`trust`へ記録する。`certifi`が入っている場合は、`certifi.where()`がbundle内でなければ不合格（Issue #515） |
 
-4. 続けて`Kadoka.exe --smoke-test`（Application画面の構築と破棄）を同じ最小環境で実行します。
+4. reportの`trust`を、`tools/trust_inventory.py`で照合します。既定TLS contextのCA一覧と、このhostに存在するOpenSSLの既定のCA file・directoryの各ファイルに、インシデント（GHSA-6q48-6c7w-9gw2）の対象証明書があれば不合格です。読めないファイルや不正なreportも不合格です。複製したbundleにも検査3を実行します。
+5. 続けて`Kadoka.exe --smoke-test`（Application画面の構築と破棄）を同じ最小環境で実行します。
 
-CIの`Windows application bundle + startup smoke` job（`.github/workflows/language-ci.yml`）は、build直後に検査1、build済みbundleに検査2を実行します。
+CIの`Windows application bundle + startup smoke` job（`.github/workflows/language-ci.yml`）は、build直後に検査1と検査3、build済みbundleに検査2を実行します。
+
+## 検査3: 同梱CAの検査（`trust`、Issue #515）
+
+```powershell
+python tools/windows_bundle_check.py trust build/app-bundle/dist/Kadoka
+```
+
+`tools/build_windows_bundle.ps1`は検査1の後にこの検査を実行し、不合格ならbuildを失敗させます。検査内容は次のとおりです。
+
+- bundle内の全ての通常ファイルを読み、証明書の拡張子（`.pem`、`.crt`、`.cer`、`.cert`、`.der`、`.p7b`、`.p7c`、`.pfx`、`.p12`）か、PEMの証明書・PKCS7の開始行（`-----BEGIN CERTIFICATE-----`など）を持つファイルを、CA資料として扱います。開始行は名前に関係なく探すため、名前を変えた`cacert.pem`も見つけます。
+- zip形式のファイル（`_internal/base_library.zip`と、Tcl 9の`tcl90.dll`・`tcl9tk90.dll`の末尾に付いたzip）は、各memberを展開して同じ基準で調べます。
+- CA資料は`tools/trust_inventory.py`の`read_pem_bundle`と`scan_der_certificates`で読みます。次の場合は不合格です。
+  - インシデントの対象（`incident root`または`incident-related name`）の証明書がある。
+  - base64が不正、PEMの証明書が0件（DER形式の`.der`・`.cer`を含む）、`CERTIFICATE`以外のPEMの種類（`TRUSTED CERTIFICATE`、`PKCS7`など）がある。
+  - 20MBを超えるCA資料・zip member、読めないファイル、開けないzip、symbolic link。
+- 合格時は、見つかったCA資料ごとに証明書の件数とSHA-256を表示します。CA資料が無いbundleは「0 CA files carried」と表示して合格です。
+
+検査3はbundleのdirectoryだけを読むため、過去に作ったbundleを展開したdirectoryにも実行できます。
 
 ## 確認できる範囲と、確認できない範囲
 
@@ -66,6 +86,7 @@ CIの`Windows application bundle + startup smoke` job（`.github/workflows/langu
 
 - bundle内のPE fileがimportするDLLは、全てbundle内にあるか、上記の基準でWindowsの部品と判定したDLLである（検査1）。
 - bundleを別のpath（空白・日本語を含む）へ移動しても、開発用の`PATH`・Python・環境変数・リポジトリなしで、`Kadoka.exe`がbundle内のPython・Native DLL・資源を使って起動部品を読み込み、Application画面を構築できる（検査2）。
+- bundleが同梱するCA資料にインシデントの対象証明書が無く、凍結した`_ssl`の既定TLS contextが検査したhostで信頼するCA一覧にも無い（検査3、検査2の`trust`）。結果と限界は`doc/Python証明書信頼棚卸し.md`の「配布物の信頼源（Issue #515）」に記録します。
 
 確認できないこと（clean Windowsでの起動確認は未実施です）:
 
@@ -78,6 +99,6 @@ clean Windows相当の確認（VC++再頒布パッケージなどを導入して
 
 ## 関連Issue
 
-- #515: bundleに同梱されるCA bundleの信頼性。#514: build用Pythonの信頼性検査（`tools/trust_gate.py`、`tools/build_windows_bundle.ps1`が実行します）。
+- #515: bundleに同梱されるCAと、凍結した`_ssl`の信頼源の検査（検査3、検査2の`trust`）。#514: build用Pythonの信頼性検査（`tools/trust_gate.py`、`tools/build_windows_bundle.ps1`が実行します）。
 - #228・#663: Qt 6を同梱する将来のShellの配布物inventoryとLGPLv3の要件（`windeployqt`による配置、Qt DLLの差し替え）。この文書の検査は、現在のTkinter版bundleだけを対象とします。
 - #234（Model・runtimeの自動取得）、#241（Local推論processの監視）、#251（Releaseの受入gate）、#230（署名）は対象外です。
