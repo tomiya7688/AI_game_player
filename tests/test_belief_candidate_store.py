@@ -117,7 +117,9 @@ class BeliefCandidateStoreTests(unittest.TestCase):
 
     def test_2048_fixture_adapter_uses_existing_typed_state_and_preserves_8_16(self):
         fixture = json.loads(
-            (Path(__file__).parent / "fixtures/belief/ambiguous_2048.json").read_text()
+            (Path(__file__).parent / "fixtures/belief/ambiguous_2048.json").read_text(
+                encoding="utf-8"
+            )
         )
         context = replace(self.context, game_id=fixture["game_id"])
         # Optional game adapter translates synthetic recognition alternatives; Core has no board shape.
@@ -222,7 +224,7 @@ class BeliefCandidateStoreTests(unittest.TestCase):
             (
                 Path(__file__).resolve().parents[1]
                 / "config/belief_snapshot.schema.json"
-            ).read_text()
+            ).read_text(encoding="utf-8")
         )
         snapshot = self.store().publish(self.context, [self.hypothesis()])
         self.assertEqual(set(schema["required"]), set(snapshot.to_dict()))

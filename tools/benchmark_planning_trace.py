@@ -106,10 +106,10 @@ def main(argv=None):
     report = {
         "schema_version": 1,
         "git_commit": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
+            ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
         ).strip(),
         "git_status": subprocess.check_output(
-            ["git", "status", "--porcelain"], text=True
+            ["git", "status", "--porcelain"], text=True, encoding="utf-8"
         ),
         "source_at_start": source_fingerprint(),
         "harness_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),

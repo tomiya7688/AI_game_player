@@ -22,7 +22,7 @@ FIXTURE = Path(__file__).parent / "fixtures/knowledge/snapshot-v1.json"
 def make_snapshot(
     priors=None, *, version="1", uncertainty=0.05, unknown=False, **overrides
 ):
-    payload = json.loads(FIXTURE.read_text())
+    payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
     payload["version"] = version
     payload["snapshot_id"] = f"knowledge.version-{version}"
     payload["uncertainty"] = uncertainty

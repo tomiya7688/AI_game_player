@@ -124,7 +124,7 @@ class LightAdaptationTests(unittest.TestCase):
                 )
                 self.assertFalse(runner.enqueue(event(1)))
                 self.assertEqual(runner.metrics.updates, 0)
-                self.assertEqual(pointer.read_text(), "{corrupt")
+                self.assertEqual(pointer.read_text(encoding="utf-8"), "{corrupt")
             finally:
                 runner.close()
 

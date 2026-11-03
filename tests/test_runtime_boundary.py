@@ -30,12 +30,18 @@ class RuntimeBoundaryCheckTest(unittest.TestCase):
 
     def test_repository_runtime_boundary_is_consistent(self):
         completed = subprocess.run(
-            [sys.executable, str(ROOT / "tools/runtime_boundary_check.py")],
+            [
+                sys.executable,
+                "-X",
+                "utf8",
+                str(ROOT / "tools/runtime_boundary_check.py"),
+            ],
             cwd=ROOT,
             capture_output=True,
             text=True,
             check=False,
             timeout=10,
+            encoding="utf-8",
         )
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertIn("RUNTIME BOUNDARY OK", completed.stdout)

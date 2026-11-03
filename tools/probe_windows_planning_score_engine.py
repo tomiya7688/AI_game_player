@@ -189,7 +189,7 @@ def main():
     }
     print(json.dumps({k: v for k, v in report.items() if k != "records"}), flush=True)
     folder = Path("tests/fixtures/2048/score-windows-headers")
-    manifest = json.loads((folder / "manifest.json").read_text())
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     selected = [item for item in manifest["cases"] if item["image_id"] in args.case_id]
     if len(selected) != len(args.case_id):
         raise ValueError("unknown diagnostic fixture ID")
@@ -255,7 +255,7 @@ def main():
                         }
                         report["records"].append(record)
                         print(json.dumps(record), flush=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n")
+    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

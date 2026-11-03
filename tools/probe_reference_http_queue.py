@@ -136,7 +136,7 @@ def main():
     report = {
         "schema_version": 1,
         "source_base_sha": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=root, text=True
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True, encoding="utf-8"
         ).strip(),
         "probe_script_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
         "source_file_sha256": {
