@@ -94,6 +94,12 @@ PEM_MARKERS = (
     b"-----BEGIN PKCS7-----",
 )
 SCAN_CHUNK_BYTES = 1024 * 1024
+# Bounds for one zip archive, far above the bundle's real zips (base_library.zip has
+# about 160 members, tcl90.dll about 840, a few MB in all); beyond them the check fails.
+MAX_ZIP_MEMBERS = 20000
+MAX_ZIP_TOTAL_BYTES = 512 * 1024 * 1024
+# Archive suffixes that must open as zip files; a damaged one fails instead of being skipped.
+ZIP_SUFFIXES = frozenset({".zip", ".pyz", ".whl", ".egg", ".jar"})
 
 # DLLs that ship with every supported Windows 10/11 x64 install. Add a name only
 # after confirming it is an OS component; a redistributable must be bundled.
@@ -387,6 +393,9 @@ def pem_errors(label: str, data: bytes) -> tuple[str, list[str]]:
         return f"{label}: sha256={digest} not decodable", errors
     if not certificates:
         errors.append(f"{label}: looks like CA material but holds no PEM certificate")
+    elif data.count(PEM_MARKERS[0]) != len(certificates):
+        # read_pem_bundle reads only terminated blocks; an extra BEGIN line is not inspected.
+        errors.append(f"{label}: unterminated or malformed CERTIFICATE block")
     errors += _incident_errors(
         trust_inventory.scan_der_certificates(label, certificates)
     )
@@ -404,7 +413,14 @@ def _zip_member_findings(relative: str, path: Path) -> tuple[list[str], list[str
     errors: list[str] = []
     try:
         with zipfile.ZipFile(path) as archive:
-            for member in archive.infolist():
+            members = archive.infolist()
+            total = sum(member.file_size for member in members)
+            if len(members) > MAX_ZIP_MEMBERS or total > MAX_ZIP_TOTAL_BYTES:
+                return found, [
+                    f"{relative}: zip archive too large to inspect "
+                    f"({len(members)} members, {total} bytes)"
+                ]
+            for member in members:
                 if member.is_dir():
                     continue
                 label = f"{relative}!{member.filename}"
@@ -452,7 +468,7 @@ def check_carried_trust(bundle: Path) -> tuple[list[str], list[str]]:
                     summary, file_errors = pem_errors(relative, path.read_bytes())
                     found.append(summary)
                     errors += file_errors
-            if zipfile.is_zipfile(path):
+            if zipfile.is_zipfile(path) or path.suffix.lower() in ZIP_SUFFIXES:
                 members, member_errors = _zip_member_findings(relative, path)
                 found += members
                 errors += member_errors

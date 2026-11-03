@@ -74,8 +74,8 @@ python tools/windows_bundle_check.py trust build/app-bundle/dist/Kadoka
 - zip形式のファイル（`_internal/base_library.zip`と、Tcl 9の`tcl90.dll`・`tcl9tk90.dll`の末尾に付いたzip）は、各memberを展開して同じ基準で調べます。
 - CA資料は`tools/trust_inventory.py`の`read_pem_bundle`と`scan_der_certificates`で読みます。次の場合は不合格です。
   - インシデントの対象（`incident root`または`incident-related name`）の証明書がある。
-  - base64が不正、PEMの証明書が0件（DER形式の`.der`・`.cer`を含む）、`CERTIFICATE`以外のPEMの種類（`TRUSTED CERTIFICATE`、`PKCS7`など）がある。
-  - 20MBを超えるCA資料・zip member、読めないファイル、開けないzip、symbolic link。
+  - base64が不正、PEMの証明書が0件（DER形式の`.der`・`.cer`を含む）、終わりの行が無い`BEGIN CERTIFICATE`がある、`CERTIFICATE`以外のPEMの種類（`TRUSTED CERTIFICATE`、`PKCS7`など）がある。
+  - 20MBを超えるCA資料・zip member、member数20000超または展開後の合計512MB超のzip、読めないファイル、開けないzip（拡張子`.zip`・`.pyz`・`.whl`・`.egg`・`.jar`で壊れたものを含む）、symbolic link。
 - 合格時は、見つかったCA資料ごとに証明書の件数とSHA-256を表示します。CA資料が無いbundleは「0 CA files carried」と表示して合格です。
 
 検査3はbundleのdirectoryだけを読むため、過去に作ったbundleを展開したdirectoryにも実行できます。

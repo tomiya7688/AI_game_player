@@ -92597,7 +92597,7 @@
       "module": "tests.test_bundle_trust_check",
       "path": "tests/test_bundle_trust_check.py",
       "source_location": {
-        "end_line": 289,
+        "end_line": 305,
         "start_line": 1
       },
       "symbols": [
@@ -92642,7 +92642,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 153,
+            "end_line": 169,
             "start_line": 34
           }
         },
@@ -92870,6 +92870,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_damaged_or_oversized_zip_archive_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CarriedTrustTest.test_damaged_or_oversized_zip_archive_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_clean_zip_member_is_listed",
           "parameters": [
             {
@@ -92884,8 +92907,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 107,
-            "start_line": 99
+            "end_line": 119,
+            "start_line": 111
           }
         },
         {
@@ -92907,8 +92930,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 109
+            "end_line": 149,
+            "start_line": 121
           }
         },
         {
@@ -92930,8 +92953,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 135
+            "end_line": 155,
+            "start_line": 151
           }
         },
         {
@@ -92953,8 +92976,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 141
+            "end_line": 163,
+            "start_line": 157
           }
         },
         {
@@ -92976,8 +92999,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 149
+            "end_line": 169,
+            "start_line": 165
           }
         },
         {
@@ -92998,8 +93021,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 270,
-            "start_line": 156
+            "end_line": 286,
+            "start_line": 172
           }
         },
         {
@@ -93033,8 +93056,8 @@
           "signature": "(self, *certificates: bytes, **paths: object) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 170,
-            "start_line": 157
+            "end_line": 186,
+            "start_line": 173
           }
         },
         {
@@ -93056,8 +93079,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 172
+            "end_line": 198,
+            "start_line": 188
           }
         },
         {
@@ -93079,8 +93102,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 184
+            "end_line": 206,
+            "start_line": 200
           }
         },
         {
@@ -93102,8 +93125,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 192
+            "end_line": 219,
+            "start_line": 208
           }
         },
         {
@@ -93125,8 +93148,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 238,
-            "start_line": 205
+            "end_line": 254,
+            "start_line": 221
           }
         },
         {
@@ -93148,8 +93171,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 256,
-            "start_line": 240
+            "end_line": 272,
+            "start_line": 256
           }
         },
         {
@@ -93171,8 +93194,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 267,
-            "start_line": 258
+            "end_line": 283,
+            "start_line": 274
           }
         },
         {
@@ -93194,8 +93217,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 270,
-            "start_line": 269
+            "end_line": 286,
+            "start_line": 285
           }
         },
         {
@@ -93216,8 +93239,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 285,
-            "start_line": 273
+            "end_line": 301,
+            "start_line": 289
           }
         },
         {
@@ -93239,8 +93262,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 285,
-            "start_line": 274
+            "end_line": 301,
+            "start_line": 290
           }
         }
       ]
@@ -216850,7 +216873,7 @@
       "module": "tools.windows_bundle_check",
       "path": "tools/windows_bundle_check.py",
       "source_location": {
-        "end_line": 753,
+        "end_line": 769,
         "start_line": 1
       },
       "symbols": [
@@ -216872,8 +216895,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 147
+            "end_line": 159,
+            "start_line": 153
           }
         },
         {
@@ -216892,8 +216915,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 249,
-            "start_line": 156
+            "end_line": 255,
+            "start_line": 162
           }
         },
         {
@@ -216921,8 +216944,8 @@
           "signature": "(self, data: bytes) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 159
+            "end_line": 199,
+            "start_line": 165
           }
         },
         {
@@ -216950,8 +216973,8 @@
           "signature": "(self, offset: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 196,
-            "start_line": 195
+            "end_line": 202,
+            "start_line": 201
           }
         },
         {
@@ -216979,8 +217002,8 @@
           "signature": "(self, offset: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 199,
-            "start_line": 198
+            "end_line": 205,
+            "start_line": 204
           }
         },
         {
@@ -217008,8 +217031,8 @@
           "signature": "(self, rva: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 201
+            "end_line": 211,
+            "start_line": 207
           }
         },
         {
@@ -217037,8 +217060,8 @@
           "signature": "(self, rva: int) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 207
+            "end_line": 218,
+            "start_line": 213
           }
         },
         {
@@ -217066,8 +217089,8 @@
           "signature": "(self, index: int) -> tuple[int, int]",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 221,
+            "start_line": 220
           }
         },
         {
@@ -217089,8 +217112,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 217
+            "end_line": 237,
+            "start_line": 223
           }
         },
         {
@@ -217112,8 +217135,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 233
+            "end_line": 255,
+            "start_line": 239
           }
         },
         {
@@ -217135,8 +217158,8 @@
           "signature": "(path: Path) -> PeImports",
           "source_location": {
             "column": 0,
-            "end_line": 267,
-            "start_line": 252
+            "end_line": 273,
+            "start_line": 258
           }
         },
         {
@@ -217158,8 +217181,8 @@
           "signature": "(name: str) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 273,
-            "start_line": 270
+            "end_line": 279,
+            "start_line": 276
           }
         },
         {
@@ -217187,8 +217210,8 @@
           "signature": "(module: Path, bundle: Path) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 280,
-            "start_line": 276
+            "end_line": 286,
+            "start_line": 282
           }
         },
         {
@@ -217216,8 +217239,8 @@
           "signature": "(directory: Path, cache: dict[Path, set[str]]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 290,
-            "start_line": 283
+            "end_line": 296,
+            "start_line": 289
           }
         },
         {
@@ -217239,8 +217262,8 @@
           "signature": "(bundle: Path) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 344,
-            "start_line": 293
+            "end_line": 350,
+            "start_line": 299
           }
         },
         {
@@ -217262,8 +217285,8 @@
           "signature": "(path: Path) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 357,
-            "start_line": 347
+            "end_line": 363,
+            "start_line": 353
           }
         },
         {
@@ -217285,8 +217308,8 @@
           "signature": "(matches: list[trust_inventory.TargetMatch]) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 366,
-            "start_line": 360
+            "end_line": 372,
+            "start_line": 366
           }
         },
         {
@@ -217314,8 +217337,8 @@
           "signature": "(label: str, data: bytes) -> tuple[str, list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 393,
-            "start_line": 369
+            "end_line": 402,
+            "start_line": 375
           }
         },
         {
@@ -217343,8 +217366,8 @@
           "signature": "(name: str, data: bytes) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 399,
-            "start_line": 396
+            "end_line": 408,
+            "start_line": 405
           }
         },
         {
@@ -217372,8 +217395,8 @@
           "signature": "(relative: str, path: Path) -> tuple[list[str], list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 423,
-            "start_line": 402
+            "end_line": 439,
+            "start_line": 411
           }
         },
         {
@@ -217395,8 +217418,8 @@
           "signature": "(bundle: Path) -> tuple[list[str], list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 461,
-            "start_line": 426
+            "end_line": 477,
+            "start_line": 442
           }
         },
         {
@@ -217424,8 +217447,8 @@
           "signature": "(label: str, path: Path) -> tuple[str, list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 473,
-            "start_line": 464
+            "end_line": 489,
+            "start_line": 480
           }
         },
         {
@@ -217447,8 +217470,8 @@
           "signature": "(trust: object) -> tuple[list[str], list[str]]",
           "source_location": {
             "column": 0,
-            "end_line": 561,
-            "start_line": 476
+            "end_line": 577,
+            "start_line": 492
           }
         },
         {
@@ -217470,8 +217493,8 @@
           "signature": "(workdir: Path) -> dict[str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 591,
-            "start_line": 564
+            "end_line": 607,
+            "start_line": 580
           }
         },
         {
@@ -217517,8 +217540,8 @@
           "signature": "(executable: Path, arguments: list[str], environment: dict[str, str], cwd: Path, timeout: float) -> tuple[int | str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 617,
-            "start_line": 594
+            "end_line": 633,
+            "start_line": 610
           }
         },
         {
@@ -217552,8 +217575,8 @@
           "signature": "(label: str, code: int | str, output: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 623,
-            "start_line": 620
+            "end_line": 639,
+            "start_line": 636
           }
         },
         {
@@ -217587,8 +217610,8 @@
           "signature": "(report: object, code: int | str, relocated: Path) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 651,
-            "start_line": 626
+            "end_line": 667,
+            "start_line": 642
           }
         },
         {
@@ -217622,8 +217645,8 @@
           "signature": "(bundle: Path, workdir: Path, timeout: float = …) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 696,
-            "start_line": 654
+            "end_line": 712,
+            "start_line": 670
           }
         },
         {
@@ -217645,8 +217668,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 749,
-            "start_line": 699
+            "end_line": 765,
+            "start_line": 715
           }
         }
       ]

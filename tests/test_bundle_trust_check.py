@@ -96,6 +96,18 @@ class CarriedTrustTest(unittest.TestCase):
         self.assertIn("_internal/base_library.zip!certifi/cacert.pem: incident", errors)
         self.assertIn("_internal/tcl90.dll!certifi/cacert.pem: incident", errors)
 
+    def test_damaged_or_oversized_zip_archive_fails(self):
+        archive = _zip_bytes({"certifi/cacert.pem": EMSIGN_ECC_G3_PEM.encode()})
+        self.put("_internal/base_library.zip", archive[: len(archive) // 2])
+        self.assertIn(
+            "_internal/base_library.zip: zip archive not inspected", self.errors()
+        )
+        self.put("_internal/base_library.zip", _zip_bytes({"a": b"x", "b": b"y"}))
+        with patch.object(check, "MAX_ZIP_MEMBERS", 1):
+            self.assertIn("zip archive too large to inspect (2 members", self.errors())
+        with patch.object(check, "MAX_ZIP_TOTAL_BYTES", 1):
+            self.assertIn("zip archive too large to inspect", self.errors())
+
     def test_clean_zip_member_is_listed(self):
         self.put(
             "_internal/base_library.zip",
@@ -115,6 +127,10 @@ class CarriedTrustTest(unittest.TestCase):
             "_internal/bad.pem": (
                 b"-----BEGIN CERTIFICATE-----\n@@@@\n-----END CERTIFICATE-----\n",
                 "invalid PEM/base64",
+            ),
+            "_internal/unterminated.pem": (
+                CLEAN_PEM.encode() + b"-----BEGIN CERTIFICATE-----\nAAAA\n",
+                "unterminated or malformed CERTIFICATE block",
             ),
             "_internal/trusted.pem": (
                 b"-----BEGIN TRUSTED CERTIFICATE-----\nAAAA\n"
