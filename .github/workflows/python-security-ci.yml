@@ -23,6 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+      - uses: ./.github/actions/python-trust-floor
       - name: Install pinned security tools
         run: python -m pip install -r tools/python_security_requirements.txt
       - name: Run Bandit and evaluate the profile
@@ -45,13 +46,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+      - uses: ./.github/actions/python-trust-floor
       - name: Install pinned security tools
         run: python -m pip install -r tools/python_security_requirements.txt
       - name: Install the audited project environment
         shell: bash
         run: |
           python -m venv "$RUNNER_TEMP/audit-target"
-          "$RUNNER_TEMP/audit-target/bin/python" -m pip install -e ".[dev,ocr,browser-validation]"
+          # The venv's bundled pip may miss the #514 floor; upgrade it with the gated host pip first.
+          python -m pip --python "$RUNNER_TEMP/audit-target/bin/python" install --disable-pip-version-check --upgrade -c requirements/python-trust-constraints.txt pip
+          python tools/trust_gate.py --python "$RUNNER_TEMP/audit-target/bin/python"
+          "$RUNNER_TEMP/audit-target/bin/python" -m pip install -c requirements/python-trust-constraints.txt -e ".[dev,ocr,browser-validation]"
       - name: Audit installed dependencies
         shell: bash
         # pip-audit queries the public vulnerability service. While the audit is advisory (#90),

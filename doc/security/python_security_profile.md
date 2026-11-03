@@ -32,7 +32,7 @@
 
 ## dependency audit（Issue #90との接続）
 
-`dependency-audit` jobは、`.[dev,ocr,browser-validation]`を別のvenvへ入れ、`PIPAPI_PYTHON_LOCATION`でそのvenvをpip-auditへ監査させます。pip-auditは公開の脆弱性情報へ問い合わせるため、結果は実行日に依存します。
+`dependency-audit` jobは、`.[dev,ocr,browser-validation]`を別のvenvへ入れ、`PIPAPI_PYTHON_LOCATION`でそのvenvをpip-auditへ監査させます。両jobは #514 の `python-trust-floor` actionを先に実行し、監査用venvのpipも検査済みのホストpipで最低版へ更新して `trust_gate.py` を通してから、`requirements/python-trust-constraints.txt` の制約付きでinstallします。pip-auditは公開の脆弱性情報へ問い合わせるため、結果は実行日に依存します。
 
 依存が0件の報告、`name`や`vulns`の欠けた報告は監査未完了として扱い、それぞれblocking・終了コード2にします。package名はPEP 503で正規化して抑制と照合します。BanditとAuditはどちらも`python -I`（isolated mode）で起動し、checkout内の同名moduleで置き換えられないようにします。
 
