@@ -48,6 +48,7 @@ jobs:
               Path("schemas/inference_provider/v1/cancel_response.schema.json"),
               Path("schemas/config/default_models.schema.json"),
               Path("schemas/config/e2e_reference_games.schema.json"),
+              Path("schemas/stage_envelope/v1/stage_envelope.schema.json"),
           ]
           schemas = {}
           for path in schema_paths:
@@ -103,6 +104,14 @@ jobs:
               (
                   Path("schemas/inference_provider/v1/examples/decision_response.json"),
                   schemas["schemas/inference_provider/v1/inference_response.schema.json"],
+              ),
+              (
+                  Path("schemas/stage_envelope/v1/examples/core_perception_output.json"),
+                  schemas["schemas/stage_envelope/v1/stage_envelope.schema.json"],
+              ),
+              (
+                  Path("schemas/stage_envelope/v1/examples/hook_decision_input.json"),
+                  schemas["schemas/stage_envelope/v1/stage_envelope.schema.json"],
               ),
           ]
           for path, schema in examples:
@@ -233,6 +242,46 @@ jobs:
           name: native-sanitizer-diagnostics
           path: build/native-sanitized/Testing/Temporary
           if-no-files-found: warn
+
+  native-dangerous-api:
+    name: Native dangerous C/C++ API detector
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Detect dangerous C/C++ API calls in native sources
+        run: python tools/native_security_check.py native --fail-on medium --output build/native-security/dangerous-api-report.json
+      - name: Upload dangerous API report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-dangerous-api-report
+          path: build/native-security
+          if-no-files-found: warn
+
+  native-clang-tidy:
+    name: Native clang-tidy security profile (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
+      - name: Install pinned clang-tidy
+        run: python -m pip install --disable-pip-version-check "clang-tidy==22.1.8"
+      - name: Run clang-tidy with native/.clang-tidy
+        run: python tools/native_clang_tidy.py --clang-tidy clang-tidy
 
   windows-app-bundle:
     name: Windows application bundle + startup smoke

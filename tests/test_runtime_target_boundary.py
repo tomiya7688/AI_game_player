@@ -15,7 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class RuntimeTargetBoundaryTest(unittest.TestCase):
     def setUp(self):
-        self.manifest = json.loads((ROOT / "config/runtime_boundary.json").read_text())
+        self.manifest = json.loads(
+            (ROOT / "config/runtime_boundary.json").read_text(encoding="utf-8")
+        )
 
     def test_target_is_planned_and_does_not_replace_current_abi(self):
         self.assertEqual(check_target_architecture(self.manifest), [])
@@ -44,14 +46,14 @@ class RuntimeTargetBoundaryTest(unittest.TestCase):
         self.assertEqual(check_target_architecture(self.manifest), [])
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "legacy.json"
-            path.write_text(json.dumps(self.manifest))
+            path.write_text(json.dumps(self.manifest), encoding="utf-8")
             self.assertEqual(check_boundary(ROOT, path), [])
 
     def test_existing_boundary_checker_rejects_embedded_webview_target(self):
         self.manifest["target_architecture"]["gui"]["embedded_webview"] = True
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "manifest.json"
-            path.write_text(json.dumps(self.manifest))
+            path.write_text(json.dumps(self.manifest), encoding="utf-8")
             self.assertIn("embedded_webview", "\n".join(check_boundary(ROOT, path)))
 
     def test_implementation_or_release_success_cannot_be_claimed_by_target(self):

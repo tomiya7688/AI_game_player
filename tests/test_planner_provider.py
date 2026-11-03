@@ -390,6 +390,7 @@ class PlannerProviderTests(unittest.TestCase):
 
     def test_prediction_journal_event_is_separate_from_actual_execution(self):
         import json
+        from contextlib import closing
         import sqlite3
         from hashlib import sha256
         from ai_game_player.event_journal import EventJournal
@@ -405,7 +406,7 @@ class PlannerProviderTests(unittest.TestCase):
         )
         self.addCleanup(pipeline.close)
         pipeline.run_and_execute()  # dry-run still predicts, but provides no actual OS input
-        with sqlite3.connect(journal.path) as connection:
+        with closing(sqlite3.connect(journal.path)) as connection:
             events = [
                 json.loads(row[0])
                 for row in connection.execute(
@@ -477,6 +478,7 @@ class PlannerProviderTests(unittest.TestCase):
         self,
     ):
         import json
+        from contextlib import closing
         import sqlite3
         from ai_game_player.decision_context import DecisionTraceStore
         from ai_game_player.event_journal import EventJournal
@@ -511,7 +513,7 @@ class PlannerProviderTests(unittest.TestCase):
                 )
             finally:
                 pipeline.close()
-            with sqlite3.connect(journal.path) as connection:
+            with closing(sqlite3.connect(journal.path)) as connection:
                 events = [
                     json.loads(row[0])
                     for row in connection.execute(

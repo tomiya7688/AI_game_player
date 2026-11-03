@@ -53,9 +53,15 @@ class RuntimeModeContractTests(unittest.TestCase):
 
     def test_machine_readable_schema_default_and_phase_matrix_match_contract(self):
         root = Path(__file__).resolve().parents[1] / "config"
-        schema = json.loads((root / "runtime_mode.schema.json").read_text())
-        default = json.loads((root / "runtime_mode.default.json").read_text())
-        matrix = json.loads((root / "runtime_mode_operations.json").read_text())
+        schema = json.loads(
+            (root / "runtime_mode.schema.json").read_text(encoding="utf-8")
+        )
+        default = json.loads(
+            (root / "runtime_mode.default.json").read_text(encoding="utf-8")
+        )
+        matrix = json.loads(
+            (root / "runtime_mode_operations.json").read_text(encoding="utf-8")
+        )
         self.assertEqual(RuntimeModeConfig.from_dict(default), RuntimeModeConfig())
         self.assertEqual(schema["$defs"]["mode"]["enum"], list(RuntimeMode))
         self.assertEqual(schema["$defs"]["phase"]["enum"], list(RuntimePhase))

@@ -95,10 +95,16 @@ def verify_checkout(root, expected_commit):
     ):
         raise ValueError("expected commit must be a full lowercase Git SHA")
     head = subprocess.check_output(
-        ["git", "-C", str(root), "rev-parse", "HEAD"], text=True, timeout=10
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        text=True,
+        timeout=10,
+        encoding="utf-8",
     ).strip()
     dirty = subprocess.check_output(
-        ["git", "-C", str(root), "status", "--porcelain"], text=True, timeout=10
+        ["git", "-C", str(root), "status", "--porcelain"],
+        text=True,
+        timeout=10,
+        encoding="utf-8",
     )
     if head != expected_commit or dirty or not (root / "index.html").is_file():
         raise ValueError(

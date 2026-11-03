@@ -22,6 +22,7 @@ def run(*args: str, cwd: Path | None = None) -> str:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         timeout=120,
+        encoding="utf-8",
     )
     return result.stdout.strip()
 

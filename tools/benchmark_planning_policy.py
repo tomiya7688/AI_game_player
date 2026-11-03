@@ -148,11 +148,11 @@ def main(argv=None):
         "python": platform.python_version(),
         "platform": platform.platform(),
         "head": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, encoding="utf-8"
         ).strip(),
         "dirty": bool(
             subprocess.check_output(
-                ["git", "status", "--porcelain"], cwd=ROOT, text=True
+                ["git", "status", "--porcelain"], cwd=ROOT, text=True, encoding="utf-8"
             ).strip()
         ),
         "source_sha256": {

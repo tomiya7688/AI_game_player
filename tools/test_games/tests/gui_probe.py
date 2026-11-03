@@ -77,7 +77,7 @@ def main():
                 "evidence_kind": "read-only test oracle, not AI observation",
             }
             temporary = args.oracle.with_suffix(".tmp")
-            temporary.write_text(json.dumps(value))
+            temporary.write_text(json.dumps(value), encoding="utf-8")
             temporary.replace(args.oracle)
 
     launcher.ArcadeSession = ProbeSession

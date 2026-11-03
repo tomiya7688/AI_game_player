@@ -92,7 +92,7 @@ class IndependentCliOcr:
 class WindowsHeaderOcrTests(unittest.TestCase):
     def test_nine_owned_header_images_and_scaled_geometry_recover_visible_scores(self):
         folder = Path(__file__).parent / "fixtures/2048/score-windows-headers"
-        manifest = json.loads((folder / "manifest.json").read_text())
+        manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
         for item in manifest["cases"]:
             raw = zlib.decompress((folder / item["bgra_zlib"]).read_bytes())
             self.assertEqual(sha256(raw).hexdigest(), item["header_bgra_sha256"])

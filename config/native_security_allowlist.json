@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "description": "tools/native_security_check.py の許可リスト（Issue #115）。code は コメント・文字列を除き空白を1つに正規化した該当行。1項目は1件の検出だけを許可し、現在のソースに一致しない項目は検査失敗になる。",
+  "entries": [
+    {
+      "path": "native/src/wgc_capture.cpp",
+      "rule": "NSC005",
+      "function": "memcpy",
+      "code": "std::memcpy(destination_row, source_row, static_cast<size_t>(row_bytes));",
+      "reason": "copy_frame_to_bgra はコピー前に uint64_t で width*4*height の必要容量を計算し、出力が null または容量不足なら BUFFER_TOO_SMALL を返す。コピーは検査済みの出力範囲へ width*4 byte ずつ行単位で行う。D3D Map の RowPitch と pData の防御検査は #652 で扱う。",
+      "issue": "#652"
+    },
+    {
+      "path": "native/src/runtime_api.cpp",
+      "rule": "NSC007",
+      "function": "new",
+      "code": "auto* runtime = new (std::nothrow) kadoka_runtime_handle{KADOKA_RUNTIME_ABI_VERSION};",
+      "reason": "C ABI の opaque handle。kadoka_runtime_init が nothrow new で確保し、null なら ALLOCATION_FAILED を返す。所有権は呼出し側へ移り、kadoka_runtime_shutdown だけが解放する。"
+    },
+    {
+      "path": "native/src/runtime_api.cpp",
+      "rule": "NSC007",
+      "function": "delete",
+      "code": "delete *runtime;",
+      "reason": "kadoka_runtime_init が確保した opaque handle を kadoka_runtime_shutdown が解放し、呼出し側の pointer を nullptr へ戻す。null 引数は INVALID_ARGUMENT。"
+    },
+    {
+      "path": "native/src/wgc_capture.cpp",
+      "rule": "NSC007",
+      "function": "new",
+      "code": "auto* session = new (std::nothrow) kadoka_wgc_session{std::move(session_state)};",
+      "reason": "C ABI の WGC session handle。nothrow new の失敗は ALLOCATION_FAILED を返し、所有権は呼出し側へ移り kadoka_wgc_close だけが解放する。並行 close との lifetime は #652 で扱う。",
+      "issue": "#652"
+    },
+    {
+      "path": "native/src/wgc_capture.cpp",
+      "rule": "NSC007",
+      "function": "delete",
+      "code": "delete *frame;",
+      "reason": "frame lease の解放関数が capture_frame を Close した後に handle を解放し、pointer を nullptr へ戻す。copy と release の競合は #652 で扱う。",
+      "issue": "#652"
+    },
+    {
+      "path": "native/src/wgc_capture.cpp",
+      "rule": "NSC007",
+      "function": "delete",
+      "code": "delete *session;",
+      "reason": "kadoka_wgc_close が session state を close した後に handle を解放し、pointer を nullptr へ戻す。next_frame と close の競合は #652 で扱う。",
+      "issue": "#652"
+    }
+  ]
+}

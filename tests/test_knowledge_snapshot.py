@@ -36,13 +36,15 @@ FIXTURE = Path(__file__).parent / "fixtures/knowledge/snapshot-v1.json"
 
 
 def fixture():
-    return json.loads(FIXTURE.read_text())
+    return json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
 class KnowledgeSnapshotTests(unittest.TestCase):
     def test_schema_fields_and_valid_roundtrip_are_consistent(self):
         schema = json.loads(
-            (FIXTURE.parents[3] / "config/knowledge_snapshot.schema.json").read_text()
+            (FIXTURE.parents[3] / "config/knowledge_snapshot.schema.json").read_text(
+                encoding="utf-8"
+            )
         )
         self.assertEqual(set(schema["required"]), SNAPSHOT_FIELDS)
         self.assertFalse(schema["additionalProperties"])
@@ -260,7 +262,7 @@ class KnowledgeSnapshotTests(unittest.TestCase):
                 )
             payload_path.write_bytes(original)
             index_path = store._index_path(snapshot.scope, snapshot.version)
-            index = json.loads(index_path.read_text())
+            index = json.loads(index_path.read_text(encoding="utf-8"))
             changed = fixture()
             changed["schema_version"] = 2
             wrong = store.artifacts.put(
@@ -269,7 +271,7 @@ class KnowledgeSnapshotTests(unittest.TestCase):
                 artifact_type="knowledge.snapshot",
             )
             index["reference"] = wrong.to_dict()
-            index_path.write_text(json.dumps(index))
+            index_path.write_text(json.dumps(index), encoding="utf-8")
             self.assertEqual(
                 store.read(snapshot.scope, snapshot.version).reason, "invalid"
             )
@@ -346,9 +348,9 @@ class KnowledgeSnapshotTests(unittest.TestCase):
                 / reference.sha256
                 / "metadata.json"
             )
-            metadata = json.loads(path.read_text())
+            metadata = json.loads(path.read_text(encoding="utf-8"))
             metadata["artifact_type"] = "model.adapter"
-            path.write_text(json.dumps(metadata))
+            path.write_text(json.dumps(metadata), encoding="utf-8")
             result = store.read(snapshot.scope, snapshot.version)
             self.assertEqual((result.snapshot, result.reason), (None, "invalid"))
 
@@ -474,7 +476,9 @@ class KnowledgeSnapshotTests(unittest.TestCase):
 
     def test_schema_patterns_match_utc_identifiers_and_document_cross_field_rules(self):
         schema = json.loads(
-            (FIXTURE.parents[3] / "config/knowledge_snapshot.schema.json").read_text()
+            (FIXTURE.parents[3] / "config/knowledge_snapshot.schema.json").read_text(
+                encoding="utf-8"
+            )
         )
         time_pattern = schema["properties"]["created_at"]["pattern"]
         for timestamp, accepted in (

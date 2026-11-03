@@ -654,7 +654,7 @@ class BeliefEstimatorTests(unittest.TestCase):
             "belief_prediction.py",
             "belief_likelihood.py",
         ):
-            tree = ast.parse((root / name).read_text())
+            tree = ast.parse((root / name).read_text(encoding="utf-8"))
             imports = [
                 node.module or ""
                 for node in ast.walk(tree)
