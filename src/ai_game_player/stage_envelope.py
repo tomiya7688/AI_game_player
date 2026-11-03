@@ -420,16 +420,19 @@ def _normalize_derived_from(value: Any, envelope_id: str) -> tuple[str, ...]:
 
 # {
 #   責務: [_validate_stage_id: stage fieldが公式stage IDか、`ext.`名前空間の拡張stage IDかを判定する]
-#   処理: [名前空間付きIDの字面を確認し、公式一覧にも`ext.<name>`形式にも当たらない値を拒否する]
+#   処理: [名前空間付きIDの字面を確認し、公式一覧にも`ext.`直後が小文字英字で始まる`ext.<name>`形式にも当たらない値を拒否する]
 #   引数: [value: stage fieldの値]
 #   戻り値: [なし]
 #   エラー: [StageEnvelopeError(malformed): 未定義stageまたは形式外の場合]
 # }
 def _validate_stage_id(value: Any) -> None:
     _require_namespaced_id(value, "stage")
-    is_extension = value.startswith(_EXTENSION_STAGE_PREFIX) and len(value) > len(
-        _EXTENSION_STAGE_PREFIX
+    extension_name = (
+        value[len(_EXTENSION_STAGE_PREFIX) :]
+        if value.startswith(_EXTENSION_STAGE_PREFIX)
+        else ""
     )
+    is_extension = _NAMESPACED_ID_PATTERN.fullmatch(extension_name) is not None
     if value not in CORE_STAGE_IDS and not is_extension:
         raise StageEnvelopeError(
             StageEnvelopeError.MALFORMED,
@@ -477,7 +480,7 @@ def _validate_utc_timestamp(value: Any) -> None:
 
 # {
 #   責務: [_validate_confidence: confidenceが未設定か、0以上1以下の有限数か判定する]
-#   処理: [Noneを許可し、boolを除く数値で有限かつ範囲内であることを確認する]
+#   処理: [Noneを許可し、boolを除く数値が0以上1以下か比較で確認する（NaNは比較が偽になり、巨大な整数もOverflowErrorなしで拒否される）]
 #   引数: [value: confidence fieldの値]
 #   戻り値: [なし]
 #   エラー: [StageEnvelopeError(malformed): 数値でない、非有限、範囲外の場合]
@@ -488,7 +491,6 @@ def _validate_confidence(value: Any) -> None:
     if (
         isinstance(value, bool)
         or not isinstance(value, (int, float))
-        or not math.isfinite(value)
         or not 0 <= value <= 1
     ):
         raise StageEnvelopeError(

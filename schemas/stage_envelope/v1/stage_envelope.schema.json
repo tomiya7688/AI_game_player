@@ -18,7 +18,9 @@
     "Every integer is within integer_min..integer_max and every number is finite.",
     "timestamp_utc is a real calendar date-time.",
     "parent_envelope_id and derived_from must not contain envelope_id.",
-    "A schema_version other than 1 is rejected as unsupported_version unless a registered migration chain reaches version 1."
+    "A schema_version other than 1 is rejected as unsupported_version unless a registered migration chain reaches version 1.",
+    "Patterns end with the ECMA-262 lookahead (?![\\s\\S]) so that a trailing newline never matches; an implementation whose regex engine lacks lookahead must apply the same rule as a full-string match.",
+    "Passing this schema alone is not conformance; a conforming validator must also pass every case in conformance.json."
   ],
   "type": "object",
   "additionalProperties": false,
@@ -55,7 +57,7 @@
     },
     "stage": {
       "type": "string",
-      "pattern": "^(?:capture|perception|state|reasoning|decision|safety|execution|outcome|evaluation|ext\\.[a-z0-9_.-]{1,124})(?![\\s\\S])"
+      "pattern": "^(?:capture|perception|state|reasoning|decision|safety|execution|outcome|evaluation|ext\\.[a-z][a-z0-9_.-]{0,123})(?![\\s\\S])"
     },
     "boundary": {
       "enum": [

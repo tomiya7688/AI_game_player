@@ -29,7 +29,7 @@ Issue [#150](https://github.com/tomiya7688/AI_game_player/issues/150)（親 [#58
 | 拡張 | `metadata` | 名前空間付きkey（例 `plugin.example`）のJSON object |
 | 参照 | `artifact_refs` | Artifact Storeへの参照（最大64件）。形は[Session Event Journal](session_event_journal.md)の`ArtifactReference`と同じ |
 
-v1の公式stage IDは`capture`、`perception`、`state`、`reasoning`、`decision`、`safety`、`execution`、`outcome`、`evaluation`です。Pluginが独自に定義するstageは`ext.`で始まるIDにします（例 `ext.plugin.example.filter`）。Envelope契約の版と`payload_schema_version`は別々に上げます。payloadの形を変えるだけならEnvelope v1のまま`payload_schema_version`を上げます。
+v1の公式stage IDは`capture`、`perception`、`state`、`reasoning`、`decision`、`safety`、`execution`、`outcome`、`evaluation`です。Pluginが独自に定義するstageは`ext.`で始まり、続く部分が小文字英字で始まるIDにします（例 `ext.plugin.example.filter`。`ext.`・`ext..x`・`ext.1x`は拒否）。Envelope契約の版と`payload_schema_version`は別々に上げます。payloadの形を変えるだけならEnvelope v1のまま`payload_schema_version`を上げます。
 
 ID文字列の規則は次のとおりです。
 
@@ -49,7 +49,9 @@ ID文字列の規則は次のとおりです。
 | 自己参照 | `parent_envelope_id`と`derived_from`に自身の`envelope_id`を含めない | `malformed` |
 | 版 | `1`以外は`unsupported_version`。boolや文字列の版は`malformed` | `unsupported_version` |
 
-入れ子深さは、byte数の確認後、JSONを解析する前に文字列の外の`{`と`[`を数えて判定します。深い文書で再帰parseが失敗する前に拒否するためです。JSON Schemaでは表せない規則（byte数、深さ、payload内の数値範囲、重複key、暦上の日付、自己参照）は`x-kadoka-validator-rules`に列挙しています。他言語の実装はSchemaの検証に加え、これらの規則も実装します。`conformance.json`の`schema_valid: true`かつ期待値がエラーのケースが、この追加規則の対象です。
+入れ子深さは、byte数の確認後、JSONを解析する前に文字列の外の`{`と`[`を数えて判定します。深い文書で再帰parseが失敗する前に拒否するためです。JSON Schemaでは表せない規則（byte数、深さ、payload内の数値範囲、重複key、暦上の日付、自己参照）は`x-kadoka-validator-rules`に列挙しています。他言語の実装はSchemaの検証に加え、これらの規則も実装します。Schemaの検証に通っただけでは契約に適合したことになりません。適合の条件は`conformance.json`の全ケースで期待どおりの結果になることです。`schema_valid: true`かつ期待値がエラーのケースが、この追加規則の対象です。
+
+Schemaの`pattern`は、末尾の改行を許さないためにECMA-262の先読み`(?![\s\S])`で終わります。Rustの`regex` crateのように先読みに対応しない正規表現エンジンでは、同じ規則を文字列全体の一致（Rustなら`^...$`ではなく`\A...\z`）として実装します。
 
 エラーは`StageEnvelopeError`として送出され、`code`は`malformed`・`unsupported_version`・`limit_exceeded`のいずれかです。Hook runtime（#151）は、このcodeを見て継続するか安全に停止するかを決められます。
 

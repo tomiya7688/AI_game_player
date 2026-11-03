@@ -162,7 +162,14 @@ class StageEnvelopeSchemaTest(unittest.TestCase):
         self.assertEqual(PRODUCER_KINDS, frozenset(properties["producer_kind"]["enum"]))
         for stage in CORE_STAGE_IDS | {"ext.plugin.filter"}:
             self.assertIsNotNone(re.search(stage_pattern, stage), stage)
-        for stage in ("ext.", "render", "perception\n", "Ext.plugin"):
+        for stage in (
+            "ext.",
+            "ext..plugin",
+            "ext.1x",
+            "render",
+            "perception\n",
+            "Ext.plugin",
+        ):
             self.assertIsNone(re.search(stage_pattern, stage), stage)
 
     @unittest.skipUnless(HAS_JSONSCHEMA, "jsonschema is a development dependency")
@@ -328,6 +335,20 @@ class StageEnvelopeCodecTest(unittest.TestCase):
                 with self.assertRaises(StageEnvelopeError) as raised:
                     decode_stage_envelope(data)  # type: ignore[arg-type]
                 self.assertEqual(StageEnvelopeError.MALFORMED, raised.exception.code)
+
+    def test_unmatched_closing_bracket_cannot_lower_the_depth_count(self):
+        text = "]" * 10 + "[" * 40
+
+        with self.assertRaises(StageEnvelopeError) as raised:
+            decode_stage_envelope(text)
+
+        self.assertEqual(StageEnvelopeError.MALFORMED, raised.exception.code)
+
+    def test_huge_integer_confidence_is_malformed_without_overflow(self):
+        with self.assertRaises(StageEnvelopeError) as raised:
+            make_envelope(confidence=10**400)
+
+        self.assertEqual(StageEnvelopeError.MALFORMED, raised.exception.code)
 
     def test_overlong_integer_literal_is_malformed(self):
         text = json.dumps(example_document()).replace(

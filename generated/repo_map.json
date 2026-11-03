@@ -72079,7 +72079,7 @@
       "module": "ai_game_player.stage_envelope",
       "path": "src/ai_game_player/stage_envelope.py",
       "source_location": {
-        "end_line": 682,
+        "end_line": 684,
         "start_line": 1
       },
       "symbols": [
@@ -72454,7 +72454,7 @@
           "signature": "(value: Any) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 437,
+            "end_line": 440,
             "start_line": 428
           }
         },
@@ -72477,8 +72477,8 @@
           "signature": "(value: Any) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 453,
-            "start_line": 447
+            "end_line": 456,
+            "start_line": 450
           }
         },
         {
@@ -72500,8 +72500,8 @@
           "signature": "(value: Any) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 475,
-            "start_line": 463
+            "end_line": 478,
+            "start_line": 466
           }
         },
         {
@@ -72523,8 +72523,8 @@
           "signature": "(value: Any) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 497,
-            "start_line": 485
+            "end_line": 499,
+            "start_line": 488
           }
         },
         {
@@ -72564,8 +72564,8 @@
           "signature": "(value: Any, field_name: str, minimum: int, maximum: int) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 518,
-            "start_line": 507
+            "end_line": 520,
+            "start_line": 509
           }
         },
         {
@@ -72599,8 +72599,8 @@
           "signature": "(value: Any, field_name: str, allowed: frozenset[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 533,
-            "start_line": 528
+            "end_line": 535,
+            "start_line": 530
           }
         },
         {
@@ -72634,8 +72634,8 @@
           "signature": "(value: Any, field_name: str, pattern: re.Pattern[str]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 547,
-            "start_line": 543
+            "end_line": 549,
+            "start_line": 545
           }
         },
         {
@@ -72663,8 +72663,8 @@
           "signature": "(value: Any, field_name: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 558,
-            "start_line": 557
+            "end_line": 560,
+            "start_line": 559
           }
         },
         {
@@ -72692,8 +72692,8 @@
           "signature": "(value: Any, field_name: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 570,
-            "start_line": 568
+            "end_line": 572,
+            "start_line": 570
           }
         },
         {
@@ -72721,8 +72721,8 @@
           "signature": "(value: Any, field_name: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 581,
-            "start_line": 580
+            "end_line": 583,
+            "start_line": 582
           }
         },
         {
@@ -72750,8 +72750,8 @@
           "signature": "(value: Any, field_name: str) -> Mapping[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 596,
-            "start_line": 591
+            "end_line": 598,
+            "start_line": 593
           }
         },
         {
@@ -72785,8 +72785,8 @@
           "signature": "(value: Mapping[Any, Any], path: str, depth: int) -> Mapping[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 622,
-            "start_line": 606
+            "end_line": 624,
+            "start_line": 608
           }
         },
         {
@@ -72820,8 +72820,8 @@
           "signature": "(value: Any, path: str, depth: int) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 668,
-            "start_line": 636
+            "end_line": 670,
+            "start_line": 638
           }
         },
         {
@@ -72843,8 +72843,8 @@
           "signature": "(value: Any) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 682,
-            "start_line": 677
+            "end_line": 684,
+            "start_line": 679
           }
         }
       ]
@@ -72947,7 +72947,7 @@
       "module": "ai_game_player.stage_envelope_codec",
       "path": "src/ai_game_player/stage_envelope_codec.py",
       "source_location": {
-        "end_line": 258,
+        "end_line": 265,
         "start_line": 1
       },
       "symbols": [
@@ -72970,8 +72970,8 @@
           "signature": "(envelope: StageEnvelope) -> bytes",
           "source_location": {
             "column": 0,
-            "end_line": 47,
-            "start_line": 33
+            "end_line": 49,
+            "start_line": 35
           }
         },
         {
@@ -72999,8 +72999,8 @@
           "signature": "(data: bytes | str, migrations: Mapping[int, StageEnvelopeMigration] | None = …) -> StageEnvelope",
           "source_location": {
             "column": 0,
-            "end_line": 88,
-            "start_line": 62
+            "end_line": 90,
+            "start_line": 64
           }
         },
         {
@@ -73028,8 +73028,8 @@
           "signature": "(document: Mapping[str, Any], migrations: Mapping[int, StageEnvelopeMigration]) -> Mapping[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 129,
-            "start_line": 103
+            "end_line": 131,
+            "start_line": 105
           }
         },
         {
@@ -73051,8 +73051,8 @@
           "signature": "(document: Any) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 149,
-            "start_line": 139
+            "end_line": 151,
+            "start_line": 141
           }
         },
         {
@@ -73074,8 +73074,8 @@
           "signature": "(data: bytes | str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 194,
-            "start_line": 159
+            "end_line": 196,
+            "start_line": 161
           }
         },
         {
@@ -73097,8 +73097,8 @@
           "signature": "(text: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 227,
-            "start_line": 205
+            "end_line": 234,
+            "start_line": 207
           }
         },
         {
@@ -73120,8 +73120,8 @@
           "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 245,
-            "start_line": 237
+            "end_line": 252,
+            "start_line": 244
           }
         },
         {
@@ -73143,8 +73143,8 @@
           "signature": "(constant: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 258,
-            "start_line": 255
+            "end_line": 265,
+            "start_line": 262
           }
         }
       ]
@@ -165580,7 +165580,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 170,
+          "line": 177,
           "local_dependencies": [],
           "module": "jsonschema",
           "names": [
@@ -165594,7 +165594,7 @@
       "module": "tests.test_stage_envelope",
       "path": "tests/test_stage_envelope.py",
       "source_location": {
-        "end_line": 404,
+        "end_line": 425,
         "start_line": 1
       },
       "symbols": [
@@ -165822,7 +165822,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 182,
+            "end_line": 189,
             "start_line": 121
           }
         },
@@ -165914,7 +165914,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 166,
+            "end_line": 173,
             "start_line": 157
           }
         },
@@ -165939,8 +165939,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 169
+            "end_line": 189,
+            "start_line": 176
           }
         },
         {
@@ -165961,8 +165961,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 283,
-            "start_line": 185
+            "end_line": 290,
+            "start_line": 192
           }
         },
         {
@@ -165984,8 +165984,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 186
+            "end_line": 200,
+            "start_line": 193
           }
         },
         {
@@ -166007,8 +166007,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 195
+            "end_line": 212,
+            "start_line": 202
           }
         },
         {
@@ -166030,8 +166030,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 207
+            "end_line": 223,
+            "start_line": 214
           }
         },
         {
@@ -166053,8 +166053,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 234,
-            "start_line": 218
+            "end_line": 241,
+            "start_line": 225
           }
         },
         {
@@ -166076,8 +166076,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 236
+            "end_line": 254,
+            "start_line": 243
           }
         },
         {
@@ -166099,8 +166099,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 267,
-            "start_line": 249
+            "end_line": 274,
+            "start_line": 256
           }
         },
         {
@@ -166122,8 +166122,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 283,
-            "start_line": 269
+            "end_line": 290,
+            "start_line": 276
           }
         },
         {
@@ -166144,8 +166144,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 340,
-            "start_line": 286
+            "end_line": 361,
+            "start_line": 293
           }
         },
         {
@@ -166167,8 +166167,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 287
+            "end_line": 311,
+            "start_line": 294
           }
         },
         {
@@ -166190,8 +166190,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 316,
-            "start_line": 306
+            "end_line": 323,
+            "start_line": 313
           }
         },
         {
@@ -166213,8 +166213,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 322,
-            "start_line": 318
+            "end_line": 329,
+            "start_line": 325
           }
         },
         {
@@ -166236,8 +166236,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 330,
-            "start_line": 324
+            "end_line": 337,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unmatched_closing_bracket_cannot_lower_the_depth_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_unmatched_closing_bracket_cannot_lower_the_depth_count",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 345,
+            "start_line": 339
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_huge_integer_confidence_is_malformed_without_overflow",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StageEnvelopeCodecTest.test_huge_integer_confidence_is_malformed_without_overflow",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 351,
+            "start_line": 347
           }
         },
         {
@@ -166259,8 +166305,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 340,
-            "start_line": 332
+            "end_line": 361,
+            "start_line": 353
           }
         },
         {
@@ -166281,8 +166327,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 383,
-            "start_line": 343
+            "end_line": 404,
+            "start_line": 364
           }
         },
         {
@@ -166304,8 +166350,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 359,
-            "start_line": 344
+            "end_line": 380,
+            "start_line": 365
           }
         },
         {
@@ -166327,8 +166373,8 @@
           "signature": "(document)",
           "source_location": {
             "column": 8,
-            "end_line": 354,
-            "start_line": 350
+            "end_line": 375,
+            "start_line": 371
           }
         },
         {
@@ -166350,8 +166396,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 374,
-            "start_line": 361
+            "end_line": 395,
+            "start_line": 382
           }
         },
         {
@@ -166373,8 +166419,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 383,
-            "start_line": 376
+            "end_line": 404,
+            "start_line": 397
           }
         },
         {
@@ -166395,8 +166441,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 400,
-            "start_line": 386
+            "end_line": 421,
+            "start_line": 407
           }
         },
         {
@@ -166418,8 +166464,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 400,
-            "start_line": 387
+            "end_line": 421,
+            "start_line": 408
           }
         }
       ]

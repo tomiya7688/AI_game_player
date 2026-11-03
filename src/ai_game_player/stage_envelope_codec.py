@@ -13,6 +13,8 @@ from ai_game_player.stage_envelope import (
 )
 
 
+# UTF-8 BOM（U+FEFF）。不可視文字をliteralで埋め込まず、escapeで定義する。
+_BYTE_ORDER_MARK = "\ufeff"
 # 版Nの文書を版N+1の文書へ変換する移行関数の型。入力文書を変更せず、新しいobjectを返す。
 StageEnvelopeMigration = Callable[[Mapping[str, Any]], Mapping[str, Any]]
 # 既定の移行表。v1が最初の公開版なので空であり、v1以外の版はすべてunsupported_versionで拒否する。
@@ -186,7 +188,7 @@ def _decode_utf8_text(data: bytes | str) -> str:
         raise StageEnvelopeError(
             StageEnvelopeError.MALFORMED, "document must be bytes or str"
         )
-    if text.startswith("﻿"):
+    if text.startswith(_BYTE_ORDER_MARK):
         raise StageEnvelopeError(
             StageEnvelopeError.MALFORMED,
             "document must not start with a byte order mark",
@@ -196,10 +198,10 @@ def _decode_utf8_text(data: bytes | str) -> str:
 
 # {
 #   責務: [_reject_excessive_nesting: parse前に文字列外の`{`/`[`の入れ子深さを数え、深すぎる文書を再帰parseさせない]
-#   処理: [文字列literalとescapeを読み飛ばしながら開き括弧で深さを増やし閉じ括弧で減らし、上限超過時点で拒否する]
+#   処理: [文字列literalとescapeを読み飛ばしながら開き括弧で深さを増やし閉じ括弧で減らし、上限超過または対応のない閉じ括弧の時点で拒否する]
 #   引数: [text: UTF-8 decode済みのJSON文書]
 #   戻り値: [なし]
-#   エラー: [StageEnvelopeError(limit_exceeded): objectと配列の深さがSTAGE_ENVELOPE_MAX_DEPTHを超える場合]
+#   エラー: [StageEnvelopeError: objectと配列の深さがSTAGE_ENVELOPE_MAX_DEPTHを超えればlimit_exceeded、対応のない閉じ括弧はmalformed]
 #   補足: [括弧の対応や文法の正しさはここでは判定せず、後続のjson.loadsが判定する]
 # }
 def _reject_excessive_nesting(text: str) -> None:
@@ -225,6 +227,11 @@ def _reject_excessive_nesting(text: str) -> None:
                 )
         elif character in "}]":
             depth -= 1
+            if depth < 0:
+                raise StageEnvelopeError(
+                    StageEnvelopeError.MALFORMED,
+                    "document has an unmatched closing bracket",
+                )
 
 
 # {

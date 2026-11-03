@@ -1,6 +1,6 @@
 ## 2026-11-04 StageEnvelope v1契約（Issue #150）
 
-- Pipeline stage間の中間データをHook・Provider・Replayへ渡す版付き契約`StageEnvelope` v1を追加。JSON Schema、言語共通の適合ケース40件、有効例2件、Python参照validatorとcodecを用意します。[契約と上限](architecture/stage_envelope.md)。
+- Pipeline stage間の中間データをHook・Provider・Replayへ渡す版付き契約`StageEnvelope` v1を追加。JSON Schema、言語共通の適合ケース47件、有効例2件、Python参照validatorとcodecを用意します。[契約と上限](architecture/stage_envelope.md)。
 - 未知field・未知版・重複key・NaN・int64範囲外・自己参照を拒否し、1MiB・深さ32・件数上限をparse前またはparse直後に判定します。canonical JSONの往復と版移行点（v1では空）を試験します。
 - Pipelineからの生成とHook runtimeへの接続は未実装で、#151/#152/#153の範囲です。
 
