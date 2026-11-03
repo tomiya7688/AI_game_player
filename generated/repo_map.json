@@ -60498,6 +60498,1749 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.recovery_models",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "deque"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_models"
+          ],
+          "module": "ai_game_player.recovery_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryAction"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptResult"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptStatus"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryBudget"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPlan"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPolicy"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryReason"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSeverity"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.recovery_controller",
+      "path": "src/ai_game_player/recovery_controller.py",
+      "source_location": {
+        "end_line": 769,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "_RecoveryEpisode",
+          "parameters": [],
+          "qualified_name": "_RecoveryEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 47,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryController",
+          "parameters": [],
+          "qualified_name": "RecoveryController",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 747,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "RecoveryController.__init__",
+          "return_annotation": "None",
+          "signature": "(self, policy: RecoveryPolicy | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController.state",
+          "return_annotation": "RecoveryState",
+          "signature": "(self) -> RecoveryState",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "on_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "action_generation"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "target_lost"
+            }
+          ],
+          "qualified_name": "RecoveryController.on_event",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, event: SelfCheckEvent, *, snapshot_id: str, action_generation: int, now_monotonic: float, stop_requested: bool, target_lost: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 134
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "ack",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAttemptResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoveryController.ack",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, result: RecoveryAttemptResult, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 260,
+            "start_line": 207
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "poll",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoveryController.poll",
+          "return_annotation": "RecoveryPlan | None",
+          "signature": "(self, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 302,
+            "start_line": 281
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "request_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController.request_stop",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 324,
+            "start_line": 319
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "reset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController.reset",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 342,
+            "start_line": 340
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_reset_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController._reset_locked",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 367,
+            "start_line": 358
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_require_episode_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController._require_episode_locked",
+          "return_annotation": "_RecoveryEpisode",
+          "signature": "(self) -> _RecoveryEpisode",
+          "source_location": {
+            "column": 4,
+            "end_line": 389,
+            "start_line": 386
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_accept_time_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_monotonic"
+            }
+          ],
+          "qualified_name": "RecoveryController._accept_time_locked",
+          "return_annotation": "None",
+          "signature": "(self, now_monotonic: float) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 413,
+            "start_line": 408
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_refuse_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_generation"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target_lost"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._refuse_locked",
+          "return_annotation": "RecoveryPlan | None",
+          "signature": "(self, action_generation: int, stop_requested: bool, target_lost: bool, snapshot_id: str) -> RecoveryPlan | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 474,
+            "start_line": 437
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_latch_external_stop_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._latch_external_stop_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, snapshot_id: str | None) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 496,
+            "start_line": 490
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_enter_scene_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scene_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._enter_scene_locked",
+          "return_annotation": "None",
+          "signature": "(self, scene_id: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 517,
+            "start_line": 512
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_advance_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._advance_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, now_monotonic: float, snapshot_id: str) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 560,
+            "start_line": 536
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_issue_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAction",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._issue_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 590,
+            "start_line": 578
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_resolve_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._resolve_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, snapshot_id: str) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 618,
+            "start_line": 606
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_fail_episode_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._fail_episode_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 654,
+            "start_line": 636
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_stop_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "event_ref"
+            }
+          ],
+          "qualified_name": "RecoveryController._stop_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None, detail: str | None, *, event_ref: str | None = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 690,
+            "start_line": 673
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_plan_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAction",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "attempt"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "event_ref"
+            }
+          ],
+          "qualified_name": "RecoveryController._plan_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str | None, *, attempt: int = …, stop_reason: str | None = …, event_ref: str | None = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 747,
+            "start_line": 712
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_snapshot",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "_require_snapshot",
+          "return_annotation": "None",
+          "signature": "(snapshot_id: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 769,
+            "start_line": 767
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.recovery_models",
+      "path": "src/ai_game_player/recovery_models.py",
+      "source_location": {
+        "end_line": 337,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryAction",
+          "parameters": [],
+          "qualified_name": "RecoveryAction",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 26,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryState",
+          "parameters": [],
+          "qualified_name": "RecoveryState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryReason",
+          "parameters": [],
+          "qualified_name": "RecoveryReason",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 79,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryAttemptStatus",
+          "parameters": [],
+          "qualified_name": "RecoveryAttemptStatus",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 95,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryPolicy",
+          "parameters": [],
+          "qualified_name": "RecoveryPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryBudget",
+          "parameters": [],
+          "qualified_name": "RecoveryBudget",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 170,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryPlan",
+          "parameters": [],
+          "qualified_name": "RecoveryPlan",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "correlation_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryPlan.correlation_id",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 224,
+            "start_line": 223
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryPlan.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 258,
+            "start_line": 240
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryAttemptResult",
+          "parameters": [],
+          "qualified_name": "RecoveryAttemptResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 337,
+            "start_line": 278
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryAttemptResult.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 312,
+            "start_line": 304
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryAttemptResult.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 337,
+            "start_line": 328
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.recovery_controller",
+        "ai_game_player.recovery_models",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "Protocol"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_controller"
+          ],
+          "module": "ai_game_player.recovery_controller",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_models"
+          ],
+          "module": "ai_game_player.recovery_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryAction"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptResult"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPlan"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryReason"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.recovery_session_adapter",
+      "path": "src/ai_game_player/recovery_session_adapter.py",
+      "source_location": {
+        "end_line": 298,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryJournal",
+          "parameters": [],
+          "qualified_name": "RecoveryJournal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 52,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_type"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "status"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "correlation_id"
+            },
+            {
+              "annotation": "Mapping[str, Any] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "RecoveryJournal.append",
+          "return_annotation": "object",
+          "signature": "(self, event_type: str, *, status: str | None = …, snapshot_id: str | None = …, correlation_id: str | None = …, payload: Mapping[str, Any] | None = …) -> object",
+          "source_location": {
+            "column": 4,
+            "end_line": 52,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoverySessionAdapter",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapter",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 298,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryController",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "controller"
+            },
+            {
+              "annotation": "RecoveryJournal",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "journal"
+            },
+            {
+              "annotation": "Callable[[str], None]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "request_stop"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.__init__",
+          "return_annotation": "None",
+          "signature": "(self, controller: RecoveryController, journal: RecoveryJournal, request_stop: Callable[[str], None]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "handle_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "action_generation"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "target_lost"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.handle_event",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, event: SelfCheckEvent, *, snapshot_id: str, action_generation: int, now_monotonic: float, stop_requested: bool, target_lost: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "handle_result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAttemptResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "correlation_id"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.handle_result",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, result: RecoveryAttemptResult, *, correlation_id: str, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "handle_poll",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.handle_poll",
+          "return_annotation": "RecoveryPlan | None",
+          "signature": "(self, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 204,
+            "start_line": 198
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_commit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPlan",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._commit",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, plan: RecoveryPlan, stop_requested: bool) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 222
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._fail_closed",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, snapshot_id: str | None, stop_requested: bool) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 244
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_try_record_plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPlan",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._try_record_plan",
+          "return_annotation": "bool",
+          "signature": "(self, plan: RecoveryPlan) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 279,
+            "start_line": 268
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_dispatch_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPlan",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._dispatch_stop",
+          "return_annotation": "None",
+          "signature": "(self, plan: RecoveryPlan, stop_requested: bool) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 298,
+            "start_line": 296
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -151912,6 +153655,1167 @@
             "column": 4,
             "end_line": 77,
             "start_line": 71
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.event_journal",
+        "ai_game_player.game_session",
+        "ai_game_player.recovery_controller",
+        "ai_game_player.recovery_models",
+        "ai_game_player.recovery_session_adapter",
+        "ai_game_player.run_control",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_session"
+          ],
+          "module": "ai_game_player.game_session",
+          "names": [
+            {
+              "alias": null,
+              "name": "GameSessionController"
+            },
+            {
+              "alias": null,
+              "name": "SessionStatus"
+            },
+            {
+              "alias": null,
+              "name": "SessionStep"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_controller"
+          ],
+          "module": "ai_game_player.recovery_controller",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_models"
+          ],
+          "module": "ai_game_player.recovery_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryAction"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptResult"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptStatus"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPolicy"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryReason"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_session_adapter"
+          ],
+          "module": "ai_game_player.recovery_session_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoverySessionAdapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckCategory"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSeverity"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_recovery_controller",
+      "path": "tests/test_recovery_controller.py",
+      "source_location": {
+        "end_line": 574,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_event",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "step"
+            },
+            {
+              "annotation": "SelfCheckSeverity",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "severity"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "scene"
+            },
+            {
+              "annotation": "SelfCheckCategory",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "category"
+            }
+          ],
+          "qualified_name": "make_event",
+          "return_annotation": "SelfCheckEvent",
+          "signature": "(step: int, *, severity: SelfCheckSeverity = …, scene: str = …, category: SelfCheckCategory = …) -> SelfCheckEvent",
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 30
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "result_for",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            }
+          ],
+          "qualified_name": "result_for",
+          "return_annotation": null,
+          "signature": "(plan, snapshot_id: str, status = …, detail: str = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryControllerTest",
+          "parameters": [],
+          "qualified_name": "RecoveryControllerTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 428,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "event_plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "step"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "snapshot"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "now"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "generation"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "stop"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "event_options"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.event_plan",
+          "return_annotation": null,
+          "signature": "(self, step, snapshot = …, now = …, generation = …, stop = …, **event_options)",
+          "source_location": {
+            "column": 4,
+            "end_line": 67,
+            "start_line": 52
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_warning_reobserves_then_redecides_on_new_frame_and_resolves",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_warning_reobserves_then_redecides_on_new_frame_and_resolves",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_two_stale_reobserves_abstain_then_repeated_scene_failure_requests_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_two_stale_reobserves_abstain_then_repeated_scene_failure_requests_stop",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_critical_requests_stop_and_stays_latched_until_rearm",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_critical_requests_stop_and_stays_latched_until_rearm",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ack_from_unissued_generation_does_not_clear_stop_latch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_ack_from_unissued_generation_does_not_clear_stop_latch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_stop_is_never_replaced_and_blocks_recovery_until_rearm",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_existing_stop_is_never_replaced_and_blocks_recovery_until_rearm",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_scene_change_resets_failures_and_cooldown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_scene_change_resets_failures_and_cooldown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 186,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_redecide_is_not_repeated_on_the_same_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_redecide_is_not_repeated_on_the_same_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 207,
+            "start_line": 188
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_resolved_without_new_frame_is_not_counted_as_recovered",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_resolved_without_new_frame_is_not_counted_as_recovered",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 209
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_event_and_pending_plan_do_not_progress",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_duplicate_event_and_pending_plan_do_not_progress",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 227,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_older_step_is_refused_after_leaving_the_duplicate_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_older_step_is_refused_after_leaving_the_duplicate_window",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_redecide_resolution_on_its_own_input_frame_is_not_trusted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_redecide_resolution_on_its_own_input_frame_is_not_trusted",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 261,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_deadline_boundary_is_exclusive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_deadline_boundary_is_exclusive",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 273,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hung_worker_is_cut_off_by_poll_and_late_ack_is_ignored",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_hung_worker_is_cut_off_by_poll_and_late_ack_is_ignored",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_new_event_after_deadline_with_pending_plan_fails_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_new_event_after_deadline_with_pending_plan_fails_episode",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 286,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_no_legal_candidate_failure_stays_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_no_legal_candidate_failure_stays_bounded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 303,
+            "start_line": 288
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_epoch_target_loss_and_unexpected_ack_are_refused",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_stale_epoch_target_loss_and_unexpected_ack_are_refused",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 331,
+            "start_line": 305
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_inputs_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_invalid_inputs_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 356,
+            "start_line": 333
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_zero_budget_policy_fails_immediately_without_attempts",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_zero_budget_policy_fails_immediately_without_attempts",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 372,
+            "start_line": 358
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_random_sequences_stay_bounded_and_never_act_after_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_random_sequences_stay_bounded_and_never_act_after_stop",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 428,
+            "start_line": 374
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoverySessionAdapterTest",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapterTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 570,
+            "start_line": 431
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeJournal",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapterTest.FakeJournal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 4,
+            "end_line": 442,
+            "start_line": 432
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "fail_on"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.FakeJournal.__init__",
+          "return_annotation": "None",
+          "signature": "(self, fail_on: int | None = …) -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 436,
+            "start_line": 433
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_type"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "fields"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.FakeJournal.append",
+          "return_annotation": null,
+          "signature": "(self, event_type, **fields)",
+          "source_location": {
+            "column": 8,
+            "end_line": 442,
+            "start_line": 438
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_plans_and_attempts_are_journaled_with_correlation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_plans_and_attempts_are_journaled_with_correlation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 467,
+            "start_line": 444
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_journal_failure_fails_closed_with_stop_request",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_journal_failure_fails_closed_with_stop_request",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 484,
+            "start_line": 469
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_attempt_journal_failure_fails_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_attempt_journal_failure_fails_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 503,
+            "start_line": 486
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_stop_is_not_requested_again",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_existing_stop_is_not_requested_again",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 517,
+            "start_line": 505
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hung_attempt_poll_requests_stop_after_repeated_scene_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_hung_attempt_poll_requests_stop_after_repeated_scene_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 537,
+            "start_line": 519
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_request_stop_reaches_game_session_and_no_step_runs_afterwards",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 570,
+            "start_line": 539
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "step_handler",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "command"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards.step_handler",
+          "return_annotation": null,
+          "signature": "(runtime, command)",
+          "source_location": {
+            "column": 8,
+            "end_line": 544,
+            "start_line": 542
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Runtime",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards.Runtime",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 548,
+            "start_line": 546
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards.Runtime.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 548,
+            "start_line": 547
           }
         }
       ]
