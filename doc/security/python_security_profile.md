@@ -13,7 +13,7 @@
 
 ## Banditの判定規則
 
-- 走査対象は`src`と`tools`です。`scan_paths`は空にできず、絶対pathや`..`を含むpathは拒否します。`tests`はfixtureやテスト用の危険な入力を含むため対象外です。
+- 走査対象は`src`と`tools`です。`scan_paths`は空にできず、絶対path、`..`を含むpath、Banditのoptionと解釈される`-`始まりのpathは拒否します。Bandit起動は固定argvでshellを使わないため、Sourcery/opengrepの`dangerous-subprocess-use-audit`はその行だけ`nosemgrep`で理由付きに抑止しています。`tests`はfixtureやテスト用の危険な入力を含むため対象外です。
 - severityとconfidenceがともにMEDIUM以上の指摘はblockingです。変数を含むcommandをshellで実行するsubprocessの`shell=True`や`os.system`、pickle等の危険なdeserialize、`yaml.load`、`tempfile.mktemp`、`eval`/`exec`、TLS検証の無効化、tarfileの無検査展開、弱いhashなどが該当します。
 - 重点監視module（Provider、動的importするPlanning worker、worker起動、Native読込、file/network境界）では、LOWの指定rule（B105〜B107の秘密値の直書き、B110/B112の例外の握りつぶし、B603/B607のsubprocess起動）もblockingにします。confidenceの下限（MEDIUM）は重点moduleでも変えません。対象のpathは`sensitive_modules.paths`で宣言します。
 - 上記以外のLOW指摘は判定結果のJSONへ記録するだけで、CIを失敗させません。

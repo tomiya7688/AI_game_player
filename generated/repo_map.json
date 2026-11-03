@@ -146223,7 +146223,7 @@
       "module": "tests.test_python_security_check",
       "path": "tests/test_python_security_check.py",
       "source_location": {
-        "end_line": 451,
+        "end_line": 458,
         "start_line": 1
       },
       "symbols": [
@@ -146367,7 +146367,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 411,
+            "end_line": 418,
             "start_line": 87
           }
         },
@@ -146839,7 +146839,7 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 297,
+            "end_line": 304,
             "start_line": 267
           }
         },
@@ -146862,8 +146862,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 328,
-            "start_line": 299
+            "end_line": 335,
+            "start_line": 306
           }
         },
         {
@@ -146885,8 +146885,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 344,
-            "start_line": 330
+            "end_line": 351,
+            "start_line": 337
           }
         },
         {
@@ -146908,8 +146908,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 376,
-            "start_line": 346
+            "end_line": 383,
+            "start_line": 353
           }
         },
         {
@@ -146931,8 +146931,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 400,
-            "start_line": 378
+            "end_line": 407,
+            "start_line": 385
           }
         },
         {
@@ -146954,8 +146954,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 411,
-            "start_line": 402
+            "end_line": 418,
+            "start_line": 409
           }
         },
         {
@@ -146976,8 +146976,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 447,
-            "start_line": 414
+            "end_line": 454,
+            "start_line": 421
           }
         },
         {
@@ -146999,8 +146999,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 428,
-            "start_line": 415
+            "end_line": 435,
+            "start_line": 422
           }
         },
         {
@@ -147022,8 +147022,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 447,
-            "start_line": 430
+            "end_line": 454,
+            "start_line": 437
           }
         }
       ]
@@ -192561,7 +192561,7 @@
       "module": "tools.python_security_check",
       "path": "tools/python_security_check.py",
       "source_location": {
-        "end_line": 576,
+        "end_line": 580,
         "start_line": 1
       },
       "symbols": [
@@ -192870,7 +192870,7 @@
           "signature": "(mapping: dict[str, Any]) -> tuple[str, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 149,
+            "end_line": 151,
             "start_line": 140
           }
         },
@@ -192905,8 +192905,8 @@
           "signature": "(mapping: dict[str, Any], key: str, context: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 156,
-            "start_line": 152
+            "end_line": 158,
+            "start_line": 154
           }
         },
         {
@@ -192946,8 +192946,8 @@
           "signature": "(raw: Any, index: int, today: date, max_days: int) -> Suppression",
           "source_location": {
             "column": 0,
-            "end_line": 195,
-            "start_line": 159
+            "end_line": 197,
+            "start_line": 161
           }
         },
         {
@@ -192975,8 +192975,8 @@
           "signature": "(raw: Any, today: date) -> SecurityProfile",
           "source_location": {
             "column": 0,
-            "end_line": 235,
-            "start_line": 198
+            "end_line": 237,
+            "start_line": 200
           }
         },
         {
@@ -193004,8 +193004,8 @@
           "signature": "(path: Path, today: date) -> SecurityProfile",
           "source_location": {
             "column": 0,
-            "end_line": 243,
-            "start_line": 238
+            "end_line": 245,
+            "start_line": 240
           }
         },
         {
@@ -193033,8 +193033,8 @@
           "signature": "(filename: str, root: Path) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 254,
-            "start_line": 246
+            "end_line": 256,
+            "start_line": 248
           }
         },
         {
@@ -193062,8 +193062,8 @@
           "signature": "(path: str, profile: SecurityProfile) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 262,
-            "start_line": 257
+            "end_line": 264,
+            "start_line": 259
           }
         },
         {
@@ -193097,8 +193097,8 @@
           "signature": "(root: Path, path: str, line_range: list[int]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 272,
-            "start_line": 265
+            "end_line": 274,
+            "start_line": 267
           }
         },
         {
@@ -193138,8 +193138,8 @@
           "signature": "(profile: SecurityProfile, tool: str, today: date, report: EvaluationReport) -> list[Suppression]",
           "source_location": {
             "column": 0,
-            "end_line": 294,
-            "start_line": 275
+            "end_line": 296,
+            "start_line": 277
           }
         },
         {
@@ -193173,8 +193173,8 @@
           "signature": "(suppression: Suppression, used: dict[Suppression, int], finding: Finding) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 305,
-            "start_line": 297
+            "end_line": 307,
+            "start_line": 299
           }
         },
         {
@@ -193208,8 +193208,8 @@
           "signature": "(active: list[Suppression], used: dict[Suppression, int], report: EvaluationReport) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 322,
-            "start_line": 308
+            "end_line": 324,
+            "start_line": 310
           }
         },
         {
@@ -193249,8 +193249,8 @@
           "signature": "(raw: Any, profile: SecurityProfile, root: Path, today: date) -> EvaluationReport",
           "source_location": {
             "column": 0,
-            "end_line": 411,
-            "start_line": 325
+            "end_line": 413,
+            "start_line": 327
           }
         },
         {
@@ -193284,8 +193284,8 @@
           "signature": "(raw: Any, profile: SecurityProfile, today: date) -> EvaluationReport",
           "source_location": {
             "column": 0,
-            "end_line": 458,
-            "start_line": 414
+            "end_line": 460,
+            "start_line": 416
           }
         },
         {
@@ -193313,8 +193313,8 @@
           "signature": "(profile: SecurityProfile, root: Path) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 489,
-            "start_line": 461
+            "end_line": 493,
+            "start_line": 463
           }
         },
         {
@@ -193342,8 +193342,8 @@
           "signature": "(path: Path, label: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 496,
-            "start_line": 492
+            "end_line": 500,
+            "start_line": 496
           }
         },
         {
@@ -193365,8 +193365,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 572,
-            "start_line": 499
+            "end_line": 576,
+            "start_line": 503
           }
         }
       ]

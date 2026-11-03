@@ -290,6 +290,13 @@ class PythonSecurityProfileTests(unittest.TestCase):
                     "min_confidence": "MEDIUM",
                 }
             ),
+            _profile(
+                bandit={
+                    "scan_paths": ["--exit-zero"],
+                    "min_severity": "MEDIUM",
+                    "min_confidence": "MEDIUM",
+                }
+            ),
             _profile(max_suppression_days=367),
             _profile(max_suppression_days=0),
         ):

@@ -144,6 +144,8 @@ def _scan_paths(mapping: dict[str, Any]) -> tuple[str, ...]:
             PurePosixPath(path).is_absolute()
             or ":" in path
             or ".." in PurePosixPath(path).parts
+            # Bandit receives these as argv; a leading "-" would be parsed as an option.
+            or path.startswith("-")
         ):
             raise ProfileError("bandit.scan_paths must be repository-relative paths")
     return paths
@@ -483,7 +485,9 @@ def run_bandit(profile: SecurityProfile, root: Path) -> Any:
             *profile.scan_paths,
         ]
         # Fixed argv without a shell; Bandit is the pinned module from the security requirements.
-        completed = subprocess.run(command, cwd=root, check=False)
+        completed = subprocess.run(  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit
+            command, cwd=root, check=False
+        )
         if completed.returncode != 0 or not output.exists():
             raise ProfileError(f"Bandit failed with exit code {completed.returncode}")
         return json.loads(output.read_text(encoding="utf-8"))
