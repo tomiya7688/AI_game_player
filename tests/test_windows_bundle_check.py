@@ -300,7 +300,7 @@ class MinimalEnvironmentTest(unittest.TestCase):
             (
                 {**good, "checks": good["checks"][:-1]},
                 0,
-                "missing required checks: ['ssl']",
+                "missing required checks: ['trust']",
             ),
             ({**good, "checks": ["x"]}, 0, "item 0 is malformed"),
             (
