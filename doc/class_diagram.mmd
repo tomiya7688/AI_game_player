@@ -890,6 +890,47 @@ classDiagram
         +append()
         +prepare_append()
     }
+    class HookExecutionRecord {
+        +to_dict()
+    }
+    class HookDispatchResult {
+        +to_dict()
+    }
+    str <|-- HookMode
+    Enum <|-- HookMode
+    class HookMode {
+    }
+    str <|-- HookFailurePolicy
+    Enum <|-- HookFailurePolicy
+    class HookFailurePolicy {
+    }
+    class HookRegistration {
+        +__post_init__()
+        +order_key()
+    }
+    ValueError <|-- _HookContractViolation
+    class _HookContractViolation {
+    }
+    class _HookState {
+    }
+    class _InvocationOutcome {
+    }
+    class HookRuntime {
+        +__init__()
+        +declare_point()
+        +register()
+        +unregister()
+        +has_hooks()
+        +has_halting_hooks()
+        +dispatch()
+        +_hooks_at()
+        +_ordered()
+        +_run_one()
+        +_invoke()
+        +_accept_outputs()
+        +_revalidate()
+        +_check_provenance()
+    }
     class StagedJournalAppend {
         +__init__()
         +publish()
@@ -1276,6 +1317,11 @@ classDiagram
         +to_assessment()
         +to_evaluation_signals()
         +to_dict()
+    }
+    class PerceptionHookBoundary {
+        +__init__()
+        +run()
+        +_build_envelope()
     }
     class PerceptualHasher {
         +hash()
