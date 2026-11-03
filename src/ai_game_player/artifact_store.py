@@ -270,6 +270,32 @@ class FileSystemArtifactStore:
         _, metadata = self._load(reference)
         return metadata
 
+    # {
+    #   責務: [read_metadata: payloadを読まずに、指定digestの保存metadataだけを上限付きで検証して返す]
+    #   処理: [digest形式とobject配置を確認し、16KiB以内のmetadataを復元してpath上のdigestと照合する]
+    #   引数: [digest: 小文字SHA-256 hex]
+    #   戻り値: [ArtifactMetadata: retentionの容量計算などに使う検証済みmetadata]
+    #   エラー: [ValueError: digest形式が不正, ArtifactIntegrityError: 欠落・破損・digest不一致, OSError: 読込失敗]
+    # }
+    def read_metadata(self, digest: str) -> ArtifactMetadata:
+        object_path = self._object_path(digest)
+        if not object_path.is_dir() or object_path.is_symlink():
+            raise ArtifactIntegrityError(f"artifact not found: {digest}")
+        metadata = self._read_metadata(digest, max_bytes=MAX_BOUNDED_METADATA_BYTES)
+        if metadata.sha256 != digest:
+            raise ArtifactIntegrityError("metadata digest does not match object path")
+        return metadata
+
+    # {
+    #   責務: [object_path: digestに対応するobject directoryの位置を、保存配置の正本として返す]
+    #   処理: [digest形式を検査し、root/先頭2文字/digest の配置を組み立てる。存在確認はしない]
+    #   引数: [digest: 小文字SHA-256 hex]
+    #   戻り値: [Path: root配下のobject directory]
+    #   エラー: [ValueError: digest形式が不正]
+    # }
+    def object_path(self, digest: str) -> Path:
+        return self._object_path(digest)
+
     def find_orphans(self, references: Iterable[ArtifactReference]) -> tuple[str, ...]:
         referenced = {item.sha256 for item in references}
         return tuple(
