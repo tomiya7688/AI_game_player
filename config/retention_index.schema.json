@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:retention-index:1",
+  "title": "AI Game Player Retention Index",
+  "description": "Language-neutral retention index stored at <artifact root>/retention-index.json (Issue #164). Times are UNIX epoch milliseconds (UTC). entry_id must be unique and entries sharing artifact_sha256 must share size_bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "entries": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entry_id", "artifact_sha256", "size_bytes", "artifact_type", "created_at_ms", "expires_at_ms", "protected"],
+        "properties": {
+          "entry_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{0,127}$"},
+          "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "artifact_type": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$"},
+          "created_at_ms": {"type": "integer", "minimum": 0},
+          "expires_at_ms": {"type": ["integer", "null"], "minimum": 0},
+          "protected": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}

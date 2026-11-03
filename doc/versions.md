@@ -1,3 +1,9 @@
+## 2026-11-04 Experience Retention Core（Issue #164）
+
+- Artifact Store上の保持記録索引と`RetentionCollector`を追加。soft budget/hard limit、Protected（どの理由でも削除しない）、型別TTL、同一digestのexact dedupを、決定的な純粋関数`plan_retention`で判断します。削除順序は重複→TTL→古い順のbudget退避です。[設計](architecture/retention_core.md)。
+- 外部参照中のArtifactはTTL・budgetでも削除せず、索引を先に原子的置換してからobjectを削除します。削除先はroot内の正規配置かつsymlinkなしの場合だけで、索引・metadataの破損やsize不一致は何も変えずに停止します（fail-closed）。
+- 言語非依存の索引/policy契約`config/retention_index.schema.json`・`config/retention_policy.schema.json`（時刻は整数UNIXエポックms）を追加。Artifact Storeへ`read_metadata`/`object_path`を追加しました。runtime接続・orphan自動削除・プロセス間lockは未実装です。
+
 ## 2026-11-04 merge gateのpush証跡をPR head branchに限定（Issue #719）
 
 - `tools/pr_workflow_evidence.py`のpush Workflow Runを、head SHA・pathに加えて`head_branch`がPRのhead branch名と一致するrunだけから選ぶよう変更。同じcommitへのtag push・別branch pushで成功したrunが、PR branchのpush失敗を隠さないようにしました。一致runが無いpathは従来どおり欠落として停止します（fail-closed）。
