@@ -17,6 +17,7 @@
 | 操作中の軽量知識更新・Mode・証拠の条件 | [Light Adaptationの本番接続と限界](light_adaptation.md)・[Mode/Phase契約](runtime_modes.md) |
 | 汎用6軸の値・欠損・候補予測と実操作の区別 | [Runtime Evaluation](runtime_evaluation.md) |
 | Hook・MODへ渡すstage間データの版付き契約 | [StageEnvelope v1](stage_envelope.md) |
+| stage境界でHookを実行する順序・予算・失敗時方針 | [Processing Hook Runtime](hook_runtime.md) |
 
 **統合確認：** 2026-11-01、feature `77a8995e92c59c2fe3610840dfbe7438297ba44e` とmainの資料7件を照合しました。初版の確認基準と現在の接続状態を区別し、実ゲームの効果は証拠がある範囲だけ記します。 初版は2026-10-31のmain `4d8ae6f`を基準にしました。モデル稼働・Windows操作・プレイ改善は資料作成や図の存在だけでは確認できません。
 
