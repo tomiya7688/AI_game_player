@@ -90,7 +90,7 @@ class WorkflowRunGateTests(unittest.TestCase):
         run.update(id=9000, created_at="2026-10-18T02:00:00Z", status=status, conclusion=conclusion)
         self.runs["push"].append(run)
 
-    def test_all_fourteen_required_pairs_pass(self):
+    def test_all_sixteen_required_pairs_pass(self):
         self.verify()
         self.assertEqual(2, len(self.requests))
 
@@ -189,7 +189,7 @@ class WorkflowRunGateTests(unittest.TestCase):
 
     def test_count_change_between_pages_stops(self):
         self.add_pagination_runs()
-        self.pages["push", 2] = {"total_count": 104, "workflow_runs": self.runs["push"][100:]}
+        self.pages["push", 2] = {"total_count": len(self.runs["push"]) + 1, "workflow_runs": self.runs["push"][100:]}
         with self.assertRaisesRegex(WorkflowEvidenceError, "count changed"):
             self.verify()
 

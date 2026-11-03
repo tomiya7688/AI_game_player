@@ -91,5 +91,5 @@ PR #136はIssue #56の配置宣言・整合性検査・境界コスト記録を�
 
 - Native bufferのownership・release・lifetimeと実データのFFIコピー回数はIssue #233で検証します。Pythonのmemoryview生成時間を代用しません。
 - Native側の入力・停止・lease・watchdogは、Issue #56が委譲した入力・fail-safe側の要求として残ります。
-- 一般利用者がPython・pip・CMake・MSVCなどを導入せず起動する配布物はIssue #149で扱います。CI runnerの起動検査だけで、clean Windowsの受入れを完了扱いにしません。
+- 一般利用者がPython・pip・CMake・MSVCなどを導入せず起動する配布物はIssue #149で扱います。CI runnerの起動検査だけで、clean Windowsの受入れを完了扱いにしません。bundleの配置・DLL依存・移動後起動の検査と未確認範囲は[Windows配布bundle説明書](../Windows配布bundle説明書.md)に記録します。
 - 外部モデルやGPUドライバーを必須にする変更は、不足条件と利用者の対処を示す起動前検査も同時に実装してください。任意のモデルやRemote ProviderをCoreの起動条件へ加えません。

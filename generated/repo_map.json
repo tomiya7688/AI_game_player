@@ -16,6 +16,7 @@
       "dependencies": [
         "ai_game_player",
         "ai_game_player.app",
+        "ai_game_player.bundle_self_check",
         "ai_game_player.fail_safe_runtime",
         "ai_game_player.planning_worker"
       ],
@@ -97,6 +98,22 @@
           "line": 37,
           "local_dependencies": [
             "ai_game_player",
+            "ai_game_player.bundle_self_check"
+          ],
+          "module": "ai_game_player.bundle_self_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "run_bundle_self_check"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 53,
+          "local_dependencies": [
+            "ai_game_player",
             "ai_game_player.planning_worker"
           ],
           "module": "ai_game_player.planning_worker",
@@ -110,7 +127,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 45,
+          "line": 63,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.app"
@@ -127,7 +144,7 @@
       "module": "ai_game_player.__main__",
       "path": "src/ai_game_player/__main__.py",
       "source_location": {
-        "end_line": 52,
+        "end_line": 70,
         "start_line": 1
       },
       "symbols": [
@@ -168,6 +185,22 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
+          "name": "_bundle_self_check",
+          "parameters": [],
+          "qualified_name": "_bundle_self_check",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 43,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
           "name": "main",
           "parameters": [],
           "qualified_name": "main",
@@ -175,8 +208,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 48,
-            "start_line": 35
+            "end_line": 66,
+            "start_line": 51
           }
         }
       ]
@@ -11976,6 +12009,534 @@
             "column": 4,
             "end_line": 97,
             "start_line": 91
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.native",
+        "ai_game_player.safety_guard"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            },
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 63,
+          "local_dependencies": [
+            "ai_game_player"
+          ],
+          "module": "ai_game_player",
+          "names": [
+            {
+              "alias": null,
+              "name": "ai_game_player"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 88,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.native"
+          ],
+          "module": "ai_game_player.runtime.native",
+          "names": [
+            {
+              "alias": null,
+              "name": "NativeLoadStatus"
+            },
+            {
+              "alias": null,
+              "name": "discover_native_runtime"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 119,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.safety_guard"
+          ],
+          "module": "ai_game_player.safety_guard",
+          "names": [
+            {
+              "alias": null,
+              "name": "NativeSafetyValidator"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 145,
+          "local_dependencies": [
+            "ai_game_player"
+          ],
+          "module": "ai_game_player",
+          "names": [
+            {
+              "alias": null,
+              "name": "ai_game_player"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 176,
+          "local_dependencies": [],
+          "module": "_tkinter",
+          "names": [
+            {
+              "alias": null,
+              "name": "_tkinter"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 177,
+          "local_dependencies": [],
+          "module": "tkinter",
+          "names": [
+            {
+              "alias": "tk",
+              "name": "tkinter"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 197,
+          "local_dependencies": [],
+          "module": "_ssl",
+          "names": [
+            {
+              "alias": null,
+              "name": "_ssl"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 198,
+          "local_dependencies": [],
+          "module": "ssl",
+          "names": [
+            {
+              "alias": null,
+              "name": "ssl"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.bundle_self_check",
+      "path": "src/ai_game_player/bundle_self_check.py",
+      "source_location": {
+        "end_line": 260,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "BundleCheckResult",
+          "parameters": [],
+          "qualified_name": "BundleCheckResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 27,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_is_inside",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_is_inside",
+          "return_annotation": "bool",
+          "signature": "(path: Path, bundle_root: Path) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 40,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_frozen",
+          "parameters": [],
+          "qualified_name": "_check_frozen",
+          "return_annotation": "BundleCheckResult",
+          "signature": "() -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 53,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_import_paths",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_check_import_paths",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 78,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_native_runtime",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_check_native_runtime",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 108,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_native_safety",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_check_native_safety",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 135,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_assets",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_check_assets",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_extension_outside",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_extension_outside",
+          "return_annotation": "str | None",
+          "signature": "(module: object, bundle_root: Path) -> str | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 166,
+            "start_line": 162
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_tk",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_check_tk",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 187,
+            "start_line": 175
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_ssl",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "_check_ssl",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(bundle_root: Path) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 203,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_run_guarded",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "Callable[[], BundleCheckResult]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "check"
+            }
+          ],
+          "qualified_name": "_run_guarded",
+          "return_annotation": "BundleCheckResult",
+          "signature": "(name: str, check: Callable[[], BundleCheckResult]) -> BundleCheckResult",
+          "source_location": {
+            "column": 0,
+            "end_line": 218,
+            "start_line": 212
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "collect_bundle_checks",
+          "parameters": [
+            {
+              "annotation": "Path | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "bundle_root"
+            }
+          ],
+          "qualified_name": "collect_bundle_checks",
+          "return_annotation": "list[BundleCheckResult]",
+          "signature": "(bundle_root: Path | None = …) -> list[BundleCheckResult]",
+          "source_location": {
+            "column": 0,
+            "end_line": 238,
+            "start_line": 227
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_bundle_self_check",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report_path"
+            }
+          ],
+          "qualified_name": "run_bundle_self_check",
+          "return_annotation": "int",
+          "signature": "(report_path: Path) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 260,
+            "start_line": 248
           }
         }
       ]
@@ -91916,6 +92477,533 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.__main__",
+        "ai_game_player.bundle_self_check",
+        "ai_game_player.runtime",
+        "ai_game_player.runtime.native"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "MagicMock"
+            },
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.__main__"
+          ],
+          "module": "ai_game_player",
+          "names": [
+            {
+              "alias": "entry",
+              "name": "__main__"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.bundle_self_check"
+          ],
+          "module": "ai_game_player",
+          "names": [
+            {
+              "alias": "self_check",
+              "name": "bundle_self_check"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.runtime",
+            "ai_game_player.runtime.native"
+          ],
+          "module": "ai_game_player.runtime.native",
+          "names": [
+            {
+              "alias": null,
+              "name": "NativeLoadResult"
+            },
+            {
+              "alias": null,
+              "name": "NativeLoadStatus"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_bundle_self_check",
+      "path": "tests/test_bundle_self_check.py",
+      "source_location": {
+        "end_line": 212,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BundleSelfCheckTest",
+          "parameters": [],
+          "qualified_name": "BundleSelfCheckTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 208,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_development_interpreter_is_not_a_frozen_bundle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_development_interpreter_is_not_a_frozen_bundle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 23,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_frozen_requires_meipass",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_frozen_requires_meipass",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 30,
+            "start_line": 25
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_import_paths_outside_bundle_are_listed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_import_paths_outside_bundle_are_listed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 39,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_empty_sys_path_entry_is_the_working_directory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_empty_sys_path_entry_is_the_working_directory",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 49,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_extension_modules_must_come_from_the_bundle",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_extension_modules_must_come_from_the_bundle",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_package_outside_bundle_root_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_package_outside_bundle_root_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_runtime_must_be_available_next_to_the_executable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_native_runtime_must_be_available_next_to_the_executable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_safety_must_load_the_bundle_dll",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_native_safety_must_load_the_bundle_dll",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 109
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_assets_inside_the_source_tree_pass_when_the_tree_is_the_root",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_assets_inside_the_source_tree_pass_when_the_tree_is_the_root",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exception_becomes_a_failed_item",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_exception_becomes_a_failed_item",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "broken",
+          "parameters": [],
+          "qualified_name": "BundleSelfCheckTest.test_exception_becomes_a_failed_item.broken",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 8,
+            "end_line": 151,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_is_written_and_any_failure_returns_one",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_report_is_written_and_any_failure_returns_one",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_all_items_run_even_when_one_raises",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_all_items_run_even_when_one_raises",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 193,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_entrypoint_requires_a_report_path",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_entrypoint_requires_a_report_path",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_entrypoint_dispatches_to_the_self_check",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleSelfCheckTest.test_entrypoint_dispatches_to_the_self_check",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 208,
+            "start_line": 200
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.campaign_runner"
       ],
       "imports": [
@@ -111052,7 +112140,7 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
-          "name": "test_all_fourteen_required_pairs_pass",
+          "name": "test_all_sixteen_required_pairs_pass",
           "parameters": [
             {
               "annotation": null,
@@ -111061,7 +112149,7 @@
               "name": "self"
             }
           ],
-          "qualified_name": "WorkflowRunGateTests.test_all_fourteen_required_pairs_pass",
+          "qualified_name": "WorkflowRunGateTests.test_all_sixteen_required_pairs_pass",
           "return_annotation": null,
           "signature": "(self)",
           "source_location": {
@@ -146166,6 +147254,1105 @@
     {
       "dependencies": [
         "tools",
+        "tools.python_security_check"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "date"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "tools",
+            "tools.python_security_check"
+          ],
+          "module": "tools.python_security_check",
+          "names": [
+            {
+              "alias": null,
+              "name": "EXPIRED_SUPPRESSION"
+            },
+            {
+              "alias": null,
+              "name": "SCAN_ERROR"
+            },
+            {
+              "alias": null,
+              "name": "STALE_SUPPRESSION"
+            },
+            {
+              "alias": null,
+              "name": "ProfileError"
+            },
+            {
+              "alias": null,
+              "name": "evaluate_bandit"
+            },
+            {
+              "alias": null,
+              "name": "evaluate_pip_audit"
+            },
+            {
+              "alias": null,
+              "name": "load_profile"
+            },
+            {
+              "alias": null,
+              "name": "main"
+            },
+            {
+              "alias": null,
+              "name": "parse_profile"
+            },
+            {
+              "alias": null,
+              "name": "run_bandit"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_python_security_check",
+      "path": "tests/test_python_security_check.py",
+      "source_location": {
+        "end_line": 518,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_profile",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "_profile",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(**overrides: Any) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_suppression",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "_suppression",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(**overrides: Any) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_result",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rule"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "severity"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "confidence"
+            }
+          ],
+          "qualified_name": "_result",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(path: str, rule: str, severity: str, line: int = …, confidence: str = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 74,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bandit",
+          "parameters": [
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "results"
+            },
+            {
+              "annotation": "list[Any] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "errors"
+            }
+          ],
+          "qualified_name": "_bandit",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(results: list[dict[str, Any]], errors: list[Any] | None = …) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 84,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PythonSecurityProfileTests",
+          "parameters": [],
+          "qualified_name": "PythonSecurityProfileTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 478,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.tearDown",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_evaluate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[dict[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "results"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "profile_overrides"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests._evaluate",
+          "return_annotation": null,
+          "signature": "(self, results: list[dict[str, Any]], **profile_overrides: Any)",
+          "source_location": {
+            "column": 4,
+            "end_line": 108,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_threshold_finding_blocks_and_low_finding_is_advisory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_threshold_finding_blocks_and_low_finding_is_advisory",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_low_confidence_finding_does_not_block",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_low_confidence_finding_does_not_block",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 126,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sensitive_module_keeps_confidence_floor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_sensitive_module_keeps_confidence_floor",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 128
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_sensitive_module_blocks_listed_low_severity_rule",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_sensitive_module_blocks_listed_low_severity_rule",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_windows_style_bandit_path_is_normalized",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_windows_style_bandit_path_is_normalized",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_valid_suppression_requires_matching_rule_path_and_source_text",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_valid_suppression_requires_matching_rule_path_and_source_text",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_with_other_source_text_does_not_hide_finding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_with_other_source_text_does_not_hide_finding",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 170,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_expired_suppression_blocks_even_if_finding_matches",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_expired_suppression_blocks_even_if_finding_matches",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 172
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unused_suppression_is_reported_as_stale",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_unused_suppression_is_reported_as_stale",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bandit_scan_errors_block",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_bandit_scan_errors_block",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 199,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_covers_only_its_declared_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_covers_only_its_declared_count",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 201
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_level_and_outside_path_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_unknown_level_and_outside_path_fail_closed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 227,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_run_bandit_refuses_nested_bandit_config",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_run_bandit_refuses_nested_bandit_config",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 234,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_optional_lists_may_be_empty",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_optional_lists_may_be_empty",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 236
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_cannot_hide_unjudgeable_finding",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_cannot_hide_unjudgeable_finding",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 249,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bandit_suppression_target_must_be_repository_relative",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_bandit_suppression_target_must_be_repository_relative",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 254,
+            "start_line": 251
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_metrics_keys_must_name_real_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_metrics_keys_must_name_real_files",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 262,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_rejects_empty_and_malformed_reports",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_rejects_empty_and_malformed_reports",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 283,
+            "start_line": 264
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_suppression_uses_pep503_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_suppression_uses_pep503_names",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 301,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_without_scanned_files_blocks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_report_without_scanned_files_blocks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 308,
+            "start_line": 303
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_suppression_requires_reason_expiry_issue_and_bounded_lifetime",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_suppression_requires_reason_expiry_issue_and_bounded_lifetime",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 325,
+            "start_line": 310
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_profile_rejects_unknown_schema_and_thresholds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_profile_rejects_unknown_schema_and_thresholds",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 364,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_is_advisory_and_supports_alias_suppression",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_is_advisory_and_supports_alias_suppression",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 395,
+            "start_line": 366
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pip_audit_blocking_mode_blocks_unsuppressed_vulnerability",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_pip_audit_blocking_mode_blocks_unsuppressed_vulnerability",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 411,
+            "start_line": 397
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_writes_report_and_returns_failure_exit_code",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_writes_report_and_returns_failure_exit_code",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 443,
+            "start_line": 413
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_rejects_malformed_report_fields_with_exit_code_two",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_rejects_malformed_report_fields_with_exit_code_two",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 467,
+            "start_line": 445
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_reports_profile_errors_with_exit_code_two",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PythonSecurityProfileTests.test_cli_reports_profile_errors_with_exit_code_two",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 478,
+            "start_line": 469
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RepositorySecurityProfileTests",
+          "parameters": [],
+          "qualified_name": "RepositorySecurityProfileTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 514,
+            "start_line": 481
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_repository_profile_is_valid_and_suppressions_target_existing_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositorySecurityProfileTests.test_repository_profile_is_valid_and_suppressions_target_existing_files",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 495,
+            "start_line": 482
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_security_tools_are_pinned_and_wired_into_ci",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RepositorySecurityProfileTests.test_security_tools_are_pinned_and_wired_into_ci",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 514,
+            "start_line": 497
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
         "tools.recognition_evidence_validation"
       ],
       "imports": [
@@ -169675,6 +171862,877 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.windows_bundle_check"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "struct",
+          "names": [
+            {
+              "alias": null,
+              "name": "struct"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "tools",
+            "tools.windows_bundle_check"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "check",
+              "name": "windows_bundle_check"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_windows_bundle_check",
+      "path": "tests/test_windows_bundle_check.py",
+      "source_location": {
+        "end_line": 332,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "build_pe",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "imports"
+            },
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "delay_imports"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "machine"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "old_delay_format"
+            }
+          ],
+          "qualified_name": "build_pe",
+          "return_annotation": "bytes",
+          "signature": "(imports: list[str], delay_imports: list[str] | None = …, machine: int = …, old_delay_format: bool = …) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 75,
+            "start_line": 19
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PeImportReaderTest",
+          "parameters": [],
+          "qualified_name": "PeImportReaderTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 147,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 81,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.tearDown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 83
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "write",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.write",
+          "return_annotation": "Path",
+          "signature": "(self, name: str, data: bytes) -> Path",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_normal_and_delay_import_names_are_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.test_normal_and_delay_import_names_are_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 98,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_old_va_based_delay_descriptor_is_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.test_old_va_based_delay_descriptor_is_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_malformed_files_raise_value_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.test_malformed_files_raise_value_error",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 104
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_import_table_with_zero_size_is_still_read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.test_import_table_with_zero_size_is_still_read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 117
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_ascii_name_and_unterminated_table_raise_value_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.test_non_ascii_name_and_unterminated_table_raise_value_error",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 134,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_os_components_are_api_sets_and_listed_dlls_only",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PeImportReaderTest.test_os_components_are_api_sets_and_listed_dlls_only",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 147,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BundleLayoutTest",
+          "parameters": [],
+          "qualified_name": "BundleLayoutTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 253,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.tearDown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 169,
+            "start_line": 168
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "relative"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "imports"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "options"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.put",
+          "return_annotation": "None",
+          "signature": "(self, relative: str, imports: list[str], **options) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 171
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_self_contained_bundle_passes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_self_contained_bundle_passes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 177,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_vc_runtime_missing_from_bundle_fails_even_if_the_host_has_it",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_vc_runtime_missing_from_bundle_fails_even_if_the_host_has_it",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 179
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bundled_dependency_next_to_module_or_in_internal_resolves",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_bundled_dependency_next_to_module_or_in_internal_resolves",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 189,
+            "start_line": 186
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_dependency_only_in_an_unrelated_subdirectory_does_not_resolve",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_dependency_only_in_an_unrelated_subdirectory_does_not_resolve",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 195,
+            "start_line": 191
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_delay_load_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_unknown_delay_load_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 206,
+            "start_line": 197
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_native_dll_outside_the_root_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_native_dll_outside_the_root_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 208
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_python_runtime_and_assets_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_missing_python_runtime_and_assets_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 222,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_x64_module_and_unreadable_module_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_non_x64_module_and_unreadable_module_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 229,
+            "start_line": 224
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_amd64_machine_with_pe32_optional_header_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_amd64_machine_with_pe32_optional_header_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 236,
+            "start_line": 231
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_output_survives_a_cp1252_console",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_cli_output_survives_a_cp1252_console",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 238
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_reports_errors_and_exit_code",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_cli_reports_errors_and_exit_code",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 253,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MinimalEnvironmentTest",
+          "parameters": [],
+          "qualified_name": "MinimalEnvironmentTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 328,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_developer_variables_are_dropped_and_profile_dirs_are_fresh",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MinimalEnvironmentTest.test_developer_variables_are_dropped_and_profile_dirs_are_fresh",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 282,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_structure_and_identity_are_validated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MinimalEnvironmentTest.test_report_structure_and_identity_are_validated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 320,
+            "start_line": 284
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_launch_refuses_a_non_empty_workdir",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MinimalEnvironmentTest.test_launch_refuses_a_non_empty_workdir",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 328,
+            "start_line": 322
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.captured_source",
         "ai_game_player.screen_capture",
@@ -189348,7 +192406,7 @@
       "module": "tools.pr_workflow_evidence",
       "path": "tools/pr_workflow_evidence.py",
       "source_location": {
-        "end_line": 116,
+        "end_line": 117,
         "start_line": 1
       },
       "symbols": [
@@ -189370,8 +192428,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 17,
-            "start_line": 16
+            "end_line": 18,
+            "start_line": 17
           }
         },
         {
@@ -189390,8 +192448,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 116,
-            "start_line": 20
+            "end_line": 117,
+            "start_line": 21
           }
         },
         {
@@ -189437,8 +192495,8 @@
           "signature": "(self, repository: str, pr_number: int, head_sha: str, read_json: Callable[[str], object]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 27,
-            "start_line": 23
+            "end_line": 28,
+            "start_line": 24
           }
         },
         {
@@ -189460,8 +192518,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 51,
-            "start_line": 29
+            "end_line": 52,
+            "start_line": 30
           }
         },
         {
@@ -189489,8 +192547,8 @@
           "signature": "(self, event: str) -> list[dict]",
           "source_location": {
             "column": 4,
-            "end_line": 78,
-            "start_line": 53
+            "end_line": 79,
+            "start_line": 54
           }
         },
         {
@@ -189530,8 +192588,8 @@
           "signature": "(self, run: dict, event: str, seen_ids: set[int]) -> datetime",
           "source_location": {
             "column": 4,
-            "end_line": 116,
-            "start_line": 80
+            "end_line": 117,
+            "start_line": 81
           }
         }
       ]
@@ -192326,6 +195384,1033 @@
             "column": 0,
             "end_line": 221,
             "start_line": 115
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [],
+          "module": "fnmatch",
+          "names": [
+            {
+              "alias": null,
+              "name": "fnmatch"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "date"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            },
+            {
+              "alias": null,
+              "name": "PurePosixPath"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 25,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        }
+      ],
+      "module": "tools.python_security_check",
+      "path": "tools/python_security_check.py",
+      "source_location": {
+        "end_line": 622,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ProfileError",
+          "parameters": [],
+          "qualified_name": "ProfileError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "Suppression",
+          "parameters": [],
+          "qualified_name": "Suppression",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "label",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Suppression.label",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 60,
+            "start_line": 59
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "SecurityProfile",
+          "parameters": [],
+          "qualified_name": "SecurityProfile",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 72,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "Finding",
+          "parameters": [],
+          "qualified_name": "Finding",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 94,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "as_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Finding.as_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "EvaluationReport",
+          "parameters": [],
+          "qualified_name": "EvaluationReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 119,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "blocking",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationReport.blocking",
+          "return_annotation": "list[Finding]",
+          "signature": "(self) -> list[Finding]",
+          "source_location": {
+            "column": 4,
+            "end_line": 110,
+            "start_line": 105
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "as_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationReport.as_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 112
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            },
+            {
+              "annotation": "type",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kind"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "_require",
+          "return_annotation": "Any",
+          "signature": "(mapping: dict[str, Any], key: str, kind: type, context: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 126,
+            "start_line": 122
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_string_list",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "allow_empty"
+            }
+          ],
+          "qualified_name": "_string_list",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(mapping: dict[str, Any], key: str, context: str, *, allow_empty: bool = …) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 139,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_scan_paths",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            }
+          ],
+          "qualified_name": "_scan_paths",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(mapping: dict[str, Any]) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 142
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_level",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mapping"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "key"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "_level",
+          "return_annotation": "str",
+          "signature": "(mapping: dict[str, Any], key: str, context: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 160,
+            "start_line": 156
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_parse_suppression",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "index"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "max_days"
+            }
+          ],
+          "qualified_name": "_parse_suppression",
+          "return_annotation": "Suppression",
+          "signature": "(raw: Any, index: int, today: date, max_days: int) -> Suppression",
+          "source_location": {
+            "column": 0,
+            "end_line": 200,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "parse_profile",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "parse_profile",
+          "return_annotation": "SecurityProfile",
+          "signature": "(raw: Any, today: date) -> SecurityProfile",
+          "source_location": {
+            "column": 0,
+            "end_line": 240,
+            "start_line": 203
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_profile",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "load_profile",
+          "return_annotation": "SecurityProfile",
+          "signature": "(path: Path, today: date) -> SecurityProfile",
+          "source_location": {
+            "column": 0,
+            "end_line": 248,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_outside_root",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_outside_root",
+          "return_annotation": "bool",
+          "signature": "(path: str) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 253,
+            "start_line": 251
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_distribution_name",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_distribution_name",
+          "return_annotation": "str",
+          "signature": "(name: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_relative_path",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "filename"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "_relative_path",
+          "return_annotation": "str",
+          "signature": "(filename: str, root: Path) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 269,
+            "start_line": 261
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "is_sensitive",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            }
+          ],
+          "qualified_name": "is_sensitive",
+          "return_annotation": "bool",
+          "signature": "(path: str, profile: SecurityProfile) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 277,
+            "start_line": 272
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_source_lines",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "list[int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line_range"
+            }
+          ],
+          "qualified_name": "_source_lines",
+          "return_annotation": "str",
+          "signature": "(root: Path, path: str, line_range: list[int]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 287,
+            "start_line": 280
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_active_suppressions",
+          "parameters": [
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "tool"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            },
+            {
+              "annotation": "EvaluationReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_active_suppressions",
+          "return_annotation": "list[Suppression]",
+          "signature": "(profile: SecurityProfile, tool: str, today: date, report: EvaluationReport) -> list[Suppression]",
+          "source_location": {
+            "column": 0,
+            "end_line": 309,
+            "start_line": 290
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_claim",
+          "parameters": [
+            {
+              "annotation": "Suppression",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "suppression"
+            },
+            {
+              "annotation": "dict[Suppression, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "used"
+            },
+            {
+              "annotation": "Finding",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "finding"
+            }
+          ],
+          "qualified_name": "_claim",
+          "return_annotation": "bool",
+          "signature": "(suppression: Suppression, used: dict[Suppression, int], finding: Finding) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 320,
+            "start_line": 312
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_report_stale",
+          "parameters": [
+            {
+              "annotation": "list[Suppression]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "active"
+            },
+            {
+              "annotation": "dict[Suppression, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "used"
+            },
+            {
+              "annotation": "EvaluationReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_report_stale",
+          "return_annotation": "None",
+          "signature": "(active: list[Suppression], used: dict[Suppression, int], report: EvaluationReport) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 337,
+            "start_line": 323
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate_bandit",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "evaluate_bandit",
+          "return_annotation": "EvaluationReport",
+          "signature": "(raw: Any, profile: SecurityProfile, root: Path, today: date) -> EvaluationReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 431,
+            "start_line": 340
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate_pip_audit",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "raw"
+            },
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "date",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "today"
+            }
+          ],
+          "qualified_name": "evaluate_pip_audit",
+          "return_annotation": "EvaluationReport",
+          "signature": "(raw: Any, profile: SecurityProfile, today: date) -> EvaluationReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 497,
+            "start_line": 434
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_bandit",
+          "parameters": [
+            {
+              "annotation": "SecurityProfile",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "profile"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "run_bandit",
+          "return_annotation": "Any",
+          "signature": "(profile: SecurityProfile, root: Path) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 532,
+            "start_line": 500
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_json",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "_read_json",
+          "return_annotation": "Any",
+          "signature": "(path: Path, label: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 539,
+            "start_line": 535
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 618,
+            "start_line": 542
           }
         }
       ]
@@ -211390,6 +215475,736 @@
             "column": 0,
             "end_line": 1014,
             "start_line": 945
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 32,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 33,
+          "local_dependencies": [],
+          "module": "shutil",
+          "names": [
+            {
+              "alias": null,
+              "name": "shutil"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 34,
+          "local_dependencies": [],
+          "module": "struct",
+          "names": [
+            {
+              "alias": null,
+              "name": "struct"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 35,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 36,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 37,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 38,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.windows_bundle_check",
+      "path": "tools/windows_bundle_check.py",
+      "source_location": {
+        "end_line": 481,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PeImports",
+          "parameters": [],
+          "qualified_name": "PeImports",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 120,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "_PeImage",
+          "parameters": [],
+          "qualified_name": "_PeImage",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 216,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "data"
+            }
+          ],
+          "qualified_name": "_PeImage.__init__",
+          "return_annotation": "None",
+          "signature": "(self, data: bytes) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 160,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_u16",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "offset"
+            }
+          ],
+          "qualified_name": "_PeImage._u16",
+          "return_annotation": "int",
+          "signature": "(self, offset: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 163,
+            "start_line": 162
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_u32",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "offset"
+            }
+          ],
+          "qualified_name": "_PeImage._u32",
+          "return_annotation": "int",
+          "signature": "(self, offset: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "offset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rva"
+            }
+          ],
+          "qualified_name": "_PeImage.offset",
+          "return_annotation": "int",
+          "signature": "(self, rva: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 172,
+            "start_line": 168
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "name_at",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rva"
+            }
+          ],
+          "qualified_name": "_PeImage.name_at",
+          "return_annotation": "str",
+          "signature": "(self, rva: int) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 179,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "directory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "index"
+            }
+          ],
+          "qualified_name": "_PeImage.directory",
+          "return_annotation": "tuple[int, int]",
+          "signature": "(self, index: int) -> tuple[int, int]",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "imports",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "_PeImage.imports",
+          "return_annotation": "list[str]",
+          "signature": "(self) -> list[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "delay_imports",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "_PeImage.delay_imports",
+          "return_annotation": "list[str]",
+          "signature": "(self) -> list[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "read_pe_imports",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "read_pe_imports",
+          "return_annotation": "PeImports",
+          "signature": "(path: Path) -> PeImports",
+          "source_location": {
+            "column": 0,
+            "end_line": 234,
+            "start_line": 219
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "is_os_component",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "is_os_component",
+          "return_annotation": "bool",
+          "signature": "(name: str) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 240,
+            "start_line": 237
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_search_dirs",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle"
+            }
+          ],
+          "qualified_name": "_search_dirs",
+          "return_annotation": "list[Path]",
+          "signature": "(module: Path, bundle: Path) -> list[Path]",
+          "source_location": {
+            "column": 0,
+            "end_line": 247,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_names_in",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "directory"
+            },
+            {
+              "annotation": "dict[Path, set[str]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cache"
+            }
+          ],
+          "qualified_name": "_names_in",
+          "return_annotation": "set[str]",
+          "signature": "(directory: Path, cache: dict[Path, set[str]]) -> set[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 257,
+            "start_line": 250
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "check_layout",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle"
+            }
+          ],
+          "qualified_name": "check_layout",
+          "return_annotation": "list[str]",
+          "signature": "(bundle: Path) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 311,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "minimal_environment",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workdir"
+            }
+          ],
+          "qualified_name": "minimal_environment",
+          "return_annotation": "dict[str, str]",
+          "signature": "(workdir: Path) -> dict[str, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 341,
+            "start_line": 314
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_run",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "executable"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": "dict[str, str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "environment"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cwd"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "_run",
+          "return_annotation": "tuple[int | str, str]",
+          "signature": "(executable: Path, arguments: list[str], environment: dict[str, str], cwd: Path, timeout: float) -> tuple[int | str, str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 367,
+            "start_line": 344
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_failure",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            },
+            {
+              "annotation": "int | str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output"
+            }
+          ],
+          "qualified_name": "_failure",
+          "return_annotation": "str",
+          "signature": "(label: str, code: int | str, output: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 373,
+            "start_line": 370
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "report_errors",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": "int | str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "relocated"
+            }
+          ],
+          "qualified_name": "report_errors",
+          "return_annotation": "list[str]",
+          "signature": "(report: object, code: int | str, relocated: Path) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 401,
+            "start_line": 376
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "launch_relocated",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bundle"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "workdir"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "launch_relocated",
+          "return_annotation": "list[str]",
+          "signature": "(bundle: Path, workdir: Path, timeout: float = …) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 434,
+            "start_line": 404
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 477,
+            "start_line": 437
           }
         }
       ]

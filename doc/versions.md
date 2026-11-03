@@ -127,6 +127,16 @@ plugin_manifest_schema          1
 - Planner workerがcompute budget内でテストmodule本体（`unittest.mock`等を含む）をimportしていたため、toy domainを`tests/planning_toy_domains.py`へ分離。worker結果を期待するテストだけ予算上限を2500ms、テスト既定belief TTLを10秒とし、cutoff・遅延・停止系の予算と判定は維持します。
 - テスト内のSQLite読取接続を`contextlib.closing`で閉じ、Windowsで一時`events.db`の削除がWinError 32になる問題を解消。symlinkテストは`ERROR_PRIVILEGE_NOT_HELD`（1314）のときだけ理由付きでskipします。
 
+- Issue #149（一部）: `tools/windows_bundle_check.py layout`を追加し、`tools/build_windows_bundle.ps1`の最後に実行します。bundle内の全PE fileのimport表（遅延読込を含む）を読み、各DLLがbundle内にあるかWindowsの部品であることを、build機の`System32`を参照せずに判定します。VC++ runtimeはWindowsの部品として扱いません。
+- 従来のNative DLLは`MSVCP140.dll`を必要とし、PyInstallerはこのDLLを同梱していませんでした（VC++再頒布パッケージのないWindowsではNative Runtimeなしで起動する状態）。bundle用のNative buildだけMSVC runtimeを静的リンク（`/MT`）へ変更しました。buildの各段階の終了codeも検査します。
+- `Kadoka.exe --bundle-self-check <report>`を追加しました。凍結状態、`sys.path`とpackageがbundle内にあること、bundle直下のNative DLLの読込（通常の探索とSafety補助経路）、同梱資源、Tcl/Tk、OpenSSLを検査し、JSON reportと終了codeで返します。
+- `tools/windows_bundle_check.py launch`は、bundleを空白・日本語を含む別pathへ複製し、WindowsのdirectoryだけのPATH、`PYTHON*`/`KADOKA_*`なし、新しいprofile directory、リポジトリ外の作業directoryで自己検査と`--smoke-test`を実行します。CIの`windows-app-bundle` jobへ追加しました。
+- CI runnerにはVC++再頒布パッケージ等が導入済みのため、clean Windowsでの起動確認は未実施です。確認範囲と残りの作業は[Windows配布bundle説明書](Windows配布bundle説明書.md)に記録しました。
+- Issue #114: Python Security Profile。Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
+- `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
+- dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。
+- `python-security-ci`を必須workflow（8件）とrulesetの必須check（34件）へ追加し、`doc/main保護方針.md`とワークフロー文書の件数を実際の定義に合わせました。
+- ID生成用のSHA-1呼出しへ`usedforsecurity=False`を指定しました。生成されるIDの値は変わりません。[判定規則と未対応範囲](security/python_security_profile.md)。
 - Issue #514: #482の最低版（pip 26.2.2、certifi 2026.10.19、uv 0.13.4、sigstore 4.5.1）を`requirements/python-trust-constraints.txt`へ固定しました。`tools/trust_gate.py`は、pip・pip同梱certifiの最低版未満、CA bundleとWindowsのROOT・CAストアのインシデント対象証明書、確認できない信頼源を失敗にします。pip installを行うLinux・WindowsのCI job、テストゲームのbootstrap、Windows bundleのbuild scriptが、pipを使う前に検査します。配布物の中のCA bundleは#515へ残します。[固定版の検証](Python証明書信頼棚卸し.md#固定版の検証issue-514)。
 
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。 実機能親18eのplanning専用IPC・私有HTTPの有限queue・失敗後診断も互換実装として保持し、永続Safetyと将来Rust配置、新headのWindows受入を区別します。[移行境界と未確認事項](architecture/qt_rust_migration.md)。

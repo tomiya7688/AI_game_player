@@ -6,7 +6,8 @@ from datetime import datetime, timezone
 
 REQUIRED_WORKFLOW_PATHS = frozenset(
     f".github/workflows/{name}.yml"
-    for name in ("tests", "language-ci", "safety-ci", "fail-safe-ci", "bug-ci", "performance-ci", "upd-architecture-ci")
+    for name in ("tests", "language-ci", "safety-ci", "fail-safe-ci", "bug-ci", "performance-ci", "upd-architecture-ci",
+                 "python-security-ci")
 )
 WORKFLOW_EVENTS = ("push", "pull_request")
 PAGE_SIZE = 100
@@ -18,7 +19,7 @@ class WorkflowEvidenceError(RuntimeError):
 
 
 class WorkflowRunGate:
-    """対象repo・PR・headと読み取り関数を保持し、必須7 workflow×2 eventを検証する。"""
+    """対象repo・PR・headと読み取り関数を保持し、必須8 workflow×2 eventを検証する。"""
 
     def __init__(self, repository: str, pr_number: int, head_sha: str, read_json: Callable[[str], object]) -> None:
         self.repository = repository

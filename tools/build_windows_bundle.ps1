@@ -12,8 +12,17 @@ $SpecRoot = Join-Path $BuildRoot "spec"
 
 New-Item -ItemType Directory -Force -Path $BuildRoot | Out-Null
 
-cmake -S native -B $NativeBuild -DCMAKE_BUILD_TYPE=Release
+# Link the MSVC runtime statically (/MT) so the end-user machine needs no VC++
+# Redistributable: PyInstaller does not collect MSVCP140.dll for this DLL, and
+# the C ABI returns no CRT-owned memory (Issue #149).
+cmake -S native -B $NativeBuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+if ($LASTEXITCODE -ne 0) {
+    throw "Native configure failed with exit code $LASTEXITCODE"
+}
 cmake --build $NativeBuild --config Release --parallel
+if ($LASTEXITCODE -ne 0) {
+    throw "Native build failed with exit code $LASTEXITCODE"
+}
 
 # The build interpreter's pip and certifi must meet the trust floor (Issue #514).
 & $Python tools/trust_gate.py
@@ -33,6 +42,9 @@ if ($LASTEXITCODE -ne 0) {
     --specpath $SpecRoot `
     --add-data "$((Resolve-Path src/ai_game_player/assets).Path);ai_game_player/assets" `
     src/ai_game_player/__main__.py
+if ($LASTEXITCODE -ne 0) {
+    throw "PyInstaller failed with exit code $LASTEXITCODE"
+}
 
 $NativeDll = Get-ChildItem -Path $NativeBuild -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
 if (-not $NativeDll) {
@@ -45,6 +57,13 @@ Copy-Item $NativeDll.FullName (Join-Path $AppDir "kadoka_native_runtime.dll") -F
 $Exe = Join-Path $AppDir "Kadoka.exe"
 if (-not (Test-Path $Exe)) {
     throw "Kadoka.exe was not produced"
+}
+
+# Every imported DLL must be bundled or part of Windows; the build machine's
+# System32 (which usually has the VC++ runtime) does not count (Issue #149).
+& $Python tools/windows_bundle_check.py layout $AppDir
+if ($LASTEXITCODE -ne 0) {
+    throw "Bundle layout check failed; see the BUNDLE LAYOUT ERROR lines above."
 }
 
 Write-Host "Built application bundle: $AppDir"
