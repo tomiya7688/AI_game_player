@@ -1,3 +1,9 @@
+## 2026-11-04 Native C++ Security Profile 第1段（Issue #115）
+
+- `tools/native_security_check.py` を追加。`native/` のC/C++からコメント・文字列を除き、境界なし文字列/書式API・外部コマンド起動・`alloca`（high）と、失敗を検出できない変換・生のメモリ転送・手動ヒープ管理（medium）の呼出しを検出します。許可は `config/native_security_allowlist.json` の理由付き項目だけで、未使用項目も失敗にします。
+- `native/.clang-tidy` と `tools/native_clang_tidy.py` を追加。`clang-tidy==22.1.8` に固定し、bugprone / cert / clang-analyzer系の警告をすべてエラーにします。Linuxは非Windows stub、WindowsはWGC / Direct3D実装を解析します。
+- `language-ci` に `Native dangerous C/C++ API detector` と `Native clang-tidy security profile (ubuntu-latest / windows-latest)` を追加し、rulesetの必須チェック宣言へ登録しました。導入時の検出に従い `runtime_api.h` の負のstatusマクロを括弧で囲みました（値は不変）。CodeQL、Windows sanitizer、FFI異常入力fuzz、handle lifetime検査は未対応です。[検査範囲と限界](architecture/native_security_profile.md)。
+
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。

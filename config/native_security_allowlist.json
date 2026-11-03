@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "description": "tools/native_security_check.py の許可リスト（Issue #115）。code は コメント・文字列を除き空白を1つに正規化した該当行。現在のソースに一致しない項目は検査失敗になる。",
+  "entries": [
+    {
+      "path": "native/src/wgc_capture.cpp",
+      "rule": "NSC005",
+      "function": "memcpy",
+      "code": "std::memcpy(destination_row, source_row, static_cast<size_t>(row_bytes));",
+      "reason": "copy_frame_to_bgra はコピー前に uint64_t で width*4*height の必要容量を計算し、出力が null または容量不足なら BUFFER_TOO_SMALL を返す。コピーは検査済みの出力範囲へ width*4 byte ずつ行単位で行う。D3D Map の RowPitch と pData の防御検査は #652 で扱う。",
+      "issue": "#652"
+    }
+  ]
+}
