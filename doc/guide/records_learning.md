@@ -90,6 +90,8 @@ Builderは型付きEpisodeの列か`ExperienceReader`を受け取ります。既
 
 根拠：[learning_dataset.py](../../src/ai_game_player/learning_dataset.py)、[学習データセット生成機能説明書](../学習データセット生成機能説明書.md)、[test_learning_dataset.py](../../tests/test_learning_dataset.py)。
 
+学習対象の選別：Experienceの操作効果から、どのcomponent（認識・判断・実行・結果解釈）を学習対象の候補にするかを、確信度と元Experience参照付きで診断します。確定ラベル以外の根拠は上限付きの仮説に留め、モデルは更新しません。詳細は[学習診断機能説明書](../学習診断機能説明書.md)。
+
 ## 手法カード L4：モデルの学習と、採用・元に戻すこと
 
 `LearningCapabilityManifest` は「このモデルにどんな学習方式を使えるか」「どのデータ形式・学習器・出力・評価・元に戻す先を必要とするか」を宣言する契約です。互換性を検証するコードが存在しても、それだけでGPU上の学習・評価・本番モデルへの昇格が自動実行された証拠にはなりません。
