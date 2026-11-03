@@ -123,6 +123,8 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #514: #482の最低版（pip 26.2.2、certifi 2026.10.19、uv 0.13.4、sigstore 4.5.1）を`requirements/python-trust-constraints.txt`へ固定しました。`tools/trust_gate.py`は、pip・pip同梱certifiの最低版未満、CA bundleとWindowsのROOT・CAストアのインシデント対象証明書、確認できない信頼源を失敗にします。pip installを行うLinux・WindowsのCI job、テストゲームのbootstrap、Windows bundleのbuild scriptが、pipを使う前に検査します。配布物の中のCA bundleは#515へ残します。[固定版の検証](Python証明書信頼棚卸し.md#固定版の検証issue-514)。
+
 - Issue #661: 恒久GUIをQt 6 Widgets/C++ native（埋込WebViewなし）、常駐CoreをRust別プロセス、Pythonを任意workerとする目標配置を正本化しました。現Tkinter/Python+C++ C ABI v1とWindows E2Eを保ち、manifestのplanned配置を既存ABIと分離して検査します。未実装のShell/Core/bridge/Safetyは#664–#667、Qt配布gateは#228/#149/#663へ接続しました。 実機能親18eのplanning専用IPC・私有HTTPの有限queue・失敗後診断も互換実装として保持し、永続Safetyと将来Rust配置、新headのWindows受入を区別します。[移行境界と未確認事項](architecture/qt_rust_migration.md)。
 
 - Issue #649 / PR #651: Native Safety C ABIで押下時間と上限のNaN・正負Infinityを既存のHOLD_TIMEOUT理由で拒否し、有限値への回復を回帰確認しました。構造体ABI・バージョンは維持し、WGCの所有権・メモリ寿命の検証は#652へ残します。
