@@ -70,6 +70,7 @@ CIの`Windows application bundle + startup smoke` job（`.github/workflows/langu
 確認できないこと（clean Windowsでの起動確認は未実施です）:
 
 - CIの検査2は`windows-latest` runner（Windows Server）上で動きます。runnerにはVisual Studio、VC++再頒布パッケージ、Pythonなどが導入済みで、`System32`にもDLLがあります。最小環境は環境変数を絞るだけで、OSに導入済みのDLLは見えたままです。検査1はimport表に載るDLLを判定しますが、実行時に名前を指定して読むDLL（`ctypes`による読込など）は判定しません。検査1は各moduleの探索先を「そのmodule自身のdirectory・bundle直下・`_internal`」で近似します。実際のloaderは、最初にfull pathで読んだDLLのdirectoryを依存の探索先にするため、別のdirectoryにある依存の依存は近似と異なる場合があります（2026-11-04のlocal buildでは、bundle直下と`_internal`以外にあるPE fileは、Pythonがfull pathで読む`_internal/PIL/*.pyd`だけでした。実loaderでの解決は検査2で確認します）。
+- 検査1は`api-ms-win-*`・`ext-ms-win-*`の名前を全てWindowsの部品として扱い、対象のWindows版がそのAPI Setを提供するかは判定しません。古いWindowsに無いAPI Setへの依存は、対象版での起動確認で見つける必要があります。
 - Windows 10/11のclient版、新規の利用者profile、管理者権限のない利用者、SmartScreen・Defenderの判定、GPU・D3D11の有無による違いは確認していません。
 - 実際のゲーム入力・画面取得・推論は、どちらの検査でも実行しません。
 

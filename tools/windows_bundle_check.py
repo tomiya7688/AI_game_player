@@ -43,6 +43,7 @@ INTERNAL_DIR = "_internal"
 ASSETS_DIR = Path(INTERNAL_DIR) / "ai_game_player" / "assets"
 PE_SUFFIXES = {".exe", ".dll", ".pyd"}
 MACHINE_AMD64 = 0x8664
+PE32_PLUS_MAGIC = 0x20B
 MAX_PE_BYTES = 256 * 1024 * 1024
 # Upper bound on descriptors per import table, so a table without its zero
 # terminator fails instead of walking the rest of the file.
@@ -50,6 +51,16 @@ MAX_DESCRIPTORS = 4096
 RELOCATED_NAME = "Kadoka 配布確認"
 SELF_CHECK_SCHEMA = "kadoka-bundle-self-check/v1"
 OUTPUT_TAIL_CHARS = 2000
+# Item names Kadoka.exe --bundle-self-check must report; a report missing one fails.
+REQUIRED_SELF_CHECKS = (
+    "frozen",
+    "import_paths",
+    "native_runtime",
+    "native_safety",
+    "assets",
+    "tk",
+    "ssl",
+)
 
 # DLLs that ship with every supported Windows 10/11 x64 install. Add a name only
 # after confirming it is an OS component; a redistributable must be bundled.
@@ -104,6 +115,7 @@ class PeImports:
     """Machine type and imported DLL names of one PE file."""
 
     machine: int
+    optional_magic: int
     imports: tuple[str, ...]
     delay_imports: tuple[str, ...]
 
@@ -124,6 +136,7 @@ class _PeImage:
         optional_size = self._u16(coff + 16)
         optional = coff + 20
         magic = self._u16(optional)
+        self.optional_magic = magic
         if magic == 0x20B:
             self.image_base = struct.unpack_from("<Q", data, optional + 24)[0]
             directories = optional + 112
@@ -212,7 +225,10 @@ def read_pe_imports(path: Path) -> PeImports:
     try:
         image = _PeImage(data)
         return PeImports(
-            image.machine, tuple(image.imports()), tuple(image.delay_imports())
+            image.machine,
+            image.optional_magic,
+            tuple(image.imports()),
+            tuple(image.delay_imports()),
         )
     except struct.error as error:
         raise ValueError(f"truncated PE structure: {error}") from error
@@ -272,8 +288,11 @@ def check_layout(bundle: Path) -> list[str]:
         except (OSError, ValueError) as error:
             errors.append(f"{relative}: cannot read PE imports: {error}")
             continue
-        if pe.machine != MACHINE_AMD64:
-            errors.append(f"{relative}: machine 0x{pe.machine:04x} is not x64")
+        if pe.machine != MACHINE_AMD64 or pe.optional_magic != PE32_PLUS_MAGIC:
+            errors.append(
+                f"{relative}: machine 0x{pe.machine:04x} / optional header 0x{pe.optional_magic:x}"
+                " is not x64 PE32+"
+            )
         directories = _search_dirs(module, bundle)
         for kind, names in (("imports", pe.imports), ("delay-loads", pe.delay_imports)):
             for name in names:
@@ -300,7 +319,8 @@ def minimal_environment(workdir: Path) -> dict[str, str]:
         "SystemRoot": system_root,
         "windir": system_root,
         "SystemDrive": os.environ.get("SystemDrive", "C:"),
-        "PATH": os.pathsep.join(
+        # The child is a Windows process, so join with ";" whatever the host is.
+        "PATH": ";".join(
             [
                 str(Path(system_root) / "System32"),
                 system_root,
@@ -366,8 +386,9 @@ def report_errors(report: object, code: int | str, relocated: Path) -> list[str]
             errors.append(f"self-check item {index} is malformed: {item!r:.200}")
         elif not item["ok"]:
             errors.append(f"self-check {item.get('name')}: {item.get('detail')}")
-    if not checks:
-        errors.append("self-check report has no checks")
+    reported = {item.get("name") for item in checks if isinstance(item, dict)}
+    if missing := [name for name in REQUIRED_SELF_CHECKS if name not in reported]:
+        errors.append(f"self-check report is missing required checks: {missing}")
     if report.get("schema") != SELF_CHECK_SCHEMA:
         errors.append(f"self-check schema is {report.get('schema')!r}")
     if code != 0 or report.get("ok") is not True or errors:
@@ -385,6 +406,7 @@ def launch_relocated(bundle: Path, workdir: Path, timeout: float = 120.0) -> lis
     workdir = workdir.resolve()
     if workdir.exists() and any(workdir.iterdir()):
         return [f"workdir must be new or empty: {workdir}"]
+    workdir.mkdir(parents=True, exist_ok=True)
     relocated = workdir / RELOCATED_NAME
     shutil.copytree(bundle, relocated)
     cwd = workdir / "cwd"
@@ -413,6 +435,12 @@ def launch_relocated(bundle: Path, workdir: Path, timeout: float = 120.0) -> lis
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Reports name the relocated path, which has Japanese characters; a cp1252
+    # console (GitHub's Windows runner) must not turn that into a crash.
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(errors="backslashreplace")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     commands = parser.add_subparsers(dest="command", required=True)
     layout = commands.add_parser("layout", help="static layout and DLL import check")

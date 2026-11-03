@@ -171765,6 +171765,19 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "io"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
           "module": "os",
           "names": [
             {
@@ -171776,7 +171789,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "struct",
           "names": [
@@ -171789,7 +171802,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -171802,7 +171815,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -171815,7 +171828,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -171828,7 +171841,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -171841,7 +171854,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "tools",
             "tools.windows_bundle_check"
@@ -171858,7 +171871,7 @@
       "module": "tests.test_windows_bundle_check",
       "path": "tests/test_windows_bundle_check.py",
       "source_location": {
-        "end_line": 308,
+        "end_line": 332,
         "start_line": 1
       },
       "symbols": [
@@ -171899,8 +171912,8 @@
           "signature": "(imports: list[str], delay_imports: list[str] | None = …, machine: int = …, old_delay_format: bool = …) -> bytes",
           "source_location": {
             "column": 0,
-            "end_line": 74,
-            "start_line": 18
+            "end_line": 75,
+            "start_line": 19
           }
         },
         {
@@ -171921,8 +171934,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 146,
-            "start_line": 77
+            "end_line": 147,
+            "start_line": 78
           }
         },
         {
@@ -171944,8 +171957,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 80,
-            "start_line": 78
+            "end_line": 81,
+            "start_line": 79
           }
         },
         {
@@ -171967,8 +171980,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 83,
-            "start_line": 82
+            "end_line": 84,
+            "start_line": 83
           }
         },
         {
@@ -172002,8 +172015,8 @@
           "signature": "(self, name: str, data: bytes) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 85
+            "end_line": 89,
+            "start_line": 86
           }
         },
         {
@@ -172025,8 +172038,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 90
+            "end_line": 98,
+            "start_line": 91
           }
         },
         {
@@ -172048,8 +172061,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 99
+            "end_line": 102,
+            "start_line": 100
           }
         },
         {
@@ -172071,8 +172084,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 114,
-            "start_line": 103
+            "end_line": 115,
+            "start_line": 104
           }
         },
         {
@@ -172094,8 +172107,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 122,
-            "start_line": 116
+            "end_line": 123,
+            "start_line": 117
           }
         },
         {
@@ -172117,8 +172130,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 124
+            "end_line": 134,
+            "start_line": 125
           }
         },
         {
@@ -172140,8 +172153,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 135
+            "end_line": 147,
+            "start_line": 136
           }
         },
         {
@@ -172162,8 +172175,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 237,
-            "start_line": 149
+            "end_line": 253,
+            "start_line": 150
           }
         },
         {
@@ -172185,8 +172198,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 150
+            "end_line": 166,
+            "start_line": 151
           }
         },
         {
@@ -172208,8 +172221,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 168,
-            "start_line": 167
+            "end_line": 169,
+            "start_line": 168
           }
         },
         {
@@ -172249,8 +172262,8 @@
           "signature": "(self, relative: str, imports: list[str], **options) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 173,
-            "start_line": 170
+            "end_line": 174,
+            "start_line": 171
           }
         },
         {
@@ -172272,8 +172285,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 175
+            "end_line": 177,
+            "start_line": 176
           }
         },
         {
@@ -172295,8 +172308,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 178
+            "end_line": 184,
+            "start_line": 179
           }
         },
         {
@@ -172318,8 +172331,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 188,
-            "start_line": 185
+            "end_line": 189,
+            "start_line": 186
           }
         },
         {
@@ -172341,8 +172354,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 194,
-            "start_line": 190
+            "end_line": 195,
+            "start_line": 191
           }
         },
         {
@@ -172364,8 +172377,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 196
+            "end_line": 206,
+            "start_line": 197
           }
         },
         {
@@ -172387,8 +172400,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 214,
-            "start_line": 207
+            "end_line": 215,
+            "start_line": 208
           }
         },
         {
@@ -172410,8 +172423,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 221,
-            "start_line": 216
+            "end_line": 222,
+            "start_line": 217
           }
         },
         {
@@ -172433,8 +172446,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 223
+            "end_line": 229,
+            "start_line": 224
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_amd64_machine_with_pe32_optional_header_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_amd64_machine_with_pe32_optional_header_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 236,
+            "start_line": 231
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cli_output_survives_a_cp1252_console",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BundleLayoutTest.test_cli_output_survives_a_cp1252_console",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 238
           }
         },
         {
@@ -172456,8 +172515,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 230
+            "end_line": 253,
+            "start_line": 246
           }
         },
         {
@@ -172478,8 +172537,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 304,
-            "start_line": 240
+            "end_line": 328,
+            "start_line": 256
           }
         },
         {
@@ -172501,8 +172560,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 266,
-            "start_line": 241
+            "end_line": 282,
+            "start_line": 257
           }
         },
         {
@@ -172524,8 +172583,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 296,
-            "start_line": 268
+            "end_line": 320,
+            "start_line": 284
           }
         },
         {
@@ -172547,8 +172606,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 298
+            "end_line": 328,
+            "start_line": 322
           }
         }
       ]
@@ -215438,7 +215497,7 @@
       "module": "tools.windows_bundle_check",
       "path": "tools/windows_bundle_check.py",
       "source_location": {
-        "end_line": 453,
+        "end_line": 481,
         "start_line": 1
       },
       "symbols": [
@@ -215460,8 +215519,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 108,
-            "start_line": 103
+            "end_line": 120,
+            "start_line": 114
           }
         },
         {
@@ -215480,8 +215539,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 203,
-            "start_line": 111
+            "end_line": 216,
+            "start_line": 123
           }
         },
         {
@@ -215509,8 +215568,8 @@
           "signature": "(self, data: bytes) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 114
+            "end_line": 160,
+            "start_line": 126
           }
         },
         {
@@ -215538,8 +215597,8 @@
           "signature": "(self, offset: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 150,
-            "start_line": 149
+            "end_line": 163,
+            "start_line": 162
           }
         },
         {
@@ -215567,8 +215626,8 @@
           "signature": "(self, offset: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 152
+            "end_line": 166,
+            "start_line": 165
           }
         },
         {
@@ -215596,8 +215655,8 @@
           "signature": "(self, rva: int) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 159,
-            "start_line": 155
+            "end_line": 172,
+            "start_line": 168
           }
         },
         {
@@ -215625,8 +215684,8 @@
           "signature": "(self, rva: int) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 166,
-            "start_line": 161
+            "end_line": 179,
+            "start_line": 174
           }
         },
         {
@@ -215654,8 +215713,8 @@
           "signature": "(self, index: int) -> tuple[int, int]",
           "source_location": {
             "column": 4,
-            "end_line": 169,
-            "start_line": 168
+            "end_line": 182,
+            "start_line": 181
           }
         },
         {
@@ -215677,8 +215736,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 171
+            "end_line": 198,
+            "start_line": 184
           }
         },
         {
@@ -215700,8 +215759,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 187
+            "end_line": 216,
+            "start_line": 200
           }
         },
         {
@@ -215723,8 +215782,8 @@
           "signature": "(path: Path) -> PeImports",
           "source_location": {
             "column": 0,
-            "end_line": 218,
-            "start_line": 206
+            "end_line": 234,
+            "start_line": 219
           }
         },
         {
@@ -215746,8 +215805,8 @@
           "signature": "(name: str) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 224,
-            "start_line": 221
+            "end_line": 240,
+            "start_line": 237
           }
         },
         {
@@ -215775,8 +215834,8 @@
           "signature": "(module: Path, bundle: Path) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 231,
-            "start_line": 227
+            "end_line": 247,
+            "start_line": 243
           }
         },
         {
@@ -215804,8 +215863,8 @@
           "signature": "(directory: Path, cache: dict[Path, set[str]]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 241,
-            "start_line": 234
+            "end_line": 257,
+            "start_line": 250
           }
         },
         {
@@ -215827,8 +215886,8 @@
           "signature": "(bundle: Path) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 292,
-            "start_line": 244
+            "end_line": 311,
+            "start_line": 260
           }
         },
         {
@@ -215850,8 +215909,8 @@
           "signature": "(workdir: Path) -> dict[str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 321,
-            "start_line": 295
+            "end_line": 341,
+            "start_line": 314
           }
         },
         {
@@ -215897,8 +215956,8 @@
           "signature": "(executable: Path, arguments: list[str], environment: dict[str, str], cwd: Path, timeout: float) -> tuple[int | str, str]",
           "source_location": {
             "column": 0,
-            "end_line": 347,
-            "start_line": 324
+            "end_line": 367,
+            "start_line": 344
           }
         },
         {
@@ -215932,8 +215991,8 @@
           "signature": "(label: str, code: int | str, output: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 353,
-            "start_line": 350
+            "end_line": 373,
+            "start_line": 370
           }
         },
         {
@@ -215967,8 +216026,8 @@
           "signature": "(report: object, code: int | str, relocated: Path) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 380,
-            "start_line": 356
+            "end_line": 401,
+            "start_line": 376
           }
         },
         {
@@ -216002,8 +216061,8 @@
           "signature": "(bundle: Path, workdir: Path, timeout: float = …) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 412,
-            "start_line": 383
+            "end_line": 434,
+            "start_line": 404
           }
         },
         {
@@ -216025,8 +216084,8 @@
           "signature": "(argv: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 449,
-            "start_line": 415
+            "end_line": 477,
+            "start_line": 437
           }
         }
       ]

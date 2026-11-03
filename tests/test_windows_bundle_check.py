@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import os
 import struct
 import tempfile
@@ -224,8 +225,23 @@ class BundleLayoutTest(unittest.TestCase):
         self.put("_internal/x86.dll", ["KERNEL32.dll"], machine=0x14C)
         (self.bundle / "_internal" / "broken.pyd").write_bytes(b"MZ")
         errors = "\n".join(check.check_layout(self.bundle))
-        self.assertIn("machine 0x014c is not x64", errors)
+        self.assertIn("machine 0x014c / optional header 0x20b is not x64 PE32+", errors)
         self.assertIn("broken.pyd: cannot read PE imports", errors)
+
+    def test_amd64_machine_with_pe32_optional_header_fails(self):
+        data = bytearray(build_pe(["KERNEL32.dll"]))
+        struct.pack_into("<H", data, 0x40 + 4 + 20, 0x10B)
+        (self.bundle / "_internal" / "mixed.dll").write_bytes(bytes(data))
+        errors = " | ".join(check.check_layout(self.bundle))
+        self.assertIn("mixed.dll: machine 0x8664 / optional header 0x10b", errors)
+
+    def test_cli_output_survives_a_cp1252_console(self):
+        streams = [io.TextIOWrapper(io.BytesIO(), encoding="cp1252") for _ in range(2)]
+        missing = self.bundle.parent / "配布 確認"
+        with patch("sys.stdout", streams[0]), patch("sys.stderr", streams[1]):
+            self.assertEqual(check.main(["layout", str(missing)]), 1)
+            streams[1].flush()
+        self.assertIn(b"\\u914d\\u5e03", streams[1].buffer.getvalue())
 
     def test_cli_reports_errors_and_exit_code(self):
         self.put("kadoka_native_runtime.dll", ["MSVCP140.dll"])
@@ -259,7 +275,7 @@ class MinimalEnvironmentTest(unittest.TestCase):
             )
             system = Path(r"C:\Windows")
             expected = [system / "System32", system, system / "System32" / "Wbem"]
-            self.assertEqual(environment["PATH"], os.pathsep.join(map(str, expected)))
+            self.assertEqual(environment["PATH"], ";".join(map(str, expected)))
             for key in ("APPDATA", "LOCALAPPDATA", "TEMP", "TMP", "USERPROFILE"):
                 with self.subTest(key=key):
                     self.assertTrue(Path(environment[key]).is_relative_to(workdir))
@@ -271,13 +287,21 @@ class MinimalEnvironmentTest(unittest.TestCase):
             "schema": check.SELF_CHECK_SCHEMA,
             "ok": True,
             "executable": str(relocated.resolve() / "Kadoka.exe"),
-            "checks": [{"name": "frozen", "ok": True, "detail": "x"}],
+            "checks": [
+                {"name": name, "ok": True, "detail": "x"}
+                for name in check.REQUIRED_SELF_CHECKS
+            ],
         }
         self.assertEqual(check.report_errors(good, 0, relocated), [])
         cases = [
             ([], 0, "not an object with a checks list"),
             ({**good, "checks": None}, 0, "not an object with a checks list"),
-            ({**good, "checks": []}, 0, "has no checks"),
+            ({**good, "checks": []}, 0, "missing required checks"),
+            (
+                {**good, "checks": good["checks"][:-1]},
+                0,
+                "missing required checks: ['ssl']",
+            ),
             ({**good, "checks": ["x"]}, 0, "item 0 is malformed"),
             (
                 {**good, "checks": [{"name": "tk", "ok": False, "detail": "d"}]},
