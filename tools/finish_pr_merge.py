@@ -78,7 +78,8 @@ class PullRequestReference:
 #   保持状態: [
 #     state: GitHubが返したPR状態。merge gateではOPENだけを受け入れる,
 #     mergeable: GitHubが返した競合状態。merge gateではMERGEABLEだけを受け入れる,
-#     head_sha: CIとreview確認を固定するPR先端commitのSHA
+#     head_sha: CIとreview確認を固定するPR先端commitのSHA,
+#     head_ref: push Workflow Runを同名branchのrunだけに限定するPR head branch名
 #   ]
 # }
 @dataclass(frozen=True)
@@ -86,6 +87,7 @@ class PullRequestSnapshot:
     state: str
     mergeable: str
     head_sha: str
+    head_ref: str = ""
 
 
 # {
@@ -301,8 +303,8 @@ def _decode_json_output(command_result: subprocess.CompletedProcess[str], action
 #     _read_pull_request_snapshot: GitHubからPR状態を取得し、OPEN・MERGEABLE・有効なhead SHAを確認する
 #   ],
 #   処理: [
-#     1: gh pr viewからstate・mergeable・headRefOidをJSONで取得する,
-#     2: 3項目の存在と型を確認し、stateがOPEN、mergeabilityがMERGEABLEであることを確かめる,
+#     1: gh pr viewからstate・mergeable・headRefOid・headRefNameをJSONで取得する,
+#     2: 4項目の存在と型を確認し、stateがOPEN、mergeabilityがMERGEABLEであることを確かめる,
 #     3: headRefOidがSHA-1またはSHA-256形式なら検証済みsnapshotを返す
 #   ],
 #   引数: [
@@ -312,12 +314,12 @@ def _decode_json_output(command_result: subprocess.CompletedProcess[str], action
 #     PullRequestSnapshot: merge gateが検証したPR状態とhead commit
 #   ],
 #   エラー: [
-#     MergeGateError: API失敗、JSON不正、PR終了、merge不可、またはhead SHA不正
+#     MergeGateError: API失敗、JSON不正、PR終了、merge不可、head SHA不正、またはhead branch名の欠落
 #   ]
 # }
 def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullRequestSnapshot:
     command_result = _run_successful_gh_command(
-        ["pr", "view", pull_request.url, "--json", "state,mergeable,headRefOid"],
+        ["pr", "view", pull_request.url, "--json", "state,mergeable,headRefOid,headRefName"],
         API_COMMAND_TIMEOUT_SECONDS,
         "Pull request state lookup",
     )
@@ -328,8 +330,11 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
     state = response_data.get("state")
     mergeability = response_data.get("mergeable")
     head_sha = response_data.get("headRefOid")
+    head_ref = response_data.get("headRefName")
     if not isinstance(state, str) or not isinstance(mergeability, str) or not isinstance(head_sha, str):
         raise MergeGateError("Pull request state lookup omitted state, mergeability, or head commit.")
+    if not isinstance(head_ref, str) or not head_ref.strip():
+        raise MergeGateError("Pull request state lookup omitted the head branch; PR merge was stopped.")
     if state != "OPEN":
         raise MergeGateError(f"Pull request state is {state!r}, not OPEN; PR merge was stopped.")
     if mergeability != "MERGEABLE":
@@ -339,7 +344,7 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
     if PR_HEAD_SHA_PATTERN.fullmatch(head_sha) is None:
         raise MergeGateError("Pull request head commit is missing or invalid; PR merge was stopped.")
 
-    return PullRequestSnapshot(state, mergeability, head_sha)
+    return PullRequestSnapshot(state, mergeability, head_sha, head_ref)
 
 
 # {
@@ -626,8 +631,11 @@ def _stop_for_unresolved_review_threads(threads: list[UnresolvedReviewThread]) -
     raise MergeGateError("Unresolved inline review comments block PR merge.")
 
 
-def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str) -> None:
-    """check一覧と別に、固定headのpush/PR必須workflowの最新attemptをREST APIで検証する。"""
+def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str, head_ref: str) -> None:
+    """check一覧と別に、固定headのpush/PR必須workflowの最新attemptをREST APIで検証する。
+
+    push runはPRのhead branch名と一致するものだけを使い、同じcommitのtag runで失敗を隠さない。
+    """
     def read_json(endpoint: str) -> object:
         result = _run_successful_gh_command(
             ["api", "--method", "GET", endpoint], API_COMMAND_TIMEOUT_SECONDS, "Workflow Run lookup"
@@ -636,7 +644,7 @@ def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str) ->
 
     try:
         WorkflowRunGate(
-            f"{pull_request.owner}/{pull_request.repository}", pull_request.number, head_sha, read_json
+            f"{pull_request.owner}/{pull_request.repository}", pull_request.number, head_sha, head_ref, read_json
         ).verify()
     except WorkflowEvidenceError as error:
         raise MergeGateError(str(error)) from error
@@ -651,7 +659,7 @@ def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str) ->
 #     1: PR URLを検証し、初期状態とhead commitを記録する,
 #     2: status checkの完了を待ち、すべてpassであることを再確認する,
 #     3: 全inline review threadを取得し、未解決指摘がないことを確認する,
-#     4: 固定headのpush・PR各eventで必須workflowの最新attemptがすべて成功したことをREST APIで検証する,
+#     4: 固定headのpush（PR head branchのrunだけ）・PR各eventで必須workflowの最新attemptがすべて成功したことをREST APIで検証する,
 #     5: PR状態とhead commitが確認開始時から変わっていないことを確かめる,
 #     6: 確認済みhead SHAを--match-head-commitへ渡し、ローカルbranch削除を伴わずmergeする,
 #     7: CLI終了値にかかわらずREST APIで同じPRとheadの統合済み状態を確認する。結果不明なら再mergeせず停止する
@@ -673,7 +681,7 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
     _read_status_checks(pull_request)
     unresolved_threads = _read_unresolved_review_threads(pull_request)
     _stop_for_unresolved_review_threads(unresolved_threads)
-    _require_workflow_runs(pull_request, initial_snapshot.head_sha)
+    _require_workflow_runs(pull_request, initial_snapshot.head_sha, initial_snapshot.head_ref)
 
     current_snapshot = _read_pull_request_snapshot(pull_request)
     if current_snapshot.head_sha != initial_snapshot.head_sha:
