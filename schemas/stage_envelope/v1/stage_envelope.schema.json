@@ -16,7 +16,10 @@
     "Object and array nesting depth, counting the root envelope object as 1, is at most max_depth; scalars do not add depth.",
     "Duplicate object keys and the non-standard constants NaN, Infinity and -Infinity are rejected.",
     "Every integer is within integer_min..integer_max and every number is finite.",
-    "timestamp_utc is a real calendar date-time.",
+    "Non-integer numbers are IEEE 754 binary64 values: a token that overflows to infinity, or a nonzero token that underflows to zero, is rejected; ordinary rounding to the nearest binary64 value is accepted.",
+    "Integer fields (schema_version, monotonic_ns, payload_schema_version) must be written as integer tokens without a fraction or exponent, although JSON Schema treats 1.0 as an integer.",
+    "Strings and object keys must not contain unpaired surrogates (for example an escaped \\ud800).",
+    "timestamp_utc is a real calendar date-time; leap seconds (second 60) are not representable in v1.",
     "parent_envelope_id and derived_from must not contain envelope_id.",
     "A schema_version other than 1 is rejected as unsupported_version unless a registered migration chain reaches version 1.",
     "Patterns end with the ECMA-262 lookahead (?![\\s\\S]) so that a trailing newline never matches; an implementation whose regex engine lacks lookahead must apply the same rule as a full-string match.",
@@ -77,7 +80,7 @@
     "timestamp_utc": {
       "type": "string",
       "format": "date-time",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,9})?Z(?![\\s\\S])"
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,9})?Z(?![\\s\\S])"
     },
     "monotonic_ns": {
       "type": [

@@ -874,6 +874,64 @@
    }
   },
   {
+   "name": "timestamp_leap_second",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2016-12-31T23:59:60Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
+   "name": "integer_field_with_fraction_token",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "schema_version": 1,
+    "envelope_id": "env-0001",
+    "stage": "perception",
+    "boundary": "output",
+    "session_id": "session-1",
+    "frame_id": null,
+    "turn_id": null,
+    "timestamp_utc": "2026-11-04T09:30:00Z",
+    "monotonic_ns": null,
+    "trace_id": "trace-1",
+    "correlation_id": null,
+    "parent_envelope_id": null,
+    "producer_kind": "core",
+    "producer_id": "core.frame_analyzer",
+    "producer_version": "1",
+    "derived_from": [],
+    "payload_schema": "kadoka.perception.frame_analysis",
+    "payload_schema_version": 1.0,
+    "payload": {},
+    "confidence": null,
+    "metadata": {},
+    "artifact_refs": []
+   }
+  },
+  {
    "name": "confidence_above_one",
    "expect": "malformed",
    "schema_valid": false,
@@ -1798,6 +1856,24 @@
    "expect": "malformed",
    "schema_valid": null,
    "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":-Infinity,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
+  },
+  {
+   "name": "text_escaped_unpaired_surrogate",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{\"s\":\"\\ud800\"},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
+  },
+  {
+   "name": "text_float_underflow",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{\"x\":1e-400},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
+  },
+  {
+   "name": "text_binary64_rounding_is_valid",
+   "expect": "valid",
+   "schema_valid": null,
+   "text": "{\"artifact_refs\":[],\"boundary\":\"output\",\"confidence\":null,\"correlation_id\":null,\"derived_from\":[],\"envelope_id\":\"env-0001\",\"frame_id\":null,\"metadata\":{},\"monotonic_ns\":null,\"parent_envelope_id\":null,\"payload\":{\"x\":0.1000000000000000000000000001},\"payload_schema\":\"kadoka.perception.frame_analysis\",\"payload_schema_version\":1,\"producer_id\":\"core.frame_analyzer\",\"producer_kind\":\"core\",\"producer_version\":\"1\",\"schema_version\":1,\"session_id\":\"session-1\",\"stage\":\"perception\",\"timestamp_utc\":\"2026-11-04T09:30:00Z\",\"trace_id\":\"trace-1\",\"turn_id\":null}"
   },
   {
    "name": "text_root_array",

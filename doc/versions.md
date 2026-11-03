@@ -1,9 +1,3 @@
-## 2026-11-04 StageEnvelope v1契約（Issue #150）
-
-- Pipeline stage間の中間データをHook・Provider・Replayへ渡す版付き契約`StageEnvelope` v1を追加。JSON Schema、言語共通の適合ケース47件、有効例2件、Python参照validatorとcodecを用意します。[契約と上限](architecture/stage_envelope.md)。
-- 未知field・未知版・重複key・NaN・int64範囲外・自己参照を拒否し、1MiB・深さ32・件数上限をparse前またはparse直後に判定します。canonical JSONの往復と版移行点（v1では空）を試験します。
-- Pipelineからの生成とHook runtimeへの接続は未実装で、#151/#152/#153の範囲です。
-
 ## 2026-11-01 参照2048の発光・得点認識回帰（Issue #659）
 
 - 実プレイの256発光で盤面矩形が11px拡大する回帰を、行端点の中央値と幾何支持で修正。色距離/確信度の既存閾値を保ち、未知セル補完はせず候補を拒否します。
@@ -129,6 +123,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #150: Pipeline stage間の中間データをHook・Provider・Replayへ渡す版付き契約`StageEnvelope` v1を追加しました。JSON Schema、言語共通の適合ケース52件、有効例2件、Python参照validatorとcodecを用意します。未知field・未知版・重複key・NaN・int64範囲外・binary64のunderflow・対のないsurrogate・自己参照を拒否し、1MiB・深さ32・件数上限をparse前に判定します。canonical JSONの往復と版移行点（v1では空）を試験します。Pipelineからの生成とHook runtimeへの接続は#151/#152/#153の範囲です。[契約と上限](architecture/stage_envelope.md)。
 - Issue #114: Python Security Profile。Bandit 1.9.4とpip-audit 2.10.1を固定版で導入し、`python-security-ci`の別jobとしてpush・PR・毎週の定期実行で動かします。一般lint・型検査（#86）とは別に結果を確認します。
 - `config/python_security_profile.json`と`tools/python_security_check.py`で、MEDIUM以上の指摘をblockingにし、Provider・worker起動・file/network境界の重点moduleでは低severityの指定ruleもblockingにします。抑制は理由・期限（366日以内）・Issue番号が必須で、期限切れと未使用の抑制も失敗にします。行内`# nosec`は無効化します。
 - dependency auditは別venvの実依存をpip-auditで監査し、#90の方針が決まるまで警告だけを出します。

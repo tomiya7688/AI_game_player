@@ -25,28 +25,32 @@ STAGE_ENVELOPE_MIGRATIONS: Mapping[int, StageEnvelopeMigration] = {}
 #   責務: [encode_stage_envelope: 検証済みEnvelopeを、言語をまたいで同じ値として読めるcanonical JSONのUTF-8 bytesへ変換する]
 #   処理: [
 #     1: to_dictで全fieldを含む素のJSON値へ変換する
-#     2: key昇順・空白なし・非ASCII文字はそのまま・NaN/Infinity禁止でJSON化しUTF-8へencodeする
-#     3: byte数が上限を超えたら送出せず拒否する
+#     2: key昇順・空白なし・非ASCII文字はそのまま・NaN/Infinity禁止で断片ごとにJSON化しUTF-8へencodeする
+#     3: 累計byte数が上限を超えた時点で、残りを生成せずに拒否する
 #   ]
 #   引数: [envelope: 送出する検証済みStageEnvelope]
 #   戻り値: [bytes: 同じEnvelopeから常に同じ並びになるUTF-8 JSON（BOMなし）]
 #   エラー: [StageEnvelopeError(limit_exceeded): encode結果がSTAGE_ENVELOPE_MAX_ENCODED_BYTESを超える場合]
 # }
 def encode_stage_envelope(envelope: StageEnvelope) -> bytes:
-    text = json.dumps(
-        envelope.to_dict(),
+    encoder = json.JSONEncoder(
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
         allow_nan=False,
     )
-    encoded = text.encode("utf-8")
-    if len(encoded) > STAGE_ENVELOPE_MAX_ENCODED_BYTES:
-        raise StageEnvelopeError(
-            StageEnvelopeError.LIMIT_EXCEEDED,
-            "encoded stage envelope exceeds the byte limit",
-        )
-    return encoded
+    chunks: list[bytes] = []
+    encoded_size = 0
+    for chunk in encoder.iterencode(envelope.to_dict()):
+        encoded_chunk = chunk.encode("utf-8")
+        encoded_size += len(encoded_chunk)
+        if encoded_size > STAGE_ENVELOPE_MAX_ENCODED_BYTES:
+            raise StageEnvelopeError(
+                StageEnvelopeError.LIMIT_EXCEEDED,
+                "encoded stage envelope exceeds the byte limit",
+            )
+        chunks.append(encoded_chunk)
+    return b"".join(chunks)
 
 
 # {
@@ -72,6 +76,7 @@ def decode_stage_envelope(
             text,
             object_pairs_hook=_object_without_duplicate_keys,
             parse_constant=_reject_non_finite_constant,
+            parse_float=_parse_binary64_number,
         )
     except StageEnvelopeError:
         raise
@@ -160,6 +165,12 @@ def _document_version(document: Any) -> int:
 # }
 def _decode_utf8_text(data: bytes | str) -> str:
     if isinstance(data, str):
+        # 1文字はUTF-8で1byte以上なので、文字数が上限を超える文字列はencodeせずに拒否できる。
+        if len(data) > STAGE_ENVELOPE_MAX_ENCODED_BYTES:
+            raise StageEnvelopeError(
+                StageEnvelopeError.LIMIT_EXCEEDED,
+                "stage envelope exceeds the byte limit",
+            )
         try:
             encoded_size = len(data.encode("utf-8"))
         except UnicodeEncodeError as error:
@@ -250,6 +261,30 @@ def _object_without_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, An
             )
         result[key] = value
     return result
+
+
+# {
+#   責務: [_parse_binary64_number: 小数・指数形式のJSON数値tokenを、契約で定めたIEEE 754 binary64の値として読む]
+#   処理: [
+#     1: tokenをfloatへ変換し、binary64の範囲を超えて無限大になる値を拒否する
+#     2: 0以外の数字を含むのに0へ丸められる（underflowする）値を、値が変わるため拒否する
+#   ]
+#   引数: [token: json parserが渡す小数点または指数を含む数値の字面]
+#   戻り値: [float: tokenに最も近いbinary64の値。有効桁の丸めはbinary64の規則に従う]
+#   エラー: [StageEnvelopeError(malformed): 無限大へのoverflowまたは0へのunderflowの場合]
+# }
+def _parse_binary64_number(token: str) -> float:
+    value = float(token)
+    if value in (float("inf"), float("-inf")):
+        raise StageEnvelopeError(
+            StageEnvelopeError.MALFORMED, f"number {token} overflows binary64"
+        )
+    mantissa = token.lower().split("e", 1)[0]
+    if value == 0 and any(digit in "123456789" for digit in mantissa):
+        raise StageEnvelopeError(
+            StageEnvelopeError.MALFORMED, f"number {token} underflows binary64 to zero"
+        )
+    return value
 
 
 # {

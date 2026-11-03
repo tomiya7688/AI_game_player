@@ -233,6 +233,12 @@ class StageEnvelopeValidationTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             envelope.payload["items"] = []  # type: ignore[index]
+        with self.assertRaises(TypeError):
+            envelope.payload["items"][0]["id"] = "nested"  # type: ignore[index]
+        with self.assertRaises(AttributeError):
+            envelope.payload["items"].append({"id": "nested"})  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
+            envelope.metadata["plugin.note"]["k"] = []  # type: ignore[index]
         exported = envelope.to_dict()
         exported["payload"]["items"].append({"id": "exported"})
         exported["metadata"]["plugin.note"]["k"].append(2)
@@ -349,6 +355,20 @@ class StageEnvelopeCodecTest(unittest.TestCase):
             make_envelope(confidence=10**400)
 
         self.assertEqual(StageEnvelopeError.MALFORMED, raised.exception.code)
+
+    def test_unpaired_surrogates_are_malformed_in_values_and_keys(self):
+        lone = chr(0xD800)
+        for payload in ({"text": lone}, {lone: 1}, {"list": [lone]}):
+            with self.subTest(payload=repr(payload)):
+                with self.assertRaises(StageEnvelopeError) as raised:
+                    make_envelope(payload=payload)
+                self.assertEqual(StageEnvelopeError.MALFORMED, raised.exception.code)
+
+    def test_string_input_over_the_limit_is_rejected_before_encoding(self):
+        with self.assertRaises(StageEnvelopeError) as raised:
+            decode_stage_envelope("x" * (STAGE_ENVELOPE_MAX_ENCODED_BYTES + 1))
+
+        self.assertEqual(StageEnvelopeError.LIMIT_EXCEEDED, raised.exception.code)
 
     def test_overlong_integer_literal_is_malformed(self):
         text = json.dumps(example_document()).replace(

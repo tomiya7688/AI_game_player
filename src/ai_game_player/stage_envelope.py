@@ -77,11 +77,11 @@ _EXTENSION_STAGE_PREFIX = "ext."
 # }
 _VERSION_TEXT_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}")
 # {
-#   責務: [_UTC_TIMESTAMP_PATTERN: v1で受け付けるUTC時刻の字面を年月日時分秒・任意の1-9桁小数・末尾Zに制限する]
+#   責務: [_UTC_TIMESTAMP_PATTERN: v1で受け付けるUTC時刻の字面を年月日時分秒・任意の1-9桁小数・末尾Zに制限する。閏秒（秒60）はv1では表さない]
 #   処理: [各数値部分をgroupで取り出し、暦として正しいかは_validate_utc_timestampで確認する]
 # }
 _UTC_TIMESTAMP_PATTERN = re.compile(
-    r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\.[0-9]{1,9})?Z"
+    r"([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\.[0-9]{1,9})?Z"
 )
 
 
@@ -616,6 +616,8 @@ def _freeze_json_object(
         raise StageEnvelopeError(
             StageEnvelopeError.MALFORMED, f"{path} object keys must be strings"
         )
+    for key in value:
+        _require_encodable_text(key, f"{path} object key")
     return MappingProxyType(
         {
             key: _freeze_json_value(item, f"{path}.{key}", depth + 1)
@@ -636,7 +638,10 @@ def _freeze_json_object(
 #   エラー: [StageEnvelopeError: 深さ超過はlimit_exceeded、それ以外の違反はmalformed]
 # }
 def _freeze_json_value(value: Any, path: str, depth: int) -> Any:
-    if value is None or isinstance(value, (str, bool)):
+    if isinstance(value, str):
+        _require_encodable_text(value, path)
+        return value
+    if value is None or isinstance(value, bool):
         return value
     if isinstance(value, int):
         if not STAGE_ENVELOPE_INTEGER_MIN <= value <= STAGE_ENVELOPE_INTEGER_MAX:
@@ -668,6 +673,22 @@ def _freeze_json_value(value: Any, path: str, depth: int) -> Any:
         StageEnvelopeError.MALFORMED,
         f"{path} contains a non-JSON value of type {type(value).__name__}",
     )
+
+
+# {
+#   責務: [_require_encodable_text: JSON文字列・keyがUTF-8で表せるか判定し、対のないsurrogateを含む値を受け付けない]
+#   処理: [UTF-8へのencodeを試し、失敗した場合は往復できない値として拒否する]
+#   引数: [value: 検証する文字列, path: エラー表示用の値の位置]
+#   戻り値: [なし]
+#   エラー: [StageEnvelopeError(malformed): 対のないsurrogate（例 JSONの`\ud800`）を含む場合]
+# }
+def _require_encodable_text(value: str, path: str) -> None:
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError as error:
+        raise StageEnvelopeError(
+            StageEnvelopeError.MALFORMED, f"{path} contains an unpaired surrogate"
+        ) from error
 
 
 # {

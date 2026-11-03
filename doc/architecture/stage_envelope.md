@@ -44,7 +44,10 @@ ID文字列の規則は次のとおりです。
 | 文書のUTF-8 byte数 | 1,048,576以下。BOMなし | `limit_exceeded`（BOM・不正UTF-8は`malformed`） |
 | objectと配列の入れ子深さ | 32以下。Envelope rootを1、`payload`自身を2と数え、scalarは数えない | `limit_exceeded` |
 | `derived_from` / `artifact_refs`の件数 | 16 / 64以下 | `limit_exceeded` |
-| 数値 | 整数はint64範囲、数値は有限。`NaN`・`Infinity`は拒否 | `malformed` |
+| 数値 | 整数はint64範囲、数値は有限。`NaN`・`Infinity`は拒否。小数はIEEE 754 binary64として読み、無限大へのoverflowと0以外の値の0へのunderflowは拒否（通常の丸めは許可） | `malformed` |
+| 整数field | `schema_version`・`monotonic_ns`・`payload_schema_version`は小数点・指数のない整数tokenで書く（`1.0`は拒否） | `malformed` |
+| 文字列 | 対のないsurrogate（例 `\ud800`）を値・keyに含めない | `malformed` |
+| 時刻 | 暦上存在する日時。閏秒（秒60）はv1では表さない | `malformed` |
 | object key | 重複keyを拒否（後勝ちの解釈差をなくす） | `malformed` |
 | 自己参照 | `parent_envelope_id`と`derived_from`に自身の`envelope_id`を含めない | `malformed` |
 | 版 | `1`以外は`unsupported_version`。boolや文字列の版は`malformed` | `unsupported_version` |
