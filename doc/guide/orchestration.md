@@ -4,6 +4,8 @@
 
 **オーケストレーター**は、複数の手法やモデルのうち、どれをいつ使うかを選ぶ「調整役」です。**調整役それ自体が高精度な認識モデルという意味ではありません。** このページは、すでにある部品と、実行経路へ接続しきれていない拡張の要求を分けて説明します。
 
+評価関数の意味・編集・Goalとの関係は[汎用評価v2](../architecture/generic_evaluation_v2.md)、推論による生成・Reliabilityと低信頼時の再生成は[自己進化Reasoner](../architecture/self_evolving_reasoner.md)、計算機／表計算Toolと自作SearchProgramは[計算・探索の設計](../architecture/reasoner_compute_and_search.md)に分けました。これらは**将来の要求**を含み、下表の実装済み機能が自動生成・自動改善まで完成した意味ではありません。
+
 ## すでに確認した、軽い判断と統合
 
 | 何を決める？ | 確認した仕組み | 状態 |
