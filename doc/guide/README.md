@@ -81,6 +81,7 @@ flowchart TD
 
 | 知りたいこと | 最初に開く説明書 |
 |---|---|
+| 既存の全設計はどこから読む？ | [統合設計マップ](../architecture/system_design_map.md)・[汎用評価v2](../architecture/generic_evaluation_v2.md)・[自己進化Reasoner](../architecture/self_evolving_reasoner.md) |
 | 完成形と現在の差は？ | [完成図と現状図](target_and_current.md)・[実装状況と残作業](implementation_status.md) |
 | 画面をどう取得する？ | [画面キャプチャ機能説明書](../画面キャプチャ機能説明書.md) |
 | 文字や画像をどう見分ける？ | [OCR候補検出機能説明書](../OCR候補検出機能説明書.md)・[画像解析機能説明書](../画像解析機能説明書.md) |
