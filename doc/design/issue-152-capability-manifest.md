@@ -42,6 +42,7 @@ Parent: #58（関連: #42 Optional Parent、#235 Isolation、#224 Data Inventory
 | `compatibility.stage_envelope_schema_versions` | 正の整数1-16件、重複なし |
 | `permissions` | 権限ID 1-16件、重複なし |
 | `hooks[]` | 1-32件。`hook_id`（`plugin_id`自身か`<plugin_id>.`接頭辞、重複なし）、`mode`、`stage`、`boundary`、`input_payload_schemas`（1-16件、`payload_schema`重複なし、`versions` 1-16件）、`inject_targets`（injectは1-16件・他は0件、safety/execution不可、(stage,boundary,payload_schema)重複なし）、`budget`（`timeout_ns` 1..1e9、`max_output_bytes` 1..1048576、`max_injected` injectは0..16・他は0）、`data_classes`（0-32件、名前空間ID、重複なし、監査用） |
+| （`data_classes`補足） | v1では非強制の監査metadata。字面が名前空間IDなら#224の語彙にない値も受け入れる。#224の語彙と照合する時は、未知値の扱いをManifestの版を上げて定める（v1文書の意味は変えない） |
 | `audit` | `publisher` 1-128文字、`description` 0-512文字、制御文字・対のないsurrogate不可 |
 
 上限: 文書64KiB、深さ32（StageEnvelopeと同じ判定）。整数fieldは整数token（`1.0`・`5e7`不可）。
@@ -75,12 +76,13 @@ HookRuntime(..., access_policy: HookAccessPolicy | None = None)
 ## 手順
 
 1. 復号: byte上限→UTF-8/BOM→深さ→JSON（重複key・NaN拒否）→`from_dict`。検査順は`manifest_version`→field過不足→`plugin_id`→`plugin_version`→`compatibility`→`permissions`（先頭から字面→重複→未知→禁止）→`hooks`（先頭から）→権限とmodeの一致→`audit`。最初の違反でcode確定（決定論的）。正規化: 権限・版・data class昇順、hooksは`hook_id`順。
-2. 登録（`Policy.add`）: `to_dict→from_dict`で再検証（直接構築も検証）→runtimeのEnvelope版が互換範囲外なら`incompatible`→`plugin_id`/`hook_id`既登録なら`conflict`（後勝ちで権限を差し替えない）。
+2. 登録（`Policy.add`）: `to_dict→from_dict`で再検証（直接構築も検証）→runtimeのEnvelope版が互換範囲外なら`incompatible`→`plugin_id`既登録なら`conflict`→各`hook_id`（`hook_id`順）が既登録なら`conflict`（後勝ちで権限を差し替えない。途中で拒否した場合は何も登録しない）。
 3. Hook登録（`authorize_registration`）: hook_idの宣言→版→mode→接続点→隔離必須権限の有無→予算（inject以外は`max_injected`を比較しない）。結果を`decisions`（上限件数のdeque、payloadなし、manifest_sha256付き）へ記録。拒否時は例外で登録しない。
 4. 呼び出し前（`authorize_input`）: 登録値で宣言を引き直し、Envelopeのstage/boundaryとpayload契約・版を照合。拒否時はHookを呼ばず`capability_denied`を記録。Hookの失敗ではないので連続失敗数・quarantineは変えない。`halt`方針なら境界を停止。
-5. 出力後（`authorize_output`）: runtime既存の再検証・provenance検査の後に実行。modifyは入力と同じ範囲、injectは`inject_targets`一致かつArtifact参照が入力Envelopeにあるものだけ。拒否時はそのHookの出力を全件捨て、連続失敗数に数える。
+5. 出力後（`authorize_output`）: runtime既存の再検証・provenance検査の後に、出力1件ずつ実行する。再検証・provenance検査・権限判定はいずれも副作用のない純粋な検査で、全件が通るまでHook出力は後段（`HookDispatchResult`）へ採用されない。modifyは入力と同じ範囲（接続点→payload契約の順に判定）。injectは`inject_targets`一致（不一致は`output_not_granted`）を先に、次にArtifact参照を判定する。Artifact参照は出力Envelopeの`artifact_refs`の各要素が、入力Envelopeの`artifact_refs`のいずれかと全field（`artifact_id`・`sha256`・`media_type`・`sensitive`）で等しいこと（不一致は`artifact_ref_not_granted`）。拒否時はそのHookの出力を全件捨て、連続失敗数に数える。
 6. fail-closed: `access_policy`のどの例外も拒否扱い。拒否codeとして採用するのは`ValueError`系かつ`[a-z][a-z0-9_]{0,63}`の`code`のみ、他は`policy_error`。`access_policy=None`は従来どおり無判定（既定、権限確認の存在を意味しない）。
-7. 位置づけ: 同一process内のpolicy check。sandboxではない（Pluginはimportで任意APIを使える）ため、隔離必須権限を宣言したPluginは登録しない。
+7. 位置づけ: 同一process内のpolicy check。sandboxではない（Pluginはimportで任意APIを使える）ため、隔離必須権限を宣言したPluginは登録しない。強制できるのはHook runtime経由の登録・入力・出力だけで、`input.direct`の禁止は「権限として宣言・付与できない」という宣言上の分離である。Plugin codeがOS入力APIを直接importして使うことは、この契約では防げない（実際の阻止は#235の隔離境界の要件）。入力の実行経路は従来どおりDecision VerifierとAction Safety Evaluatorを通り、Hookへはexecutorや座標を渡さない（#151）。
+8. deny-by-defaultの適用範囲: `access_policy`に`PluginCapabilityPolicy`を渡したruntimeでは、宣言のないHookは登録されない。`access_policy=None`（#151互換の既定）は無判定であり、権限の確認があることを意味しない。現時点で設定やUIからPluginを読み込む経路はなく、`HookRuntime`自体も既定で無効。第三者Pluginを読み込む経路を追加するIssue（#99・設定/UI有効化）は、`PluginCapabilityPolicy`の指定を必須とすることを受入条件に含める（本設計の残件として明記）。
 
 ## テスト
 
@@ -88,8 +90,8 @@ HookRuntime(..., access_policy: HookAccessPolicy | None = None)
 |---|---|
 | capability schemaがある | schemaのfield/上限/権限一覧が参照定数と一致、`jsonschema`単独判定が全ケースの`schema_valid`と一致、有効例がschemaに通る |
 | manifest validationできる | `conformance.json`全件（全6code＋valid）を参照validatorが期待どおり判定。往復・digest安定・正規化・不変性・入力型/byte上限 |
-| permission不足を判定できる | `enforcement_conformance.json`全件（全9拒否code＋allow＋incompatible/conflict）。HookRuntime統合: 未宣言Hookの登録拒否、入力拒否でHookを呼ばずquarantineしない、modify入力拒否でhalt、inject出力拒否、policy例外のfail-closed（`policy_error`）、conflictで既存権限が変わらない、decisions上限 |
-| direct input capabilityを分離できる | `input.direct`・`safety.override`が`forbidden_permission`、safety/executionでのmodify/inject宣言とsafety向けinject先が`forbidden_permission` |
+| permission不足を判定できる | `enforcement_conformance.json`全件（全9拒否code＋allow＋incompatible/conflict。Artifact参照は受け取った参照の再利用をallow、新しい参照を`artifact_ref_not_granted`）。HookRuntime統合: 未宣言Hookの登録拒否、入力拒否でHookを呼ばずquarantineしない、modify入力拒否でhalt、inject出力拒否、policy例外のfail-closed（codeを持たない例外・`ValueError`以外でcodeを持つ例外・字面が不正なcodeはすべて`policy_error`）、conflictで既存権限が変わらない、decisions上限 |
+| direct input capabilityを分離できる（宣言上の分離。手順7） | `input.direct`・`safety.override`が`forbidden_permission`、safety/executionでのmodify/inject宣言とsafety向けinject先が`forbidden_permission` |
 | version compatibility testがある | `manifest_version` 0/2/999が`unsupported_version`、Envelope版の非互換（Manifest側[2]、runtime側2）が`incompatible` |
 
 既存`test_hook_runtime`・`test_perception_hook_boundary`が無変更でpassすること（`access_policy=None`の互換）。
@@ -119,6 +121,7 @@ HookRuntime(..., access_policy: HookAccessPolicy | None = None)
 ## 範囲外・残件
 
 - subprocess/IPC隔離と隔離境界での強制（#235）。OS sandbox。
-- Manifestの配布・発見・署名・Catalog（#99）、設定/UIからの有効化。
+- Manifestの配布・発見・署名・Catalog（#99）、設定/UIからの有効化。その経路では`PluginCapabilityPolicy`の指定を必須にする（`access_policy=None`のruntimeへ第三者Pluginを登録しない）。
+- in-processでのOS入力API・file・networkの直接利用の阻止（#235）。
 - `data_classes`と#224 Data Inventoryの照合、保存/remote policy連携（#224, #123）。
 - Hook dispatch結果のRecord/Replay（#153）、Flow構成（#432）。
