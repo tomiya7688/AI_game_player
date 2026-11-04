@@ -75,4 +75,4 @@ Schemaの`pattern`は、末尾の改行を許さないためにECMA-262の先読
 - **Replay（#153）**: `producer_kind: "replay"`、`trace_id`・`derived_from`で、記録したEnvelopeとの対応を保ちます。
 - **Safety**: `stage: "safety"`のEnvelopeは観測用のデータです。この契約には、Safety Gateを無効にしたり迂回したりするfieldはありません。
 
-現時点では、Pipelineの各stageからEnvelopeを生成する処理と、Hook runtimeへの接続はありません（#151）。この資料は契約と参照validatorだけを定義します。
+Hook runtimeと最初の接続点（`DecisionPipeline`の`perception`/`output`）は[Processing Hook Runtime](hook_runtime.md)にあります。他のstageからEnvelopeを生成する処理はまだありません。この資料は契約と参照validatorだけを定義します。
