@@ -35851,7 +35851,7 @@
       "module": "ai_game_player.hook_runtime",
       "path": "src/ai_game_player/hook_runtime.py",
       "source_location": {
-        "end_line": 699,
+        "end_line": 702,
         "start_line": 1
       },
       "symbols": [
@@ -36715,7 +36715,7 @@
           "signature": "(error: Exception) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 699,
+            "end_line": 702,
             "start_line": 691
           }
         }
@@ -63766,7 +63766,7 @@
       "module": "ai_game_player.plugin_capability_policy",
       "path": "src/ai_game_player/plugin_capability_policy.py",
       "source_location": {
-        "end_line": 370,
+        "end_line": 396,
         "start_line": 1
       },
       "symbols": [
@@ -63788,7 +63788,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 45,
+            "end_line": 46,
             "start_line": 26
           }
         },
@@ -63823,8 +63823,8 @@
           "signature": "(self, code: str, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 45,
-            "start_line": 43
+            "end_line": 46,
+            "start_line": 44
           }
         },
         {
@@ -63845,8 +63845,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 88,
-            "start_line": 58
+            "end_line": 89,
+            "start_line": 59
           }
         },
         {
@@ -63868,8 +63868,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 76
+            "end_line": 89,
+            "start_line": 77
           }
         },
         {
@@ -63890,8 +63890,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 99,
-            "start_line": 96
+            "end_line": 100,
+            "start_line": 97
           }
         },
         {
@@ -63910,8 +63910,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 370,
-            "start_line": 113
+            "end_line": 396,
+            "start_line": 114
           }
         },
         {
@@ -63951,8 +63951,8 @@
           "signature": "(self, manifests: Iterable[PluginCapabilityManifest] = …, *, stage_envelope_schema_version: int = …, max_decisions: int = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 137,
-            "start_line": 122
+            "end_line": 143,
+            "start_line": 123
           }
         },
         {
@@ -63980,8 +63980,8 @@
           "signature": "(self, manifest: PluginCapabilityManifest) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 150
+            "end_line": 187,
+            "start_line": 156
           }
         },
         {
@@ -64005,8 +64005,8 @@
           "signature": "(self) -> tuple[PluginCapabilityDecision, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 192,
-            "start_line": 190
+            "end_line": 198,
+            "start_line": 196
           }
         },
         {
@@ -64034,8 +64034,8 @@
           "signature": "(self, registration: HookRegistration) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 205
+            "end_line": 237,
+            "start_line": 211
           }
         },
         {
@@ -64069,8 +64069,8 @@
           "signature": "(self, registration: HookRegistration, envelope: StageEnvelope) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 244,
-            "start_line": 240
+            "end_line": 251,
+            "start_line": 246
           }
         },
         {
@@ -64110,8 +64110,8 @@
           "signature": "(self, registration: HookRegistration, output: StageEnvelope, source: StageEnvelope) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 283,
-            "start_line": 257
+            "end_line": 291,
+            "start_line": 264
           }
         },
         {
@@ -64139,8 +64139,43 @@
           "signature": "(self, registration: HookRegistration) -> _Grant",
           "source_location": {
             "column": 4,
-            "end_line": 319,
-            "start_line": 292
+            "end_line": 327,
+            "start_line": 300
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_require_envelope_version",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_Grant",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "grant"
+            },
+            {
+              "annotation": "StageEnvelope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "envelope"
+            }
+          ],
+          "qualified_name": "PluginCapabilityPolicy._require_envelope_version",
+          "return_annotation": "None",
+          "signature": "(self, grant: _Grant, envelope: StageEnvelope) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 352,
+            "start_line": 343
           }
         },
         {
@@ -64170,8 +64205,8 @@
           "signature": "(hook: HookCapability, envelope: StageEnvelope) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 342,
-            "start_line": 329
+            "end_line": 368,
+            "start_line": 355
           }
         },
         {
@@ -64205,8 +64240,8 @@
           "signature": "(self, registration: HookRegistration, code: str | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 370,
-            "start_line": 350
+            "end_line": 396,
+            "start_line": 376
           }
         }
       ]
@@ -159581,7 +159616,7 @@
       "module": "tests.test_plugin_capability_policy",
       "path": "tests/test_plugin_capability_policy.py",
       "source_location": {
-        "end_line": 358,
+        "end_line": 406,
         "start_line": 1
       },
       "symbols": [
@@ -160391,6 +160426,269 @@
             "column": 12,
             "end_line": 339,
             "start_line": 338
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "EnvelopeVersionAndPolicyErrorTest",
+          "parameters": [],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 402,
+            "start_line": 357
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_envelopes_of_another_schema_version_are_denied",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_envelopes_of_another_schema_version_are_denied",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 370,
+            "start_line": 358
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejects_invalid_runtime_envelope_versions",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_rejects_invalid_runtime_envelope_versions",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 376,
+            "start_line": 372
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unreadable_code_attribute_is_a_policy_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 402,
+            "start_line": 378
+          }
+        },
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "BrokenCode",
+          "parameters": [],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error.BrokenCode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 382,
+            "start_line": 379
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "code",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error.BrokenCode.code",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 382,
+            "start_line": 381
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Policy",
+          "parameters": [],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error.Policy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 392,
+            "start_line": 384
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "authorize_registration",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "registration"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error.Policy.authorize_registration",
+          "return_annotation": null,
+          "signature": "(self, registration)",
+          "source_location": {
+            "column": 12,
+            "end_line": 386,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "authorize_input",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "registration"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "envelope"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error.Policy.authorize_input",
+          "return_annotation": null,
+          "signature": "(self, registration, envelope)",
+          "source_location": {
+            "column": 12,
+            "end_line": 389,
+            "start_line": 388
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "authorize_output",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "registration"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "output"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            }
+          ],
+          "qualified_name": "EnvelopeVersionAndPolicyErrorTest.test_unreadable_code_attribute_is_a_policy_error.Policy.authorize_output",
+          "return_annotation": null,
+          "signature": "(self, registration, output, source)",
+          "source_location": {
+            "column": 12,
+            "end_line": 392,
+            "start_line": 391
           }
         }
       ]

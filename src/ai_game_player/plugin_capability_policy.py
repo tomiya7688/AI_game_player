@@ -21,7 +21,7 @@ from ai_game_player.stage_envelope import STAGE_ENVELOPE_SCHEMA_VERSION, StageEn
 # {
 #   責務: [PluginCapabilityDenied: Hookの登録・入力・出力が宣言された権限の外にあることを、機械判定できるcodeで伝える]
 #   フィールド: [code: manifest_missing・version_mismatch・permission_unavailable・mode_not_granted・point_not_granted・
-#     budget_exceeded・payload_schema_not_granted・output_not_granted・artifact_ref_not_granted のいずれか]
+#     budget_exceeded・envelope_version_not_granted・payload_schema_not_granted・output_not_granted・artifact_ref_not_granted のいずれか]
 # }
 class PluginCapabilityDenied(ValueError):
     MANIFEST_MISSING = "manifest_missing"
@@ -33,6 +33,7 @@ class PluginCapabilityDenied(ValueError):
     PAYLOAD_SCHEMA_NOT_GRANTED = "payload_schema_not_granted"
     OUTPUT_NOT_GRANTED = "output_not_granted"
     ARTIFACT_REF_NOT_GRANTED = "artifact_ref_not_granted"
+    ENVELOPE_VERSION_NOT_GRANTED = "envelope_version_not_granted"
 
     # {
     #   責務: [__init__: 拒否の分類codeと人が読める理由を保持する例外を作る]
@@ -126,6 +127,11 @@ class PluginCapabilityPolicy:
         stage_envelope_schema_version: int = STAGE_ENVELOPE_SCHEMA_VERSION,
         max_decisions: int = 256,
     ) -> None:
+        if (
+            type(stage_envelope_schema_version) is not int
+            or stage_envelope_schema_version < 1
+        ):
+            raise ValueError("stage_envelope_schema_version must be a positive integer")
         if type(max_decisions) is not int or not 1 <= max_decisions <= 10_000:
             raise ValueError("max_decisions must be in [1, 10000]")
         self._stage_envelope_schema_version = stage_envelope_schema_version
@@ -241,6 +247,7 @@ class PluginCapabilityPolicy:
         self, registration: HookRegistration, envelope: StageEnvelope
     ) -> None:
         grant = self._grant_for(registration)
+        self._require_envelope_version(grant, envelope)
         self._require_readable(grant.hook, envelope)
 
     # {
@@ -261,6 +268,7 @@ class PluginCapabilityPolicy:
         source: StageEnvelope,
     ) -> None:
         grant = self._grant_for(registration)
+        self._require_envelope_version(grant, output)
         hook = grant.hook
         if hook.mode is HookMode.MODIFY:
             self._require_readable(hook, output)
@@ -325,6 +333,24 @@ class PluginCapabilityPolicy:
     #   戻り値: [なし]
     #   エラー: [PluginCapabilityDenied: point_not_grantedまたはpayload_schema_not_granted]
     # }
+    # {
+    #   責務: [_require_envelope_version: EnvelopeのStageEnvelope版が、このruntimeとManifestの互換範囲の両方に一致するか確認する]
+    #   処理: [schema_versionをruntimeの版と比べ、Manifestのstage_envelope_schema_versionsに含まれるか確認する]
+    #   引数: [grant: 照合した宣言, envelope: 判定するEnvelope]
+    #   戻り値: [なし]
+    #   エラー: [PluginCapabilityDenied(envelope_version_not_granted): どちらかに一致しない場合]
+    # }
+    def _require_envelope_version(self, grant: _Grant, envelope: StageEnvelope) -> None:
+        version = envelope.schema_version
+        if (
+            version != self._stage_envelope_schema_version
+            or version not in grant.manifest.stage_envelope_schema_versions
+        ):
+            raise PluginCapabilityDenied(
+                PluginCapabilityDenied.ENVELOPE_VERSION_NOT_GRANTED,
+                f"{grant.hook.hook_id} may not receive stage envelope v{version}",
+            )
+
     @staticmethod
     def _require_readable(hook: HookCapability, envelope: StageEnvelope) -> None:
         if (envelope.stage, envelope.boundary) != (hook.stage, hook.boundary):

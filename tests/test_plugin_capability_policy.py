@@ -354,5 +354,53 @@ class HookRuntimeEnforcementTest(unittest.TestCase):
         self.assertEqual("policy_error", result.records[0].error_code)
 
 
+class EnvelopeVersionAndPolicyErrorTest(unittest.TestCase):
+    def test_envelopes_of_another_schema_version_are_denied(self):
+        policy = make_policy()
+        reader = registration(READ_ID, HookMode.READ, print)
+        policy.authorize_registration(reader)
+        forged = make_envelope()
+        object.__setattr__(forged, "schema_version", 2)
+
+        with self.assertRaises(PluginCapabilityDenied) as raised:
+            policy.authorize_input(reader, forged)
+        self.assertEqual(
+            PluginCapabilityDenied.ENVELOPE_VERSION_NOT_GRANTED, raised.exception.code
+        )
+        policy.authorize_input(reader, make_envelope())
+
+    def test_rejects_invalid_runtime_envelope_versions(self):
+        for version in (0, -1, True, "1", 1.0):
+            with self.subTest(version=version):
+                with self.assertRaises(ValueError):
+                    PluginCapabilityPolicy(stage_envelope_schema_version=version)
+
+    def test_unreadable_code_attribute_is_a_policy_error(self):
+        class BrokenCode(ValueError):
+            @property
+            def code(self):
+                raise RuntimeError("broken")
+
+        class Policy:
+            def authorize_registration(self, registration):
+                return None
+
+            def authorize_input(self, registration, envelope):
+                raise BrokenCode("denied")
+
+            def authorize_output(self, registration, output, source):
+                return None
+
+        runtime = runtime_for(Policy())
+        seen = []
+        runtime.register(registration(READ_ID, HookMode.READ, seen.append))
+
+        with self.assertLogs("ai_game_player.hook_runtime", "WARNING"):
+            result = runtime.dispatch(make_envelope())
+
+        self.assertEqual([], seen)
+        self.assertEqual("policy_error", result.records[0].error_code)
+
+
 if __name__ == "__main__":
     unittest.main()

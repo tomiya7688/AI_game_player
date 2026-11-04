@@ -79,7 +79,7 @@ runtime = HookRuntime(enabled=True, access_policy=policy)
 | 時点 | 確認する内容 | 拒否時の動作 |
 |---|---|---|
 | `register()` | `hook_id`の宣言（なければ`manifest_missing`）、`hook_version`と`plugin_version`（`version_mismatch`）、mode（`mode_not_granted`）、stage・boundary（`point_not_granted`）、隔離が必要な権限（`permission_unavailable`）、timeout・出力byte数・inject件数（injectのみ）が宣言以内か（`budget_exceeded`） | 例外を送出し、登録しません |
-| Hookを呼ぶ前 | 入力Envelopeのstage・boundary（`point_not_granted`）とpayload契約・版（`payload_schema_not_granted`） | Hookを呼ばず、`failure_kind: "capability_denied"`・`error_code`に拒否codeを記録します。Hookの失敗ではないため連続失敗数は増やさず、quarantineしません。`halt`方針のHook（modifyの既定）なら境界を停止します |
+| Hookを呼ぶ前 | 入力Envelopeの`schema_version`がruntimeとManifestの互換範囲の両方に一致するか（`envelope_version_not_granted`。出力にも同じ検査）、stage・boundary（`point_not_granted`）とpayload契約・版（`payload_schema_not_granted`） | Hookを呼ばず、`failure_kind: "capability_denied"`・`error_code`に拒否codeを記録します。Hookの失敗ではないため連続失敗数は増やさず、quarantineしません。`halt`方針のHook（modifyの既定）なら境界を停止します |
 | Hookの出力後 | modifyは入力と同じ範囲か。injectは`inject_targets`のどれかに一致するか（`output_not_granted`）、Artifact参照が入力Envelopeにあるものだけか（`artifact_ref_not_granted`） | その出力を全件捨て、`capability_denied`として記録します（他の不正出力と同じく連続失敗数に数えます） |
 
 `access_policy`が拒否以外の例外（小文字の`code`属性を持つ`ValueError`系以外）を送出した場合も拒否として扱い、`error_code: "policy_error"`を記録します（判定の障害で許可せず、通常の拒否とは区別します）。拒否の判定は、出力の再検証（[Processing Hook Runtime](hook_runtime.md)）のprovenance・境界規則の後に行います。

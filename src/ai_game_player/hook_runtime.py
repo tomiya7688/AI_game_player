@@ -689,7 +689,10 @@ class HookRuntime:
 #   戻り値: [str: HookExecutionRecord.error_codeへ記録するcode]
 # }
 def _denial_code(error: Exception) -> str:
-    code = getattr(error, "code", None)
+    try:
+        code = getattr(error, "code", None)
+    except Exception:  # noqa: BLE001 - code属性の読み取り失敗も判定の障害として扱う
+        return HOOK_POLICY_ERROR_CODE
     if (
         isinstance(error, ValueError)
         and isinstance(code, str)
