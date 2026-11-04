@@ -105027,7 +105027,7 @@
       "module": "tests.test_data_inventory",
       "path": "tests/test_data_inventory.py",
       "source_location": {
-        "end_line": 448,
+        "end_line": 479,
         "start_line": 1
       },
       "symbols": [
@@ -105317,7 +105317,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 280,
+            "end_line": 311,
             "start_line": 162
           }
         },
@@ -105420,6 +105420,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_1_0_default_table_is_pinned",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DataInventoryRegistryTest.test_1_0_default_table_is_pinned",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 212
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_policy_queries",
           "parameters": [
             {
@@ -105434,8 +105457,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 227,
-            "start_line": 212
+            "end_line": 258,
+            "start_line": 243
           }
         },
         {
@@ -105457,8 +105480,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 229
+            "end_line": 278,
+            "start_line": 260
           }
         },
         {
@@ -105480,8 +105503,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 249
+            "end_line": 292,
+            "start_line": 280
           }
         },
         {
@@ -105503,8 +105526,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 270,
-            "start_line": 263
+            "end_line": 301,
+            "start_line": 294
           }
         },
         {
@@ -105526,8 +105549,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 280,
-            "start_line": 272
+            "end_line": 311,
+            "start_line": 303
           }
         },
         {
@@ -105548,8 +105571,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 323,
-            "start_line": 283
+            "end_line": 354,
+            "start_line": 314
           }
         },
         {
@@ -105571,8 +105594,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 286
+            "end_line": 318,
+            "start_line": 317
           }
         },
         {
@@ -105594,8 +105617,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 295,
-            "start_line": 289
+            "end_line": 326,
+            "start_line": 320
           }
         },
         {
@@ -105617,8 +105640,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 310,
-            "start_line": 297
+            "end_line": 341,
+            "start_line": 328
           }
         },
         {
@@ -105640,8 +105663,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 317,
-            "start_line": 312
+            "end_line": 348,
+            "start_line": 343
           }
         },
         {
@@ -105663,8 +105686,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 323,
-            "start_line": 319
+            "end_line": 354,
+            "start_line": 350
           }
         },
         {
@@ -105685,8 +105708,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 444,
-            "start_line": 326
+            "end_line": 475,
+            "start_line": 357
           }
         },
         {
@@ -105714,8 +105737,8 @@
           "signature": "(self, value: dict) -> DataInventory",
           "source_location": {
             "column": 4,
-            "end_line": 328,
-            "start_line": 327
+            "end_line": 359,
+            "start_line": 358
           }
         },
         {
@@ -105749,8 +105772,8 @@
           "signature": "(self, value: dict, data_class: str) -> dict",
           "source_location": {
             "column": 4,
-            "end_line": 331,
-            "start_line": 330
+            "end_line": 362,
+            "start_line": 361
           }
         },
         {
@@ -105778,8 +105801,8 @@
           "signature": "(self, value: dict) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 335,
-            "start_line": 333
+            "end_line": 366,
+            "start_line": 364
           }
         },
         {
@@ -105801,8 +105824,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 344,
-            "start_line": 337
+            "end_line": 375,
+            "start_line": 368
           }
         },
         {
@@ -105824,8 +105847,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 355,
-            "start_line": 346
+            "end_line": 386,
+            "start_line": 377
           }
         },
         {
@@ -105847,8 +105870,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 372,
-            "start_line": 357
+            "end_line": 403,
+            "start_line": 388
           }
         },
         {
@@ -105870,8 +105893,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 387,
-            "start_line": 374
+            "end_line": 418,
+            "start_line": 405
           }
         },
         {
@@ -105893,8 +105916,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 410,
-            "start_line": 389
+            "end_line": 441,
+            "start_line": 420
           }
         },
         {
@@ -105916,8 +105939,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 416,
-            "start_line": 412
+            "end_line": 447,
+            "start_line": 443
           }
         },
         {
@@ -105939,8 +105962,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 421,
-            "start_line": 418
+            "end_line": 452,
+            "start_line": 449
           }
         },
         {
@@ -105962,8 +105985,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 435,
-            "start_line": 423
+            "end_line": 466,
+            "start_line": 454
           }
         },
         {
@@ -105985,8 +106008,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 444,
-            "start_line": 437
+            "end_line": 475,
+            "start_line": 468
           }
         }
       ]

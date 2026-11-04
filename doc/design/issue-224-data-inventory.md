@@ -3,8 +3,8 @@
 - Spec-Status: READY
 - Depends-On: #164（Retention Core、merge済み。`RetentionPolicy.ttl_ms_by_type`へ既定TTLを渡すだけ）
 - Decision-Gaps:
-  - DG-1（owner確認、非ブロッキング）: class別の既定TTL値（raw_frame/cropped_image/unclassified 1日、ocr_text/decision_context/video/replay 7日、crash_diagnostic/runtime_log 14日、その他local_bounded 30日）は本設計の提案値。現行runtimeには適用しない（適用は#225）ため実装は進めるが、#225で強制する前にownerが値を確定する。
-  - DG-2（#226で決定、非ブロッキング）: Provider wire schema v1の`data_classes`列挙は`ui_metadata`・`model_output`を持たない。`OllamaProvider.assess_outcome`/旧`choose()`が送るfeaturesを宣言できない。schema拡張かclass統合かは#226で決める。本Issueではschemaを変更しない。
+  - DG-1（owner確認、非ブロッキング）: class別の既定TTL値（raw_frame/cropped_image/unclassified 1日、ocr_text/decision_context/video/replay 7日、crash_diagnostic/runtime_log 14日、その他local_bounded 30日）は本設計の提案値。現行runtimeには適用しないため#224の実装は非ブロッキング。**#225でTTLを強制適用する前のowner承認は#225のブロッカー**で、承認はIssue #225のコメントに記録する。それまでTTLは暫定値。
+  - DG-2（#226で決定、非ブロッキング）: Provider wire schema v1の`data_classes`列挙は`ui_metadata`・`model_output`を持たない。`OllamaProvider.assess_outcome`/旧`choose()`が送るfeaturesを宣言できない。schema拡張かclass統合かは#226で決める。本Issueではschemaを変更しない。**#226の受入前提**: DG-2の解決、全送信siteで実payloadと宣言classの対応を契約testで確認、未知・欠落classはfail-closedで拒否。
 - Parent: #123（Privacy Parent: Data Inventory / Retention / Remote Consent）。兄弟: #225 Retention/Delete/Export、#226 Remote Consent Enforcement。
 
 ## 成果物
@@ -24,6 +24,7 @@
 - top-level（全て必須、追加キー禁止）: `schema_version`(=1), `policy_version`(非空), `classes`[], `artifact_types`{型→class}, `writers`[], `transmitters`[], `non_data_paths`{path名→理由}, `forbidden_field_names`[]。
 - class: `id`(`^[a-z][a-z0-9_]*$`), `sensitivity`(low<medium<high<forbidden), `default_persistence`(never/off/transient/local_bounded/local), `default_retention_ms`(正整数ms|null), `remote`(never/opt_in), `contains`[class], `owner_modules`[`ai_game_player.*`], `implemented`(bool), `description`。
 - writer: `site`(`ai_game_player.module:最上位qualname`), `data_class`(class|null), `paths`[], `note`（null時必須）。transmitter: `site`(`module:qualname`), `data_classes`[文字列class], `note`。
+- 1.0既定の全class表（保存mode・TTL・remote）は`doc/architecture/privacy_data_inventory.md`の「1.0既定policy」が正本の説明で、`test_1_0_default_table_is_pinned`が全classの(保存mode, remote)を固定する。既定送信（remote ON）の値は列挙に存在しない。
 - 出力（問合せ）: `policy(id)`、`class_for_artifact_type(type)`、`effective_classes(ids)`（contains閉包）、`remote_eligible_classes()`、`ttl_ms_by_artifact_type()`、`forbidden_field_paths(payload)`（`$.a.b[0]`形式、sorted tuple）。
 - エラー: 全て`DataInventoryError`（ValueError）。単独値の誤りは`DataClassPolicyError`を包む。未登録のclass・artifact型は推測せず拒否。
 
@@ -33,14 +34,14 @@
 2. class単独検証（`DataClassPolicy.__post_init__`）: 列挙値・ID・module名。forbidden⇒never/never、high⇒`local`禁止、`local_bounded`⇒TTL必須、never/transient/local⇒TTLなし、implemented⇒owner必須。
 3. 相互検証（`_parse_classes`ほか）: ID重複、contains未登録参照、外側classが内包classより低機微度、`opt_in`が`never`を内包、間接循環、writer/transmitterのsite重複・未登録class、path重複、persisted pathとnon-data pathの重複、forbidden class不在を拒否。
 4. 責務境界: 本Issueは「宣言と問合せ」だけ。保存・送信・削除の強制はしない（#225/#226）。runtime経路へは接続しない。
-5. `forbidden_field_paths`はfield名のみ判定（小文字化・`-`→`_`、完全一致または`_禁止名`接尾一致のfail-closed）。同じcontainerは1回だけ辿り循環objectでも停止。
+5. `forbidden_field_paths`はfield名のみ判定（小文字化・`-`→`_`、完全一致または`_禁止名`接尾一致のfail-closed）。同じcontainerは1回だけ辿り循環objectでも停止。保証範囲はfield名によるheuristicで、値だけにcredentialがある場合や想定外のkey名は検出しない。#226はpayload構築元の許可field schema等と併用する。
 
 ## テスト
 
 | 完了条件 | 試験 |
 |---|---|
 | inventory schemaがある | `test_canonical_document_matches_schema`（jsonschema有時） |
-| 1.0 defaultを表現できる | `test_1_0_defaults_are_local_first`（raw/crop/replay/video OFF、trace local_bounded+TTL、high⇒非local） |
+| 1.0 defaultを表現できる | `test_1_0_defaults_are_local_first`（raw/crop/replay/video OFF、trace local_bounded+TTL、high⇒非local）、`test_1_0_default_table_is_pinned`（全21 classの保存mode・remoteを固定） |
 | credential禁止classがある | `test_issue_scope_classes_and_credential_class_are_defined`、`test_forbidden_field_paths_find_nested_credentials` |
 | componentがpolicyをqueryできる | `test_policy_queries`、`test_retention_ttl_defaults_feed_retention_policy` |
 | validation testがある | `DataInventoryValidationTest`（版・未知キー・未登録参照・非privacy既定・内包矛盾・循環・重複・JSON重複key・非文字列class・読込失敗） |

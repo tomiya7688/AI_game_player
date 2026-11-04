@@ -209,6 +209,37 @@ class DataInventoryRegistryTest(unittest.TestCase):
             if policy.sensitivity == "high":
                 self.assertNotEqual("local", policy.default_persistence)
 
+    def test_1_0_default_table_is_pinned(self) -> None:
+        # 既定の変更は意図的であるべきなので、全classの保存modeと送信可否を固定する。
+        expected = {
+            "raw_frame": ("off", "opt_in"),
+            "cropped_image": ("off", "opt_in"),
+            "ocr_text": ("off", "opt_in"),
+            "ui_metadata": ("local_bounded", "opt_in"),
+            "decision_context": ("off", "opt_in"),
+            "model_output": ("local_bounded", "opt_in"),
+            "history": ("local_bounded", "opt_in"),
+            "trace": ("local_bounded", "opt_in"),
+            "video": ("off", "never"),
+            "replay": ("off", "never"),
+            "learning_dataset": ("off", "never"),
+            "challenger_artifact": ("local_bounded", "never"),
+            "knowledge": ("local", "never"),
+            "crash_diagnostic": ("local_bounded", "never"),
+            "safety_audit": ("local_bounded", "never"),
+            "runtime_log": ("local_bounded", "never"),
+            "app_config": ("local", "never"),
+            "quality_report": ("local", "never"),
+            "worker_ipc": ("transient", "never"),
+            "unclassified": ("off", "never"),
+            "credential": ("never", "never"),
+        }
+        actual = {
+            name: (policy.default_persistence, policy.remote)
+            for name, policy in self.inventory.classes.items()
+        }
+        self.assertEqual(expected, actual)
+
     def test_policy_queries(self) -> None:
         self.assertEqual(
             "knowledge",
