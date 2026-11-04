@@ -141,7 +141,7 @@ flowchart LR
 
 **[提案D12]** 探索結果を高速な評価器やpolicyへ蒸留する（expert iteration）のは、LEARN/ALTERNATINGの段階で行います。蒸留した成果物が`SELF_DERIVED`になるのは、教師にした探索が`SELF_DERIVED`だった場合だけです。
 
-`MIXED`（専用エンジンのbestmoveを一度でも使った試合）と`UNVERIFIED`（出所の欠落）は、#782のとおりSELF_DERIVEDの母数から外します。試合を消さず、別のtrackで報告します。
+`MIXED`（専用エンジンのbestmoveを一度でも使った試合）と`UNVERIFIED`（出所の欠落）は、#782のとおりSELF_DERIVEDセルの母数に残し、失格（0点）として計上します。母数から外すと都合のよい局だけが残るからです。試合を消さず、詳細は別のtrackでも報告します（[能力ベンチマーク](gameplay_capability_benchmark.md)と同じ規則）。
 
 ## 10. ライブラリとアーカイブ
 
@@ -171,7 +171,7 @@ backgroundの仕事は通常StepのDeadlineを延長しません。予算が足�
 
 | 状況 | 扱い |
 |---|---|
-| Reasonerが登録されていない、または使えない | Presetの複製と純粋なtoolで動く。`MODEL_GENERATED`とは偽らず、能力未達として記録する（#771/#781） |
+| Reasonerが登録されていない、または使えない | Presetの複製と純粋なtoolで動く。#771の出所`MODEL_GENERATED`とは偽らず、能力未達として記録する（#771/#781） |
 | 全評価器の信頼度が低い | `need_new_hypotheses`。期限が短ければKEEPかABSTAINにし、生成はworkerへ回す（#773/#774） |
 | 同じ式を繰り返し生成する | dedupとcooldown（4 decision steps）。`NO_NEW_HYPOTHESIS`と理由を残す（#774） |
 | SearchProgramが出力を出せない、またはPARTIAL | 完成した浅い深さだけを使い、旧Champion Programを維持する（#779） |
@@ -203,7 +203,7 @@ backgroundの仕事は通常StepのDeadlineを延長しません。予算が足�
 ## 14. 未決事項
 
 - 設計者の承認待ち：本書の全ての**[提案Dn]**。承認後に、#769〜#784、#740、#735の本文へ反映します。
-- 担当Issueが無いもの：D11（self-playとcurriculum）、D13/D14（ライブラリとアーカイブ）、D15（#712の状態抽象化encoder）。起票が必要です。
+- 担当Issueが無いもの：D11（self-playとcurriculum）、D13/D14（ライブラリとアーカイブ）、D15（#712の状態抽象化部品。役割は[結果解釈](outcome_interpretation.md)で定義済み）。起票が必要です。
 - 実装の順番：#775と#783はREADY、ほかはBLOCKEDです。#761→#762→#764→#770/#771が評価器系の前提、#775→#776→#777が計算系の前提です。
 - 信頼度の格納先を一つにする件：#407/#409/#540/#553/#773で信頼度の格納先が分かれないよう、#773はadapter経由で既存の格納先へ参加します（#773の確定事項）。共有するcalibration storeの正本は、[適応計算と信頼性](adaptive_compute_reliability.md)の**[提案AC1]**（手法×task×scene×hardwareをkeyにする一つのStore）を設計者が承認するまで未確定です（#407）。
 - 性能：計算・探索・生成の速度、棋力、モデル費用は全て**未測定**です。本書には測定値がありません。

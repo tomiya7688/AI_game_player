@@ -213,12 +213,12 @@ flowchart LR
 
 ## Issue間の矛盾と、本書が採る解決
 
-1. **出所の区分が無い**：#740と#735第6項には出所の区分がありません。上の「要件の固定」で解決し、#740に追記します（トリアージC #740 NEEDS_REVIEW）。
+1. **出所の区分が無い**：#740と#735第6項には出所の区分がありません。上の「要件の固定」で解決し、#740に追記します（2026-11-04のIssue点検 #740 NEEDS_REVIEW）。
 2. **名称の揺れ**：#782のManifestは`SELF_DERIVED|ENGINE_ASSISTED|PRESET_ONLY|TEACHER_DISTILLATION`、Record側は`SPECIALIST_SOLVER_ASSISTED`等、#769は`ModelAssisted`を使っています。**[提案D10]** 出所トラックは4つの名称に統一します。`PRESET_ONLY`は`GENERIC_BASELINE`の`eligibility`へ寄せます。
 3. **Rule Leakと「audited generic rules」の境界**（#782）：D10で、評価用Refereeのprivate stateは不可、汎用`RuleProvider`は可、と区別します。
 4. **出所の欄が無い**：#714の`MatchRecordV1`に出所の欄がありません。`strategy_origin_ref`を任意の拡張として追加します。#714の互換は、versioned contractで保ちます。
 5. **学習経路の担当が無い**：#749と#759のcloseで、TRAINED_FROZENの学習経路に担当がいなくなりました。D11として新しいIssueが必要です。
-6. **外部推論の出所の標識が無い**：外部推論器（[#443](https://github.com/tomiya7688/AI_game_player/issues/443)・[#445](https://github.com/tomiya7688/AI_game_player/issues/445)）の出力には出所の標識がありません。これらの経路で選んだ手は`MODEL_ASSISTED`とし、蒸留した成果物は`TEACHER_TRAINED`として扱います（トリアージA）。
+6. **外部推論の出所の標識が無い**：外部推論器（[#443](https://github.com/tomiya7688/AI_game_player/issues/443)・[#445](https://github.com/tomiya7688/AI_game_player/issues/445)）の出力には出所の標識がありません。これらの経路で選んだ手は`MODEL_ASSISTED`とし、蒸留した成果物は`TEACHER_TRAINED`として扱います（2026-11-04のIssue点検）。
 7. **#740の項番の重複**：#740の判定手順では「9」が2回出てきます。2つ目は「GUIとStructuredの別Tier」の項として読み替え、Issueを更新するときに番号を直します。
 8. **勝敗信号の正しさ**：**[提案D18]** 対局の勝敗はReferee署名で決まるため、OCRの誤判定（[#509](https://github.com/tomiya7688/AI_game_player/issues/509)）の影響は受けません。ただしGUIトラックで賢者ミスクが自分で読んだ勝敗を学習に使う場合は、#509の修正を先に行います。
 

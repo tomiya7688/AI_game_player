@@ -33,7 +33,7 @@
 |---|---|---|
 | [decision_orchestrator.py](../../src/ai_game_player/decision_orchestrator.py) | 再観測を有限回に制限（既定は2回・3秒、上限は8回・30秒） | EvidencePlanの「追加frame」の最初の実行器。テストは[test_decision_orchestration.py](../../tests/test_decision_orchestration.py) |
 | [decision_reliability.py](../../src/ai_game_player/decision_reliability.py)・[decision_verifier.py](../../src/ai_game_player/decision_verifier.py) | 判断1件をTRUST/CAUTION/VERIFY/REJECTに分類（#43） | 起動条件として使う。正しさの保証ではない（コードのコメントにも明記） |
-| [ocr_provider.py](../../src/ai_game_player/ocr_provider.py)・[ui_recognition.py](../../src/ai_game_player/ui_recognition.py) | 同じ要素の根拠を `1 - Π(1 - conf×weight)`（noisy-OR）で統合 | 相関を無視しているので、#554で置き換える対象（第6節） |
+| [ocr_provider.py](../../src/ai_game_player/ocr_provider.py)・[ui_recognition.py](../../src/ai_game_player/ui_recognition.py) | 同じ要素の根拠を `1 - Π(1 - conf×weight)`（noisy-OR）で統合。OCRは同じ`(source, model, preprocessing)`を最大値1件にまとめるが、UI側はまとめない | 別の前処理・別sourceの相関を無視しているので、#554で置き換える対象（第6節） |
 | [outcome_fusion.py](../../src/ai_game_player/outcome_fusion.py) | 操作後の成功・失敗の根拠を決定的に統合 | 品質推定の入力。正しさは#509の修正が前提（第8節） |
 | [shared_frame_producer.py](../../src/ai_game_player/shared_frame_producer.py) | 最新のframeを複数の購読者へ配る | #548のFrameWindowの取得元 |
 | [light_adaptation_budget.py](../../src/ai_game_player/light_adaptation_budget.py) | 軽量更新の上限（1回20ms・8MiBなど） | 背景で推定器を更新するときの上限の型の手本 |
@@ -94,7 +94,7 @@ hot pathの処理（上半分）は、固定したSnapshotを読むだけです�
 - **#540** は品質の推定器です。Outcomeから`QualityStats`を増分で更新し、遅れて来た実Outcomeでproxyの推定を補正します。
 - **#553** は型の持ち主です。`MethodProfileKey`・`MethodReliabilityProfile`・`CorrelationGroup` のschemaと版を決めます。自分では推定しません。
 - 「self confidenceと実測の区別」は、#540が別欄に書き、#553のschemaがその区別を必須にします。同じ仕事を二つのIssueで実装しないためです。
-- **#773** の評価関数の信頼性は、method種別 `EVALUATOR` の行として同じStoreに入ります。これで「信頼性の仕組みが三つある」状態を避けます。#773の「評価器を自分の予測で採点しない」規則は、そのまま#540の更新規則にも適用します（第8節）。
+- **#773** の評価関数の信頼性は、本提案（[提案AC1]）が承認されれば、method種別 `EVALUATOR` の行として同じStoreに入ります。#773の`EvaluatorReliabilityState`は、この行を読み書きする型として残します。これで「信頼性の仕組みが三つある」状態を避けます。#773の「評価器を自分の予測で採点しない」規則は、そのまま#540の更新規則にも適用します（第8節）。
 
 **更新の規則 [提案AC2]：** コストはEWMAとrolling quantileで更新します（#539）。品質はBeta事後分布を使い、段階ごとに別のcountを持ちます。cold-startでは、#222のprobeやbaseを擬似標本数k₀件ぶんのpriorとして入れます。有効標本数がn_min未満のbucketは「未校正」とし、融合の重みにはbaseを使います。k₀とn_minは未測定で、設定値として始めます。Model・DSL・Goal・Sceneの版が変わったら新しいbucketを作り、古い支持はそのまま流用しません（#773の7）。
 
@@ -133,7 +133,7 @@ Issue #542の「atomic swap」は、Gateを通ったあとの切り替えの方�
 
 ## 8．学習信号の正しさと自己採点の防止
 
-**[提案D18] 前提：** #509（終了文字の部分一致で勝敗を決める誤判定）と[#671](https://github.com/tomiya7688/AI_game_player/issues/671)（6軸への投影漏れ）が直るまでは、終局Outcome由来の更新を「T2未検証」として保留します。保留した更新は、Store本体ではなく別の欄に置きます。誤った勝敗を学習すると、品質も昇格判定も同じ誤りを引き継ぐからです。
+**[提案D18] 前提：** #509（終了文字の部分一致で勝敗を決める誤判定）と[#671](https://github.com/tomiya7688/AI_game_player/issues/671)（6軸への投影漏れ）が直るまでは、終局Outcome由来の更新を、T1・T2のどちらとしても扱わず「未検証」として保留します。保留した更新は、Store本体ではなく別の欄に置きます。誤った勝敗を学習すると、品質も昇格判定も同じ誤りを引き継ぐからです。
 
 **危険：** #540の入力には、VerifierのTRUST/REJECT、SelfCheck、replayのラベルが含まれます。これらは評価される側の仕組み自身が出したものです。そのままでは、「自分のVerifierを喜ばせる」ことを学んでしまいます（Issue点検）。
 
@@ -215,7 +215,7 @@ cheap-firstで早期終了すると、高価な手法がほとんど試されま
 | #574・#549が、相関した票を独立に数える | **[提案D17]** の共通の部品 |
 | #540がVerifierやSelfCheckで自己採点する | **[提案D3]** の段階分け |
 | #541の測り方が決まっていない | **[提案AC3]** の前半j回の記録 |
-| 現在のnoisy-OR（ocr_provider.py・ui_recognition.py）が同源の根拠を掛け合わせる | #554で、Group単位の統合へ置き換える |
+| 現在のnoisy-OR（ocr_provider.py・ui_recognition.py）が相関する根拠を掛け合わせる（OCRは完全に同じ根拠だけまとめ、UIはまとめない） | #554で、Group単位の統合へ置き換える |
 
 ## 16．残っている作業
 

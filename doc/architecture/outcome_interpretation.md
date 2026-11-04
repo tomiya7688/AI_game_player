@@ -107,7 +107,7 @@ flowchart TD
 
 | 番号 | 意味 | 生成元 |
 |---|---|---|
-| `run_generation`（= 既存 `ExecutionReceipt.action_generation`） | Stop/Rearmの世代。操作の回数ではない | 既存RunController |
+| `action_generation`（既存 `ExecutionReceipt` の名前。Issue本文の `run_generation` と同じもの） | Stop/Rearmの世代。操作の回数ではない | 既存RunController |
 | `bind_ordinal` | Actionごとに単調増加する束縛番号。#689の `source_sequence` に使う | #687 |
 | `correlation_sequence` | #422 projectorが付けるSession内の連番 | 既存 light_execution_projection.py |
 | `frame_sequence` | `FramePacket.frame_id` の整数値をhostが渡したもの。文字列IDや画像hashから推測しない | #683 |
@@ -132,11 +132,11 @@ flowchart TD
 | UNKNOWN | 受領記録・世代・clock・署名の不一致、期限切れ、予測なし、dry-run、dispatch_unknown、関連sourceが曖昧 | 値の比較をしない |
 | MATCH | いずれかのbranchがTRUE | 許容予測が一つ当たっただけ。因果・進行・終端の成功ではない |
 | CONTRADICTED | すべてのbranchがFALSE | 予測誤差として記録する（D5で使う） |
-| PARTIAL | TRUEのbranchがなく、FALSEでないbranchにTRUEとUNKNOWNが混在する | 再観測の候補 |
+| PARTIAL | TRUEのbranchがなく、FALSEでないbranchの中に、TRUEのpredicateとUNKNOWNのpredicateが混在する | 再観測の候補 |
 | UNRELATED_CHANGE | 期待対象は一つも観測できず、無関係な変化だけがある | 各predicateはUNOBSERVABLEのまま |
 | UNOBSERVABLE | 上記以外 | 無効操作の正解にしない |
 
-MATCHのときも、想定外の副作用は `unexpected_changes` に残します。例：A=(x=2 AND y=0)、B=(x=0 AND y=2) という予測に対して、実際が (2,2) なら CONTRADICTED です。(2,0) なら A の MATCH、(2, 未観測) なら PARTIAL です。
+MATCHのときも、想定外の副作用は `unexpected_changes` に残します。例：A=(x=2 AND y=0)、B=(x=0 AND y=2) という予測に対して、実際が (2,2) なら CONTRADICTED です。(2,0) なら A の MATCH、(2, 未観測) なら PARTIAL です（Aはx=2がTRUE・yがUNKNOWNで、BはFALSE）。
 
 ## 確定ラベルと受領記録の学習可否
 
@@ -229,14 +229,14 @@ T3だけで評価器や戦略を昇格させることはしません。評価器
    - #671：hp/health/lives を survival軸、resource/currency を resources軸に投影する。
    - #761：`state.health` のような名前空間付きkeyを使う。
 
-   **解決：** [#761](https://github.com/tomiya7688/AI_game_player/issues/761) の Signal・Axis Registry を、key・alias・単位・軸対応の**唯一の表**にします。#645 の category と #671 の軸対応は、このRegistryから読みます。hpはkey `state.health` で、軸は `builtin.survival` です。#645のRESOURCE分類は、#761の表へ移すときに置き換えます。
+   **解決：** [#761](https://github.com/tomiya7688/AI_game_player/issues/761) の Signal・Axis Registry を、key・alias・単位・軸対応の**唯一の表**にします。#645 の category と #671 の軸対応は、このRegistryから読みます。hpはkey `state.health` で、軸は `builtin.survival` です。#645のcategoryは数値の種類を示す表示用として残しますが、hpをRESOURCEとする分類は#761の表へ移すときに置き換えます（[汎用評価v2](generic_evaluation_v2.md)と同じ規則）。
 
    また、**観測Signalは値の向き（良い・悪い）を持ちません**（#761の「HP 60→45の良し悪しはSignalで決めない」）。そのため次のように扱います。
-   - #645 の `value_judgement`（PROGRESS/LOSS）は、profileの版を参照する派生注釈とし、Signalへ投影するときには落とします。
+   - #645 の `value_judgement`（PROGRESS/LOSS）は、Goal/Profileの版を参照する派生注釈とし、Signal自体には持たせません。Goalが明示されたときだけ付けます。
    - 向きはGoalとAxisSpec（BENEFIT/COST、goal_dependent）が決めます。
    - #671 のv1最小修正も、profileがないmetricの向きはUnknown・低confidenceに留めます。
 2. **#713の窓と長い手数の勝敗：** UIの効果は窓、勝敗はD7、と分担します。
-3. **#712のkeyに担当がない：** D15を担当にします。
+3. **#712のkeyに担当がない：** D15の状態抽象化部品を担当にします（担当Issueは未起票）。
 4. **#647のCALIBRATEDと既存の列挙値：** 前の節のとおり、validatorを登録するまで生成しません。
 5. **#643の旧名と子Issueの型名：** 子Issueの名前を正本とします。
 

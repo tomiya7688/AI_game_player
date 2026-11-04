@@ -127,7 +127,7 @@ flowchart TD
 
 | 状態 | 条件 | 使える用途 |
 |---|---|---|
-| INFERRED | 観測や画面の指示から推定しただけ | 表示と提案のみ |
+| PROPOSED | 出所がINFERRED・LEARNEDで、観測や画面の指示から推定しただけ | 表示と提案のみ |
 | PROVISIONAL | 独立した裏付けがk件以上あり、矛盾がない | 探索と代理指標の学習。能力の主張には使わない |
 | TRUSTED | Trusted Chat（[#436](https://github.com/tomiya7688/AI_game_player/issues/436)/[#584](https://github.com/tomiya7688/AI_game_player/issues/584)）でユーザーが確認した | 通常のGoalとして使用 |
 
