@@ -79746,6 +79746,1201 @@
       ]
     },
     {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_update_sample",
+        "ai_game_player.learning_dataset",
+        "ai_game_player.training_diagnosis_models",
+        "ai_game_player.training_diagnosis_policy"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Iterable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "prod"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExperienceEpisode"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_update_sample"
+          ],
+          "module": "ai_game_player.knowledge_update_sample",
+          "names": [
+            {
+              "alias": null,
+              "name": "OUTCOME_EVENT_TYPE"
+            },
+            {
+              "alias": null,
+              "name": "KnowledgeUpdateSample"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.learning_dataset"
+          ],
+          "module": "ai_game_player.learning_dataset",
+          "names": [
+            {
+              "alias": null,
+              "name": "DatasetSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_models"
+          ],
+          "module": "ai_game_player.training_diagnosis_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "COMPONENTS"
+            },
+            {
+              "alias": null,
+              "name": "CaseDiagnosis"
+            },
+            {
+              "alias": null,
+              "name": "ComponentAttribution"
+            },
+            {
+              "alias": null,
+              "name": "ComponentTarget"
+            },
+            {
+              "alias": null,
+              "name": "DiagnosisCase"
+            },
+            {
+              "alias": null,
+              "name": "TrainingDiagnosisReport"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 26,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_policy"
+          ],
+          "module": "ai_game_player.training_diagnosis_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "LABEL_STATUSES"
+            },
+            {
+              "alias": null,
+              "name": "TrainingDiagnosisPolicy"
+            },
+            {
+              "alias": null,
+              "name": "weaker_label_status"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.training_diagnosis",
+      "path": "src/ai_game_player/training_diagnosis.py",
+      "source_location": {
+        "end_line": 467,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "diagnose_episodes",
+          "parameters": [
+            {
+              "annotation": "Iterable[ExperienceEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episodes"
+            },
+            {
+              "annotation": "TrainingDiagnosisPolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "diagnose_episodes",
+          "return_annotation": "TrainingDiagnosisReport",
+          "signature": "(episodes: Iterable[ExperienceEpisode], policy: TrainingDiagnosisPolicy | None = …) -> TrainingDiagnosisReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "collect_diagnosis_cases",
+          "parameters": [
+            {
+              "annotation": "Iterable[ExperienceEpisode]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "episodes"
+            },
+            {
+              "annotation": "TrainingDiagnosisPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "collect_diagnosis_cases",
+          "return_annotation": "tuple[tuple[DiagnosisCase, ...], dict[str, int]]",
+          "signature": "(episodes: Iterable[ExperienceEpisode], policy: TrainingDiagnosisPolicy) -> tuple[tuple[DiagnosisCase, ...], dict[str, int]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 114,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "diagnose_cases",
+          "parameters": [
+            {
+              "annotation": "Iterable[DiagnosisCase]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "TrainingDiagnosisPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": "Mapping[str, int] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "excluded"
+            }
+          ],
+          "qualified_name": "diagnose_cases",
+          "return_annotation": "TrainingDiagnosisReport",
+          "signature": "(cases: Iterable[DiagnosisCase], policy: TrainingDiagnosisPolicy, excluded: Mapping[str, int] | None = …) -> TrainingDiagnosisReport",
+          "source_location": {
+            "column": 0,
+            "end_line": 150,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "diagnose_case",
+          "parameters": [
+            {
+              "annotation": "DiagnosisCase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            },
+            {
+              "annotation": "TrainingDiagnosisPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "diagnose_case",
+          "return_annotation": "CaseDiagnosis",
+          "signature": "(case: DiagnosisCase, policy: TrainingDiagnosisPolicy) -> CaseDiagnosis",
+          "source_location": {
+            "column": 0,
+            "end_line": 176,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_attributions",
+          "parameters": [
+            {
+              "annotation": "DiagnosisCase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            },
+            {
+              "annotation": "TrainingDiagnosisPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_attributions",
+          "return_annotation": "list[ComponentAttribution]",
+          "signature": "(case: DiagnosisCase, policy: TrainingDiagnosisPolicy) -> list[ComponentAttribution]",
+          "source_location": {
+            "column": 0,
+            "end_line": 277,
+            "start_line": 185
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_targets",
+          "parameters": [
+            {
+              "annotation": "list[CaseDiagnosis]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "diagnoses"
+            },
+            {
+              "annotation": "TrainingDiagnosisPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_targets",
+          "return_annotation": "list[ComponentTarget]",
+          "signature": "(diagnoses: list[CaseDiagnosis], policy: TrainingDiagnosisPolicy) -> list[ComponentTarget]",
+          "source_location": {
+            "column": 0,
+            "end_line": 335,
+            "start_line": 287
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_case",
+          "parameters": [
+            {
+              "annotation": "DatasetSource",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ref"
+            },
+            {
+              "annotation": "ExperienceEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "Mapping[str, Any] | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "_case",
+          "return_annotation": "tuple[str | None, DiagnosisCase | None]",
+          "signature": "(ref: DatasetSource, event: ExperienceEvent, context: Mapping[str, Any] | None) -> tuple[str | None, DiagnosisCase | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 380,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_sample_label_status",
+          "parameters": [
+            {
+              "annotation": "KnowledgeUpdateSample",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sample"
+            }
+          ],
+          "qualified_name": "_sample_label_status",
+          "return_annotation": "str",
+          "signature": "(sample: KnowledgeUpdateSample) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 398,
+            "start_line": 390
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_contexts_by_outcome",
+          "parameters": [
+            {
+              "annotation": "Iterable[ExperienceEvent]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "events"
+            }
+          ],
+          "qualified_name": "_contexts_by_outcome",
+          "return_annotation": "tuple[dict[str, Mapping[str, Any]], int]",
+          "signature": "(events: Iterable[ExperienceEvent]) -> tuple[dict[str, Mapping[str, Any]], int]",
+          "source_location": {
+            "column": 0,
+            "end_line": 428,
+            "start_line": 407
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_valid_context",
+          "parameters": [
+            {
+              "annotation": "Mapping[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "_valid_context",
+          "return_annotation": "bool",
+          "signature": "(payload: Mapping[str, Any]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 457,
+            "start_line": 437
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_count",
+          "parameters": [
+            {
+              "annotation": "dict[str, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "counts"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "amount"
+            }
+          ],
+          "qualified_name": "_count",
+          "return_annotation": "None",
+          "signature": "(counts: dict[str, int], reason: str, amount: int) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 467,
+            "start_line": 465
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.knowledge_update_sample",
+        "ai_game_player.learning_dataset",
+        "ai_game_player.training_diagnosis_policy"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_update_sample"
+          ],
+          "module": "ai_game_player.knowledge_update_sample",
+          "names": [
+            {
+              "alias": null,
+              "name": "EXECUTION_STATUSES"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOMES"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.learning_dataset"
+          ],
+          "module": "ai_game_player.learning_dataset",
+          "names": [
+            {
+              "alias": null,
+              "name": "DatasetSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_policy"
+          ],
+          "module": "ai_game_player.training_diagnosis_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "LABEL_STATUSES"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.training_diagnosis_models",
+      "path": "src/ai_game_player/training_diagnosis_models.py",
+      "source_location": {
+        "end_line": 270,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "DiagnosisCase",
+          "parameters": [],
+          "qualified_name": "DiagnosisCase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 78,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DiagnosisCase.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ComponentAttribution",
+          "parameters": [],
+          "qualified_name": "ComponentAttribution",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 123,
+            "start_line": 88
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentAttribution.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 110,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentAttribution.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 123,
+            "start_line": 116
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "CaseDiagnosis",
+          "parameters": [],
+          "qualified_name": "CaseDiagnosis",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 152,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CaseDiagnosis.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 152,
+            "start_line": 145
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ComponentTarget",
+          "parameters": [],
+          "qualified_name": "ComponentTarget",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 200,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentTarget.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 183,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentTarget.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "TrainingDiagnosisReport",
+          "parameters": [],
+          "qualified_name": "TrainingDiagnosisReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 247,
+            "start_line": 211
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisReport.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 238,
+            "start_line": 226
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "diagnosis_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisReport.diagnosis_id",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 247,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_ratio",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_ratio",
+          "return_annotation": "None",
+          "signature": "(value: object, name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_digest",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_digest",
+          "return_annotation": "str",
+          "signature": "(value: Any) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 270,
+            "start_line": 266
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            },
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.training_diagnosis_policy",
+      "path": "src/ai_game_player/training_diagnosis_policy.py",
+      "source_location": {
+        "end_line": 125,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "weaker_label_status",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "first"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "second"
+            }
+          ],
+          "qualified_name": "weaker_label_status",
+          "return_annotation": "str",
+          "signature": "(first: str, second: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 32,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "TrainingDiagnosisPolicy",
+          "parameters": [],
+          "qualified_name": "TrainingDiagnosisPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 125,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 99,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "label_weight",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label_status"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisPolicy.label_weight",
+          "return_annotation": "float",
+          "signature": "(self, label_status: str) -> float",
+          "source_location": {
+            "column": 4,
+            "end_line": 113,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "fingerprint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisPolicy.fingerprint",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 125,
+            "start_line": 122
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [],
       "imports": [
         {
@@ -182602,6 +183797,901 @@
             "column": 4,
             "end_line": 183,
             "start_line": 174
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.learning_dataset",
+        "ai_game_player.training_diagnosis",
+        "ai_game_player.training_diagnosis_models",
+        "ai_game_player.training_diagnosis_policy"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceEpisode"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceProvenance"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceStep"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.learning_dataset"
+          ],
+          "module": "ai_game_player.learning_dataset",
+          "names": [
+            {
+              "alias": null,
+              "name": "DatasetSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis"
+          ],
+          "module": "ai_game_player.training_diagnosis",
+          "names": [
+            {
+              "alias": null,
+              "name": "CONTEXT_EVENT_TYPE"
+            },
+            {
+              "alias": null,
+              "name": "collect_diagnosis_cases"
+            },
+            {
+              "alias": null,
+              "name": "diagnose_case"
+            },
+            {
+              "alias": null,
+              "name": "diagnose_cases"
+            },
+            {
+              "alias": null,
+              "name": "diagnose_episodes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_models"
+          ],
+          "module": "ai_game_player.training_diagnosis_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ComponentAttribution"
+            },
+            {
+              "alias": null,
+              "name": "ComponentTarget"
+            },
+            {
+              "alias": null,
+              "name": "DiagnosisCase"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 27,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_policy"
+          ],
+          "module": "ai_game_player.training_diagnosis_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "TrainingDiagnosisPolicy"
+            },
+            {
+              "alias": null,
+              "name": "weaker_label_status"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_training_diagnosis",
+      "path": "tests/test_training_diagnosis.py",
+      "source_location": {
+        "end_line": 433,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "outcome_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "outcome"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "evidence"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "verified"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "confidence"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "execution_status"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "scope"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "reliability"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "artifacts"
+            }
+          ],
+          "qualified_name": "outcome_event",
+          "return_annotation": null,
+          "signature": "(number, outcome = …, *, evidence = …, verified = …, confidence = …, execution_status = …, scope = …, reliability = …, artifacts = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 77,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "context_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "label"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "expected"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "reliability"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "conflict"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "abstained"
+            }
+          ],
+          "qualified_name": "context_event",
+          "return_annotation": null,
+          "signature": "(number, target = …, *, label = …, expected = …, reliability = …, conflict = …, abstained = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 103,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "steps"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "episode_id"
+            }
+          ],
+          "qualified_name": "episode",
+          "return_annotation": null,
+          "signature": "(*steps, episode_id = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 117,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "case",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "case",
+          "return_annotation": null,
+          "signature": "(number = …, **overrides)",
+          "source_location": {
+            "column": 0,
+            "end_line": 130,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "target",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "component"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "target",
+          "return_annotation": null,
+          "signature": "(report, component, scope = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 137,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "TrainingDiagnosisTest",
+          "parameters": [],
+          "qualified_name": "TrainingDiagnosisTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 429,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_verified_failures_select_decision_candidate_with_evidence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_verified_failures_select_decision_candidate_with_evidence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_uncertain_labels_never_claim_certainty",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_uncertain_labels_never_claim_certainty",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 179,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_single_strict_support_stays_hypothesis",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_single_strict_support_stays_hypothesis",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 186,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_context_cannot_upgrade_but_can_downgrade_label",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_context_cannot_upgrade_but_can_downgrade_label",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 207,
+            "start_line": 188
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_calibrated_effect_is_supported_not_verified",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_calibrated_effect_is_supported_not_verified",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 215,
+            "start_line": 209
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_mismatched_provenance_is_not_verified",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_mismatched_provenance_is_not_verified",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_execution_failures_are_attributed_to_execution_only",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_execution_failures_are_attributed_to_execution_only",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 228
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_conflict_and_unresolved_outcome_target_interpretation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_conflict_and_unresolved_outcome_target_interpretation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 258,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_low_recognition_reliability_shifts_blame_to_recognition",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_low_recognition_reliability_shifts_blame_to_recognition",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 267,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_context_and_sample_reliability_use_lower_value",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_context_and_sample_reliability_use_lower_value",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 281,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_underestimated_success_and_plain_success",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_underestimated_success_and_plain_success",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 293,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exclusions_are_counted_not_diagnosed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_exclusions_are_counted_not_diagnosed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 329,
+            "start_line": 295
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_string_context_label_is_counted_invalid",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_non_string_context_label_is_counted_invalid",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 340,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_episode_and_case_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_duplicate_episode_and_case_limit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 349,
+            "start_line": 342
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_report_is_deterministic_and_order_independent",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_report_is_deterministic_and_order_independent",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 370,
+            "start_line": 351
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_output_is_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_output_is_bounded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 383,
+            "start_line": 372
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_targets_are_separated_by_scope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_targets_are_separated_by_scope",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 389,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_training_value_is_independent_of_storage_properties",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_training_value_is_independent_of_storage_properties",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 403,
+            "start_line": 391
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_contract_validation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "TrainingDiagnosisTest.test_contract_validation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 429,
+            "start_line": 405
           }
         }
       ]
