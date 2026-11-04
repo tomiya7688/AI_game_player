@@ -6,6 +6,10 @@
 
 | 知りたいこと | 読む順番 |
 |---|---|
+| **全体設計の目的・現在／予定・安全境界・根拠の段階** | [統合設計マップ](system_design_map.md) |
+| **汎用Goal・編集可能評価関数と6軸互換（予定v2）** | [汎用評価v2の設計](generic_evaluation_v2.md)・[現行6軸](runtime_evaluation.md) |
+| **賢者ミスクが評価器を生成・比較・自己改良する循環（予定）** | [自己進化Reasoner](self_evolving_reasoner.md) |
+| **LLMが高速計算／表計算を呼び、自作探索器を実行する契約（予定）** | [計算・探索の設計](reasoner_compute_and_search.md) |
 | 恒久GUIと常駐Coreの選定、現在との移行差分 | [Qt6 Widgets / Rust Coreの決定と未実装gate](qt_rust_migration.md) |
 | 新しい画面から次の操作までの順番 | [一回の判断と実行の流れ](flow_for_readers.md) |
 | UI・Python・Windows・任意サービスの役割 | [部品と実行場所](runtime_map_for_readers.md) |
