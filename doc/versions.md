@@ -1,3 +1,8 @@
+## 2026-11-04 自己成長ループの設計書を追加（Issue #800）
+
+- Open Issue全件の点検に基づき、`doc/architecture/` へ設計書6件を追加。全体の成長ループと方針適合の評価・追加手法D1〜D21（[自己成長ループ](architecture/self_improvement_loop.md)）、自己進化Reasoner（#769）、汎用評価v2（#760）、結果解釈（#643）、適応計算と信頼性（#406・#409）、能力ベンチマーク（#714・#735）です。
+- 設計のみで、コード・設定・CI・実行時の動作は変更しません。D番号の提案は設計者の承認前は正本ではなく、採否は#800で記録します。
+
 ## 2026-11-04 Experience Retention Core（Issue #164）
 
 - Artifact Store上の保持記録索引と`RetentionCollector`を追加。soft budget/hard limit、Protected（どの理由でも削除しない）、型別TTL、同一digestのexact dedupを、決定的な純粋関数`plan_retention`で判断します。削除順序は重複→TTL→古い順のbudget退避です。[設計](architecture/retention_core.md)。
