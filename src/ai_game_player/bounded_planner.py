@@ -292,6 +292,10 @@ class BoundedExpectimaxPlanner:
                 now = time.monotonic_ns()
                 if now >= cutoff:
                     break
+                # The worker writes ready before finished. Observing finished first
+                # keeps a fast worker's acknowledgement from being skipped.
+                finished_path = directory / "finished.json"
+                finished_seen = finished_path.exists()
                 ready_path = directory / "ready.json"
                 if ready_path.exists() and enforcement == "not_applied":
                     io_phase = "ready_read"
@@ -358,8 +362,7 @@ class BoundedExpectimaxPlanner:
                                 parent_timing, "first_checkpoint_validated_at_ns"
                             )
                             last_bytes = raw
-                finished_path = directory / "finished.json"
-                if finished_path.exists():
+                if finished_seen:
                     mark_parent_timing(parent_timing, "finished_first_seen_at_ns")
                     io_phase = "finished_read"
                     mark_parent_timing(parent_timing, "finished_read_started_at_ns")
