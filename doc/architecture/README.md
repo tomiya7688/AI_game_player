@@ -18,6 +18,12 @@
 | 汎用6軸の値・欠損・候補予測と実操作の区別 | [Runtime Evaluation](runtime_evaluation.md) |
 | Hook・MODへ渡すstage間データの版付き契約 | [StageEnvelope v1](stage_envelope.md) |
 | stage境界でHookを実行する順序・予算・失敗時方針 | [Processing Hook Runtime](hook_runtime.md) |
+| 賢者ミスクが経験から自分で賢くなる全体設計・方針適合の評価・追加手法（設計、#800） | [自己成長ループ](self_improvement_loop.md) |
+| 評価関数・計算・探索器の自己生成（設計、#769） | [自己進化Reasoner](self_evolving_reasoner.md) |
+| 編集・学習できる汎用Goalと評価関数（設計、#760） | [汎用評価v2](generic_evaluation_v2.md) |
+| 操作結果の解釈と次の判断・学習への受け渡し（設計、#643） | [結果解釈](outcome_interpretation.md) |
+| 手法の信頼性・コストと追加計算の配分（設計、#406・#409） | [適応計算と信頼性](adaptive_compute_reliability.md) |
+| 実力の測り方とオセロ・将棋の最低実力Gate（設計、#714・#735） | [能力ベンチマーク](gameplay_capability_benchmark.md) |
 
 **統合確認：** 2026-11-01、feature `77a8995e92c59c2fe3610840dfbe7438297ba44e` とmainの資料7件を照合しました。初版の確認基準と現在の接続状態を区別し、実ゲームの効果は証拠がある範囲だけ記します。 初版は2026-10-31のmain `4d8ae6f`を基準にしました。モデル稼働・Windows操作・プレイ改善は資料作成や図の存在だけでは確認できません。
 
