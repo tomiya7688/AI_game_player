@@ -204,10 +204,39 @@ class KnowledgePromotionTests(unittest.TestCase):
             "new",
             self.cases,
             provider_factory,
-            KnowledgePromotionPolicy(max_python_bytes=1),
+            # Only the absolute memory limit is under test. Latency is checked
+            # first, so loose latency bounds keep CPU load from answering
+            # "latency_budget_exceeded" before memory is assessed (Issue #729).
+            KnowledgePromotionPolicy(
+                max_python_bytes=1,
+                max_latency_ms=60_000,
+                max_latency_ratio=1000,
+                max_memory_ratio=1000,
+            ),
         )
         self.assertEqual(result.reason, "memory_budget_exceeded")
         self.assertEqual(self.gate.capture(self.scope).snapshot.version, "old")
+
+    def test_latency_budget_rejects_fixed_latency_ratio_and_absolute_limit(self):
+        # Fixed p95 values keep the latency boundary deterministic under CPU
+        # load; the memory case above loosens only latency (Issue #729).
+        self.initialize()
+        report = KnowledgeEvaluationRunner().run(
+            self.old, self.new, self.cases, provider_factory
+        )
+        policy = KnowledgePromotionPolicy(max_memory_ratio=1000)
+        for latency, expected in (
+            ((1.0, 4.9), "accepted"),
+            ((1.0, 5.1), "latency_budget_exceeded"),
+            ((900.0, 1000.5), "latency_budget_exceeded"),
+        ):
+            with self.subTest(latency=latency):
+                fixed = replace(
+                    report,
+                    latency_p95_ms=latency,
+                    peak_python_bytes=(1024, 1024),
+                )
+                self.assertEqual(policy.assess(self.old, self.new, fixed), expected)
 
     def test_unsafe_provider_or_exception_cannot_be_promoted(self):
         self.initialize()
