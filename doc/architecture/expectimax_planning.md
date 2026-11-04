@@ -51,6 +51,8 @@ Windows head `294cab92` / job `124987422590` の比較診断では、400msの受
 
 親の通常checkpoint読取と子のrequest読取は、一度取得した有界bytesから同じstrict JSON検査を行い、二度目のfile open / readを除きます。finished markerの後に最新checkpointを再読取する処理は残します。固定clockとscripted workerの回帰は、旧depth1 bytes → finished → 最新depth3を同じdeadline内に置き、最終再読・nonce・完成counterを検査します。workerのOS制限適用順、fresh process、400msの標準予算、元観測TTL、期限後受領の棄却は変更しません。
 
+親の監視loopは、各周回の最初に `finished.json` の有無を確認してから `ready.json` を読みます（Issue #729）。workerは `ready.json` を `finished.json` より先に書くため、負荷で親の周回が遅れ、速く終わるworkerが両方を書いた場合でも、制限適用の受領（`limit_enforcement`）を取りこぼしません。予算・cutoff・採否の判定は変更しません。
+
 追加の親metadataはrequest build / encode / write開始〜close / publish開始〜完了の固定monotonic時刻だけです。既存の同じcutoffを保持し、追加file writeやauthority clock呼出しはありません。optional診断のOOM・時計異常でも公開結果を変えません。次のWindows計測で遅延区間を分離するための情報であり、計測自体の小さいCPU費用は残ります。
 
 `PYTHONPATH=src:. python tools/benchmark_planning_disposable_ipc.py --iterations 30` は旧pipeline相当と新pipelineを交互に計測します。保存した `doc/validation/planning_disposable_ipc_cost.json` はPython3.12 / Linux tmpfs、warmup3、各30回の純粋IO比較です。合成messageは1,130 / 16,490 / 65,642 bytesで、公開p50は旧0.095 / 0.489 / 1.604ms、新0.077 / 0.436 / 1.445ms、p95は旧0.187 / 0.650 / 1.830ms、新0.157 / 0.538 / 1.705msでした。CPUと別計測tracemalloc peakもreportへ残します。tmpfs上のため永続deviceの同期費用は測っていません。この小さいLinux差分はWindowsでの400ms失敗の解消・原因・実攻略精度を証明しません。実Windowsのheld-reader / native probeと期限付き実worker / 実画面比較を引き続き要求します。
