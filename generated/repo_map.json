@@ -2332,7 +2332,7 @@
       "module": "ai_game_player.app",
       "path": "src/ai_game_player/app.py",
       "source_location": {
-        "end_line": 1427,
+        "end_line": 1437,
         "start_line": 1
       },
       "symbols": [
@@ -2465,8 +2465,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1417,
-            "start_line": 111
+            "end_line": 1427,
+            "start_line": 112
           }
         },
         {
@@ -2506,8 +2506,8 @@
           "signature": "(self, root: tk.Tk, runtime_composition: RuntimeComposition | None = …, observation_service: LiveObservationService | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 343,
-            "start_line": 136
+            "end_line": 353,
+            "start_line": 138
           }
         },
         {
@@ -2535,8 +2535,8 @@
           "signature": "(self, state: ShellState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 349,
-            "start_line": 345
+            "end_line": 359,
+            "start_line": 355
           }
         },
         {
@@ -2564,8 +2564,8 @@
           "signature": "(self, message: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 353,
-            "start_line": 351
+            "end_line": 363,
+            "start_line": 361
           }
         },
         {
@@ -2593,8 +2593,8 @@
           "signature": "(self, state: PlayerState) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 367,
-            "start_line": 361
+            "end_line": 377,
+            "start_line": 371
           }
         },
         {
@@ -2616,8 +2616,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 386,
-            "start_line": 375
+            "end_line": 396,
+            "start_line": 385
           }
         },
         {
@@ -2639,8 +2639,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 395,
-            "start_line": 394
+            "end_line": 405,
+            "start_line": 404
           }
         },
         {
@@ -2674,8 +2674,8 @@
           "signature": "(self, error: Exception | None = …, result: SessionStep | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 406,
-            "start_line": 403
+            "end_line": 416,
+            "start_line": 413
           }
         },
         {
@@ -2697,8 +2697,8 @@
           "signature": "(self) -> SessionRuntime",
           "source_location": {
             "column": 4,
-            "end_line": 426,
-            "start_line": 414
+            "end_line": 436,
+            "start_line": 424
           }
         },
         {
@@ -2732,8 +2732,8 @@
           "signature": "(self, runtime: SessionRuntime, command: str) -> SessionStep",
           "source_location": {
             "column": 4,
-            "end_line": 455,
-            "start_line": 434
+            "end_line": 465,
+            "start_line": 444
           }
         },
         {
@@ -2755,8 +2755,8 @@
           "signature": "(self) -> CaptureRegion",
           "source_location": {
             "column": 4,
-            "end_line": 483,
-            "start_line": 463
+            "end_line": 493,
+            "start_line": 473
           }
         },
         {
@@ -2778,8 +2778,8 @@
           "signature": "(self) -> CaptureRegion",
           "source_location": {
             "column": 4,
-            "end_line": 509,
-            "start_line": 491
+            "end_line": 519,
+            "start_line": 501
           }
         },
         {
@@ -2801,8 +2801,8 @@
           "signature": "(self) -> LoopObservation",
           "source_location": {
             "column": 4,
-            "end_line": 537,
-            "start_line": 517
+            "end_line": 547,
+            "start_line": 527
           }
         },
         {
@@ -2830,8 +2830,8 @@
           "signature": "(self, snapshot: SessionSnapshot) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 567,
-            "start_line": 545
+            "end_line": 577,
+            "start_line": 555
           }
         },
         {
@@ -2859,8 +2859,8 @@
           "signature": "(self, error: Exception) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 578,
-            "start_line": 575
+            "end_line": 588,
+            "start_line": 585
           }
         },
         {
@@ -2882,8 +2882,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 596,
-            "start_line": 586
+            "end_line": 606,
+            "start_line": 596
           }
         },
         {
@@ -2905,8 +2905,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 630,
-            "start_line": 613
+            "end_line": 640,
+            "start_line": 623
           }
         },
         {
@@ -2928,8 +2928,8 @@
           "signature": "(self) -> tuple[int, int] | None",
           "source_location": {
             "column": 4,
-            "end_line": 638,
-            "start_line": 632
+            "end_line": 648,
+            "start_line": 642
           }
         },
         {
@@ -2963,8 +2963,8 @@
           "signature": "(self, position: tuple[int, int] | None, move_in_progress: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 653,
-            "start_line": 646
+            "end_line": 663,
+            "start_line": 656
           }
         },
         {
@@ -2986,8 +2986,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 688,
-            "start_line": 661
+            "end_line": 698,
+            "start_line": 671
           }
         },
         {
@@ -3009,8 +3009,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 697,
-            "start_line": 690
+            "end_line": 707,
+            "start_line": 700
           }
         },
         {
@@ -3032,8 +3032,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 707,
-            "start_line": 699
+            "end_line": 717,
+            "start_line": 709
           }
         },
         {
@@ -3055,8 +3055,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 750,
-            "start_line": 726
+            "end_line": 760,
+            "start_line": 736
           }
         },
         {
@@ -3078,8 +3078,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 766,
-            "start_line": 758
+            "end_line": 776,
+            "start_line": 768
           }
         },
         {
@@ -3131,8 +3131,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> OutcomeAssessment",
           "source_location": {
             "column": 4,
-            "end_line": 791,
-            "start_line": 774
+            "end_line": 801,
+            "start_line": 784
           }
         },
         {
@@ -3160,8 +3160,8 @@
           "signature": "(self, *, loop_step: bool = …) -> ScreenObservation | None",
           "source_location": {
             "column": 4,
-            "end_line": 824,
-            "start_line": 799
+            "end_line": 834,
+            "start_line": 809
           }
         },
         {
@@ -3195,8 +3195,8 @@
           "signature": "(self, observation: ScreenObservation, *, register_for_session: bool = …) -> PreparedObservation",
           "source_location": {
             "column": 4,
-            "end_line": 846,
-            "start_line": 833
+            "end_line": 856,
+            "start_line": 843
           }
         },
         {
@@ -3236,8 +3236,8 @@
           "signature": "(self, observation: ScreenObservation, *, loop_step: bool, run_token: int | None) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 885,
-            "start_line": 854
+            "end_line": 895,
+            "start_line": 864
           }
         },
         {
@@ -3307,8 +3307,8 @@
           "signature": "(self, task_id: int, run_token: int | None, loop_step: bool, observation: ScreenObservation, previous: ScreenObservation | None, provider_name: str, model: str, endpoint: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 910,
-            "start_line": 893
+            "end_line": 920,
+            "start_line": 903
           }
         },
         {
@@ -3372,8 +3372,8 @@
           "signature": "(self, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 955,
-            "start_line": 918
+            "end_line": 965,
+            "start_line": 928
           }
         },
         {
@@ -3443,8 +3443,8 @@
           "signature": "(self, task_id: int, pipeline: SessionRuntime, operation: str, purpose: str, personality: str, run_token: int, loop_step: bool, close_pipeline_on_exit: bool) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1002,
-            "start_line": 963
+            "end_line": 1012,
+            "start_line": 973
           }
         },
         {
@@ -3472,8 +3472,8 @@
           "signature": "(self, run_token: int | None) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1011,
-            "start_line": 1010
+            "end_line": 1021,
+            "start_line": 1020
           }
         },
         {
@@ -3495,8 +3495,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1239,
-            "start_line": 1019
+            "end_line": 1249,
+            "start_line": 1029
           }
         },
         {
@@ -3518,8 +3518,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1284,
-            "start_line": 1249
+            "end_line": 1294,
+            "start_line": 1259
           }
         },
         {
@@ -3541,8 +3541,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1307,
-            "start_line": 1292
+            "end_line": 1317,
+            "start_line": 1302
           }
         },
         {
@@ -3570,8 +3570,8 @@
           "signature": "(self, reason: str = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1319,
-            "start_line": 1315
+            "end_line": 1329,
+            "start_line": 1325
           }
         },
         {
@@ -3593,8 +3593,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1328,
-            "start_line": 1327
+            "end_line": 1338,
+            "start_line": 1337
           }
         },
         {
@@ -3616,8 +3616,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1337,
-            "start_line": 1336
+            "end_line": 1347,
+            "start_line": 1346
           }
         },
         {
@@ -3645,8 +3645,8 @@
           "signature": "(self, command: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1370,
-            "start_line": 1345
+            "end_line": 1380,
+            "start_line": 1355
           }
         },
         {
@@ -3668,8 +3668,8 @@
           "signature": "(self) -> ApplicationSettings",
           "source_location": {
             "column": 4,
-            "end_line": 1388,
-            "start_line": 1378
+            "end_line": 1398,
+            "start_line": 1388
           }
         },
         {
@@ -3697,8 +3697,8 @@
           "signature": "(self, evaluation: list[dict[str, object]]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1398,
-            "start_line": 1396
+            "end_line": 1408,
+            "start_line": 1406
           }
         },
         {
@@ -3720,8 +3720,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1417,
-            "start_line": 1406
+            "end_line": 1427,
+            "start_line": 1416
           }
         },
         {
@@ -3736,8 +3736,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 1423,
-            "start_line": 1420
+            "end_line": 1433,
+            "start_line": 1430
           }
         }
       ]
@@ -135731,7 +135731,7 @@
       "module": "tests.test_live_input_tooltip",
       "path": "tests/test_live_input_tooltip.py",
       "source_location": {
-        "end_line": 189,
+        "end_line": 241,
         "start_line": 1
       },
       "symbols": [
@@ -135753,7 +135753,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 185,
+            "end_line": 237,
             "start_line": 12
           }
         },
@@ -135776,7 +135776,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 100,
+            "end_line": 108,
             "start_line": 13
           }
         },
@@ -135828,8 +135828,31 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 102
+            "end_line": 149,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_step_decision_button_tooltip_shows_on_hover_and_focus",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LiveInputToolTipTests.test_step_decision_button_tooltip_shows_on_hover_and_focus",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 193,
+            "start_line": 151
           }
         },
         {
@@ -135851,8 +135874,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 143
+            "end_line": 237,
+            "start_line": 195
           }
         }
       ]
