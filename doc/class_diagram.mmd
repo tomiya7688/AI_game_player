@@ -2009,6 +2009,29 @@ classDiagram
         +to_dict()
         +from_dict()
     }
+    class DiagnosisCase {
+        +__post_init__()
+    }
+    class ComponentAttribution {
+        +__post_init__()
+        +to_dict()
+    }
+    class CaseDiagnosis {
+        +to_dict()
+    }
+    class ComponentTarget {
+        +__post_init__()
+        +to_dict()
+    }
+    class TrainingDiagnosisReport {
+        +to_dict()
+        +diagnosis_id()
+    }
+    class TrainingDiagnosisPolicy {
+        +__post_init__()
+        +label_weight()
+        +fingerprint()
+    }
     Generic <|-- ActionTransition
     class ActionTransition {
     }

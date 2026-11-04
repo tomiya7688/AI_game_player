@@ -48,7 +48,7 @@ Hookの宣言は次のとおりです。
 | 隔離runtimeが必要 | `model.invoke`・`network.connect`・`filesystem.read`・`filesystem.write` | 宣言は有効です（監査と将来の隔離のため）。ただし同じprocessでは制限できないため、`PluginCapabilityPolicy`はこれを宣言したPluginのHookを登録時に`permission_unavailable`で拒否します（[#235](https://github.com/tomiya7688/AI_game_player/issues/235)まで） |
 | 付与しない | `input.direct`・`safety.override` | どの実行形態でも付与しません。宣言したManifestは`forbidden_permission`で拒否します |
 
-上記以外のIDは`unknown_permission`です。Plugin独自の権限IDは定義できません。直接の入力（OS入力API・executor）とSafety Required経路の無効化・迂回を表す権限はありません。`input.direct`と`safety.override`は、要求されたことを明確に拒否するためだけに予約しています。
+上記以外のIDは`unknown_permission`です。Plugin独自の権限IDは定義できません。直接の入力（OS入力API・executor）とSafety Required経路の無効化・迂回を表す権限はありません。`input.direct`と`safety.override`は、要求されたことを明確に拒否するためだけに予約しています。これは宣言上の分離です。Plugin codeがOS入力APIを直接importして使うことは防げません（「sandboxではない」を参照）。
 
 ## 検証とエラーcode
 
@@ -86,7 +86,7 @@ runtime = HookRuntime(enabled=True, access_policy=policy)
 
 `add()`は、Manifestを`to_dict()`→`from_dict()`の往復で再検証します（直接構築した値も検証を通します）。runtimeのStageEnvelopeの版が`compatibility`にない場合は`incompatible`、`plugin_id`または`hook_id`が登録済みなら`conflict`で拒否します（後から登録したManifestで権限を差し替えません）。`decisions`は登録判定の監査記録（入力・出力の拒否はEnvelopeごとに起きるため、ここではなく`HookDispatchResult.records`の`error_code`に残します）（Hook ID・版・mode・接続点・許可/拒否code・`plugin_id`・`plugin_version`・`manifest_sha256`）を直近256件まで保持します。payloadは記録しません。
 
-`access_policy`を渡さないruntime（既定）は判定をしません。これは権限の確認があることを意味しません。
+`access_policy`を渡さないruntime（既定）は判定をしません。これは権限の確認があることを意味しません。設定やUIからPluginを読み込む経路はまだありません。その経路を追加する時は`PluginCapabilityPolicy`の指定を必須にします。
 
 ## sandboxではない
 
