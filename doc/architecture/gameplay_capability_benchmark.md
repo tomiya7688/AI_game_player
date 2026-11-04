@@ -106,7 +106,7 @@ flowchart TD
 | ONLINE_ADAPTATION | 別表の参考値。評価相手やseedを学習に使ったことを開示する。Formal Frozenとは認定しない | 同左（参考） | 同左（参考） | 同左（参考） |
 
 - 合否は**同じ1つの（適応, 出所）組**の中で6セル全部が揃った場合だけです。「Othelloはzero、Shogiはtrained」のような混在や、出所の違う局を足し合わせる方法は認めません。
-- #782の補助ラベルは`eligibility`として残します。`GENERIC_BASELINE`は固定presetだけの勝ちで、自分で探索器を作った証拠がないものです。`UNVERIFIED`は出所の証拠が欠けたもの、`MIXED`は1手でも専門bestmoveを使ったものです。これらは`SELF_DERIVED`セルの母数に残し、失格として計上します（#782処理5）。**[提案D10]** 失格局は0点として扱い、母数から外しません。
+- #782の補助ラベルは`eligibility`として残します。`GENERIC_BASELINE`は固定presetだけの勝ちで、自分で探索器を作った証拠がないものです。`UNVERIFIED`は出所の証拠が欠けたもの、`MIXED`は1手でも専門bestmoveを使ったものです。これらは`SELF_DERIVED`の勝ちには数えません（#782の定義）。ただし勝率の母数には、正式登録したセルの全試合を残し、失格（負け）として計上します（#782処理5：都合の悪い局だけを除外しない、fallbackした局は`MIXED`失格として計上）。**[提案D10]** 失格局は0点として扱い、母数から外しません。
 
 **[提案D10] 出所の判定規則**：合法手・次状態・終局判定だけを、汎用の監査済みインタフェースで返す`RuleProvider`は`SELF_DERIVED`で使えます。どの`RuleProvider`を使ったかは出所として記録します。best moveや評価値を返すproviderを1度でも使えば`SOLVER_ASSISTED`です。教師ラベルで候補を選抜または学習した場合、そのlineageは`TEACHER_TRAINED`となり、子孫にも伝播します。正式評価用のRefereeのprivate state（未来の局面、内部履歴）を賢者ミスクに渡すことは、`RuleProvider`の経由であっても`UNVERIFIED`（Rule Leak）です。学習・探索用の`RuleProvider`は、評価用Refereeとは別のインスタンスにします。
 
@@ -128,10 +128,10 @@ flowchart TD
 
 - 違法手・時間切れ・応答不能はLossであり、除外しません。
 - provider outage・rate limit・OS障害は`INFRA_INVALID`です。原因と再試行の記録を残します。
-- 再試合は同じcondition IDで2回までです。どの試行を採用するかを選び直すことは禁止です。
+- 再試合は同じcondition IDで2回までです。どの試行を採用するかを選び直すことは禁止です。再試合を始められるのは、元の試行が`INFRA_INVALID`として記録された後だけです。元の試行の結果が後から届いた場合は元の試行を採用し、再試合の結果は参考記録にします。
 - `INFRA_INVALID`が予定局数の5%を超えたセルは`NOT_EVALUATED`です。
 
-**[提案D2] Holdout消費台帳**：正式評価に使った局は、digest・seed・opening・どのcheckpointが見たかを台帳に記録します。PILOTやvalidationで結果を見たcheckpointを作り直した場合、その後の評価は未使用のopeningとseedで行います。複数のTRAINED_FROZEN候補や複数の出所トラックで同じholdoutを比べる場合は、Holm–Bonferroni補正またはalpha-spendingを適用します。6セルの「全部合格」は積集合の検定なのでセル間の補正は不要ですが、候補checkpointの数に対しては補正が要ります。使い切ったholdoutは、新しいopeningや変種ルールで補充します。黙って再利用することはしません。
+**[提案D2] Holdout消費台帳**：holdoutは評価を始める前に台帳へ原子的に予約し（同じholdoutを二つのworkerへ割り当てない）、予約した時点で消費済みとします。評価が途中で止まっても予約は戻しません。正式評価に使った局は、digest・seed・opening・どのcheckpointが見たかを台帳に記録します。PILOTやvalidationで結果を見たcheckpointを作り直した場合、その後の評価は未使用のopeningとseedで行います。複数のTRAINED_FROZEN候補や複数の出所トラックで同じholdoutを比べる場合は、Holm–Bonferroni補正またはalpha-spendingを適用します。6セルの「全部合格」は積集合の検定なのでセル間の補正は不要ですが、候補checkpointの数に対しては補正が要ります。使い切ったholdoutは、新しいopeningや変種ルールで補充します。黙って再利用することはしません。
 
 ## 構造化状態トラックとGUI実プレイトラック
 
@@ -197,7 +197,7 @@ flowchart LR
 | infra障害が5%を超えた | `NOT_EVALUATED` |
 | 評価データが学習に混入した | `INCOMPARABLE`。Formal Frozenとは認定しない |
 | 出所の証拠が欠けている | `UNVERIFIED`。母数には残す |
-| 将棋の入玉・持将棋が未対応 | `REPLAY_REQUIRED`または`UNRESOLVED`。勝ち負けに読み替えない（[#737](https://github.com/tomiya7688/AI_game_player/issues/737)） |
+| 将棋の入玉・持将棋が未対応 | `REPLAY_REQUIRED`または`UNRESOLVED`。勝ち負けに読み替えない（[#737](https://github.com/tomiya7688/AI_game_player/issues/737)）。`UNRESOLVED`の局は件数を報告し、セル内に1局でも残る間はそのセルをPASSにしない（解決済みの局だけで最低局数を満たしても同じ） |
 
 ## smokeと能力主張を分ける
 
@@ -216,7 +216,7 @@ flowchart LR
 1. **出所の区分が無い**：#740と#735第6項には出所の区分がありません。上の「要件の固定」で解決し、#740に追記します（2026-11-04のIssue点検 #740 NEEDS_REVIEW）。
 2. **名称の揺れ**：#782のManifestは`SELF_DERIVED|ENGINE_ASSISTED|PRESET_ONLY|TEACHER_DISTILLATION`、Record側は`SPECIALIST_SOLVER_ASSISTED`等、#769は`ModelAssisted`を使っています。**[提案D10]** 出所トラックは4つの名称に統一します。`PRESET_ONLY`は`GENERIC_BASELINE`の`eligibility`へ寄せます。
 3. **Rule Leakと「audited generic rules」の境界**（#782）：D10で、評価用Refereeのprivate stateは不可、汎用`RuleProvider`は可、と区別します。
-4. **出所の欄が無い**：#714の`MatchRecordV1`に出所の欄がありません。`strategy_origin_ref`を任意の拡張として追加します。#714の互換は、versioned contractで保ちます。
+4. **出所の欄が無い**：#714の`MatchRecordV1`に出所の欄がありません。`strategy_origin_ref`を追加します。一般のbenchmark recordでは任意ですが、**正式6セル評価では必須**とし、欠けた記録は`UNVERIFIED`としてSELF_DERIVEDの勝ちに数えません。#714の互換は、versioned contractで保ちます。
 5. **学習経路の担当が無い**：#749と#759のcloseで、TRAINED_FROZENの学習経路に担当がいなくなりました。D11として新しいIssueが必要です。
 6. **外部推論の出所の標識が無い**：外部推論器（[#443](https://github.com/tomiya7688/AI_game_player/issues/443)・[#445](https://github.com/tomiya7688/AI_game_player/issues/445)）の出力には出所の標識がありません。これらの経路で選んだ手は`MODEL_ASSISTED`とし、蒸留した成果物は`TEACHER_TRAINED`として扱います（2026-11-04のIssue点検）。
 7. **#740の項番の重複**：#740の判定手順では「9」が2回出てきます。2つ目は「GUIとStructuredの別Tier」の項として読み替え、Issueを更新するときに番号を直します。

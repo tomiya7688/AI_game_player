@@ -108,7 +108,7 @@ flowchart TD
 
 - 値の取得：`constant`、`signal(key, expected_unit)`、`difference(key, before, after)`
 - 変換：`normalize(child, min, max, clip)`（[-1,1]の無次元値へ）、`negate`、`abs`、`clamp`
-- 結合：`add`、`multiply`、`min`、`max`
+- 結合：`add`、`multiply`、`min`、`max`。式は出力の範囲を型として宣言し、Validatorは区間演算で範囲を検査します。宣言した範囲を超えうる式（正規化した軸2本の`add`など）は、`clamp`か`normalize`で囲まない限り拒否します。欠損軸の区間はこの宣言範囲から作るので、範囲外の値が出ることはありません
 - 条件：`compare`、`if(condition, then, else)`、`select_unknown(first, explicit_fallback)`
 
 **単位と次元の規則：** `signal` と `difference` は元の単位を保ちます。`add`・`min`・`max` は同じ単位同士か無次元同士に限ります。HPと秒を足す式は `INVALID_UNIT` で拒否します。欠損を暗黙に0にしません。条件がUNKNOWNなら結果もUNKNOWNで、両方の分岐が同じ値と証明できる場合だけその値を使います。`select_unknown` で代替値を使った場合は、そのことと低い証拠の状態を残します。

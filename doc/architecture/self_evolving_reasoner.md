@@ -141,7 +141,7 @@ flowchart LR
 
 **[提案D12]** 探索結果を高速な評価器やpolicyへ蒸留する（expert iteration）のは、LEARN/ALTERNATINGの段階で行います。蒸留した成果物が`SELF_DERIVED`になるのは、教師にした探索が`SELF_DERIVED`だった場合だけです。
 
-`MIXED`（専用エンジンのbestmoveを一度でも使った試合）と`UNVERIFIED`（出所の欠落）は、#782のとおりSELF_DERIVEDセルの母数に残し、失格（0点）として計上します。母数から外すと都合のよい局だけが残るからです。試合を消さず、詳細は別のtrackでも報告します（[能力ベンチマーク](gameplay_capability_benchmark.md)と同じ規則）。
+`MIXED`（専用エンジンのbestmoveを一度でも使った試合）と`UNVERIFIED`（出所の欠落）は、SELF_DERIVEDの勝ちには数えず（#782の定義）、#782処理5のとおり正式登録したセルの母数には残して失格（0点）として計上します。母数から外すと都合のよい局だけが残るからです。試合を消さず、詳細は別のtrackでも報告します（[能力ベンチマーク](gameplay_capability_benchmark.md)と同じ規則）。
 
 ## 10. ライブラリとアーカイブ
 

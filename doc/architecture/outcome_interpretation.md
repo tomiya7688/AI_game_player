@@ -33,7 +33,7 @@
 | [execution_receipt.py](../../src/ai_game_player/execution_receipt.py) | 送信事実。`action_generation`（Stop/rearm世代）と `eligible_for_learning`（正常送信かつ有効世代か）を持つ | すべての段の入口条件。詳細は[実行受領記録](execution_receipts.md) |
 | [outcome_detectors.py](../../src/ai_game_player/outcome_detectors.py)・[outcome_fusion.py](../../src/ai_game_player/outcome_fusion.py) | 全画面差・state差・終端文字列を検出し、融合して `OutcomeEvent` を作る | 補助の根拠。位置や意味の代わりにはしない。[説明書](../OutcomeDetectionFusion機能説明書.md) |
 | [light_execution_projection.py](../../src/ai_game_player/light_execution_projection.py) | `VerifiedActionEffect` と `VerifiedEffectSource`（DETERMINISTIC/CALIBRATED/HUMAN） | #647 の `to_verified` が作る唯一の出口型 |
-| [runtime_evaluation_adapter.py](../../src/ai_game_player/runtime_evaluation_adapter.py) | 前回の実結果を6軸へ投影する | 現在は `progress` と `resources` だけを投影している（#671の欠落） |
+| [runtime_evaluation_adapter.py](../../src/ai_game_player/runtime_evaluation_adapter.py) | 前回の実結果を6軸へ投影する | `state_delta` からは `progress` と `resources` だけを投影し、`survival` へはterminal_textの成功・失敗根拠がある時だけ値を入れる（`_actual_vector`）。HP等の変化はsurvivalへ届かない（#671の欠落） |
 | `engine.py`/`pipeline.py` の `complete_execution_observation` | 操作後観測の唯一の入口 | #687 はこの入口にhookを足す。Outcomeを二重に生成しない |
 
 **既知の不具合：** `TerminalTextDetector.detect` は、OCR文字列の部分一致（例：`"CLEAR" in text`）で成功・失敗の根拠を作ります。`DeterministicOutcomeFusion.fuse` は `terminal_success > 0` だけで成功を返します。そのため「CLEAR CACHE」ボタンでも勝利と誤判定し得ます（#509、Open）。
@@ -229,7 +229,7 @@ T3だけで評価器や戦略を昇格させることはしません。評価器
    - #671：hp/health/lives を survival軸、resource/currency を resources軸に投影する。
    - #761：`state.health` のような名前空間付きkeyを使う。
 
-   **解決：** [#761](https://github.com/tomiya7688/AI_game_player/issues/761) の Signal・Axis Registry を、key・alias・単位・軸対応の**唯一の表**にします。#645 の category と #671 の軸対応は、このRegistryから読みます。hpはkey `state.health` で、軸は `builtin.survival` です。#645のcategoryは数値の種類を示す表示用として残しますが、hpをRESOURCEとする分類は#761の表へ移すときに置き換えます（[汎用評価v2](generic_evaluation_v2.md)と同じ規則）。
+   **解決案（[汎用評価v2](generic_evaluation_v2.md)の[提案GE1]、設計者承認待ち）：** [#761](https://github.com/tomiya7688/AI_game_player/issues/761) の Signal・Axis Registry を、key・alias・単位の**唯一の表**にします。どの軸へ写すかはRegistryではなくGoal/Profileが決め、v1互換Profileの既定写像だけを `state.health → builtin.survival` とします。承認後に#645・#671・#761の本文へ反映するまでは正本ではありません。#645 の category と #671 の軸対応は、このRegistryから読みます。hpはkey `state.health` で、v1互換Profileの既定の軸は `builtin.survival` です。#645のcategoryは数値の種類を示す表示用として残しますが、hpをRESOURCEとする分類は#761の表へ移すときに置き換えます（[汎用評価v2](generic_evaluation_v2.md)と同じ規則）。
 
    また、**観測Signalは値の向き（良い・悪い）を持ちません**（#761の「HP 60→45の良し悪しはSignalで決めない」）。そのため次のように扱います。
    - #645 の `value_judgement`（PROGRESS/LOSS）は、Goal/Profileの版を参照する派生注釈とし、Signal自体には持たせません。Goalが明示されたときだけ付けます。
@@ -244,7 +244,8 @@ T3だけで評価器や戦略を昇格させることはしません。評価器
 
 結果解釈は、自己成長ループの「観測→評価」の部分です。この段が出すものと、受け取る部品は次のとおりです。
 
-- **確定ラベル（T0/T1）：** #422のLight更新、#173系のChampion/Challenger判定、#773の評価器信頼性。
+- **確定ラベル（T0）：** #422のLight更新、#173系のChampion/Challenger判定。
+- **終端の根拠（T1）：** 昇格判定と#773の評価器信頼性。確定ラベルの条件（HUMAN訂正・TEST_ORACLE）を満たさない限り、#422のLight更新へは入れません。
 - **不確実なサンプル（T2）：** #712のChallenger。採用は既存の評価・promote/rollback経路だけ。
 - **予測誤差（T3）：** #783の仮説と探索の選択。
 
