@@ -49,6 +49,7 @@ jobs:
               Path("schemas/config/default_models.schema.json"),
               Path("schemas/config/e2e_reference_games.schema.json"),
               Path("schemas/stage_envelope/v1/stage_envelope.schema.json"),
+              Path("schemas/plugin_capability_manifest/v1/plugin_capability_manifest.schema.json"),
           ]
           schemas = {}
           for path in schema_paths:

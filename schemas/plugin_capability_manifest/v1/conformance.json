@@ -1,0 +1,5334 @@
+{
+ "description": "Shared conformance vectors for Plugin Capability Manifest v1. expect is 'valid' or the PluginManifestError code a conforming validator must report. schema_valid is the result of validating document against plugin_capability_manifest.schema.json alone (null for raw-text cases); true for an invalid case means the rule is enforced only by x-kadoka-validator-rules.",
+ "manifest_version": 1,
+ "cases": [
+  {
+   "name": "valid_example",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "valid_read_only_minimal",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": ""
+    }
+   }
+  },
+  {
+   "name": "valid_read_at_safety_input",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.x",
+      "mode": "read",
+      "stage": "safety",
+      "boundary": "input",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "valid_modify_extension_stage",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.modify"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.x",
+      "mode": "modify",
+      "stage": "ext.plugin.example.filter",
+      "boundary": "input",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "valid_isolation_permission_declared",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read",
+     "network.connect"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "valid_hook_id_equals_plugin_id",
+   "expect": "valid",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_not_object",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": []
+  },
+  {
+   "name": "malformed_missing_audit",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "malformed_unknown_top_field",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    },
+    "signature": "x"
+   }
+  },
+  {
+   "name": "malformed_unknown_hook_field",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ],
+      "priority": 1
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_manifest_version_string",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": "1",
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_manifest_version_bool",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": true,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_manifest_version_float_token",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1.0, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 50000000, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "malformed_plugin_id_uppercase",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "Plugin.example",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_plugin_id_trailing_newline",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example\n",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_plugin_version_space",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3 beta",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_hook_outside_namespace",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.other.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_hook_prefix_without_dot",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hintx",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_duplicate_hook_id",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_duplicate_permission",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_unused_hook_permission",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.modify",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_unknown_mode",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "write",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_unknown_stage",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "render",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_bare_extension_stage",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "ext.",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_boundary",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "middle",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_empty_hooks",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_empty_permissions",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_empty_input_payload_schemas",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_duplicate_payload_schema",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         2
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_read_with_inject_targets",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_inject_without_targets",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_duplicate_inject_target",
+   "expect": "malformed",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         2
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_read_with_max_injected",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 1
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_inject_over_max_injected",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 17
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_timeout_zero",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 0,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_timeout_over_one_second",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 1000000001,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_output_bytes_over_envelope_limit",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 1048577,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_budget_bool",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": true
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_version_zero",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         0
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_duplicate_versions",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1,
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_duplicate_data_class",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata",
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_empty_publisher",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "malformed_description_control_character",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "line\nbreak"
+    }
+   }
+  },
+  {
+   "name": "malformed_description_too_long",
+   "expect": "malformed",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+   }
+  },
+  {
+   "name": "malformed_publisher_unpaired_surrogate",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 50000000, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\\ud800\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "malformed_duplicate_key",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"plugin_version\": \"0.3.2\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 50000000, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "malformed_nan",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": NaN, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "malformed_exponent_budget_token",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 5e7, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "malformed_byte_order_mark",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "﻿{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 50000000, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "malformed_invalid_json",
+   "expect": "malformed",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 50000000, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"OCR候補にヒントを付けるサンプルPlugin\"}"
+  },
+  {
+   "name": "unsupported_version_2",
+   "expect": "unsupported_version",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 2,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "unsupported_version_0",
+   "expect": "unsupported_version",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 0,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "limit_too_many_hooks",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.h0",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h1",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h2",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h3",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h4",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h5",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h6",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h7",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h8",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h9",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h10",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h11",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h12",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h13",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h14",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h15",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h16",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h17",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h18",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h19",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h20",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h21",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h22",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h23",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h24",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h25",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h26",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h27",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h28",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h29",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h30",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h31",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.h32",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "limit_too_many_permissions",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "plugin.p0",
+     "plugin.p1",
+     "plugin.p2",
+     "plugin.p3",
+     "plugin.p4",
+     "plugin.p5",
+     "plugin.p6",
+     "plugin.p7",
+     "plugin.p8",
+     "plugin.p9",
+     "plugin.p10",
+     "plugin.p11",
+     "plugin.p12",
+     "plugin.p13",
+     "plugin.p14",
+     "plugin.p15",
+     "plugin.p16"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "limit_too_many_versions",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "limit_too_many_data_classes",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "class0",
+       "class1",
+       "class2",
+       "class3",
+       "class4",
+       "class5",
+       "class6",
+       "class7",
+       "class8",
+       "class9",
+       "class10",
+       "class11",
+       "class12",
+       "class13",
+       "class14",
+       "class15",
+       "class16",
+       "class17",
+       "class18",
+       "class19",
+       "class20",
+       "class21",
+       "class22",
+       "class23",
+       "class24",
+       "class25",
+       "class26",
+       "class27",
+       "class28",
+       "class29",
+       "class30",
+       "class31",
+       "class32"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "limit_too_many_inject_targets",
+   "expect": "limit_exceeded",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t0",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t1",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t2",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t3",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t4",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t5",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t6",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t7",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t8",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t9",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t10",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t11",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t12",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t13",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t14",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t15",
+        "versions": [
+         1
+        ]
+       },
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.t16",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "limit_document_bytes",
+   "expect": "limit_exceeded",
+   "schema_valid": null,
+   "text": "{\"manifest_version\": 1, \"plugin_id\": \"plugin.example.ocr_hint\", \"plugin_version\": \"0.3.1\", \"compatibility\": {\"stage_envelope_schema_versions\": [1]}, \"permissions\": [\"hook.inject\", \"hook.read\"], \"hooks\": [{\"hook_id\": \"plugin.example.ocr_hint.hinter\", \"mode\": \"inject\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [{\"stage\": \"perception\", \"boundary\": \"output\", \"payload_schema\": \"plugin.example.ocr_hint\", \"versions\": [1]}], \"budget\": {\"timeout_ns\": 50000000, \"max_output_bytes\": 65536, \"max_injected\": 4}, \"data_classes\": [\"ocr_text\", \"ui_metadata\"]}, {\"hook_id\": \"plugin.example.ocr_hint.observer\", \"mode\": \"read\", \"stage\": \"perception\", \"boundary\": \"output\", \"input_payload_schemas\": [{\"payload_schema\": \"kadoka.perception.candidates\", \"versions\": [1]}], \"inject_targets\": [], \"budget\": {\"timeout_ns\": 20000000, \"max_output_bytes\": 1, \"max_injected\": 0}, \"data_classes\": [\"ui_metadata\"]}], \"audit\": {\"publisher\": \"Tomiya\", \"description\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaOCR候補にヒントを付けるサンプルPlugin\"}}"
+  },
+  {
+   "name": "limit_nesting_depth",
+   "expect": "limit_exceeded",
+   "schema_valid": null,
+   "text": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+  },
+  {
+   "name": "unknown_permission_plugin_defined",
+   "expect": "unknown_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read",
+     "plugin.custom"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "unknown_permission_safety_disable",
+   "expect": "unknown_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read",
+     "safety.disable"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "forbidden_permission_input_direct",
+   "expect": "forbidden_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read",
+     "input.direct"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "forbidden_permission_safety_override",
+   "expect": "forbidden_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "safety.override",
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "forbidden_modify_at_safety",
+   "expect": "forbidden_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.modify"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.x",
+      "mode": "modify",
+      "stage": "safety",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "forbidden_inject_at_execution",
+   "expect": "forbidden_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.x",
+      "mode": "inject",
+      "stage": "execution",
+      "boundary": "input",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 1
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "forbidden_inject_target_safety",
+   "expect": "forbidden_permission",
+   "schema_valid": false,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.inject",
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "safety",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  },
+  {
+   "name": "undeclared_permission_inject",
+   "expect": "undeclared_permission",
+   "schema_valid": true,
+   "document": {
+    "manifest_version": 1,
+    "plugin_id": "plugin.example.ocr_hint",
+    "plugin_version": "0.3.1",
+    "compatibility": {
+     "stage_envelope_schema_versions": [
+      1
+     ]
+    },
+    "permissions": [
+     "hook.read"
+    ],
+    "hooks": [
+     {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [
+       {
+        "stage": "perception",
+        "boundary": "output",
+        "payload_schema": "plugin.example.ocr_hint",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "budget": {
+       "timeout_ns": 50000000,
+       "max_output_bytes": 65536,
+       "max_injected": 4
+      },
+      "data_classes": [
+       "ocr_text",
+       "ui_metadata"
+      ]
+     },
+     {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+       {
+        "payload_schema": "kadoka.perception.candidates",
+        "versions": [
+         1
+        ]
+       }
+      ],
+      "inject_targets": [],
+      "budget": {
+       "timeout_ns": 20000000,
+       "max_output_bytes": 1,
+       "max_injected": 0
+      },
+      "data_classes": [
+       "ui_metadata"
+      ]
+     }
+    ],
+    "audit": {
+     "publisher": "Tomiya",
+     "description": "OCR候補にヒントを付けるサンプルPlugin"
+    }
+   }
+  }
+ ]
+}
