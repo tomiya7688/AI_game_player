@@ -4,6 +4,7 @@ from ai_game_player.baseline_provider import BaselineDecisionProvider
 from ai_game_player.planner_2048_observation import Reference2048PlanningObservation
 from ai_game_player.planner_provider import PlannerDecisionProvider
 from ai_game_player.planning_contract import SearchBudget
+from ai_game_player.planning_readiness import wait_for_planner_ready
 from ai_game_player.planning_policy_contract import PlanningRiskPolicyConfig
 from ai_game_player.run_control import RunController
 
@@ -47,4 +48,42 @@ def reference_2048_planner_provider(
         risk_config=PlanningRiskPolicyConfig(
             allow_single_conditional=allow_conditional
         ),
+    )
+
+
+# {
+#   責務: [wait_for_reference_2048_planner_ready: 実Pipelineと分離したplannerでworker往復の準備完了を待つ]
+#   処理: [専用RunControllerの使い捨てplannerと合成盤面を使い、Safety/Input/Stop世代へ触れない。
+#     budgetは製品と同じ値をそのまま渡し、緩和しない]
+#   引数: [budget: 実Providerと同じSearchBudget, deadline_monotonic: 起動待ちの絶対期限,
+#     required_consecutive/retry_interval_s: 連続成功回数とprobe間隔]
+#   戻り値: [dict: 有界なready記録] エラー: [PlannerNotReady: 期限切れ]
+# }
+def wait_for_reference_2048_planner_ready(
+    budget: SearchBudget,
+    deadline_monotonic: float,
+    *,
+    required_consecutive: int = 2,
+    retry_interval_s: float = 0.25,
+) -> dict:
+    from ai_game_player.bounded_planner import BoundedExpectimaxPlanner
+    from ai_game_player.planner_2048_observation import reference_2048_readiness_belief
+    from ai_game_player.planning_2048 import reference_2048_registration
+    from ai_game_player.game_2048_transition import ACTION_DIRECTION_BY_ID
+
+    registration = reference_2048_registration()
+    clock_id = "python.monotonic"
+    planner = BoundedExpectimaxPlanner(
+        (registration,), clock_id=clock_id, controller=RunController()
+    )
+    ttl_ns = (budget.wall_time_ms + 5000) * 1_000_000
+    return wait_for_planner_ready(
+        planner,
+        lambda: reference_2048_readiness_belief(clock_id=clock_id, ttl_ns=ttl_ns),
+        tuple(ACTION_DIRECTION_BY_ID),
+        registration_id=registration.registration_id,
+        budget=budget,
+        deadline_monotonic=deadline_monotonic,
+        required_consecutive=required_consecutive,
+        retry_interval_s=retry_interval_s,
     )

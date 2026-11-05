@@ -205,3 +205,64 @@ class Reference2048PlanningObservation:
             return state
         except (TypeError, ValueError):
             return None
+
+
+READINESS_BOARD = ((2, 0, 0, 0), (0, 0, 0, 0), (0, 0, 2, 0), (0, 0, 0, 0))
+
+
+# {
+#   責務: [reference_2048_readiness_belief: worker往復だけを試す固定盤面の合成beliefを作る]
+#   処理: [実画面・DOM・乱数を使わず、実Pipelineのstoreへ公開しない。選択・入力に使う経路は無い]
+#   引数: [clock_id: Plannerと同じorigin, ttl_ns: 1 probeの予算より長い有効期限, clock_ns: monotonic時計]
+#   戻り値: [BeliefSnapshot: 未校正の単一world(未知質量1)で製品と同じ重み種別]
+# }
+def reference_2048_readiness_belief(
+    *,
+    clock_id: str,
+    ttl_ns: int,
+    clock_ns: Callable[[], int] = time.monotonic_ns,
+) -> BeliefSnapshot[Game2048State]:
+    now = clock_ns()
+    session = f"readiness.{uuid4().hex}"
+    source = BeliefContext(
+        "2048",
+        "board",
+        session,
+        "readiness",
+        ("readiness",),
+        now,
+        0,
+        0,
+        "readiness",
+        1,
+        clock_id,
+    )
+    evidence = BeliefEvidenceRef(
+        "readiness.synthetic",
+        "readiness",
+        BeliefEvidenceKind.OBSERVATION,
+        "readiness_probe",
+        "v1",
+        source,
+        now,
+        "readiness",
+    )
+    state_ref = TypedStateRef(
+        "2048", "2048-state.v1", Game2048State, Game2048State(READINESS_BOARD)
+    )
+    hypothesis = WorldStateHypothesis(
+        "readiness_board",
+        state_ref,
+        source,
+        BeliefWeight(BeliefWeightKind.RELATIVE_SCORE, 1),
+        HypothesisOrigin.OBSERVATION_HYPOTHESIS,
+        (evidence,),
+        BeliefFreshness(now, now + ttl_ns),
+    )
+    store = BeliefCandidateStore(
+        Game2048State,
+        clock_id=clock_id,
+        policy=BeliefStorePolicy(max_age_ns=ttl_ns),
+        clock_ns=clock_ns,
+    )
+    return store.publish(source, (hypothesis,), unknown_mass=1)
