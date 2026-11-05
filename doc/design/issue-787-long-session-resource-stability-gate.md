@@ -77,11 +77,17 @@ Parent: #785
 
 - 各metricは`source`を持つ: `process`（OS API）/ `external`（process外から観測）/ `registry_snapshot` / `synthetic`（fast gateのfake世界）。reportの各metricへ必ず書き、**syntheticの値を実測として扱わない**。
 - 範囲外の`storage.*`（Experience Store、#18）は語彙に無い。混ぜようとしたprofileは`profile_invalid`。
-- process tree観測（integration層）は、観測対象rootの子孫をWindowsは`CreateToolhelp32Snapshot`、Linuxは`/proc/*/stat`のppidで辿り、bytes・handle・GDI・USERを木全体の合計で記録する。GDI/USERの取得に`PROCESS_QUERY_INFORMATION`が無い子は、その標本の当該metricを`None`（欠測）にする。
+- process tree観測（integration層）は、観測対象rootの子孫をWindowsは`CreateToolhelp32Snapshot`、Linuxは`/proc/*/stat`のppidで辿り、bytes・handle・GDI・USERを木全体の合計で記録する。木のどの構成processについても、必要な値を読めなかった（`access_denied`・API失敗。列挙後に既に終了していた子は「解放済み」として除外してよい）場合、**木全体の合計を取得できた分だけで合算せず**、その標本の当該metricを`None`（欠測）にする（過小評価で増加を見逃さない）。欠測が続けば判定10の`metric_unreliable`または`unsupported: access_denied`で落ちる。GDI/USERに`PROCESS_QUERY_INFORMATION`が必要で開けない子も同じ扱い。
+
+### 状態語彙（固定）
+
+- `metrics.<id>.status`: `measured`（標本が採れ、欠測率が判定10の上限内）/ `unsupported` / `unreliable`（採れたが欠測率超過・走査途中打切り等で判定に使えない）。
+- `metrics.<id>.verdict`: `pass` / `fail` / `observed`（judged=falseで値だけ報告）/ `unsupported`（optionalで判定から外した）。requiredで`status != measured`なら必ず`fail`（`metric_unsupported`または`metric_unreliable`）。
+- 判定12の「required metricが全て`measured`」は上の`status`を指す。
 
 ### unsupportedの表現（固定語彙）
 
-`status`: `measured` / `unsupported`。`unsupported.reason`: `platform` / `no_counter` / `tool_missing` / `access_denied` / `probe_error` / `registry_not_connected` / `snapshot_version` / `scan_truncated`。**0・空・成功への読み替えを禁止**。標本の値は`int`または`None`で、`None`を0にしない。
+`status`: `measured` / `unsupported`（`unreliable`は理由を`reasons`に持つ）。`unsupported.reason`: `platform` / `no_counter` / `tool_missing` / `access_denied` / `probe_error` / `registry_not_connected` / `snapshot_version` / `scan_truncated`。**0・空・成功への読み替えを禁止**。標本の値は`int`または`None`で、`None`を0にしない。
 
 ### ResourceSample（samples.jsonl 1行、`resource-stability-sample/v1`）
 
@@ -90,7 +96,7 @@ Parent: #785
 phase: warmup | steady | closing | post_close | pre_open
 ```
 
-`values`の`null`は欠測。`pre_open`はSession開始直前、`post_close`は`close_session()`後に`settle`（`gc.collect()`×2相当をscenarioが行い、最大`settle_ms`、既定500ms、2連続標本が許容内になるまで）した後の標本。
+`values`の`null`は欠測。`pre_open`はSession開始直前、`post_close`は`close_session()`後に`settle`（`gc.collect()`×2相当をscenarioが行い、最大`settle_ms`、既定500ms、2連続標本が許容内になるまで）した後の標本。`settle_ms`内に安定しなかった場合は最後の標本を使い、`sessions[].settle_timeout=true`を記録して通常どおり判定する（安定しないこと自体を成功にも失敗の免除にもしない）。
 
 ### StabilityProfile（`config/resource_stability_profile.json`）
 
@@ -105,9 +111,12 @@ phase: warmup | steady | closing | post_close | pre_open
  enforcement: { fast: "enforce", integration: "observe"|"enforce", real_hardware: "enforce" } }
 ```
 
+- 層と実行profileの組合せは固定: `fast`×{`fast`,`deep`}、`integration`×{`pr`,`deep`}、`real_hardware`×{`deep`}。それ以外（例 `fast`層×`pr`）は`profile_invalid`で終了コード2。層ごとの`metrics`は層の下に置き、`required_on`はその層の中でのOS別必須を表す（層をまたいで共有しない）。各層は**必ず判定されるべきmetric集合**`must_judge`を宣言し、実際に`judged`でなければ`no_judged_metrics`でfail（下記判定10）。初期値: `fast`=`registry.active_leases`・`registry.failed_leases`・`os.handle_count`・`temp.file_count`（Linuxの`os.handle_count`は`/proc/<pid>/fd`件数で全OSで採れる）、`integration`=`mem.resident_bytes`・`mem.private_bytes`・`os.handle_count`・`temp.file_count`（Windowsは加えて`os.gdi_objects`・`os.user_objects`）、`real_hardware`=integrationの集合＋`gpu.process_vram_bytes`（または`exclusive_gpu`宣言時`gpu.device_vram_bytes`）。
 - 許容値の**上限（hard limit）はコードに持つ**: bytesの`rel`≤0.05・`abs`≤64MiB、`os.handle_count`≤64、GDI/USER≤8、`registry.*`は0固定、`temp.file_count`≤16。profileがこれを超えると読込時に`profile_invalid`（fail-closed）。上限を上げるには設計書とコードを変える（レビュー対象）。
 - **緩和用のCLI引数・環境変数は作らない**（`--budget-multiplier`相当を持たない）。ホストの違い（Windows runnerの揺らぎ）は`required_on`とhost別の同一hard limit内の値で表す。
 - 初期値（実装PRで各OSのCI実測3回以上を`doc/E2E受入試験手順.md`へ記録して確定。**実測で不安定でも許容値を上げる前にscenarioを直す**）:
+
+`S2`は判定3の**steady区間の2番目の区間**（中央値）。`pre_open`は当該Session開始直前の標本で、`max(下限, 比率×値)`の下限により`pre_open=0`でも許容は下限以上になる。`pre_open`が欠測（`None`）のrequired metricは`metric_unreliable`でfail（0に読み替えない）。下表の`registry.*`の許容0は、判定7の`declared_retained`（process寿命で意図的に保持する資源、例: `registry.kind.model_cache.*`）の宣言量を**差し引いた後**の残りに適用する。宣言のない保持は0許容に該当してfailする。
 
 | class | tolerance | recovery（post_close − pre_open、およびbaseline drift） |
 |---|---|---|
@@ -158,7 +167,7 @@ evaluate --samples PATH --layer real_hardware --run-profile deep --host-profile 
 list-scenarios
 ```
 
-- 終了コード: 0=pass（またはobserveでfail）、1=fail（verdictがfail、canaryが検出されない、観測対象commandが非0）、2=引数・profile・入力の不正。`observe`でも`verdict`と`reasons`はreportに残し、`gate_effective=false`、GitHub Actionsでは`::warning`で失敗理由を出す。
+- 終了コード（上から優先）: **2**=引数・profile・入力の不正（`--mode observe`と`--scenario`のcanary指定の組合せ、層×profileの不正組合せを含む）→ **1**=観測対象commandが非0、canaryが検出されない、または`enforce`でverdictがfail → **0**=pass、または`observe`でverdictがfail（`gate_effective=false`、reportに`fail`を残し`::warning`を出す）。canaryとfast層は常に`enforce`固定で、`observe`を受け付けない。`observe`でも`verdict`と`reasons`はreportに残し、`gate_effective=false`、GitHub Actionsでは`::warning`で失敗理由を出す。
 - `COMMAND`の終了コードは`scenario_error`の根拠として記録し、Gateの終了コードに潰さず別fieldに残す。runnerは観測対象を自分で起動した場合だけ、timeout時にその木を終了する（他processは触らない）。
 
 ## 手順
@@ -180,13 +189,13 @@ scenario / 観測対象 ──(gauge callable / pid)──▶ resource_probes �
 1. **妥当性**: profileとsamplesを検証。`insufficient_sessions`（`sessions`がprofile未満）、`insufficient_samples`（steadyが`segments × min_samples_per_segment`未満）はfail（少ないdataで合格させない）。
 2. **warmup分離**: steadyの開始は`max(warmup_steps, warmup_seconds相当, scenario宣言のdeclared_fill_steps)`。warmup中の増加は傾き判定に使わないが、peakとceilingの判定には含める。bounded cacheの充填完了時刻は宣言（`declared_fill_steps`）で渡し、warmupを超えて充填が続く宣言は`profile_invalid`にしない代わりに、steady区間で増えれば下記規則で落ちる。
 3. **区間分割**: steady標本を`segments`（既定4）個の連続区間S1..SKに分け、区間ごとに中央値を保存（`segment_medians`）。
-4. **統計**: `peak`（全phase）、`p50`、`p95`（nearest-rank、#811と同じ）、`end`（SKの中央値）、`end_minus_start`（SK中央値 − S1中央値）、`tail_growth`（SK中央値 − S⌈K/2⌉中央値）、`tail_slope`（後半区間の標本を最大100個の中央値binにまとめたTheil-Sen傾き、単位は1000step当たり。時間基準runは1分当たりを併記）。
+4. **統計**: `peak`（全phase）、`p50`、`p95`（nearest-rank、#811と同じ）、`end`（SKの中央値）、`end_minus_start`（SK中央値 − S1中央値）、`tail_growth`（SK中央値 − S⌈K/2⌉中央値）、`tail_slope`（後半区間の標本を`min(100, 有効標本数÷2)`個（`segments ≥ 4`・各区間8標本以上なので常に8個以上）の中央値binにまとめたTheil-Sen傾き。後半の有効（非`None`）標本が16未満、またはbinが8個未満、傾きがNaN/計算不能なら**`metric_unreliable`でfail**し、`tail_growth`だけで合格させない。単位は1000step当たり。時間基準runは1分当たりを併記）。
 5. **成長判定**: `tol`はmetric classの許容。`drift = tail_slope × 後半のstep幅`とし、**`tail_growth > tol` かつ `drift > tol` ならfail（`tail_growth`）。どちらか片方だけでも`2×tol`を超えたらfail**。二つの独立な推定量（区間中央値の差とTheil-Sen）が一致したときに落とすことで、単発spikeによる誤failを避け、片方でも明確に大きければ見逃さない。
 6. **上限**: `ceiling`（profile、またはscenarioが宣言したbounded cacheの宣言上限）に対し`peak ≤ ceiling`。超過は`ceiling_exceeded`。ceiling未宣言のmetricには上限判定をしない（成長判定のみ）。
 7. **Session回収**（sessionごと、`closing`→`post_close`）: `post_close − pre_open ≤ recovery`。`declared_retained`（process寿命で意図的に保持する資源。例: model warm cacheの`registry.kind.model_cache.bytes`）は宣言量までを許し、宣言を超えた分と、**宣言していない保持**は`not_reclaimed`。Registry系は`active_leases == 0`かつ`failed_leases`が増えていないことを厳密に要求。
 8. **Session反復baseline**: 先頭Session（prime、lazy import・初回cache）の`post_close`は診断値`first_session_growth`として記録するだけで判定しない。2番目以降の`post_close`系列P2..PMについて、`PM − P2 > recovery`なら`baseline_drift`。さらに差分が全て正で、2回以上連続し、合計が`recovery/2`を超える階段状の増加も`baseline_staircase`でfail（`sessions ≥ 4`）。
 9. **cleanup latency**: Session close要求から`registry.active_leases==0`の確認（またはsettle完了）までをmsで記録。`registry.max_cleanup_latency_ms`は上限判定、runner側計測値は報告のみ。
-10. **欠測**: `required`のmetricが`unsupported`なら`metric_unsupported`でfail。steady標本の`None`が5%を超えるrequired metricは`metric_unreliable`でfail。optionalは`unsupported_optional`へ列挙して判定から外す。**判定したmetricが0件なら`no_judged_metrics`でfail**（全部unsupportedで通る経路を作らない）。
+10. **欠測**: `required`のmetricが`unsupported`なら`metric_unsupported`でfail。steady標本の`None`が5%を超えるrequired metricは`metric_unreliable`でfail。optionalは`unsupported_optional`へ列挙して判定から外す。**判定したmetricが0件、または層の`must_judge`集合のどれかが`judged`でなければ`no_judged_metrics`でfail**（全部unsupportedや設定ミスで通る経路を作らない）。
 11. **孤児**（integration層）: 観測対象command終了後、最後の標本で見えていた子孫processが生存していれば`orphan_process`。
 12. `verdict = pass`は、上記のfail理由が0件で、かつrequired metricが全て`measured`のときだけ。
 
@@ -240,6 +249,10 @@ scenario / 観測対象 ──(gauge callable / pid)──▶ resource_probes �
 | T23 | #786 snapshot v1契約 | #786設計書の`ResourceLifecycleSnapshot` v1と同形の固定fixtureから`registry.*`が読める。`schema_version`が1以外・必須keyなしは`unsupported: snapshot_version`（0扱いしない） |
 | T24 | canary | CLIの`run --layer fast`が全canaryで期待codeのfailを確認して終了コード0。判定を緩めた偽の`evaluate_run`を差し込むと`canary_not_detected`で終了コード1 |
 | T25 | integration層（Windows、`skipUnless`） | 短い子process（メモリ・handleを一定に保つ数秒のscript）をtree観測してpass、handleを増やし続ける子はfail、終了後に子孫を残すscriptは`orphan_process`。`--mode observe`は終了コード0でreportはfail、`::warning`出力 |
+| T27 | process tree合計の部分欠測 | 子の1つで読取失敗（`access_denied`）のとき、取れた分だけの合計を記録せず当該標本を`None`にする。列挙後に終了した子は除外して合計は有効。欠測が5%超続けば`metric_unreliable` |
+| T28 | 層×profileと`must_judge` | `fast`×`pr`は`profile_invalid`（終了コード2）。`must_judge`のmetricが`unsupported`または`observed`のままだと`no_judged_metrics`。Linuxの`real_probe_smoke`は`os.handle_count`（fd件数）で`must_judge`を満たす |
+| T29 | 終了コード優先順位とobserve | 不正な組合せ（`--mode observe`でcanary）は2。command非0は`observe`でも1。`observe`でverdict failは0、reportは`fail`・`gate_effective=false`。`settle_ms`内に安定しない場合は`settle_timeout=true`を記録して判定 |
+| T30 | Theil-Sen計算不能 | 後半の有効標本16未満・NaNは`metric_unreliable`でfail（`tail_growth`単独で合格させない） |
 | T26 | 既存互換 | `performance-ci`・`test_windows_capture_integration`・campaign関連の既存テストが変更なしで通る。`tests/test_data_inventory.py`のcoverage testが通る（`src/`に保存箇所を増やさない） |
 
 ## Issueの受入条件との対応
@@ -261,7 +274,10 @@ Issueの「判定方法」1〜6との対応: 1(warmup分離)=判定2、2(複数�
 
 ## 設計レビュー
 
-（レビュー後に記録する）
+設計書を3資料に分割（packet-01〜03、SHA256 93D37877… / 58268D66… / 485071BE…）して依頼。返答があったのはAntigravity（資料1・2）のみで、他は省略（`evidence.md`）。Antigravityの指摘を全て原文と照合し、以下を反映した。
+
+採用: process tree合計の部分欠測は取れた分だけで合算せず`None`にする（過小評価で増加を見逃さない）、`metrics.<id>.status`／`verdict`の語彙を明記（判定12の`measured`の根拠）、`S2`の定義と`pre_open=0`／欠測時の扱い、`registry.*`の許容0は`declared_retained`差引後に適用、層×実行profileの許可組合せと層ごとの`must_judge`集合（`no_judged_metrics`の誤爆と素通りの両方を防ぐ）、終了コードの優先順位とcanary/observeの組合せ拒否、`settle_ms`超過時の扱い、Theil-Senの最小標本と計算不能時のfail。試験にT27〜T30を追加。
+確認のみ: 層ごとのworkflow実行条件（PR: fast gateとwindows-e2e観測、weekly/dispatch: deep）は「CIへの組み込み方」に既にあり、資料3分は応答が得られなかったため未確認範囲として残る。
 
 ## 代替案と不採用理由
 
@@ -298,7 +314,7 @@ Issueの「判定方法」1〜6との対応: 1(warmup分離)=判定2、2(複数�
 
 ## 完了条件
 
-- 上表T1〜T26が通り、`finish_task.bat`が全段passする。
+- 上表T1〜T30が通り、`finish_task.bat`が全段passする。
 - fast gateが`ubuntu-latest`と`windows-latest`でそれぞれ60秒以内に終わることを実測して記録する。
 - canary全件が期待どおりfailし、pass期待scenarioが全てpassする。
 - `windows-e2e`のcampaignをintegration層で観測し、reportとwarningが出る（observe）。許容値の根拠となる実測3回以上を`doc/E2E受入試験手順.md`へ記録する。
