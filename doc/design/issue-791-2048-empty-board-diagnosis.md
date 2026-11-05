@@ -75,12 +75,12 @@ PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs \
 |---|---|---|---|
 | 0 | `evidence_incomplete` | schema不一致、相関IDの不一致、`target_matches_generation` がtrueでない、`recording_incomplete`、必須節の欠落（旧schemaを含む）のいずれか | 判定不能 |
 | 1 | `connection_without_request` | 欠落scriptがあり、`connections_without_request_line` > 0 | TCP受理→要求行 |
-| 2 | `request_not_observed` | 欠落scriptごとの `requests_started` = 0（resource別counter）。加えて世代全体で 受理数 = `requests_parsed` + 要求行なし + 解析失敗（serverはHTTP/1.0で1接続1要求のため、余った接続が無いことの確認） | browser送信/TCP受理前 |
+| 2 | `request_not_observed` | 欠落scriptごとの `requests_started` = 0（resource別counter）。加えて `connections_without_request_line` = 0・`request_line_errors` = 0・受理数 = `requests_parsed`（serverはHTTP/1.0で1接続1要求。帰属の分からない接続が1件も無いことの確認。受理数がこの合計と合わなければ0の `evidence_incomplete`） | browser送信/TCP受理前 |
 | 3 | `server_failed_before_headers` | `failed_requests` > 0 かつ phase が `request`/`headers` | server→header |
 | 4 | `server_failed_in_body` | `failed_requests` > 0 かつ記録されたphaseが `body`。header完了済みで completed=0 でも失敗phaseの記録が無ければ0（evidence_incomplete） | server→body |
 | 5 | `served_constructor_missing` | 全scriptがHTTP200・完了・既知SHA一致、かつ必要constructorのいずれかがfalse。配信の完了だけを示し、JSの構文/実行エラーかbrowser受信失敗かは区別しない（Consoleを取らないため） | server配信→constructor |
 | 6 | `constructed_no_dom_tiles` | 全constructor true、`tile_count` = 0 | constructor→DOM |
-| 7 | `dom_present_frame_empty` | CDP時点で `tile_count` > 0 かつ表示boolean true、それより前に取得したFrameは空盤面。DOMはFrame後に作られた可能性もあるため候補扱い（`control_required=true`） | DOM→RAF/compositor/Capture |
+| 7 | `dom_present_frame_empty_candidate` | CDP時点で `tile_count` > 0 かつ表示boolean true、それより前に取得したFrameは空盤面。DOMはFrame後に作られた可能性もあるため候補扱い（`control_required=true`） | DOM→RAF/compositor/Capture |
 | 8 | `frame_nonempty_not_recognized` | Frameに空でない盤面があるのに認識が盤面を返さない | Capture→Recognizer |
 | 9 | `unclassified` | 上記いずれも非該当 | 不明 |
 
@@ -148,7 +148,7 @@ PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs \
 
 実装PRの完了（上の「完了条件」）は診断機構の完成であり、Issue #791の完了ではない。Issueは次のどちらかで閉じる。
 
-1. Windowsで空盤面が再発し、新記録のcategoryが1〜8に決まり（候補categoryは対照条件を満たし）、AC2の負例と最小修正が後続PRで入った。
+1. Windowsで空盤面が再発し、新記録のcategoryが1〜8に決まり（候補categoryは対照条件を満たし）、AC2の負例と最小修正が後続PRで入った。根因に対して製品修正が不要と判断した場合（例: runner環境側の要因）は、その根拠と負例をcloseコメントに書く。
 2. 再発しないまま閉じる場合: 後続Issueを作り、そのIssue番号・未確定のAC（AC1の原因カテゴリ、AC2、AC5のWindows実測）・次の観測条件（`--save-browser-diagnostics` のcohort、対照の採用規則）を本Issueのcloseコメントに書く。成功した再実行だけを根拠に閉じない。
 
 ## 代替案と不採用理由
