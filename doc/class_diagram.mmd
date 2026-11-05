@@ -389,6 +389,28 @@ classDiagram
         +load()
         +save()
     }
+    ValueError <|-- DataClassPolicyError
+    class DataClassPolicyError {
+    }
+    class DataClassPolicy {
+        +__post_init__()
+        +persisted_by_default()
+        +may_leave_machine()
+        +from_dict()
+    }
+    ValueError <|-- DataInventoryError
+    class DataInventoryError {
+    }
+    class DataInventory {
+        +policy()
+        +class_for_artifact_type()
+        +effective_classes()
+        +remote_eligible_classes()
+        +ttl_ms_by_artifact_type()
+        +forbidden_field_paths()
+        +_is_forbidden_name()
+        +from_dict()
+    }
     class EvaluatorEvidence {
         +__post_init__()
         +to_dict()
@@ -1554,6 +1576,72 @@ classDiagram
         +choose()
         +choose_context()
         +_request_decision()
+    }
+    class _RecoveryEpisode {
+    }
+    class RecoveryController {
+        +__init__()
+        +state()
+        +on_event()
+        +ack()
+        +poll()
+        +request_stop()
+        +reset()
+        +_reset_locked()
+        +_require_episode_locked()
+        +_accept_time_locked()
+        +_refuse_locked()
+        +_latch_external_stop_locked()
+        +_enter_scene_locked()
+        +_advance_locked()
+        +_issue_locked()
+        +_resolve_locked()
+        +_fail_episode_locked()
+        +_stop_locked()
+        +_plan_locked()
+    }
+    str <|-- RecoveryAction
+    Enum <|-- RecoveryAction
+    class RecoveryAction {
+    }
+    str <|-- RecoveryState
+    Enum <|-- RecoveryState
+    class RecoveryState {
+    }
+    str <|-- RecoveryReason
+    Enum <|-- RecoveryReason
+    class RecoveryReason {
+    }
+    str <|-- RecoveryAttemptStatus
+    Enum <|-- RecoveryAttemptStatus
+    class RecoveryAttemptStatus {
+    }
+    class RecoveryPolicy {
+        +__post_init__()
+    }
+    class RecoveryBudget {
+    }
+    class RecoveryPlan {
+        +correlation_id()
+        +to_dict()
+    }
+    class RecoveryAttemptResult {
+        +__post_init__()
+        +to_dict()
+    }
+    Protocol <|-- RecoveryJournal
+    class RecoveryJournal {
+        +append()
+    }
+    class RecoverySessionAdapter {
+        +__init__()
+        +handle_event()
+        +handle_result()
+        +handle_poll()
+        +_commit()
+        +_fail_closed()
+        +_try_record_plan()
+        +_dispatch_stop()
     }
     class ConfiguredRegionDetector {
         +__init__()

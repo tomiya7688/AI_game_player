@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-game-player:data-inventory:1",
+  "title": "AI Game Player Privacy Data Inventory",
+  "description": "Versioned privacy data classes, 1.0 default persistence/retention/remote policy, and the mapping from persisted or transmitted code sites to classes (Issue #224). The canonical document is src/ai_game_player/assets/privacy/data_inventory.json. Cross-reference rules (unknown class references, containment consistency, duplicate sites) are enforced by ai_game_player.data_inventory.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_version", "classes", "artifact_types", "writers", "transmitters", "non_data_paths", "forbidden_field_names"],
+  "$defs": {
+    "class_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "site": {"type": "string", "pattern": "^ai_game_player(\\.[a-z_][a-z0-9_]*)+:[A-Za-z_][A-Za-z0-9_.]*$"},
+    "note": {"type": "string", "minLength": 1}
+  },
+  "properties": {
+    "schema_version": {"const": 1},
+    "policy_version": {"type": "string", "minLength": 1},
+    "classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "sensitivity", "default_persistence", "default_retention_ms", "remote", "contains", "owner_modules", "implemented", "description"],
+        "properties": {
+          "id": {"$ref": "#/$defs/class_id"},
+          "sensitivity": {"enum": ["low", "medium", "high", "forbidden"]},
+          "default_persistence": {"enum": ["never", "off", "transient", "local_bounded", "local"]},
+          "default_retention_ms": {"type": ["integer", "null"], "minimum": 1},
+          "remote": {"enum": ["never", "opt_in"]},
+          "contains": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/class_id"}},
+          "owner_modules": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^ai_game_player(\\.[a-z_][a-z0-9_]*)+$"}},
+          "implemented": {"type": "boolean"},
+          "description": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "artifact_types": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z][a-z0-9_.-]*$"},
+      "additionalProperties": {"$ref": "#/$defs/class_id"}
+    },
+    "writers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["site", "data_class", "paths"],
+        "properties": {
+          "site": {"$ref": "#/$defs/site"},
+          "data_class": {"anyOf": [{"$ref": "#/$defs/class_id"}, {"type": "null"}]},
+          "paths": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "note": {"$ref": "#/$defs/note"}
+        }
+      }
+    },
+    "transmitters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["site", "data_classes", "note"],
+        "properties": {
+          "site": {"$ref": "#/$defs/site"},
+          "data_classes": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/class_id"}},
+          "note": {"$ref": "#/$defs/note"}
+        }
+      }
+    },
+    "non_data_paths": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "forbidden_field_names": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+    }
+  }
+}

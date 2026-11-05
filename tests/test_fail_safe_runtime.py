@@ -426,11 +426,22 @@ class FailSafeRuntimeTest(unittest.TestCase):
             ledger = InputLedger(root / "input_ledger.json")
             ledger.configure(target_handle=0, input_mode="mouse")
             ledger.hold_key(0x20, 30)
-            self.assertEqual(run_external_watchdog(root, max_runtime_seconds=1.0), 0)
+            # Windowsでは実OSへグローバルkey-upが出るため、OS境界だけを記録用に置き換える（Issue #94）。
+            released_keys: list[tuple[int, str, int]] = []
+            with patch(
+                "ai_game_player.fail_safe_runtime._release_key_os",
+                side_effect=lambda key, mode, handle: released_keys.append(
+                    (key, mode, handle)
+                ),
+            ):
+                self.assertEqual(
+                    run_external_watchdog(root, max_runtime_seconds=1.0), 0
+                )
             lease = AtomicJsonStore(root / "lease.json").read()
             self.assertEqual(lease["state"], "recovery_required")
             self.assertEqual(lease["reason"], "owner_process_lost")
             self.assertEqual(ledger.snapshot()["held_keys"], {})
+            self.assertEqual(released_keys, [(0x20, "mouse", 0)])
 
     def test_action_executor_requires_rearm_and_fresh_observation(self):
         with tempfile.TemporaryDirectory() as directory:

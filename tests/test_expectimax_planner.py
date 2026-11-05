@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from dataclasses import asdict, replace
 from fractions import Fraction
 import json
@@ -59,15 +60,24 @@ from ai_game_player.world_state_hypothesis import (
 
 import planning_toy_domains
 from planning_toy_domains import domain
+from planning_warm_worker import warm_worker_launch
 
 
-# Upper bound for tests that expect a worker result. The wall-time budget also
-# covers starting a fresh Python worker, which took 0.5-1 s on a Windows host
-# with several site-packages .pth hooks while the full suite ran. Searches end
-# on max_depth or an explicit reason long before this bound, so fast hosts do
-# not wait for it. The default test belief TTL (10 s) leaves headroom for
-# test setup and scheduling delays before planning starts.
-WORKER_RESULT_BUDGET_MS = 2500
+# Upper bound for tests that expect a worker result. These tests start the
+# worker interpreter through warm_worker_launch() before plan() starts its
+# budget (Issue #729): a cold start took 2.6-6.3 s with every CPU saturated.
+# What remains in the budget (handoff, resource limits, request read, toy
+# search, parent scheduling) took up to 2.9 s with eight busy loops plus other
+# agents' test runs, so the bound keeps over 3x headroom. Searches end on
+# max_depth or an explicit reason long before it, so hosts do not wait for it.
+# Cutoff, slow and Stop tests keep the cold product launch and small budgets.
+WORKER_RESULT_BUDGET_MS = 10_000
+# The 2048 depth-2 search is real work, not start-up; see its test.
+REFERENCE_2048_BUDGET_MS = 20_000
+# Default test belief TTL. The warm start runs after the belief is created and
+# can take tens of seconds under load, so the TTL must not expire before plan()
+# starts. Expiry itself is tested with an explicit 80 ms TTL.
+TEST_BELIEF_TTL_NS = 120_000_000_000
 
 
 def planning_result_diagnostic(result):
@@ -102,7 +112,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         states=(0, 1),
         weights=(0.25, 0.65),
         kind=BeliefWeightKind.CALIBRATED_PROBABILITY,
-        ttl=10_000_000_000,
+        ttl=TEST_BELIEF_TTL_NS,
         game_id="counter",
         schema="counter.v1",
         state_type=int,
@@ -152,7 +162,11 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         store = BeliefCandidateStore(
             state_type,
             clock_id=context.clock_id,
-            policy=BeliefStorePolicy(max_age_ns=max(ttl, 1_000_000_000)),
+            # Fixture setup only: the store's 100 ms update deadline is tested in
+            # its own module and must not fail planner tests under CPU load.
+            policy=BeliefStorePolicy(
+                max_age_ns=max(ttl, 1_000_000_000), max_update_ns=10_000_000_000
+            ),
         )
         return store.publish(context, candidates), store
 
@@ -179,21 +193,26 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         allowed=("left", "right"),
         current=None,
         controller=None,
+        warm_worker=True,
     ):
+        """warm_worker=False keeps the cold product launch for cutoff and Stop tests."""
         if belief is None:
             belief, _ = self.belief()
         registration = self.registration(factory)
         planner = BoundedExpectimaxPlanner(
             (registration,), clock_id=belief.context.clock_id, controller=controller
         )
-        result = planner.plan(
-            belief,
-            allowed,
-            registration_id=factory,
-            budget=budget
-            or SearchBudget(max_depth=1, wall_time_ms=WORKER_RESULT_BUDGET_MS),
-            current_belief=current,
-        )
+        with warm_worker_launch() if warm_worker else nullcontext():
+            started = time.monotonic()
+            result = planner.plan(
+                belief,
+                allowed,
+                registration_id=factory,
+                budget=budget
+                or SearchBudget(max_depth=1, wall_time_ms=WORKER_RESULT_BUDGET_MS),
+                current_belief=current,
+            )
+            self.last_plan_elapsed_s = time.monotonic() - started
         if (
             result.outcome != PlanningOutcome.SELECT
             and planner.last_worker_diagnostic is not None
@@ -211,12 +230,13 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         planner = BoundedExpectimaxPlanner(
             (registration,), clock_id=belief.context.clock_id
         )
-        result = planner.plan(
-            belief,
-            ("left",),
-            registration_id=registration.registration_id,
-            budget=SearchBudget(wall_time_ms=WORKER_RESULT_BUDGET_MS),
-        )
+        with warm_worker_launch():
+            result = planner.plan(
+                belief,
+                ("left",),
+                registration_id=registration.registration_id,
+                budget=SearchBudget(wall_time_ms=WORKER_RESULT_BUDGET_MS),
+            )
         self.assertEqual(result.reason, "worker_failed")
         diagnostic = planner.last_worker_diagnostic
         self.assertIsNotNone(diagnostic)
@@ -434,8 +454,11 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                 read_old_raw_checkpoint,
             ),
         ):
+            # The fake Popen runs the worker protocol in process; no warm launch.
             result = self.run_plan(
-                belief=belief, budget=SearchBudget(max_depth=3, wall_time_ms=1000)
+                belief=belief,
+                budget=SearchBudget(max_depth=3, wall_time_ms=1000),
+                warm_worker=False,
             )
         spawn.assert_called_once()
         self.assertEqual(finished_seen, ["depth_budget"])
@@ -567,7 +590,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             states=(state,),
             weights=(1.0,),
             kind=BeliefWeightKind.RELATIVE_SCORE,
-            ttl=10_000_000_000,
+            ttl=TEST_BELIEF_TTL_NS,
             game_id="2048",
             schema=registration.state_schema_id,
             state_type=Game2048State,
@@ -590,19 +613,21 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         planner = BoundedExpectimaxPlanner(
             (registration,), clock_id=belief.context.clock_id
         )
-        result = planner.plan(
-            belief,
-            tuple(ACTION_DIRECTION_BY_ID),
-            registration_id=registration.registration_id,
-            # Depth 2 ends on max_depth; the bound only absorbs worker start-up
-            # and the 2048 module import on slow hosts (belief TTL is 10 s).
-            budget=SearchBudget(
-                max_depth=2,
-                max_nodes=10000,
-                wall_time_ms=2 * WORKER_RESULT_BUDGET_MS,
-                allow_conditional_selection=True,
-            ),
-        )
+        with warm_worker_launch():
+            result = planner.plan(
+                belief,
+                tuple(ACTION_DIRECTION_BY_ID),
+                registration_id=registration.registration_id,
+                # Depth 2 ends on max_depth. Its search alone took 1.6-2.0 s on
+                # this host and 2.8-3.5 s (once over 4.7 s) with every CPU
+                # saturated (Issue #729), so the bound leaves 4x headroom.
+                budget=SearchBudget(
+                    max_depth=2,
+                    max_nodes=10000,
+                    wall_time_ms=REFERENCE_2048_BUDGET_MS,
+                    allow_conditional_selection=True,
+                ),
+            )
         if result.outcome != PlanningOutcome.SELECT:
             print(
                 "PLANNER_WORKER_DIAGNOSTIC "
@@ -890,10 +915,11 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             factory="slow_deep_domain",
             belief=belief,
             allowed=("left",),
-            # The budget includes worker start-up (see WORKER_RESULT_BUDGET_MS).
-            # Depth 2 sleeps at least 4 s, so the 2 s cutoff still lands between
-            # depth 1 and depth 2, well before the 10 s belief TTL.
-            budget=SearchBudget(max_depth=3, wall_time_ms=2000),
+            # The warm launch keeps the interpreter start outside the budget
+            # (see WORKER_RESULT_BUDGET_MS), so depth 1 arrives before the cutoff.
+            # Depth 2 sleeps at least 4 s after plan() starts, so a 3.5 s cutoff
+            # still lands between depth 1 and depth 2.
+            budget=SearchBudget(max_depth=3, wall_time_ms=3500),
         )
         self.assertEqual(
             result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
@@ -905,7 +931,6 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         self.assertGreater(result.expires_at_ns, time.monotonic_ns())
 
     def test_worker_memory_limit_handles_huge_callback_allocation(self):
-        started = time.monotonic()
         result = self.run_plan(
             factory="allocate_domain",
             budget=SearchBudget(
@@ -915,13 +940,65 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             ),
         )
         # The parent must not wait for the child beyond the budget plus 1 s.
-        self.assertLess(time.monotonic() - started, WORKER_RESULT_BUDGET_MS / 1000 + 1)
+        # Only plan() is timed; the warm interpreter start precedes the budget.
+        self.assertLess(self.last_plan_elapsed_s, WORKER_RESULT_BUDGET_MS / 1000 + 1)
         self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
         self.assertIsNone(result.selected_action_id)
         self.assertIn(result.reason, ("worker_memory_limit", "worker_failed"))
         self.assertIn(
             result.limit_enforcement, ("linux_rlimit_as", "windows_job_commit")
         )
+
+    def test_fast_worker_exit_keeps_its_resource_limit_acknowledgement(self):
+        # Under load the parent can be descheduled between its ready check and
+        # its finished check while a fast worker writes both (Issue #729). The
+        # acknowledgement written before finished must still be reported.
+        enforcement = (
+            "windows_job_commit" if sys.platform == "win32" else "linux_rlimit_as"
+        )
+        real_exists = Path.exists
+        directories = []
+
+        def exists(path):
+            present = real_exists(path)
+            if path.name == "ready.json" and not present and directories:
+                directory = directories.pop()
+                request = read_planning_json(directory / "request.json", 1 << 20)
+                publish_planning_json(
+                    directory / "ready.json",
+                    {
+                        "nonce": request["nonce"],
+                        "limit_enforcement": enforcement,
+                        "worker_memory_bytes": request["budget"]["worker_memory_bytes"],
+                    },
+                    4096,
+                )
+                publish_planning_json(
+                    directory / "finished.json",
+                    {
+                        "nonce": None,
+                        "reason": "worker_memory_limit",
+                        "budget_exit": True,
+                    },
+                    4096,
+                )
+            return present
+
+        def exited_worker(command, **kwargs):
+            directories.append(Path(command[command.index("--memory-bytes") - 1]))
+            return SimpleNamespace(poll=lambda: 0)
+
+        with (
+            patch(
+                "ai_game_player.bounded_planner.subprocess.Popen",
+                side_effect=exited_worker,
+            ),
+            patch.object(Path, "exists", exists),
+        ):
+            result = self.run_plan(warm_worker=False)
+        self.assertEqual(result.reason, "worker_memory_limit")
+        self.assertIsNone(result.selected_action_id)
+        self.assertEqual(result.limit_enforcement, enforcement)
 
     def test_stop_and_rearm_reject_results_without_waiting_for_model(self):
         for rearm in (False, True):
@@ -943,6 +1020,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                         factory="slow_domain",
                         budget=SearchBudget(wall_time_ms=1000),
                         controller=controller,
+                        warm_worker=False,
                     )
                 )
 
@@ -987,6 +1065,7 @@ class ExpectimaxPlannerTests(unittest.TestCase):
                         belief=belief,
                         current=lambda: holder[0],
                         budget=SearchBudget(wall_time_ms=1000),
+                        warm_worker=False,
                     )
                 )
             )
@@ -1003,13 +1082,14 @@ class ExpectimaxPlannerTests(unittest.TestCase):
             factory="slow_domain",
             belief=expiring,
             budget=SearchBudget(wall_time_ms=1000),
+            warm_worker=False,
         )
         self.assertEqual(expired.reason, "stale_observation")
         self.assertIsNone(expired.selected_action_id)
 
     def test_invalid_current_snapshot_getter_falls_back_without_launch(self):
         with patch("ai_game_player.bounded_planner.subprocess.Popen") as launch:
-            result = self.run_plan(current=lambda: object())
+            result = self.run_plan(current=lambda: object(), warm_worker=False)
         self.assertEqual(result.reason, "stale_belief_version")
         self.assertEqual(result.outcome, PlanningOutcome.ABSTAIN)
         launch.assert_not_called()
@@ -1049,13 +1129,14 @@ class ExpectimaxPlannerTests(unittest.TestCase):
         planner = BoundedExpectimaxPlanner(
             (registration,), clock_id=belief.context.clock_id
         )
-        result = planner.plan(
-            belief,
-            ("2048-move-left", "2048-move-right", "2048-move-down"),
-            registration_id=registration.registration_id,
-            budget=SearchBudget(max_depth=1, wall_time_ms=WORKER_RESULT_BUDGET_MS),
-            current_belief=lambda: store.read(belief.context),
-        )
+        with warm_worker_launch():
+            result = planner.plan(
+                belief,
+                ("2048-move-left", "2048-move-right", "2048-move-down"),
+                registration_id=registration.registration_id,
+                budget=SearchBudget(max_depth=1, wall_time_ms=WORKER_RESULT_BUDGET_MS),
+                current_belief=lambda: store.read(belief.context),
+            )
         self.assertEqual(
             result.outcome, PlanningOutcome.SELECT, planning_result_diagnostic(result)
         )

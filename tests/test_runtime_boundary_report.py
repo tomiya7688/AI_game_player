@@ -12,6 +12,9 @@ from unittest import mock
 from tools.runtime_boundary_report import BenchmarkReportAttempt
 
 
+CHILD_TIMEOUT_S = 120
+
+
 def _publish_report_in_child(path, published):
     attempt = BenchmarkReportAttempt(Path(path))
     attempt.begin()
@@ -61,8 +64,11 @@ class BenchmarkReportTest(unittest.TestCase):
             )
             process.start()
             try:
-                self.assertTrue(event.wait(10), "child did not publish")
-                process.join(5)
+                # Hang guards only: a spawned interpreter can take tens of
+                # seconds to start under CPU saturation (Issue #729). Both waits
+                # return as soon as the child publishes and exits.
+                self.assertTrue(event.wait(CHILD_TIMEOUT_S), "child did not publish")
+                process.join(CHILD_TIMEOUT_S)
                 self.assertEqual(process.exitcode, 0)
                 with self.assertRaises(RuntimeError):
                     older.publish({"value": "old"})

@@ -23,14 +23,14 @@ gh api --method PUT repos/tomiya7688/AI_game_player/rulesets/24724858 --input .g
 | 必要な承認数 | 0 | 現在は人の保守者が1人で、作業者のAIも同じアカウントでPRを作るため、自分のPRを承認できない。承認数を1以上にすると通常のマージができなくなる。承認数が0の間は、古い承認の破棄（`dismiss_stale_reviews_on_push`）と最終pushの承認（`require_last_push_approval`）は効果がないため無効にしている。領域別の承認規則はIssue #79で決め、承認数を上げるときにこの2つも見直す。 |
 | 許可するマージ方式 | merge・squash・rebase（`allowed_merge_methods`） | 既存の`Mainguard`の設定を維持する。`tools/finish_pr_merge.py`はmerge commit（`gh pr merge --merge`）でマージする。方式を1つに絞るかはIssue #79のマージ方針で決める。 |
 | 未解決のreview threadの禁止 | `required_review_thread_resolution: true` | `tools/finish_pr_merge.py`のマージ条件（未解決threadがないこと）と一致させる。 |
-| 必須status check | 必須8 workflowの全job（37件） | 後述。 |
+| 必須status check | 必須8 workflowの全job（38件） | 後述。 |
 | 最新化の要求 | `strict_required_status_checks_policy: false` | 後述。 |
 | Copilotの自動レビュー | `copilot_code_review`（push時、Draftは除く） | ワークフローのAIレビュー依頼と同じ目的。マージ条件にはしない。 |
 | bypass | なし（`bypass_actors: []`） | 後述。 |
 
 ## 必須status check
 
-`language-ci`の`Runtime contract / language boundary`も必須checkに含めます。宣言の不一致を検出する配置manifest検査です。リポジトリのJSON定義は37件を要求しますが、GitHub上で適用済みかはAPIで別途確認してください。JSONを変更しただけではGitHub上の設定は変わりません。
+`language-ci`の`Runtime contract / language boundary`も必須checkに含めます。宣言の不一致を検出する配置manifest検査です。リポジトリのJSON定義は38件を要求しますが、GitHub上で適用済みかはAPIで別途確認してください。JSONを変更しただけではGitHub上の設定は変わりません。
 
 - 必須とするのは、`tools/pr_workflow_evidence.py`の`REQUIRED_WORKFLOW_PATHS`に列挙した8つのworkflow（`tests`、`language-ci`、`safety-ci`、`fail-safe-ci`、`bug-ci`、`performance-ci`、`upd-architecture-ci`、`python-security-ci`）が報告する全jobです。マージゲート`tools/finish_pr_merge.py`も同じ8 workflowの成功を要求するため、GitHub側の保護とマージゲートの条件が一致します。
 - 各checkは`integration_id: 15368`（GitHub Actions）からの報告だけを受け付けます。別のGitHub Appが同じ名前のcheckを成功として報告しても、条件を満たしたことになりません。
