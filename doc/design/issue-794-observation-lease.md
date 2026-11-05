@@ -120,6 +120,10 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 採用: summaryの集計範囲を明確化（Luna）— `renewals`/`margin_samples`/`negative_margin_count`/`margin_ms_min`は全期間累積、p05/p50/周期統計は直近`window_samples`（2048）件。
 確認のみ: 空・不正な既存leaseの拒否時の遷移（Luna）— 拒否値`{}`は`_adopt_persisted_locked`で`recovery_required/lease_unreadable`へ移る（`test_unreadable_lease_is_adopted_as_recovery`）。
 
+## 既存テストへの影響
+
+高負荷のfinish_task（全件883秒）で`test_comparison_preflight`のStop試験が`initial safety lease is not active`で失敗した。実時計と実heartbeat threadを使い、external watchdog無しのため、旧実装ではthreadが0.75秒以上止まっても失効後に暗黙延長されていた。新しい規則で正しく`lease_expired`になる。このfileはlease期限を検証しないため、試験専用に`lease_timeout_seconds=30`とした（製品既定値は不変）。同じ実行で落ちた`test_reference_browser_diagnostics`（1.165s対上限1.15s）と`test_runtime_boundary_benchmark`（IPC timeout）はfail-safeを使わない負荷起因の失敗で、単独実行・再実行（全件560秒、OK）では成功した。
+
 ## 関連Issue #812 との関係
 
 run 41945317245 attempt 1（seed 481）のplanner失敗は`planning_unavailable`/`compute_budget`で、heartbeat ringは全て`renewed`（`lease_expired`無し）。`invalid_frame`は失敗診断headerに保存frameが無いことを示す。GIL競合の兆候（読取150-206ms、書込237ms、更新間隔最大708ms）は共通だが機構は別のため、本PRでは#812を修正しない。
