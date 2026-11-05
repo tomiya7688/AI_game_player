@@ -46,7 +46,7 @@ class WorkflowMergeEntryTests(unittest.TestCase):
         def run_gh(arguments, timeout):
             if arguments[:2] == ["pr", "view"]:
                 return completed(
-                    {"state": "OPEN", "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA, "headRefName": HEAD_REF}
+                    {"state": "OPEN", "isDraft": False, "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA, "headRefName": HEAD_REF}
                 )
             if arguments[:2] == ["pr", "checks"]:
                 return completed([{"name": "tests", "state": "SUCCESS", "bucket": "pass"}])
@@ -84,7 +84,7 @@ class WorkflowMergeEntryTests(unittest.TestCase):
     def test_missing_head_branch_in_pr_view_stops_before_workflow_lookup(self):
         def run_gh(arguments, timeout):
             if arguments[:2] == ["pr", "view"]:
-                return completed({"state": "OPEN", "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA})
+                return completed({"state": "OPEN", "isDraft": False, "mergeable": "MERGEABLE", "headRefOid": HEAD_SHA})
             raise AssertionError(f"unexpected gh call: {arguments}")
 
         with patch.object(finish_pr_merge, "_run_gh", side_effect=run_gh):

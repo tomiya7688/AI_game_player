@@ -5,6 +5,11 @@
 - 安全側の修正: 失効済みleaseをheartbeat/観測/完了処理で延長しない。読取と書込の間にwatchdogが書いたStopを`active`で上書きしない（lost update）。closeが直前の状態・理由をjournalへ残す。
 - heartbeat診断schema 2（`renewal_mono_ns`、`lease_expired`、`summary`）とcampaignの`heartbeat_lease_budget`出力を追加。
 - `tools/run_windows_e2e.py`: sample UIの最初の描画前に候補0件で即失敗する起動競合（leaseとは別原因、`origin/main`でも再現）に対し、確認済み候補が得られるまで読取専用で最大20秒待つ`wait_for_sample_ready`を追加。入力は送らず、期限切れは失敗。
+## 2026-11-05 merge gateのDraft事前検出と読取照会の有界再試行（Issue #807）
+
+- `tools/finish_pr_merge.py`は`gh pr view`で`isDraft`を取得し、Draft PRをCI待機前に「Pull request is a draft」と明示して停止します（自動でreadyにはしません）。merge直前の再取得でも検査します。[設計](design/issue-807-merge-gate-draft-retry.md)。
+- `gh pr merge`が通信失敗以外のエラー本文で失敗し、REST確認で同じheadのPRがopen・未mergeなら「PR was not merged」とGitHub CLIのエラー本文を表示します。timeout等で結果を確定できない場合は従来どおり結果不明として停止し、本文を先頭に表示します。
+- 読取専用のGitHub照会（PR状態・checks・checks待機・review thread・Workflow Run・merge後確認）は、`TLS handshake timeout`等の一時的な通信失敗に限り10秒・30秒間隔で最大3回試行します。`--watch`は60分の共通予算内。`gh pr merge`は再実行しません。
 ## 2026-11-05 Noisy Provider性能予算の判定をrunner揺らぎに強くする（Issue #811）
 
 - `tools/run_noisy_provider_benchmark.py`を、従来と同じ測定を独立した5 round（`--rounds`、奇数かつ3以上）で繰り返し、roundごとのp95の中央値で予算判定する方式へ変更。予算値・Windows multiplierは変更しません。reportは`noisy-provider-benchmark/v3`でround別p95・最悪round・結合p95を残します。
