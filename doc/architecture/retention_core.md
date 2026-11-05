@@ -54,9 +54,20 @@ Protected記録はどの段階でも外しません。Protectedと外部参照�
 - 削除先は、Store配置（`root/先頭2文字/digest`）と実体pathが一致し、root・shard・object directoryのいずれもsymlinkでない場合だけ許可します。Windowsのdirectory junctionもsymlinkと同様に拒否します（Python 3.12以降は`os.path.isjunction`、3.10/3.11はreparse point属性で判定）。1件でも外れれば`RetentionSafetyError`で、索引を変更せず何も削除しません。`LocalRetentionFileSystem.remove_object`は削除直前にも同じ検査を繰り返しますが、検査と削除の間の差替え（TOCTOU）を完全には排除できないため、管理rootは同じユーザーの信頼できるprocessだけが書く前提です。
 - 索引にあるのにobjectやmetadataが欠落・破損している場合、計測段階で`RetentionIndexError`となり、GCは停止したままです。自動修復はせず、Reader/Recovery（#168）または手動確認で索引を直します。
 - 削除途中で停止して残ったorphanは、未索引objectとして容量に数え続けますが自動削除しません（orphan cleanupは残件）。
-- 同じrootへの同時`register`/`collect`は呼出側が直列化します（プロセス間lockは本Issueの範囲外）。
+- 同じrootへの`register`/`set_protected`/`collect`は、root直下の`.retention.lock`（OS advisory lock＋process内mutex、同一threadの再入可、`lock_timeout_seconds`で有界待ち）の中で実行されます（Issue #789）。`plan`/`can_admit`/`needs_collection`は助言用の読取でlockを取りません。`FileSystemArtifactStore.put`を直接呼ぶ書込みはlockの対象外です。
 
 ## 非対象と残り
 
 - near-duplicate、prioritized replay、clustering/prototype、value-aware compactionは #165。
-- orphanの自動削除、Experience/Event Journalからの`live_references`自動収集、プロセス間lockは未実装です。runtimeへの接続（どのSessionがいつ`collect`を呼ぶか）も本Issueでは行いません。
+- orphanの自動削除（#790）、Experience/Event Journalからの`live_references`自動収集は未実装です。runtimeへの接続（どのSessionがいつ`collect`を呼ぶか）も本Issueでは行いません。
+
+## Artifact Admission Transaction（Issue #789）
+
+`ArtifactAdmissionCoordinator.admit(request, writer)`が`can_admit → put → register`を1つのroot lock内の transactionにします。詳細は[設計](../design/issue-789-artifact-admission.md)。
+
+1. root lock取得（期限超過は`RetentionLockTimeoutError`でtransaction未開始）。
+2. 索引とStore使用量を再計測（破損はfail-closed）。entry_id重複・件数上限・hard limitを**putの前**に判定。既存digest（`expected_sha256`が索引または未索引objectにある）は追加容量0。
+3. writerは`AdmissionPutPort.put(bytes)`だけを使えます（Storeやpathは渡さない。1回限り、サイズ・digest・shard directoryを検査）。putの直前に`root/.admission-pending/<id>.json`を書きます。
+4. 検証後に`register`。失敗時は、このadmissionが新規作成したobject（`created_object`）だけを、索引・他のpending recordが参照しない場合に削除。既存digest・索引登録済みobjectは消しません。補償できない場合はpending recordを残し`ArtifactAdmissionError(pending_retained=True)`を送出します。
+5. `inspect_pending()`が`registered`/`indexed_by_other_entry`/`no_object`/`preexisting`/`orphan_created`に分類し、`recover_pending()`が安全に確認できる範囲で回収します（#790の入力）。
+6. `AdmissionTraceEvent`/`stats`でlock待ち・transaction時間・rollback数を観測できます。
