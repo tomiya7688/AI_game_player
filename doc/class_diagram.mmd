@@ -54,6 +54,22 @@ classDiagram
         +_append()
         +_read()
     }
+    ValueError <|-- AdmissionRecordError
+    class AdmissionRecordError {
+    }
+    class PendingAdmission {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class PendingAdmissionStore {
+        +__init__()
+        +write()
+        +remove()
+        +list_records()
+        +_read_record()
+        +_require_safe_directory()
+    }
     class TkAfterScheduler {
         +__init__()
         +schedule()
@@ -124,6 +140,45 @@ classDiagram
         +preview_observation()
         +_prepare_observation()
         +_merge_observation_candidates()
+    }
+    RuntimeError <|-- ArtifactAdmissionError
+    class ArtifactAdmissionError {
+        +__init__()
+    }
+    class ArtifactAdmissionRequest {
+        +__post_init__()
+    }
+    class AdmissionTraceEvent {
+    }
+    class AdmissionStats {
+    }
+    class PendingAdmissionStatus {
+    }
+    class AdmissionRecoveryReport {
+    }
+    class _AdmissionSession {
+    }
+    class AdmissionPutPort {
+        +__init__()
+        +put()
+    }
+    class ArtifactAdmissionCoordinator {
+        +__init__()
+        +stats()
+        +admit()
+        +inspect_pending()
+        +recover_pending()
+        +_run_transaction()
+        +_reject_unadmittable()
+        +_put()
+        +_verify_put()
+        +_register()
+        +_is_registered()
+        +_commit()
+        +_compensate()
+        +_rollback()
+        +_classify()
+        +_emit()
     }
     ValueError <|-- ArtifactIntegrityError
     class ArtifactIntegrityError {
@@ -1725,6 +1780,9 @@ classDiagram
     class RetentionCollector {
         +__init__()
         +load_entries()
+        +coordination_lock()
+        +measure()
+        +discard_unindexed_object()
         +register()
         +can_admit()
         +needs_collection()
@@ -1735,7 +1793,9 @@ classDiagram
         +_safe_object_path()
         +_now_ms()
     }
-    class _StoreUsage {
+    class StoreUsage {
+    }
+    class RetentionSnapshot {
     }
     ValueError <|-- RetentionIndexError
     class RetentionIndexError {
@@ -1759,6 +1819,14 @@ classDiagram
         +expiry_for()
         +to_dict()
         +from_dict()
+    }
+    RuntimeError <|-- RetentionRootUnsafeError
+    class RetentionRootUnsafeError {
+    }
+    TimeoutError <|-- RetentionLockTimeoutError
+    class RetentionLockTimeoutError {
+    }
+    class _RootLockState {
     }
     RuntimeError <|-- ExecutionCancelled
     class ExecutionCancelled {
