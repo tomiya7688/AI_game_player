@@ -125101,7 +125101,7 @@
       "module": "tests.test_finish_pr_merge",
       "path": "tests/test_finish_pr_merge.py",
       "source_location": {
-        "end_line": 394,
+        "end_line": 396,
         "start_line": 1
       },
       "symbols": [
@@ -125165,7 +125165,7 @@
           "signature": "(head_sha: str = …, state: str = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 31,
+            "end_line": 33,
             "start_line": 28
           }
         },
@@ -125200,8 +125200,8 @@
           "signature": "(threads: list[dict[str, object]] | None = …, has_next_page: bool = …, end_cursor: str | None = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 55,
-            "start_line": 34
+            "end_line": 57,
+            "start_line": 36
           }
         },
         {
@@ -125223,8 +125223,8 @@
           "signature": "(checks: list[dict[str, object]] | None = …) -> CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 60,
-            "start_line": 58
+            "end_line": 62,
+            "start_line": 60
           }
         },
         {
@@ -125245,8 +125245,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 390,
-            "start_line": 63
+            "end_line": 392,
+            "start_line": 65
           }
         },
         {
@@ -125268,8 +125268,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 64
+            "end_line": 70,
+            "start_line": 66
           }
         },
         {
@@ -125299,8 +125299,8 @@
           "signature": "(self, run_gh_mock: unittest.mock.Mock) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 103,
-            "start_line": 71
+            "end_line": 105,
+            "start_line": 73
           }
         },
         {
@@ -125322,8 +125322,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 119,
-            "start_line": 105
+            "end_line": 121,
+            "start_line": 107
           }
         },
         {
@@ -125345,8 +125345,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 121
+            "end_line": 143,
+            "start_line": 123
           }
         },
         {
@@ -125368,8 +125368,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 171,
-            "start_line": 143
+            "end_line": 173,
+            "start_line": 145
           }
         },
         {
@@ -125391,8 +125391,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 201,
-            "start_line": 173
+            "end_line": 203,
+            "start_line": 175
           }
         },
         {
@@ -125414,8 +125414,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 229,
-            "start_line": 203
+            "end_line": 231,
+            "start_line": 205
           }
         },
         {
@@ -125437,8 +125437,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 231
+            "end_line": 249,
+            "start_line": 233
           }
         },
         {
@@ -125460,8 +125460,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 281,
-            "start_line": 249
+            "end_line": 283,
+            "start_line": 251
           }
         },
         {
@@ -125483,8 +125483,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 294,
-            "start_line": 283
+            "end_line": 296,
+            "start_line": 285
           }
         },
         {
@@ -125506,8 +125506,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 307,
-            "start_line": 296
+            "end_line": 309,
+            "start_line": 298
           }
         },
         {
@@ -125529,8 +125529,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 327,
-            "start_line": 309
+            "end_line": 329,
+            "start_line": 311
           }
         },
         {
@@ -125552,8 +125552,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 361,
-            "start_line": 329
+            "end_line": 363,
+            "start_line": 331
           }
         },
         {
@@ -125575,8 +125575,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 378,
-            "start_line": 363
+            "end_line": 380,
+            "start_line": 365
           }
         },
         {
@@ -125598,8 +125598,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 390,
-            "start_line": 380
+            "end_line": 392,
+            "start_line": 382
           }
         }
       ]
@@ -126003,6 +126003,1075 @@
             "column": 4,
             "end_line": 85,
             "start_line": 79
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.finish_pr_merge"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "redirect_stderr"
+            },
+            {
+              "alias": null,
+              "name": "redirect_stdout"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "io",
+          "names": [
+            {
+              "alias": null,
+              "name": "StringIO"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "CompletedProcess"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "unittest.mock",
+          "names": [
+            {
+              "alias": null,
+              "name": "patch"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "tools",
+            "tools.finish_pr_merge"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "gate",
+              "name": "finish_pr_merge"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_finish_pr_merge_draft_retry",
+      "path": "tests/test_finish_pr_merge_draft_retry.py",
+      "source_location": {
+        "end_line": 411,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "completed",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "stderr"
+            }
+          ],
+          "qualified_name": "completed",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(payload: object = …, code: int = …, stderr: str = …) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 24,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "pr_view",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "is_draft"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "omit_draft"
+            }
+          ],
+          "qualified_name": "pr_view",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(is_draft: object = …, omit_draft: bool = …) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 39,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeGitHub",
+          "parameters": [],
+          "qualified_name": "FakeGitHub",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 115,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[object]",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "responses"
+            }
+          ],
+          "qualified_name": "FakeGitHub.__init__",
+          "return_annotation": "None",
+          "signature": "(self, **responses: list[object]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 78,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "kind",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            }
+          ],
+          "qualified_name": "FakeGitHub.kind",
+          "return_annotation": "str",
+          "signature": "(arguments: list[str]) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "timeout"
+            }
+          ],
+          "qualified_name": "FakeGitHub.__call__",
+          "return_annotation": "CompletedProcess[str]",
+          "signature": "(self, arguments: list[str], timeout: int) -> CompletedProcess[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "kind"
+            }
+          ],
+          "qualified_name": "FakeGitHub.count",
+          "return_annotation": "int",
+          "signature": "(self, kind: str) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "GateTestCase",
+          "parameters": [],
+          "qualified_name": "GateTestCase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 137,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "GateTestCase.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 127,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_gate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "FakeGitHub",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "fake"
+            }
+          ],
+          "qualified_name": "GateTestCase.run_gate",
+          "return_annotation": "tuple[int, str, str]",
+          "signature": "(self, fake: FakeGitHub) -> tuple[int, str, str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [
+            "GateTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DraftDetectionTests",
+          "parameters": [],
+          "qualified_name": "DraftDetectionTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 175,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_draft_pr_stops_before_waiting_for_checks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DraftDetectionTests.test_draft_pr_stops_before_waiting_for_checks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_or_non_boolean_draft_status_fails_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DraftDetectionTests.test_missing_or_non_boolean_draft_status_fails_closed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 161,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pr_converted_to_draft_during_checks_is_not_merged",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DraftDetectionTests.test_pr_converted_to_draft_during_checks_is_not_merged",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 168,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ready_pr_still_merges",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DraftDetectionTests.test_ready_pr_still_merges",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [
+            "GateTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MergeFailureTextTests",
+          "parameters": [],
+          "qualified_name": "MergeFailureTextTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 249,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_github_rejection_text_is_reported_when_pr_is_still_open",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeFailureTextTests.test_github_rejection_text_is_reported_when_pr_is_still_open",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 195,
+            "start_line": 179
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rejection_text_leads_unconfirmed_message_when_confirmation_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeFailureTextTests.test_rejection_text_leads_unconfirmed_message_when_confirmation_fails",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 197
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_timeout_with_open_pr_is_not_reported_as_rejection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeFailureTextTests.test_timeout_with_open_pr_is_not_reported_as_rejection",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 229,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_transient_merge_error_with_open_pr_is_not_reported_as_rejection",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeFailureTextTests.test_transient_merge_error_with_open_pr_is_not_reported_as_rejection",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 242,
+            "start_line": 231
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_zero_exit_with_open_pr_is_unconfirmed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeFailureTextTests.test_zero_exit_with_open_pr_is_unconfirmed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 249,
+            "start_line": 244
+          }
+        },
+        {
+          "bases": [
+            "GateTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReadOnlyRetryTests",
+          "parameters": [],
+          "qualified_name": "ReadOnlyRetryTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 345,
+            "start_line": 252
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_transient_lookup_failures_are_retried_with_spacing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_transient_lookup_failures_are_retried_with_spacing",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 265,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_retries_are_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_retries_are_bounded",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 274,
+            "start_line": 267
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_transient_failures_are_not_retried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_non_transient_failures_are_not_retried",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 288,
+            "start_line": 276
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_api_timeout_is_retried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_api_timeout_is_retried",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 294,
+            "start_line": 290
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watch_timeout_is_not_retried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_watch_timeout_is_not_retried",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 308,
+            "start_line": 296
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watch_failure_from_checks_is_not_retried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_watch_failure_from_checks_is_not_retried",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 316,
+            "start_line": 310
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watch_retry_shares_the_original_time_budget",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_watch_retry_shares_the_original_time_budget",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 335,
+            "start_line": 318
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_watch_retry_stops_when_budget_is_exhausted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReadOnlyRetryTests.test_watch_retry_stops_when_budget_is_exhausted",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 345,
+            "start_line": 337
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkflowLookupRetryTests",
+          "parameters": [],
+          "qualified_name": "WorkflowLookupRetryTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 381,
+            "start_line": 348
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_workflow_run_lookup_is_retried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowLookupRetryTests.test_workflow_run_lookup_is_retried",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 381,
+            "start_line": 349
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeWorkflowGate",
+          "parameters": [],
+          "qualified_name": "WorkflowLookupRetryTests.test_workflow_run_lookup_is_retried.FakeWorkflowGate",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 362,
+            "start_line": 353
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repository"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "head_sha"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "head_ref"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "read_json"
+            }
+          ],
+          "qualified_name": "WorkflowLookupRetryTests.test_workflow_run_lookup_is_retried.FakeWorkflowGate.__init__",
+          "return_annotation": null,
+          "signature": "(self, repository, number, head_sha, head_ref, read_json)",
+          "source_location": {
+            "column": 12,
+            "end_line": 355,
+            "start_line": 354
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "verify",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WorkflowLookupRetryTests.test_workflow_run_lookup_is_retried.FakeWorkflowGate.verify",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 12,
+            "end_line": 362,
+            "start_line": 357
+          }
+        },
+        {
+          "bases": [
+            "GateTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MergeIsNeverRepeatedTests",
+          "parameters": [],
+          "qualified_name": "MergeIsNeverRepeatedTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 407,
+            "start_line": 384
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_transient_merge_failure_is_not_repeated_but_confirmation_is_retried",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeIsNeverRepeatedTests.test_transient_merge_failure_is_not_repeated_but_confirmation_is_retried",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 396,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_merge_timeout_is_not_repeated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "MergeIsNeverRepeatedTests.test_merge_timeout_is_not_repeated",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 407,
+            "start_line": 398
           }
         }
       ]
@@ -213801,9 +214870,22 @@
           ]
         },
         {
-          "kind": "from",
+          "kind": "import",
           "level": 0,
           "line": 8,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -213816,7 +214898,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "urllib.parse",
           "names": [
@@ -213829,7 +214911,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [
             "tools",
             "tools.pr_workflow_evidence"
@@ -213853,7 +214935,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [],
           "module": "pr_workflow_evidence",
           "names": [
@@ -213875,7 +214957,7 @@
       "module": "tools.finish_pr_merge",
       "path": "tools/finish_pr_merge.py",
       "source_location": {
-        "end_line": 784,
+        "end_line": 882,
         "start_line": 1
       },
       "symbols": [
@@ -213897,8 +214979,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 71,
-            "start_line": 67
+            "end_line": 97,
+            "start_line": 93
           }
         },
         {
@@ -213919,8 +215001,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 90,
-            "start_line": 86
+            "end_line": 118,
+            "start_line": 113
           }
         },
         {
@@ -213941,8 +215023,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 111,
-            "start_line": 106
+            "end_line": 139,
+            "start_line": 134
           }
         },
         {
@@ -213963,8 +215045,52 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 123,
-            "start_line": 122
+            "end_line": 151,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [
+            "MergeGateError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "GitHubCommandTimeout",
+          "parameters": [],
+          "qualified_name": "GitHubCommandTimeout",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 155,
+            "start_line": 154
+          }
+        },
+        {
+          "bases": [
+            "MergeGateError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "MergeNotPerformedError",
+          "parameters": [],
+          "qualified_name": "MergeNotPerformedError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 159,
+            "start_line": 158
           }
         },
         {
@@ -213986,8 +215112,8 @@
           "signature": "(pull_request_url: str) -> PullRequestReference",
           "source_location": {
             "column": 0,
-            "end_line": 175,
-            "start_line": 145
+            "end_line": 211,
+            "start_line": 181
           }
         },
         {
@@ -214015,8 +215141,8 @@
           "signature": "(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 215,
-            "start_line": 197
+            "end_line": 251,
+            "start_line": 233
           }
         },
         {
@@ -214038,8 +215164,8 @@
           "signature": "(command_result: subprocess.CompletedProcess[str]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 240,
-            "start_line": 234
+            "end_line": 276,
+            "start_line": 270
           }
         },
         {
@@ -214047,7 +215173,30 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
-          "name": "_run_successful_gh_command",
+          "name": "_is_transient_github_failure",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "diagnostic_text"
+            }
+          ],
+          "qualified_name": "_is_transient_github_failure",
+          "return_annotation": "bool",
+          "signature": "(diagnostic_text: str) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 282,
+            "start_line": 279
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_run_read_only_gh_command",
           "parameters": [
             {
               "annotation": "list[str]",
@@ -214066,15 +215215,27 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "action_description"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "retry_timeouts"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "share_timeout_budget"
             }
           ],
-          "qualified_name": "_run_successful_gh_command",
+          "qualified_name": "_run_read_only_gh_command",
           "return_annotation": "subprocess.CompletedProcess[str]",
-          "signature": "(arguments: list[str], timeout_seconds: int, action_description: str) -> subprocess.CompletedProcess[str]",
+          "signature": "(arguments: list[str], timeout_seconds: int, action_description: str, retry_timeouts: bool = …, share_timeout_budget: bool = …) -> subprocess.CompletedProcess[str]",
           "source_location": {
             "column": 0,
-            "end_line": 272,
-            "start_line": 263
+            "end_line": 334,
+            "start_line": 285
           }
         },
         {
@@ -214102,8 +215263,8 @@
           "signature": "(command_result: subprocess.CompletedProcess[str], action_description: str) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 298,
-            "start_line": 294
+            "end_line": 360,
+            "start_line": 356
           }
         },
         {
@@ -214125,8 +215286,8 @@
           "signature": "(pull_request: PullRequestReference) -> PullRequestSnapshot",
           "source_location": {
             "column": 0,
-            "end_line": 347,
-            "start_line": 320
+            "end_line": 417,
+            "start_line": 382
           }
         },
         {
@@ -214148,8 +215309,8 @@
           "signature": "(pull_request: PullRequestReference) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 380,
-            "start_line": 368
+            "end_line": 452,
+            "start_line": 438
           }
         },
         {
@@ -214171,8 +215332,8 @@
           "signature": "(pull_request: PullRequestReference) -> list[dict[str, object]]",
           "source_location": {
             "column": 0,
-            "end_line": 455,
-            "start_line": 403
+            "end_line": 527,
+            "start_line": 475
           }
         },
         {
@@ -214194,8 +215355,8 @@
           "signature": "(response_data: object) -> tuple[list[UnresolvedReviewThread], bool, str | None]",
           "source_location": {
             "column": 0,
-            "end_line": 536,
-            "start_line": 477
+            "end_line": 608,
+            "start_line": 549
           }
         },
         {
@@ -214217,8 +215378,8 @@
           "signature": "(pull_request: PullRequestReference) -> list[UnresolvedReviewThread]",
           "source_location": {
             "column": 0,
-            "end_line": 598,
-            "start_line": 559
+            "end_line": 670,
+            "start_line": 631
           }
         },
         {
@@ -214240,8 +215401,8 @@
           "signature": "(threads: list[UnresolvedReviewThread]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 631,
-            "start_line": 619
+            "end_line": 703,
+            "start_line": 691
           }
         },
         {
@@ -214275,8 +215436,8 @@
           "signature": "(pull_request: PullRequestReference, head_sha: str, head_ref: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 654,
-            "start_line": 634
+            "end_line": 726,
+            "start_line": 706
           }
         },
         {
@@ -214298,8 +215459,8 @@
           "signature": "(endpoint: str) -> object",
           "source_location": {
             "column": 4,
-            "end_line": 643,
-            "start_line": 639
+            "end_line": 715,
+            "start_line": 711
           }
         },
         {
@@ -214321,8 +215482,8 @@
           "signature": "(pull_request_url: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 720,
-            "start_line": 680
+            "end_line": 809,
+            "start_line": 753
           }
         },
         {
@@ -214350,8 +215511,8 @@
           "signature": "(pull_request: PullRequestReference, expected_head: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 745,
-            "start_line": 723
+            "end_line": 843,
+            "start_line": 812
           }
         },
         {
@@ -214373,8 +215534,8 @@
           "signature": "(arguments: list[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 780,
-            "start_line": 764
+            "end_line": 878,
+            "start_line": 862
           }
         }
       ]

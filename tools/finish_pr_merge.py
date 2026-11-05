@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -17,6 +18,31 @@ API_COMMAND_TIMEOUT_SECONDS = 60
 CHECK_COMMAND_TIMEOUT_SECONDS = 60 * 60
 MAX_REVIEW_THREAD_PAGES = 100
 MAX_DISPLAYED_TEXT_LENGTH = 2000
+# Waits before the second and third attempt of a read-only GitHub lookup that failed with a
+# transient network error. The merge command itself is never repeated.
+READ_ONLY_RETRY_DELAYS_SECONDS = (10, 30)
+MINIMUM_RETRY_BUDGET_SECONDS = 1
+# Lower-case fragments of gh/Go network errors and GitHub gateway failures that are worth a
+# bounded retry. Authentication, permission, rate-limit (403/429), 404 and GraphQL errors are
+# deliberately absent so they stop immediately.
+TRANSIENT_GITHUB_FAILURE_MARKERS = (
+    "tls handshake timeout",
+    "i/o timeout",
+    "timeout awaiting response headers",
+    "connection reset",
+    "connection refused",
+    "unexpected eof",
+    "temporary failure in name resolution",
+    "no such host",
+    "http 502",
+    "http 503",
+    "http 504",
+    "bad gateway",
+    "service unavailable",
+    "gateway timeout",
+)
+_sleep = time.sleep
+_monotonic = time.monotonic
 GIT_SHA1_HEX_LENGTH = 40
 GIT_SHA256_HEX_LENGTH = 64
 PR_HEAD_SHA_PATTERN = re.compile(
@@ -79,7 +105,8 @@ class PullRequestReference:
 #     state: GitHubが返したPR状態。merge gateではOPENだけを受け入れる,
 #     mergeable: GitHubが返した競合状態。merge gateではMERGEABLEだけを受け入れる,
 #     head_sha: CIとreview確認を固定するPR先端commitのSHA,
-#     head_ref: push Workflow Runを同名branchのrunだけに限定するPR head branch名
+#     head_ref: push Workflow Runを同名branchのrunだけに限定するPR head branch名,
+#     is_draft: GitHubが返したDraft状態。merge gateではFalseだけを受け入れる
 #   ]
 # }
 @dataclass(frozen=True)
@@ -88,6 +115,7 @@ class PullRequestSnapshot:
     mergeable: str
     head_sha: str
     head_ref: str = ""
+    is_draft: bool = False
 
 
 # {
@@ -121,6 +149,14 @@ class UnresolvedReviewThread:
 # }
 class MergeGateError(RuntimeError):
     pass
+
+
+class GitHubCommandTimeout(MergeGateError):
+    """GitHub CLIが制限時間内に終わらなかった。読取専用照会では一時的失敗として再試行できる。"""
+
+
+class MergeNotPerformedError(MergeGateError):
+    """merge後のREST確認で、同じheadのPRがopenかつ未mergeのままだと分かった。"""
 
 
 # {
@@ -208,7 +244,7 @@ def _run_gh(arguments: list[str], timeout_seconds: int) -> subprocess.CompletedP
     except FileNotFoundError as error:
         raise MergeGateError("GitHub CLI (gh) was not found in PATH; PR merge was stopped.") from error
     except subprocess.TimeoutExpired as error:
-        raise MergeGateError(
+        raise GitHubCommandTimeout(
             f"GitHub CLI did not finish within {timeout_seconds} seconds; PR merge was stopped."
         ) from error
     except OSError as error:
@@ -240,36 +276,62 @@ def _command_details(command_result: subprocess.CompletedProcess[str]) -> str:
     return command_text
 
 
-# {
-#   責務: [
-#     _run_successful_gh_command: GitHub CLIを実行し、終了codeが0以外なら診断文付きで処理を中止する
-#   ],
-#   処理: [
-#     1: _run_ghへ個別引数とtimeoutを渡してcommandを実行する,
-#     2: 終了codeが0なら実行結果を返し、0以外なら操作名・診断文とともに停止する
-#   ],
-#   引数: [
-#     arguments: ghへ渡す個別のCLI引数,
-#     timeout_seconds: command完了を待つ上限秒数,
-#     action_description: エラーに表示する操作名
-#   ],
-#   戻り値: [
-#     CompletedProcess[str]: 終了codeが0であるGitHub CLI実行結果
-#   ],
-#   エラー: [
-#     MergeGateError: GitHub CLIが0以外で終了するか起動に失敗する
-#   ]
-# }
-def _run_successful_gh_command(
-    arguments: list[str], timeout_seconds: int, action_description: str
+def _is_transient_github_failure(diagnostic_text: str) -> bool:
+    """診断文がTLS handshake timeout等の一時的な通信失敗・gateway障害を示すならTrue。"""
+    lowered_text = diagnostic_text.lower()
+    return any(marker in lowered_text for marker in TRANSIENT_GITHUB_FAILURE_MARKERS)
+
+
+def _run_read_only_gh_command(
+    arguments: list[str],
+    timeout_seconds: int,
+    action_description: str,
+    retry_timeouts: bool = True,
+    share_timeout_budget: bool = False,
 ) -> subprocess.CompletedProcess[str]:
-    command_result = _run_gh(arguments, timeout_seconds)
-    if command_result.returncode != 0:
-        raise MergeGateError(
-            f"{action_description} failed with GitHub CLI exit code {command_result.returncode}: "
-            f"{_command_details(command_result)}"
+    """読取専用のGitHub CLI照会を実行し、一時的な通信失敗だけを間隔付きで有界回数再試行する。
+
+    試行は最大`len(READ_ONLY_RETRY_DELAYS_SECONDS) + 1`回。認証・権限・rate limit・GraphQLの
+    失敗は即座に停止する。`retry_timeouts`がFalseならtimeoutは再試行しない。`share_timeout_budget`
+    では最初の試行開始から`timeout_seconds`を全試行の共通予算とし、各試行へ残り時間を渡す。
+    mergeなど状態を変える呼出しには使わない。
+    """
+    max_attempts = len(READ_ONLY_RETRY_DELAYS_SECONDS) + 1
+    deadline = _monotonic() + timeout_seconds if share_timeout_budget else None
+    for attempt in range(1, max_attempts + 1):
+        attempt_timeout = timeout_seconds
+        if deadline is not None:
+            attempt_timeout = int(deadline - _monotonic())
+            if attempt_timeout < MINIMUM_RETRY_BUDGET_SECONDS:
+                raise MergeGateError(f"{action_description} has no time budget left (shared {timeout_seconds}s budget)")
+        try:
+            command_result = _run_gh(arguments, attempt_timeout)
+        except GitHubCommandTimeout as error:
+            if not retry_timeouts:
+                raise
+            diagnostic = str(error)
+            failure = MergeGateError(f"{action_description} failed: {diagnostic}")
+        else:
+            if command_result.returncode == 0:
+                return command_result
+            diagnostic = _command_details(command_result)
+            failure = MergeGateError(
+                f"{action_description} failed with GitHub CLI exit code {command_result.returncode}: {diagnostic}"
+            )
+            if not _is_transient_github_failure(diagnostic):
+                raise failure
+        if attempt == max_attempts:
+            raise MergeGateError(f"{failure} (transient GitHub error persisted after {max_attempts} attempts)")
+        delay_seconds = READ_ONLY_RETRY_DELAYS_SECONDS[attempt - 1]
+        if deadline is not None and deadline - _monotonic() - delay_seconds < MINIMUM_RETRY_BUDGET_SECONDS:
+            raise MergeGateError(f"{failure} (no time budget left for a retry)")
+        print(
+            f"[RETRY] {action_description} hit a transient GitHub error ({diagnostic.splitlines()[0][:200]}); "
+            f"retrying in {delay_seconds}s (attempt {attempt + 1}/{max_attempts}).",
+            flush=True,
         )
-    return command_result
+        _sleep(delay_seconds)
+    raise AssertionError("unreachable")
 
 
 # {
@@ -303,8 +365,8 @@ def _decode_json_output(command_result: subprocess.CompletedProcess[str], action
 #     _read_pull_request_snapshot: GitHubからPR状態を取得し、OPEN・MERGEABLE・有効なhead SHAを確認する
 #   ],
 #   処理: [
-#     1: gh pr viewからstate・mergeable・headRefOid・headRefNameをJSONで取得する,
-#     2: 4項目の存在と型を確認し、stateがOPEN、mergeabilityがMERGEABLEであることを確かめる,
+#     1: gh pr viewからstate・isDraft・mergeable・headRefOid・headRefNameをJSONで取得する。一時的な通信失敗は有界回数再試行する,
+#     2: 5項目の存在と型を確認し、stateがOPEN、Draftでない、mergeabilityがMERGEABLEであることをこの順に確かめる,
 #     3: headRefOidがSHA-1またはSHA-256形式なら検証済みsnapshotを返す
 #   ],
 #   引数: [
@@ -314,12 +376,12 @@ def _decode_json_output(command_result: subprocess.CompletedProcess[str], action
 #     PullRequestSnapshot: merge gateが検証したPR状態とhead commit
 #   ],
 #   エラー: [
-#     MergeGateError: API失敗、JSON不正、PR終了、merge不可、head SHA不正、またはhead branch名の欠落
+#     MergeGateError: API失敗、JSON不正、PR終了、Draft、merge不可、head SHA不正、またはhead branch名の欠落
 #   ]
 # }
 def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullRequestSnapshot:
-    command_result = _run_successful_gh_command(
-        ["pr", "view", pull_request.url, "--json", "state,mergeable,headRefOid,headRefName"],
+    command_result = _run_read_only_gh_command(
+        ["pr", "view", pull_request.url, "--json", "state,isDraft,mergeable,headRefOid,headRefName"],
         API_COMMAND_TIMEOUT_SECONDS,
         "Pull request state lookup",
     )
@@ -331,12 +393,20 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
     mergeability = response_data.get("mergeable")
     head_sha = response_data.get("headRefOid")
     head_ref = response_data.get("headRefName")
+    is_draft = response_data.get("isDraft")
     if not isinstance(state, str) or not isinstance(mergeability, str) or not isinstance(head_sha, str):
         raise MergeGateError("Pull request state lookup omitted state, mergeability, or head commit.")
     if not isinstance(head_ref, str) or not head_ref.strip():
         raise MergeGateError("Pull request state lookup omitted the head branch; PR merge was stopped.")
     if state != "OPEN":
         raise MergeGateError(f"Pull request state is {state!r}, not OPEN; PR merge was stopped.")
+    if not isinstance(is_draft, bool):
+        raise MergeGateError("Pull request state lookup omitted the draft status; PR merge was stopped.")
+    if is_draft:
+        raise MergeGateError(
+            "Pull request is a draft; mark it ready for review on GitHub before running the merge gate "
+            "(this tool does not change draft status). PR merge was stopped."
+        )
     if mergeability != "MERGEABLE":
         raise MergeGateError(
             f"Pull request mergeability is {mergeability!r}, not MERGEABLE; PR merge was stopped."
@@ -344,7 +414,7 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
     if PR_HEAD_SHA_PATTERN.fullmatch(head_sha) is None:
         raise MergeGateError("Pull request head commit is missing or invalid; PR merge was stopped.")
 
-    return PullRequestSnapshot(state, mergeability, head_sha, head_ref)
+    return PullRequestSnapshot(state, mergeability, head_sha, head_ref, is_draft)
 
 
 # {
@@ -352,7 +422,7 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
 #     _wait_for_status_checks: PR status checkが成功するか失敗を検出するまで待機し、非成功をmerge停止理由にする
 #   ],
 #   処理: [
-#     1: gh pr checks --watch --fail-fastを実行し、最大CHECK_COMMAND_TIMEOUT_SECONDS秒待つ,
+#     1: gh pr checks --watch --fail-fastを実行し、最大CHECK_COMMAND_TIMEOUT_SECONDS秒待つ。一時的な通信失敗だけを同じ予算内で再試行し、timeoutは再試行しない,
 #     2: ghが失敗またはtimeoutした場合はmergeを中止する
 #   ],
 #   引数: [
@@ -368,10 +438,12 @@ def _read_pull_request_snapshot(pull_request: PullRequestReference) -> PullReque
 def _wait_for_status_checks(pull_request: PullRequestReference) -> None:
     print("[WAIT] GitHub Actions checks are running; waiting for every check to finish.", flush=True)
     try:
-        _run_successful_gh_command(
+        _run_read_only_gh_command(
             ["pr", "checks", pull_request.url, "--watch", "--fail-fast"],
             CHECK_COMMAND_TIMEOUT_SECONDS,
             "Waiting for pull request status checks",
+            retry_timeouts=False,
+            share_timeout_budget=True,
         )
     except MergeGateError as error:
         raise MergeGateError(
@@ -401,7 +473,7 @@ def _wait_for_status_checks(pull_request: PullRequestReference) -> None:
 #   ]
 # }
 def _read_status_checks(pull_request: PullRequestReference) -> list[dict[str, object]]:
-    command_result = _run_successful_gh_command(
+    command_result = _run_read_only_gh_command(
         ["pr", "checks", pull_request.url, "--json", "name,state,bucket,link,workflow"],
         API_COMMAND_TIMEOUT_SECONDS,
         "Pull request status check lookup",
@@ -578,7 +650,7 @@ def _read_unresolved_review_threads(
         if cursor is not None:
             command_arguments.extend(["-F", f"cursor={cursor}"])
 
-        command_result = _run_successful_gh_command(
+        command_result = _run_read_only_gh_command(
             command_arguments,
             API_COMMAND_TIMEOUT_SECONDS,
             "Pull request review-thread lookup",
@@ -637,7 +709,7 @@ def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str, he
     push runはPRのhead branch名と一致するものだけを使い、同じcommitのtag runで失敗を隠さない。
     """
     def read_json(endpoint: str) -> object:
-        result = _run_successful_gh_command(
+        result = _run_read_only_gh_command(
             ["api", "--method", "GET", endpoint], API_COMMAND_TIMEOUT_SECONDS, "Workflow Run lookup"
         )
         return _decode_json_output(result, "Workflow Run lookup")
@@ -665,7 +737,8 @@ def _require_workflow_runs(pull_request: PullRequestReference, head_sha: str, he
 #     4: 固定headのpush（PR head branchのrunだけ）・PR各eventで必須workflowの最新attemptがすべて成功したことをREST APIで検証する,
 #     5: PR状態とhead commitが確認開始時から変わっていないことを確かめる,
 #     6: 確認済みhead SHAを--match-head-commitへ渡し、ローカルbranch削除を伴わずmergeする,
-#     7: CLI終了値にかかわらずREST APIで同じPRとheadの統合済み状態を確認する。結果不明なら再mergeせず停止する
+#     7: CLI終了値にかかわらずREST APIで同じPRとheadの統合済み状態を確認する。mergeは再実行しない,
+#     8: CLIが本文付きで非0終了し、APIが同じheadのopen・未mergeを返したらGitHubの拒否本文を表示して停止する。それ以外の未確認は結果不明として停止する
 #   ],
 #   引数: [
 #     pull_request_url: finish_pr.batが現在のbranchから取得したmerge対象PRのURL
@@ -695,6 +768,7 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
 
     print("[WAIT] All checks passed and no unresolved inline review comments remain; merging the PR.", flush=True)
     merge_diagnostic = None
+    github_rejected_merge = False
     try:
         merge_result = _run_gh(
             [
@@ -705,13 +779,28 @@ def merge_pull_request_when_safe(pull_request_url: str) -> None:
         )
         if merge_result.returncode != 0:
             merge_diagnostic = _command_details(merge_result)
+            # A network failure may hide a request GitHub already accepted, so only a non-transient error
+            # text counts as GitHub rejecting the merge.
+            github_rejected_merge = bool(
+                (merge_result.stderr or merge_result.stdout or "").strip()
+            ) and not _is_transient_github_failure(merge_diagnostic)
     except MergeGateError as error:
         merge_diagnostic = str(error)
+    unconfirmed_prefix = f"Merge command failed: {merge_diagnostic}. " if merge_diagnostic is not None else ""
     try:
         merge_sha = _confirm_remote_merge(pull_request, current_snapshot.head_sha)
     except MergeGateError as error:
+        # gh pr mergeが本文付きで非0終了したのはGitHubの同期的な拒否。timeout・起動失敗・0終了では
+        # 遅延反映を排除できないため、open/未mergeでも結果不明として扱い、mergeは再実行しない。
+        if isinstance(error, MergeNotPerformedError) and github_rejected_merge:
+            raise MergeGateError(
+                f"PR was not merged: {pull_request.url} is still open and unmerged after the merge command "
+                f"failed with: {merge_diagnostic}. Fix the reported cause, then rerun the merge gate "
+                "(it re-verifies the PR state before merging)."
+            ) from error
         raise MergeGateError(
-            f"Remote merge outcome is unconfirmed for {pull_request.url}; do not repeat the merge blindly. "
+            f"{unconfirmed_prefix}Remote merge outcome is unconfirmed for {pull_request.url}; "
+            "do not repeat the merge blindly. "
             f"Inspect: gh pr view {pull_request.url} --json state,headRefOid,mergeCommit. "
             f"Confirmation: {error}; merge command: {merge_diagnostic or 'exit code 0'}"
         ) from error
@@ -724,13 +813,22 @@ def _confirm_remote_merge(pull_request: PullRequestReference, expected_head: str
     """PR番号・固定head・統合済み状態・merge SHAをRESTで検証し、merge SHAを返す。"""
     endpoint = f"repos/{pull_request.owner}/{pull_request.repository}/pulls/{pull_request.number}"
     response = _decode_json_output(
-        _run_successful_gh_command(["api", "--method", "GET", endpoint], API_COMMAND_TIMEOUT_SECONDS, "Merge confirmation"),
+        _run_read_only_gh_command(["api", "--method", "GET", endpoint], API_COMMAND_TIMEOUT_SECONDS, "Merge confirmation"),
         "Merge confirmation",
     )
     if not isinstance(response, dict):
         raise MergeGateError("Merge confirmation did not return an object")
     head = response.get("head")
     merge_sha = response.get("merge_commit_sha")
+    if (
+        type(response.get("number")) is int
+        and response["number"] == pull_request.number
+        and response.get("state") == "open"
+        and response.get("merged") is False
+        and isinstance(head, dict)
+        and head.get("sha") == expected_head
+    ):
+        raise MergeNotPerformedError("API reports the PR with the verified head is still open and unmerged")
     if (
         type(response.get("number")) is not int
         or response["number"] != pull_request.number
