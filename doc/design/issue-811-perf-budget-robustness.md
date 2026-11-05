@@ -24,9 +24,10 @@ Parent: #178
 ## 手順
 1. 各roundは、新しい一時directory・SQLite `EventJournal`・`GamePlayerEngine`・同じseedの `NoisyLanguageProvider` で、warm-up→測定step→直接outcome評価を従来どおり実行する。roundは同一作業量の複製であり、順に実行するため数秒規模のrunner負荷集中は一部のroundにしか入らない。
 2. roundごとに4指標（provider選択・provider outcome・Engine総時間・non-provider Core）のnearest-rank p95を計算する。
-3. 指標ごとにround p95の中央値を予算（budget×multiplier）と比較する。5 roundなら3 round以上が予算超過した場合に不合格となる。
-4. 安全不変条件（危険候補を選ばない、Coreがnoisy actionをREJECTしない、provider時間がstep時間を超えない）はround内の全stepで従来どおり検査し、1件でも違反すればRuntimeError→終了コード2（中央値で緩和しない、fail-closed）。out-of-set fixtureは1回実行し従来どおり必須。
-5. 測定engineの生成は `engine_factory`（providerを受け取りengineを返すcontext manager）として注入可能にし、既定は従来の一時directory＋SQLite journal＋`GamePlayerEngine`。テストだけが軽量engineを渡す。
+3. 指標ごとにround p95の中央値（奇数roundなので観測された中央のround p95そのもの）を、丸める前の値のまま予算（budget×multiplier）と `<=` で比較する。表示用の丸めは判定後に行う。5 roundなら3 round以上が予算超過した場合に不合格となる。
+   - 検出範囲: 過半数のroundで測定stepの5%を超えて現れる遅延（全体の処理量増加、間欠的でも5%超の尾部退行）。5%以下の頻度の尾部退行は従来の単一p95と同様に検出対象外で、p99/最大値の予算は今回追加しない（予算の新設は性能要件の追加でありIssue範囲外）。
+4. 安全不変条件（危険候補を選ばない、Coreがnoisy actionをREJECTしない、provider時間がstep時間を超えない）はround内の全stepで従来どおり検査し、1件でも違反すればRuntimeError→`main`が捕捉して終了コード2（中央値で緩和しない、fail-closed）。reportは全round完了後にだけ書くため、異常時に合格reportは出ない。想定外の例外は捕捉せずPythonの非0終了になる（0にはならない）。out-of-set fixtureは1回実行し従来どおり必須。
+5. 測定engineの生成は `engine_factory`（`TimedNoisyLanguageProvider`を受け取り、`step(observation, candidates, purpose=...)` と `last_reliability_result` を持つengineを返すcontext manager）として注入可能にし、既定は従来の一時directory＋SQLite journal＋`GamePlayerEngine`。時間は常にbenchmark moduleの `time.perf_counter_ns` で測り、`measure_engine_steps`（step全体）と `TimedNoisyLanguageProvider`（provider呼出し）の測定経路はテストでも共有する。テストは軽量engineと、moduleの `time` を差し替える疑似時計だけを模擬する。軽量engineはstep内でproviderを呼び、作業量に応じて疑似時計を進める。
 
 ## テスト
 受入条件ごとの試験（すべて疑似時計で決定論的、ネットワーク・実I/O時間に依存しない）:
@@ -38,7 +39,8 @@ Parent: #178
   - 処理量2倍（engineの作業単位を1→2にし全stepが200ms）は不合格・終了コード1。
   - 全roundで10stepに1回だけ予算の2倍かかる尾部退行はp95で検出し不合格。
   - 5 round中3 roundが遅い（持続的な遅さ）は不合格。
-- 入力検証: `--rounds` が2・4・0なら終了コード2。
+- 入力検証: `--rounds` が0・1・2・4なら `ValueError`、CLIでは終了コード2。
+- 安全不変条件: 軽量engineが危険候補を返すとRuntimeErrorになり、reportを書かない。
 - 既存 `tests/test_noisy_provider.py` は変更なしで合格。
 - 実測: CIの `performance-ci` 両OSと、ローカルで既定設定の実行（所要時間とround p95をPRへ記録）。
 
