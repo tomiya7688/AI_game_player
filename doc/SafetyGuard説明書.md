@@ -172,6 +172,11 @@ no-progressが閾値へ達した状態で同一Actionを繰り返すと `no_prog
    - invalid coordinate拒否
    - target window消失後のfail-closed
    - `safety_guard.jsonl` artifact保存
+4. `Windows platform gate (no live input)`（Issue #94）
+   - Windows境界のテスト（target/window検証、座標変換、WindowsInput、capture、ABI、bundle self-check、Fail-safeのlease/TTL/hold/release-all）を`tools/run_windows_platform_gate.py`で1プロセス実行
+   - `tools/windows_input_sentinel.py`がuser32のグローバル入力API（`SendInput`、`keybd_event`、`mouse_event`、`SetCursorPos`等）を呼出し前に遮断し、キーボード／マウスのwindow messageはテストプロセス自身が作った窓宛てだけを通す
+   - 遮断が1回でもあれば、テストが例外を握りつぶして成功してもgateは失敗。Windowsでしか実行されない必須テストがskipされた場合も失敗
+   - 範囲と実機-only項目は[Windows安全統合ゲート](Windows安全統合ゲート.md)
 
 Windows smokeの最終結果には `all_implemented_states_stoppable=true` を要求する。新しい長時間実行状態や入力種別を追加した場合は、この状態マトリクスへ同時にケースを追加する。
 
