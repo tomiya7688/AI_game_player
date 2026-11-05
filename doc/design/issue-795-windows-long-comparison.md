@@ -28,7 +28,7 @@ PR #802（`gameplay_capability_benchmark.md`）は未merge（mainに無い）。
 
 ## 成果物
 
-- `tools/compare_2048_windows_long.py`（新）: 1つのbase seedに対し、3 providerを**順番に**1台の同一Windows上で各`--duration-seconds 600`走らせるRunner。provider順はseed番号で回すLatin方陣（時間経過・温度・キャッシュの順序効果を相殺）。provider単位に`run-report.json`、ブロック単位に`block-report.json`を出す。
+- `tools/compare_2048_windows_long.py`（新）: 1つのbase seedに対し、3 providerを**順番に**1台の同一Windows上で各`--duration-seconds 600`走らせるRunner。provider順は全6順列をblock番号で巡回（`index % 6`。時間経過・温度・キャッシュの順序効果と直前providerの持ち越しを均す。8 blockでは完全には均衡しないため、順序を`provider_order_index`に記録し、aggregatorが順序別の件数を表示する）。provider単位に`run-report.json`、ブロック単位に`block-report.json`を出す。
 - `tools/compare_2048_windows_planning.py`（修正）: `run_episode(..., deadline_monotonic=None)`を追加。`None`なら従来動作（短枠の既存テストは無変更）。判断loopは`deadline`到達後に新しい判断を始めず、`stop_reason="wall_budget_reached"`を記録する。
 - `tools/windows_long_comparison_stats.py`（新）: 標準ライブラリだけの純関数（集計、percentile、Wilson区間、対応ありbootstrap区間、符号反転検定、欠測規則）。Windows依存なしでLinuxのunit testで検証する。
 - `tools/aggregate_2048_windows_long.py`（新）: 全ブロックのreportと**期待manifest**から`report.json`と`report.md`（比較表）を作る。
@@ -87,7 +87,7 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 - 区間: 対応あり差のpercentile bootstrap（10000回、`random.Random(795)`で決定的、3対比のBonferroni補正で信頼水準 `1-0.05/3`≈98.3%）。p値: 符号反転検定（n≤16は全列挙、超過は決定的乱数のMonte Carlo）。成功率はWilson区間。
 - `verdict`が`better`/`worse`になる条件は、`n_pairs ≥ 8`（`N_MIN_VERDICT`定数）かつbootstrap区間が0を含まず、かつ符号反転p値が補正後の閾値以下。それ以外はすべて`inconclusive`。`N_MIN_VERDICT`・水準・resample数・乱数seedはコード定数で、CLIや環境変数から下げられない（下げるにはコードと設計書の変更とレビューが要る）。n<8は区間を出さず`insufficient_samples`。
 - 3 seed×1回等のn小の結果を有意性として主張しない。reportと文書の見出しは「測定条件と標本数つきの比較」とし、「高性能」「改善」の語を結論欄に使わない。Cyclingに勝つこと自体を合否にしない（Safety・入力検証・欠測会計が合否）。
-- 1つのblockはVM性能差の影響を受けるが、3 providerが同一VMで逐次走るためblock内の対応差で相殺する。provider順のLatin方陣で時間経過の偏りも均す。runner imageが変わった場合は`hardware.image_version`で層別表示する（混合したままp値の根拠にしない）。
+- 1つのblockはVM性能差の影響を受けるが、3 providerが同一VMで逐次走るためblock内の対応差で相殺する。provider順の6順列巡回で時間経過の偏りも均す。runner imageが変わった場合は`hardware.image_version`で層別表示する（混合したままp値の根拠にしない）。
 
 ## 失敗時の挙動（fail-closed）
 
@@ -100,8 +100,8 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 
 ## CI上の置き場
 
-- 新workflow `windows-long-comparison.yml`: `on: workflow_dispatch`（入力: `seed_start`既定479、`seed_count`既定8、`ref_class`）＋ `schedule`（週1回、日曜夜UTC。実行時間と課金の根拠は下記）。`push`/`pull_request`は付けない。top-level `permissions: contents: read`、既存のpython-trust-floor actionと同じpin規則に従い、`tools/workflow_security_check.py`を通す。
-- `plan`（ubuntu）: manifestとmatrix JSONを出力。`run`（windows-latest）: base seedごとのmatrix。1 jobで3 providerを逐次実行、`timeout-minutes: 60`（3×780秒＋セットアップ。短枠の20分とは別）。`aggregate`（ubuntu）: artifactを集めて`report.json`/`report.md`を生成・upload・job summaryへ要約。
+- 新workflow `windows-long-comparison.yml`: `on: workflow_dispatch`（入力: `seed_start`既定479、`seed_count`既定8（1〜32に検証）、`ref_class`）。`seed_count<8`の手動実行（動作確認）ではrun/block reportと表は通常どおり出るが、統計は`insufficient_samples`・`verdict`なしになる。この挙動を`report.md`の先頭に明示する＋ `schedule`（週1回、日曜夜UTC。実行時間と課金の根拠は下記）。`push`/`pull_request`は付けない。top-level `permissions: contents: read`、既存のpython-trust-floor actionと同じpin規則に従い、`tools/workflow_security_check.py`を通す。
+- `plan`（ubuntu）: manifestとmatrix JSONを出力。`run`（windows-latest）: base seedごとのmatrix。1 jobで3 providerを逐次実行、`timeout-minutes: 90`（最悪3×780秒=39分＋依存install/native build/アップロードの余裕。短枠の20分とは別。runner遅延で打ち切られても、期待manifestにより`missing`として母数に残る）。`aggregate`（ubuntu）: artifactを集めて`report.json`/`report.md`を生成・upload・job summaryへ要約。
 - 判断: 毎晩ではなく**週1回のmain track＋手動のPR/branch track**。8 block×約40分≈5.3 windowsランナー時間/回で、毎晩は過剰。cron頻度はworkflow内の1行で変えられ、設計の正しさに影響しない。
 - `REQUIRED_WORKFLOW_PATHS`・branch protection・ruleset・必須32 checksには**触れない**。長枠は必須gateではなく測定。PRの`language-ci`の短比較・Cycling 600秒gateは無変更。
 - 手動実行は対象refのcommitを`git_commit`に残し、`ref_class=pr`/`manual`と`main`の結果を同じ表に混ぜない（aggregatorが`ref_class`と`git_commit`の混在を拒否）。
@@ -110,7 +110,7 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 
 1. 条件確認: `os.name=="nt"`、`--allow-live-input`、OCR/psutil/native DLLの存在を確認。いずれか欠ければ入力前に非0で終了（短比較と同じ）。
 2. `condition_fingerprint`と`hardware`を算出し保存。
-3. provider順を`order = rotate(["cycling","baseline","planner"], base_seed_index % 3)`で決め、各providerで：
+3. provider順を`itertools.permutations(["cycling","baseline","planner"])`の`base_seed_index % 6`番目の順列で決め、各providerで：
    a. `deadline = start + 600`。
    b. episode k=1,2,…：`run_episode(provider, seed(base,k), attempt_cap=5000, deadline_monotonic=deadline)`。terminalなら次episode、deadline到達で終了、失敗ならrecoveryを消費して次episode。残り60秒未満なら新episodeを始めず`unused_budget_seconds`に記録。
    c. episodeごとに`run-report.json`を逐次書き換え（途中でprocessが落ちても部分結果が残る）。
@@ -127,7 +127,7 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 
 | 受入条件 | 試験 |
 |---|---|
-| Windows 3 Provider共通長枠reportと再現可能なArtifact | runnerテスト: 偽`run_episode`で3 providerが同一`budget`・同一episode seed列・Latin方陣のprovider順で実行され、`run-report`/`block-report`が書かれる。`condition_fingerprint`が全runで一致、1つ変えるとaggregatorが拒否。workflowテスト: 起動は`workflow_dispatch`/`schedule`のみ、top-level permissions、artifact upload、`REQUIRED_WORKFLOW_PATHS`に未追加、`workflow_security_check`通過 |
+| Windows 3 Provider共通長枠reportと再現可能なArtifact | runnerテスト: 偽`run_episode`で3 providerが同一`budget`・同一episode seed列・6順列巡回のprovider順で実行され、`run-report`/`block-report`が書かれる。`condition_fingerprint`が全runで一致、1つ変えるとaggregatorが拒否。workflowテスト: 起動は`workflow_dispatch`/`schedule`のみ、top-level permissions、artifact upload、`REQUIRED_WORKFLOW_PATHS`に未追加、`workflow_security_check`通過 |
 | 打切り・失敗・欠測を含む比較表 | aggregateテスト: completed/partial/failed/missing/invalidを含む入力で、全blockが表に1行ずつ出る。manifestにあるartifact欠落が`missing`として母数に入る。partialは一次解析に含まれ、感度分析（completedのみ）が併記される |
 | Score/Max tile/Survival/p50/p95/CPU/RAM/nodesを報告、未計測はunknown | statsテスト: 値`null`で`status=measured`は拒否、`0`への置換不可。Cycling/Baselineのnodes/reobserveは`not_applicable`。全episode OCR不可でscoreが`unknown`。terminal 0件のsurvivalが`unknown`（打切りを生存数に混ぜない）。標本0のp50/p95が`unknown` |
 | 統計（paired seed・標本数・信頼区間、単純緩和禁止） | statsテスト: 既知差分データでbootstrap区間と符号反転p値が決定的に再現。n<8は区間なし`insufficient_samples`・`inconclusive`。n=8でも区間が0を含めば`inconclusive`。`N_MIN_VERDICT`等が定数でCLI/環境から変えられない（引数を渡す経路が無いことを検査）。3対比のBonferroni水準を検査 |
