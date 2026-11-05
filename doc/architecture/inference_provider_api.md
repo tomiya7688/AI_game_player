@@ -118,7 +118,7 @@ For each inference request that transmits data off the device, the adapter MUST 
 
 Credentials never belong in Decision Context, Trace, Replay, or normal logs.
 
-See Issue #123 for the full privacy policy.
+The machine-readable data class registry (sensitivity, 1.0 default persistence, retention and whether a class may leave the device after opt-in) is `src/ai_game_player/assets/privacy/data_inventory.json`; see [Privacy Data Inventory](privacy_data_inventory.md) (#224). Every class above is `remote: opt_in` there, and a test keeps this enum within the registry. See Issue #123 for the full privacy policy.
 
 ## Bundled local model profiles
 

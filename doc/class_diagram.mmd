@@ -389,6 +389,28 @@ classDiagram
         +load()
         +save()
     }
+    ValueError <|-- DataClassPolicyError
+    class DataClassPolicyError {
+    }
+    class DataClassPolicy {
+        +__post_init__()
+        +persisted_by_default()
+        +may_leave_machine()
+        +from_dict()
+    }
+    ValueError <|-- DataInventoryError
+    class DataInventoryError {
+    }
+    class DataInventory {
+        +policy()
+        +class_for_artifact_type()
+        +effective_classes()
+        +remote_eligible_classes()
+        +ttl_ms_by_artifact_type()
+        +forbidden_field_paths()
+        +_is_forbidden_name()
+        +from_dict()
+    }
     class EvaluatorEvidence {
         +__post_init__()
         +to_dict()

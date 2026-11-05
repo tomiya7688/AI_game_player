@@ -17,7 +17,8 @@ ai-game-player = "ai_game_player.app:main"
 
 # 開発既定のPlayer Asset Pack（manifestと画像）をwheel/sdistにも含める（Issue #156）。
 [tool.setuptools.package-data]
-ai_game_player = ["assets/players/*/*.json", "assets/players/*/*.png"]
+# Privacy data inventory（Issue #224）はcomponentが実行時に問い合わせる正本。
+ai_game_player = ["assets/players/*/*.json", "assets/players/*/*.png", "assets/privacy/*.json"]
 
 [tool.ruff]
 target-version = "py310"
