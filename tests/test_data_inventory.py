@@ -71,6 +71,15 @@ def open_mode(call: ast.Call) -> object:
     return None
 
 
+# remote:neverなのに現行の送信payloadへ入るclass（送信箇所→class）。inventoryは事実どおり宣言し、
+# 不変条件の例外はここに明示したものだけに限る。#226（Remote Consent Enforcement）で解消して空にする。
+KNOWN_REMOTE_GAP: dict[str, frozenset[str]] = {
+    "ai_game_player.provider:OllamaProvider._request_decision": frozenset(
+        {"knowledge"}
+    ),
+}
+
+
 class SourceScan:
     """Collect persistence/transmission sites and storage literals from src."""
 
@@ -300,7 +309,7 @@ class DataInventoryRegistryTest(unittest.TestCase):
                 ).is_file()
                 self.assertTrue(exists, f"{policy.data_class}: {module}")
 
-    def test_provider_wire_data_classes_are_remote_eligible(self) -> None:
+    def test_wire_enums_equal_remote_eligible_classes(self) -> None:
         remote = self.inventory.remote_eligible_classes()
         for name, pointer in (
             ("inference_request.schema.json", ("privacy", "data_classes")),
@@ -308,7 +317,7 @@ class DataInventoryRegistryTest(unittest.TestCase):
         ):
             schema = json.loads((PROVIDER_SCHEMAS / name).read_text(encoding="utf-8"))
             node = schema["properties"][pointer[0]]["properties"][pointer[1]]
-            self.assertLessEqual(set(node["items"]["enum"]), remote, name)
+            self.assertEqual(set(node["items"]["enum"]), remote, name)
 
 
 class DataInventoryCoverageTest(unittest.TestCase):
@@ -336,9 +345,14 @@ class DataInventoryCoverageTest(unittest.TestCase):
         )
         remote = self.inventory.remote_eligible_classes()
         for site, classes in self.inventory.transmitters.items():
+            gap = KNOWN_REMOTE_GAP.get(site, frozenset())
             self.assertLessEqual(
-                set(self.inventory.effective_classes(classes)), remote, site
+                set(self.inventory.effective_classes(classes)) - gap, remote, site
             )
+        # 既知の差分は実際に宣言されていて、remote:neverのままであること（#226で解消し空にする）
+        for site, gap in KNOWN_REMOTE_GAP.items():
+            self.assertLessEqual(gap, set(self.inventory.transmitters[site]), site)
+            self.assertFalse(gap & remote, site)
 
     def test_every_storage_path_literal_is_classified(self) -> None:
         classified = set(self.inventory.persisted_paths) | set(
