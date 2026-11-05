@@ -47,9 +47,9 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 
 - `src/ai_game_player/fail_safe_runtime.py`
   - `AtomicJsonStore.replace_unless(value, reject)`: 1回のcross-process lock内で読取→判定→書込。
-  - `FailSafeRuntime`: 全てのlease書込を`replace_unless`の条件付き書込にする（lost update解消）。heartbeatの別読取を廃止。lease延長は`_extend_lease_locked(now)`に集約し、失効済みleaseは延長せず`recovery_required/lease_expired`へ遷移。heartbeat loopを開始時刻基準の期限スケジュールにする。closeのjournal detailsへ直前の状態・理由を残す。
+  - `FailSafeRuntime`: heartbeat・`record_observation`・`check_command`・`complete_command`のlease書込を`replace_unless`の条件付き書込にする（lost update解消。初期化・arm・遷移・watchdogの書込は無条件書込のまま）。heartbeatの別読取を廃止。lease延長は`_extend_lease_locked(now)`に集約し、失効済みleaseは延長せず`recovery_required/lease_expired`へ遷移。heartbeat loopを開始時刻基準の期限スケジュールにする。closeのjournal detailsへ直前の状態・理由を残す。
   - 書込・読取経路の冗長なsyscall（毎回のmkdir、Windowsで必ず失敗するdirectory fsync、replace成功後のunlink、読取前の`exists()`）を除く。fsync・atomic replace・lockの意味は不変。
-- `src/ai_game_player/heartbeat_diagnostic.py`: `renewal_mono_ns`、結果`lease_expired`、集計`summary`（更新数、期限余裕ms min/p05/p50、周期ms p50/p95/max、負の余裕件数）。schema_version 2。
+- `src/ai_game_player/heartbeat_diagnostic.py`: `renewal_mono_ns`、結果`lease_expired`、集計`summary`（更新数、期限余裕ms min/p05/p50、1回のheartbeat処理時間ms（entry→完了）p50/p95/max、負の余裕件数）。schema_version 2。
 - `tools/run_2048_campaign.py`: heartbeat診断ON時、episode close前に`heartbeat_lease_budget`の1行JSONを出力（成功runでも余裕を記録）。
 - テスト: `tests/test_fail_safe_lease_renewal.py`（新規）、`tests/fixtures/issue794_lease_expiry_rings.json`（自然失敗2件のring）、`tests/test_fail_safe_heartbeat_diagnostics.py`、`tests/test_fail_safe_runtime.py`の更新、campaign出力のテスト。
 - 文書: `doc/FailSafeRuntime説明書.md`、`doc/versions.md`、本設計書。

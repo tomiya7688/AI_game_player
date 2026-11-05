@@ -89,7 +89,7 @@ class HeartbeatDiagnostics:
         self._margin_count = 0
         self._margin_min: float | None = None
         self._margins_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
-        self._cycles_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
+        self._durations_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
         self._previous_renewal: _Entry | None = None
 
     # {
@@ -173,7 +173,7 @@ class HeartbeatDiagnostics:
             pass
 
     # {
-    #   責務: [_summarize: 完了heartbeatの周期と前回期限に対する保存完了の余裕を有界に集計する]
+    #   責務: [_summarize: 完了heartbeatの処理時間と前回期限に対する保存完了の余裕を有界に集計する]
     #   引数: [row: 完了record] 戻り値: [なし]
     #   処理: [余裕ms = 前回heartbeatの期限 − (今回の更新Unix秒 + 更新から書込完了までのmonotonic差)。
     #     main threadの更新は含まないため実際の余裕の下限。連番が途切れた・時計不正の行は余裕を計算しない]
@@ -184,7 +184,7 @@ class HeartbeatDiagnostics:
             return
         self._renewals += 1
         if row.entry_mono_ns is not None and row.finished_mono_ns is not None:
-            self._cycles_ms.append((row.finished_mono_ns - row.entry_mono_ns) / 1e6)
+            self._durations_ms.append((row.finished_mono_ns - row.entry_mono_ns) / 1e6)
         previous = self._previous_renewal
         self._previous_renewal = row
         if (
@@ -216,7 +216,7 @@ class HeartbeatDiagnostics:
     # }
     def summary(self) -> dict[str, object]:
         margins = sorted(self._margins_ms)
-        cycles = sorted(self._cycles_ms)
+        durations = sorted(self._durations_ms)
         return {
             "renewals": self._renewals,
             "margin_samples": self._margin_count,
@@ -227,9 +227,9 @@ class HeartbeatDiagnostics:
             "window_samples": _SUMMARY_SAMPLES,
             "margin_ms_p05": _percentile(margins, 0.05),
             "margin_ms_p50": _percentile(margins, 0.50),
-            "cycle_ms_p50": _percentile(cycles, 0.50),
-            "cycle_ms_p95": _percentile(cycles, 0.95),
-            "cycle_ms_max": _rounded(cycles[-1]) if cycles else None,
+            "duration_ms_p50": _percentile(durations, 0.50),
+            "duration_ms_p95": _percentile(durations, 0.95),
+            "duration_ms_max": _rounded(durations[-1]) if durations else None,
         }
 
     # {

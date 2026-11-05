@@ -1117,13 +1117,14 @@ class ReferenceGame2048Episode(CampaignEpisode):
             return {"status": "unavailable", "error_type": type(error).__name__[:64]}
 
     # {
-    #   責務: [_emit_heartbeat_lease_budget: 明示診断ON時、close前のheartbeat期限余裕を1行JSONで記録する]
-    #   処理: [成功runでもlease予算の実測を残す（Issue #794）。取得・出力の失敗は無視し、判定・closeを変えない]
-    #   引数: [なし] 戻り値: [なし]
+    #   責務: [_heartbeat_lease_budget_line: 明示診断ON時、heartbeat期限余裕の1行JSONをcleanup前に作る]
+    #   処理: [成功runでもlease予算の実測を残す（Issue #794）。作成だけを行い出力しない（stdoutの停止でcleanupを妨げない）。
+    #     取得の失敗は無視し、判定・closeを変えない]
+    #   引数: [なし] 戻り値: [str | None: 出力する1行、診断OFFまたは取得失敗ならNone]
     # }
-    def _emit_heartbeat_lease_budget(self) -> None:
+    def _heartbeat_lease_budget_line(self) -> str | None:
         if getattr(self, "_save_heartbeat_diagnostics", False) is not True:
-            return
+            return None
         try:
             pipeline = getattr(self, "pipeline", None)
             runtime = (
@@ -1134,24 +1135,35 @@ class ReferenceGame2048Episode(CampaignEpisode):
             )
             summary = snapshot.get("summary") if isinstance(snapshot, dict) else None
             if not isinstance(summary, dict):
-                return
-            print(
-                json.dumps(
-                    {
-                        "event": "heartbeat_lease_budget",
-                        "schema_version": 1,
-                        "diagnostic_only": True,
-                        "lease_timeout_ms": round(
-                            runtime.config.lease_timeout_seconds * 1000, 3
-                        ),
-                        "summary": summary,
-                    },
-                    ensure_ascii=True,
-                    separators=(",", ":"),
-                    allow_nan=False,
-                ),
-                flush=True,
+                return None
+            return json.dumps(
+                {
+                    "event": "heartbeat_lease_budget",
+                    "schema_version": 1,
+                    "diagnostic_only": True,
+                    "lease_timeout_ms": round(
+                        runtime.config.lease_timeout_seconds * 1000, 3
+                    ),
+                    "summary": summary,
+                },
+                ensure_ascii=True,
+                separators=(",", ":"),
+                allow_nan=False,
             )
+        except Exception:
+            return None
+
+    # {
+    #   責務: [_emit_heartbeat_lease_budget: 作成済みの1行をresource解放後にstdoutへ出す]
+    #   処理: [出力失敗は無視する。呼出しはlauncher.close()の後だけ]
+    #   引数: [line: 1行JSONまたはNone] 戻り値: [なし]
+    # }
+    @staticmethod
+    def _emit_heartbeat_lease_budget(line: str | None) -> None:
+        if line is None:
+            return
+        try:
+            print(line, flush=True)
         except Exception:
             return
 
@@ -1160,7 +1172,8 @@ class ReferenceGame2048Episode(CampaignEpisode):
             return
         self._closed = True
         close_errors: list[Exception] = []
-        self._emit_heartbeat_lease_budget()
+        # 診断行はcleanup前に作り、出力はcleanup後に行う（stdoutが詰まってもresource解放を妨げない）。
+        budget_line = self._heartbeat_lease_budget_line()
         if self.pipeline is not None:
             try:
                 self.pipeline.close()
@@ -1177,6 +1190,7 @@ class ReferenceGame2048Episode(CampaignEpisode):
             self.launcher.close()
         except Exception as error:
             close_errors.append(error)
+        self._emit_heartbeat_lease_budget(budget_line)
         if close_errors:
             raise RuntimeError(
                 "2048 episode cleanup failed: "

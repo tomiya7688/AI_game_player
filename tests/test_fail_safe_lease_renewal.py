@@ -292,11 +292,69 @@ class LeaseExtensionTests(unittest.TestCase):
         self.assert_watchdog_stop_kept()
 
     def test_check_command_reports_concurrent_stop_as_not_active(self):
-        with self.inject_stop_after("_renew_lease_locked"):
+        with self.inject_stop_after("_extend_lease_locked"):
             decision = self.runtime.check_command(self.command())
         self.assertFalse(decision.allowed)
         self.assertEqual(decision.code, "runtime_not_active")
         self.assert_watchdog_stop_kept()
+
+    def test_check_command_does_not_revive_lease_expired_during_persisted_read(self):
+        command = self.command()
+        original = self.runtime.lease_store.read
+
+        def slow_read():
+            result = original()
+            self.clock.advance(TTL + 0.001)  # 永続読取のI/Oが期限を跨いだ
+            return result
+
+        with patch.object(self.runtime.lease_store, "read", slow_read):
+            decision = self.runtime.check_command(command)
+        self.assertFalse(decision.allowed)
+        self.assertEqual(decision.code, "lease_expired")
+        self.assertEqual(self.runtime.state, FailSafeState.RECOVERY_REQUIRED)
+        self.assertEqual(self.persisted()["state"], "recovery_required")
+
+    def test_check_command_extension_rechecks_expiry_after_judgement(self):
+        command = self.command()
+        calls = {"n": 0}
+        real_clock = self.clock
+
+        def jumping_clock():
+            calls["n"] += 1
+            if calls["n"] == 2:  # 判定用の時刻の次、延長用の時刻で期限超過
+                real_clock.advance(TTL + 0.001)
+            return real_clock()
+
+        self.runtime.clock = jumping_clock
+        decision = self.runtime.check_command(command)
+        self.assertFalse(decision.allowed)
+        self.assertEqual(decision.code, "lease_expired")
+
+    def test_same_epoch_lease_without_state_is_treated_as_stop(self):
+        incomplete = self.persisted()
+        incomplete.pop("state")
+        self.runtime.lease_store.write(incomplete)
+        self.assertFalse(self.runtime.heartbeat())
+        self.assertEqual(self.runtime.state, FailSafeState.RECOVERY_REQUIRED)
+        self.assertEqual(self.persisted().get("state"), None)
+        decision = self.runtime.check_command(self.command())
+        self.assertFalse(decision.allowed)
+
+    def test_second_close_keeps_the_first_previous_reason(self):
+        self.clock.advance(TTL + 0.001)
+        self.assertFalse(self.runtime.heartbeat())
+        self.runtime.close()
+        first = self.runtime.journal.read()
+        self.runtime.close()
+        self.assertEqual(self.runtime.journal.read(), first)
+        self.assertEqual(first["details"]["previous_reason"], "lease_expired")
+
+    def test_diagnostic_callback_failure_does_not_change_heartbeat(self):
+        self.runtime.configure_heartbeat_diagnostics(enabled=True)
+        recorder = self.runtime._heartbeat_diagnostics
+        with patch.object(recorder, "renewal", side_effect=MemoryError):
+            self.assertTrue(self.runtime.heartbeat())
+        self.assertEqual(self.runtime.state, FailSafeState.ACTIVE)
 
     def test_other_epoch_stop_and_missing_file_keep_existing_semantics(self):
         self.write_watchdog_stop(epoch="older-epoch")
@@ -324,6 +382,23 @@ class LeaseExtensionTests(unittest.TestCase):
 
 
 class WatchdogRaceTests(unittest.TestCase):
+    def test_watchdog_survives_lease_lock_timeout_and_keeps_monitoring(self):
+        reads = {"n": 0}
+        original = runtime_module.AtomicJsonStore.read
+
+        def flaky(self):
+            reads["n"] += 1
+            if reads["n"] <= 3:
+                raise TimeoutError("lock held by a slow writer")
+            return original(self)
+
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(runtime_module.AtomicJsonStore, "read", flaky):
+                self.assertEqual(
+                    run_external_watchdog(Path(directory), max_runtime_seconds=0.5), 0
+                )
+        self.assertGreater(reads["n"], 3)
+
     def test_runtime_does_not_resume_after_watchdog_wrote_expiry(self):
         import time
 
@@ -386,7 +461,7 @@ class HeartbeatSummaryTests(unittest.TestCase):
         recorder._margins_ms.clear()
         self.assertEqual(recorder.summary()["margin_ms_min"], 430.0)
         self.assertEqual(summary["negative_margin_count"], 0)
-        self.assertEqual(summary["cycle_ms_max"], 70.0)
+        self.assertEqual(summary["duration_ms_max"], 70.0)
 
     def test_summary_survives_in_bounded_snapshot(self):
         recorder = HeartbeatDiagnostics()
@@ -413,10 +488,33 @@ class CampaignBudgetLineTests(unittest.TestCase):
         )
 
     def emit(self, episode) -> str:
+        line = ReferenceGame2048Episode._heartbeat_lease_budget_line(episode)  # type: ignore[arg-type]
         stream = io.StringIO()
         with redirect_stdout(stream):
-            ReferenceGame2048Episode._emit_heartbeat_lease_budget(episode)  # type: ignore[arg-type]
+            ReferenceGame2048Episode._emit_heartbeat_lease_budget(line)
         return stream.getvalue()
+
+    def test_line_is_printed_only_after_all_resources_are_closed(self):
+        order = []
+        episode = SimpleNamespace(
+            _closed=False,
+            pipeline=SimpleNamespace(close=lambda: order.append("pipeline")),
+            source=SimpleNamespace(close=lambda: order.append("source")),
+            launcher=SimpleNamespace(close=lambda: order.append("launcher")),
+            _heartbeat_lease_budget_line=lambda: order.append("build") or "LINE",
+            _emit_heartbeat_lease_budget=lambda line: order.append(f"emit:{line}"),
+        )
+        ReferenceGame2048Episode.close(episode)  # type: ignore[arg-type]
+        self.assertEqual(
+            order, ["build", "pipeline", "source", "launcher", "emit:LINE"]
+        )
+
+    def test_blocked_stdout_cannot_skip_cleanup_or_raise(self):
+        def broken(*_args, **_kwargs):
+            raise OSError("stdout closed")
+
+        with patch("builtins.print", broken):
+            ReferenceGame2048Episode._emit_heartbeat_lease_budget("LINE")
 
     def test_emits_one_line_only_when_enabled(self):
         summary = {"renewals": 3, "margin_ms_min": 120.5}

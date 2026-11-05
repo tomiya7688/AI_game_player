@@ -658,8 +658,9 @@ class FailSafeRuntime:
                 def observed(event: str, renewed: float | None) -> None:
                     if event == "read":
                         recorder.mark(row, "persisted_read_finished_mono_ns")
-                    elif event == "renewed" and renewed is not None:
+                    elif event == "renewing":
                         recorder.mark(row, "renewal_mono_ns")
+                    elif event == "renewed" and renewed is not None:
                         recorder.renewal(row, renewed, self._lease_expires_at)
                         recorder.mark(row, "lease_write_started_mono_ns")
                     stage.append(event)
@@ -749,7 +750,6 @@ class FailSafeRuntime:
     # }
     def check_command(self, command: FailSafeCommand) -> FailSafeDecision:
         with self._lock:
-            now = self.clock()
             if self._state != FailSafeState.ACTIVE:
                 return self._block(
                     "runtime_not_active", f"fail-safe runtime is {self._state.value}"
@@ -758,6 +758,8 @@ class FailSafeRuntime:
                 return self._block(
                     "runtime_not_active", f"fail-safe runtime is {self._state.value}"
                 )
+            # 永続読取のI/Oが長引いても期限判定が古い時刻にならないよう、読取の後で時刻を取る（Issue #794）。
+            now = self.clock()
             if now > self._lease_expires_at:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "lease_expired")
                 return self._block("lease_expired", "control lease expired")
@@ -807,9 +809,11 @@ class FailSafeRuntime:
                     "queue_full", "fail-safe command queue depth exceeded"
                 )
 
+            # 受理の延長も失効確認つき。判定後に期限を過ぎていたら延長せず拒否する。
+            if not self._extend_lease_locked(self.clock()):
+                return self._block("lease_expired", "control lease expired")
             self._last_sequence = command.sequence
             self._inflight += 1
-            self._renew_lease_locked()
             if not self._write_lease_or_fail("command_accept_storage_failure"):
                 self._inflight = max(0, self._inflight - 1)
                 if self._reason != "command_accept_storage_failure":
@@ -860,14 +864,20 @@ class FailSafeRuntime:
     # }
     def close(self) -> None:
         with self._lock:
-            self._transition(
-                FailSafeState.SAFE_IDLE,
-                "runtime closed",
-                details={
-                    "previous_state": self._state.value,
-                    "previous_reason": self._reason,
-                },
+            # 2回目以降のcloseで、最初のcloseが残したprevious_*（失効理由など）を上書きしない。
+            already_closed = (
+                self._state == FailSafeState.SAFE_IDLE
+                and self._reason == "runtime closed"
             )
+            if not already_closed:
+                self._transition(
+                    FailSafeState.SAFE_IDLE,
+                    "runtime closed",
+                    details={
+                        "previous_state": self._state.value,
+                        "previous_reason": self._reason,
+                    },
+                )
         if self._watchdog is not None:
             self._watchdog.stop()
 
@@ -934,8 +944,8 @@ class FailSafeRuntime:
             return exists
         if str(persisted.get("epoch", "")) != self._epoch:
             return False
-        state = str(persisted.get("state", ""))
-        return bool(state) and state != FailSafeState.ACTIVE.value
+        # 同一epochで`state`が空・欠落した不完全なleaseも停止として扱う（fail-closed）。
+        return str(persisted.get("state", "")) != FailSafeState.ACTIVE.value
 
     def _honor_persisted_stop_locked(self) -> bool:
         persisted = self.lease_store.read()
@@ -968,7 +978,7 @@ class FailSafeRuntime:
         if str(persisted.get("epoch", "")) != self._epoch:
             return True
         persisted_state = str(persisted.get("state", ""))
-        if not persisted_state or persisted_state == FailSafeState.ACTIVE.value:
+        if persisted_state == FailSafeState.ACTIVE.value:
             return True
         try:
             adopted = FailSafeState(persisted_state)
@@ -1063,8 +1073,12 @@ class FailSafeRuntime:
         expired: list[float] = []
 
         def notify(event: str, renewed: float | None = None) -> None:
+            # 診断callbackの失敗でlease処理の結果を変えない。
             if observer is not None:
-                observer(event, renewed)
+                try:
+                    observer(event, renewed)
+                except Exception:
+                    pass
 
         def reject(persisted: dict[str, object], exists: bool) -> bool:
             notify("read")
@@ -1075,6 +1089,8 @@ class FailSafeRuntime:
 
         def payload() -> dict[str, object] | None:
             if extend_at_commit:
+                # 診断のmonotonic起点は時刻採取より前に置き、採取前後の停止も余裕の下限に含める。
+                notify("renewing")
                 now = self.clock()
                 if now > self._lease_expires_at:
                     # cross-process lock保持中は遷移の保存をせず、lock解放後に行う。
@@ -1149,7 +1165,17 @@ def run_external_watchdog(
     started = time.time()
 
     while True:
-        lease = lease_store.read()
+        try:
+            lease = lease_store.read()
+        except TimeoutError:
+            # 書込側が長くlockを保持した場合に監視を終了しない。解放後の次回読取で期限を判定する。
+            if (
+                max_runtime_seconds is not None
+                and time.time() - started >= max_runtime_seconds
+            ):
+                return 0
+            time.sleep(0.05)
+            continue
         if not lease:
             if lease_store.path.exists():
                 _release_ledger(ledger, release_all=True, now=time.time())
