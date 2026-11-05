@@ -1511,6 +1511,10 @@ classDiagram
     }
     class PlanningPolicyDecision {
     }
+    RuntimeError <|-- PlannerNotReady
+    class PlannerNotReady {
+        +__init__()
+    }
     class PlanningObservationBudget {
         +__post_init__()
     }
