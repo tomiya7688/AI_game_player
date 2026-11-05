@@ -39,6 +39,7 @@ Parent: #178
   - 処理量2倍（engineの作業単位を1→2にし全stepが200ms）は不合格・終了コード1。
   - 全roundで10stepに1回だけ予算の2倍かかる尾部退行はp95で検出し不合格。
   - 5 round中3 roundが遅い（持続的な遅さ）は不合格。
+  - 境界: 5 round中2 roundまでの遅さは一時揺らぎとして合格（コードレビュー指摘で明文化）。
 - 入力検証: `--rounds` が0・1・2・4なら `ValueError`、CLIでは終了コード2。
 - 安全不変条件: 軽量engineが危険候補を返すとRuntimeErrorになり、reportを書かない。
 - 既存 `tests/test_noisy_provider.py` は変更なしで合格。
@@ -63,6 +64,7 @@ Parent: #178
 - CIでの自動再実行: 失敗原因を隠し、所要時間も読みにくくなるため不採用。
 
 ## 範囲外・残件
-- 既定5 roundで測定時間は約5倍（ローカルWindowsで約17秒→約85秒、CIはより短い見込み）。所要時間が問題になればstep数の調整を別Issueで扱う。
+- 付随修正: 実装中の `finish_task.bat` で、高負荷時に `tests/test_runtime_boundary_benchmark.py` のspawn IPC往復テストが既定5秒の応答期限（初回はinterpreter起動を含む）で `TimeoutError` になった（単独実行は成功）。#808と同種のテスト実時計予算の不安定として、テストだけ期限を60秒にする。製品の既定期限・期限切れ検証テストは変更しない。
+- 既定5 roundで測定時間は約5倍（ローカルWindowsで約17秒→実測約96秒、CIはより短い見込み）。所要時間が問題になればstep数の調整を別Issueで扱う。
 - runner全体が測定期間中ずっと遅い場合は原理的に退行と区別できないため、従来どおり失敗する（再実行で判断）。
 - `tools/performance_check.py` 側の判定方法は今回変更しない。
