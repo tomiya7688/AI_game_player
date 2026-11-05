@@ -51,6 +51,12 @@ OllamaのDecision requestには `DecisionContext` だけを渡し、raw `ScreenO
 
 既存の `RuleProvider` 派生で旧 `choose()` だけをoverrideしている拡張は従来経路を維持します。
 
+## OllamaProviderが送るdata class（Issue #806）
+
+`OllamaProvider`が設定endpointへ送るJSONのfieldは、Privacy Data Inventoryのdata classへ全て対応付けています。`choose_context()`は、画面要約・候補ID/ラベル（ui_metadata）、OCR抜粋（ocr_text）、目標・参照ID・候補の参考知識（decision_context）、候補の評価と直前の結果評価（model_output）、直近の実行履歴（history）です。`assess_outcome()`と旧`choose()`はOCR全文（ocr_text）と特徴量・候補（ui_metadata）などです。`model`・`stream`・`format`・固定の指示文は利用者dataではありません。
+
+Provider wire schema v1の`privacy.data_classes`列挙に`ui_metadata`と`model_output`を追加しました（互換拡張）。新しい送信fieldを足すとfield→class対応のtestが失敗するため、同じ変更でclassを決めてください。いずれのclassも既定で送信されることはなく（`remote: opt_in`）、既定endpointはloopbackです。同意に基づく送信の許可・拒否は #226 で実装します。
+
 ## 短期履歴とTrace
 
 `DecisionTraceStore` は以下を同一snapshotへ紐付けて保存します。

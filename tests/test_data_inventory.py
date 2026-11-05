@@ -300,7 +300,7 @@ class DataInventoryRegistryTest(unittest.TestCase):
                 ).is_file()
                 self.assertTrue(exists, f"{policy.data_class}: {module}")
 
-    def test_provider_wire_data_classes_are_remote_eligible(self) -> None:
+    def test_wire_enums_equal_remote_eligible_classes(self) -> None:
         remote = self.inventory.remote_eligible_classes()
         for name, pointer in (
             ("inference_request.schema.json", ("privacy", "data_classes")),
@@ -308,7 +308,7 @@ class DataInventoryRegistryTest(unittest.TestCase):
         ):
             schema = json.loads((PROVIDER_SCHEMAS / name).read_text(encoding="utf-8"))
             node = schema["properties"][pointer[0]]["properties"][pointer[1]]
-            self.assertLessEqual(set(node["items"]["enum"]), remote, name)
+            self.assertEqual(set(node["items"]["enum"]), remote, name)
 
 
 class DataInventoryCoverageTest(unittest.TestCase):
