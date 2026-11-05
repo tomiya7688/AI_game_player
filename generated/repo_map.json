@@ -108705,6 +108705,10 @@
           "names": [
             {
               "alias": null,
+              "name": "FailSafeConfig"
+            },
+            {
+              "alias": null,
               "name": "FailSafeRuntime"
             },
             {
@@ -108716,7 +108720,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.frame_analyzer"
@@ -108732,7 +108736,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.game_2048_adapter"
@@ -108748,7 +108752,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.pipeline"
@@ -108764,7 +108768,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.run_control"
@@ -108784,7 +108788,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.safety_guard"
@@ -108812,7 +108816,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 25,
           "local_dependencies": [],
           "module": "test_game_2048_adapter",
           "names": [
@@ -108829,7 +108833,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 22,
+          "line": 26,
           "local_dependencies": [
             "tools",
             "tools.run_2048_campaign"
@@ -108850,7 +108854,7 @@
       "module": "tests.test_comparison_preflight",
       "path": "tests/test_comparison_preflight.py",
       "source_location": {
-        "end_line": 627,
+        "end_line": 636,
         "start_line": 1
       },
       "symbols": [
@@ -108872,8 +108876,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 627,
-            "start_line": 28
+            "end_line": 636,
+            "start_line": 32
           }
         },
         {
@@ -108895,8 +108899,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 29
+            "end_line": 122,
+            "start_line": 33
           }
         },
         {
@@ -108924,8 +108928,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 119,
-            "start_line": 115
+            "end_line": 128,
+            "start_line": 124
           }
         },
         {
@@ -108947,8 +108951,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 121
+            "end_line": 133,
+            "start_line": 130
           }
         },
         {
@@ -108970,8 +108974,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 129,
-            "start_line": 126
+            "end_line": 138,
+            "start_line": 135
           }
         },
         {
@@ -108993,8 +108997,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 134,
-            "start_line": 131
+            "end_line": 143,
+            "start_line": 140
           }
         },
         {
@@ -109016,8 +109020,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 151,
-            "start_line": 136
+            "end_line": 160,
+            "start_line": 145
           }
         },
         {
@@ -109039,8 +109043,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 153
+            "end_line": 172,
+            "start_line": 162
           }
         },
         {
@@ -109062,8 +109066,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 176,
-            "start_line": 165
+            "end_line": 185,
+            "start_line": 174
           }
         },
         {
@@ -109085,8 +109089,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 187,
-            "start_line": 178
+            "end_line": 196,
+            "start_line": 187
           }
         },
         {
@@ -109108,8 +109112,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 205,
-            "start_line": 189
+            "end_line": 214,
+            "start_line": 198
           }
         },
         {
@@ -109131,8 +109135,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 217,
-            "start_line": 207
+            "end_line": 226,
+            "start_line": 216
           }
         },
         {
@@ -109154,8 +109158,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 239,
-            "start_line": 219
+            "end_line": 248,
+            "start_line": 228
           }
         },
         {
@@ -109177,8 +109181,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 227,
-            "start_line": 222
+            "end_line": 236,
+            "start_line": 231
           }
         },
         {
@@ -109200,8 +109204,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 255,
-            "start_line": 241
+            "end_line": 264,
+            "start_line": 250
           }
         },
         {
@@ -109223,8 +109227,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 247,
-            "start_line": 244
+            "end_line": 256,
+            "start_line": 253
           }
         },
         {
@@ -109246,8 +109250,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 270,
-            "start_line": 257
+            "end_line": 279,
+            "start_line": 266
           }
         },
         {
@@ -109262,8 +109266,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 264,
-            "start_line": 258
+            "end_line": 273,
+            "start_line": 267
           }
         },
         {
@@ -109285,8 +109289,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 290,
-            "start_line": 272
+            "end_line": 299,
+            "start_line": 281
           }
         },
         {
@@ -109308,8 +109312,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 278,
-            "start_line": 275
+            "end_line": 287,
+            "start_line": 284
           }
         },
         {
@@ -109331,8 +109335,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 313,
-            "start_line": 292
+            "end_line": 322,
+            "start_line": 301
           }
         },
         {
@@ -109354,8 +109358,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 299,
-            "start_line": 296
+            "end_line": 308,
+            "start_line": 305
           }
         },
         {
@@ -109377,8 +109381,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 326,
-            "start_line": 315
+            "end_line": 335,
+            "start_line": 324
           }
         },
         {
@@ -109400,8 +109404,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 335,
-            "start_line": 328
+            "end_line": 344,
+            "start_line": 337
           }
         },
         {
@@ -109423,8 +109427,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 352,
-            "start_line": 337
+            "end_line": 361,
+            "start_line": 346
           }
         },
         {
@@ -109446,8 +109450,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 344,
-            "start_line": 341
+            "end_line": 353,
+            "start_line": 350
           }
         },
         {
@@ -109469,8 +109473,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 370,
-            "start_line": 354
+            "end_line": 379,
+            "start_line": 363
           }
         },
         {
@@ -109492,8 +109496,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 361,
-            "start_line": 358
+            "end_line": 370,
+            "start_line": 367
           }
         },
         {
@@ -109515,8 +109519,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 379,
-            "start_line": 372
+            "end_line": 388,
+            "start_line": 381
           }
         },
         {
@@ -109538,8 +109542,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 387,
-            "start_line": 381
+            "end_line": 396,
+            "start_line": 390
           }
         },
         {
@@ -109561,8 +109565,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 398,
-            "start_line": 389
+            "end_line": 407,
+            "start_line": 398
           }
         },
         {
@@ -109584,8 +109588,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 407,
-            "start_line": 400
+            "end_line": 416,
+            "start_line": 409
           }
         },
         {
@@ -109607,8 +109611,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 432,
-            "start_line": 409
+            "end_line": 441,
+            "start_line": 418
           }
         },
         {
@@ -109630,8 +109634,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 415,
-            "start_line": 413
+            "end_line": 424,
+            "start_line": 422
           }
         },
         {
@@ -109653,8 +109657,8 @@
           "signature": "(_reason)",
           "source_location": {
             "column": 8,
-            "end_line": 419,
-            "start_line": 417
+            "end_line": 428,
+            "start_line": 426
           }
         },
         {
@@ -109676,8 +109680,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 446,
-            "start_line": 434
+            "end_line": 455,
+            "start_line": 443
           }
         },
         {
@@ -109699,8 +109703,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 477,
-            "start_line": 448
+            "end_line": 486,
+            "start_line": 457
           }
         },
         {
@@ -109722,8 +109726,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 465,
-            "start_line": 460
+            "end_line": 474,
+            "start_line": 469
           }
         },
         {
@@ -109745,8 +109749,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 508,
-            "start_line": 479
+            "end_line": 517,
+            "start_line": 488
           }
         },
         {
@@ -109768,8 +109772,8 @@
           "signature": "(_handle)",
           "source_location": {
             "column": 12,
-            "end_line": 493,
-            "start_line": 491
+            "end_line": 502,
+            "start_line": 500
           }
         },
         {
@@ -109791,8 +109795,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 498,
-            "start_line": 495
+            "end_line": 507,
+            "start_line": 504
           }
         },
         {
@@ -109814,8 +109818,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 563,
-            "start_line": 510
+            "end_line": 572,
+            "start_line": 519
           }
         },
         {
@@ -109837,8 +109841,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 24,
-            "end_line": 536,
-            "start_line": 534
+            "end_line": 545,
+            "start_line": 543
           }
         },
         {
@@ -109866,8 +109870,8 @@
           "signature": "(token, commit)",
           "source_location": {
             "column": 24,
-            "end_line": 541,
-            "start_line": 538
+            "end_line": 550,
+            "start_line": 547
           }
         },
         {
@@ -109889,8 +109893,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 595,
-            "start_line": 565
+            "end_line": 604,
+            "start_line": 574
           }
         },
         {
@@ -109918,8 +109922,8 @@
           "signature": "(token, commit)",
           "source_location": {
             "column": 12,
-            "end_line": 582,
-            "start_line": 579
+            "end_line": 591,
+            "start_line": 588
           }
         },
         {
@@ -109941,8 +109945,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 627,
-            "start_line": 597
+            "end_line": 636,
+            "start_line": 606
           }
         },
         {
@@ -109970,8 +109974,8 @@
           "signature": "(token, commit)",
           "source_location": {
             "column": 20,
-            "end_line": 612,
-            "start_line": 609
+            "end_line": 621,
+            "start_line": 618
           }
         }
       ]
