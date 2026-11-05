@@ -56,6 +56,11 @@ replacement decision.
 - remote data transmission: explicit Provider opt-in and data-class disclosure
 - credentials: never in Decision Context, Trace, Replay, or normal logs
 
+The machine-readable form of these defaults is the data inventory
+(`src/ai_game_player/assets/privacy/data_inventory.json`, Issue #224; see
+`doc/architecture/privacy_data_inventory.md`). Runtime enforcement of retention
+and remote consent is tracked by #225 and #226.
+
 ## Target routine CI
 
 The NoisyLanguageProvider synthetic gate is implemented in `performance-ci`.
