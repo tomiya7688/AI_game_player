@@ -26,7 +26,10 @@ Parent: #729
 3. 待ち方: 各probeは `budget.wall_time_ms`（comparisonでは400ms）を上限にplannerが打切るので、`deadline - now < wall_time` になったら新規probeを始めず `PlannerNotReady`。probe間は `retry_interval_s` だけ待ち、負荷（ブラウザの描画・Defender走査・他job）が引くのを待つ。**budget・cutoff・判定値は変更しない。**
 4. 位置: episode生成（ブラウザ起動）直後に実行する。`ready_deadline`（初回観測〜activation）はゲート**後**に開始するため、ゲートの待ち時間が観測のTTLや既存45秒期限を消費しない。
 5. 失敗時: `failure_stage = planner_readiness`、`failure.type = PlannerNotReady`、`planner_readiness` に各probeの理由と所要msを残す。入力は1件も送られず、成功扱いにしない（fail-closed）。保存frameは未取得なので、failure headerの `invalid_frame` は従来どおり「保存frame無し」を示す診断で、判定には影響しない。
-6. 非planner provider（baseline/cycling）は対象外（`planner_readiness` は `{"status": "not_applicable"}`）。
+6. probeの意味と限界（設計レビュー指摘への回答）: 各probeは `plan()` を1回呼び、**毎回新しいworker process**（親が作る一時directory・nonce）を起動する。失敗probeのworkerは `plan()` の既存cleanup（terminate→kill→回収）で破棄され、`_poisoned`（回収不能）になれば以後のprobeは `planner_unavailable_or_busy` で失敗し続け期限切れ＝fail-closedになる。失敗workerの結果を後続probeが引き継ぐ経路は無い。probeに渡す `budget` は本番Providerの `search_budget` と**同一オブジェクト**（wall time/cutoff/深さ/node/memory）で、成功条件も「cutoff前に資源制限acknowledge済みworkerの深さ1以上checkpointを受領」＝本番のdecisionが必要とする最小の往復そのものである。ゲートは本番plannerのworkerを温めない（本番の各decisionも毎回新規workerなので温存できるworkerは無い）。保証するのは「ゲート直前の連続 `required_consecutive` 回、同じ予算で往復が成立した」ことで、ゲート通過後に負荷が再発した場合の自動回復は保証しない（範囲外の残件）。
+7. ループ順序（境界値の一意化）: `while`: ①`deadline - monotonic() < wall_time` なら `PlannerNotReady`（新規probeを始めない）→ ②probe実行 → ③連続回数更新・記録 → ④連続回数が必要数に達したら `ready` を返す → ⑤`retry_interval_s` だけsleep → ①へ。sleep後に必ず①で残り時間を再確認するので、probeが期限を超える開始は無い。
+8. 出力例と `invalid_frame`: readiness失敗の `planner_readiness` は `{"status":"not_ready","probe_count":N,"consecutive":0,"probes":[{"index":0,"ready":false,"reason":"compute_budget","completed_depth":0,"elapsed_ms":...}, ...]}`。`invalid_frame` は `OwnedGameFailureHeader` が保存frame無しのときに出す既存の診断reason（`planning_failure_header`）で、集計・判定には使われず今回も変更しない。readiness失敗では `failure_stage`/`failure.type`/`actions == 0` が判定根拠になる。
+9. 非planner provider（baseline/cycling）は対象外（`planner_readiness` は `{"status": "not_applicable"}`）。
 
 ## 現状調査
 - 根因（run 41945317245 attempt 1, seed 481, planner）: 12回のdecisionのうち11回が `compute_budget`（`completed_depth` 0、worker `ready.json` は受領済みで `checkpoint.json` 無し、`finished_exists` false）。成功run（同seed）は `ready` 約150ms・初回checkpoint 約175ms・以降も約400msで安定。失敗runは `ready` 160-280ms、親のpoll自体も `last_observed` が400msのcutoffを超えて411-850msに遅延し、runner全体のCPU飢餓（WGC timeoutのGDI fallbackも発生）で、Python起動→資源制限→import→探索→checkpointがcutoff内に収まらなかった。`invalid_frame` はこの失敗の原因でなく、診断headerに保存frameが無いという副次症状。
@@ -44,7 +47,7 @@ Parent: #729
 - 受入条件1（準備前を待つ）: 初めの数probeが `compute_budget` で、その後に深さ1が連続2回成功すると `ready` を返す（疑似planner＋疑似時計）。失敗probeの後は連続カウントが0に戻る。
 - 受入条件2（予算を緩めない）: ゲートへ渡した `budget` がそのまま各 `plan()` に渡る（同一オブジェクト）。`wall_time_ms` を変更しない。
 - 受入条件3（fail-closed）: 常に失敗するplannerでは期限で `PlannerNotReady`（probe数・last_reason付き）。期限が残り `wall_time` 未満なら新規probeを始めない。引数範囲外は `ValueError`。
-- 実worker: 実 `BoundedExpectimaxPlanner` ＋ 2048登録で合成beliefが実際にreadyになる（`warm_worker_launch` 無しの製品起動経路。負荷下でも通るよう期限は十分長く取る）。合成beliefは `state_available` 盤面を含み実画面型を使わない。
+- 実worker: 実 `BoundedExpectimaxPlanner` ＋ 2048登録で合成beliefが実際にreadyになる配線確認。#729と同じ `warm_worker_launch` でinterpreter起動だけを予算外に出し（ゲートが待つ対象の負荷にテスト自身が依存しないため）、予算は2000ms。合成beliefは固定盤面で実画面型を使わない。
 - comparison: plannerのepisodeは `planner_readiness` を先に呼び、`PlannerNotReady` では `failure_stage == "planner_readiness"` かつ `actions == 0`、`ReferenceGame2048Episode` の `activate_preflight` / `observe` が呼ばれない。非planner providerではゲートを呼ばない。ゲートの待ちは `ready_deadline` を消費しない（既存の期限テストが維持される）。
 - CI受入: 同一HEADで `Windows planning comparison (seed 479/480/481)` が成功することをPRのCIで示す。
 
