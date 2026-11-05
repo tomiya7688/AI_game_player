@@ -137,9 +137,9 @@
       "default_retention_ms": 2592000000,
       "remote": "never",
       "contains": [],
-      "owner_modules": ["ai_game_player.knowledge_promotion"],
+      "owner_modules": ["ai_game_player.challenger_update", "ai_game_player.knowledge_promotion"],
       "implemented": true,
-      "description": "昇格前の更新候補（model delta等）と、その評価・検証report。"
+      "description": "昇格前の更新候補（model delta・部品parameterのChallenger等）と、その評価・検証report。"
     },
     {
       "id": "knowledge",
@@ -249,6 +249,7 @@
     "knowledge.snapshot": "knowledge",
     "knowledge.evaluation": "challenger_artifact",
     "knowledge.light_validation": "challenger_artifact",
+    "learning.challenger": "challenger_artifact",
     "model.delta": "challenger_artifact",
     "model.adapter": "challenger_artifact",
     "ocr.model_delta": "challenger_artifact"

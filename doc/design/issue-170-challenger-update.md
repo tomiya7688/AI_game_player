@@ -27,6 +27,7 @@ Parent: #36（兄弟: #171 Promotion / Rollback Gate、#173 Candidate Evaluation
 | `src/ai_game_player/challenger_update_models.py` | `ComponentParameters`、`ResourceCost`、`UpdateProposal`、`ObservationRequest`、`UpdateProposalSet`、`ChallengerArtifact`（不変・`to_dict`/`from_dict`・digest） |
 | `src/ai_game_player/challenger_update.py` | `propose_updates()`、`build_challenger()`、`save_challenger()`、`load_challenger()` |
 | `tests/test_challenger_update.py` | 下記「テスト」の全項目 |
+| `src/ai_game_player/assets/privacy/data_inventory.json`（変更） | artifact_type `learning.challenger`を既存class `challenger_artifact`へ分類し、owner moduleに`challenger_update`を追加（#224の網羅testの要件） |
 | 文書 | `doc/Challenger更新機能説明書.md`（新規）、`doc/学習診断機能説明書.md`・`doc/guide/records_learning.md`・`doc/versions.md`へ追記、`doc/class_diagram.mmd`更新、`generated/repo_map.json`再生成 |
 
 ## 入出力
@@ -82,7 +83,8 @@ propose_updates(report: TrainingDiagnosisReport,
 build_challenger(proposal: UpdateProposal, champion: ComponentParameters,
                  policy: ChallengerUpdatePolicy | None = None, *, created_at: str) -> ChallengerArtifact
 save_challenger(store: FileSystemArtifactStore, artifact: ChallengerArtifact) -> ArtifactReference
-load_challenger(store: FileSystemArtifactStore, reference: ArtifactReference) -> ChallengerArtifact
+load_challenger(store: FileSystemArtifactStore, reference: ArtifactReference,
+                policy: ChallengerUpdatePolicy | None = None) -> ChallengerArtifact  # policy指定時は手順5の提案検査も行う
 ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返す
 ```
 
@@ -96,7 +98,7 @@ ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返
 | `enabled_strategies` | 3つ全部 | STRATEGIESの部分集合 |
 | `intensity` | 0.5 | 0..1。#426の`normalized_intensity`を受ける口。上限（step）だけに作用する |
 | `min_step` / `max_step` | calibration 0.02/0.2、threshold 0.02/0.15 | 0<min≤max≤`hard_max_step`(0.25) |
-| `max_prototypes_per_proposal` / `max_prototypes` | 16 / 256 | 1..256 |
+| `max_prototypes_per_proposal` / `max_prototypes` | 16 / 256 | 1..16（1提案の参照上限） / 1..256 |
 | `max_proposals_per_target` | 2 | 1..3 |
 | `max_proposals` | 64 | 1..1024 |
 | `minimum_strict_support` | 2 | 2..65536（2未満へ下げられない） |
@@ -122,7 +124,7 @@ ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返
    - calibration: `scale * (1 ∓ magnitude)`、threshold: `threshold + magnitude`。範囲外になる場合はclampせず`parameter_out_of_bounds`（暗黙の飽和で効果の無いChallengerを作らない）。
    - prototype: 既存に無いrefだけ追加。追加0件は`invalid_proposal`、合計が`max_prototypes`超過は`prototype_capacity`。
    - championは不変dataclassで、新しい値を`dataclasses.replace`で作る。championを書き換える経路は無い（分離）。
-6. **保存と読込**: `save_challenger`は`to_dict`の正規化JSONを`FileSystemArtifactStore.put(media_type="application/json", artifact_type="learning.challenger", sensitive=False)`で保存。`load_challenger`は`read`（hash検証込み）→上限256KiBのJSON（重複key・NaN拒否）→`from_dict`で全field再検証（`to_dict()`の再生成結果が入力と完全一致すること。これで`artifact_id`・`resource_cost`・`evaluation_contract`・`proposal_id`の整合も確かめる）→`parent.sha256 == proposal.champion_sha256`、challengerが提案どおりの計算結果と一致（再計算して照合）を確認。どれか不一致は`invalid_artifact`。
+6. **保存と読込**: `save_challenger`は`to_dict`の正規化JSONを`FileSystemArtifactStore.put(media_type="application/json", artifact_type="learning.challenger", sensitive=False)`で保存。`load_challenger`は`read`（hash検証込み）→上限256KiBのJSON（重複key・NaN拒否）→`from_dict`で全field再検証（`to_dict()`の再生成結果が入力と完全一致すること。これで`artifact_id`・`resource_cost`・`evaluation_contract`・`proposal_id`の整合も確かめる）→`parent.sha256 == proposal.champion_sha256`、challengerが版（`<parent版>+c.<proposal_id先頭12桁>`）を含めて提案どおりの計算結果と完全一致（再計算して照合）を確認。`policy`を渡した場合は手順5の提案検査も行う（policyを変えた後でも過去のartifactを読めるよう、既定では整合性だけを検査する）。数え直しでは同じ参照の重複も`strict_evidence_unavailable`とする。どれか不一致は`invalid_artifact`。
 7. **pointerを持たない**: 本Issueは「どれがChampionか」を記録しない。採否・pointer・監査は#171が`ChallengerArtifact`を入力として持つ。rollbackは`rollback_parameters()`がparent値を返すだけで、適用は#171。
 8. **副作用**: `propose_updates`/`build_challenger`はファイル・DB・Championへ書き込まない。永続化は`save_challenger`だけで、内容hashの不変objectの追加のみ。
 
@@ -138,7 +140,7 @@ ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返
 | #647: verified以外を確定扱いしない | `test_hypothesis_target_becomes_observation_request`、`test_uncertain_refs_are_not_used_as_prototypes`、`test_truncated_findings_fail_closed`、`test_strict_receipt_is_not_a_verified_label`、`test_prototype_only_for_negative_kinds` |
 | resource cost | `test_resource_cost_is_deterministic` |
 | fail-closed/上限 | `test_ambiguous_failure_kind_is_skipped`、`test_out_of_bounds_parameter_is_rejected`、`test_prototype_capacity`、`test_policy_validation`、`test_proposal_limit_truncates`、`test_external_proposal_is_revalidated`、`test_duplicate_targets_are_rejected`、`test_invalid_created_at` |
-| 再現性 | `test_same_input_same_output`（報告のtargets・findingsとchampionsの順序を入れ替えても同じ`proposal_set_id`、`created_at`が違っても同じ`artifact_id`） |
+| 再現性 | `test_same_input_same_output`（championsの順序・caseの入力順を入れ替えても同じ`proposal_set_id`。報告のtargets・findingsを並べ替えると`diagnosis_id`が変わるため、識別子以外の提案内容と順序が同じことを確かめる）、`created_at`が違っても同じ`artifact_id`（`test_artifact_records_version_and_provenance`） |
 
 テストはネットワーク不要・決定論的。Experienceは#169のテストと同じ形で`diagnose_episodes`から作る。
 
