@@ -72,7 +72,7 @@ Parent: #18
 ### 責務境界
 
 - coordinatorは「容量判定・put・register・補償・pending record」を担当する。容量計算・索引更新・object削除の実処理はCollector（既存）に委ね、Store写しを持たない。
-- すべての書込み経路（admit/register/set_protected/collect/recover）は同じroot lockを取る。読取専用の`plan`/`can_admit`/`needs_collection`はlockを取らない（助言用で、admit内で再計測する）。
+- すべての書込み経路（admit/register/set_protected/collect/recover）は同じroot lockを取る。読取専用の`plan`/`can_admit`/`needs_collection`はlockを取らない（助言用で、admit内で再計測する）。admit用の`measure()`は索引とmetadataを一貫して観測するためroot lock内で実行する（再入可）。lockの`timeout_seconds`は有限の正の数に限る（inf/nanは`ValueError`）。
 
 ### Transaction（admit）
 

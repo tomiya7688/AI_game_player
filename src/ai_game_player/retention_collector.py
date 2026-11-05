@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import functools
 import os
 import re
 import shutil
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, TypeVar
 
 from ai_game_player.artifact_store import (
     ArtifactIntegrityError,
@@ -27,11 +29,15 @@ from ai_game_player.retention_index import (
 )
 from ai_game_player.retention_planner import RetentionPlan, plan_retention
 from ai_game_player.retention_policy import RetentionPolicy
+from ai_game_player.retention_root_lock import (
+    DEFAULT_LOCK_TIMEOUT_SECONDS,
+    is_junction as _is_junction,
+    retention_root_lock,
+)
 
 RETENTION_INDEX_FILENAME = "retention-index.json"
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
-# Windowsのreparse point属性（junction/symlink）。stat定数はWindows版Pythonにしかないため値を固定する。
-_FILE_ATTRIBUTE_REPARSE_POINT = 0x400
+_Result = TypeVar("_Result")
 
 
 # {
@@ -151,12 +157,29 @@ def current_time_ms() -> int:
 
 
 # {
+#   責務: [_serialized: Collectorの書込み系メソッドを同じroot lock内で実行する装飾]
+#   処理: [coordination_lockを取得してから元のメソッドを呼ぶ。同一threadの再入は許可される]
+#   引数: [method: 索引またはStoreを変更するCollectorのメソッド]
+#   戻り値: [Callable: lock付きで元のメソッドを呼ぶ同じ署名のメソッド]
+# }
+def _serialized(method: Callable[..., _Result]) -> Callable[..., _Result]:
+    @functools.wraps(method)
+    def locked(self: RetentionCollector, *args: Any, **kwargs: Any) -> _Result:
+        with self.coordination_lock():
+            return method(self, *args, **kwargs)
+
+    return locked
+
+
+# {
 #   責務: [RetentionCollector: Artifact Storeの保持記録を登録し、budget/Protected/TTL/exact dedupのGCを適用する]
 #   フィールド: [store: 管理対象のFileSystemArtifactStore, policy: 保持policy,
 #     clock: UNIXエポックmsを返す差替可能な時計, file_system: 索引読書きと削除の差替可能な操作,
 #     index_path: store root直下の索引ファイル]
 #   処理: [register/set_protectedで索引を更新し、collectで計画→索引置換→object削除の順に適用する]
-#   補足: [同じrootへの同時実行は呼出側が直列化する。索引・metadataが不正なら何も変更せず停止する]
+#   補足: [register/set_protected/collectは同じroot lock内で直列化される（Issue #789）。
+#     Store.putを直接呼ぶ書込みは対象外で、admissionを使わない呼出しとの競合は防げない。
+#     索引・metadataが不正なら何も変更せず停止する]
 # }
 class RetentionCollector:
     # {
@@ -172,10 +195,12 @@ class RetentionCollector:
         *,
         clock: Callable[[], int] = current_time_ms,
         file_system: RetentionFileSystem | None = None,
+        lock_timeout_seconds: float = DEFAULT_LOCK_TIMEOUT_SECONDS,
     ) -> None:
         self.store = store
         self.policy = policy
         self.clock = clock
+        self.lock_timeout_seconds = lock_timeout_seconds
         self.file_system: RetentionFileSystem = (
             file_system if file_system is not None else LocalRetentionFileSystem()
         )
@@ -202,6 +227,52 @@ class RetentionCollector:
         return parse_retention_index(payload, max_entries=self.policy.max_entries)
 
     # {
+    #   責務: [coordination_lock: このStore rootへの書込みを他process・他threadと直列化するlockを取る]
+    #   処理: [root単位のOS advisory lockとprocess内mutexを、lock_timeout_seconds以内で取得する。
+    #     同一threadの再入は許可される]
+    #   引数: [なし]
+    #   戻り値: [Iterator[float]: with本体の間lockを保持。値はlock取得にかかったms]
+    #   エラー: [RetentionLockTimeoutError: 期限内に取得できない, RetentionRootUnsafeError: rootがlink等]
+    # }
+    @contextmanager
+    def coordination_lock(self) -> Iterator[float]:
+        with retention_root_lock(
+            Path(self.store.root), timeout_seconds=self.lock_timeout_seconds
+        ) as waited_ms:
+            yield waited_ms
+
+    # {
+    #   責務: [measure: 索引とStore使用量を、metadata検証付きの1つの観測として返す]
+    #   処理: [root lock内で索引を読み、索引digestと未索引objectのmetadataを検証して使用量を求める
+    #     （collectなどの書込みと競合して不整合な観測にならない）]
+    #   引数: [なし]
+    #   戻り値: [RetentionSnapshot: 同じ時点の索引記録と使用量]
+    #   エラー: [RetentionIndexError: 索引・metadata不正（判定不能のため受け入れ側はfail-closedにする）]
+    # }
+    @_serialized
+    def measure(self) -> RetentionSnapshot:
+        entries = self.load_entries()
+        return RetentionSnapshot(entries, self._measure_usage(entries))
+
+    # {
+    #   責務: [discard_unindexed_object: 索引に登録されていないobjectだけを、安全検査後に削除する]
+    #   処理: [1: root lock内で索引を読み直し、digestが登録済みなら何もしない
+    #     2: root・shard・objectがsymlink/junctionでなくroot直下の正規配置であることを確認して削除する]
+    #   引数: [digest: 削除候補のArtifact SHA-256]
+    #   戻り値: [bool: Trueなら削除した。Falseは索引登録済みまたはobjectが存在しない]
+    #   エラー: [RetentionIndexError: 索引不正, RetentionSafetyError: 削除先がroot外・symlink,
+    #     OSError: 削除失敗]
+    # }
+    def discard_unindexed_object(self, digest: str) -> bool:
+        with self.coordination_lock():
+            if any(entry.artifact_sha256 == digest for entry in self.load_entries()):
+                return False
+            if not os.path.lexists(self.store.object_path(digest)):
+                return False
+            self.file_system.remove_object(self._safe_object_path(digest))
+            return True
+
+    # {
     #   責務: [register: Store内の既存Artifactを参照する保持記録を、容量上限を守って追加する]
     #   処理: [1: 索引とStore metadataを検証し、記録数の上限を確認する
     #     2: put済みArtifactを含むStore使用量がhard limitを超えていないか確認する
@@ -211,6 +282,7 @@ class RetentionCollector:
     #   エラー: [RetentionIndexError: 索引・metadata不正またはID重複,
     #     RetentionCapacityError: hard limitまたは件数上限超過, ArtifactIntegrityError: 参照とStoreが不一致]
     # }
+    @_serialized
     def register(
         self, reference: ArtifactReference, *, entry_id: str, protected: bool = False
     ) -> RetentionEntry:
@@ -300,6 +372,7 @@ class RetentionCollector:
     #   戻り値: [RetentionEntry: 更新後の記録]
     #   エラー: [RetentionIndexError: 索引不正または記録が存在しない]
     # }
+    @_serialized
     def set_protected(self, entry_id: str, protected: bool) -> RetentionEntry:
         if not isinstance(protected, bool):
             raise RetentionIndexError("protected must be a boolean")
@@ -333,6 +406,7 @@ class RetentionCollector:
     #   エラー: [RetentionIndexError: 索引・metadata不正, RetentionSafetyError: 削除先がroot外・symlink,
     #     OSError: 索引保存または削除失敗]
     # }
+    @_serialized
     def collect(
         self, live_references: Iterable[ArtifactReference] = ()
     ) -> RetentionReport:
@@ -351,10 +425,10 @@ class RetentionCollector:
     #   処理: [索引digestのmetadataが存在しsizeが一致することを確認し、
     #     索引にないobjectもmetadata sizeで数える。どれか1つでも不正なら計測を拒否する]
     #   引数: [entries: 検証済みの保持記録]
-    #   戻り値: [_StoreUsage: 合計byte、未索引byte、未索引digest]
+    #   戻り値: [StoreUsage: 合計byte、未索引byte、未索引digest]
     #   エラー: [RetentionIndexError: metadataの欠落・破損・size不一致]
     # }
-    def _measure_usage(self, entries: tuple[RetentionEntry, ...]) -> _StoreUsage:
+    def _measure_usage(self, entries: tuple[RetentionEntry, ...]) -> StoreUsage:
         indexed: dict[str, int] = {}
         references: list[ArtifactReference] = []
         try:
@@ -379,7 +453,7 @@ class RetentionCollector:
                 f"artifact metadata is not usable: {error}"
             ) from error
         unindexed_bytes = sum(unindexed.values())
-        return _StoreUsage(
+        return StoreUsage(
             total_bytes=sum(indexed.values()) + unindexed_bytes,
             unindexed_bytes=unindexed_bytes,
             unindexed_digests=frozenset(unindexed),
@@ -436,15 +510,25 @@ class RetentionCollector:
 
 
 # {
-#   責務: [_StoreUsage: Store使用量の内訳を計測結果として保持する]
+#   責務: [StoreUsage: Store使用量の内訳を計測結果として保持する（admissionも読むため公開）]
 #   フィールド: [total_bytes: 索引分と未索引分の合計byte, unindexed_bytes: 索引にないobjectのbyte,
 #     unindexed_digests: 索引にないobjectのdigest]
 # }
 @dataclass(frozen=True)
-class _StoreUsage:
+class StoreUsage:
     total_bytes: int
     unindexed_bytes: int
     unindexed_digests: frozenset[str]
+
+
+# {
+#   責務: [RetentionSnapshot: 同じ時点で観測した索引記録とStore使用量の組を返す]
+#   フィールド: [entries: entry_id順の検証済み保持記録, usage: そのときのStore使用量]
+# }
+@dataclass(frozen=True)
+class RetentionSnapshot:
+    entries: tuple[RetentionEntry, ...]
+    usage: StoreUsage
 
 
 # {
@@ -461,21 +545,3 @@ def _live_digests(references: Iterable[ArtifactReference]) -> frozenset[str]:
             raise TypeError("live references must be ArtifactReference values")
         digests.add(reference.sha256)
     return frozenset(digests)
-
-
-# {
-#   責務: [_is_junction: Windowsのdirectory junction（symlink判定に出ないreparse point）を検出する]
-#   処理: [Python 3.12以降はos.path.isjunctionを使う。3.10/3.11ではlstatのreparse point属性で判定し、
-#     属性を持たない非Windowsではjunctionなしとする]
-#   引数: [path: 検査するpath]
-#   戻り値: [bool: Trueならjunctionなどのreparse pointで、削除対象にしない]
-# }
-def _is_junction(path: Path) -> bool:
-    checker = getattr(os.path, "isjunction", None)
-    if checker is not None:
-        return bool(checker(path))
-    try:
-        attributes = getattr(os.lstat(path), "st_file_attributes", 0)
-    except OSError:
-        return False
-    return bool(attributes & _FILE_ATTRIBUTE_REPARSE_POINT)
