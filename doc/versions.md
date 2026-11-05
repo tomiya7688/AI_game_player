@@ -4,6 +4,11 @@
 - heartbeatを開始時刻基準の周期にし、永続Stop確認と書込を1回のcross-process lock内の条件付き書込（`AtomicJsonStore.replace_unless`）に統合、更新時刻を書込直前に取得。lock/書込の冗長なsyscallを削減。TTL・watchdog・Stop・fsyncは不変。
 - 安全側の修正: 失効済みleaseをheartbeat/観測/完了処理で延長しない。読取と書込の間にwatchdogが書いたStopを`active`で上書きしない（lost update）。closeが直前の状態・理由をjournalへ残す。
 - heartbeat診断schema 2（`renewal_mono_ns`、`lease_expired`、`summary`）とcampaignの`heartbeat_lease_budget`出力を追加。
+## 2026-11-05 Noisy Provider性能予算の判定をrunner揺らぎに強くする（Issue #811）
+
+- `tools/run_noisy_provider_benchmark.py`を、従来と同じ測定を独立した5 round（`--rounds`、奇数かつ3以上）で繰り返し、roundごとのp95の中央値で予算判定する方式へ変更。予算値・Windows multiplierは変更しません。reportは`noisy-provider-benchmark/v3`でround別p95・最悪round・結合p95を残します。
+- 疑似時計と軽量Engineの回帰テストで、処理量2倍・全roundの尾部退行・過半数roundの遅延は不合格、1 roundだけの停止とPR #732相当の僅差超過は合格になることを確認。安全不変条件の違反は従来どおり終了コード2（fail-closed）です。[判定方法と根拠](E2E受入試験手順.md)、[設計](design/issue-811-perf-budget-robustness.md)。
+- 付随: `tests/test_runtime_boundary_benchmark.py`のspawn IPC往復テストだけ応答期限を60秒にし、高負荷のfull suiteでinterpreter起動待ちによる偽の`TimeoutError`を避けます（製品の既定5秒と期限切れテストは変更なし）。
 
 ## 2026-11-04 Experience Retention Core（Issue #164）
 

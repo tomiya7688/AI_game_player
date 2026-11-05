@@ -148505,6 +148505,846 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.decision_context",
+        "tools",
+        "tools.run_noisy_provider_benchmark"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Iterator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "types",
+          "names": [
+            {
+              "alias": null,
+              "name": "SimpleNamespace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "mock"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.decision_context"
+          ],
+          "module": "ai_game_player.decision_context",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateDecisionContext"
+            },
+            {
+              "alias": null,
+              "name": "DecisionContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "tools",
+            "tools.run_noisy_provider_benchmark"
+          ],
+          "module": "tools",
+          "names": [
+            {
+              "alias": "benchmark",
+              "name": "run_noisy_provider_benchmark"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_noisy_provider_benchmark",
+      "path": "tests/test_noisy_provider_benchmark.py",
+      "source_location": {
+        "end_line": 283,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeClock",
+          "parameters": [],
+          "qualified_name": "FakeClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 33,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeClock.__init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 27,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "perf_counter_ns",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeClock.perf_counter_ns",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 30,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "advance_ms",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "milliseconds"
+            }
+          ],
+          "qualified_name": "FakeClock.advance_ms",
+          "return_annotation": "None",
+          "signature": "(self, milliseconds: float) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 33,
+            "start_line": 32
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WorkloadEngine",
+          "parameters": [],
+          "qualified_name": "WorkloadEngine",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 96,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            },
+            {
+              "annotation": "FakeClock",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "clock"
+            },
+            {
+              "annotation": "Callable[[int], float]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "work_units"
+            }
+          ],
+          "qualified_name": "WorkloadEngine.__init__",
+          "return_annotation": "None",
+          "signature": "(self, provider, clock: FakeClock, work_units: Callable[[int], float]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 51,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "purpose"
+            }
+          ],
+          "qualified_name": "WorkloadEngine.step",
+          "return_annotation": null,
+          "signature": "(self, observation, candidates, purpose = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "NoisyProviderBudgetJudgementTests",
+          "parameters": [],
+          "qualified_name": "NoisyProviderBudgetJudgementTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 279,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_with_cost",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CostModel",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cost"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "rounds"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.run_with_cost",
+          "return_annotation": "tuple[bool, dict]",
+          "signature": "(self, cost: CostModel, *, rounds: int = …) -> tuple[bool, dict]",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "engine_factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.run_with_cost.engine_factory",
+          "return_annotation": "Iterator[WorkloadEngine]",
+          "signature": "(provider) -> Iterator[WorkloadEngine]",
+          "source_location": {
+            "column": 8,
+            "end_line": 129,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "core",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.core",
+          "return_annotation": "dict",
+          "signature": "(self, report: dict) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 151,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_baseline_workload_passes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_baseline_workload_passes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 161,
+            "start_line": 153
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_one_round_hit_by_a_runner_stall_does_not_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_one_round_hit_by_a_runner_stall_does_not_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 173,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hair_over_budget_round_like_pr_732_does_not_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_hair_over_budget_round_like_pr_732_does_not_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 188,
+            "start_line": 175
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "cost",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "round_index"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "step_index"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_hair_over_budget_round_like_pr_732_does_not_fail.cost",
+          "return_annotation": "float",
+          "signature": "(round_index: int, step_index: int) -> float",
+          "source_location": {
+            "column": 8,
+            "end_line": 182,
+            "start_line": 177
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_doubling_the_core_work_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_doubling_the_core_work_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 190
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tail_regression_in_every_round_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_tail_regression_in_every_round_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 208,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_up_to_two_of_five_slow_rounds_are_tolerated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_up_to_two_of_five_slow_rounds_are_tolerated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 217,
+            "start_line": 210
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_slowdown_in_most_rounds_fails",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_slowdown_in_most_rounds_fails",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 225,
+            "start_line": 219
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_round_count_must_be_odd_and_at_least_three",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_round_count_must_be_odd_and_at_least_three",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 241,
+            "start_line": 227
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unsafe_selection_in_any_round_fails_closed_without_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_unsafe_selection_in_any_round_fails_closed_without_report",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 268,
+            "start_line": 243
+          }
+        },
+        {
+          "bases": [
+            "WorkloadEngine"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "UnsafeEngine",
+          "parameters": [],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_unsafe_selection_in_any_round_fails_closed_without_report.UnsafeEngine",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 249,
+            "start_line": 246
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "observation"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "purpose"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_unsafe_selection_in_any_round_fails_closed_without_report.UnsafeEngine.step",
+          "return_annotation": null,
+          "signature": "(self, observation, candidates, purpose = …)",
+          "source_location": {
+            "column": 12,
+            "end_line": 249,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "engine_factory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_unsafe_selection_in_any_round_fails_closed_without_report.engine_factory",
+          "return_annotation": "Iterator[WorkloadEngine]",
+          "signature": "(provider) -> Iterator[WorkloadEngine]",
+          "source_location": {
+            "column": 8,
+            "end_line": 253,
+            "start_line": 252
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_round_count_exits_with_input_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "NoisyProviderBudgetJudgementTests.test_invalid_round_count_exits_with_input_error",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 279,
+            "start_line": 270
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.capture_region",
         "ai_game_player.models",
         "ai_game_player.observation_service",
@@ -179096,7 +179936,7 @@
       "module": "tests.test_runtime_boundary_benchmark",
       "path": "tests/test_runtime_boundary_benchmark.py",
       "source_location": {
-        "end_line": 115,
+        "end_line": 117,
         "start_line": 1
       },
       "symbols": [
@@ -179141,7 +179981,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 115,
+            "end_line": 117,
             "start_line": 34
           }
         },
@@ -179164,7 +180004,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 44,
+            "end_line": 46,
             "start_line": 35
           }
         },
@@ -179187,8 +180027,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 55,
-            "start_line": 46
+            "end_line": 57,
+            "start_line": 48
           }
         },
         {
@@ -179210,8 +180050,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 64,
-            "start_line": 57
+            "end_line": 66,
+            "start_line": 59
           }
         },
         {
@@ -179233,8 +180073,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 66
+            "end_line": 74,
+            "start_line": 68
           }
         },
         {
@@ -179256,8 +180096,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 85,
-            "start_line": 74
+            "end_line": 87,
+            "start_line": 76
           }
         },
         {
@@ -179279,8 +180119,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 91,
-            "start_line": 87
+            "end_line": 93,
+            "start_line": 89
           }
         },
         {
@@ -179302,8 +180142,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 93
+            "end_line": 103,
+            "start_line": 95
           }
         },
         {
@@ -179325,8 +180165,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 103
+            "end_line": 117,
+            "start_line": 105
           }
         }
       ]
@@ -231041,6 +231881,40 @@
           "level": 0,
           "line": 11,
           "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Iterator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "AbstractContextManager"
+            },
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
           "module": "pathlib",
           "names": [
             {
@@ -231052,7 +231926,20 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.decision_context"
@@ -231068,7 +231955,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.engine"
@@ -231084,7 +231971,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.event_journal"
@@ -231100,7 +231987,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -231124,7 +232011,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 20,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.noisy_provider"
@@ -231141,7 +232028,7 @@
       "module": "tools.run_noisy_provider_benchmark",
       "path": "tools/run_noisy_provider_benchmark.py",
       "source_location": {
-        "end_line": 257,
+        "end_line": 376,
         "start_line": 1
       },
       "symbols": [
@@ -231161,8 +232048,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 42,
-            "start_line": 20
+            "end_line": 47,
+            "start_line": 23
           }
         },
         {
@@ -231190,8 +232077,8 @@
           "signature": "(self, provider: NoisyLanguageProvider) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 24,
-            "start_line": 21
+            "end_line": 27,
+            "start_line": 24
           }
         },
         {
@@ -231225,8 +232112,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 31,
-            "start_line": 26
+            "end_line": 36,
+            "start_line": 29
           }
         },
         {
@@ -231260,8 +232147,8 @@
           "signature": "(self, observation: ScreenObservation, previous: ScreenObservation | None = …)",
           "source_location": {
             "column": 4,
-            "end_line": 42,
-            "start_line": 33
+            "end_line": 47,
+            "start_line": 38
           }
         },
         {
@@ -231280,8 +232167,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 54,
-            "start_line": 45
+            "end_line": 61,
+            "start_line": 50
           }
         },
         {
@@ -231315,8 +232202,8 @@
           "signature": "(self, context: DecisionContext, personality: str = …) -> ActionDecision",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 46
+            "end_line": 61,
+            "start_line": 51
           }
         },
         {
@@ -231344,8 +232231,8 @@
           "signature": "(samples_ns: list[int], percentile: float) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 62,
-            "start_line": 57
+            "end_line": 69,
+            "start_line": 64
           }
         },
         {
@@ -231367,8 +232254,8 @@
           "signature": "(samples_ns: list[int]) -> dict[str, float]",
           "source_location": {
             "column": 0,
-            "end_line": 71,
-            "start_line": 65
+            "end_line": 78,
+            "start_line": 72
           }
         },
         {
@@ -231383,8 +232270,8 @@
           "signature": "() -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 83,
-            "start_line": 74
+            "end_line": 97,
+            "start_line": 81
           }
         },
         {
@@ -231395,7 +232282,7 @@
           "name": "measure_engine_steps",
           "parameters": [
             {
-              "annotation": "GamePlayerEngine",
+              "annotation": "Any",
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "engine"
@@ -231427,11 +232314,11 @@
           ],
           "qualified_name": "measure_engine_steps",
           "return_annotation": "tuple[list[int], list[int]]",
-          "signature": "(engine: GamePlayerEngine, provider: TimedNoisyLanguageProvider, candidates: list[ActionCandidate], step_count: int, *, offset: int = …) -> tuple[list[int], list[int]]",
+          "signature": "(engine: Any, provider: TimedNoisyLanguageProvider, candidates: list[ActionCandidate], step_count: int, *, offset: int = …) -> tuple[list[int], list[int]]",
           "source_location": {
             "column": 0,
-            "end_line": 120,
-            "start_line": 86
+            "end_line": 147,
+            "start_line": 100
           }
         },
         {
@@ -231459,8 +232346,103 @@
           "signature": "(output_path: Path, report: dict[str, object]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 125,
-            "start_line": 123
+            "end_line": 154,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "journaled_engine",
+          "parameters": [
+            {
+              "annotation": "TimedNoisyLanguageProvider",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "provider"
+            }
+          ],
+          "qualified_name": "journaled_engine",
+          "return_annotation": "Iterator[GamePlayerEngine]",
+          "signature": "(provider: TimedNoisyLanguageProvider) -> Iterator[GamePlayerEngine]",
+          "source_location": {
+            "column": 0,
+            "end_line": 183,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "judge_round_p95s",
+          "parameters": [
+            {
+              "annotation": "list[float]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "round_p95s_ms"
+            }
+          ],
+          "qualified_name": "judge_round_p95s",
+          "return_annotation": "float",
+          "signature": "(round_p95s_ms: list[float]) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 194,
+            "start_line": 186
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "measure_round",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seed"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "steps"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "warmup_steps"
+            },
+            {
+              "annotation": "list[ActionCandidate]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidates"
+            },
+            {
+              "annotation": "EngineFactory",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "engine_factory"
+            }
+          ],
+          "qualified_name": "measure_round",
+          "return_annotation": "dict[str, list[int]]",
+          "signature": "(seed: int, steps: int, warmup_steps: int, candidates: list[ActionCandidate], engine_factory: EngineFactory) -> dict[str, list[int]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 226,
+            "start_line": 197
           }
         },
         {
@@ -231505,15 +232487,27 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "output_path"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "rounds"
+            },
+            {
+              "annotation": "EngineFactory",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "engine_factory"
             }
           ],
           "qualified_name": "run_benchmark",
           "return_annotation": "bool",
-          "signature": "(steps: int, warmup_steps: int, seed: int, budget_multiplier: float, budgets_path: Path, output_path: Path) -> bool",
+          "signature": "(steps: int, warmup_steps: int, seed: int, budget_multiplier: float, budgets_path: Path, output_path: Path, rounds: int = …, engine_factory: EngineFactory = …) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 229,
-            "start_line": 128
+            "end_line": 338,
+            "start_line": 229
           }
         },
         {
@@ -231528,8 +232522,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 253,
-            "start_line": 232
+            "end_line": 372,
+            "start_line": 341
           }
         }
       ]
