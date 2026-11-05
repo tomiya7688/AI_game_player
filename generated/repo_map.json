@@ -114649,6 +114649,10 @@
             {
               "alias": null,
               "name": "read_completed"
+            },
+            {
+              "alias": null,
+              "name": "wait_for_sample_ready"
             }
           ]
         }
@@ -114656,7 +114660,7 @@
       "module": "tests.test_e2e_runner",
       "path": "tests/test_e2e_runner.py",
       "source_location": {
-        "end_line": 405,
+        "end_line": 460,
         "start_line": 1
       },
       "symbols": [
@@ -115095,6 +115099,287 @@
           },
           "decorators": [],
           "kind": "class",
+          "name": "SampleReadinessTest",
+          "parameters": [],
+          "qualified_name": "SampleReadinessTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 148,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Source",
+          "parameters": [],
+          "qualified_name": "SampleReadinessTest.Source",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 4,
+            "end_line": 107,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "empty_reads"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.Source.__init__",
+          "return_annotation": null,
+          "signature": "(self, empty_reads)",
+          "source_location": {
+            "column": 8,
+            "end_line": 102,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.Source.read",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 8,
+            "end_line": 107,
+            "start_line": 104
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Clock",
+          "parameters": [],
+          "qualified_name": "SampleReadinessTest.Clock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 109
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.Clock.__init__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 8,
+            "end_line": 112,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "monotonic",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.Clock.monotonic",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 8,
+            "end_line": 115,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "sleep",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "seconds"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.Clock.sleep",
+          "return_annotation": null,
+          "signature": "(self, seconds)",
+          "source_location": {
+            "column": 8,
+            "end_line": 119,
+            "start_line": 117
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_waits_through_unrendered_first_frames_then_returns",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.test_waits_through_unrendered_first_frames_then_returns",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 127,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ready_on_first_read_does_not_sleep",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.test_ready_on_first_read_does_not_sleep",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 134,
+            "start_line": 129
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fails_closed_when_nothing_renders_within_budget",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.test_fails_closed_when_nothing_renders_within_budget",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_read_errors_are_not_swallowed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SampleReadinessTest.test_read_errors_are_not_swallowed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
           "name": "E2ERunnerTest",
           "parameters": [],
           "qualified_name": "E2ERunnerTest",
@@ -115102,8 +115387,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 401,
-            "start_line": 96
+            "end_line": 456,
+            "start_line": 151
           }
         },
         {
@@ -115125,8 +115410,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 137,
-            "start_line": 97
+            "end_line": 192,
+            "start_line": 152
           }
         },
         {
@@ -115141,8 +115426,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 109,
-            "start_line": 100
+            "end_line": 164,
+            "start_line": 155
           }
         },
         {
@@ -115176,8 +115461,8 @@
           "signature": "(self, pipeline, milestone_probe = …)",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 139
+            "end_line": 212,
+            "start_line": 194
           }
         },
         {
@@ -115199,8 +115484,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 164,
-            "start_line": 159
+            "end_line": 219,
+            "start_line": 214
           }
         },
         {
@@ -115222,8 +115507,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 178,
-            "start_line": 166
+            "end_line": 233,
+            "start_line": 221
           }
         },
         {
@@ -115245,8 +115530,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 197,
-            "start_line": 180
+            "end_line": 252,
+            "start_line": 235
           }
         },
         {
@@ -115268,8 +115553,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 199
+            "end_line": 270,
+            "start_line": 254
           }
         },
         {
@@ -115291,8 +115576,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 217
+            "end_line": 292,
+            "start_line": 272
           }
         },
         {
@@ -115314,8 +115599,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 267,
-            "start_line": 239
+            "end_line": 322,
+            "start_line": 294
           }
         },
         {
@@ -115330,8 +115615,8 @@
           "signature": "()",
           "source_location": {
             "column": 16,
-            "end_line": 254,
-            "start_line": 246
+            "end_line": 309,
+            "start_line": 301
           }
         },
         {
@@ -115353,8 +115638,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 269
+            "end_line": 359,
+            "start_line": 324
           }
         },
         {
@@ -115369,8 +115654,8 @@
           "signature": "()",
           "source_location": {
             "column": 16,
-            "end_line": 280,
-            "start_line": 275
+            "end_line": 335,
+            "start_line": 330
           }
         },
         {
@@ -115385,8 +115670,8 @@
           "signature": "()",
           "source_location": {
             "column": 16,
-            "end_line": 288,
-            "start_line": 282
+            "end_line": 343,
+            "start_line": 337
           }
         },
         {
@@ -115408,8 +115693,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 321,
-            "start_line": 306
+            "end_line": 376,
+            "start_line": 361
           }
         },
         {
@@ -115424,8 +115709,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 318,
-            "start_line": 312
+            "end_line": 373,
+            "start_line": 367
           }
         },
         {
@@ -115447,8 +115732,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 342,
-            "start_line": 323
+            "end_line": 397,
+            "start_line": 378
           }
         },
         {
@@ -115470,8 +115755,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 356,
-            "start_line": 344
+            "end_line": 411,
+            "start_line": 399
           }
         },
         {
@@ -115493,8 +115778,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 377,
-            "start_line": 358
+            "end_line": 432,
+            "start_line": 413
           }
         },
         {
@@ -115509,8 +115794,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 362,
-            "start_line": 361
+            "end_line": 417,
+            "start_line": 416
           }
         },
         {
@@ -115532,8 +115817,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 401,
-            "start_line": 379
+            "end_line": 456,
+            "start_line": 434
           }
         },
         {
@@ -115548,8 +115833,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 385,
-            "start_line": 382
+            "end_line": 440,
+            "start_line": 437
           }
         }
       ]
@@ -232885,7 +233170,7 @@
       "module": "tools.run_windows_e2e",
       "path": "tools/run_windows_e2e.py",
       "source_location": {
-        "end_line": 276,
+        "end_line": 332,
         "start_line": 1
       },
       "symbols": [
@@ -232986,7 +233271,7 @@
           "signature": "(path: Path) -> dict[str, object] | None",
           "source_location": {
             "column": 0,
-            "end_line": 103,
+            "end_line": 105,
             "start_line": 77
           }
         },
@@ -233015,8 +233300,8 @@
           "signature": "(active_control: dict[str, object] | None, image_candidates: object) -> ActionCandidate | None",
           "source_location": {
             "column": 0,
-            "end_line": 159,
-            "start_line": 106
+            "end_line": 164,
+            "start_line": 108
           }
         },
         {
@@ -233038,8 +233323,8 @@
           "signature": "(path: Path) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 173,
-            "start_line": 169
+            "end_line": 178,
+            "start_line": 174
           }
         },
         {
@@ -233073,8 +233358,55 @@
           "signature": "(title: str, state_file: Path, timeout_seconds: float = …) -> WindowInfo",
           "source_location": {
             "column": 0,
-            "end_line": 191,
-            "start_line": 183
+            "end_line": 198,
+            "start_line": 188
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "wait_for_sample_ready",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "timeout_seconds"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "poll_seconds"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "monotonic"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "sleep"
+            }
+          ],
+          "qualified_name": "wait_for_sample_ready",
+          "return_annotation": "int",
+          "signature": "(source, timeout_seconds: float = …, poll_seconds: float = …, monotonic = …, sleep = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 228,
+            "start_line": 210
           }
         },
         {
@@ -233089,8 +233421,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 272,
-            "start_line": 200
+            "end_line": 328,
+            "start_line": 237
           }
         }
       ]

@@ -124,6 +124,16 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 
 高負荷のfinish_task（全件883秒）で`test_comparison_preflight`のStop試験が`initial safety lease is not active`で失敗した。実時計と実heartbeat threadを使い、external watchdog無しのため、旧実装ではthreadが0.75秒以上止まっても失効後に暗黙延長されていた。新しい規則で正しく`lease_expired`になる。このfileはlease期限を検証しないため、試験専用に`lease_timeout_seconds=30`とした（製品既定値は不変）。同じ実行で落ちた`test_reference_browser_diagnostics`（1.165s対上限1.15s）と`test_runtime_boundary_benchmark`（IPC timeout）はfail-safeを使わない負荷起因の失敗で、単独実行・再実行（全件560秒、OK）では成功した。
 
+## sample E2Eの起動直後失敗（PRで観測、leaseとは別原因）
+
+main取込後、push側のlanguage-ci（run 41958841719）で`Run sample-control-confirmed live input loop`が起動0.3秒・0 stepsの`recognition_or_candidate_failure`（`許可された操作候補がありません`）になった。同じHEADのpull_request側E2E（run 41958852024）は成功し、9375f83の2回も成功していたため非決定的。9375f83→HEADの製品差分は`tools/run_noisy_provider_benchmark.py`だけ。
+
+原因: `find_window`はwindowの存在とstate fileだけを待ち、最初の描画を待たない。`WindowsSampleObservationSource.read`の最初のcaptureが未描画だと画像候補が0件になり、`match_sample_control_to_image`が`None`を返して即失敗する。ローカルで`origin/main`単体（本PRの変更なし）が同一の症状（0 steps、0.37〜0.8秒、同じエラー）を再現し、captureしたframeが全byte 0（distinct=1）であることを確認した。fail-safe・leaseは関与しない（候補の許可判定`ActionEvaluator`はfail-safeを参照しない）。
+
+修正: `wait_for_sample_ready`を追加し、`DecisionPipeline`生成前に読取専用で確認済み候補が得られるまで最大20秒・0.1秒周期で待つ。入力は送らず、期限内に得られなければ`RuntimeError`で失敗する（fail-closed）。判定・Stop・TTLは変更しない。読取の例外は握り潰さない。試験は偽時計で、未描画の再試行、初回成功、予算超過の失敗、読取エラーの伝播を固定した。
+
+制約: 修正後のローカル再実行ではcaptureが継続して全0のため20秒で失敗し、E2E全体のローカル成功は確認できなかった（このPCの描画状態による）。実E2Eの確認はCIで行う。
+
 ## 関連Issue #812 との関係
 
 run 41945317245 attempt 1（seed 481）のplanner失敗は`planning_unavailable`/`compute_budget`で、heartbeat ringは全て`renewed`（`lease_expired`無し）。`invalid_frame`は失敗診断headerに保存frameが無いことを示す。GIL競合の兆候（読取150-206ms、書込237ms、更新間隔最大708ms）は共通だが機構は別のため、本PRでは#812を修正しない。
