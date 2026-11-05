@@ -380,6 +380,11 @@ class HeartbeatSummaryTests(unittest.TestCase):
         # 更新から書込完了まで2刻み=20ms。期限1000.75 − (1000.3+0.02) = 430ms。
         self.assertEqual(summary["margin_ms_min"], 430.0)
         self.assertEqual(summary["renewals"], 2)
+        self.assertEqual(summary["margin_samples"], 1)
+        self.assertEqual(summary["window_samples"], 2048)
+        # 最小値は全期間の累積で、直近windowから落ちても失われない。
+        recorder._margins_ms.clear()
+        self.assertEqual(recorder.summary()["margin_ms_min"], 430.0)
         self.assertEqual(summary["negative_margin_count"], 0)
         self.assertEqual(summary["cycle_ms_max"], 70.0)
 

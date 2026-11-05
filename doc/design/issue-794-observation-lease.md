@@ -115,6 +115,15 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 採用: 失効境界の明示と試験（Luna）、TTL超周回のfail-closed試験と保証範囲の限定（Luna/Antigravity）、失効遷移とwatchdog Stopの競合結果の定義（Luna）、Stop後に古い観測のcommandが許可されない試験（Luna）、directory不在時の流れの明記（Antigravity）。
 不採用: 別epochの停止でも延長を拒否する案（Luna/Antigravity）— 延長系は現在epochしか書かず、別epochの停止を無視する既存の意味を変えるとStop semanticsの変更になるため。書込前の残TTL閾値で先行停止する案（Antigravity）— 失効判定はwatchdogとRuntimeの同じ`>`境界で既に行い、閾値はTTL短縮と同等の意味変更になるため。Windowsのreplace共有違反試験（Antigravity）— 読取側も同じcross-process lockを取るため置換中の共有読取は起きず、既存の8回再試行も不変。
 
+## 実装レビュー（packet-code-01/02）
+
+採用: summaryの集計範囲を明確化（Luna）— `renewals`/`margin_samples`/`negative_margin_count`/`margin_ms_min`は全期間累積、p05/p50/周期統計は直近`window_samples`（2048）件。
+確認のみ: 空・不正な既存leaseの拒否時の遷移（Luna）— 拒否値`{}`は`_adopt_persisted_locked`で`recovery_required/lease_unreadable`へ移る（`test_unreadable_lease_is_adopted_as_recovery`）。
+
+## 関連Issue #812 との関係
+
+run 41945317245 attempt 1（seed 481）のplanner失敗は`planning_unavailable`/`compute_budget`で、heartbeat ringは全て`renewed`（`lease_expired`無し）。`invalid_frame`は失敗診断headerに保存frameが無いことを示す。GIL競合の兆候（読取150-206ms、書込237ms、更新間隔最大708ms）は共通だが機構は別のため、本PRでは#812を修正しない。
+
 ## 代替案と不採用理由
 
 - TTL延長・heartbeat間隔の単純短縮・watchdog閾値の緩和: Issueで禁止。短縮はI/O回数とlock競合を増やし、convoy下で改善しない。

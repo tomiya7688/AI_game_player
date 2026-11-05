@@ -86,6 +86,8 @@ class HeartbeatDiagnostics:
         self._sequence = 0
         self._renewals = 0
         self._negative_margins = 0
+        self._margin_count = 0
+        self._margin_min: float | None = None
         self._margins_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
         self._cycles_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
         self._previous_renewal: _Entry | None = None
@@ -200,21 +202,29 @@ class HeartbeatDiagnostics:
         )
         margin = (previous.lease_expires_unix_seconds - committed) * 1000
         self._margins_ms.append(margin)
+        self._margin_count += 1
+        if self._margin_min is None or margin < self._margin_min:
+            self._margin_min = margin
         if margin < 0:
             self._negative_margins += 1
 
     # {
     #   責務: [summary: 集計値を固定keyの有限数値metadataへ複製する]
     #   引数: [なし] 戻り値: [dict: 標本が無い統計はNone]
+    #   処理: [renewals/margin_samples/negative_margin_count/margin_ms_minは全期間の累積、
+    #     p05/p50/cycle統計は直近window_samples件。余裕を計算できない更新はrenewals−margin_samplesに現れる]
     # }
     def summary(self) -> dict[str, object]:
         margins = sorted(self._margins_ms)
         cycles = sorted(self._cycles_ms)
         return {
             "renewals": self._renewals,
-            "margin_samples": len(margins),
+            "margin_samples": self._margin_count,
             "negative_margin_count": self._negative_margins,
-            "margin_ms_min": _rounded(margins[0]) if margins else None,
+            "margin_ms_min": (
+                None if self._margin_min is None else _rounded(self._margin_min)
+            ),
+            "window_samples": _SUMMARY_SAMPLES,
             "margin_ms_p05": _percentile(margins, 0.05),
             "margin_ms_p50": _percentile(margins, 0.50),
             "cycle_ms_p50": _percentile(cycles, 0.50),
