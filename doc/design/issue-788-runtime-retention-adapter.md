@@ -81,8 +81,8 @@ Blocked-By: #789 の root lock（`RetentionCollector.coordination_lock()`）と 
 
 `LiveReferenceProvider.snapshot() -> RetentionReferenceSnapshot`。本番は `CompositeReferenceProvider` が次の source を合成する（1つでも例外・不完全なら `complete=False`）。
 
-- `JournalReferenceSource(journal)`: 前回の位置から `journal.artifact_refs_after(last_sequence, limit=journal_batch_limit)` で差分だけ読み、digest→参照数の索引を process 内に持つ（Journal は append-only なので削除は起きない）。1回の snapshot で読むのは最大 `journal_batch_limit`（既定 10,000 event）。追いつかなければ `journal_catchup_pending` で不完全。毎 trigger の計算量は「前回からの増分」で、全履歴は Session 開始後の初回（既存 Journal を開いた場合）に batch で1回だけ読む。
-- `ExperienceReferenceSource(path, *, max_bytes)`: 読む前と読んだ後に `os.stat` の `(st_dev, st_ino, size, mtime_ns)` を取り、前後で違えば（読取中に書かれた）`experience_changed_during_read` で不完全。前回と4つ全てが同じ時だけ前回の集合を再利用し、それ以外は `JsonlExperienceReader` で読み直す（上限 `max_bytes`、既定 64MiB）。mtime の粒度で更新を見落とす場合に備え、再利用は直近の読直しから `experience_reuse_max_ms`（既定 60,000）以内に限る。`recovery_notices` があれば `experience_recovered_tail`、`ExperienceRecoveryError`・上限超過は例外として不完全。本番 Session には Experience writer がまだ無いので、`SessionRetentionConfig.experience_paths` が空なら登録しない（writer 追加時は writer 側が atomic replace か append-only かを本書へ追記し、この source の前提を確認する）。
+- `JournalReferenceSource(journal)`: 前回の位置から `journal.artifact_refs_after(last_sequence, limit=journal_batch_limit)` で差分だけ読み、digest→参照数の索引を process 内に持つ（Journal は append-only なので削除は起きない）。1回の snapshot で読むのは最大 `journal_batch_limit`（既定 10,000 event）。追いつかなければ `journal_catchup_pending` で不完全。毎 trigger の計算量は「前回からの増分」で、全履歴は Session 開始後の初回（既存 Journal を開いた場合）に batch で1回だけ読む。 cursor は「直前の batch の `last_sequence`（参照の無い event も含めて読んだ最後の sequence）」で、`artifact_refs_after` が返す `last_sequence` へだけ進める。読取は `journal._lock` 内の1回の SELECT なので、batch の途中に append が割り込むことはない。参照の無い event は削除可否に影響しないため、cursor の後に追加されても snapshot の正しさを損なわない（次回の batch で読み飛ばされるだけ）。`source_positions["journal"]` は snapshot に使った cursor。
+- `ExperienceReferenceSource(path, *, max_bytes)`: **writer 契約**: Experience へ参照を書く writer は append-only または atomic replace（同じ path への in-place 書換え禁止）で、参照付きの書込みを Journal と同じく `recording(references, target="experience:<name>")` の中で行う。adapter は `target` 付きの context を例外なく抜けるたびにその source の `content_version` を1増やす。source は `content_version` が前回読取時と同じで、かつ `(st_dev, st_ino, size, mtime_ns)` も同じ時だけ前回の集合を再利用する（stat は補助。内容変化の検出は writer 契約の version で行い、mtime 粒度に依存しない）。読み直す時は1つの file handle から上限 `max_bytes`（既定 64MiB）まで bytes を一度に読み、メモリ上で `JsonlExperienceReader` と同じ規則で解析する（append 途中の末尾は `experience_recovered_tail`、atomic replace ならどちらかの版全体が読まれる）。読取前後の stat が違えば `experience_changed_during_read` で不完全。`ExperienceRecoveryError`・上限超過は例外として不完全。GC は gate を持つので、GC 中に writer が参照を追加することはない。本番 Session には Experience writer がまだ無いので、`SessionRetentionConfig.experience_paths` が空なら登録しない。writer を追加する PR は、この契約に従うことを本書へ追記してから `experience_paths` を設定する。
 - `PinnedReferenceSource`: 保存途中・Replay 再生中など、Journal/Experience にまだ書かれていないが参照中の digest を token 単位で保持する（`pin(sha256, reason) -> PinToken`、`release(token)`、`version`）。
 
 ### EventJournal.artifact_refs_after
@@ -96,7 +96,7 @@ RuntimeRetentionAdapter(collector, admission, provider, policy, *, session_id, c
   reserve(sha256, *, reason) -> PinToken
   persist(request, writer) -> PersistedArtifact            # reserve → admission.admit → on_artifact_persisted
   on_artifact_persisted(token, reference, entry_id, protected=False) -> None
-  recording(references) -> ContextManager[None]            # Journal/Experience へ参照を書く間の gate
+  recording(references, *, target="journal", timeout_seconds=1.0) -> ContextManager[None]  # 参照を書く間の gate
   release(token) -> None
   maybe_collect(trigger) -> RuntimeRetentionReport | SkippedRetention
   request(trigger) -> None                                 # 非同期。hot path 用
@@ -106,7 +106,7 @@ RuntimeRetentionAdapter(collector, admission, provider, policy, *, session_id, c
 ```
 
 - `on_artifact_persisted` は Issue の `(reference, entry_id, protected)` に `token` を加えた。admit 完了から pin までの間に GC が新規 entry を budget 退避する窓を無くすため、digest を **admit 前に** pin しておく必要があるから。`token` の digest と `reference.sha256` が違えば `ValueError`。`persist()` はこの順序を内部で守る本番用の口で、`request.expected_sha256` を必須にする（無ければ `ValueError`。#789 の容量判定でも既存 digest の追加容量0判定に使える）。
-- `recording(references, *, timeout_seconds=1.0)`: 呼出側は Journal へ `artifact_refs` を append する間この context に入る。gate（後述）を期限付きで取り（超過は `RetentionLockTimeoutError`。何も書かずに返るので、呼出側は後で再試行するか、参照を付けずに記録して `release(token)` する）、各 digest の object が Store に存在するか（`store.object_path(d).is_dir()`）を確認し、無ければ `RetentionReferenceError` を送出して append させない（消えた Artifact への参照を作らない）。context を**例外なく**抜けた時だけ（= append が commit 済み）該当 pin を「Journal 記録済み」として外す。例外で抜けた場合は pin を残す（append の成否が不明でも安全側）。gate 保持中に commit された event は、次の GC が gate を取った後の snapshot で必ず読まれる（Journal は commit 順の sequence で、source は前回位置から読む）ため、pin を外しても snapshot から漏れない。
+- `recording(references, *, target="journal", timeout_seconds=1.0)`: `target` は `journal` か `experience:<name>`。呼出側は Journal（または Experience）へ `artifact_refs` を append する間この context に入る。gate（後述）を期限付きで取り（超過は `RetentionLockTimeoutError`。何も書かずに返るので、呼出側は後で再試行するか、参照を付けずに記録して `release(token)` する）、各 digest の object が Store に存在するか（`store.object_path(d).is_dir()`）を確認し、無ければ `RetentionReferenceError` を送出して append させない（消えた Artifact への参照を作らない）。context を**例外なく**抜けた時だけ（= append が commit 済み）該当 pin を「Journal 記録済み」として外す。例外で抜けた場合は pin を残す（append の成否が不明でも安全側）。gate 保持中に commit された event は、次の GC が gate を取った後の snapshot で必ず読まれる（Journal は commit 順の sequence で、source は前回位置から読む）ため、pin を外しても snapshot から漏れない。
 - **gate 必須の強制**: adapter は生成時に `journal.set_reference_guard(adapter.assert_recording)` を設定する。`EventJournal.append` は `artifact_refs` が空でない時にだけ guard を呼び、呼出 thread がその digest を含む `recording()` の中にいなければ `RetentionReferenceError` で append を拒否する（gate 外で参照を書く経路を API 境界で無くす）。guard 未設定の Journal（adapter 無効・既存テスト）は従来どおり。
 - `PersistedArtifact(reference, entry_id, token)`。producer が記録を諦めた場合は `release(token)` する。release されない pin は `close_session()` まで残る（安全側）。
 
@@ -201,7 +201,7 @@ CLOSED: maybe_collect/request は `closed`、persist は RuntimeError、release 
 - lock 順序は **gate → root lock → journal lock** で固定する。`recording()` は gate だけを取り、その中で呼出側が Journal へ append する（gate → journal）。`persist()` は gate を取らず、pin（adapter 内部の短い `_state_lock`）→ admit（root lock）。`_state_lock` は保持中に他の lock を取らない葉の lock。逆順の取得は無い。
 - 参照追加と GC の競合: 新しい参照は (a) 保存時に admit 前の pin、または (b) `recording()` 中の gate、のどちらかで GC と直列化される。GC は gate を持つ間に snapshot と collect を行い、Journal は guard により gate 外で参照を受け付けないので、snapshot 後に Journal へ新規参照が入ることは無い。
 - persist の pin と GC: GC は **root lock を取った後**（手順4の後）に pin を写す（手順6）。(i) それ以前に付いた pin は live に入る。(ii) それ以後に付いた pin の admit は GC の root lock 解放を待つ。admit は lock 取得後に既存有無を判定する（#789 手順2〜6）ので、GC が古い object を消していれば新しく作り直し、消していなければ既存 digest として登録する。どちらでも admit が返す参照の object は存在する。この順序を T5b で固定する。
-- generation と線形化点: snapshot の線形化点は「gate と root lock を両方持った状態で source を読み終えた時点」。参照の無い event による sequence 前進は削除可否に影響しないので generation を進めない。複数 source を順に読む間の変化は gate により参照付き Journal event では起きず、Experience は手順5の前後 stat 比較で不完全として扱う。
+- generation と線形化点: snapshot の線形化点は「gate と root lock を両方持った状態で source を読み終えた時点」。参照の無い event による sequence 前進は削除可否に影響しないので generation を進めない。複数 source を順に読む間の変化は gate により参照付き Journal event では起きず、Experience も writer 契約で gate 内でしか参照を追加しない。参照の無い Journal event が snapshot 中に増えても、cursor は読んだ batch の `last_sequence` までしか進まず、削除対象の判定に影響しない。
 - 他 process（maintenance tool 等）との競合は #789 の root lock が担う。
 - 同じ adapter の GC は `_run_lock` で常に1本。
 - hot path への影響: `request()` は flag を立てて `notify` するだけ（O(1)、blocking なし）。`recording()` と `persist()`（root lock）は GC 実行中だけ待ち、待ちは `timeout_seconds` で有界（超過時は何も書かずに例外）。GC 1回の計算量は #164 の Collector が索引全件と全 metadata を読むため O(索引件数)（上限 `policy.max_entries`）で、削除数は上限で、頻度は `min_interval_ms` で抑える。走査量を1回ごとに分割するには #164 の計画アルゴリズムの変更が必要なため本Issueでは行わない（範囲外に記載）。`gate_wait_ms`・`lock_wait_ms`・`collect_ms` を Trace に出し、実測を実装時に記録する。
@@ -234,7 +234,7 @@ CLOSED: maybe_collect/request は `closed`、persist は RuntimeError、release 
 | T12 | Trace の項目 | GC 回数・removed bytes・blocked refs・各 latency・over-budget が payload にあり、digest・path が無い。Trace 記録失敗で GC 結果が変わらない |
 | T13 | `recording()` | object が無い digest を拒否し Journal に書かれない。gate 外の `append(artifact_refs=...)` は guard で拒否。例外で抜けた context は pin を残す。gate 待ち超過で `RetentionLockTimeoutError`（何も書かれない） |
 | T14 | close 時の間隔迂回 | 直前の GC 直後に `close_session()` しても最終 GC が実行される |
-| T15 | Experience 読取中の変化 | 読取前後で stat が変わると `snapshot_incomplete`（削除0）。同じ stat でも `experience_reuse_max_ms` 超過で読み直す |
+| T15 | Experience の変化検出 | `recording(target="experience:x")` 後は stat が同じでも読み直す。読取前後で stat が変わると `snapshot_incomplete`（削除0）。参照の無い Journal event が snapshot 中に追加されても cursor・削除結果が変わらない |
 
 ## Issue 完了条件との対応
 
@@ -275,9 +275,11 @@ Luna の指摘を原典と照合し、全て設計の明確化・強化として
 | `recording()` の pin 解除時機 | 有効 | 例外なく抜けた時だけ解除、例外時は pin 維持 |
 | gate 外の Journal 書込みは検出のみ | 有効 | `EventJournal.set_reference_guard` で gate 外の参照付き append を拒否（API 境界で強制） |
 | GC 中に付いた persist の pin | 有効（説明不足） | root lock 取得後に pin を写す順序と admit の再判定で安全な理由を明記、T5b |
-| Experience の mtime 粒度・読取中変化 | 有効 | 前後 stat 比較・再利用期限、T15 |
+| Experience の mtime 粒度・読取中変化 | 有効 | writer 契約（append-only/atomic replace、gate 内で参照追加）と `content_version` で検出、1 handle 読取、T15 |
 | 削除上限の適用と原子性 | 有効（説明不足） | 絞った live で collect が計画を作り直し既存の原子的順序で適用 |
 | GC の走査量・`recording()` の待ちが有界でない | 一部有効 | 待ちに timeout を追加。走査量は #164 の計画が O(索引件数) で、分割は範囲外として明記 |
 | close 結果の保持・再実行 | 有効 | `last_close_result`・root を残し maintenance で再実行 |
 | 生成順序・失敗時 | 有効 | 生成順序と構成エラー時の後始末を明記 |
 | close が最短間隔で skip し得る | 有効 | 無条件迂回を明記、T14 |
+
+再確認（packet-03 SHA256 4DCC5825…、Luna）: (1) Journal cursor と参照の無い event の関係が不明 → 有効、cursor 規則と1 SELECT 内の読取を明記。(2) stat だけでは同一 stat の更新を検出できない → 有効、writer 契約と `content_version` に変更（`experience_reuse_max_ms` は不要になり削除）。
