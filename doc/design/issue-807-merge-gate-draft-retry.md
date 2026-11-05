@@ -19,30 +19,31 @@ Parent: none
   `Pull request is a draft; mark it ready for review on GitHub before running the merge gate (this tool does not change draft status). PR merge was stopped.`
 - 一時的通信失敗の判定（`_is_transient_github_failure(text) -> bool`、大小無視の部分一致）:
   `tls handshake timeout`, `i/o timeout`, `timeout awaiting response headers`, `connection reset`, `connection refused`, `unexpected eof`, `temporary failure in name resolution`, `no such host`, `http 502`, `http 503`, `http 504`, `bad gateway`, `service unavailable`, `gateway timeout`。
-  認証失敗（401/403）・404・rate limit・GraphQLエラー・JSON不正は再試行しない。
+  認証失敗（401/403）・404・rate limit（403/`HTTP 429`/Too Many Requests）・GraphQLエラー・JSON不正は再試行しない。
 - 再試行定数: `READ_ONLY_RETRY_DELAYS_SECONDS = (10, 30)`（最大3回試行、待機合計40秒）。待機は`_sleep`（`time.sleep`）経由でテストから差替え可能。
-- API呼出し（60秒）のtimeoutは一時的失敗として再試行する。`gh pr checks --watch`（60分）のtimeoutは再試行しない。
+- API呼出し（60秒）のtimeoutは一時的失敗として再試行する。`gh pr checks --watch`（60分）はtimeoutを再試行せず、通信失敗による再試行も最初の試行開始から60分の共通予算内で行う（各試行のtimeoutは残り予算。残りが無ければ再試行しない）。最悪の待機は60分＋待機40秒に収まる。
 - 終了値は従来どおり成功0・安全停止3。
 
 ## 手順
 1. `_run_gh`はtimeoutを`GitHubCommandTimeout(MergeGateError)`（新規subclass）で送出する。既存の捕捉箇所は親クラスで受けるため挙動は変わらない。
-2. 新関数`_run_read_only_gh_command(arguments, timeout_seconds, action_description, retry_timeouts=True)`:
+2. 新関数`_run_read_only_gh_command(arguments, timeout_seconds, action_description, retry_timeouts=True, share_timeout_budget=False)`:
    - `_run_gh`を実行し、終了code 0なら返す。
    - 非0終了で診断文が一時的失敗に一致、または（`retry_timeouts`のとき）`GitHubCommandTimeout`なら、残り回数がある限り`[RETRY] <action> hit a transient GitHub error (<要約>); retrying in Ns (attempt k/3).`を表示して待ち、再実行する。
+   - `share_timeout_budget`のときは`time.monotonic()`で最初の試行開始から`timeout_seconds`の期限を固定し、各試行のtimeoutを残り時間にする。残りが1秒未満なら再試行せず停止する。
    - 一致しない失敗、または回数を使い切った場合は、従来と同じ`<action> failed with GitHub CLI exit code N: <診断文>`で停止する（使い切り時は`after 3 attempts`を付記）。
-3. 読取専用呼出しを全て`_run_read_only_gh_command`へ置換: `_read_pull_request_snapshot`、`_wait_for_status_checks`（`retry_timeouts=False`）、`_read_status_checks`、`_read_unresolved_review_threads`の各ページ、`_require_workflow_runs.read_json`、`_confirm_remote_merge`。
+3. 読取専用呼出しを全て`_run_read_only_gh_command`へ置換: `_read_pull_request_snapshot`、`_wait_for_status_checks`（`retry_timeouts=False, share_timeout_budget=True`）、`_read_status_checks`、`_read_unresolved_review_threads`の各ページ、`_require_workflow_runs.read_json`、`_confirm_remote_merge`。
 4. `gh pr merge`は従来どおり`_run_gh`を**1回だけ**呼ぶ。結果がtimeout・非0でも再実行しない。
-5. merge後確認（`_confirm_remote_merge`）は読取専用なので再試行対象。応答が「同じPR番号・同じhead・`state == open`・`merged is False`」なら、mergeは行われていないと確定した状態として専用の`MergeNotPerformedError(MergeGateError)`を送出する。
+5. merge後確認（`_confirm_remote_merge`）は読取専用なので再試行対象。応答が「同じPR番号・同じhead・`state == open`・`merged is False`」なら専用の`MergeNotPerformedError(MergeGateError)`を送出する。ただし「GitHubが拒否した」と表示するのは、`gh pr merge`が**timeoutや起動失敗ではなく非0終了でエラー本文を返した**場合に限る（GitHubの`mergePullRequest`は同期的にエラーを返すため、拒否本文＋open/未mergeの確認は未実行を示す）。merge呼出しがtimeout・起動失敗・0終了の場合は、open/未mergeでも遅延反映の可能性を排除できないため、従来どおり結果不明として扱う。
 6. `merge_pull_request_when_safe`の停止文:
-   - `MergeNotPerformedError`: `GitHub did not merge <URL>: <GitHubのエラー本文 or "merge command exited 0">. The PR is still open and unmerged; fix the reported cause before running the merge gate again.`
+   - `except MergeNotPerformedError`を`except MergeGateError`より先に置く。非0終了＋本文ありなら: `GitHub rejected the merge of <URL>: <GitHubのエラー本文>. The PR was still open and unmerged at confirmation; fix the reported cause, then rerun the merge gate (it re-verifies the PR state before merging).` 再実行してもgateは最初にOPEN・head・CIを再検証し、`--match-head-commit`で固定headだけをmergeするため、遅れて統合されたPRを二重にmergeしない。それ以外は下の結果不明文。
    - その他の確認失敗（結果不明）: `Merge command failed: <GitHubのエラー本文>. Remote merge outcome is unconfirmed for <URL>; do not repeat the merge blindly. Inspect: ... Confirmation: <理由>`。CLIが0終了なら先頭文は付けず従来文。
    - 確認成功時の挙動・表示は従来どおり。
 7. 2回目のPR状態取得（merge直前）でもDraft検査が働くため、待機中にDraftへ戻されたPRもmerge前に止まる。
 
 ## テスト（受入条件との対応）
 - AC1 Draft事前停止: `isDraft: true`で`gh pr view`だけ呼ばれ、`pr checks`・`pr merge`を呼ばず終了値3、stderrに`draft`を含む。`isDraft`欠落・非boolも停止。待機中にDraftへ変わった場合も`pr merge`を呼ばない。
-- AC2 merge失敗本文: `pr merge`が`Pull Request is still a draft`で非0終了し、確認APIが`open/merged:false`を返すと、stderrに当該本文と`still open and unmerged`を含み、`pr merge`は1回。確認APIが失敗する場合も本文と`unconfirmed`を含む。
-- AC3 有界再試行: `TLS handshake timeout`が2回続いた後に成功→処理継続し待機が`[10, 30]`。3回連続→停止し試行3回。`HTTP 401`等は再試行0回。API timeoutは再試行、`--watch`のtimeoutは再試行しない。Workflow Run照会・merge後確認の一時失敗も再試行される。
+- AC2 merge失敗本文: `pr merge`が`Pull Request is still a draft`で非0終了し、確認APIが`open/merged:false`を返すと、stderrに`GitHub rejected the merge`と当該本文を含み、`pr merge`は1回。確認APIが失敗する場合も本文と`unconfirmed`を含む。`pr merge`がtimeoutで確認APIが`open/merged:false`なら`unconfirmed`（拒否と断定しない）。
+- AC3 有界再試行: `TLS handshake timeout`が2回続いた後に成功→処理継続し待機が`[10, 30]`。3回連続→停止し試行3回。`HTTP 401`・`HTTP 429`等は再試行0回。API timeoutは再試行、`--watch`のtimeoutは再試行しない。`--watch`の通信失敗再試行は残り予算をtimeoutに渡し、予算切れなら再試行しない。Workflow Run照会・merge後確認の一時失敗も再試行される。
 - AC4 merge非再実行: `pr merge`がtimeout/`TLS handshake timeout`で失敗しても`pr merge`呼出しは1回だけ。
 - 既存: `test_finish_pr_merge*.py`・`test_finish_pr_workflow_runs.py`全件が通る。
 
