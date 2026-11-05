@@ -1,0 +1,76 @@
+{
+  "manifest_version": 1,
+  "plugin_id": "plugin.example.ocr_hint",
+  "plugin_version": "0.3.1",
+  "compatibility": {
+    "stage_envelope_schema_versions": [
+      1
+    ]
+  },
+  "permissions": [
+    "hook.inject",
+    "hook.read"
+  ],
+  "hooks": [
+    {
+      "hook_id": "plugin.example.ocr_hint.hinter",
+      "mode": "inject",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+        {
+          "payload_schema": "kadoka.perception.candidates",
+          "versions": [
+            1
+          ]
+        }
+      ],
+      "inject_targets": [
+        {
+          "stage": "perception",
+          "boundary": "output",
+          "payload_schema": "plugin.example.ocr_hint",
+          "versions": [
+            1
+          ]
+        }
+      ],
+      "budget": {
+        "timeout_ns": 50000000,
+        "max_output_bytes": 65536,
+        "max_injected": 4
+      },
+      "data_classes": [
+        "ocr_text",
+        "ui_metadata"
+      ]
+    },
+    {
+      "hook_id": "plugin.example.ocr_hint.observer",
+      "mode": "read",
+      "stage": "perception",
+      "boundary": "output",
+      "input_payload_schemas": [
+        {
+          "payload_schema": "kadoka.perception.candidates",
+          "versions": [
+            1
+          ]
+        }
+      ],
+      "inject_targets": [],
+      "budget": {
+        "timeout_ns": 20000000,
+        "max_output_bytes": 1,
+        "max_injected": 0
+      },
+      "data_classes": [
+        "ui_metadata"
+      ]
+    }
+  ],
+  "audit": {
+    "publisher": "Tomiya",
+    "description": "OCR候補にヒントを付けるサンプルPlugin"
+  }
+}

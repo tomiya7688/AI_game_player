@@ -21,8 +21,8 @@ HOOK_STATUS_QUARANTINED = "quarantined"
 #     hook_id/mode: 対象Hookと種類
 #     status: completed・failed・timeout・quarantined（以前のtimeout等で呼び出し対象外）のいずれか
 #     elapsed_ns: 呼び出し開始から結果確定までの単調時計の差（ns）。呼ばなかった場合は0
-#     failure_kind: 失敗の分類（exception・timeout・invalid_output・contract_violation・quarantined）。成功時はNone
-#     error_code: 出力の再検証で得たStageEnvelopeErrorのcode（malformed等）。該当しない場合はNone
+#     failure_kind: 失敗の分類（exception・timeout・invalid_output・contract_violation・capability_denied・quarantined）。成功時はNone
+#     error_code: 出力の再検証で得たStageEnvelopeErrorのcode（malformed等）、またはaccess_policyの拒否code。該当しない場合はNone
 #     output_envelope_ids: 採用したHook出力EnvelopeのID
 #   ]
 # }

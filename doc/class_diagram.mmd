@@ -932,8 +932,18 @@ classDiagram
         +__post_init__()
         +order_key()
     }
+    Protocol <|-- HookAccessPolicy
+    class HookAccessPolicy {
+        +authorize_registration()
+        +authorize_input()
+        +authorize_output()
+    }
     ValueError <|-- _HookContractViolation
     class _HookContractViolation {
+    }
+    Exception <|-- _HookCapabilityDenied
+    class _HookCapabilityDenied {
+        +__init__()
     }
     class _HookState {
     }
@@ -950,6 +960,7 @@ classDiagram
         +_hooks_at()
         +_ordered()
         +_run_one()
+        +_input_denial()
         +_invoke()
         +_accept_outputs()
         +_revalidate()
@@ -1505,6 +1516,53 @@ classDiagram
         +__post_init__()
         +message_for()
         +has_image()
+    }
+    ValueError <|-- PluginManifestError
+    class PluginManifestError {
+        +__init__()
+    }
+    class PayloadSchemaGrant {
+        +allows()
+        +to_dict()
+    }
+    class InjectTarget {
+        +allows()
+        +to_dict()
+    }
+    class HookBudget {
+        +to_dict()
+    }
+    class HookCapability {
+        +accepts_input()
+        +accepts_injected()
+        +to_dict()
+    }
+    class PluginCapabilityManifest {
+        +from_dict()
+        +hook()
+        +to_dict()
+        +digest()
+    }
+    ValueError <|-- PluginCapabilityDenied
+    class PluginCapabilityDenied {
+        +__init__()
+    }
+    class PluginCapabilityDecision {
+        +to_dict()
+    }
+    class _Grant {
+    }
+    class PluginCapabilityPolicy {
+        +__init__()
+        +add()
+        +decisions()
+        +authorize_registration()
+        +authorize_input()
+        +authorize_output()
+        +_grant_for()
+        +_require_envelope_version()
+        +_require_readable()
+        +_record()
     }
     class RuleProvider {
         +assess_outcome()
