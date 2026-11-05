@@ -1811,6 +1811,510 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.atomic_json",
+        "ai_game_player.bounded_file",
+        "ai_game_player.retention_root_lock"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "stage_json_write"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.bounded_file"
+          ],
+          "module": "ai_game_player.bounded_file",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_regular_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_root_lock"
+          ],
+          "module": "ai_game_player.retention_root_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "is_junction"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.admission_pending_store",
+      "path": "src/ai_game_player/admission_pending_store.py",
+      "source_location": {
+        "end_line": 262,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "AdmissionRecordError",
+          "parameters": [],
+          "qualified_name": "AdmissionRecordError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PendingAdmission",
+          "parameters": [],
+          "qualified_name": "PendingAdmission",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 135,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingAdmission.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 95,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingAdmission.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 117,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "PendingAdmission.from_dict",
+          "return_annotation": "PendingAdmission",
+          "signature": "(cls, value: object) -> PendingAdmission",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PendingAdmissionStore",
+          "parameters": [],
+          "qualified_name": "PendingAdmissionStore",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 250,
+            "start_line": 143
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "PendingAdmissionStore.__init__",
+          "return_annotation": "None",
+          "signature": "(self, root: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 151,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "write",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PendingAdmission",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "record"
+            }
+          ],
+          "qualified_name": "PendingAdmissionStore.write",
+          "return_annotation": "None",
+          "signature": "(self, record: PendingAdmission) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 169,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "remove",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "admission_id"
+            }
+          ],
+          "qualified_name": "PendingAdmissionStore.remove",
+          "return_annotation": "None",
+          "signature": "(self, admission_id: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 184,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "list_records",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingAdmissionStore.list_records",
+          "return_annotation": "tuple[PendingAdmission, ...]",
+          "signature": "(self) -> tuple[PendingAdmission, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 212,
+            "start_line": 195
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_read_record",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "PendingAdmissionStore._read_record",
+          "return_annotation": "PendingAdmission",
+          "signature": "(path: Path) -> PendingAdmission",
+          "source_location": {
+            "column": 4,
+            "end_line": 233,
+            "start_line": 222
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_require_safe_directory",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingAdmissionStore._require_safe_directory",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 250,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_match",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "re.Pattern[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pattern"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_require_match",
+          "return_annotation": "None",
+          "signature": "(value: object, pattern: re.Pattern[str], name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 262,
+            "start_line": 260
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.application_workflow",
         "ai_game_player.capture_region",
@@ -5799,6 +6303,1160 @@
             "column": 0,
             "end_line": 7,
             "start_line": 6
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.admission_pending_store",
+        "ai_game_player.artifact_store",
+        "ai_game_player.experience",
+        "ai_game_player.retention_collector",
+        "ai_game_player.retention_index",
+        "ai_game_player.retention_root_lock"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "uuid",
+          "names": [
+            {
+              "alias": null,
+              "name": "uuid"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Iterable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Final"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.admission_pending_store"
+          ],
+          "module": "ai_game_player.admission_pending_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "SOURCE_REF_PATTERN"
+            },
+            {
+              "alias": null,
+              "name": "PendingAdmission"
+            },
+            {
+              "alias": null,
+              "name": "PendingAdmissionStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactIntegrityError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_collector"
+          ],
+          "module": "ai_game_player.retention_collector",
+          "names": [
+            {
+              "alias": null,
+              "name": "RetentionCapacityError"
+            },
+            {
+              "alias": null,
+              "name": "RetentionCollector"
+            },
+            {
+              "alias": null,
+              "name": "RetentionSnapshot"
+            },
+            {
+              "alias": null,
+              "name": "current_time_ms"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 28,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_index"
+          ],
+          "module": "ai_game_player.retention_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "RetentionEntry"
+            },
+            {
+              "alias": null,
+              "name": "RetentionIndexError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 29,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_root_lock"
+          ],
+          "module": "ai_game_player.retention_root_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "RetentionLockTimeoutError"
+            },
+            {
+              "alias": null,
+              "name": "require_plain_directory"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.artifact_admission",
+      "path": "src/ai_game_player/artifact_admission.py",
+      "source_location": {
+        "end_line": 694,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ArtifactAdmissionError",
+          "parameters": [],
+          "qualified_name": "ArtifactAdmissionError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 69,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "admission_id"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "rolled_back"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "pending_retained"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionError.__init__",
+          "return_annotation": "None",
+          "signature": "(self, message: str, *, admission_id: str, rolled_back: bool, pending_retained: bool) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 69,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "ArtifactAdmissionRequest",
+          "parameters": [],
+          "qualified_name": "ArtifactAdmissionRequest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 120,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionRequest.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 120,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "AdmissionTraceEvent",
+          "parameters": [],
+          "qualified_name": "AdmissionTraceEvent",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 140,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "AdmissionStats",
+          "parameters": [],
+          "qualified_name": "AdmissionStats",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 157,
+            "start_line": 149
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "PendingAdmissionStatus",
+          "parameters": [],
+          "qualified_name": "PendingAdmissionStatus",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 167,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "AdmissionRecoveryReport",
+          "parameters": [],
+          "qualified_name": "AdmissionRecoveryReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 179,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "_AdmissionSession",
+          "parameters": [],
+          "qualified_name": "_AdmissionSession",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 197,
+            "start_line": 189
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "AdmissionPutPort",
+          "parameters": [],
+          "qualified_name": "AdmissionPutPort",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 220,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[bytes], ArtifactReference]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "put"
+            }
+          ],
+          "qualified_name": "AdmissionPutPort.__init__",
+          "return_annotation": "None",
+          "signature": "(self, put: Callable[[bytes], ArtifactReference]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 209,
+            "start_line": 208
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "AdmissionPutPort.put",
+          "return_annotation": "ArtifactReference",
+          "signature": "(self, payload: bytes) -> ArtifactReference",
+          "source_location": {
+            "column": 4,
+            "end_line": 220,
+            "start_line": 219
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ArtifactAdmissionCoordinator",
+          "parameters": [],
+          "qualified_name": "ArtifactAdmissionCoordinator",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 678,
+            "start_line": 234
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RetentionCollector",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "collector"
+            },
+            {
+              "annotation": "Callable[[AdmissionTraceEvent], None] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "trace"
+            },
+            {
+              "annotation": "PendingAdmissionStore | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "records"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator.__init__",
+          "return_annotation": "None",
+          "signature": "(self, collector: RetentionCollector, *, trace: Callable[[AdmissionTraceEvent], None] | None = …, records: PendingAdmissionStore | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 266,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "stats",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator.stats",
+          "return_annotation": "AdmissionStats",
+          "signature": "(self) -> AdmissionStats",
+          "source_location": {
+            "column": 4,
+            "end_line": 286,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "admit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ArtifactAdmissionRequest",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "request"
+            },
+            {
+              "annotation": "AdmissionWriter",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "writer"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator.admit",
+          "return_annotation": "ArtifactReference",
+          "signature": "(self, request: ArtifactAdmissionRequest, writer: AdmissionWriter) -> ArtifactReference",
+          "source_location": {
+            "column": 4,
+            "end_line": 319,
+            "start_line": 299
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "inspect_pending",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator.inspect_pending",
+          "return_annotation": "tuple[PendingAdmissionStatus, ...]",
+          "signature": "(self) -> tuple[PendingAdmissionStatus, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 334,
+            "start_line": 328
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "recover_pending",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator.recover_pending",
+          "return_annotation": "AdmissionRecoveryReport",
+          "signature": "(self) -> AdmissionRecoveryReport",
+          "source_location": {
+            "column": 4,
+            "end_line": 376,
+            "start_line": 345
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_run_transaction",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "AdmissionWriter",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "writer"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._run_transaction",
+          "return_annotation": "ArtifactReference",
+          "signature": "(self, session: _AdmissionSession, writer: AdmissionWriter) -> ArtifactReference",
+          "source_location": {
+            "column": 4,
+            "end_line": 404,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_reject_unadmittable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ArtifactAdmissionRequest",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "request"
+            },
+            {
+              "annotation": "RetentionSnapshot",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._reject_unadmittable",
+          "return_annotation": "None",
+          "signature": "(self, request: ArtifactAdmissionRequest, snapshot: RetentionSnapshot) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 429,
+            "start_line": 413
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._put",
+          "return_annotation": "ArtifactReference",
+          "signature": "(self, session: _AdmissionSession, payload: bytes) -> ArtifactReference",
+          "source_location": {
+            "column": 4,
+            "end_line": 479,
+            "start_line": 439
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_verify_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "ArtifactReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reference"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._verify_put",
+          "return_annotation": "None",
+          "signature": "(self, session: _AdmissionSession, reference: ArtifactReference) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 510,
+            "start_line": 488
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_register",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "ArtifactReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reference"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._register",
+          "return_annotation": "None",
+          "signature": "(self, session: _AdmissionSession, reference: ArtifactReference) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 529,
+            "start_line": 519
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_is_registered",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entry_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "digest"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._is_registered",
+          "return_annotation": "bool",
+          "signature": "(self, entry_id: str, digest: str) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 545,
+            "start_line": 537
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_commit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._commit",
+          "return_annotation": "None",
+          "signature": "(self, session: _AdmissionSession) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 558,
+            "start_line": 553
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_compensate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "Exception | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cause"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._compensate",
+          "return_annotation": "ArtifactAdmissionError",
+          "signature": "(self, session: _AdmissionSession, cause: Exception | None) -> ArtifactAdmissionError",
+          "source_location": {
+            "column": 4,
+            "end_line": 588,
+            "start_line": 566
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_rollback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PendingAdmission",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "record"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._rollback",
+          "return_annotation": "bool",
+          "signature": "(self, record: PendingAdmission) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 611,
+            "start_line": 598
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_classify",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "PendingAdmission",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "record"
+            },
+            {
+              "annotation": "tuple[RetentionEntry, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entries"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._classify",
+          "return_annotation": "str",
+          "signature": "(self, record: PendingAdmission, entries: tuple[RetentionEntry, ...]) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 636,
+            "start_line": 620
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_emit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "_AdmissionSession",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "session"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "transaction_ms"
+            }
+          ],
+          "qualified_name": "ArtifactAdmissionCoordinator._emit",
+          "return_annotation": "None",
+          "signature": "(self, session: _AdmissionSession, transaction_ms: float) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 678,
+            "start_line": 644
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_referenced_by_other",
+          "parameters": [
+            {
+              "annotation": "PendingAdmission",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "record"
+            },
+            {
+              "annotation": "Iterable[PendingAdmission]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "others"
+            }
+          ],
+          "qualified_name": "_referenced_by_other",
+          "return_annotation": "bool",
+          "signature": "(record: PendingAdmission, others: Iterable[PendingAdmission]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 694,
+            "start_line": 687
           }
         }
       ]
@@ -70057,7 +71715,8 @@
         "ai_game_player.experience",
         "ai_game_player.retention_index",
         "ai_game_player.retention_planner",
-        "ai_game_player.retention_policy"
+        "ai_game_player.retention_policy",
+        "ai_game_player.retention_root_lock"
       ],
       "imports": [
         {
@@ -70078,6 +71737,19 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [],
+          "module": "functools",
+          "names": [
+            {
+              "alias": null,
+              "name": "functools"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
           "module": "os",
           "names": [
             {
@@ -70089,7 +71761,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "re",
           "names": [
@@ -70102,7 +71774,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "shutil",
           "names": [
@@ -70115,7 +71787,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "time",
           "names": [
@@ -70128,7 +71800,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "collections.abc",
           "names": [
@@ -70139,13 +71811,30 @@
             {
               "alias": null,
               "name": "Iterable"
+            },
+            {
+              "alias": null,
+              "name": "Iterator"
             }
           ]
         },
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -70158,7 +71847,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 13,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -70171,7 +71860,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 14,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -70182,13 +71871,17 @@
             {
               "alias": null,
               "name": "Protocol"
+            },
+            {
+              "alias": null,
+              "name": "TypeVar"
             }
           ]
         },
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 16,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.artifact_store"
@@ -70208,7 +71901,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 20,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.experience"
@@ -70224,7 +71917,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 21,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.atomic_json"
@@ -70240,7 +71933,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 22,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.bounded_file"
@@ -70256,7 +71949,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 21,
+          "line": 23,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_index"
@@ -70288,7 +71981,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
+          "line": 30,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_planner"
@@ -70308,7 +72001,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 29,
+          "line": 31,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_policy"
@@ -70320,12 +72013,36 @@
               "name": "RetentionPolicy"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 32,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_root_lock"
+          ],
+          "module": "ai_game_player.retention_root_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "DEFAULT_LOCK_TIMEOUT_SECONDS"
+            },
+            {
+              "alias": "_is_junction",
+              "name": "is_junction"
+            },
+            {
+              "alias": null,
+              "name": "retention_root_lock"
+            }
+          ]
         }
       ],
       "module": "ai_game_player.retention_collector",
       "path": "src/ai_game_player/retention_collector.py",
       "source_location": {
-        "end_line": 481,
+        "end_line": 547,
         "start_line": 1
       },
       "symbols": [
@@ -70347,8 +72064,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 42,
-            "start_line": 41
+            "end_line": 48,
+            "start_line": 47
           }
         },
         {
@@ -70369,8 +72086,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 50,
-            "start_line": 49
+            "end_line": 56,
+            "start_line": 55
           }
         },
         {
@@ -70391,8 +72108,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 83,
-            "start_line": 57
+            "end_line": 89,
+            "start_line": 63
           }
         },
         {
@@ -70426,8 +72143,8 @@
           "signature": "(self, path: Path, *, max_bytes: int) -> bytes | None",
           "source_location": {
             "column": 4,
-            "end_line": 65,
-            "start_line": 65
+            "end_line": 71,
+            "start_line": 71
           }
         },
         {
@@ -70461,8 +72178,8 @@
           "signature": "(self, path: Path, document: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 74,
-            "start_line": 74
+            "end_line": 80,
+            "start_line": 80
           }
         },
         {
@@ -70490,8 +72207,8 @@
           "signature": "(self, path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 83,
-            "start_line": 83
+            "end_line": 89,
+            "start_line": 89
           }
         },
         {
@@ -70510,8 +72227,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 130,
-            "start_line": 90
+            "end_line": 136,
+            "start_line": 96
           }
         },
         {
@@ -70545,8 +72262,8 @@
           "signature": "(self, path: Path, *, max_bytes: int) -> bytes | None",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 98
+            "end_line": 107,
+            "start_line": 104
           }
         },
         {
@@ -70580,8 +72297,8 @@
           "signature": "(self, path: Path, document: dict[str, Any]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 110
+            "end_line": 121,
+            "start_line": 116
           }
         },
         {
@@ -70609,8 +72326,8 @@
           "signature": "(self, path: Path) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 130,
-            "start_line": 125
+            "end_line": 136,
+            "start_line": 131
           }
         },
         {
@@ -70631,8 +72348,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 140,
-            "start_line": 138
+            "end_line": 146,
+            "start_line": 144
           }
         },
         {
@@ -70647,8 +72364,68 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 150,
-            "start_line": 149
+            "end_line": 156,
+            "start_line": 155
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_serialized",
+          "parameters": [
+            {
+              "annotation": "Callable[..., _Result]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "method"
+            }
+          ],
+          "qualified_name": "_serialized",
+          "return_annotation": "Callable[..., _Result]",
+          "signature": "(method: Callable[..., _Result]) -> Callable[..., _Result]",
+          "source_location": {
+            "column": 0,
+            "end_line": 171,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "functools.wraps(method)"
+          ],
+          "kind": "function",
+          "name": "locked",
+          "parameters": [
+            {
+              "annotation": "RetentionCollector",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "args"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "_serialized.locked",
+          "return_annotation": "_Result",
+          "signature": "(self: RetentionCollector, *args: Any, **kwargs: Any) -> _Result",
+          "source_location": {
+            "column": 4,
+            "end_line": 169,
+            "start_line": 167
           }
         },
         {
@@ -70667,8 +72444,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 435,
-            "start_line": 161
+            "end_line": 509,
+            "start_line": 184
           }
         },
         {
@@ -70707,15 +72484,21 @@
               "has_default": true,
               "kind": "keyword_only",
               "name": "file_system"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "lock_timeout_seconds"
             }
           ],
           "qualified_name": "RetentionCollector.__init__",
           "return_annotation": "None",
-          "signature": "(self, store: FileSystemArtifactStore, policy: RetentionPolicy, *, clock: Callable[[], int] = …, file_system: RetentionFileSystem | None = …) -> None",
+          "signature": "(self, store: FileSystemArtifactStore, policy: RetentionPolicy, *, clock: Callable[[], int] = …, file_system: RetentionFileSystem | None = …, lock_timeout_seconds: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 168
+            "end_line": 207,
+            "start_line": 191
           }
         },
         {
@@ -70737,14 +72520,95 @@
           "signature": "(self) -> tuple[RetentionEntry, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 202,
-            "start_line": 191
+            "end_line": 227,
+            "start_line": 216
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "method",
+          "name": "coordination_lock",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionCollector.coordination_lock",
+          "return_annotation": "Iterator[float]",
+          "signature": "(self) -> Iterator[float]",
+          "source_location": {
+            "column": 4,
+            "end_line": 242,
+            "start_line": 238
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "_serialized"
+          ],
+          "kind": "method",
+          "name": "measure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionCollector.measure",
+          "return_annotation": "RetentionSnapshot",
+          "signature": "(self) -> RetentionSnapshot",
+          "source_location": {
+            "column": 4,
+            "end_line": 255,
+            "start_line": 253
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [],
+          "kind": "method",
+          "name": "discard_unindexed_object",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "digest"
+            }
+          ],
+          "qualified_name": "RetentionCollector.discard_unindexed_object",
+          "return_annotation": "bool",
+          "signature": "(self, digest: str) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 273,
+            "start_line": 266
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "_serialized"
+          ],
           "kind": "method",
           "name": "register",
           "parameters": [
@@ -70778,8 +72642,8 @@
           "signature": "(self, reference: ArtifactReference, *, entry_id: str, protected: bool = …) -> RetentionEntry",
           "source_location": {
             "column": 4,
-            "end_line": 246,
-            "start_line": 214
+            "end_line": 318,
+            "start_line": 286
           }
         },
         {
@@ -70813,8 +72677,8 @@
           "signature": "(self, size_bytes: int, *, sha256: str | None = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 262,
-            "start_line": 255
+            "end_line": 334,
+            "start_line": 327
           }
         },
         {
@@ -70842,8 +72706,8 @@
           "signature": "(self, live_references: Iterable[ArtifactReference] = …) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 275,
-            "start_line": 272
+            "end_line": 347,
+            "start_line": 344
           }
         },
         {
@@ -70871,14 +72735,16 @@
           "signature": "(self, live_references: Iterable[ArtifactReference] = …) -> RetentionPlan",
           "source_location": {
             "column": 4,
-            "end_line": 294,
-            "start_line": 284
+            "end_line": 366,
+            "start_line": 356
           }
         },
         {
           "bases": [],
           "data_model": null,
-          "decorators": [],
+          "decorators": [
+            "_serialized"
+          ],
           "kind": "method",
           "name": "set_protected",
           "parameters": [
@@ -70906,14 +72772,16 @@
           "signature": "(self, entry_id: str, protected: bool) -> RetentionEntry",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 303
+            "end_line": 397,
+            "start_line": 376
           }
         },
         {
           "bases": [],
           "data_model": null,
-          "decorators": [],
+          "decorators": [
+            "_serialized"
+          ],
           "kind": "method",
           "name": "collect",
           "parameters": [
@@ -70935,8 +72803,8 @@
           "signature": "(self, live_references: Iterable[ArtifactReference] = …) -> RetentionReport",
           "source_location": {
             "column": 4,
-            "end_line": 347,
-            "start_line": 336
+            "end_line": 421,
+            "start_line": 410
           }
         },
         {
@@ -70960,12 +72828,12 @@
             }
           ],
           "qualified_name": "RetentionCollector._measure_usage",
-          "return_annotation": "_StoreUsage",
-          "signature": "(self, entries: tuple[RetentionEntry, ...]) -> _StoreUsage",
+          "return_annotation": "StoreUsage",
+          "signature": "(self, entries: tuple[RetentionEntry, ...]) -> StoreUsage",
           "source_location": {
             "column": 4,
-            "end_line": 386,
-            "start_line": 357
+            "end_line": 460,
+            "start_line": 431
           }
         },
         {
@@ -70993,8 +72861,8 @@
           "signature": "(self, digest: str) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 422,
-            "start_line": 396
+            "end_line": 496,
+            "start_line": 470
           }
         },
         {
@@ -71016,8 +72884,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 435,
-            "start_line": 431
+            "end_line": 509,
+            "start_line": 505
           }
         },
         {
@@ -71031,15 +72899,37 @@
             "dataclass(frozen=True)"
           ],
           "kind": "class",
-          "name": "_StoreUsage",
+          "name": "StoreUsage",
           "parameters": [],
-          "qualified_name": "_StoreUsage",
+          "qualified_name": "StoreUsage",
           "return_annotation": null,
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 447,
-            "start_line": 444
+            "end_line": 521,
+            "start_line": 518
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RetentionSnapshot",
+          "parameters": [],
+          "qualified_name": "RetentionSnapshot",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 531,
+            "start_line": 529
           }
         },
         {
@@ -71061,31 +72951,8 @@
           "signature": "(references: Iterable[ArtifactReference]) -> frozenset[str]",
           "source_location": {
             "column": 0,
-            "end_line": 463,
-            "start_line": 457
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "_is_junction",
-          "parameters": [
-            {
-              "annotation": "Path",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "path"
-            }
-          ],
-          "qualified_name": "_is_junction",
-          "return_annotation": "bool",
-          "signature": "(path: Path) -> bool",
-          "source_location": {
-            "column": 0,
-            "end_line": 481,
-            "start_line": 473
+            "end_line": 547,
+            "start_line": 541
           }
         }
       ]
@@ -72142,6 +74009,364 @@
             "column": 0,
             "end_line": 164,
             "start_line": 162
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.cross_process_lock"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Iterator"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExitStack"
+            },
+            {
+              "alias": null,
+              "name": "contextmanager"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.cross_process_lock"
+          ],
+          "module": "ai_game_player.cross_process_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "cross_process_file_lock"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.retention_root_lock",
+      "path": "src/ai_game_player/retention_root_lock.py",
+      "source_location": {
+        "end_line": 187,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RetentionRootUnsafeError",
+          "parameters": [],
+          "qualified_name": "RetentionRootUnsafeError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [
+            "TimeoutError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RetentionLockTimeoutError",
+          "parameters": [],
+          "qualified_name": "RetentionLockTimeoutError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 36,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "_RootLockState",
+          "parameters": [],
+          "qualified_name": "_RootLockState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 48,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "is_junction",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "is_junction",
+          "return_annotation": "bool",
+          "signature": "(path: Path) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 70,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "require_plain_directory",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            }
+          ],
+          "qualified_name": "require_plain_directory",
+          "return_annotation": "None",
+          "signature": "(path: Path, label: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 86,
+            "start_line": 80
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_state_for",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "_state_for",
+          "return_annotation": "_RootLockState",
+          "signature": "(root: Path) -> _RootLockState",
+          "source_location": {
+            "column": 0,
+            "end_line": 98,
+            "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_acquire_os_lock",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lock_path"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "deadline"
+            }
+          ],
+          "qualified_name": "_acquire_os_lock",
+          "return_annotation": "ExitStack",
+          "signature": "(lock_path: Path, deadline: float) -> ExitStack",
+          "source_location": {
+            "column": 0,
+            "end_line": 125,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "contextmanager"
+          ],
+          "kind": "function",
+          "name": "retention_root_lock",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "timeout_seconds"
+            }
+          ],
+          "qualified_name": "retention_root_lock",
+          "return_annotation": "Iterator[float]",
+          "signature": "(root: Path, *, timeout_seconds: float = …) -> Iterator[float]",
+          "source_location": {
+            "column": 0,
+            "end_line": 187,
+            "start_line": 142
           }
         }
       ]
@@ -101698,6 +103923,2570 @@
             "column": 4,
             "end_line": 267,
             "start_line": 258
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.admission_pending_store",
+        "ai_game_player.artifact_admission",
+        "ai_game_player.artifact_store",
+        "ai_game_player.retention_collector",
+        "ai_game_player.retention_index",
+        "ai_game_player.retention_policy",
+        "ai_game_player.retention_root_lock",
+        "tests.test_retention_root_lock"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "hashlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.admission_pending_store"
+          ],
+          "module": "ai_game_player.admission_pending_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "PENDING_DIRECTORY_NAME"
+            },
+            {
+              "alias": null,
+              "name": "AdmissionRecordError"
+            },
+            {
+              "alias": null,
+              "name": "PendingAdmission"
+            },
+            {
+              "alias": null,
+              "name": "PendingAdmissionStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_admission"
+          ],
+          "module": "ai_game_player.artifact_admission",
+          "names": [
+            {
+              "alias": null,
+              "name": "OUTCOME_COMMITTED"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOME_FAILED_PENDING_RETAINED"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOME_FAILED_ROLLED_BACK"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOME_LOCK_TIMEOUT"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOME_REJECTED_CAPACITY"
+            },
+            {
+              "alias": null,
+              "name": "OUTCOME_REJECTED_INVALID"
+            },
+            {
+              "alias": null,
+              "name": "STATE_INDEXED_BY_OTHER_ENTRY"
+            },
+            {
+              "alias": null,
+              "name": "STATE_NO_OBJECT"
+            },
+            {
+              "alias": null,
+              "name": "STATE_ORPHAN_CREATED"
+            },
+            {
+              "alias": null,
+              "name": "STATE_PREEXISTING"
+            },
+            {
+              "alias": null,
+              "name": "STATE_REGISTERED"
+            },
+            {
+              "alias": null,
+              "name": "ArtifactAdmissionCoordinator"
+            },
+            {
+              "alias": null,
+              "name": "ArtifactAdmissionError"
+            },
+            {
+              "alias": null,
+              "name": "ArtifactAdmissionRequest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 34,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactIntegrityError"
+            },
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 38,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_collector"
+          ],
+          "module": "ai_game_player.retention_collector",
+          "names": [
+            {
+              "alias": null,
+              "name": "RETENTION_INDEX_FILENAME"
+            },
+            {
+              "alias": null,
+              "name": "LocalRetentionFileSystem"
+            },
+            {
+              "alias": null,
+              "name": "RetentionCapacityError"
+            },
+            {
+              "alias": null,
+              "name": "RetentionCollector"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 44,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_index"
+          ],
+          "module": "ai_game_player.retention_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "RetentionIndexError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 45,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_policy"
+          ],
+          "module": "ai_game_player.retention_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "RetentionPolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 46,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_root_lock"
+          ],
+          "module": "ai_game_player.retention_root_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "RETENTION_LOCK_FILENAME"
+            },
+            {
+              "alias": null,
+              "name": "RetentionLockTimeoutError"
+            },
+            {
+              "alias": null,
+              "name": "RetentionRootUnsafeError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 51,
+          "local_dependencies": [
+            "tests.test_retention_root_lock"
+          ],
+          "module": "tests.test_retention_root_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "close_process"
+            },
+            {
+              "alias": null,
+              "name": "make_directory_link"
+            },
+            {
+              "alias": null,
+              "name": "start_lock_holder"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_artifact_admission",
+      "path": "tests/test_artifact_admission.py",
+      "source_location": {
+        "end_line": 1096,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "LocalRetentionFileSystem"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FlakyFileSystem",
+          "parameters": [],
+          "qualified_name": "FlakyFileSystem",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 87,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FlakyFileSystem.__init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 65
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "write_index",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "document"
+            }
+          ],
+          "qualified_name": "FlakyFileSystem.write_index",
+          "return_annotation": null,
+          "signature": "(self, path, document)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "remove_object",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "FlakyFileSystem.remove_object",
+          "return_annotation": null,
+          "signature": "(self, path)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [
+            "FileSystemArtifactStore"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PostPublishFailureStore",
+          "parameters": [],
+          "qualified_name": "PostPublishFailureStore",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 95,
+            "start_line": 90
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "PostPublishFailureStore.put",
+          "return_annotation": null,
+          "signature": "(self, payload, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 95,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [
+            "PendingAdmissionStore"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FailingRemovalRecords",
+          "parameters": [],
+          "qualified_name": "FailingRemovalRecords",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 104,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "remove",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "admission_id"
+            }
+          ],
+          "qualified_name": "FailingRemovalRecords.remove",
+          "return_annotation": null,
+          "signature": "(self, admission_id)",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 101
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeClock",
+          "parameters": [],
+          "qualified_name": "FakeClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 112,
+            "start_line": 107
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "now_ms"
+            }
+          ],
+          "qualified_name": "FakeClock.__init__",
+          "return_annotation": "None",
+          "signature": "(self, now_ms: int = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeClock.__call__",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "payload_of",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "size"
+            }
+          ],
+          "qualified_name": "payload_of",
+          "return_annotation": "bytes",
+          "signature": "(label: str, size: int) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 116,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "request_for",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "entry_id"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "with_digest"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "protected"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "sensitive"
+            }
+          ],
+          "qualified_name": "request_for",
+          "return_annotation": "ArtifactAdmissionRequest",
+          "signature": "(payload: bytes, entry_id: str, *, with_digest: bool = …, protected: bool = …, sensitive: bool = …) -> ArtifactAdmissionRequest",
+          "source_location": {
+            "column": 0,
+            "end_line": 136,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "store_payload",
+          "parameters": [
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "store_payload",
+          "return_annotation": null,
+          "signature": "(payload: bytes)",
+          "source_location": {
+            "column": 0,
+            "end_line": 140,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "AdmissionTestCase",
+          "parameters": [],
+          "qualified_name": "AdmissionTestCase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 201,
+            "start_line": 143
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "make_coordinator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "store"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "file_system"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "policy"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "records"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "lock_timeout_seconds"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "trace"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.make_coordinator",
+          "return_annotation": "ArtifactAdmissionCoordinator",
+          "signature": "(self, *, store = …, file_system = …, policy = …, records = …, lock_timeout_seconds: float = …, trace = …) -> ArtifactAdmissionCoordinator",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 155
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "entries",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "coordinator"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.entries",
+          "return_annotation": null,
+          "signature": "(self, coordinator = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 179,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "object_digests",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.object_digests",
+          "return_annotation": "list[str]",
+          "signature": "(self) -> list[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "pending_files",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.pending_files",
+          "return_annotation": "list[str]",
+          "signature": "(self) -> list[str]",
+          "source_location": {
+            "column": 4,
+            "end_line": 186,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "raw_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.raw_put",
+          "return_annotation": "str",
+          "signature": "(self, payload: bytes) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 194,
+            "start_line": 188
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "digest_with_prefix",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "prefix"
+            }
+          ],
+          "qualified_name": "AdmissionTestCase.digest_with_prefix",
+          "return_annotation": "bytes",
+          "signature": "(self, prefix: str) -> bytes",
+          "source_location": {
+            "column": 4,
+            "end_line": 201,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "AdmitCommitTest",
+          "parameters": [],
+          "qualified_name": "AdmitCommitTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 253,
+            "start_line": 204
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_commit_stores_registers_and_clears_pending",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmitCommitTest.test_commit_stores_registers_and_clears_pending",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 220,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_digest_reuses_one_object_for_two_entries",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmitCommitTest.test_same_digest_reuses_one_object_for_two_entries",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 230,
+            "start_line": 222
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_digest_needs_no_extra_capacity_at_the_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmitCommitTest.test_existing_digest_needs_no_extra_capacity_at_the_limit",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 242,
+            "start_line": 232
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unindexed_existing_object_counts_as_zero_when_digest_is_known",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "AdmitCommitTest.test_unindexed_existing_object_counts_as_zero_when_digest_is_known",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 253,
+            "start_line": 244
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "HardLimitTest",
+          "parameters": [],
+          "qualified_name": "HardLimitTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 299,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_over_limit_is_rejected_before_any_write",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "HardLimitTest.test_over_limit_is_rejected_before_any_write",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 272,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "port"
+            }
+          ],
+          "qualified_name": "HardLimitTest.test_over_limit_is_rejected_before_any_write.writer",
+          "return_annotation": null,
+          "signature": "(port)",
+          "source_location": {
+            "column": 8,
+            "end_line": 265,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unindexed_leftover_counts_toward_the_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "HardLimitTest.test_unindexed_leftover_counts_toward_the_limit",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 280,
+            "start_line": 274
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_entry_id_is_rejected_before_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "HardLimitTest.test_duplicate_entry_id_is_rejected_before_put",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 288,
+            "start_line": 282
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_entry_limit_is_enforced_before_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "HardLimitTest.test_entry_limit_is_enforced_before_put",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 299,
+            "start_line": 290
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ConcurrencyTest",
+          "parameters": [],
+          "qualified_name": "ConcurrencyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 472,
+            "start_line": 302
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_in_threads",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "jobs"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.run_in_threads",
+          "return_annotation": null,
+          "signature": "(self, jobs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 323,
+            "start_line": 303
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "index"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "job"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.run_in_threads.run",
+          "return_annotation": null,
+          "signature": "(index, job)",
+          "source_location": {
+            "column": 8,
+            "end_line": 312,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_two_writers_never_exceed_the_hard_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.test_two_writers_never_exceed_the_hard_limit",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 341,
+            "start_line": 325
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_many_writers_keep_total_within_limit_without_orphans",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.test_many_writers_keep_total_within_limit_without_orphans",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 365,
+            "start_line": 343
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_digest_concurrently_reuses_one_object",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.test_same_digest_concurrently_reuses_one_object",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 384,
+            "start_line": 367
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_admit_waits_for_a_collect_in_progress",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.test_admit_waits_for_a_collect_in_progress",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 416,
+            "start_line": 386
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_two_processes_admit_without_exceeding_the_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.test_two_processes_admit_without_exceeding_the_limit",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 472,
+            "start_line": 418
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FailureCompensationTest",
+          "parameters": [],
+          "qualified_name": "FailureCompensationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 645,
+            "start_line": 475
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_writer_failure_before_put_changes_nothing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_writer_failure_before_put_changes_nothing",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 489,
+            "start_line": 476
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "port"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_writer_failure_before_put_changes_nothing.writer",
+          "return_annotation": null,
+          "signature": "(port)",
+          "source_location": {
+            "column": 8,
+            "end_line": 480,
+            "start_line": 479
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_failure_after_publish_removes_the_new_object",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_failure_after_publish_removes_the_new_object",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 500,
+            "start_line": 491
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_register_failure_rolls_back_and_is_not_silent",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_register_failure_rolls_back_and_is_not_silent",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 517,
+            "start_line": 502
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exception_after_the_index_was_published_is_a_success",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_exception_after_the_index_was_published_is_a_success",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 531,
+            "start_line": 519
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unreadable_index_after_a_failed_register_keeps_object_and_record",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_unreadable_index_after_a_failed_register_keeps_object_and_record",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 545,
+            "start_line": 533
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_index_write_failure_leaves_the_previous_index_untouched",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_index_write_failure_leaves_the_previous_index_untouched",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 557,
+            "start_line": 547
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_preexisting_indexed_object_survives_a_failed_second_admission",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_preexisting_indexed_object_survives_a_failed_second_admission",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 574,
+            "start_line": 559
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_preexisting_unindexed_object_is_not_deleted_by_rollback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_preexisting_unindexed_object_is_not_deleted_by_rollback",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 589,
+            "start_line": 576
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_keyboard_interrupt_is_compensated_and_reraised_unwrapped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_keyboard_interrupt_is_compensated_and_reraised_unwrapped",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 603,
+            "start_line": 591
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "port"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_keyboard_interrupt_is_compensated_and_reraised_unwrapped.writer",
+          "return_annotation": null,
+          "signature": "(port)",
+          "source_location": {
+            "column": 8,
+            "end_line": 596,
+            "start_line": 594
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rollback_failure_retains_pending_record_for_recovery",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_rollback_failure_retains_pending_record_for_recovery",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 629,
+            "start_line": 605
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cleanup_failure_after_success_does_not_fail_the_admission",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FailureCompensationTest.test_cleanup_failure_after_success_does_not_fail_the_admission",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 645,
+            "start_line": 631
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PendingRecoveryTest",
+          "parameters": [],
+          "qualified_name": "PendingRecoveryTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 812,
+            "start_line": 648
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "make_record",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "bytes",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "payload"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.make_record",
+          "return_annotation": "PendingAdmission",
+          "signature": "(self, payload: bytes, **overrides) -> PendingAdmission",
+          "source_location": {
+            "column": 4,
+            "end_line": 664,
+            "start_line": 649
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_crashed_process_leaves_a_recoverable_record_and_releases_the_lock",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.test_crashed_process_leaves_a_recoverable_record_and_releases_the_lock",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 709,
+            "start_line": 666
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_states_are_classified_against_the_real_store_and_index",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.test_states_are_classified_against_the_real_store_and_index",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 754,
+            "start_line": 711
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_orphan_referenced_by_another_record_is_retained",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.test_orphan_referenced_by_another_record_is_retained",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 769,
+            "start_line": 756
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rollback_keeps_object_when_another_record_references_it",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.test_rollback_keeps_object_when_another_record_references_it",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 788,
+            "start_line": 771
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_corrupt_record_makes_inspection_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.test_corrupt_record_makes_inspection_fail_closed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 804,
+            "start_line": 790
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_record_whose_name_and_id_disagree_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PendingRecoveryTest.test_record_whose_name_and_id_disagree_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 812,
+            "start_line": 806
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "SafetyTest",
+          "parameters": [],
+          "qualified_name": "SafetyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 958,
+            "start_line": 815
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_corrupt_index_rejects_without_calling_the_writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_corrupt_index_rejects_without_calling_the_writer",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 830,
+            "start_line": 816
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "port"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_corrupt_index_rejects_without_calling_the_writer.writer",
+          "return_annotation": null,
+          "signature": "(port)",
+          "source_location": {
+            "column": 8,
+            "end_line": 824,
+            "start_line": 822
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_corrupt_object_metadata_rejects_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_corrupt_object_metadata_rejects_fail_closed",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 842,
+            "start_line": 832
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_root_link_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_root_link_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 853,
+            "start_line": 844
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lock_file_symlink_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_lock_file_symlink_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 868,
+            "start_line": 855
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_shard_directory_link_is_rejected_and_nothing_is_written_outside",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_shard_directory_link_is_rejected_and_nothing_is_written_outside",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 883,
+            "start_line": 870
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_pending_directory_link_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_pending_directory_link_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 897,
+            "start_line": 885
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_payload_size_mismatch_is_rejected_before_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_payload_size_mismatch_is_rejected_before_put",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 908,
+            "start_line": 899
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_payload_digest_mismatch_is_rejected_before_put",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_payload_digest_mismatch_is_rejected_before_put",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 916,
+            "start_line": 910
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_port_allows_one_put_and_exposes_no_store_or_path",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_port_allows_one_put_and_exposes_no_store_or_path",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 931,
+            "start_line": 918
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "port"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_port_allows_one_put_and_exposes_no_store_or_path.writer",
+          "return_annotation": null,
+          "signature": "(port)",
+          "source_location": {
+            "column": 8,
+            "end_line": 926,
+            "start_line": 921
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_writer_returning_without_using_the_port_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_writer_returning_without_using_the_port_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 942,
+            "start_line": 933
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_writer_must_return_the_reference_it_stored",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_writer_must_return_the_reference_it_stored",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 958,
+            "start_line": 944
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "writer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "port"
+            }
+          ],
+          "qualified_name": "SafetyTest.test_writer_must_return_the_reference_it_stored.writer",
+          "return_annotation": null,
+          "signature": "(port)",
+          "source_location": {
+            "column": 8,
+            "end_line": 953,
+            "start_line": 951
+          }
+        },
+        {
+          "bases": [
+            "AdmissionTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "LockTimeoutAndTraceTest",
+          "parameters": [],
+          "qualified_name": "LockTimeoutAndTraceTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 1039,
+            "start_line": 961
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lock_contention_fails_boundedly_without_a_transaction",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LockTimeoutAndTraceTest.test_lock_contention_fails_boundedly_without_a_transaction",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 981,
+            "start_line": 962
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trace_reports_lock_wait_transaction_time_and_rollbacks",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LockTimeoutAndTraceTest.test_trace_reports_lock_wait_transaction_time_and_rollbacks",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1009,
+            "start_line": 983
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_trace_callback_failure_does_not_affect_the_transaction",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LockTimeoutAndTraceTest.test_trace_callback_failure_does_not_affect_the_transaction",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1022,
+            "start_line": 1011
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "broken",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "LockTimeoutAndTraceTest.test_trace_callback_failure_does_not_affect_the_transaction.broken",
+          "return_annotation": null,
+          "signature": "(event)",
+          "source_location": {
+            "column": 8,
+            "end_line": 1013,
+            "start_line": 1012
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_path_emits_exactly_one_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "LockTimeoutAndTraceTest.test_every_path_emits_exactly_one_event",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1039,
+            "start_line": 1024
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RequestValidationTest",
+          "parameters": [],
+          "qualified_name": "RequestValidationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 1092,
+            "start_line": 1042
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "base",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "RequestValidationTest.base",
+          "return_annotation": "dict",
+          "signature": "(self, **overrides) -> dict",
+          "source_location": {
+            "column": 4,
+            "end_line": 1055,
+            "start_line": 1043
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_valid_request_is_accepted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RequestValidationTest.test_valid_request_is_accepted",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1059,
+            "start_line": 1057
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_fields_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RequestValidationTest.test_invalid_fields_are_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1081,
+            "start_line": 1061
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_admit_rejects_wrong_argument_types",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RequestValidationTest.test_admit_rejects_wrong_argument_types",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1092,
+            "start_line": 1083
           }
         }
       ]
@@ -184182,6 +188971,516 @@
             "column": 4,
             "end_line": 555,
             "start_line": 549
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.retention_root_lock"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.retention_root_lock"
+          ],
+          "module": "ai_game_player.retention_root_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "RETENTION_LOCK_FILENAME"
+            },
+            {
+              "alias": null,
+              "name": "RetentionLockTimeoutError"
+            },
+            {
+              "alias": null,
+              "name": "RetentionRootUnsafeError"
+            },
+            {
+              "alias": null,
+              "name": "retention_root_lock"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [],
+          "module": "_winapi",
+          "names": [
+            {
+              "alias": null,
+              "name": "_winapi"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_retention_root_lock",
+      "path": "tests/test_retention_root_lock.py",
+      "source_location": {
+        "end_line": 159,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_directory_link",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "link"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            }
+          ],
+          "qualified_name": "make_directory_link",
+          "return_annotation": "None",
+          "signature": "(link: Path, target: Path) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 35,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "start_lock_holder",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "start_lock_holder",
+          "return_annotation": "subprocess.Popen",
+          "signature": "(root: Path) -> subprocess.Popen",
+          "source_location": {
+            "column": 0,
+            "end_line": 51,
+            "start_line": 38
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "close_process",
+          "parameters": [
+            {
+              "annotation": "subprocess.Popen",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "process"
+            }
+          ],
+          "qualified_name": "close_process",
+          "return_annotation": "None",
+          "signature": "(process: subprocess.Popen) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 60,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RetentionRootLockTest",
+          "parameters": [],
+          "qualified_name": "RetentionRootLockTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 155,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.setUp",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 67,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lock_creates_root_and_reports_wait_milliseconds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_lock_creates_root_and_reports_wait_milliseconds",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_thread_can_reenter_and_lock_is_released_after_outermost",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_same_thread_can_reenter_and_lock_is_released_after_outermost",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_other_thread_waits_boundedly_then_times_out",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_other_thread_waits_boundedly_then_times_out",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_other_process_holding_the_lock_blocks_until_it_exits",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_other_process_holding_the_lock_blocks_until_it_exits",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lock_is_released_when_the_holder_process_crashes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_lock_is_released_when_the_holder_process_crashes",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_timeout_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_invalid_timeout_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 116,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_root_that_is_a_directory_link_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_root_that_is_a_directory_link_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 126,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lock_file_that_is_a_symlink_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest.test_lock_file_that_is_a_symlink_is_rejected",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 128
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_try_from_other_thread",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "timeout_seconds"
+            }
+          ],
+          "qualified_name": "RetentionRootLockTest._try_from_other_thread",
+          "return_annotation": null,
+          "signature": "(self, *, timeout_seconds: float)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "attempt",
+          "parameters": [],
+          "qualified_name": "RetentionRootLockTest._try_from_other_thread.attempt",
+          "return_annotation": "None",
+          "signature": "() -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 149,
+            "start_line": 144
           }
         }
       ]
