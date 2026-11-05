@@ -99,7 +99,9 @@ def read_active_control(path: Path) -> dict[str, object] | None:
         or len(bbox_size) != 2
         or any(type(value) is not int or value <= 0 for value in bbox_size)
     ):
-        raise RuntimeError("sample game active control has invalid identity, label, or dimensions")
+        raise RuntimeError(
+            "sample game active control has invalid identity, label, or dimensions"
+        )
     return {"action_id": action_id, "label": label, "bbox_size": tuple(bbox_size)}
 
 
@@ -131,7 +133,10 @@ def match_sample_control_to_image(
         largest_scale = max(width_scale, height_scale)
         if largest_scale <= 0:
             continue
-        if scale_difference <= largest_scale * SAMPLE_CONTROL_ASPECT_RATIO_RELATIVE_TOLERANCE:
+        if (
+            scale_difference
+            <= largest_scale * SAMPLE_CONTROL_ASPECT_RATIO_RELATIVE_TOLERANCE
+        ):
             matching_candidates.append(value)
     if len(matching_candidates) != 1:
         return None
@@ -180,7 +185,9 @@ def read_completed(path: Path) -> bool:
 #   戻り値: [WindowInfo: HWNDと列挙時PIDを含む対象情報]
 #   エラー: [期限内に対象が見つからない場合RuntimeError]
 # }
-def find_window(title: str, state_file: Path, timeout_seconds: float = 15.0) -> WindowInfo:
+def find_window(
+    title: str, state_file: Path, timeout_seconds: float = 15.0
+) -> WindowInfo:
     deadline = time.monotonic() + timeout_seconds
     selector = WindowsWindowSelector()
     while time.monotonic() < deadline:
@@ -192,18 +199,57 @@ def find_window(title: str, state_file: Path, timeout_seconds: float = 15.0) -> 
 
 
 # {
+#   責務: [wait_for_sample_ready: sample UIが最初の確認済み操作候補を描画するまで読取専用で待つ]
+#   処理: [windowの出現とstate fileだけでは最初の描画が済んでいないことがあり（#794で観測: 起動0.3秒の初回captureが
+#     候補0件で即失敗）、観測の読取だけを短周期で繰り返す。入力は一切送らず、期限内に候補が得られなければ失敗する]
+#   引数: [source: read()が(観測, 候補list)を返す観測源, timeout_seconds: 起動待ち予算, poll_seconds: 読取周期,
+#     monotonic/sleep: 試験用の時計差し替え]
+#   戻り値: [int: 候補が得られるまでの読取回数]
+#   エラー: [RuntimeError: 期限内に確認済み候補が得られない。読取の例外は握り潰さず期限まで再試行しない]
+# }
+def wait_for_sample_ready(
+    source,
+    timeout_seconds: float = 20.0,
+    poll_seconds: float = 0.1,
+    monotonic=time.monotonic,
+    sleep=time.sleep,
+) -> int:
+    deadline = monotonic() + timeout_seconds
+    reads = 0
+    while True:
+        reads += 1
+        _, candidates = source.read()
+        if candidates:
+            return reads
+        if monotonic() >= deadline:
+            raise RuntimeError(
+                f"sample UI did not render a confirmed control within {timeout_seconds:g}s ({reads} reads)"
+            )
+        sleep(poll_seconds)
+
+
+# {
 #   責務: [main: Windows上で自動候補によるサンプルゲームE2Eを実行する]
 #   処理: [サンプルを起動し、HWND/PIDを結び付けてlive閉ループを検証する]
 #   引数: []
 #   戻り値: [int: 成功・失敗を示す終了コード]
 # }
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Kadoka closed-loop Windows E2E acceptance")
+    parser = argparse.ArgumentParser(
+        description="Run Kadoka closed-loop Windows E2E acceptance"
+    )
     parser.add_argument("--steps", type=int, default=24, help="sample milestone length")
-    parser.add_argument("--duration", type=float, default=0.0, help="optional minimum run duration in seconds")
+    parser.add_argument(
+        "--duration",
+        type=float,
+        default=0.0,
+        help="optional minimum run duration in seconds",
+    )
     parser.add_argument("--data-dir", type=Path, default=Path("build/e2e/game"))
     parser.add_argument("--log", type=Path, default=Path("build/e2e/e2e_trace.jsonl"))
-    parser.add_argument("--state-file", type=Path, default=Path("build/e2e/sample_state.json"))
+    parser.add_argument(
+        "--state-file", type=Path, default=Path("build/e2e/sample_state.json")
+    )
     args = parser.parse_args()
     if os.name != "nt":
         raise RuntimeError("Windows E2E acceptance requires Windows")
@@ -223,7 +269,16 @@ def main() -> int:
 
     sample_steps = max(args.steps, 100000 if args.duration else args.steps)
     process = subprocess.Popen(
-        [sys.executable, str(sample_script), "--state-file", str(state_file), "--steps", str(sample_steps), "--title", TITLE],
+        [
+            sys.executable,
+            str(sample_script),
+            "--state-file",
+            str(state_file),
+            "--steps",
+            str(sample_steps),
+            "--title",
+            TITLE,
+        ],
         cwd=root,
     )
     pipeline: DecisionPipeline | None = None
@@ -231,6 +286,7 @@ def main() -> int:
         window = find_window(TITLE, state_file)
         handle = window.handle
         source = WindowsSampleObservationSource(handle, state_file)
+        wait_for_sample_ready(source)
         pipeline = DecisionPipeline(
             source,
             data_dir,

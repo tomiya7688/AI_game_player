@@ -7,7 +7,11 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 
-from ai_game_player.fail_safe_runtime import FailSafeRuntime, FailSafeState
+from ai_game_player.fail_safe_runtime import (
+    FailSafeConfig,
+    FailSafeRuntime,
+    FailSafeState,
+)
 from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.pipeline import DecisionPipeline
@@ -40,8 +44,13 @@ class ComparisonPreflightTests(unittest.TestCase):
         self.default_patch.start()
         self.addCleanup(self.default_patch.stop)
         self.controller = RunController()
+        # 実時計と実heartbeat threadを使うため、高負荷の全件実行でthreadが0.75秒以上止まると
+        # 失効leaseを延長しない規則（Issue #794）でlease_expiredになる。このfileはStop/観測期限の
+        # 試験でありlease期限を検証しないので、試験専用にleaseを長くする（製品既定値は不変）。
         self.runtime = FailSafeRuntime(
-            Path(self.directory.name) / "runtime", external_watchdog=False
+            Path(self.directory.name) / "runtime",
+            FailSafeConfig(lease_timeout_seconds=30.0),
+            external_watchdog=False,
         )
         self.target = TargetState(123, 456, True, True, True, 304, 304, 0, 0, 304, 304)
         self.probe = SimpleNamespace(

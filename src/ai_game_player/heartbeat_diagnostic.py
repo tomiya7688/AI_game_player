@@ -13,13 +13,23 @@ _MARKS = {
     "lock_acquired_mono_ns": "runtime_lock",
     "persisted_read_started_mono_ns": "persisted_read",
     "persisted_read_finished_mono_ns": "persisted_read",
+    "renewal_mono_ns": "renewal",
     "lease_write_started_mono_ns": "lease_write",
     "lease_write_finished_mono_ns": "lease_write",
     "finished_mono_ns": "complete",
 }
 _RESULTS = frozenset(
-    ("pending", "renewed", "not_active", "persisted_stop", "storage_failure", "raised")
+    (
+        "pending",
+        "renewed",
+        "not_active",
+        "lease_expired",
+        "persisted_stop",
+        "storage_failure",
+        "raised",
+    )
 )
+_SUMMARY_SAMPLES = 2048
 
 
 # {
@@ -46,6 +56,7 @@ class _Entry:
     clock_invalid: bool = False
     entry_mono_ns: int | None = None
     lock_acquired_mono_ns: int | None = None
+    renewal_mono_ns: int | None = None
     persisted_read_started_mono_ns: int | None = None
     persisted_read_finished_mono_ns: int | None = None
     lease_write_started_mono_ns: int | None = None
@@ -73,6 +84,13 @@ class HeartbeatDiagnostics:
         self._completed: deque[_Entry] = deque(maxlen=8)
         self._in_progress: _Entry | None = None
         self._sequence = 0
+        self._renewals = 0
+        self._negative_margins = 0
+        self._margin_count = 0
+        self._margin_min: float | None = None
+        self._margins_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
+        self._durations_ms: deque[float] = deque(maxlen=_SUMMARY_SAMPLES)
+        self._previous_renewal: _Entry | None = None
 
     # {
     #   責務: [begin: heartbeat入口の診断連番とmonotonic時刻を固定する]
@@ -150,8 +168,69 @@ class HeartbeatDiagnostics:
             self._completed.append(row)
             if self._in_progress is row:
                 self._in_progress = None
+            self._summarize(row)
         except Exception:
             pass
+
+    # {
+    #   責務: [_summarize: 完了heartbeatの処理時間と前回期限に対する保存完了の余裕を有界に集計する]
+    #   引数: [row: 完了record] 戻り値: [なし]
+    #   処理: [余裕ms = 前回heartbeatの期限 − (今回の更新Unix秒 + 更新から書込完了までのmonotonic差)。
+    #     main threadの更新は含まないため実際の余裕の下限。連番が途切れた・時計不正の行は余裕を計算しない]
+    # }
+    def _summarize(self, row: _Entry) -> None:
+        if row.result != "renewed" or row.clock_invalid:
+            self._previous_renewal = None
+            return
+        self._renewals += 1
+        if row.entry_mono_ns is not None and row.finished_mono_ns is not None:
+            self._durations_ms.append((row.finished_mono_ns - row.entry_mono_ns) / 1e6)
+        previous = self._previous_renewal
+        self._previous_renewal = row
+        if (
+            previous is None
+            or previous.sequence + 1 != row.sequence
+            or previous.lease_expires_unix_seconds is None
+            or row.renewal_unix_seconds is None
+            or row.renewal_mono_ns is None
+            or row.lease_write_finished_mono_ns is None
+        ):
+            return
+        committed = (
+            row.renewal_unix_seconds
+            + (row.lease_write_finished_mono_ns - row.renewal_mono_ns) / 1e9
+        )
+        margin = (previous.lease_expires_unix_seconds - committed) * 1000
+        self._margins_ms.append(margin)
+        self._margin_count += 1
+        if self._margin_min is None or margin < self._margin_min:
+            self._margin_min = margin
+        if margin < 0:
+            self._negative_margins += 1
+
+    # {
+    #   責務: [summary: 集計値を固定keyの有限数値metadataへ複製する]
+    #   引数: [なし] 戻り値: [dict: 標本が無い統計はNone]
+    #   処理: [renewals/margin_samples/negative_margin_count/margin_ms_minは全期間の累積、
+    #     p05/p50/cycle統計は直近window_samples件。余裕を計算できない更新はrenewals−margin_samplesに現れる]
+    # }
+    def summary(self) -> dict[str, object]:
+        margins = sorted(self._margins_ms)
+        durations = sorted(self._durations_ms)
+        return {
+            "renewals": self._renewals,
+            "margin_samples": self._margin_count,
+            "negative_margin_count": self._negative_margins,
+            "margin_ms_min": (
+                None if self._margin_min is None else _rounded(self._margin_min)
+            ),
+            "window_samples": _SUMMARY_SAMPLES,
+            "margin_ms_p05": _percentile(margins, 0.05),
+            "margin_ms_p50": _percentile(margins, 0.50),
+            "duration_ms_p50": _percentile(durations, 0.50),
+            "duration_ms_p95": _percentile(durations, 0.95),
+            "duration_ms_max": _rounded(durations[-1]) if durations else None,
+        }
 
     # {
     #   責務: [snapshot: 完了8件と進行中1件を32KiB未満の固定metadataへ複製する]
@@ -172,11 +251,12 @@ class HeartbeatDiagnostics:
             ):
                 return None
             result: dict[str, object] = {
-                "schema_version": 1,
+                "schema_version": 2,
                 "clock_scope": "current_parent_process_only",
                 "capacity": 8,
                 "completed": completed,
                 "in_progress": current,
+                "summary": self.summary(),
             }
             if (
                 len(
@@ -193,7 +273,22 @@ class HeartbeatDiagnostics:
 
 
 # {
-#   責務: [_valid_wall: 複製したUnix秒を有限かつ有界な診断値へ限定する]
+#   責務: [_percentile/_rounded: 整列済み標本の最近傍順位値を小数3桁の有限値で返す]
+#   引数: [ordered: 昇順標本, fraction: 0..1] 戻り値: [floatまたはNone: 標本なし・非有限はNone]
+# }
+def _percentile(ordered: list[float], fraction: float) -> float | None:
+    if not ordered:
+        return None
+    index = min(len(ordered) - 1, max(0, math.ceil(fraction * len(ordered)) - 1))
+    return _rounded(ordered[index])
+
+
+def _rounded(value: float) -> float | None:
+    return round(value, 3) if math.isfinite(value) else None
+
+
+# {
+#   責務: [_valid_wall:複製したUnix秒を有限かつ有界な診断値へ限定する]
 #   引数: [value: 診断へ複製する既存値] 戻り値: [bool: 型・範囲・有限性の適合]
 #   処理: [bool・巨大整数・非数値を先に拒否し、時計やauthorityは更新しない]
 # }

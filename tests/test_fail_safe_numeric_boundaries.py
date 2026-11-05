@@ -54,8 +54,10 @@ class FailSafeNumericBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             clock = FakeClock()
             runtime = self.runtime(directory, clock)
-            clock.advance(3)
-            self.assertTrue(runtime.heartbeat())
+            # 失効済みleaseはheartbeatで延長しない（Issue #794）ため、TTL内の間隔で3秒間更新を続ける。
+            for _ in range(6):
+                clock.advance(0.5)
+                self.assertTrue(runtime.heartbeat())
             command = runtime.make_command("move", target_pid=4242, target_handle=99)
             decision = runtime.check_command(command)
             self.assertFalse(decision.allowed)

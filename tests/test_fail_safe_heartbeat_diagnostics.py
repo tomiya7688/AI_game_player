@@ -36,6 +36,11 @@ class CountingStore(AtomicJsonStore):
         self.writes += 1
         super().write(value)
 
+    # heartbeatは永続Stop確認と書込を1回のlock内の条件付き書込で行う（Issue #794）。
+    def replace_unless(self, value, reject):
+        self.writes += 1
+        return super().replace_unless(value, reject)
+
 
 class HeartbeatDiagnosticTests(unittest.TestCase):
     def runtime(self, path, enabled=False):
@@ -67,7 +72,7 @@ class HeartbeatDiagnosticTests(unittest.TestCase):
                     store.reads - before[1],
                     store.writes - before[2],
                 ),
-                (2, 1, 1),
+                (2, 0, 1),
             )
             runtime.close()
 
@@ -104,6 +109,7 @@ class HeartbeatDiagnosticTests(unittest.TestCase):
                         "lock_acquired_mono_ns",
                         "persisted_read_started_mono_ns",
                         "persisted_read_finished_mono_ns",
+                        "renewal_mono_ns",
                         "lease_write_started_mono_ns",
                         "lease_write_finished_mono_ns",
                         "finished_mono_ns",
@@ -146,15 +152,15 @@ class HeartbeatDiagnosticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             runtime, _, store = self.runtime(Path(directory), True)
             entered, release = threading.Event(), threading.Event()
-            original = store.read
+            original = store.replace_unless
 
-            def blocked():
+            def blocked(value, reject):
                 entered.set()
                 self.assertTrue(release.wait(2))
-                return original()
+                return original(value, reject)
 
             results = []
-            with patch.object(store, "read", blocked):
+            with patch.object(store, "replace_unless", blocked):
                 thread = threading.Thread(
                     target=lambda: results.append(runtime.heartbeat())
                 )
@@ -199,17 +205,20 @@ class HeartbeatDiagnosticTests(unittest.TestCase):
             row = runtime._heartbeat_diagnostics._completed[-1]
             row.phase = "private" * 10000
             self.assertIsNone(runtime.heartbeat_diagnostic_snapshot())
-            error = PermissionError(13, "private error must remain unchanged")
-            with (
-                patch.object(store, "read", side_effect=error),
-                self.assertRaises(PermissionError) as raised,
-            ):
-                runtime.heartbeat()
-            self.assertIs(raised.exception, error)
-            self.assertEqual(runtime.state, FailSafeState.ACTIVE)
             runtime._heartbeat_diagnostics = object()
             self.assertIsNone(runtime.heartbeat_diagnostic_snapshot())
             self.assertTrue(runtime.heartbeat())
+            # 永続読取の失敗は条件付き書込内の保存失敗として即fail-closedになる（Issue #794）。
+            runtime.configure_heartbeat_diagnostics(enabled=True)
+            error = PermissionError(13, "private error must remain unchanged")
+            with patch.object(store, "replace_unless", side_effect=error):
+                self.assertFalse(runtime.heartbeat())
+            self.assertEqual(runtime.state, FailSafeState.RECOVERY_REQUIRED)
+            self.assertEqual(runtime.reason, "heartbeat_storage_failure")
+            self.assertEqual(
+                runtime.heartbeat_diagnostic_snapshot()["completed"][-1]["result"],
+                "storage_failure",
+            )
             runtime.close()
 
     def test_clock_regression_is_diagnostic_only_and_does_not_consume_wall_clock(self):
@@ -247,7 +256,7 @@ class HeartbeatDiagnosticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             runtime, _, store = self.runtime(Path(directory), True)
             epoch = runtime.epoch
-            with patch.object(store, "write", side_effect=OSError("disk")):
+            with patch.object(store, "replace_unless", side_effect=OSError("disk")):
                 self.assertFalse(runtime.heartbeat())
             self.assertEqual(runtime.epoch, epoch)
             self.assertEqual(runtime.state, FailSafeState.RECOVERY_REQUIRED)

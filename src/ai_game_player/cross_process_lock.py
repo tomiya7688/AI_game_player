@@ -19,8 +19,12 @@ def cross_process_file_lock(
     if timeout_seconds <= 0 or poll_seconds <= 0:
         raise ValueError("file lock timing must be positive")
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    stream = path.open("a+b")
+    # 既存directoryでは毎回のmkdir/statを省く（heartbeatのGIL再取得回数を減らす、Issue #794）。
+    try:
+        stream = path.open("a+b")
+    except FileNotFoundError:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        stream = path.open("a+b")
     locked = False
     try:
         if os.name == "nt":

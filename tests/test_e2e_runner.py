@@ -10,7 +10,7 @@ from ai_game_player.no_allowed_candidates_error import NoAllowedCandidatesError
 from ai_game_player.engine import GamePlayerEngine
 from ai_game_player.provider import RuleProvider
 from ai_game_player.run_control import ExecutionCancelled
-from tools.run_windows_e2e import read_completed
+from tools.run_windows_e2e import read_completed, wait_for_sample_ready
 
 
 class FakeResult:
@@ -91,6 +91,61 @@ class CompletionBoundaryPipeline(FakePipeline):
         result = super().run_and_execute(purpose)
         result.mode = self.mode
         return result
+
+
+class SampleReadinessTest(unittest.TestCase):
+    """Issue #794: 起動直後の描画前captureで候補0件のまま即失敗しない（入力は送らない）。"""
+
+    class Source:
+        def __init__(self, empty_reads):
+            self.empty_reads = empty_reads
+            self.reads = 0
+
+        def read(self):
+            self.reads += 1
+            candidate = ActionCandidate("advance-1", "click", "ADVANCE", 1, 1, 1.0)
+            return None, [] if self.reads <= self.empty_reads else [candidate]
+
+    class Clock:
+        def __init__(self):
+            self.now = 0.0
+            self.sleeps = []
+
+        def monotonic(self):
+            return self.now
+
+        def sleep(self, seconds):
+            self.sleeps.append(seconds)
+            self.now += seconds
+
+    def test_waits_through_unrendered_first_frames_then_returns(self):
+        clock, source = self.Clock(), self.Source(empty_reads=3)
+        reads = wait_for_sample_ready(
+            source, 5.0, 0.1, monotonic=clock.monotonic, sleep=clock.sleep
+        )
+        self.assertEqual(reads, 4)
+        self.assertEqual(clock.sleeps, [0.1, 0.1, 0.1])
+
+    def test_ready_on_first_read_does_not_sleep(self):
+        clock, source = self.Clock(), self.Source(empty_reads=0)
+        wait_for_sample_ready(
+            source, 5.0, 0.1, monotonic=clock.monotonic, sleep=clock.sleep
+        )
+        self.assertEqual(clock.sleeps, [])
+
+    def test_fails_closed_when_nothing_renders_within_budget(self):
+        clock, source = self.Clock(), self.Source(empty_reads=10**6)
+        with self.assertRaisesRegex(RuntimeError, "did not render a confirmed control"):
+            wait_for_sample_ready(
+                source, 1.0, 0.25, monotonic=clock.monotonic, sleep=clock.sleep
+            )
+        self.assertLessEqual(clock.now, 1.25)
+
+    def test_read_errors_are_not_swallowed(self):
+        source = self.Source(0)
+        source.read = lambda: (_ for _ in ()).throw(RuntimeError("capture failed"))
+        with self.assertRaisesRegex(RuntimeError, "capture failed"):
+            wait_for_sample_ready(source, 1.0)
 
 
 class E2ERunnerTest(unittest.TestCase):

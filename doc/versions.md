@@ -1,3 +1,10 @@
+## 2026-11-05 Observation Lease失効の根因修正（Issue #794）
+
+- CI E2Eの`runtime_not_active (lease_expired)`の因果を2件の自然失敗ringで特定: CPU-boundな認識処理とのGIL競合でheartbeatの永続読取・書込が数百msに伸び、「完了後に0.25秒待つ」周期のため更新間隔が761.5ms/749.7ms＋書込となって0.75秒TTLを超えた。[設計](design/issue-794-observation-lease.md)。
+- heartbeatを開始時刻基準の周期にし、永続Stop確認と書込を1回のcross-process lock内の条件付き書込（`AtomicJsonStore.replace_unless`）に統合、更新時刻を書込直前に取得。lock/書込の冗長なsyscallを削減。TTL・watchdog・Stop・fsyncは不変。
+- 安全側の修正: 失効済みleaseをheartbeat/観測/完了処理で延長しない。読取と書込の間にwatchdogが書いたStopを`active`で上書きしない（lost update）。closeが直前の状態・理由をjournalへ残す。
+- heartbeat診断schema 2（`renewal_mono_ns`、`lease_expired`、`summary`）とcampaignの`heartbeat_lease_budget`出力を追加。
+- `tools/run_windows_e2e.py`: sample UIの最初の描画前に候補0件で即失敗する起動競合（leaseとは別原因、`origin/main`でも再現）に対し、確認済み候補が得られるまで読取専用で最大20秒待つ`wait_for_sample_ready`を追加。入力は送らず、期限切れは失敗。
 ## 2026-11-05 merge gateのDraft事前検出と読取照会の有界再試行（Issue #807）
 
 - `tools/finish_pr_merge.py`は`gh pr view`で`isDraft`を取得し、Draft PRをCI待機前に「Pull request is a draft」と明示して停止します（自動でreadyにはしません）。merge直前の再取得でも検査します。[設計](design/issue-807-merge-gate-draft-retry.md)。

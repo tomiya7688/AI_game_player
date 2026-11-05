@@ -59,6 +59,14 @@ re-arm直後でもcapture freshnessは未成立であり、最初の新しいObs
 
 外部watchdogも同じlease fileを読む。外部watchdogが `RECOVERY_REQUIRED` を書いた場合、親heartbeatはdisk stateを読み戻し、ACTIVEで上書きせず自身もRecoveryへ移る。
 
+lease延長の規則（Issue #794）:
+
+- heartbeat・`record_observation`・`complete_command`は、既に期限を過ぎたleaseを延長しない（`now > lease_expires_at`で`RECOVERY_REQUIRED/lease_expired`）。境界演算子はwatchdog・`check_command`と同じで、`now == expires`は未失効。延長できるのは初回leaseと明示rearmだけ。
+- heartbeat・`record_observation`・`check_command`・`complete_command`のlease書込は`AtomicJsonStore.replace_unless`による条件付き書込で、1回のcross-process lock内で読取→同一epochの停止状態か判定→書込を行う。読取と書込の間にwatchdogが書いたStopを`active`で上書きしない（lost update防止）。別epochの値は従来どおり無視・上書きする。同一epochで`state`が空・欠落した不完全なleaseも停止として扱う。初期化（`__init__`）・arm（`_arm_locked`）・遷移（`_persist_or_fail`）・watchdogの書込は無条件書込である。
+- heartbeatは別の永続読取を持たず、lock内の読取・停止判定の後、書込直前にauthority時計で失効確認と延長を行う。更新から保存完了までは書込時間だけになる。
+- heartbeat周期は開始時刻基準（monotonic）で、処理が0.25秒を超えたら待たずに次を始める。完了後に0.25秒待つ旧方式では、CPU-boundな認識処理とのGIL競合でI/Oが数百msに伸びた際、更新間隔が書込＋0.25秒＋次の読取となって0.75秒を超えた（CIの自然失敗2件、設計書`doc/design/issue-794-observation-lease.md`）。
+- closeはjournal detailsに遷移前の`previous_state`/`previous_reason`を残す。
+
 heartbeatは「processが生きている」信号であって、capture freshnessの代わりにはならない。
 
 ## Observation freshness
@@ -226,6 +234,6 @@ Issue #56 Hybrid / Native Runtimeでは、このcontractのうち高頻度・OS�
 保証対象は、OSが稼働している限りAI/controller processがcrash/OOM/deadlock/通信断してもleaseを更新できないため入力権限が失効し、独立watchdogがrelease処理を行うことである。
 
 
-検証用heartbeat診断は`runtime.configure_heartbeat_diagnostics(enabled=True)`を初期化前に明示指定した場合だけ有効です。通常は無効で、診断用clock取得・file書込・snapshot生成を行いません。`runtime.heartbeat_diagnostic_snapshot()`はRuntime lockを取らず、直近8件の完了heartbeatと進行中1件を32KiB未満の固定numeric/enum metadataとして返します。entry/Runtime-lock取得/persisted-read/lease-writeのmonotonic時刻と固定結果を記録します。wall Unix値は既存renew処理が既に一度取得した値と元のlease期限だけを複製し、追加でauthority用`self.clock()`を呼びません。失敗処理ではcloseが単一lease/journalを書き換える前にsnapshotを取得します。
+検証用heartbeat診断は`runtime.configure_heartbeat_diagnostics(enabled=True)`を初期化前に明示指定した場合だけ有効です。通常は無効で、診断用clock取得・file書込・snapshot生成を行いません。`runtime.heartbeat_diagnostic_snapshot()`はRuntime lockを取らず、直近8件の完了heartbeatと進行中1件を32KiB未満の固定numeric/enum metadataとして返します。entry/Runtime-lock取得/persisted-read/renewal/lease-writeのmonotonic時刻と固定結果（`lease_expired`を含む）を記録します。schema_version 2では`summary`に更新数、前回heartbeat期限に対する保存完了の余裕ms（min/p05/p50、main thread更新を含まない下限）、1回のheartbeat処理時間ms（entry→完了、p50/p95/max。開始間隔ではない）、負の余裕件数を持ちます。`tools/run_2048_campaign.py --save-heartbeat-diagnostics`はepisode close前にこれを`heartbeat_lease_budget`の1行JSONで出力します（成功runでも出力、判定には使わない）。wall Unix値は既存renew処理が既に一度取得した値と元のlease期限だけを複製し、追加でauthority用`self.clock()`を呼びません。失敗処理ではcloseが単一lease/journalを書き換える前にsnapshotを取得します。
 
 この診断は0.75秒の制御lease、5秒の観測期限、Stop/epoch/fence、fsync/atomic publication、heartbeat周期を変更しません。保存はmemoryだけで、進行中のlock/read/write待ちを調べるためのものです。OOM・不正metadata・診断時計後退は診断なし/clock_invalidへ落とし、元の返り値や例外を置き換えません。記録処理自体は少量のCPU時間を加えるため、Windowsの期限失効原因やI/O遅延の解決をこのコードだけで証明したとは扱いません。

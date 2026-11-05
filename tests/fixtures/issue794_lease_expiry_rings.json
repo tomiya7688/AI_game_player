@@ -1,0 +1,225 @@
+{
+ "source": "CI Windows sample loop and 2048 campaign E2E heartbeat ring (--save-heartbeat-diagnostics), Issue #794",
+ "lease_timeout_seconds": 0.75,
+ "heartbeat_interval_seconds": 0.25,
+ "runs": [
+  {
+   "run": "41938316919/attempt-1",
+   "rows": [
+    {
+     "sequence": 517,
+     "result": "renewed",
+     "entry_mono_ns": 412558882400,
+     "lock_acquired_mono_ns": 412558886700,
+     "persisted_read_started_mono_ns": 412558889400,
+     "persisted_read_finished_mono_ns": 412572885500,
+     "lease_write_started_mono_ns": 412572896200,
+     "lease_write_finished_mono_ns": 412630961700,
+     "finished_mono_ns": 412630966900,
+     "renewal_unix_seconds": 1793837331.325328,
+     "lease_expires_unix_seconds": 1793837332.075328
+    },
+    {
+     "sequence": 518,
+     "result": "renewed",
+     "entry_mono_ns": 412885249900,
+     "lock_acquired_mono_ns": 412885254500,
+     "persisted_read_started_mono_ns": 412885257400,
+     "persisted_read_finished_mono_ns": 412922594200,
+     "lease_write_started_mono_ns": 412922607500,
+     "lease_write_finished_mono_ns": 412959828200,
+     "finished_mono_ns": 412959832400,
+     "renewal_unix_seconds": 1793837331.675034,
+     "lease_expires_unix_seconds": 1793837332.425034
+    },
+    {
+     "sequence": 519,
+     "result": "renewed",
+     "entry_mono_ns": 413217540000,
+     "lock_acquired_mono_ns": 413217545400,
+     "persisted_read_started_mono_ns": 413217548400,
+     "persisted_read_finished_mono_ns": 413248893300,
+     "lease_write_started_mono_ns": 413248904500,
+     "lease_write_finished_mono_ns": 413281126600,
+     "finished_mono_ns": 413281131700,
+     "renewal_unix_seconds": 1793837332.00133,
+     "lease_expires_unix_seconds": 1793837332.75133
+    },
+    {
+     "sequence": 520,
+     "result": "renewed",
+     "entry_mono_ns": 413536144700,
+     "lock_acquired_mono_ns": 413536150300,
+     "persisted_read_started_mono_ns": 413536153300,
+     "persisted_read_finished_mono_ns": 413562440900,
+     "lease_write_started_mono_ns": 413562453600,
+     "lease_write_finished_mono_ns": 413606795600,
+     "finished_mono_ns": 413606800700,
+     "renewal_unix_seconds": 1793837332.3148754,
+     "lease_expires_unix_seconds": 1793837333.0648754
+    },
+    {
+     "sequence": 521,
+     "result": "renewed",
+     "entry_mono_ns": 413857512000,
+     "lock_acquired_mono_ns": 413857516500,
+     "persisted_read_started_mono_ns": 413857519500,
+     "persisted_read_finished_mono_ns": 413890874700,
+     "lease_write_started_mono_ns": 413890887500,
+     "lease_write_finished_mono_ns": 413931450400,
+     "finished_mono_ns": 413931455400,
+     "renewal_unix_seconds": 1793837332.6433065,
+     "lease_expires_unix_seconds": 1793837333.3933065
+    },
+    {
+     "sequence": 522,
+     "result": "renewed",
+     "entry_mono_ns": 414181665300,
+     "lock_acquired_mono_ns": 414189627400,
+     "persisted_read_started_mono_ns": 414189634100,
+     "persisted_read_finished_mono_ns": 414381885000,
+     "lease_write_started_mono_ns": 414381897700,
+     "lease_write_finished_mono_ns": 414694053800,
+     "finished_mono_ns": 414694060000,
+     "renewal_unix_seconds": 1793837333.1343122,
+     "lease_expires_unix_seconds": 1793837333.8843122
+    },
+    {
+     "sequence": 523,
+     "result": "renewed",
+     "entry_mono_ns": 414962743600,
+     "lock_acquired_mono_ns": 414962749100,
+     "persisted_read_started_mono_ns": 414962752500,
+     "persisted_read_finished_mono_ns": 415143409000,
+     "lease_write_started_mono_ns": 415143424100,
+     "lease_write_finished_mono_ns": 415145027800,
+     "finished_mono_ns": 415145031900,
+     "renewal_unix_seconds": 1793837333.8958294,
+     "lease_expires_unix_seconds": 1793837334.6458294
+    },
+    {
+     "sequence": 524,
+     "result": "persisted_stop",
+     "entry_mono_ns": 415410798900,
+     "lock_acquired_mono_ns": 415410803400,
+     "persisted_read_started_mono_ns": 415410806300,
+     "persisted_read_finished_mono_ns": 415417740300,
+     "lease_write_started_mono_ns": null,
+     "lease_write_finished_mono_ns": null,
+     "finished_mono_ns": 415417744400,
+     "renewal_unix_seconds": null,
+     "lease_expires_unix_seconds": null
+    }
+   ]
+  },
+  {
+   "run": "41941522328/attempt-1",
+   "rows": [
+    {
+     "sequence": 364,
+     "result": "renewed",
+     "entry_mono_ns": 547582635100,
+     "lock_acquired_mono_ns": 547582640600,
+     "persisted_read_started_mono_ns": 547582643100,
+     "persisted_read_finished_mono_ns": 547631687800,
+     "lease_write_started_mono_ns": 547631698300,
+     "lease_write_finished_mono_ns": 547694598900,
+     "finished_mono_ns": 547694604100,
+     "renewal_unix_seconds": 1793838834.892075,
+     "lease_expires_unix_seconds": 1793838835.642075
+    },
+    {
+     "sequence": 365,
+     "result": "renewed",
+     "entry_mono_ns": 547991716100,
+     "lock_acquired_mono_ns": 547991721900,
+     "persisted_read_started_mono_ns": 547991724400,
+     "persisted_read_finished_mono_ns": 548007293900,
+     "lease_write_started_mono_ns": 548007304900,
+     "lease_write_finished_mono_ns": 548077466500,
+     "finished_mono_ns": 548077471900,
+     "renewal_unix_seconds": 1793838835.2676811,
+     "lease_expires_unix_seconds": 1793838836.0176811
+    },
+    {
+     "sequence": 366,
+     "result": "renewed",
+     "entry_mono_ns": 548339865600,
+     "lock_acquired_mono_ns": 548339871100,
+     "persisted_read_started_mono_ns": 548339874100,
+     "persisted_read_finished_mono_ns": 548375227900,
+     "lease_write_started_mono_ns": 548375239400,
+     "lease_write_finished_mono_ns": 548413841000,
+     "finished_mono_ns": 548413846700,
+     "renewal_unix_seconds": 1793838835.6356156,
+     "lease_expires_unix_seconds": 1793838836.3856156
+    },
+    {
+     "sequence": 367,
+     "result": "renewed",
+     "entry_mono_ns": 548667737300,
+     "lock_acquired_mono_ns": 548667743200,
+     "persisted_read_started_mono_ns": 548667746300,
+     "persisted_read_finished_mono_ns": 548699471400,
+     "lease_write_started_mono_ns": 548699483100,
+     "lease_write_finished_mono_ns": 548754853800,
+     "finished_mono_ns": 548754858400,
+     "renewal_unix_seconds": 1793838835.9598591,
+     "lease_expires_unix_seconds": 1793838836.7098591
+    },
+    {
+     "sequence": 368,
+     "result": "renewed",
+     "entry_mono_ns": 549007752900,
+     "lock_acquired_mono_ns": 549007758200,
+     "persisted_read_started_mono_ns": 549007761000,
+     "persisted_read_finished_mono_ns": 549045508600,
+     "lease_write_started_mono_ns": 549045521300,
+     "lease_write_finished_mono_ns": 549091577300,
+     "finished_mono_ns": 549091581000,
+     "renewal_unix_seconds": 1793838836.3058965,
+     "lease_expires_unix_seconds": 1793838837.0558965
+    },
+    {
+     "sequence": 369,
+     "result": "renewed",
+     "entry_mono_ns": 549345750400,
+     "lock_acquired_mono_ns": 549345756100,
+     "persisted_read_started_mono_ns": 549345758700,
+     "persisted_read_finished_mono_ns": 549494181500,
+     "lease_write_started_mono_ns": 549494191700,
+     "lease_write_finished_mono_ns": 549755103900,
+     "finished_mono_ns": 549755109900,
+     "renewal_unix_seconds": 1793838836.754568,
+     "lease_expires_unix_seconds": 1793838837.504568
+    },
+    {
+     "sequence": 370,
+     "result": "renewed",
+     "entry_mono_ns": 550022836100,
+     "lock_acquired_mono_ns": 550022842100,
+     "persisted_read_started_mono_ns": 550022845300,
+     "persisted_read_finished_mono_ns": 550243849200,
+     "lease_write_started_mono_ns": 550243861500,
+     "lease_write_finished_mono_ns": 550269347300,
+     "finished_mono_ns": 550269350700,
+     "renewal_unix_seconds": 1793838837.5042365,
+     "lease_expires_unix_seconds": 1793838838.2542365
+    },
+    {
+     "sequence": 371,
+     "result": "persisted_stop",
+     "entry_mono_ns": 550529872500,
+     "lock_acquired_mono_ns": 550529878400,
+     "persisted_read_started_mono_ns": 550529881300,
+     "persisted_read_finished_mono_ns": 550578699100,
+     "lease_write_started_mono_ns": null,
+     "lease_write_finished_mono_ns": null,
+     "finished_mono_ns": 550578704400,
+     "renewal_unix_seconds": null,
+     "lease_expires_unix_seconds": null
+    }
+   ]
+  }
+ ]
+}
