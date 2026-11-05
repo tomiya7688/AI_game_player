@@ -63576,6 +63576,1761 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.recovery_models",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "deque"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_models"
+          ],
+          "module": "ai_game_player.recovery_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryAction"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptResult"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptStatus"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryBudget"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPlan"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPolicy"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryReason"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSeverity"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.recovery_controller",
+      "path": "src/ai_game_player/recovery_controller.py",
+      "source_location": {
+        "end_line": 792,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass"
+          ],
+          "kind": "class",
+          "name": "_RecoveryEpisode",
+          "parameters": [],
+          "qualified_name": "_RecoveryEpisode",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 49,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryController",
+          "parameters": [],
+          "qualified_name": "RecoveryController",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 770,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "RecoveryController.__init__",
+          "return_annotation": "None",
+          "signature": "(self, policy: RecoveryPolicy | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "state",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController.state",
+          "return_annotation": "RecoveryState",
+          "signature": "(self) -> RecoveryState",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 110
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "on_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "action_generation"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "target_lost"
+            }
+          ],
+          "qualified_name": "RecoveryController.on_event",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, event: SelfCheckEvent, *, snapshot_id: str, action_generation: int, now_monotonic: float, stop_requested: bool, target_lost: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 195,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "ack",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAttemptResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoveryController.ack",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, result: RecoveryAttemptResult, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 272,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "poll",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoveryController.poll",
+          "return_annotation": "RecoveryPlan | None",
+          "signature": "(self, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 314,
+            "start_line": 293
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "request_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController.request_stop",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 336,
+            "start_line": 331
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "reset",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController.reset",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 354,
+            "start_line": 352
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_reset_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController._reset_locked",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 379,
+            "start_line": 370
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_require_episode_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryController._require_episode_locked",
+          "return_annotation": "_RecoveryEpisode",
+          "signature": "(self) -> _RecoveryEpisode",
+          "source_location": {
+            "column": 4,
+            "end_line": 401,
+            "start_line": 398
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_accept_time_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_monotonic"
+            }
+          ],
+          "qualified_name": "RecoveryController._accept_time_locked",
+          "return_annotation": "None",
+          "signature": "(self, now_monotonic: float) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 425,
+            "start_line": 420
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_refuse_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_generation"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target_lost"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._refuse_locked",
+          "return_annotation": "RecoveryPlan | None",
+          "signature": "(self, action_generation: int, stop_requested: bool, target_lost: bool, snapshot_id: str) -> RecoveryPlan | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 486,
+            "start_line": 449
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_latch_external_stop_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._latch_external_stop_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, snapshot_id: str | None) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 508,
+            "start_line": 502
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_enter_scene_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scene_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._enter_scene_locked",
+          "return_annotation": "None",
+          "signature": "(self, scene_id: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 529,
+            "start_line": 524
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_advance_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._advance_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, now_monotonic: float, snapshot_id: str) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 572,
+            "start_line": 548
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_issue_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAction",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._issue_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 602,
+            "start_line": 590
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_resolve_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._resolve_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, snapshot_id: str) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 630,
+            "start_line": 618
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_fail_episode_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._fail_episode_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 670,
+            "start_line": 648
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_stop_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "event_ref"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "episode_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._stop_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, reason: RecoveryReason, snapshot_id: str | None, detail: str | None, *, event_ref: str | None = …, episode_id: int | None = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 709,
+            "start_line": 690
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_plan_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAction",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "RecoveryReason",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "attempt"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_reason"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "event_ref"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "episode_id"
+            }
+          ],
+          "qualified_name": "RecoveryController._plan_locked",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, action: RecoveryAction, reason: RecoveryReason, snapshot_id: str | None, *, attempt: int = …, stop_reason: str | None = …, event_ref: str | None = …, episode_id: int | None = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 770,
+            "start_line": 732
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_require_snapshot",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            }
+          ],
+          "qualified_name": "_require_snapshot",
+          "return_annotation": "None",
+          "signature": "(snapshot_id: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 792,
+            "start_line": 790
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.recovery_models",
+      "path": "src/ai_game_player/recovery_models.py",
+      "source_location": {
+        "end_line": 340,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryAction",
+          "parameters": [],
+          "qualified_name": "RecoveryAction",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 26,
+            "start_line": 22
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryState",
+          "parameters": [],
+          "qualified_name": "RecoveryState",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryReason",
+          "parameters": [],
+          "qualified_name": "RecoveryReason",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 79,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [
+            "str",
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryAttemptStatus",
+          "parameters": [],
+          "qualified_name": "RecoveryAttemptStatus",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 95,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryPolicy",
+          "parameters": [],
+          "qualified_name": "RecoveryPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 153,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 153,
+            "start_line": 137
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryBudget",
+          "parameters": [],
+          "qualified_name": "RecoveryBudget",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 170,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryPlan",
+          "parameters": [],
+          "qualified_name": "RecoveryPlan",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 261,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "correlation_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryPlan.correlation_id",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 225
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryPlan.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 261,
+            "start_line": 242
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "RecoveryAttemptResult",
+          "parameters": [],
+          "qualified_name": "RecoveryAttemptResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 340,
+            "start_line": 281
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryAttemptResult.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 315,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryAttemptResult.to_dict",
+          "return_annotation": "dict[str, object]",
+          "signature": "(self) -> dict[str, object]",
+          "source_location": {
+            "column": 4,
+            "end_line": 340,
+            "start_line": 331
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.recovery_controller",
+        "ai_game_player.recovery_models",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Mapping"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "Protocol"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_controller"
+          ],
+          "module": "ai_game_player.recovery_controller",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_models"
+          ],
+          "module": "ai_game_player.recovery_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryAction"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptResult"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPlan"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryReason"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.recovery_session_adapter",
+      "path": "src/ai_game_player/recovery_session_adapter.py",
+      "source_location": {
+        "end_line": 298,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "Protocol"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": true
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryJournal",
+          "parameters": [],
+          "qualified_name": "RecoveryJournal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 52,
+            "start_line": 26
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_type"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "status"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "correlation_id"
+            },
+            {
+              "annotation": "Mapping[str, Any] | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "payload"
+            }
+          ],
+          "qualified_name": "RecoveryJournal.append",
+          "return_annotation": "object",
+          "signature": "(self, event_type: str, *, status: str | None = …, snapshot_id: str | None = …, correlation_id: str | None = …, payload: Mapping[str, Any] | None = …) -> object",
+          "source_location": {
+            "column": 4,
+            "end_line": 52,
+            "start_line": 44
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoverySessionAdapter",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapter",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 298,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryController",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "controller"
+            },
+            {
+              "annotation": "RecoveryJournal",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "journal"
+            },
+            {
+              "annotation": "Callable[[str], None]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "request_stop"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.__init__",
+          "return_annotation": "None",
+          "signature": "(self, controller: RecoveryController, journal: RecoveryJournal, request_stop: Callable[[str], None]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 93,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "handle_event",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SelfCheckEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "action_generation"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "target_lost"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.handle_event",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, event: SelfCheckEvent, *, snapshot_id: str, action_generation: int, now_monotonic: float, stop_requested: bool, target_lost: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "handle_result",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryAttemptResult",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "correlation_id"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.handle_result",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, result: RecoveryAttemptResult, *, correlation_id: str, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "handle_poll",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "now_monotonic"
+            },
+            {
+              "annotation": "bool",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter.handle_poll",
+          "return_annotation": "RecoveryPlan | None",
+          "signature": "(self, *, now_monotonic: float, stop_requested: bool = …) -> RecoveryPlan | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 204,
+            "start_line": 198
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_commit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPlan",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._commit",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, plan: RecoveryPlan, stop_requested: bool) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 222
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._fail_closed",
+          "return_annotation": "RecoveryPlan",
+          "signature": "(self, snapshot_id: str | None, stop_requested: bool) -> RecoveryPlan",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 244
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_try_record_plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPlan",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._try_record_plan",
+          "return_annotation": "bool",
+          "signature": "(self, plan: RecoveryPlan) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 279,
+            "start_line": 268
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_dispatch_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RecoveryPlan",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "stop_requested"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapter._dispatch_stop",
+          "return_annotation": "None",
+          "signature": "(self, plan: RecoveryPlan, stop_requested: bool) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 298,
+            "start_line": 296
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.models"
       ],
       "imports": [
@@ -104296,7 +106051,7 @@
       "module": "tests.test_comparison_preflight",
       "path": "tests/test_comparison_preflight.py",
       "source_location": {
-        "end_line": 625,
+        "end_line": 627,
         "start_line": 1
       },
       "symbols": [
@@ -104318,7 +106073,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 625,
+            "end_line": 627,
             "start_line": 28
           }
         },
@@ -104341,7 +106096,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 111,
+            "end_line": 113,
             "start_line": 29
           }
         },
@@ -104370,8 +106125,8 @@
           "signature": "(self, handle)",
           "source_location": {
             "column": 4,
-            "end_line": 117,
-            "start_line": 113
+            "end_line": 119,
+            "start_line": 115
           }
         },
         {
@@ -104393,8 +106148,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 122,
-            "start_line": 119
+            "end_line": 124,
+            "start_line": 121
           }
         },
         {
@@ -104416,8 +106171,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 127,
-            "start_line": 124
+            "end_line": 129,
+            "start_line": 126
           }
         },
         {
@@ -104439,8 +106194,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 132,
-            "start_line": 129
+            "end_line": 134,
+            "start_line": 131
           }
         },
         {
@@ -104462,8 +106217,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 134
+            "end_line": 151,
+            "start_line": 136
           }
         },
         {
@@ -104485,8 +106240,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 151
+            "end_line": 163,
+            "start_line": 153
           }
         },
         {
@@ -104508,8 +106263,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 174,
-            "start_line": 163
+            "end_line": 176,
+            "start_line": 165
           }
         },
         {
@@ -104531,8 +106286,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 176
+            "end_line": 187,
+            "start_line": 178
           }
         },
         {
@@ -104554,8 +106309,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 203,
-            "start_line": 187
+            "end_line": 205,
+            "start_line": 189
           }
         },
         {
@@ -104577,8 +106332,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 205
+            "end_line": 217,
+            "start_line": 207
           }
         },
         {
@@ -104600,8 +106355,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 217
+            "end_line": 239,
+            "start_line": 219
           }
         },
         {
@@ -104623,8 +106378,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 225,
-            "start_line": 220
+            "end_line": 227,
+            "start_line": 222
           }
         },
         {
@@ -104646,8 +106401,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 253,
-            "start_line": 239
+            "end_line": 255,
+            "start_line": 241
           }
         },
         {
@@ -104669,8 +106424,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 245,
-            "start_line": 242
+            "end_line": 247,
+            "start_line": 244
           }
         },
         {
@@ -104692,8 +106447,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 268,
-            "start_line": 255
+            "end_line": 270,
+            "start_line": 257
           }
         },
         {
@@ -104708,8 +106463,8 @@
           "signature": "()",
           "source_location": {
             "column": 8,
-            "end_line": 262,
-            "start_line": 256
+            "end_line": 264,
+            "start_line": 258
           }
         },
         {
@@ -104731,8 +106486,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 288,
-            "start_line": 270
+            "end_line": 290,
+            "start_line": 272
           }
         },
         {
@@ -104754,8 +106509,8 @@
           "signature": "(*args)",
           "source_location": {
             "column": 8,
-            "end_line": 276,
-            "start_line": 273
+            "end_line": 278,
+            "start_line": 275
           }
         },
         {
@@ -104777,8 +106532,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 311,
-            "start_line": 290
+            "end_line": 313,
+            "start_line": 292
           }
         },
         {
@@ -104800,8 +106555,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 297,
-            "start_line": 294
+            "end_line": 299,
+            "start_line": 296
           }
         },
         {
@@ -104823,8 +106578,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 324,
-            "start_line": 313
+            "end_line": 326,
+            "start_line": 315
           }
         },
         {
@@ -104846,8 +106601,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 333,
-            "start_line": 326
+            "end_line": 335,
+            "start_line": 328
           }
         },
         {
@@ -104869,8 +106624,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 350,
-            "start_line": 335
+            "end_line": 352,
+            "start_line": 337
           }
         },
         {
@@ -104892,8 +106647,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 342,
-            "start_line": 339
+            "end_line": 344,
+            "start_line": 341
           }
         },
         {
@@ -104915,8 +106670,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 368,
-            "start_line": 352
+            "end_line": 370,
+            "start_line": 354
           }
         },
         {
@@ -104938,8 +106693,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 359,
-            "start_line": 356
+            "end_line": 361,
+            "start_line": 358
           }
         },
         {
@@ -104961,8 +106716,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 377,
-            "start_line": 370
+            "end_line": 379,
+            "start_line": 372
           }
         },
         {
@@ -104984,8 +106739,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 385,
-            "start_line": 379
+            "end_line": 387,
+            "start_line": 381
           }
         },
         {
@@ -105007,8 +106762,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 396,
-            "start_line": 387
+            "end_line": 398,
+            "start_line": 389
           }
         },
         {
@@ -105030,8 +106785,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 405,
-            "start_line": 398
+            "end_line": 407,
+            "start_line": 400
           }
         },
         {
@@ -105053,8 +106808,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 430,
-            "start_line": 407
+            "end_line": 432,
+            "start_line": 409
           }
         },
         {
@@ -105076,8 +106831,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 8,
-            "end_line": 413,
-            "start_line": 411
+            "end_line": 415,
+            "start_line": 413
           }
         },
         {
@@ -105099,8 +106854,8 @@
           "signature": "(_reason)",
           "source_location": {
             "column": 8,
-            "end_line": 417,
-            "start_line": 415
+            "end_line": 419,
+            "start_line": 417
           }
         },
         {
@@ -105122,8 +106877,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 444,
-            "start_line": 432
+            "end_line": 446,
+            "start_line": 434
           }
         },
         {
@@ -105145,8 +106900,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 475,
-            "start_line": 446
+            "end_line": 477,
+            "start_line": 448
           }
         },
         {
@@ -105168,8 +106923,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 463,
-            "start_line": 458
+            "end_line": 465,
+            "start_line": 460
           }
         },
         {
@@ -105191,8 +106946,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 506,
-            "start_line": 477
+            "end_line": 508,
+            "start_line": 479
           }
         },
         {
@@ -105214,8 +106969,8 @@
           "signature": "(_handle)",
           "source_location": {
             "column": 12,
-            "end_line": 491,
-            "start_line": 489
+            "end_line": 493,
+            "start_line": 491
           }
         },
         {
@@ -105237,8 +106992,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 12,
-            "end_line": 496,
-            "start_line": 493
+            "end_line": 498,
+            "start_line": 495
           }
         },
         {
@@ -105260,8 +107015,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 561,
-            "start_line": 508
+            "end_line": 563,
+            "start_line": 510
           }
         },
         {
@@ -105283,8 +107038,8 @@
           "signature": "(**kwargs)",
           "source_location": {
             "column": 24,
-            "end_line": 534,
-            "start_line": 532
+            "end_line": 536,
+            "start_line": 534
           }
         },
         {
@@ -105312,8 +107067,8 @@
           "signature": "(token, commit)",
           "source_location": {
             "column": 24,
-            "end_line": 539,
-            "start_line": 536
+            "end_line": 541,
+            "start_line": 538
           }
         },
         {
@@ -105335,8 +107090,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 593,
-            "start_line": 563
+            "end_line": 595,
+            "start_line": 565
           }
         },
         {
@@ -105364,8 +107119,8 @@
           "signature": "(token, commit)",
           "source_location": {
             "column": 12,
-            "end_line": 580,
-            "start_line": 577
+            "end_line": 582,
+            "start_line": 579
           }
         },
         {
@@ -105387,8 +107142,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 625,
-            "start_line": 595
+            "end_line": 627,
+            "start_line": 597
           }
         },
         {
@@ -105416,8 +107171,8 @@
           "signature": "(token, commit)",
           "source_location": {
             "column": 20,
-            "end_line": 610,
-            "start_line": 607
+            "end_line": 612,
+            "start_line": 609
           }
         }
       ]
@@ -119431,7 +121186,7 @@
       "module": "tests.test_fail_safe_runtime",
       "path": "tests/test_fail_safe_runtime.py",
       "source_location": {
-        "end_line": 472,
+        "end_line": 483,
         "start_line": 1
       },
       "symbols": [
@@ -119784,7 +121539,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 468,
+            "end_line": 479,
             "start_line": 78
           }
         },
@@ -120238,7 +121993,7 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 433,
+            "end_line": 444,
             "start_line": 409
           }
         },
@@ -120261,8 +122016,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 468,
-            "start_line": 435
+            "end_line": 479,
+            "start_line": 446
           }
         }
       ]
@@ -162599,6 +164354,1213 @@
     },
     {
       "dependencies": [
+        "ai_game_player",
+        "ai_game_player.event_journal",
+        "ai_game_player.game_session",
+        "ai_game_player.recovery_controller",
+        "ai_game_player.recovery_models",
+        "ai_game_player.recovery_session_adapter",
+        "ai_game_player.run_control",
+        "ai_game_player.self_check_models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "random",
+          "names": [
+            {
+              "alias": null,
+              "name": "random"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.event_journal"
+          ],
+          "module": "ai_game_player.event_journal",
+          "names": [
+            {
+              "alias": null,
+              "name": "EventJournal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.game_session"
+          ],
+          "module": "ai_game_player.game_session",
+          "names": [
+            {
+              "alias": null,
+              "name": "GameSessionController"
+            },
+            {
+              "alias": null,
+              "name": "SessionStatus"
+            },
+            {
+              "alias": null,
+              "name": "SessionStep"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_controller"
+          ],
+          "module": "ai_game_player.recovery_controller",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryController"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.run_control"
+          ],
+          "module": "ai_game_player.run_control",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExecutionCancelled"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_models"
+          ],
+          "module": "ai_game_player.recovery_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoveryAction"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptResult"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryAttemptStatus"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryPolicy"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryReason"
+            },
+            {
+              "alias": null,
+              "name": "RecoveryState"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.recovery_session_adapter"
+          ],
+          "module": "ai_game_player.recovery_session_adapter",
+          "names": [
+            {
+              "alias": null,
+              "name": "RecoverySessionAdapter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.self_check_models"
+          ],
+          "module": "ai_game_player.self_check_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "SelfCheckCategory"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckEvent"
+            },
+            {
+              "alias": null,
+              "name": "SelfCheckSeverity"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_recovery_controller",
+      "path": "tests/test_recovery_controller.py",
+      "source_location": {
+        "end_line": 596,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_event",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "step"
+            },
+            {
+              "annotation": "SelfCheckSeverity",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "severity"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "scene"
+            },
+            {
+              "annotation": "SelfCheckCategory",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "category"
+            }
+          ],
+          "qualified_name": "make_event",
+          "return_annotation": "SelfCheckEvent",
+          "signature": "(step: int, *, severity: SelfCheckSeverity = …, scene: str = …, category: SelfCheckCategory = …) -> SelfCheckEvent",
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 30
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "result_for",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "plan"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "snapshot_id"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "status"
+            },
+            {
+              "annotation": "str",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "detail"
+            }
+          ],
+          "qualified_name": "result_for",
+          "return_annotation": null,
+          "signature": "(plan, snapshot_id: str, status = …, detail: str = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 45,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoveryControllerTest",
+          "parameters": [],
+          "qualified_name": "RecoveryControllerTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 450,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "event_plan",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "step"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "snapshot"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "now"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "generation"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "stop"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "event_options"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.event_plan",
+          "return_annotation": null,
+          "signature": "(self, step, snapshot = …, now = …, generation = …, stop = …, **event_options)",
+          "source_location": {
+            "column": 4,
+            "end_line": 67,
+            "start_line": 52
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_warning_reobserves_then_redecides_on_new_frame_and_resolves",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_warning_reobserves_then_redecides_on_new_frame_and_resolves",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_two_stale_reobserves_abstain_then_repeated_scene_failure_requests_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_two_stale_reobserves_abstain_then_repeated_scene_failure_requests_stop",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_critical_requests_stop_and_stays_latched_until_rearm",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_critical_requests_stop_and_stays_latched_until_rearm",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 137,
+            "start_line": 121
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ack_from_unissued_generation_does_not_clear_stop_latch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_ack_from_unissued_generation_does_not_clear_stop_latch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_stop_is_never_replaced_and_blocks_recovery_until_rearm",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_existing_stop_is_never_replaced_and_blocks_recovery_until_rearm",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_scene_change_resets_failures_and_cooldown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_scene_change_resets_failures_and_cooldown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 186,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_redecide_is_not_repeated_on_the_same_frame",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_redecide_is_not_repeated_on_the_same_frame",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 207,
+            "start_line": 188
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_resolved_without_new_frame_is_not_counted_as_recovered",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_resolved_without_new_frame_is_not_counted_as_recovered",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 209
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_event_and_pending_plan_do_not_progress",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_duplicate_event_and_pending_plan_do_not_progress",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 227,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_older_step_is_refused_after_leaving_the_duplicate_window",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_older_step_is_refused_after_leaving_the_duplicate_window",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 251,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_redecide_resolution_on_its_own_input_frame_is_not_trusted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_redecide_resolution_on_its_own_input_frame_is_not_trusted",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 261,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_deadline_boundary_is_exclusive",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_deadline_boundary_is_exclusive",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 273,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_resolved_after_deadline_is_a_deadline_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_resolved_after_deadline_is_a_deadline_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 284,
+            "start_line": 275
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_correlation_ids_stay_unique_across_reset_and_critical_events",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_correlation_ids_stay_unique_across_reset_and_critical_events",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 295,
+            "start_line": 286
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hung_worker_is_cut_off_by_poll_and_late_ack_is_ignored",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_hung_worker_is_cut_off_by_poll_and_late_ack_is_ignored",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 303,
+            "start_line": 297
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_new_event_after_deadline_with_pending_plan_fails_episode",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_new_event_after_deadline_with_pending_plan_fails_episode",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 308,
+            "start_line": 305
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_no_legal_candidate_failure_stays_bounded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_no_legal_candidate_failure_stays_bounded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 325,
+            "start_line": 310
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_epoch_target_loss_and_unexpected_ack_are_refused",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_stale_epoch_target_loss_and_unexpected_ack_are_refused",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 353,
+            "start_line": 327
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_inputs_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_invalid_inputs_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 378,
+            "start_line": 355
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_zero_budget_policy_fails_immediately_without_attempts",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_zero_budget_policy_fails_immediately_without_attempts",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 394,
+            "start_line": 380
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_random_sequences_stay_bounded_and_never_act_after_stop",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoveryControllerTest.test_random_sequences_stay_bounded_and_never_act_after_stop",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 450,
+            "start_line": 396
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecoverySessionAdapterTest",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapterTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 592,
+            "start_line": 453
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeJournal",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapterTest.FakeJournal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 4,
+            "end_line": 464,
+            "start_line": 454
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "fail_on"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.FakeJournal.__init__",
+          "return_annotation": "None",
+          "signature": "(self, fail_on: int | None = …) -> None",
+          "source_location": {
+            "column": 8,
+            "end_line": 458,
+            "start_line": 455
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "append",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event_type"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "fields"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.FakeJournal.append",
+          "return_annotation": null,
+          "signature": "(self, event_type, **fields)",
+          "source_location": {
+            "column": 8,
+            "end_line": 464,
+            "start_line": 460
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_plans_and_attempts_are_journaled_with_correlation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_plans_and_attempts_are_journaled_with_correlation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 489,
+            "start_line": 466
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_journal_failure_fails_closed_with_stop_request",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_journal_failure_fails_closed_with_stop_request",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 506,
+            "start_line": 491
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_attempt_journal_failure_fails_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_attempt_journal_failure_fails_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 525,
+            "start_line": 508
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_existing_stop_is_not_requested_again",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_existing_stop_is_not_requested_again",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 539,
+            "start_line": 527
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hung_attempt_poll_requests_stop_after_repeated_scene_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_hung_attempt_poll_requests_stop_after_repeated_scene_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 559,
+            "start_line": 541
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_request_stop_reaches_game_session_and_no_step_runs_afterwards",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 592,
+            "start_line": 561
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "step_handler",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "runtime"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "command"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards.step_handler",
+          "return_annotation": null,
+          "signature": "(runtime, command)",
+          "source_location": {
+            "column": 8,
+            "end_line": 566,
+            "start_line": 564
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Runtime",
+          "parameters": [],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards.Runtime",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 570,
+            "start_line": 568
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "close",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "RecoverySessionAdapterTest.test_request_stop_reaches_game_session_and_no_step_runs_afterwards.Runtime.close",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 12,
+            "end_line": 570,
+            "start_line": 569
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "tools",
         "tools.reference_browser_diagnostics",
         "tools.reference_game_2048_launcher"
@@ -191262,6 +194224,691 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.windows_input_sentinel"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "tools",
+            "tools.windows_input_sentinel"
+          ],
+          "module": "tools.windows_input_sentinel",
+          "names": [
+            {
+              "alias": null,
+              "name": "GLOBAL_INPUT_FUNCTIONS"
+            },
+            {
+              "alias": null,
+              "name": "GuardedFunction"
+            },
+            {
+              "alias": null,
+              "name": "InputSentinel"
+            },
+            {
+              "alias": null,
+              "name": "InputSentinelViolation"
+            },
+            {
+              "alias": null,
+              "name": "is_input_message"
+            },
+            {
+              "alias": null,
+              "name": "is_user32_library"
+            },
+            {
+              "alias": null,
+              "name": "windows_owner_process_id_of"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_windows_input_sentinel",
+      "path": "tests/test_windows_input_sentinel.py",
+      "source_location": {
+        "end_line": 294,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RecordingFunction",
+          "parameters": [],
+          "qualified_name": "RecordingFunction",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 43,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "RecordingFunction.__init__",
+          "return_annotation": null,
+          "signature": "(self, result = …)",
+          "source_location": {
+            "column": 4,
+            "end_line": 39,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "arguments"
+            }
+          ],
+          "qualified_name": "RecordingFunction.__call__",
+          "return_annotation": null,
+          "signature": "(self, *arguments)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "make_sentinel",
+          "parameters": [],
+          "qualified_name": "make_sentinel",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "InputSentinelPolicyTest",
+          "parameters": [],
+          "qualified_name": "InputSentinelPolicyTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 263,
+            "start_line": 53
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_global_input_apis_are_blocked_before_the_real_function_runs",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_global_input_apis_are_blocked_before_the_real_function_runs",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_input_messages_to_foreign_or_unknown_windows_are_blocked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_input_messages_to_foreign_or_unknown_windows_are_blocked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_input_messages_to_windows_owned_by_the_test_process_pass_through",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_input_messages_to_windows_owned_by_the_test_process_pass_through",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 98,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_non_input_messages_such_as_wm_print_are_not_restricted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_non_input_messages_such_as_wm_print_are_not_restricted",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_blocked_call_is_recorded_even_when_the_caller_swallows_the_exception",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_blocked_call_is_recorded_even_when_the_caller_swallows_the_exception",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 120,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_message_call_without_message_argument_is_blocked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_message_call_without_message_argument_is_blocked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 129,
+            "start_line": 122
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unrelated_functions_are_returned_unwrapped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_unrelated_functions_are_returned_unwrapped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 136,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prototype_attributes_are_delegated_to_the_real_function",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_prototype_attributes_are_delegated_to_the_real_function",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 148,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_install_and_uninstall_restore_the_previous_ctypes_lookup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_install_and_uninstall_restore_the_previous_ctypes_lookup",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 162,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nested_sentinel_judges_before_an_outer_wrapper",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_nested_sentinel_judges_before_an_outer_wrapper",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 164
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_out_of_order_uninstall_keeps_the_later_sentinel_installed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_out_of_order_uninstall_keeps_the_later_sentinel_installed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 191,
+            "start_line": 177
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_owner_lookup_failure_fails_closed_and_is_recorded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_owner_lookup_failure_fails_closed_and_is_recorded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 204,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "broken_lookup",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_handle"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_owner_lookup_failure_fails_closed_and_is_recorded.broken_lookup",
+          "return_annotation": null,
+          "signature": "(_handle)",
+          "source_location": {
+            "column": 8,
+            "end_line": 195,
+            "start_line": 194
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_thread_input_messages_are_always_blocked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_thread_input_messages_are_always_blocked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 206
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_send_message_callback_to_foreign_window_is_blocked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_send_message_callback_to_foreign_window_is_blocked",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 227,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_blocked_event_records_the_running_test",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_blocked_event_records_the_running_test",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 237,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_message_ranges_cover_keyboard_and_mouse_only",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_message_ranges_cover_keyboard_and_mouse_only",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_user32_library_name_matching",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinelPolicyTest.test_user32_library_name_matching",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 263,
+            "start_line": 259
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "unittest.skipUnless(os.name == REDACTED, REDACTED)"
+          ],
+          "kind": "class",
+          "name": "WindowsUser32HookTest",
+          "parameters": [],
+          "qualified_name": "WindowsUser32HookTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 290,
+            "start_line": 267
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_real_user32_input_is_blocked_before_dispatch",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsUser32HookTest.test_real_user32_input_is_blocked_before_dispatch",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 290,
+            "start_line": 268
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.campaign_contract",
@@ -193248,6 +196895,209 @@
             "column": 4,
             "end_line": 275,
             "start_line": 238
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
+        "tools.run_windows_platform_gate"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "tools",
+            "tools.run_windows_platform_gate"
+          ],
+          "module": "tools.run_windows_platform_gate",
+          "names": [
+            {
+              "alias": null,
+              "name": "GATE_TEST_MODULES"
+            },
+            {
+              "alias": null,
+              "name": "REQUIRED_WINDOWS_TESTS"
+            },
+            {
+              "alias": null,
+              "name": "gate_test_modules"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_windows_platform_gate",
+      "path": "tests/test_windows_platform_gate.py",
+      "source_location": {
+        "end_line": 54,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "WindowsPlatformGateContractTest",
+          "parameters": [],
+          "qualified_name": "WindowsPlatformGateContractTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 50,
+            "start_line": 13
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_gate_module_exists_and_is_listed_once",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlatformGateContractTest.test_every_gate_module_exists_and_is_listed_once",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 19,
+            "start_line": 14
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_fail_safe_state_transition_modules_are_included_by_glob",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlatformGateContractTest.test_fail_safe_state_transition_modules_are_included_by_glob",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 25,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_required_windows_tests_belong_to_gate_modules",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlatformGateContractTest.test_required_windows_tests_belong_to_gate_modules",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 31,
+            "start_line": 27
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_live_input_smokes_stay_outside_the_in_process_sentinel",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlatformGateContractTest.test_live_input_smokes_stay_outside_the_in_process_sentinel",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 38,
+            "start_line": 33
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_safety_ci_runs_the_gate_on_windows_and_uploads_the_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsPlatformGateContractTest.test_safety_ci_runs_the_gate_on_windows_and_uploads_the_report",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 50,
+            "start_line": 40
           }
         }
       ]
@@ -221983,6 +225833,400 @@
     },
     {
       "dependencies": [
+        "tools",
+        "tools.windows_input_sentinel"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [],
+          "module": "platform",
+          "names": [
+            {
+              "alias": null,
+              "name": "platform"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 18,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 27,
+          "local_dependencies": [
+            "tools",
+            "tools.windows_input_sentinel"
+          ],
+          "module": "tools.windows_input_sentinel",
+          "names": [
+            {
+              "alias": null,
+              "name": "GuardedFunction"
+            },
+            {
+              "alias": null,
+              "name": "InputSentinel"
+            },
+            {
+              "alias": null,
+              "name": "InputSentinelViolation"
+            },
+            {
+              "alias": null,
+              "name": "windows_owner_process_id_of"
+            }
+          ]
+        }
+      ],
+      "module": "tools.run_windows_platform_gate",
+      "path": "tools/run_windows_platform_gate.py",
+      "source_location": {
+        "end_line": 225,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "gate_test_modules",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "tests_root"
+            }
+          ],
+          "qualified_name": "gate_test_modules",
+          "return_annotation": "list[str]",
+          "signature": "(tests_root: Path = …) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 73,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [
+            "unittest.TextTestResult"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "_RecordingResult",
+          "parameters": [],
+          "qualified_name": "_RecordingResult",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 89,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "arguments"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "keywords"
+            }
+          ],
+          "qualified_name": "_RecordingResult.__init__",
+          "return_annotation": "None",
+          "signature": "(self, *arguments: object, **keywords: object) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 83,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "startTest",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "unittest.TestCase",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "test"
+            }
+          ],
+          "qualified_name": "_RecordingResult.startTest",
+          "return_annotation": "None",
+          "signature": "(self, test: unittest.TestCase) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 89,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_absent_window_handle",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "user32"
+            }
+          ],
+          "qualified_name": "_absent_window_handle",
+          "return_annotation": "int",
+          "signature": "(user32: object) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 98,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_self_check",
+          "parameters": [
+            {
+              "annotation": "InputSentinel",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sentinel"
+            }
+          ],
+          "qualified_name": "_self_check",
+          "return_annotation": "list[str]",
+          "signature": "(sentinel: InputSentinel) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 133,
+            "start_line": 101
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "run_gate",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report_path"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "verbosity"
+            }
+          ],
+          "qualified_name": "run_gate",
+          "return_annotation": "int",
+          "signature": "(report_path: Path, verbosity: int = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 213,
+            "start_line": 136
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [
+            {
+              "annotation": "list[str] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "argv"
+            }
+          ],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "(argv: list[str] | None = …) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 221,
+            "start_line": 216
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
         "ai_game_player",
         "ai_game_player.action_executor",
         "ai_game_player.models",
@@ -233931,6 +238175,724 @@
             "column": 0,
             "end_line": 765,
             "start_line": 715
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "ctypes"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "PurePath"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 17,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            },
+            {
+              "alias": null,
+              "name": "Callable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 274,
+          "local_dependencies": [],
+          "module": "ctypes",
+          "names": [
+            {
+              "alias": null,
+              "name": "wintypes"
+            }
+          ]
+        }
+      ],
+      "module": "tools.windows_input_sentinel",
+      "path": "tools/windows_input_sentinel.py",
+      "source_location": {
+        "end_line": 287,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "RuntimeError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "InputSentinelViolation",
+          "parameters": [],
+          "qualified_name": "InputSentinelViolation",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 65,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "SentinelEvent",
+          "parameters": [],
+          "qualified_name": "SentinelEvent",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 78,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_plain_int",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_plain_int",
+          "return_annotation": "int",
+          "signature": "(value: Any) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 86,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "is_input_message",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            }
+          ],
+          "qualified_name": "is_input_message",
+          "return_annotation": "bool",
+          "signature": "(message: int) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 96,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "is_user32_library",
+          "parameters": [
+            {
+              "annotation": "str | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "library_name"
+            }
+          ],
+          "qualified_name": "is_user32_library",
+          "return_annotation": "bool",
+          "signature": "(library_name: str | None) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 103,
+            "start_line": 99
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "InputSentinel",
+          "parameters": [],
+          "qualified_name": "InputSentinel",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 244,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Callable[[int], int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "owner_process_id_of"
+            },
+            {
+              "annotation": "int | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "current_process_id"
+            }
+          ],
+          "qualified_name": "InputSentinel.__init__",
+          "return_annotation": "None",
+          "signature": "(self, owner_process_id_of: Callable[[int], int], current_process_id: int | None = …) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 129,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "check",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "function_name"
+            },
+            {
+              "annotation": "tuple[Any, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "arguments"
+            }
+          ],
+          "qualified_name": "InputSentinel.check",
+          "return_annotation": "None",
+          "signature": "(self, function_name: str, arguments: tuple[Any, ...]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 172,
+            "start_line": 131
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_owner_or_zero",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "InputSentinel._owner_or_zero",
+          "return_annotation": "int",
+          "signature": "(self, window_handle: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_block",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "SentinelEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "InputSentinel._block",
+          "return_annotation": "None",
+          "signature": "(self, event: SentinelEvent) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 194,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "guard",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "function_name"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "function"
+            }
+          ],
+          "qualified_name": "InputSentinel.guard",
+          "return_annotation": "Any",
+          "signature": "(self, function_name: str, function: Any) -> Any",
+          "source_location": {
+            "column": 4,
+            "end_line": 203,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "install",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinel.install",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 230,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "guarded_getitem",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "library"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name_or_ordinal"
+            }
+          ],
+          "qualified_name": "InputSentinel.install.guarded_getitem",
+          "return_annotation": "Any",
+          "signature": "(library: Any, name_or_ordinal: Any) -> Any",
+          "source_location": {
+            "column": 8,
+            "end_line": 220,
+            "start_line": 214
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "uninstall",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "InputSentinel.uninstall",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 232
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "GuardedFunction",
+          "parameters": [],
+          "qualified_name": "GuardedFunction",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 269,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "InputSentinel",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sentinel"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "function_name"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "function"
+            }
+          ],
+          "qualified_name": "GuardedFunction.__init__",
+          "return_annotation": "None",
+          "signature": "(self, sentinel: InputSentinel, function_name: str, function: Any) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 255,
+            "start_line": 250
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "guarded_by",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "InputSentinel",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "sentinel"
+            }
+          ],
+          "qualified_name": "GuardedFunction.guarded_by",
+          "return_annotation": "bool",
+          "signature": "(self, sentinel: InputSentinel) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 259,
+            "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "arguments"
+            }
+          ],
+          "qualified_name": "GuardedFunction.__call__",
+          "return_annotation": "Any",
+          "signature": "(self, *arguments: Any) -> Any",
+          "source_location": {
+            "column": 4,
+            "end_line": 263,
+            "start_line": 261
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__getattr__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "GuardedFunction.__getattr__",
+          "return_annotation": "Any",
+          "signature": "(self, name: str) -> Any",
+          "source_location": {
+            "column": 4,
+            "end_line": 266,
+            "start_line": 265
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__setattr__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "GuardedFunction.__setattr__",
+          "return_annotation": "None",
+          "signature": "(self, name: str, value: Any) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 269,
+            "start_line": 268
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "windows_owner_process_id_of",
+          "parameters": [],
+          "qualified_name": "windows_owner_process_id_of",
+          "return_annotation": "Callable[[int], int]",
+          "signature": "() -> Callable[[int], int]",
+          "source_location": {
+            "column": 0,
+            "end_line": 287,
+            "start_line": 272
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "owner_process_id_of",
+          "parameters": [
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "window_handle"
+            }
+          ],
+          "qualified_name": "windows_owner_process_id_of.owner_process_id_of",
+          "return_annotation": "int",
+          "signature": "(window_handle: int) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 285,
+            "start_line": 281
           }
         }
       ]
