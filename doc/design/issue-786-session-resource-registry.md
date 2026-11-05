@@ -66,7 +66,8 @@ ResourceLease(frozen):
 ```
 
 - `releaser_ref`はleaseの値に含めない。Registry内部の`_Entry`が`ResourceReleaser`への参照を持ち、snapshot・Trace・Journalへは出さない（pickle/serializeしない）。
-- `ResourceReleaser`（Protocol）: `release(resource_id: str) -> None`。失敗は例外で通知。Registryはこれを最大1回だけ呼ぶ。
+- `ResourceReleaser`（Protocol）: `release(resource_id: str) -> None`。失敗は例外で通知。Registryは**1回のacquire（内部entry）につき**最大1回だけ呼ぶ。releaserは有限時間で戻ること（owner側の責務。Registryは同期呼出しを中断できない）。
+- 内部entryは単調増加の`lease_seq`を持つ。終了（RELEASED/FAILED）後は同じ`resource_id`を新しいentryとして再取得できる。`release(resource_id)`は現在ACTIVE/RELEASINGのentryだけを対象にし、終了済みの旧entryへは作用しない（終了履歴は`lease_seq`で区別）。
 - `ClosableOwnerAdapter(owner)`: `release`で`owner.close()`、無ければ`owner.shutdown()`を呼ぶ（`_close_provider`と同じ規約）。どちらも無ければ構築時に`TypeError`。
 - owner側Adapter（#571 `release(ref)`、#534 `evict(model_key)`、#334相当のclose）は各Issueのowner APIを1行で呼ぶ`ResourceReleaser`として各Issue側に置く。本Issueはfake ownerでこの3形状を試験する。
 
@@ -76,6 +77,7 @@ ResourceLease(frozen):
 SessionResourceRegistry(session_id: str, *, clock_ns=time.monotonic_ns,
     trace_sink: ResourceTraceSink | None = None, initial_generation: int = 0,
     max_active: int = 4096, terminal_history: int = 256)
+    # max_active: 1..65536（ACTIVE+RELEASINGの件数）、terminal_history: 0..4096。範囲外はValueError
 
 acquire(resource_id, kind, releaser, *, owner_scope, estimated_bytes=None,
         ttl_ms=None, pinned=False, evictable=False, priority=500,
@@ -117,27 +119,28 @@ ResourcePressureSnapshot(frozen):           # 消費側の最小契約 v1
   source: str                               # 例 "budget.admission"（#546）
 ```
 
-- 構築時検証: 未知version・未知level・負値・非int・非有限は`ValueError`（fail-closed。誤ったsnapshotで解放しない）。
-- levelごとの上限: `none`=何もしない、`elevated`=最大8件/10ms、`critical`=最大32件/50ms。
+- 構築時検証: 未知version・未知level・負値・非int・非有限は`ValueError`（fail-closed。誤ったsnapshotで解放しない）。`cleanup_expired`の`max_items`（1..1024）・`budget_ms`（有限・正）も範囲外は`ValueError`。
+- levelごとの上限: `none`=`reclaim_target_bytes`に関係なく何もしない、`elevated`=最大8件/10ms、`critical`=最大32件/50ms。
+- `reclaim_target_bytes=None`は件数・時間上限まで解放する。指定時は解放済み推定bytesが目標以上になった時点で止める（目標を超える追加解放はしない）。候補が尽きても目標未達なら`target_met=False`を返す（`truncated`は上限で止めた場合だけ）。
 
 ### CleanupReport / Snapshot（Trace・#787の入力）
 
 ```text
 CleanupReport(trigger, attempted, released, failed, deferred, skipped_pinned,
               skipped_in_use, freed_estimated_bytes, unknown_bytes_count,
-              latency_ms, truncated: bool)
+              skipped_not_evictable, latency_ms, truncated: bool, target_met: bool | None)
   trigger: release | task | generation | session | pressure | expired
 
 ResourceLifecycleSnapshot(schema_version=1, session_id, session_state: OPEN|CLOSING|CLOSED,
   current_generation, active_count, releasing_count, pinned_count,
   active_by_kind: {kind: {count, known_bytes, unknown_count}},
   counters: {acquired, released, evicted, expired, release_failed,
-             stale_rejected, double_release, deferred},
+             stale_rejected, double_release, deferred, trace_failed},
   last_cleanup: CleanupReport | None, max_cleanup_latency_ms,
   recent_failures: [{resource_id, kind, error_type}] (最大16件))
 ```
 
-- Trace event（`ResourceTraceSink.record(event, payload)`）: `resource.cleanup/v1`（CleanupReportの値。trigger=releaseの単発解放は出さず件数だけ数える）、`resource.release_failed/v1`（resource_id、kind、owner_scope、generation、error_type、messageは200文字で切る）。payloadはID・種別・量・状態・時間だけ。
+- Trace event（`ResourceTraceSink.record(event, payload)`）: `resource.cleanup/v1`（CleanupReportの値。trigger=releaseの単発解放は出さず件数だけ数える）、`resource.release_failed/v1`（resource_id、kind、owner_scope、generation、error_type）。例外messageはpathや利用者データを含み得るため出さない。payloadはID・種別・量・状態・時間・例外型名だけ。
 - sink自体の例外は捕捉して`trace_failed`件数に数え、cleanupを止めない（Traceの失敗で資源を残さない）。
 
 ## 手順（責務境界・状態遷移・失敗時の挙動）
@@ -150,6 +153,7 @@ acquire ─> ACTIVE ──release/scope close/evict/expire──> RELEASING ─�
 ACTIVE（借用中）──解放要求──> RELEASING(deferred) ──最後のborrow終了──> releaser呼出し
 ```
 
+- RELEASINGは内部で`pending`（解放待ち。打ち切りで残ったもの）・`running`（releaser実行中）・`deferred`（借用終了待ち）を区別する。releaserを呼ぶ権利はlock内で`pending→running`へ変えた1者だけが得る。再度の`close_session`・pressure・`release`は`pending`だけを拾い、`running`/`deferred`には触れない。
 - RELEASING以降へ進んだleaseは借用できず、releaserは二度と呼ばれない（二重解放の防止）。FAILEDは自動再試行しない（二重解放を避ける）。失敗はTraceと`recent_failures`に残し、`close_session`の結果として呼出元へ返す。
 - 状態変更は1つの`threading.Lock`内で行い、releaserは**lockの外**で呼ぶ。releaserが別の資源を`release`しても自己deadlockしない。RELEASINGへの遷移をlock内で先に済ませるので、並行した2つの解放要求でもreleaserは1回だけ。
 - RELEASED/FAILEDになった資源は活動中の表から外し、件数と直近256件の終了記録（ID・kind・状態）だけを残す。Registryのmetadataは「活動中の数＋固定長履歴」で上限があり、10k回の取得/解放でも増え続けない。
@@ -157,7 +161,7 @@ ACTIVE（借用中）──解放要求──> RELEASING(deferred) ──最後�
 ### scope別の一括解放
 
 1. `task_scope(task_id)`: 入るとcontextvarに現在taskを設定し、`finally`で`close_task(task_id)`。正常終了・例外・`ExecutionCancelled`・timeout例外は全て同じ`finally`を通る。同じtask idの入れ子は`invalid_lease`。
-2. `advance_generation(g)`: `g > current`でなければ`stale_generation`。currentを`g`にし、`generation < g`のGENERATION/TASK scopeの資源を解放。SESSION scopeは残す。
+2. `advance_generation(g)`: `g > current`でなければ`stale_generation`。1回のlock内で「currentを`g`へ更新」と「`generation < g`のGENERATION/TASK資源を全て`pending`へ変更」を同時に行い、lockを出てから解放する。このためlockを出た時点で旧世代資源は借用不能、以後の`acquire`は新世代にだけ入り、旧世代のcleanupが新世代資源を閉じることはない。SESSION scopeは残す。
 3. `close_generation(g)`: その世代のGENERATION/TASK scopeを解放し、世代をclosedにする。以後その世代への`acquire`は`generation_closed`（`advance_generation`で次へ進むまでcurrentへのacquireも拒否）。
 4. `close_session()`: 状態をCLOSINGにし、以後の`acquire`/`borrow`は`registry_closed`。TASK → GENERATION（新しい世代から） → SESSIONの順、同じ群の中は取得の逆順（後から取った依存資源を先に解放）で解放する。全件が終われば CLOSED。
 5. 解放順序はclock・hash順に依存せず、(scope群, 取得seq)だけで決まる（決定的）。
@@ -165,16 +169,16 @@ ACTIVE（借用中）──解放要求──> RELEASING(deferred) ──最後�
 
 ### pressure / 期限切れ（CleanupCoordinator）
 
-1. 候補: ACTIVE、`evictable=True`、`pinned=False`、借用数0、`kinds`指定時はそのkindだけ。PROCESS scopeは存在しない（下記）。
+1. 評価対象はACTIVEで`kinds`に一致する資源（`kinds=None`は全件）。そのうちpinnedは`skipped_pinned`、`evictable=False`は`skipped_not_evictable`、借用中は`skipped_in_use`に数え、残りだけを解放候補とする。走査は活動中の表だけ（終了履歴は見ない）で、pressureはhot pathではない。PROCESS scopeは存在しない（下記）。
 2. 順序（v1、利用価値の推定はしない）: 期限切れ → `priority`の小さい順 → `created_monotonic_ns`の古い順 → `resource_id`。
 3. 上限: levelの件数・時間上限、または解放済み推定bytes ≥ `reclaim_target_bytes`で止める。unknown bytesの資源は0bytesとして数え、件数上限の対象。時間はreleaser呼出しの間でだけ判定する（同期呼出しを途中で中断できないため）。上限で止めた場合は`truncated=True`。
-4. pinned・借用中は数えるだけで解放しない（`skipped_pinned`/`skipped_in_use`）。
-5. `cleanup_expired`は期限切れかつ借用数0の資源だけを解放する（pinnedは期限を持てない）。期限は`expires_monotonic_ns`を最小heapで持ち、解放済みの項目は取り出し時に捨てる。heapが活動中件数の2倍＋64を超えたら作り直す（全履歴を走査しない）。
+4. 評価対象のうち候補外は1.の区分で数えるだけで解放しない。
+5. 期限切れは`now >= expires_monotonic_ns`。`cleanup_expired`は期限切れかつ借用数0の資源を、evictableに関係なく解放する（TTLはownerが宣言した寿命のため。pinnedは期限を持てない）。借用中は`skipped_in_use`に数え、次回に回す。期限は`expires_monotonic_ns`を最小heapで持ち、解放済みの項目は取り出し時に捨てる。heapが活動中件数の2倍＋64を超えたら作り直す（全履歴を走査しない）。
 
 ### fail-closed
 
 - 引数・宣言の不正、閉じたscopeへの取得、stale generationの借用は全て例外で拒否し、資源をconsumerへ渡さない。
-- 1件のreleaser例外は他の資源の解放を止めない。`close_session`は時間上限（既定2000ms）で打ち切り、未処理分はRELEASING待ちのまま残して`truncated=True`を返す。`ManagedSessionRuntime.close()`は`failed`・`deferred`・`truncated`のいずれかがあれば既存の`errors`に加えて`RuntimeError`にし、`GameSessionController`は既存どおり`FAILED / runtime shutdown failed`にする。再度`close()`すると残りを続きから処理する（既存の再試行可能なclose契約と同じ）。
+- 1件のreleaser例外は他の資源の解放を止めない。`close_session`は時間上限（既定2000ms）で打ち切り、未処理分はRELEASING待ちのまま残して`truncated=True`を返す。Registryのclose結果に関係なく、既存のadaptation → 実行資源 → provider → journalのcloseは**中断せず続けて**実行する（Registryの打ち切りで後続の解放を止めない）。`ManagedSessionRuntime.close()`は`failed`・`deferred`・`truncated`のいずれかがあれば既存の`errors`に加えて最後に`RuntimeError`にし、`GameSessionController`は既存どおり`FAILED / runtime shutdown failed`にする。再度`close()`すると残りを続きから処理する（既存の再試行可能なclose契約と同じ）。
 - Python GC/finalizerは解放契約に使わない（`__del__`・`weakref.finalize`を使わない）。close後に残ったactive件数はsnapshotで見える。
 - `PROCESS` scopeはSession Registryでは`scope_not_supported`で拒否する。Sessionを跨ぐ資源（例: #534のwarm model）はowner側のprocess寿命で管理し、暗黙にSession Registryへglobal登録しない（親#785の「明示的に昇格し、暗黙にglobal化しない」）。process単位のRegistryは残件。
 - `max_active`（既定4096）を超える`acquire`は`capacity_exceeded`（metadataの上限）。
@@ -210,10 +214,10 @@ ACTIVE（借用中）──解放要求──> RELEASING(deferred) ──最後�
 | T4 | generation rollover | gen0のGENERATION/TASK資源とSESSION資源を取得→`advance_generation(1)`でgen0分だけ解放、SESSIONは残る。`advance_generation(1)`再呼出しは`stale_generation` |
 | T5 | Stop / session close | `close_session`でTASK→GENERATION→SESSION、群内は逆順の解放順をfake ownerの記録で確認。以後のacquire/borrowは`registry_closed`。`ManagedSessionRuntime.close()`がjournal close前にregistryを閉じる（`test_session_composition.py`）。`GameSessionController.stop()`経由でも同じ |
 | T6 | pinned resource | pressure criticalでpinned資源は解放されず`skipped_pinned`に数える。scope終了（task/generation/session close）ではpinnedでも解放される。pinned＋ttl/evictableは`invalid_lease` |
-| T7 | pressure eviction（bounded） | 期限切れ・priority・作成時刻の異なる10件で解放順が「期限切れ→priority→古い順→id」。elevatedで8件・target bytes到達で停止し`truncated`。借用中は`skipped_in_use`。level none は何もしない。不正snapshot（version 2、NaN、負bytes）は`ValueError` |
-| T8 | release failure | 3件中2件目のreleaserが例外→FAILED、`resource.release_failed/v1` 1件、他2件はRELEASED、FAILEDは再試行されない。releaserが時間を消費する偽clockで`close_session(budget_ms)`が打ち切り`truncated=True`、再呼出しで残りを解放 |
-| T9 | stale lease rejection | gen1でGENERATION資源を取得→`borrow(expected_generation=0)`は`stale_generation`。解放済みの借用は`not_active`。close済み世代への取得は`generation_closed` |
-| T10 | 10k acquire/releaseで非有界増加しない | 10,000回の取得/解放後、活動中の表0件、終了履歴≤256、kind別集計の空kindが消えている、期限heapが上限内 |
+| T7 | pressure eviction（bounded） | 期限切れ・priority・作成時刻の異なる10件で解放順が「期限切れ→priority→古い順→id」。elevatedで8件到達は`truncated`、target bytes到達で停止し`target_met=True`、候補不足は`target_met=False`。pinned・非evictable・借用中はそれぞれのskip件数。level noneはtarget指定でも何もしない。不正snapshot（version 2、NaN、負bytes）は`ValueError` |
+| T8 | release failure | 3件中2件目のreleaserが例外→FAILED、`resource.release_failed/v1` 1件（例外messageを含まない）、他2件はRELEASED、FAILEDは再試行されない。releaserが時間を消費する偽clockで`close_session(budget_ms)`が打ち切り`truncated=True`、再呼出しで`pending`だけを解放し、実行中（`running`）のentryを別threadの同時closeが二重に呼ばない。Registryが打ち切っても`ManagedSessionRuntime.close()`の後続（provider・journal）は閉じられる |
+| T9 | stale lease rejection | gen1でGENERATION資源を取得→`borrow(expected_generation=0)`は`stale_generation`。`advance_generation`と別threadの`acquire`/`borrow`を並行させ、旧世代資源が借用されず新世代資源が解放されない。解放済みの借用は`not_active`。close済み世代への取得は`generation_closed` |
+| T10 | 10k acquire/releaseで非有界増加しない | 同じresource_idの再取得を含む10,000回の取得/解放後、活動中の表0件、終了履歴≤256、kind別集計の空kindが消えている、期限heapが上限内 |
 | T11 | fake ownerでcleanup順序が決定的 | 同じ操作列を2回実行し、releaserの呼出し順とCleanupReportが一致 |
 | T12 | 借用中の解放 | borrow中のreleaseはRELEASING(deferred)、borrow終了でreleaser 1回。close時に借用が残れば`deferred`件数、`ManagedSessionRuntime.close()`は`RuntimeError` |
 | T13 | Adapter（#571/#534/#334形状） | `release(ref)`型・`evict(key)`型・`close()`型のfake ownerをAdapter経由で登録し、各scope closeで正しいowner APIが1回呼ばれる。`ClosableOwnerAdapter`はclose優先・shutdown代替・どちらも無しで`TypeError` |
@@ -235,6 +239,12 @@ ACTIVE（借用中）──解放要求──> RELEASING(deferred) ──最後�
 | hot pathで全履歴scanしない | 活動中の表＋固定長履歴＋kind集計の差分更新＋期限heap | T10, T15 |
 
 Issueの実装契約1〜9: 1→T1/T2、2→T4/T5/T9、3→T3、4→T6/T7、5→T7/T11、6→T8、7→T9/T12、8→「releaser参照・payloadを複製しない」（T14でJSON化可能なID/量だけを確認）、9→fail-closedの「GC/finalizerを使わない」。
+
+## 設計レビュー（packet-01/02、SHA256 705DC50D… / 85D72B1B…）
+
+Codex Luna（2資料とも返答）の指摘を全て原文と照合し、以下を反映した。他の者は省略（evidence.md）。
+採用: generation更新と旧世代のpending化を同じlock内で行う（並行acquire/borrowとの競合）、RELEASINGの`pending/running/deferred`区別とreleaser実行権の一意取得（打ち切り後の再開と二重解放）、Registryの打ち切り後も既存close列を継続、pressureの`none`はtargetを無視・目標超過の追加解放なし・`target_met`、評価対象と解放候補の区別（`skipped_not_evictable`を追加）、ID再利用は内部`lease_seq`で区別・容量引数の範囲、期限境界`now >= expires`と`cleanup_expired`引数検証、`trace_failed`カウンタ、`release_failed`から例外messageを除外。
+確認のみ: 借用中の解放（`deferred`）は資料2の並行性節に既にある。PROCESS scopeは拒否と明記済み。
 
 ## 代替案と不採用理由
 
