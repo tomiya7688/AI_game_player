@@ -1,3 +1,14 @@
+## 2026-11-05 merge gateのDraft事前検出と読取照会の有界再試行（Issue #807）
+
+- `tools/finish_pr_merge.py`は`gh pr view`で`isDraft`を取得し、Draft PRをCI待機前に「Pull request is a draft」と明示して停止します（自動でreadyにはしません）。merge直前の再取得でも検査します。[設計](design/issue-807-merge-gate-draft-retry.md)。
+- `gh pr merge`が通信失敗以外のエラー本文で失敗し、REST確認で同じheadのPRがopen・未mergeなら「PR was not merged」とGitHub CLIのエラー本文を表示します。timeout等で結果を確定できない場合は従来どおり結果不明として停止し、本文を先頭に表示します。
+- 読取専用のGitHub照会（PR状態・checks・checks待機・review thread・Workflow Run・merge後確認）は、`TLS handshake timeout`等の一時的な通信失敗に限り10秒・30秒間隔で最大3回試行します。`--watch`は60分の共通予算内。`gh pr merge`は再実行しません。
+## 2026-11-05 Noisy Provider性能予算の判定をrunner揺らぎに強くする（Issue #811）
+
+- `tools/run_noisy_provider_benchmark.py`を、従来と同じ測定を独立した5 round（`--rounds`、奇数かつ3以上）で繰り返し、roundごとのp95の中央値で予算判定する方式へ変更。予算値・Windows multiplierは変更しません。reportは`noisy-provider-benchmark/v3`でround別p95・最悪round・結合p95を残します。
+- 疑似時計と軽量Engineの回帰テストで、処理量2倍・全roundの尾部退行・過半数roundの遅延は不合格、1 roundだけの停止とPR #732相当の僅差超過は合格になることを確認。安全不変条件の違反は従来どおり終了コード2（fail-closed）です。[判定方法と根拠](E2E受入試験手順.md)、[設計](design/issue-811-perf-budget-robustness.md)。
+- 付随: `tests/test_runtime_boundary_benchmark.py`のspawn IPC往復テストだけ応答期限を60秒にし、高負荷のfull suiteでinterpreter起動待ちによる偽の`TimeoutError`を避けます（製品の既定5秒と期限切れテストは変更なし）。
+
 ## 2026-11-04 Experience Retention Core（Issue #164）
 
 - Artifact Store上の保持記録索引と`RetentionCollector`を追加。soft budget/hard limit、Protected（どの理由でも削除しない）、型別TTL、同一digestのexact dedupを、決定的な純粋関数`plan_retention`で判断します。削除順序は重複→TTL→古い順のbudget退避です。[設計](architecture/retention_core.md)。
