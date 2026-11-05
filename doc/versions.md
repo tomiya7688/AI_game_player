@@ -1,3 +1,9 @@
+## 2026-11-05 Windows長枠3 Provider比較の設計（Issue #795）
+
+- Cycling・Baseline・Belief Plannerを、同一VM・同一seed集合・同一wall予算（各600秒）で比較するRunner/Reportの設計書を追加（実装は後続PR）。既存`CampaignRunner`はABSTAIN保留を即失敗にするため流用せず、短比較の`run_episode`にdeadlineを足して使う方針。[設計](design/issue-795-windows-long-comparison.md)。
+- 失敗・打切り・欠測を母数に含め、未計測は`unknown`（0にしない）。対応ありbootstrap区間・符号反転検定・Bonferroni補正、最小8 block、verdictは条件を満たす時だけで、緩和手段を持たない。
+- 長枠は`workflow_dispatch`＋週1回の別workflowに置き、required checks・rulesetは変更しない。
+
 ## 2026-11-05 Observation Lease失効の根因修正（Issue #794）
 
 - CI E2Eの`runtime_not_active (lease_expired)`の因果を2件の自然失敗ringで特定: CPU-boundな認識処理とのGIL競合でheartbeatの永続読取・書込が数百msに伸び、「完了後に0.25秒待つ」周期のため更新間隔が761.5ms/749.7ms＋書込となって0.75秒TTLを超えた。[設計](design/issue-794-observation-lease.md)。
