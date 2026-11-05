@@ -1,3 +1,9 @@
+## 2026-11-05 merge gateのDraft事前検出と読取照会の有界再試行（Issue #807）
+
+- `tools/finish_pr_merge.py`は`gh pr view`で`isDraft`を取得し、Draft PRをCI待機前に「Pull request is a draft」と明示して停止します（自動でreadyにはしません）。merge直前の再取得でも検査します。[設計](design/issue-807-merge-gate-draft-retry.md)。
+- `gh pr merge`が通信失敗以外のエラー本文で失敗し、REST確認で同じheadのPRがopen・未mergeなら「PR was not merged」とGitHub CLIのエラー本文を表示します。timeout等で結果を確定できない場合は従来どおり結果不明として停止し、本文を先頭に表示します。
+- 読取専用のGitHub照会（PR状態・checks・checks待機・review thread・Workflow Run・merge後確認）は、`TLS handshake timeout`等の一時的な通信失敗に限り10秒・30秒間隔で最大3回試行します。`--watch`は60分の共通予算内。`gh pr merge`は再実行しません。
+
 ## 2026-11-04 Experience Retention Core（Issue #164）
 
 - Artifact Store上の保持記録索引と`RetentionCollector`を追加。soft budget/hard limit、Protected（どの理由でも削除しない）、型別TTL、同一digestのexact dedupを、決定的な純粋関数`plan_retention`で判断します。削除順序は重複→TTL→古い順のbudget退避です。[設計](architecture/retention_core.md)。

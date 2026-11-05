@@ -27,7 +27,9 @@ def _completed_process(
 
 def _pull_request_snapshot(head_sha: str = PULL_REQUEST_HEAD_SHA, state: str = "OPEN") -> CompletedProcess[str]:
     return _completed_process(
-        json.dumps({"state": state, "mergeable": "MERGEABLE", "headRefOid": head_sha, "headRefName": HEAD_REF})
+        json.dumps(
+            {"state": state, "isDraft": False, "mergeable": "MERGEABLE", "headRefOid": head_sha, "headRefName": HEAD_REF}
+        )
     )
 
 
