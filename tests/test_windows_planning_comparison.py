@@ -12,11 +12,16 @@ from ai_game_player.action_executor import ExecutionResult
 from ai_game_player.campaign_contract import CampaignState
 from ai_game_player.run_control import RunController
 from ai_game_player.decision_withheld import DecisionDisposition
+from ai_game_player.planning_contract import SearchBudget
 from ai_game_player.planning_outcome import PlanningOutcome
+from ai_game_player.planning_readiness import PlannerNotReady
 from ai_game_player.planning_result import PlanningCounters
 from ai_game_player.models import ScreenObservation
 from ai_game_player.screen_capture import ScreenFrame
 from tools import compare_2048_windows_planning as comparison
+
+
+READINESS_BUDGET = SearchBudget(max_depth=2, max_nodes=10000, wall_time_ms=400)
 
 
 class FakeMonitor:
@@ -147,6 +152,83 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
                 "planner", 480, 12, Path(directory), Path(directory)
             )
         return result, episodes[0]
+
+    def readiness_episode(self, calls):
+        class Episode(FakeEpisode):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.pipeline.engine.provider = SimpleNamespace(
+                    planner=object(), search_budget=READINESS_BUDGET
+                )
+
+            def capture_preflight(self, **kwargs):
+                calls.append("capture_preflight")
+                raise RuntimeError("stop here")
+
+            def activate_preflight(self, **kwargs):
+                calls.append("activate_preflight")
+                return super().activate_preflight(**kwargs)
+
+        return Episode
+
+    def run_readiness(self, provider, gate, calls):
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(
+                comparison, "ReferenceGame2048Episode", self.readiness_episode(calls)
+            ),
+            patch.object(comparison, "wait_for_reference_2048_planner_ready", gate),
+        ):
+            return comparison.run_episode(
+                provider, 481, 12, Path(directory), Path(directory)
+            )
+
+    def test_planner_waits_for_worker_readiness_before_any_observation(self):
+        calls = []
+
+        def gate(budget, deadline, **kwargs):
+            calls.append(("gate", budget, deadline - time.monotonic()))
+            return {"status": "ready", "probe_count": 2}
+
+        result = self.run_readiness("planner", gate, calls)
+        self.assertEqual(calls[0][0], "gate")
+        self.assertIs(calls[0][1], READINESS_BUDGET)
+        self.assertLessEqual(calls[0][2], comparison.PLANNER_READY_TIMEOUT_SECONDS)
+        self.assertEqual(calls[1], "capture_preflight")
+        self.assertEqual(result["planner_readiness"]["status"], "ready")
+        self.assertEqual(result["failure_stage"], "initial_observation")
+        self.assertEqual(
+            comparison.comparison_summary(result)["planner_readiness"]["status"],
+            "ready",
+        )
+
+    def test_unready_planner_fails_closed_before_activation_without_input(self):
+        calls = []
+
+        def gate(budget, deadline, **kwargs):
+            raise PlannerNotReady(
+                "planner worker not ready within the startup deadline",
+                {"status": "not_ready", "probe_count": 9},
+            )
+
+        result = self.run_readiness("planner", gate, calls)
+        self.assertEqual(calls, [])
+        self.assertEqual(result["failure_stage"], "planner_readiness")
+        self.assertEqual(result["failure"]["type"], "PlannerNotReady")
+        self.assertEqual(result["planner_readiness"]["status"], "not_ready")
+        self.assertEqual(result["actions"], 0)
+        self.assertFalse(result["success"])
+
+    def test_baseline_provider_never_waits_for_planner_readiness(self):
+        calls = []
+
+        def gate(budget, deadline, **kwargs):
+            calls.append("gate")
+
+        result = self.run_readiness("baseline", gate, calls)
+        self.assertEqual(calls, ["capture_preflight"])
+        self.assertEqual(result["planner_readiness"], {"status": "not_applicable"})
 
     def test_each_attempt_keeps_its_own_fixed_worker_metadata(self):
         current = {"parent_timing": {"spawn_started_at_ns": 1}}
