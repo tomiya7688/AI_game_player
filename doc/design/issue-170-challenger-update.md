@@ -45,7 +45,9 @@ Parent: #36（兄弟: #171 Promotion / Rollback Gate、#173 Candidate Evaluation
 
 ### UpdateProposal
 
-`proposal_id`（内容のSHA-256先頭32桁に`proposal.`接頭辞）、`component`、`scope`、`strategy`（`calibration`/`threshold`/`prototype`）、`parameter`（`confidence_scale`/`acceptance_threshold`/`prototypes`）、`direction`（`decrease`/`increase`/`add`）、`magnitude`（0..1、strategyの上限内）、`failure_kind`（根拠にした#169の種類）、`target_confidence`（candidateの確信度）、`strict_support`、`strict_refs`（確定根拠の参照だけ、1..16件）、`champion_version`/`champion_sha256`（提案の前提にしたChampion）、`diagnosis_id`、`diagnosis_policy_fingerprint`、`update_policy_fingerprint`、`rank`（同じtarget内の優先順0..）。
+`proposal_id`（内容のSHA-256先頭32桁に`proposal.`接頭辞）、`component`、`scope`、`strategy`（`calibration`/`threshold`/`prototype`）、`parameter`（`confidence_scale`/`acceptance_threshold`/`prototypes`）、`direction`（`decrease`/`increase`/`add`）、`magnitude`（0..1、strategyの上限内）、`failure_kind`（根拠にした#169の種類。componentと一致する種類だけ）、`target_confidence`（candidateの確信度、0より大きい）、`strict_support`（採用failure_kindの検証済み根拠件数、`minimum_strict_support`以上）、`strict_refs`（`verified_effect`の検証済み根拠の参照だけ、1..min(16, strict_support)件、重複なし）、`champion_version`/`champion_sha256`（提案の前提にしたChampion）、`diagnosis_id`、`diagnosis_policy_fingerprint`、`update_policy_fingerprint`、`rank`（同じtarget内の優先順0..2）。
+
+組合せの固定規則（`__post_init__`で検査）: `recognition_unreliable`→recognition、`decision_overconfident`/`decision_underestimated`/`action_ineffective`→decision。strategy→parameterは calibration→`confidence_scale`、threshold→`acceptance_threshold`、prototype→`prototypes`。directionは手順3の規則で一意に決まる。prototypeは負例の意味を持つ`decision_overconfident`/`action_ineffective`だけ（policyでも他のkindへ割り当て不可）。
 
 ### ObservationRequest（不確実な学習の分離、#712）
 
@@ -55,21 +57,21 @@ Parent: #36（兄弟: #171 Promotion / Rollback Gate、#173 Candidate Evaluation
 
 `schema: "challenger-update-proposals"`、`schema_version: 1`、`diagnosis_id`、`update_policy_fingerprint`、`proposals`、`observation_requests`、`skipped`（`(component, scope_key, reason)`の名前順tuple）、`proposals_truncated`、`proposal_set_id`（内容SHA-256）。
 
-`skipped.reason`: `no_applicable_strategy`（例: execution）、`missing_champion`、`strict_evidence_unavailable`（findings切り詰め等で確定根拠をpolicy下限件数だけ確認できない）、`ambiguous_failure_kind`（確定根拠の最多failure_kindが同数で方向が決まらない）、`strategy_disabled`。
+`skipped.reason`: `no_applicable_strategy`（例: execution）、`missing_champion`、`strict_evidence_unavailable`（findings切り詰め等で、findingsから数え直した検証済み根拠件数がtargetの`strict_support`と一致しない、または採用failure_kindの件数が下限未満）、`ambiguous_failure_kind`（検証済み根拠の最多failure_kindが同数）、`strategy_disabled`、`nothing_to_update`（どのstrategyも有効な変更を作れない：範囲外、追加できるprototypeが無い、magnitudeが0）。
 
 ### ChallengerArtifact（rollback可能な版）
 
 | field | 内容 |
 |---|---|
 | `schema` / `schema_version` | `"challenger-artifact"` / `1` |
-| `artifact_id` | 内容SHA-256に`challenger.`接頭辞 |
+| `artifact_id` | `created_at`を除いた内容のSHA-256に`challenger.`接頭辞（同じ提案・Championからは時刻に関係なく同じID） |
 | `status` | 常に`"challenger"`。本Issueは`champion`を生成しない |
 | `challenger` | 新しい`ComponentParameters`（`version` = `<champion.version>+c.<digest先頭12桁>`、128字を超える場合は拒否） |
 | `parent` | 元Championの`ComponentParameters`全体（rollback先。参照ではなく値を同梱） |
 | `proposal` | 生成に使った`UpdateProposal` |
-| `provenance` | `builder_rule_version`、`update_policy_fingerprint`、`diagnosis_id`、`diagnosis_policy_fingerprint`、`strict_refs`、`created_at`（UTC ISO-8601 `Z`、呼出側が渡す）、`lineage_depth`（`parent.version`中の`+c.`出現数＋1。8を超える生成は`version_too_long`で拒否） |
-| `resource_cost` | `ResourceCost(parameter_bytes, delta_bytes, prototype_count, estimated_eval_cases, compute_class)`。`compute_class`は`constant`（calibration/threshold）か`linear_in_prototypes`。時間計測は非決定的なので含めない |
-| `evaluation_contract` | #173向け: `target_refs`（=`strict_refs`）、`component`、`scope`、`compare`（`champion_sha256`/`challenger_sha256`） |
+| `provenance` | `builder_rule_version`、`update_policy_fingerprint`、`diagnosis_id`、`diagnosis_policy_fingerprint`、`strict_refs`、`created_at`（呼出側が渡す。`YYYY-MM-DDTHH:MM:SS[.ffffff]Z`のUTCだけ受理し、不正は`invalid_created_at`）、`lineage_depth`（`parent.version`中の`+c.`出現数＋1。8を超える生成は`version_too_long`で拒否） |
+| `resource_cost` | `ResourceCost(parameter_bytes, delta_bytes, prototype_count, compute_class)`。`parameter_bytes`はchallengerの正規化JSONのbyte数、`delta_bytes`はparentとの差（負なら0）、`compute_class`は`constant`（calibration/threshold）か`linear_in_prototypes`。評価case数・時間はartifactの外（#173）で決まり非決定的なので含めない |
+| `evaluation_contract` | #173向け: `trigger_refs`（=`strict_refs`。提案の根拠になった検証済みfailureの再現用で、評価集合の全体ではない）、`component`、`scope`、`compare`（`champion_sha256`/`challenger_sha256`）。regression・汎化・保護sampleの選定と実行は#173が行い、#173も入力時に参照の適格性を自分で検査する |
 
 ### API
 
@@ -84,13 +86,13 @@ load_challenger(store: FileSystemArtifactStore, reference: ArtifactReference) ->
 ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返す
 ```
 
-エラー: すべて`ChallengerUpdateError(ValueError)`、`code`属性は`invalid_report` / `invalid_policy` / `invalid_parameters` / `stale_champion` / `scope_mismatch` / `invalid_proposal` / `parameter_out_of_bounds` / `prototype_capacity` / `version_too_long` / `invalid_artifact`。
+エラー: すべて`ChallengerUpdateError(ValueError)`、`code`属性は`invalid_report` / `invalid_policy` / `invalid_parameters` / `stale_champion` / `scope_mismatch` / `invalid_proposal` / `parameter_out_of_bounds` / `prototype_capacity` / `version_too_long` / `invalid_created_at` / `invalid_artifact`。
 
 ### ChallengerUpdatePolicy（既定値）
 
 | field | 既定 | 制約 |
 |---|---|---|
-| `strategy_table` | `recognition_unreliable: (threshold, calibration)`、`decision_overconfident: (calibration, prototype)`、`decision_underestimated: (calibration,)`、`action_ineffective: (prototype, calibration)` | #169の`FAILURE_KINDS`だけをkeyにし、STRATEGIESの重複なし。execution/outcome系は空（対象外） |
+| `strategy_table` | `recognition_unreliable: (threshold, calibration)`、`decision_overconfident: (calibration, prototype)`、`decision_underestimated: (calibration,)`、`action_ineffective: (prototype, calibration)` | keyは上記4種だけ（execution/outcome系はcomponentが更新対象外なので不可）、名前順・一意、STRATEGIESの重複なし、prototypeは負例kindだけ |
 | `enabled_strategies` | 3つ全部 | STRATEGIESの部分集合 |
 | `intensity` | 0.5 | 0..1。#426の`normalized_intensity`を受ける口。上限（step）だけに作用する |
 | `min_step` / `max_step` | calibration 0.02/0.2、threshold 0.02/0.15 | 0<min≤max≤`hard_max_step`(0.25) |
@@ -103,23 +105,24 @@ ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返
 
 ## 手順
 
-1. **報告の検査**（`propose_updates`）: `type(report) is TrainingDiagnosisReport`かつ`schema_version == 1`でなければ`invalid_report`。policyは型一致のみ受理（`invalid_policy`）。championsは`(component, scope.key)`で一意（重複は`invalid_parameters`）。
-2. **targetの分類**（報告の並び順のまま処理）:
+1. **報告の検査**（`propose_updates`）: `type(report) is TrainingDiagnosisReport`かつ`schema_version == 1`、targetsの`(component, scope.key)`が一意でなければ`invalid_report`（#169は一意に集計するが、手で作った報告も受けるため検査する）。policyは型一致のみ受理（`invalid_policy`）。championsは型検査の後`(component, scope.key)`の辞書へ正規化し、重複は`invalid_parameters`。
+2. **targetの分類**（targetごとに独立。出力の並びは手順4で正規化するので報告・championsの入力順に依存しない）:
    - `hypothesis` → `ObservationRequest`（確信度は変更しない）。Challengerは作らない。
-   - `candidate`でも、`findings`から当該component×scopeの`strict=True`帰属だけを数え直す。確認できた確定根拠が`policy.minimum_strict_support`未満なら`skipped: strict_evidence_unavailable`（fail-closed。`evidence_refs`は不確実な参照を含み得るため直接使わない）。
-   - 確定根拠のfailure_kind件数の最多を採用。最多が同数で複数ある場合は`ambiguous_failure_kind`。
+   - `candidate`は、`findings`から当該component×scopeの帰属のうち「caseの`label_status == "verified_effect"`かつ`strict=True`かつ`basis == "verified_label"`」だけを検証済み根拠として数え直す（strictはreceipt由来もあり得るため、#647の`verified_effect`を明示的に検査する）。数え直した件数がtargetの`strict_support`と一致しなければ`strict_evidence_unavailable`（findings切り詰めで欠けた根拠があり得る。fail-closed。`evidence_refs`は不確実な参照を含み得るため使わない）。
+   - 確信度0より大きい検証済み根拠のfailure_kind件数の最多を採用。最多が同数で複数なら`ambiguous_failure_kind`、最多の件数が`minimum_strict_support`未満なら`strict_evidence_unavailable`。
    - `strategy_table`に無い／空なら`no_applicable_strategy`、表にあるが全て無効化なら`strategy_disabled`。Championが無ければ`missing_champion`。
-3. **strategy選択**: 表の順で有効なstrategyを最大`max_proposals_per_target`件。各proposalの`magnitude`:
-   - calibration/threshold: `step = (min_step + intensity*(max_step-min_step)) * target_confidence`、`hard_max_step`で切る。小数6桁に丸める。
-   - prototype: `magnitude = target_confidence`（参照件数は`max_prototypes_per_proposal`で切る）。
-   - direction: `decision_overconfident`/`action_ineffective`/`recognition_unreliable`のcalibrationは`decrease`、`decision_underestimated`は`increase`、thresholdは`increase`（採用を厳しく）、prototypeは`add`。
-   - `strict_refs`は確定帰属のcaseの参照を確信度降順→ref順で最大16件。
-4. **全体上限**: proposalsが`max_proposals`を超えたら先頭から切り`proposals_truncated=True`。
-5. **Challenger生成**（`build_challenger`、純粋関数）: 型検査→`proposal.component/scope`とchampionの一致（`scope_mismatch`）→`proposal.champion_sha256 == champion.sha256`（`stale_champion`）→proposalのmagnitudeがpolicyの上限内か再検査（`invalid_proposal`。外部で作られたproposalも受け入れ時に検査する）→新parameterを計算:
+3. **strategy選択**: 表の順で有効なstrategyを試し、Championに対して有効な変更を作れたものを最大`max_proposals_per_target`件（rankは0から詰める）。各proposalの`magnitude`:
+   - calibration/threshold: `magnitude = round(policy.max_step(strategy) * target_confidence, 6)`。`max_step = min(min_step + intensity*(max_step-min_step), hard_max_step)`で、min_stepは上限の下端であり実際の更新量の下限ではない。magnitudeが0なら作らない。
+   - prototype: `magnitude = target_confidence`。追加するのはChampionに無いrefだけで、`max_prototypes_per_proposal`件まで。0件なら作らない。
+   - direction: calibrationは`decision_underestimated`だけ`increase`、他（overconfident/ineffective/recognition_unreliable）は`decrease`。thresholdは`increase`（採用を厳しく）。prototypeは`add`。
+   - 新parameterが範囲外（手順5）になるstrategyは作らない。何も作れなければ`nothing_to_update`。
+   - `strict_refs`は採用failure_kindの検証済み根拠の参照を確信度降順→ref順で最大16件（prototypeは上記の新規refだけ）。
+4. **並びと全体上限**: proposalsを`(-target_confidence, COMPONENTS順, scope.key, rank)`で、observation_requestsを`(-confidence, COMPONENTS順, scope.key)`で、skippedを名前順で並べる。proposalsが`max_proposals`を超えたら先頭から残し`proposals_truncated=True`。
+5. **Challenger生成**（`build_challenger`、純粋関数）: 型検査→`proposal.component/scope`とchampionの一致（`scope_mismatch`）→`proposal.champion_sha256 == champion.sha256`（`stale_champion`）→proposalをpolicyで再検査（`invalid_proposal`。外部で作られたproposalも同じ）: `update_policy_fingerprint == policy.fingerprint`、strategyがpolicyで有効かつ当該failure_kindの表に含まれる、`strict_support >= minimum_strict_support`、calibration/thresholdは`magnitude == round(policy.max_step(strategy) * target_confidence, 6)`、prototypeは`magnitude == target_confidence`かつ`len(strict_refs) <= max_prototypes_per_proposal`。組合せ（component/kind/strategy/parameter/direction）は型の構築時に検査済み→`created_at`の形式（`invalid_created_at`）→新parameterを計算:
    - calibration: `scale * (1 ∓ magnitude)`、threshold: `threshold + magnitude`。範囲外になる場合はclampせず`parameter_out_of_bounds`（暗黙の飽和で効果の無いChallengerを作らない）。
    - prototype: 既存に無いrefだけ追加。追加0件は`invalid_proposal`、合計が`max_prototypes`超過は`prototype_capacity`。
    - championは不変dataclassで、新しい値を`dataclasses.replace`で作る。championを書き換える経路は無い（分離）。
-6. **保存と読込**: `save_challenger`は`to_dict`の正規化JSONを`FileSystemArtifactStore.put(media_type="application/json", artifact_type="learning.challenger", sensitive=False)`で保存。`load_challenger`は`read`（hash検証込み）→上限256KiBのJSON（重複key・NaN拒否）→`from_dict`で全field再検証→`artifact_id`と内容digestの一致、`parent.sha256 == proposal.champion_sha256`、challengerが提案どおりの計算結果と一致（再計算して照合）を確認。どれか不一致は`invalid_artifact`。
+6. **保存と読込**: `save_challenger`は`to_dict`の正規化JSONを`FileSystemArtifactStore.put(media_type="application/json", artifact_type="learning.challenger", sensitive=False)`で保存。`load_challenger`は`read`（hash検証込み）→上限256KiBのJSON（重複key・NaN拒否）→`from_dict`で全field再検証（`to_dict()`の再生成結果が入力と完全一致すること。これで`artifact_id`・`resource_cost`・`evaluation_contract`・`proposal_id`の整合も確かめる）→`parent.sha256 == proposal.champion_sha256`、challengerが提案どおりの計算結果と一致（再計算して照合）を確認。どれか不一致は`invalid_artifact`。
 7. **pointerを持たない**: 本Issueは「どれがChampionか」を記録しない。採否・pointer・監査は#171が`ChallengerArtifact`を入力として持つ。rollbackは`rollback_parameters()`がparent値を返すだけで、適用は#171。
 8. **副作用**: `propose_updates`/`build_challenger`はファイル・DB・Championへ書き込まない。永続化は`save_challenger`だけで、内容hashの不変objectの追加のみ。
 
@@ -132,10 +135,10 @@ ChallengerArtifact.rollback_parameters() -> ComponentParameters   # parentを返
 | ChallengerをChampionと分離できる | `test_build_challenger_does_not_mutate_champion`、`test_stale_champion_is_rejected`、`test_scope_mismatch_is_rejected` |
 | version/provenanceがある | `test_artifact_records_version_and_provenance`、`test_lineage_depth_and_version_limit` |
 | rollback可能なartifactを生成できる | `test_save_load_round_trip_and_rollback_parameters`、`test_tampered_artifact_is_rejected` |
-| #647: verified以外を確定扱いしない | `test_hypothesis_target_becomes_observation_request`、`test_uncertain_refs_are_not_used_as_prototypes`、`test_truncated_findings_fail_closed` |
+| #647: verified以外を確定扱いしない | `test_hypothesis_target_becomes_observation_request`、`test_uncertain_refs_are_not_used_as_prototypes`、`test_truncated_findings_fail_closed`、`test_strict_receipt_is_not_a_verified_label`、`test_prototype_only_for_negative_kinds` |
 | resource cost | `test_resource_cost_is_deterministic` |
-| fail-closed/上限 | `test_ambiguous_failure_kind_is_skipped`、`test_out_of_bounds_parameter_is_rejected`、`test_prototype_capacity`、`test_policy_validation`、`test_proposal_limit_truncates` |
-| 再現性 | `test_same_input_same_output`（championsの順序を入れ替えても同じ`proposal_set_id`） |
+| fail-closed/上限 | `test_ambiguous_failure_kind_is_skipped`、`test_out_of_bounds_parameter_is_rejected`、`test_prototype_capacity`、`test_policy_validation`、`test_proposal_limit_truncates`、`test_external_proposal_is_revalidated`、`test_duplicate_targets_are_rejected`、`test_invalid_created_at` |
+| 再現性 | `test_same_input_same_output`（報告のtargets・findingsとchampionsの順序を入れ替えても同じ`proposal_set_id`、`created_at`が違っても同じ`artifact_id`） |
 
 テストはネットワーク不要・決定論的。Experienceは#169のテストと同じ形で`diagnose_episodes`から作る。
 
