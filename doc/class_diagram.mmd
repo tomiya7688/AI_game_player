@@ -382,6 +382,52 @@ classDiagram
         +read()
         +read_fresh()
     }
+    ValueError <|-- ChallengerUpdateError
+    class ChallengerUpdateError {
+        +__init__()
+    }
+    class Prototype {
+        +__post_init__()
+        +to_dict()
+    }
+    class ComponentParameters {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+        +sha256()
+    }
+    class ResourceCost {
+        +to_dict()
+    }
+    class UpdateProposal {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+        +proposal_id()
+    }
+    class ObservationRequest {
+        +__post_init__()
+        +to_dict()
+    }
+    class UpdateProposalSet {
+        +to_dict()
+        +proposal_set_id()
+    }
+    class ChallengerArtifact {
+        +__post_init__()
+        +lineage_depth()
+        +resource_cost()
+        +rollback_parameters()
+        +to_dict()
+        +artifact_id()
+        +from_dict()
+    }
+    class ChallengerUpdatePolicy {
+        +__post_init__()
+        +strategies_for()
+        +max_step()
+        +fingerprint()
+    }
     class AppConfig {
     }
     class ConfigStore {
