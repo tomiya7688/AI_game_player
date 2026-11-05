@@ -19,11 +19,11 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 
 - 列挙（v1の送信data class）: `decision_context`, `ocr_text`, `cropped_image`, `raw_frame`, `history`, `trace`, **`ui_metadata`, `model_output`**。inventoryで`remote: opt_in`の8 classと一致させる（`never`のclassは列挙に入れない）。
 - 対応付けの粒度: OllamaProviderがHTTP bodyへ入れる`prompt`（JSON文字列）を復号し、全leafのpath（`$`相対、list indexは`[]`、任意key名は`*`）を規則表で1 classへ解決する。規則は完全一致、または末尾`.**`の部分木。複数規則に一致する場合は最長一致。
-- 規則表（`tests/test_provider_wire_data_classes.py`内の契約。`NON_DATA`はprotocol定数で利用者dataではない）:
+- 規則表（`tests/test_provider_wire_data_classes.py`内の契約。表記: 実装のpathは`/`区切り（例`decision_context/candidates/[]/evaluation/**`）で、下表ではpathを`.`区切りで書き、セル内の`/`は同階層の別keyの列挙。`NON_DATA`は由来が画面・プレイ内容でない固定のprotocol定数または実行設定で、利用者のdata classではない）:
 
 | path | class | 根拠 |
 |---|---|---|
-| body: `model` / `stream` / `format` | NON_DATA | 利用者設定のモデル名・固定パラメータ。画面由来dataを含まない |
+| body: `model` / `stream` / `format` | NON_DATA | `model`はProvider構築時の実行設定（testで`OllamaProvider.model`と一致を確認）、`stream`/`format`はコード内の固定値。画面・プレイ由来の値は入らない |
 | `instruction` | NON_DATA | コード内の固定文 |
 | `personality`、`purpose` | decision_context | 判断に与える利用者設定の目的・方針（Decision Contextの`goal`と同種） |
 | `observation.screen_id/width/height`、`observation.features.**`、`previous.*` 同上 | ui_metadata | UI識別子・寸法・特徴量 |
@@ -37,7 +37,7 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 | `decision_context.candidates[].knowledge[].**` | decision_context | 候補に添える参考知識の抜粋（DG-3） |
 | `decision_context.previous_outcome.**` | model_output | 直前操作の結果評価（OutcomeEvaluator/Ollama出力） |
 | `decision_context.recent_history[].**` | history | 実行済み操作の履歴 |
-| `decision_context.knowledge_projection.**` | decision_context | 明示`expose_to_models`時のみ。既定では含まれない |
+| `decision_context.knowledge_projection.**` | decision_context | 明示`expose_to_models`時のみ。既定では含まれない。圧縮したsoft evidence（`priors`等は空に落とす`to_model_dict`）で保存本体ではない。DG-3の対象 |
 | `decision_context.evaluation_projection.**` | model_output | 同上 |
 
 - 送信箇所→class（inventory `transmitters`）: `assess_outcome` = {ocr_text, ui_metadata}、`_request_decision` = {decision_context, ocr_text, ui_metadata, history, model_output}、`list_models` = {}（GET、body無し）。testは実payloadから導いたclass集合とinventoryの宣言が**等しい**ことを要求する（過少・過大宣言のどちらも失敗）。
@@ -46,7 +46,7 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 
 ## 手順
 
-1. 版の判断: **v1の互換拡張**とする。根拠: (a) 列挙の追加であり、既存のmanifest・requestは新schemaでも妥当（後方互換）。(b) Provider実装・HTTP clientは未実装（#238-#240）で、旧v1 schemaを固定して検証する外部実装は存在しない。(c) 旧v1検証器は新classを含むrequestを拒否するが、これは未知classを送れないfail-closed側の差で安全。(d) 版を上げると`kadoka.inference.request/1`の`const`・`$id`・examples・CI・docが全て連動し、受入条件の範囲を超える。`schema`文字列は変更しない。契約文書へ「列挙は追加のみ。削除・意味変更は版を上げる」と明記する。
+1. 版の判断: **v1の互換拡張**とする。互換性は2つに分けて扱う。(i) 既存のmanifest・requestは新schemaでも妥当（後方互換）。(ii) 新classを含むrequest/manifestを旧v1 schemaで検証すると拒否される（前方非互換）。根拠: (a) 列挙の追加であり、(i)を満たす。(b) Provider実装・HTTP clientは未実装（#238-#240）で、旧v1 schemaを固定して検証する外部実装は存在しない。(c) (ii)は旧v1検証器が未知classを受け付けないfail-closed側の差で、安全側。外部に旧schemaを固定する利用者は確認できていない（未実装のため）。(d) 版を上げると`kadoka.inference.request/1`の`const`・`$id`・examples・CI・docが全て連動し、受入条件の範囲を超える。`schema`文字列は変更しない。契約文書へ「列挙は追加のみ。削除・意味変更は版を上げる」と明記する。
 2. 規則表とinventoryの一致: 実payloadの捕捉は`urlopen`をpatchして`Request.data`を取得し、`OllamaProvider.choose`（旧、観測と候補）・`choose_context`（実`DecisionContextBuilder`で履歴・評価を含む）・`assess_outcome`・`list_models`を実行する。`prompt`は外側JSON→内側JSONの順に復号する。
 3. 任意projection（`knowledge_projection`/`evaluation_projection`）は既定で含まれない。含まれる形の合成payloadを分類関数へ直接渡す単体testで、規則が解決することと、既定payloadには出現しないことを確認する。
 4. 列挙testの強化: 両schemaのenumが`remote_eligible_classes()`と等しく、`transmitters`の全classと`effective_classes`がenumの部分集合であること。
@@ -85,5 +85,5 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 ## 範囲外・残件
 
 - #226: 送信前のconsent照合、未許可class拒否、規則表のruntime利用、audit event。
-- DG-3（非ブロッキング）: `candidates[].knowledge[]`（`KnowledgeStore`由来の参考知識）は実際にモデル要求へ入る。inventoryの`knowledge` classは`remote: never`だが、この項目はDecision Contextの一部として`decision_context`に分類した（要約された説明文で、`knowledge`の保存本体ではないという判断）。送信可否の最終判断は#226で、`knowledge`をclassとして別に同意対象にするかを決める。本Issueは現行挙動を変えず、分類をここへ記録する。
+- DG-3（非ブロッキング）: `candidates[].knowledge[]`（`KnowledgeStore`由来の参考知識。`evidence_id`・`source`・`statement`・`confidence`・`provenance`・`category`）と、明示opt-inの`knowledge_projection`は実際にモデル要求へ入りうる。inventoryの`knowledge` classは`remote: never`（保存本体の方針）だが、本Issueは**現行の送信挙動を変えず**、これらを「Decision Contextとして判断に添える派生の抜粋・要約」として`decision_context`に分類した。これは分類上の判断であり、`knowledge` classの`never`が満たされたことの証明ではない。`knowledge`を同意対象として別に扱うか、candidate抜粋の送信を止めるかは#226が決める（#226の受入前提に追加する）。それまで`knowledge`のtransmitter宣言はしない。
 - `expose_to_models`が真のknowledge/evaluation projectionの送信は、既存の明示opt-inのまま。
