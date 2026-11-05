@@ -109,6 +109,9 @@ class PlanningReadinessTests(unittest.TestCase):
             {"retry_interval_s": 0.0},
             {"retry_interval_s": 3.0},
             {"deadline": float("inf")},
+            {"deadline": True},
+            {"retry_interval_s": True},
+            {"required_consecutive": True},
         ):
             with self.assertRaises(ValueError):
                 gate(planner, clock, self.budget, **kwargs)
