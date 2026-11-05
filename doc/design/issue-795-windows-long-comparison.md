@@ -1,5 +1,5 @@
 Spec-Status: READY
-Depends-On: #820（Plannerのworker準備完了待ち。実装着手前にmainへ取り込む。未mergeの間は設計のみ確定）
+Depends-On: #820（Plannerのworker準備完了待ち`planner_readiness`。main取込済み）
 Decision-Gaps: none
 Parent: #567（長枠比較の残件）。安定性の前提は #459/#794（merge済み）、Campaign基盤は #247
 
@@ -17,7 +17,7 @@ Windows実ゲーム（固定版2048、所有window、WGC＋OS入力）で、Cycl
 
 | 既存 | 内容 | 本Issueでの扱い |
 |---|---|---|
-| `tools/compare_2048_windows_planning.py` | 3 provider×1 seedの短枠（`--max-steps 12`、判断12回上限）。`run_episode`が起動→前処理parity→判断loop→保留時の新規frame→全判断後のscore OCR→Stop/旧世代probeまで持つ。`PlanningResourceMonitor`でCPU/RSS、`attempt_records`でnodes/p50/p95、`source_fingerprint`とnative binary hashで同一条件を検査 | 再利用。`run_episode`へ任意の`deadline_monotonic`を足し、長枠のepisode単位driverとして使う |
+| `tools/compare_2048_windows_planning.py` | `planner_readiness`（#812/#820、planner worker準備完了を30秒待つ。Planner以外は`not_applicable`）を持つ。3 provider×1 seedの短枠（`--max-steps 12`、判断12回上限）。`run_episode`が起動→前処理parity→判断loop→保留時の新規frame→全判断後のscore OCR→Stop/旧世代probeまで持つ。`PlanningResourceMonitor`でCPU/RSS、`attempt_records`でnodes/p50/p95、`source_fingerprint`とnative binary hashで同一条件を検査 | 再利用（readiness gateはepisodeごとに従来どおり通る。長枠でもPlannerは各episode開始時に準備完了を待ち、待ち時間はoverheadとして記録）。`run_episode`へ任意の`deadline_monotonic`を足し、長枠のepisode単位driverとして使う |
 | `tools/run_2048_campaign.py` / `CampaignRunner` | 600秒PR profile（Cyclingのみ必須gate）。`--decision-provider`はあるが、**`act()`が`DecisionDisposition`（ABSTAIN保留）を`decision_failure`として全campaignを失敗**にする | 流用不可。BaselineやPlannerは保留が正常動作であり、最初の保留で600秒が終わる。campaign本体（必須600秒gate）は変更しない |
 | `.github/workflows/language-ci.yml` | `windows-planning-comparison`はseed 479/480/481を12判断で並列。`windows-e2e`はCycling 600秒 | 変更しない。長枠は別workflowに置く |
 | `tools/pr_workflow_evidence.py` `REQUIRED_WORKFLOW_PATHS` | mergeゲートの必須8 workflow | 新workflowを加えない（required checks・rulesetは変更しない） |
@@ -78,11 +78,11 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 - `provider_summary`: provider別に、run数、`completed`/`partial`/`failed`/`missing`件数、成功率とWilson 95%区間、各指標の中央値・四分位・min/max・個数。
 - `contrasts`: `baseline-cycling`、`planner-cycling`、`planner-baseline`の3対比。block（base seed）を単位とした対応あり差。指標ごとに`n_pairs`、`n_excluded_unknown`、差の平均・中央値、区間、符号反転p値、勝/分/負件数、`verdict`。
 - `comparison_table`: 全blockを1行ずつ（打切り・失敗・欠測を含む）。`report.md`はこれを読める表にする。
-- 終了コード: `0`=全期待runが`completed`で会計が完全、`2`=会計は完全だが`partial`/`failed`/`missing`を含む（reportは出す）、`1`=契約違反（条件不一致、schema違反、期待manifestとblock集合の不整合、有効run0件）。
+- 終了コード: `0`=全期待runが`completed`で会計が完全、`2`=会計は完全だが`partial`/`failed`/`missing`を含む（reportは出す）、`1`=契約違反（条件不一致、schema違反、manifest自体の不正、manifest外の未知block混入、有効run0件）。期待manifestにあるartifactが単に無い場合は契約違反ではなく`missing`（コード2）。workflowではコード2のaggregate stepも失敗（赤）にし、reportは先にuploadする。
 
 ## 統計の扱い
 
-- 解析単位はrun（provider×base seed）。3 providerは同じbase seedで対応付く。**一次解析は入力ありのrunをすべて含める**（`partial`の途中までの値も含める）。`failed`でも入力ありなら含め、入力0のrunは「スコアなし」ではなくunknownとして対応から除外し除外数を表示する。感度分析として「`completed`のみ」も併記する。
+- 解析単位はrun（provider×base seed）。3 providerは同じbase seedで対応付く。**一次解析は入力ありのrunをすべて含める**（`partial`の途中までの値も含める）。`failed`でも入力ありなら含め、入力0のrunは「スコアなし」ではなくunknownとして対応から除外し除外数を表示する。感度分析として「`completed`のみ」と「score欠測のrunを0点に置換」（生存者バイアスの確認用。置換値であることを表示し、一次解析・verdictには使わない）も併記する。入力ありでもscoreが1つも確認できないrunは一次解析のscoreでは`n_excluded_unknown`として除外される。
 - 一次指標は`episode_mean_score`（事前固定）。他の指標（max tile、survival、率、p50/p95、CPU/RAM、nodes）は記述統計と区間を出すが`verdict`は付けない（探索的）。
 - 区間: 対応あり差のpercentile bootstrap（10000回、`random.Random(795)`で決定的、3対比のBonferroni補正で信頼水準 `1-0.05/3`≈98.3%）。p値: 符号反転検定（n≤16は全列挙、超過は決定的乱数のMonte Carlo）。成功率はWilson区間。
 - `verdict`が`better`/`worse`になる条件は、`n_pairs ≥ 8`（`N_MIN_VERDICT`定数）かつbootstrap区間が0を含まず、かつ符号反転p値が補正後の閾値以下。それ以外はすべて`inconclusive`。`N_MIN_VERDICT`・水準・resample数・乱数seedはコード定数で、CLIや環境変数から下げられない（下げるにはコードと設計書の変更とレビューが要る）。n<8は区間を出さず`insufficient_samples`。
@@ -91,6 +91,7 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 
 ## 失敗時の挙動（fail-closed）
 
+0. provider内でhard timeout（780秒）に達しても、同blockの後続providerは続行する（3 providerとも会計に残すため）。block全体の上限は3×780秒、job timeoutは90分で上回り、artifactは`if: always()`で保存する。
 1. 起動/前処理parity/初期観測の失敗: 既存どおり入力0でepisode失敗。同runのrecovery（最大2回）で新episodeを試し、使い切ればrun `failed`、`stop_reason=recovery_exhausted`。
 2. 入力0（`actions_total == 0`）のrunは`completed`にしない。ABSTAIN連続で600秒保留し続けた場合も`failed`（入力0、保留率1.0を記録）。
 3. hard timeout（780秒）は子processを回収して`failed`/`hard_timeout`。回収できない場合は残プロセスを記録して終了コード非0。
